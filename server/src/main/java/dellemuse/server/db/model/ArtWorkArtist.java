@@ -1,0 +1,45 @@
+package dellemuse.server.db.model;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "artworkArtist")
+public class ArtWorkArtist extends DelleMuseObject {
+
+    @Column(name="name")
+    private String name;
+
+    @Column(name="nameKey")
+    private String nameKey;
+    
+    @Column(name="artwork_id")
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
+    @JoinColumn(name = "artwork_id", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private ArtWork artwork;
+    
+    @Column(name="person_id")
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
+    @JoinColumn(name = "person_id", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Person person;
+
+    
+    
+    
+    
+};    
+
