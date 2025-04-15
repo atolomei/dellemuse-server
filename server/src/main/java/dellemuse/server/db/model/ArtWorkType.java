@@ -35,6 +35,7 @@ public class ArtWorkType extends DelleMuseObject {
         this.nameKey = nameKey;
     }
 
-
+    
+    
     
 }

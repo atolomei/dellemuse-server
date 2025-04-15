@@ -12,16 +12,16 @@ import dellemuse.util.Logger;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
-@ComponentScan({ "dellemuse.*" })
-@EnableJpaRepositories("dellemuse.*")
-@EntityScan("dellemuse.*")
+@EnableJpaRepositories({"dellemuse.server.db.repository"})
+@ComponentScan({"dellemuse.server"})
+@EntityScan({"dellemuse.server.db.model"})
 public class DelleMuseApplication {
 
     static private Logger std_logger = Logger.getLogger("StartupLogger");
 
     static public String[] cmdArgs = null;
     
-    static public String hibernateConfPackages ="dellemuse.db";
+    static public String hibernateConfPackages ="dellemuse.server.db";
     static public String driverClassName = "org.postgresql.Driver";
     static public String url = "jdbc:postgresql://localhost:5432/dellemuse";
     static public String userName = "postgres";

@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Service;
 
 import dellemuse.server.db.model.ArtExhibition;
 import dellemuse.server.db.model.User;
@@ -11,6 +12,7 @@ import dellemuse.util.Logger;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.transaction.Transactional;
 
+@Service
 public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 
     @SuppressWarnings("unused")

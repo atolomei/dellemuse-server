@@ -42,9 +42,13 @@ alter table users add column  lastmodifieduser bigint references users(id) on de
 -- ------------------------------------------------------------------------------------------------------------------------------
 CREATE TABLE person (
 						id					bigint primary key,
+						
 						name				character varying(512) not null,
-						lastname			character varying(512) not null,
+						nameKey				character varying(512),
 
+						lastname			character varying(512) not null,
+						lastnameKey				character varying(512),
+						
 						nickname			character varying(512),
 						
 						sex					character varying(2),

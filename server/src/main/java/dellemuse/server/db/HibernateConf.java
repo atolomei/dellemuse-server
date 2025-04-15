@@ -31,15 +31,17 @@ import dellemuse.server.Settings;
 public class HibernateConf {
 
 	
-	@Autowired
-	private final Settings settigsService;
+	//@Autowired
+	//private final Settings settigsService;
 	
 	
-	public HibernateConf(Settings settigsService) {
-		this.settigsService= settigsService;
-	}
+//	public HibernateConf(Settings settigsService) {
+//		this.settigsService= settigsService;
+//	}
 	
-	
+    
+  public HibernateConf() {
+  }
 	
 	
 	@Bean(name="entityManagerFactory")
@@ -54,9 +56,6 @@ public class HibernateConf {
     @Bean
     public DataSource dataSource() {
         BasicDataSource dataSource = new BasicDataSource();
-
-        String s=settigsService.getDriverClassName();
-        
         dataSource.setDriverClassName(DelleMuseApplication.driverClassName);
         dataSource.setUrl(DelleMuseApplication.url);
         dataSource.setUsername(DelleMuseApplication.userName);

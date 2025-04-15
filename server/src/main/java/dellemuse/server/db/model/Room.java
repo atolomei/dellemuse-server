@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -21,16 +22,16 @@ public class Room extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    @Column(name="roomType_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = RoomType.class)
+    
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = RoomType.class)
     @JoinColumn(name = "roomType_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private RoomType roomType;
     
-    @Column(name="floor_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
     @JoinColumn(name = "floor_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
@@ -80,6 +81,133 @@ public class Room extends DelleMuseObject {
     
     @Column(name="audioKey")
     String  audioKey;
+    
+    public Room() {
+        
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNameKey() {
+        return nameKey;
+    }
+
+    public void setNameKey(String nameKey) {
+        this.nameKey = nameKey;
+    }
+
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
+    }
+
+    public Floor getFloor() {
+        return floor;
+    }
+
+    public void setFloor(Floor floor) {
+        this.floor = floor;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitleKey() {
+        return titleKey;
+    }
+
+    public void setTitleKey(String titleKey) {
+        this.titleKey = titleKey;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public String getSubTitleKey() {
+        return subTitleKey;
+    }
+
+    public void setSubTitleKey(String subTitleKey) {
+        this.subTitleKey = subTitleKey;
+    }
+
+    public String getRoomNumber() {
+        return roomNumber;
+    }
+
+    public void setRoomNumber(String roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+
+    public String getRoomNumberKey() {
+        return roomNumberKey;
+    }
+
+    public void setRoomNumberKey(String roomNumberKey) {
+        this.roomNumberKey = roomNumberKey;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getInfoKey() {
+        return infoKey;
+    }
+
+    public void setInfoKey(String infoKey) {
+        this.infoKey = infoKey;
+    }
+
+    public String getPhotoKey() {
+        return photoKey;
+    }
+
+    public void setPhotoKey(String photoKey) {
+        this.photoKey = photoKey;
+    }
+
+    public String getVideoKey() {
+        return videoKey;
+    }
+
+    public void setVideoKey(String videoKey) {
+        this.videoKey = videoKey;
+    }
+
+    public String getAudioKey() {
+        return audioKey;
+    }
+
+    public void setAudioKey(String audioKey) {
+        this.audioKey = audioKey;
+    }
+    
+    
+    
     
 };    
 

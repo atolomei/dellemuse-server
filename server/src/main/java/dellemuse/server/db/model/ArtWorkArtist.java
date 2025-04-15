@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -21,22 +22,58 @@ public class ArtWorkArtist extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    @Column(name="artwork_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
     @JoinColumn(name = "artwork_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private ArtWork artwork;
     
-    @Column(name="person_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
     @JoinColumn(name = "person_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
-    private Person person;
+    private Person artist;
 
+    public ArtWorkArtist() {
+        
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNameKey() {
+        return nameKey;
+    }
+
+    public void setNameKey(String nameKey) {
+        this.nameKey = nameKey;
+    }
+
+    public ArtWork getArtwork() {
+        return artwork;
+    }
+
+    public void setArtwork(ArtWork artwork) {
+        this.artwork = artwork;
+    }
+
+    public Person getPerson() {
+        return artist;
+    }
+
+    public void setPerson(Person person) {
+        this.artist = person;
+    }
+    
     
     
     

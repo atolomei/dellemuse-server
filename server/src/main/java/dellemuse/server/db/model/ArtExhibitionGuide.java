@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -21,16 +22,15 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    @Column(name="artExhibition_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
     @JoinColumn(name = "artExhibition_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private ArtExhibitionStatusType artExhibition;
     
-    @Column(name="person_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
     @JoinColumn(name = "publisher_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference

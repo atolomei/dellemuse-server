@@ -10,6 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -23,16 +24,15 @@ public class GuideContent extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    @Column(name="artExhibitionGuide_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
     @JoinColumn(name = "artExhibitionGuide_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private ArtExhibitionGuide artExhibitionGuide;
     
-    @Column(name="artExhibitionItem_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
     @JoinColumn(name = "artExhibitionItem_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
@@ -74,6 +74,117 @@ public class GuideContent extends DelleMuseObject {
     
     @Column(name="audioKey")
     String  audioKey;
+    
+    public GuideContent() {
+        
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNameKey() {
+        return nameKey;
+    }
+
+    public void setNameKey(String nameKey) {
+        this.nameKey = nameKey;
+    }
+
+    public ArtExhibitionGuide getArtExhibitionGuide() {
+        return artExhibitionGuide;
+    }
+
+    public void setArtExhibitionGuide(ArtExhibitionGuide artExhibitionGuide) {
+        this.artExhibitionGuide = artExhibitionGuide;
+    }
+
+    public ArtExhibitionItem getArtExhibitionItem() {
+        return artExhibitionItem;
+    }
+
+    public void setArtExhibitionItem(ArtExhibitionItem artExhibitionItem) {
+        this.artExhibitionItem = artExhibitionItem;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitleKey() {
+        return titleKey;
+    }
+
+    public void setTitleKey(String titleKey) {
+        this.titleKey = titleKey;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public String getSubTitleKey() {
+        return subTitleKey;
+    }
+
+    public void setSubTitleKey(String subTitleKey) {
+        this.subTitleKey = subTitleKey;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getInfoKey() {
+        return infoKey;
+    }
+
+    public void setInfoKey(String infoKey) {
+        this.infoKey = infoKey;
+    }
+
+    public String getPhotoKey() {
+        return photoKey;
+    }
+
+    public void setPhotoKey(String photoKey) {
+        this.photoKey = photoKey;
+    }
+
+    public String getVideoKey() {
+        return videoKey;
+    }
+
+    public void setVideoKey(String videoKey) {
+        this.videoKey = videoKey;
+    }
+
+    public String getAudioKey() {
+        return audioKey;
+    }
+
+    public void setAudioKey(String audioKey) {
+        this.audioKey = audioKey;
+    }
+    
+    
+    
     
 };    
 

@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -21,33 +22,32 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    @Column(name="artwork_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
+    
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
     @JoinColumn(name = "artwork_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private ArtWork artwork;
 
-    @Column(name="site_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
+    
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Site site;
-
     
-    @Column(name="floor_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
+    
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
     @JoinColumn(name = "floor_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Floor floor;
 
-    @Column(name="room_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
     @JoinColumn(name = "room_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference

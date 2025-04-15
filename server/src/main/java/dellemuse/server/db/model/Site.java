@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -21,23 +22,20 @@ public class Site extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    @Column(name="siteType_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
     @JoinColumn(name = "siteType_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private SiteType siteType;
     
-    
-    @Column(name="institution_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
     @JoinColumn(name = "institution_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Institution institution;
-
     
     @Column(name="title")
     private    String title;
@@ -86,6 +84,148 @@ public class Site extends DelleMuseObject {
     
     @Column(name="audioKey")
     String  audioKey;
+    
+    public Site() {
+        
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNameKey() {
+        return nameKey;
+    }
+
+    public void setNameKey(String nameKey) {
+        this.nameKey = nameKey;
+    }
+
+    public SiteType getSiteType() {
+        return siteType;
+    }
+
+    public void setSiteType(SiteType siteType) {
+        this.siteType = siteType;
+    }
+
+    public Institution getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(Institution institution) {
+        this.institution = institution;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitleKey() {
+        return titleKey;
+    }
+
+    public void setTitleKey(String titleKey) {
+        this.titleKey = titleKey;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public String getSubTitleKey() {
+        return subTitleKey;
+    }
+
+    public void setSubTitleKey(String subTitleKey) {
+        this.subTitleKey = subTitleKey;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getInfoKey() {
+        return infoKey;
+    }
+
+    public void setInfoKey(String infoKey) {
+        this.infoKey = infoKey;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getAddressKey() {
+        return addressKey;
+    }
+
+    public void setAddressKey(String addressKey) {
+        this.addressKey = addressKey;
+    }
+
+    public String getMoreinfo() {
+        return moreinfo;
+    }
+
+    public void setMoreinfo(String moreinfo) {
+        this.moreinfo = moreinfo;
+    }
+
+    public String getMoreinfoKey() {
+        return moreinfoKey;
+    }
+
+    public void setMoreinfoKey(String moreinfoKey) {
+        this.moreinfoKey = moreinfoKey;
+    }
+
+    public String getPhotoKey() {
+        return photoKey;
+    }
+
+    public void setPhotoKey(String photoKey) {
+        this.photoKey = photoKey;
+    }
+
+    public String getVideoKey() {
+        return videoKey;
+    }
+
+    public void setVideoKey(String videoKey) {
+        this.videoKey = videoKey;
+    }
+
+    public String getAudioKey() {
+        return audioKey;
+    }
+
+    public void setAudioKey(String audioKey) {
+        this.audioKey = audioKey;
+    }
+    
+    
     
 };    
 

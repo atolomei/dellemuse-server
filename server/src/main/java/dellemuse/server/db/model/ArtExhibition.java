@@ -2,6 +2,8 @@ package dellemuse.server.db.model;
 
 import java.time.OffsetDateTime;
 
+import javax.persistence.CascadeType;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -10,6 +12,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -23,15 +26,14 @@ public class ArtExhibition extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    @Column(name="artExhibitionStatusType_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionStatusType.class)
+    @ManyToOne(fetch = FetchType.LAZY, cascade=jakarta.persistence.CascadeType.DETACH, targetEntity = ArtExhibitionStatusType.class)
     @JoinColumn(name = "artExhibitionStatusType_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private ArtExhibitionStatusType artExhibitionStatusType;
     
-    @Column(name="site_id")
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable=true) 
     @JsonManagedReference

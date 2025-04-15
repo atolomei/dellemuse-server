@@ -29,8 +29,6 @@ public class ArtWorkTypeController extends BaseController {
     @Autowired
     private  ArtWorkTypeDBService db;
     
-    public ArtWorkTypeController() {
-    }
     
     public ArtWorkTypeController(ArtWorkTypeDBService db) {
       this.db = db;

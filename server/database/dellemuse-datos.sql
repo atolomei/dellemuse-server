@@ -6,6 +6,13 @@
 -- en italiano «luogo sacro alle Muse»
 --
 --
+
+
+-- psql dellemuse
+
+-- dellemuse=# set client_encoding to 'utf8';
+-- dellemuse=# \i dellemuse-datos.sql
+
 -- ------------------------------------------------------------------------------------------------------------------------------
 
 BEGIN;

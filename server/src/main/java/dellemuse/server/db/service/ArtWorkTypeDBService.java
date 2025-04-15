@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Service;
 
 import dellemuse.server.db.model.ArtWorkType;
 import dellemuse.server.db.model.User;
@@ -11,11 +12,13 @@ import dellemuse.util.Logger;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.transaction.Transactional;
 
+@Service
 public class ArtWorkTypeDBService extends DBService<ArtWorkType, Long> {
 
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(ArtWorkTypeDBService.class.getName());
 
+    
     public ArtWorkTypeDBService(CrudRepository<ArtWorkType, Long> repository, EntityManagerFactory entityManagerFactory) {
         super(repository, entityManagerFactory);
     }

@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -21,16 +22,16 @@ public class Floor extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    @Column(name="floorType_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = FloorType.class)
+
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = FloorType.class)
     @JoinColumn(name = "floorType_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private FloorType floorType;
     
-    @Column(name="site_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
+   
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
@@ -93,6 +94,164 @@ public class Floor extends DelleMuseObject {
     
     @Column(name="audioKey")
     String  audioKey;
+    
+    public Floor() {
+        
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNameKey() {
+        return nameKey;
+    }
+
+    public void setNameKey(String nameKey) {
+        this.nameKey = nameKey;
+    }
+
+    public FloorType getFloorType() {
+        return floorType;
+    }
+
+    public void setFloorType(FloorType floorType) {
+        this.floorType = floorType;
+    }
+
+    public Site getSite() {
+        return site;
+    }
+
+    public void setSite(Site site) {
+        this.site = site;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitleKey() {
+        return titleKey;
+    }
+
+    public void setTitleKey(String titleKey) {
+        this.titleKey = titleKey;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public String getSubTitleKey() {
+        return subTitleKey;
+    }
+
+    public void setSubTitleKey(String subTitleKey) {
+        this.subTitleKey = subTitleKey;
+    }
+
+    public String getFloorNumber() {
+        return floorNumber;
+    }
+
+    public void setFloorNumber(String floorNumber) {
+        this.floorNumber = floorNumber;
+    }
+
+    public String getFloorNumberKey() {
+        return floorNumberKey;
+    }
+
+    public void setFloorNumberKey(String floorNumberKey) {
+        this.floorNumberKey = floorNumberKey;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getInfoKey() {
+        return infoKey;
+    }
+
+    public void setInfoKey(String infoKey) {
+        this.infoKey = infoKey;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getAddressKey() {
+        return addressKey;
+    }
+
+    public void setAddressKey(String addressKey) {
+        this.addressKey = addressKey;
+    }
+
+    public String getMoreinfo() {
+        return moreinfo;
+    }
+
+    public void setMoreinfo(String moreinfo) {
+        this.moreinfo = moreinfo;
+    }
+
+    public String getMoreinfoKey() {
+        return moreinfoKey;
+    }
+
+    public void setMoreinfoKey(String moreinfoKey) {
+        this.moreinfoKey = moreinfoKey;
+    }
+
+    public String getPhotoKey() {
+        return photoKey;
+    }
+
+    public void setPhotoKey(String photoKey) {
+        this.photoKey = photoKey;
+    }
+
+    public String getVideoKey() {
+        return videoKey;
+    }
+
+    public void setVideoKey(String videoKey) {
+        this.videoKey = videoKey;
+    }
+
+    public String getAudioKey() {
+        return audioKey;
+    }
+
+    public void setAudioKey(String audioKey) {
+        this.audioKey = audioKey;
+    }
+    
+    
     
 };    
 

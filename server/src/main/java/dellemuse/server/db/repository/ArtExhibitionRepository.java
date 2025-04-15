@@ -1,6 +1,7 @@
 package dellemuse.server.db.repository;
 
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
 import dellemuse.server.db.model.ArtExhibition;
 
@@ -19,6 +20,7 @@ import dellemuse.server.db.model.ArtExhibition;
  *  void deleteAll();
  * 
  */
+@Repository
 public interface ArtExhibitionRepository extends CrudRepository<ArtExhibition, Long> {
 
 }

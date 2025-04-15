@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -21,14 +22,12 @@ public class ArtWork extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    @Column(name="artworkType_id")
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = ArtWorkType.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWorkType.class)
     @JoinColumn(name = "artworkType_id", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private ArtWorkType artworkType;
-
     
     @Column(name="title")
     private    String title;
@@ -66,6 +65,107 @@ public class ArtWork extends DelleMuseObject {
     
     @Column(name="audioKey")
     String  audioKey;
+
+    public ArtWork () {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNameKey() {
+        return nameKey;
+    }
+
+    public void setNameKey(String nameKey) {
+        this.nameKey = nameKey;
+    }
+
+    public ArtWorkType getArtworkType() {
+        return artworkType;
+    }
+
+    public void setArtworkType(ArtWorkType artworkType) {
+        this.artworkType = artworkType;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitleKey() {
+        return titleKey;
+    }
+
+    public void setTitleKey(String titleKey) {
+        this.titleKey = titleKey;
+    }
+
+    public String getSubtitle() {
+        return subtitle;
+    }
+
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    public String getSubTitleKey() {
+        return subTitleKey;
+    }
+
+    public void setSubTitleKey(String subTitleKey) {
+        this.subTitleKey = subTitleKey;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getInfoKey() {
+        return infoKey;
+    }
+
+    public void setInfoKey(String infoKey) {
+        this.infoKey = infoKey;
+    }
+
+    public String getPhotoKey() {
+        return photoKey;
+    }
+
+    public void setPhotoKey(String photoKey) {
+        this.photoKey = photoKey;
+    }
+
+    public String getVideoKey() {
+        return videoKey;
+    }
+
+    public void setVideoKey(String videoKey) {
+        this.videoKey = videoKey;
+    }
+
+    public String getAudioKey() {
+        return audioKey;
+    }
+
+    public void setAudioKey(String audioKey) {
+        this.audioKey = audioKey;
+    }
+    
+    
     
 };    
 

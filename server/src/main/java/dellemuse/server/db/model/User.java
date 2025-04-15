@@ -21,4 +21,5 @@ public class User extends DelleMuseObject {
 		this.username = username;
 	}
 	
+	
 }
