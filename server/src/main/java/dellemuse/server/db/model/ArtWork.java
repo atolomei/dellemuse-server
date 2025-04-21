@@ -47,24 +47,26 @@ public class ArtWork extends DelleMuseObject {
     @Column(name="infoKey")
     private    String infoKey; 
 
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "photo", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource photo;
+        
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "video", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource video;
 
-    //@Column(name="created")
-    //photo               bytea,
-    
-    @Column(name="photoKey")
-    String  photoKey;
-    
-    //@Column(name="created")
-    //video               bytea,
-    
-    @Column(name="videoKey")
-    String videoKey;
-    
-    //@Column(name="created")
-    //audio               bytea,
-    
-    @Column(name="audioKey")
-    String  audioKey;
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "audio", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource audio;
 
     public ArtWork () {
     }
@@ -140,32 +142,6 @@ public class ArtWork extends DelleMuseObject {
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
     }
-
-    public String getPhotoKey() {
-        return photoKey;
-    }
-
-    public void setPhotoKey(String photoKey) {
-        this.photoKey = photoKey;
-    }
-
-    public String getVideoKey() {
-        return videoKey;
-    }
-
-    public void setVideoKey(String videoKey) {
-        this.videoKey = videoKey;
-    }
-
-    public String getAudioKey() {
-        return audioKey;
-    }
-
-    public void setAudioKey(String audioKey) {
-        this.audioKey = audioKey;
-    }
-    
-    
     
 };    
 

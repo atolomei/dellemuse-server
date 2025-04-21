@@ -14,27 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dellemuse.server;
+package dellemuse.server.traffic;
 
 /**
  * 
  * @author atolomei@novamens.com (Alejandro Tolomei)
  */
-public class ServerConstant {
+public class TrafficToken implements IToken {
 
-	static public final String SEPARATOR = "---------------------------------";
-	static final public String NOT_THROWN = "---- not thrown ----";
-	
-	public static final double KB = 1024.0;
-	public static final double MB = 1024.0 * KB;
-	public static final double GB = 1024.0 * MB;
-	
-	public static final int iKB = 1024;
-	public static final int iMB = 1024 * iKB;
-	public static final int iGB = 1024 * iMB;
-	
-    public static final int BYTES_IN_INT 	= 4;
-    public static final int BYTES_IN_LONG 	= 16;
+    private static final long serialVersionUID = 1L;
 
-	
+    final int id;
+
+    public TrafficToken(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
 }

@@ -1,10 +1,9 @@
 package dellemuse.server;
 
-
-
 import java.time.OffsetDateTime;
 import java.util.Locale;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.ApplicationContext;
@@ -12,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import dellemuse.util.Logger;
-
-
+import dellemuse.model.Constant;
+import dellemuse.model.logging.Logger;
+import dellemuse.server.test.TestListObjects;
 
 @Component
 public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
@@ -26,6 +25,12 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 	@JsonIgnore
 	private final ApplicationContext appContext;
 
+	
+  	 @Autowired
+	 TestListObjects test;
+	 
+    
+	
 	public DelleMuseStartupApplicationRunner(ApplicationContext appContext) {
 		this.appContext = appContext;
 	}
@@ -40,20 +45,21 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 		}
 
 		Locale.setDefault(Locale.ENGLISH);
-		
+
 		//boolean iGeneral = initGeneral();
 		//if(iGeneral)
 		//	startupLogger.info(ServerConstant.SEPARATOR);
 		
-		startupLogger.info	(ServerConstant.SEPARATOR);
-		
+		startupLogger.info	(Constant.SEPARATOR);
 		startupLogger.info	("Startup at -> " + OffsetDateTime.now().toString());
+		
+		test.test();
+		
 	}
-	
 	
 	public ApplicationContext getAppContext() {
 		return appContext;
 	}
 	
-	
+
 }

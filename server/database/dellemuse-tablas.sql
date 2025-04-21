@@ -24,30 +24,61 @@ CREATE SEQUENCE if not exists sequence_id 		START 100;
 CREATE SEQUENCE if not exists sequence_user_id 	START 100;
 CREATE SEQUENCE if not exists readcode_id 		START 1000;
 
+
 -- ------------------------------------------------------------------------------------------------------------------------------
 -- para usuarios de la aplicación
 -- ------------------------------------------------------------------------------------------------------------------------------
 
 CREATE TABLE users (
 						id					bigint primary key default nextval('sequence_user_id'),
-						username			character varying(512) not null,
+						username			character varying(512) not null unique,
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null						
 					);
 					
 alter table users add column  lastmodifieduser bigint references users(id) on delete restrict;
 
+
+
+
+
+-- ------------------------------------------------------------------------------------------------------------------------------
+-- file 
+-- ------------------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE file (
+						id					bigint primary key default nextval('sequence_id'),
+						
+						name				character varying(512) not null,
+						nameKey				character varying(512),
+						
+						info		 		text,
+						infoKey 			character varying(512),
+						
+						
+						bucket				character varying(512) not null,
+						objectName			character varying(512) not null,
+						
+						binaryObject		bytea,
+						
+						created				timestamp with time zone DEFAULT now() not null,
+						lastmodified		timestamp with time zone DEFAULT now() not null,
+						lastmodifieduser	bigint references users(id) on delete restrict not null
+					);
+					
+
+
 -- ------------------------------------------------------------------------------------------------------------------------------
 -- persona
 -- ------------------------------------------------------------------------------------------------------------------------------
 CREATE TABLE person (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
 						nameKey				character varying(512),
 
 						lastname			character varying(512) not null,
-						lastnameKey				character varying(512),
+						lastnameKey			character varying(512),
 						
 						nickname			character varying(512),
 						
@@ -70,14 +101,10 @@ CREATE TABLE person (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
+
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
 
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -89,8 +116,7 @@ CREATE TABLE person (
 INSERT INTO users (id, username, lastmodifieduser) VALUES  
 (nextval('sequence_user_id'), 'root', 	(select currval('sequence_user_id')));
 
-INSERT INTO person (id, name, lastname, physicalid, created, lastmodified, lastmodifieduser) 
-VALUES  (nextval('sequence_id'), '-', 'root', '', now(), now(), (select id from users where username='root'));
+
 
 
 -- ------------------------------------------------------------------------------------------------------------------------------						
@@ -98,7 +124,7 @@ VALUES  (nextval('sequence_id'), '-', 'root', '', now(), now(), (select id from 
 -- ------------------------------------------------------------------------------------------------------------------------------
 
 CREATE TABLE institutionType (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
 						nameKey				character varying(512),
@@ -123,7 +149,7 @@ VALUES  (nextval('sequence_id'), 'Museo', now(), now(), (select id from users wh
 		
 		
 CREATE TABLE institution (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
 						nameKey				character varying(512),
@@ -145,14 +171,9 @@ CREATE TABLE institution (
 						moreinfo	 		text,
 						moreinfoKey			character varying(512),
 
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
 
 
 						created				timestamp with time zone DEFAULT now() not null,
@@ -166,7 +187,7 @@ CREATE TABLE institution (
 						
 CREATE TABLE siteType (
 						
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						name				character varying(512) not null,
 						nameKey				character varying(512),
 
@@ -180,7 +201,7 @@ VALUES  (nextval('sequence_id'), 'Sede central', now(), now(), (select id from u
 
 						
 CREATE TABLE site (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
 						nameKey				character varying(512),
@@ -200,14 +221,11 @@ CREATE TABLE site (
 						address		 		text,
 						addressKey 			character varying(512),
 						
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
+
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
+
 						
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -217,7 +235,7 @@ CREATE TABLE site (
 -- Site > floor
 
 CREATE TABLE floorType (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
 						nameKey				character varying(512),
@@ -235,7 +253,7 @@ INSERT INTO floorType (id, name, created, lastmodified, lastmodifieduser) VALUES
 					
 					
 CREATE TABLE floor (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
 						nameKey			    character varying(512),
@@ -255,15 +273,11 @@ CREATE TABLE floor (
 						floorNumber			character varying(256),
 						floorNumberKey		character varying(512),
 						
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
-						
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
+
+
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
 						lastmodifieduser	bigint references users(id) on delete restrict not null
@@ -274,27 +288,10 @@ CREATE TABLE floor (
 -- Site > floor > room
 
 CREATE TABLE roomType (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						name				character varying(512) not null,
 						nameKey				character varying(512),
 						
-				--		title		 		character varying(1024),
-				--		titleKey			character varying(512),
-
-				--		subtitle		 	character varying(1024),
-				--		subTitleKey			character varying(512),
-
-				--		info		 		text,
-				--		infoKey 			character varying(512),
-						
-				--		photo				bytea,
-				--		photoKey			character varying(512),
-						
-				--		video				bytea,
-				--		videoKey			character varying(512),
-						
-				--		audio				bytea,
-				--		audioKey			character varying(512),
 
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -307,7 +304,7 @@ INSERT INTO roomType (id, name, created, lastmodified, lastmodifieduser) VALUES
 
 					
 CREATE TABLE room (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 
 						name				character varying(512) not null,
 						nameKey				character varying(512),
@@ -326,15 +323,12 @@ CREATE TABLE room (
 
 						info		 		text,
 						infoKey 			character varying(512),
-						
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
+
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
+
+
 						
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -347,7 +341,7 @@ CREATE TABLE room (
 -- ------------------------------------------------------------------------------------------------------------------------------
 								
 CREATE TABLE artWorkType (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						name				character varying(512) not null,
 						nameKey				character varying(512),
 						created				timestamp with time zone DEFAULT now() not null,
@@ -375,7 +369,7 @@ INSERT INTO artWorkType (id, name, namekey, created, lastmodified, lastmodifiedu
 
 CREATE TABLE artwork (
 						
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						name				character varying(512) not null,
 						nameKey				character varying(512),
 						
@@ -393,14 +387,10 @@ CREATE TABLE artwork (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
+
 						
 						year				integer default 0,
 						
@@ -414,7 +404,7 @@ CREATE TABLE artwork (
 						);
 
 CREATE TABLE artworkArtist (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						artwork_id 	 	    bigint references artwork(id) on delete restrict not null,
 						person_id			bigint references person(id) on delete restrict not null,
@@ -427,7 +417,7 @@ CREATE TABLE artworkArtist (
 						
 CREATE TABLE institutionalContent (
 			
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
 						nameKey				character varying(512),
@@ -444,15 +434,11 @@ CREATE TABLE institutionalContent (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
-						
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
+
+
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
 						lastmodifieduser	bigint references users(id) on delete restrict not null
@@ -463,7 +449,7 @@ CREATE TABLE institutionalContent (
 -- Art exhibition status type
 
 CREATE TABLE artExhibitionStatusType (
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						name				character varying(512) not null,
 						nameKey				character varying(512),
 						
@@ -485,7 +471,7 @@ INSERT INTO artExhibitionStatusType (id, name, namekey, created, lastmodified, l
 
 CREATE TABLE artExhibition (
 
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						name	 	   		character varying(512) not null,
 						nameKey				character varying(512),
@@ -502,14 +488,10 @@ CREATE TABLE artExhibition (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
+
 						
 						permanent			boolean default true,
 						
@@ -527,7 +509,7 @@ CREATE TABLE artExhibition (
 
 CREATE TABLE artExhibitionItem (
 
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 
 						name	 	   		character varying(512) not null,
 						nameKey				character varying(512),
@@ -560,7 +542,7 @@ CREATE TABLE artExhibitionItem (
 
 CREATE TABLE artExhibitionGuide (
 			
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 						
 						name	 	   		character varying(512) not null,
 						nameKey				character varying(512),
@@ -577,15 +559,10 @@ CREATE TABLE artExhibitionGuide (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
-						
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
+
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
 						lastmodifieduser	bigint references users(id) on delete restrict not null
@@ -594,7 +571,7 @@ CREATE TABLE artExhibitionGuide (
 						
 CREATE TABLE guideContent (
 						
-						id					bigint primary key,
+						id					bigint primary key default nextval('sequence_id'),
 
 						name	 	   		character varying(512) not null,
 						nameKey				character varying(512),
@@ -611,14 +588,11 @@ CREATE TABLE guideContent (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bytea,
-						photoKey			character varying(512),
-						
-						video				bytea,
-						videoKey			character varying(512),
-						
-						audio				bytea,
-						audioKey			character varying(512),
+						photo				bigint references file(id) on delete restrict,
+						video				bigint references file(id) on delete restrict,
+						audio				bigint references file(id) on delete restrict,
+
+
 						
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,

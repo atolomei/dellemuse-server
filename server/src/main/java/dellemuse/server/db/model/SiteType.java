@@ -8,14 +8,14 @@ import jakarta.persistence.Table;
 @Table(name = "siteType")
 public class SiteType extends DelleMuseObject {
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
-    
-    @Column(name="nameKey")
+
+    @Column(name = "nameKey")
     private String nameKey;
 
     public SiteType() {
-        
+
     }
 
     public String getName() {
@@ -33,7 +33,5 @@ public class SiteType extends DelleMuseObject {
     public void setNameKey(String nameKey) {
         this.nameKey = nameKey;
     }
-    
-    
-}
 
+}

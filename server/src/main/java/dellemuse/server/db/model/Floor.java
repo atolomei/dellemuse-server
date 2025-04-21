@@ -65,35 +65,26 @@ public class Floor extends DelleMuseObject {
     @Column(name="infoKey")
     private    String infoKey; 
 
-    @Column(name="address")
-    private    String address;
-    
-    @Column(name="addressKey")
-    private    String  addressKey;
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "photo", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource photo;
+        
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "video", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource video;
 
-    @Column(name="moreinfo")
-    private    String moreinfo;
-    
-    @Column(name="moreinfoKey")
-    private    String  moreinfoKey;
-
-    //@Column(name="created")
-    //photo               bytea,
-    
-    @Column(name="photoKey")
-    String  photoKey;
-    
-    //@Column(name="created")
-    //video               bytea,
-    
-    @Column(name="videoKey")
-    String videoKey;
-    
-    //@Column(name="created")
-    //audio               bytea,
-    
-    @Column(name="audioKey")
-    String  audioKey;
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "audio", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource audio;
     
     public Floor() {
         
@@ -195,63 +186,7 @@ public class Floor extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
-    public String getAddress() {
-        return address;
-    }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getAddressKey() {
-        return addressKey;
-    }
-
-    public void setAddressKey(String addressKey) {
-        this.addressKey = addressKey;
-    }
-
-    public String getMoreinfo() {
-        return moreinfo;
-    }
-
-    public void setMoreinfo(String moreinfo) {
-        this.moreinfo = moreinfo;
-    }
-
-    public String getMoreinfoKey() {
-        return moreinfoKey;
-    }
-
-    public void setMoreinfoKey(String moreinfoKey) {
-        this.moreinfoKey = moreinfoKey;
-    }
-
-    public String getPhotoKey() {
-        return photoKey;
-    }
-
-    public void setPhotoKey(String photoKey) {
-        this.photoKey = photoKey;
-    }
-
-    public String getVideoKey() {
-        return videoKey;
-    }
-
-    public void setVideoKey(String videoKey) {
-        this.videoKey = videoKey;
-    }
-
-    public String getAudioKey() {
-        return audioKey;
-    }
-
-    public void setAudioKey(String audioKey) {
-        this.audioKey = audioKey;
-    }
-    
-    
     
 };    
 

@@ -15,7 +15,7 @@
 			<PatternLayout pattern="%d{MM.dd.yyyy HH:mm:ss.SSS} [%t] %-5level %c{1.} - %msg%n"/>
 		</Console>
 
-		<RollingFile name="paleta" fileName="${sys:log-path}/paleta.log" immediateFlush="false"  filePattern="${sys:log-path}/paleta-%d{yyyy-MM-dd-HH}.log" >
+		<RollingFile name="paleta" fileName="${sys:log-path}/dellemuse.log" immediateFlush="false"  filePattern="${sys:log-path}/paleta-%d{yyyy-MM-dd-HH}.log" >
 			<PatternLayout pattern="%d{MM.dd.yyyy HH:mm:ss.SSS} [%t] %-5level %c{1.} - %msg%n"/>
 			<Policies>
 				<!-- TimeBasedTriggeringPolicy interval="1" modulate="true"/ -->
@@ -54,7 +54,7 @@
 
 		<Asyncroot level="info">
 			<AppenderRef ref="Console" />
-			<appender-ref ref="paleta"/>
+			<appender-ref ref="dellemuse"/>
 		</Asyncroot>
 
 		<!-- =============================================================================================================== -->
@@ -65,23 +65,18 @@
 			<appender-ref ref="startup"/>
 		</Logger>
 		
-		<Asynclogger name="io.paleta.PaletaApplication"  level="error" additivity="false">
-			<appender-ref ref="paleta"/>
+		<Asynclogger name="dellemuse.server"  level="debug" additivity="false">
+			<appender-ref ref="dellemuse"/>
 			<AppenderRef ref="Console"/>
 		</Asynclogger>´
 		
-		<Asynclogger name="io.paleta"  level="error" additivity="false">
-			<appender-ref ref="paleta"/>
-			<AppenderRef ref="Console"/>
-		</Asynclogger>´
-
 		<Asynclogger name="org.springframework"  level="error" additivity="false">
-			<appender-ref ref="paleta"/>
+			<appender-ref ref="dellemuse"/>
 			<AppenderRef ref="Console"/>
 		</Asynclogger>´
 
 		<Asynclogger name="org.springframework.beans"  level="error" additivity="false">
-			<appender-ref ref="paleta"/>
+			<appender-ref ref="dellemuse"/>
 			<AppenderRef ref="Console"/>
 		</Asynclogger>´
  

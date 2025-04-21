@@ -1,6 +1,6 @@
 package dellemuse.server;
 
-import dellemuse.server.db.model.Jsonable;
+import dellemuse.model.Jsonable;
 
 public interface SystemService  extends Jsonable {
 

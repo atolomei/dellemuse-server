@@ -8,7 +8,7 @@ import jakarta.persistence.Table;
 @Table(name = "users")
 public class User extends DelleMuseObject {
 
-	@Column(name="username")
+    @Column(name="username")
 	private String username;
 	
 	public User() {}
@@ -20,6 +20,8 @@ public class User extends DelleMuseObject {
 	public void setUsername(String username) {
 		this.username = username;
 	}
+	
+	
 	
 	
 }

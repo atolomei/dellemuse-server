@@ -14,9 +14,7 @@ public class ArtWorkType extends DelleMuseObject {
     @Column(name="nameKey")
     private String nameKey;
     
-    
     public ArtWorkType() {
-        
     }
     
     public String getName() {
@@ -34,8 +32,5 @@ public class ArtWorkType extends DelleMuseObject {
     public void setNameKey(String nameKey) {
         this.nameKey = nameKey;
     }
-
-    
-    
     
 }

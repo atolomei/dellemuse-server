@@ -1,13 +1,19 @@
 package dellemuse.server.db.model;
 
+
 import java.time.OffsetDateTime;
 import java.util.Optional;
+
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import dellemuse.model.JsonObject;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,13 +42,27 @@ public class DelleMuseObject extends JsonObject implements Identifiable, Auditab
 	@Column(name="lastmodified")
 	private OffsetDateTime lastModified;
 	
-	@ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class)
-	@JoinColumn(name = "lastmodifieduser", nullable=true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonIgnore
-	private User lastModifiedUser;
 	
+	@ManyToOne(fetch = FetchType.LAZY, cascade=jakarta.persistence.CascadeType.DETACH, targetEntity = User.class)
+	@Fetch(FetchMode.SELECT)
+    @JoinColumn(name = "lastModifiedUser", nullable=false)
+	@JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private User lastModifiedUser;
+	
+	@JsonProperty("lastModifiedUserId")
+    public Optional<Long> getLastModifiedUserId() {
+        return (lastModifiedUser!=null) ?
+                Optional.of(lastModifiedUser.getId()) : Optional.empty();
+    }
+	
+	
+	
+	/**
+	@ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
+	*/
+	   
 	public DelleMuseObject() {}
 
 	public Long getId() {
@@ -69,19 +89,15 @@ public class DelleMuseObject extends JsonObject implements Identifiable, Auditab
 		this.lastModified = lastModified;
 	}
 
-	@JsonIgnore
-	public User getLastModifidUser() {
+	public User getLastModifiedUser() {
 		return lastModifiedUser;
 	}
-	
-	public void setLastModifidUser(User lastModifidUser) {
-		this.lastModifiedUser = lastModifidUser;
-	}
 
-	@JsonProperty("lastModifiedUserId")
-	public Optional<Long> getLastModifiedUserId() {
-		return (lastModifiedUser!=null) ?
-				Optional.of(lastModifiedUser.getId()) : Optional.empty();
+	public void setLastModifiedUser(User lastmodifiedUser) {
+	        this.lastModifiedUser = lastmodifiedUser;
 	}
+	
+	
+
 	
 }

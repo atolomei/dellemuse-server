@@ -58,11 +58,15 @@ INSERT INTO users (id, username, lastmodifieduser) VALUES  (nextval('sequence_us
 --
 
 INSERT INTO person (id, name, lastname,  physicalid, created, lastmodified, lastmodifieduser) VALUES  
-(nextval('sequence_id'), 'Doménikos',  'Theotokópoulos', '-', now(), now(), (select id from users where username='root')),
-(nextval('sequence_id'), 'Odilon',     'Redon',          '-', now(), now(), (select id from users where username='root')),
-(nextval('sequence_id'), 'Tarsila',    'do Amaral',      '-', now(), now(), (select id from users where username='root'));
+(nextval('sequence_id'), ''       ,     'root',           '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Doménikos',  'Theotokópoulos',  '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Odilon' ,     'Redon',          '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Tarsila',     'do Amaral',      '-', now(), now(), (select id from users where username='root'));
 
 
+
+-- root user root person
+update person set user_id=(select id from users where username='root' limit 1) where lastname='root';
 
 -- Tarsila do Amaral
 

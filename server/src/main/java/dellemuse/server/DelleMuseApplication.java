@@ -8,7 +8,8 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import dellemuse.util.Logger;
+import dellemuse.model.Constant;
+import dellemuse.model.logging.Logger;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
@@ -41,7 +42,7 @@ public class DelleMuseApplication {
         for (String s : DelleMuseVersion.getAppCharacterName())
             std_logger.info(s);
         
-        std_logger.info(ServerConstant.SEPARATOR);
+        std_logger.info(Constant.SEPARATOR);
         
         std_logger.info("");
         std_logger.info("This software is licensed under the Apache License, Version 2.0");
@@ -49,7 +50,6 @@ public class DelleMuseApplication {
 
         initShutdownMessage();
     }
-    
     
    private void initShutdownMessage() {
        Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -63,10 +63,6 @@ public class DelleMuseApplication {
            }
        });
    }
-
-    
-    
-    
     
     
 }

@@ -8,14 +8,13 @@ import jakarta.persistence.Table;
 @Table(name = "roomType")
 public class RoomType extends DelleMuseObject {
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
-    
-    @Column(name="nameKey")
+
+    @Column(name = "nameKey")
     private String nameKey;
-    
+
     public RoomType() {
-        
     }
 
     public String getName() {
@@ -33,6 +32,5 @@ public class RoomType extends DelleMuseObject {
     public void setNameKey(String nameKey) {
         this.nameKey = nameKey;
     }
-    
-    
+
 }

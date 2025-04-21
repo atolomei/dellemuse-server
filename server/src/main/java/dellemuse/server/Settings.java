@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 
-//import dellemuse.util.Logger;
+//import dellemuse.model.logging.Logger;
 import jakarta.annotation.PostConstruct;
+
+import dellemuse.model.logging.Logger;
 
 /**
  * <p>
@@ -25,16 +27,14 @@ import jakarta.annotation.PostConstruct;
 @Configuration
 public class Settings {
 
-    static private dellemuse.util.Logger logger = dellemuse.util.Logger.getLogger(Settings.class.getName());
+    static private Logger logger = Logger.getLogger(Settings.class.getName());
 
     private static final OffsetDateTime systemStarted = OffsetDateTime.now();
                         
-    
     @Value("${app.name:dellemuse}")
     @NonNull
     protected String appName;
 
-    
     @Value("${driverClassName:org.postgresql.Driver}")
     protected String driverClassName;
     
@@ -46,7 +46,6 @@ public class Settings {
     
     @Value("${database.url:jdbc:postgresql://localhost:5432/dellemuse}")
     protected String dburl;
-
 
     
     public Settings() {
@@ -87,6 +86,14 @@ public class Settings {
         //} catch (IOException e) {
         //    throw new RuntimeException(e);
         //}
+    }
+
+    
+    @Value("${trafficTokens:10}")
+    protected int maxTrafficTokens;
+
+    public int getMaxTrafficTokens() {
+        return maxTrafficTokens;
     }
 
 }

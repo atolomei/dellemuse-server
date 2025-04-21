@@ -16,77 +16,69 @@ import jakarta.persistence.Table;
 @Table(name = "institutionalContent")
 public class InstitutionalContent extends DelleMuseObject {
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
-    @Column(name="nameKey")
+    @Column(name = "nameKey")
     private String nameKey;
-    
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
-    @JoinColumn(name = "institution_id", nullable=true) 
+    @JoinColumn(name = "institution_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Institution institution;
-    
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
-    @JoinColumn(name = "site_id", nullable=true) 
+    @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Site site;
 
-    @Column(name="title")
-    private    String title;
-    
-    @Column(name="titleKey")
-    private    String  titleKey;
+    @Column(name = "title")
+    private String title;
 
-    @Column(name="subtitle")
-    private    String subtitle;
-    
-    @Column(name="subTitleKey")
-    private    String subTitleKey;
+    @Column(name = "titleKey")
+    private String titleKey;
 
-    @Column(name="info")
-    private    String info;
-    
-    @Column(name="infoKey")
-    private    String infoKey; 
+    @Column(name = "subtitle")
+    private String subtitle;
 
-    @Column(name="address")
-    private    String address;
-    
-    @Column(name="addressKey")
-    private    String  addressKey;
+    @Column(name = "subTitleKey")
+    private String subTitleKey;
 
-    @Column(name="moreinfo")
-    private    String moreinfo;
-    
-    @Column(name="moreinfoKey")
-    private    String  moreinfoKey;
+    @Column(name = "info")
+    private String info;
 
-    //@Column(name="created")
-    //photo               bytea,
-    
-    @Column(name="photoKey")
-    String  photoKey;
-    
-    //@Column(name="created")
-    //video               bytea,
-    
-    @Column(name="videoKey")
-    String videoKey;
-    
-    //@Column(name="created")
-    //audio               bytea,
-    
-    @Column(name="audioKey")
-    String  audioKey;
+    @Column(name = "infoKey")
+    private String infoKey;
+
+
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "photo", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource photo;
+        
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "video", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource video;
+
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "audio", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource audio;
+
     
     public InstitutionalContent() {
-        
+
     }
 
     public String getName() {
@@ -169,64 +161,4 @@ public class InstitutionalContent extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getAddressKey() {
-        return addressKey;
-    }
-
-    public void setAddressKey(String addressKey) {
-        this.addressKey = addressKey;
-    }
-
-    public String getMoreinfo() {
-        return moreinfo;
-    }
-
-    public void setMoreinfo(String moreinfo) {
-        this.moreinfo = moreinfo;
-    }
-
-    public String getMoreinfoKey() {
-        return moreinfoKey;
-    }
-
-    public void setMoreinfoKey(String moreinfoKey) {
-        this.moreinfoKey = moreinfoKey;
-    }
-
-    public String getPhotoKey() {
-        return photoKey;
-    }
-
-    public void setPhotoKey(String photoKey) {
-        this.photoKey = photoKey;
-    }
-
-    public String getVideoKey() {
-        return videoKey;
-    }
-
-    public void setVideoKey(String videoKey) {
-        this.videoKey = videoKey;
-    }
-
-    public String getAudioKey() {
-        return audioKey;
-    }
-
-    public void setAudioKey(String audioKey) {
-        this.audioKey = audioKey;
-    }
-    
-    
-    
-    
-};    
-
+};

@@ -6,9 +6,10 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import dellemuse.server.Settings;
 import dellemuse.server.db.model.ArtExhibition;
 import dellemuse.server.db.model.User;
-import dellemuse.util.Logger;
+import dellemuse.model.logging.Logger;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.transaction.Transactional;
 
@@ -18,8 +19,8 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(ArtExhibitionDBService.class.getName());
 
-    public ArtExhibitionDBService(CrudRepository<ArtExhibition, Long> repository, EntityManagerFactory entityManagerFactory) {
-        super(repository, entityManagerFactory);
+    public ArtExhibitionDBService(CrudRepository<ArtExhibition, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
+        super(repository, entityManagerFactory, settings);
     }
 
     /**
@@ -38,7 +39,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
         c.setNameKey(normalize(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
-        c.setLastModifidUser(createdBy);
+        c.setLastModifiedUser(createdBy);
         return getRepository().save(c);
     }
 

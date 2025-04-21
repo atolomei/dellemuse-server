@@ -17,7 +17,6 @@ public class FloorType extends DelleMuseObject {
     public FloorType() {
     }
 
-    
     public String getName() {
         return name;
     }

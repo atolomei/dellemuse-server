@@ -4,14 +4,14 @@
   <parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.4</version> <!--  -->
+		<version>3.4.4</version> <!-- 4/25 -->
 		<relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>dellemuse</groupId>
-    <artifactId>dellemuse-server</artifactId>
+  <artifactId>dellemuse-server</artifactId>
   <version>main</version>
   <packaging>jar</packaging>
 
@@ -24,15 +24,14 @@
   
   <properties>
   
-    <commons-logging-version>1.3.5</commons-logging-version>
-	<commons-io-version>2.19.0</commons-io-version>
+    <commons-logging-version>1.3.5</commons-logging-version> <!--  04 /2025 -->
     
-    
-    
-    <dellemuse-server-version>0.0.1-beta</dellemuse-server-version>
+    <dellemuse-server-version>0.1-beta</dellemuse-server-version>
+	<dellemuse-model-version>0.1-beta</dellemuse-model-version>    
     
     <disruptor-version>3.4.4</disruptor-version> 			<!--  01 /2024 version 4.0.0 did not work with LogManager  --> 
-	<jackson-version>2.17.0</jackson-version> 				<!--  03 /2024   -->
+
+	<dropwizard-metrics-version>4.2.25</dropwizard-metrics-version>	
 	
 	<java-version>17</java-version>
 	
@@ -40,6 +39,7 @@
 	<junit-version>5.10.2</junit-version> 	
 
 	<hibernate-core-version>6.4.4.Final</hibernate-core-version>
+	<hibernate-entitymanager-version>5.6.15.Final</hibernate-entitymanager-version>
 	
 	<log4j2-version>2.22.1</log4j2-version> 
 
@@ -54,11 +54,9 @@
 	
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
-	<tomcat-dbcp-version>11.0.6</tomcat-dbcp-version>
-    
+	<tomcat-dbcp-version>11.0.6</tomcat-dbcp-version>  <!-- 4/2025 -->
     
   </properties>
-  
   
   	<repositories>
 		<repository>
@@ -66,10 +64,11 @@
 			<url>file://${basedir}/nonstandardlib/</url>
 		</repository>
 
-		<repository>
+		<!--repository>
 			<id>novamens-releases</id>		
 			<url>https://maven.novamens.com/nexus/content/repositories/releases/</url>
-		</repository>
+		</ repository-->
+		
 	</repositories>
 	
 	<developers>
@@ -82,8 +81,7 @@
 
 
   <dependencies>
-	
-	
+
 		<!-- s. LOGGING ========================================================  -->
     	
     	<dependency>
@@ -100,6 +98,12 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
 		</dependency>
+
+		<dependency>
+		    <groupId>commons-logging</groupId>
+		    <artifactId>commons-logging</artifactId>
+		    <version>${commons-logging-version}</version>
+		</dependency>
 		
 		<dependency>
 			<!-- used by Log4j2 Async  -->
@@ -113,23 +117,14 @@
 		    <artifactId>log4j-spring-boot</artifactId>
 		</dependency>
 		
-		<dependency>
-		    <groupId>commons-logging</groupId>
-		    <artifactId>commons-logging</artifactId>
-		    <version>${commons-logging-version}</version>
-		</dependency>
 
-		<!-- ===============================================================  -->
- 		
-	    
 	    <!-- MONITOR =======================================================  -->
 	    
 		<dependency>
 	        <groupId>io.dropwizard.metrics</groupId>
 	        <artifactId>metrics-core</artifactId>
-   		    <version>4.2.25</version>
+   		    <version>${dropwizard-metrics-version}</version>
  	    </dependency>
-	    
 
 		<!-- SPRING ========================================================  -->
 	    
@@ -196,28 +191,19 @@
 		    <artifactId>spring-orm</artifactId>
 		</dependency>
 		  
-		  
-		  
-		  
-		 <!-- POSTGRESQL HIBERNATE ====================================================  -->
-		  
-		  
-		  <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-			<dependency>
-			    <groupId>commons-io</groupId>
-			    <artifactId>commons-io</artifactId>
-			    <version>${commons-io-version}</version>
-			</dependency>
-		  
-		  
-		  
-		 <!-- POSTGRESQL HIBERNATE ====================================================  -->
 
+
+		 <!-- TOMCAT  Database Connection Pooling ================================== -->
+		  
 		<dependency>
 		    <groupId>org.apache.tomcat</groupId>
 		    <artifactId>tomcat-dbcp</artifactId>
 		    <version>${tomcat-dbcp-version}</version>
 		</dependency>
+
+		  
+		 <!-- POSTGRESQL HIBERNATE ====================================================  -->
+
 		
 		  <dependency>
 		    <groupId>org.postgresql</groupId>
@@ -233,10 +219,21 @@
 		<dependency>
 		    <groupId>org.hibernate</groupId>
 		    <artifactId>hibernate-entitymanager</artifactId>
-		    <version>5.6.15.Final</version>
+		    <version>${hibernate-entitymanager-version}</version>
 		</dependency>
 
-	    <!-- TEST =======================================================  -->
+
+    <!-- DELLEMUSE MODEL  ===========================================================  -->
+
+		<dependency>
+			<groupId>dellemuse</groupId>
+			<artifactId>dellemuse-model</artifactId>			
+			<version>${dellemuse-model-version}</version>
+		</dependency>
+	
+
+
+	    <!-- TEST =============================================================  -->
 
 		<!-- Test                                                                       -->
   		<!-- exclude junit 4 -->
@@ -269,15 +266,6 @@
 	</dependencies>
 	
 </project>
-
-
-
-
-
-
-
-
-
 
 
 

@@ -15,7 +15,6 @@ public class InstitutionType extends DelleMuseObject {
     private String nameKey;
     
     public InstitutionType() {
-        
     }
 
     public String getName() {

@@ -8,15 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import dellemuse.server.BaseService;
+import dellemuse.server.Settings;
 import dellemuse.server.SystemService;
-import dellemuse.server.db.model.FloorType;
 import dellemuse.server.db.model.User;
-import dellemuse.util.Logger;
+import dellemuse.model.logging.Logger;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.FlushModeType;
 import jakarta.persistence.TypedQuery;
@@ -25,7 +25,15 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
 
-public abstract class DBService<T, I> implements SystemService {
+/**
+ * 
+ * 
+ * @param <T> Type
+ * @param <M> ModelType
+ * @param <I> Type Index
+ */
+
+public abstract class DBService<T, I> extends BaseService implements SystemService {
 
     @JsonIgnore
     static final private ObjectMapper mapper = new ObjectMapper();
@@ -33,6 +41,7 @@ public abstract class DBService<T, I> implements SystemService {
     @Autowired
     private SessionFactory sessionFactory;
 
+    @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(DBService.class.getName());
 
     static {
@@ -48,21 +57,11 @@ public abstract class DBService<T, I> implements SystemService {
     @Autowired
     EntityManagerFactory entityManagerFactory;
 
-    // @Bean
-    // public SessionFactory getSessionFactory() {
-    // if (entityManagerFactory.unwrap(SessionFactory.class) == null) {
-    // throw new NullPointerException("factory is not a hibernate factory");
-    // }
-    // return entityManagerFactory.unwrap(SessionFactory.class);
-    // }
 
-    public DBService(CrudRepository<T, I> repository, EntityManagerFactory entityManagerFactory) {
+    public DBService(CrudRepository<T, I> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
+        super(settings);
         this.repository = repository;
         this.entityManagerFactory = entityManagerFactory;
-    }
-
-    public String normalize(String name) {
-        return this.getClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();
     }
 
     public abstract T create(String name, User createdBy);
@@ -134,7 +133,10 @@ public abstract class DBService<T, I> implements SystemService {
         query.setParameter(nameparameter, "root");
 
         return query;
+    }
 
+    public List<T> getByName(String name) {
+        return createNameQuery().getResultList();
     }
 
     /**
@@ -160,28 +162,22 @@ public abstract class DBService<T, I> implements SystemService {
         return str.toString();
     }
 
-    @Override
-    public String toJSON() {
-        try {
-            return mapper.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            logger.error(e);
-            return "\"error\":\"" + e.getClass().getName() + " | " + e.getMessage() + "\"";
-        }
+    public String normalize(String name) {
+        return this.getClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();
     }
-
-    protected ObjectMapper getObjectMapper() {
-        return mapper;
-    }
-
-    public List<T> getByName(String name) {
-        return createNameQuery().getResultList();
-    }
-
+    
     protected abstract Class<T> getEntityClass();
-
+    
     protected String getNameColumn() {
         return "name";
     }
+
+    // @Bean
+    // public SessionFactory getSessionFactory() {
+    // if (entityManagerFactory.unwrap(SessionFactory.class) == null) {
+    // throw new NullPointerException("factory is not a hibernate factory");
+    // }
+    // return entityManagerFactory.unwrap(SessionFactory.class);
+    // }
 
 }

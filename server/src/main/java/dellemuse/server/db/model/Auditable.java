@@ -8,7 +8,7 @@ public interface Auditable {
 	
 	public OffsetDateTime getCreated();
 	public OffsetDateTime getLastModified();
-	public User getLastModifidUser();
+	public User getLastModifiedUser();
 	public Optional<Long> getLastModifiedUserId();
 
 }

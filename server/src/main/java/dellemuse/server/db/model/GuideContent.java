@@ -1,7 +1,5 @@
 package dellemuse.server.db.model;
 
-import java.time.OffsetDateTime;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -31,7 +29,6 @@ public class GuideContent extends DelleMuseObject {
     @JsonIgnore
     private ArtExhibitionGuide artExhibitionGuide;
     
-
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
     @JoinColumn(name = "artExhibitionItem_id", nullable=true) 
     @JsonManagedReference
@@ -40,43 +37,45 @@ public class GuideContent extends DelleMuseObject {
     private ArtExhibitionItem artExhibitionItem;
     
     @Column(name="title")
-    private    String title;
+    private String title;
     
     @Column(name="titleKey")
-    private    String  titleKey;
+    private String  titleKey;
 
     @Column(name="subtitle")
-    private    String subtitle;
+    private String subtitle;
     
     @Column(name="subTitleKey")
-    private    String subTitleKey;
+    private String subTitleKey;
 
     @Column(name="info")
-    private    String info;
+    private String info;
     
     @Column(name="infoKey")
-    private    String infoKey; 
+    private String infoKey; 
 
-    //@Column(name="created")
-    //photo               bytea,
-    
-    @Column(name="photoKey")
-    String  photoKey;
-    
-    //@Column(name="created")
-    //video               bytea,
-    
-    @Column(name="videoKey")
-    String videoKey;
-    
-    //@Column(name="created")
-    //audio               bytea,
-    
-    @Column(name="audioKey")
-    String  audioKey;
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "photo", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource photo;
+        
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "video", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource video;
+
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "audio", nullable=true) 
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonIgnore
+    private Resource audio;
     
     public GuideContent() {
-        
     }
 
     public String getName() {
@@ -159,32 +158,6 @@ public class GuideContent extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
-    public String getPhotoKey() {
-        return photoKey;
-    }
 
-    public void setPhotoKey(String photoKey) {
-        this.photoKey = photoKey;
-    }
-
-    public String getVideoKey() {
-        return videoKey;
-    }
-
-    public void setVideoKey(String videoKey) {
-        this.videoKey = videoKey;
-    }
-
-    public String getAudioKey() {
-        return audioKey;
-    }
-
-    public void setAudioKey(String audioKey) {
-        this.audioKey = audioKey;
-    }
-    
-    
-    
-    
 };    
 
