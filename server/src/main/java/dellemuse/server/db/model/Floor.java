@@ -16,78 +16,73 @@ import jakarta.persistence.Table;
 @Table(name = "floor")
 public class Floor extends DelleMuseObject {
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
-    @Column(name="nameKey")
+    @Column(name = "nameKey")
     private String nameKey;
-    
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = FloorType.class)
-    @JoinColumn(name = "floorType_id", nullable=true) 
+    @JoinColumn(name = "floorType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private FloorType floorType;
-    
-   
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
-    @JoinColumn(name = "site_id", nullable=true) 
+    @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Site site;
 
-    
-    @Column(name="title")
-    private    String title;
-    
-    @Column(name="titleKey")
-    private    String  titleKey;
+    @Column(name = "title")
+    private String title;
 
-    @Column(name="subtitle")
-    private    String subtitle;
-    
-    @Column(name="subTitleKey")
-    private    String subTitleKey;
+    @Column(name = "titleKey")
+    private String titleKey;
 
-    
-    @Column(name="floornumber")
-    private    String floorNumber;
-    
-    @Column(name="floornumberkey")
-    private    String  floorNumberKey;
+    @Column(name = "subtitle")
+    private String subtitle;
 
-    
-    @Column(name="info")
-    private    String info;
-    
-    @Column(name="infoKey")
-    private    String infoKey; 
+    @Column(name = "subTitleKey")
+    private String subTitleKey;
+
+    @Column(name = "floornumber")
+    private String floorNumber;
+
+    @Column(name = "floornumberkey")
+    private String floorNumberKey;
+
+    @Column(name = "info")
+    private String info;
+
+    @Column(name = "infoKey")
+    private String infoKey;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable=true) 
+    @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource photo;
-        
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable=true) 
+    @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable=true) 
+    @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource audio;
-    
+
     public Floor() {
-        
+
     }
 
     public String getName() {
@@ -186,7 +181,4 @@ public class Floor extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
-
-    
-};    
-
+};

@@ -54,29 +54,27 @@ public class InstitutionalContent extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable=true) 
+    @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource photo;
-        
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable=true) 
+    @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable=true) 
+    @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource audio;
 
-    
     public InstitutionalContent() {
 
     }

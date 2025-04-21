@@ -10,10 +10,9 @@ public abstract class ModelService<T extends DelleMuseObject, M extends DelleMus
     public ModelService(Settings settings) {
         super(settings);
     }
-    
+
     public abstract M getModel(T type);
+
     public abstract T getSource(M model);
-    
-    
 
 }

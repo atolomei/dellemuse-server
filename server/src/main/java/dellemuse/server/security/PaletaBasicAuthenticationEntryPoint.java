@@ -16,8 +16,6 @@
  */
 package dellemuse.server.security;
 
-
-
 import java.io.IOException;
 import java.io.PrintWriter;
 

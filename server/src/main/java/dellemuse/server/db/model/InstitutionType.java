@@ -8,12 +8,12 @@ import jakarta.persistence.Table;
 @Table(name = "institutionType")
 public class InstitutionType extends DelleMuseObject {
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
-    
-    @Column(name="nameKey")
+
+    @Column(name = "nameKey")
     private String nameKey;
-    
+
     public InstitutionType() {
     }
 
@@ -32,7 +32,5 @@ public class InstitutionType extends DelleMuseObject {
     public void setNameKey(String nameKey) {
         this.nameKey = nameKey;
     }
-    
-    
-    
+
 }

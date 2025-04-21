@@ -8,15 +8,15 @@ import jakarta.persistence.Table;
 @Table(name = "artWorkType")
 public class ArtWorkType extends DelleMuseObject {
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
-    
-    @Column(name="nameKey")
+
+    @Column(name = "nameKey")
     private String nameKey;
-    
+
     public ArtWorkType() {
     }
-    
+
     public String getName() {
         return name;
     }
@@ -32,5 +32,5 @@ public class ArtWorkType extends DelleMuseObject {
     public void setNameKey(String nameKey) {
         this.nameKey = nameKey;
     }
-    
+
 }

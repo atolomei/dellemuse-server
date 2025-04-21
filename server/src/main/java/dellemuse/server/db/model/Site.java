@@ -34,26 +34,25 @@ public class Site extends DelleMuseObject {
 
     @JsonProperty("siteTypeId")
     public Optional<Long> getSiteTypeId() {
-        if (siteType!=null)
+        if (siteType != null)
             return Optional.of(siteType.getId());
         return Optional.empty();
     }
 
-    
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
     @JoinColumn(name = "institution_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Institution institution;
-    
+
     @JsonProperty("institutionId")
     public Optional<Long> getInstitutionId() {
-        if (institution!=null)
+        if (institution != null)
             return Optional.of(institution.getId());
         return Optional.empty();
     }
-    
+
     @Column(name = "title")
     private String title;
 
@@ -78,30 +77,27 @@ public class Site extends DelleMuseObject {
     @Column(name = "addressKey")
     private String addressKey;
 
-
-
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable=true) 
+    @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource photo;
-        
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable=true) 
+    @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable=true) 
+    @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource audio;
 
-    
     public Site() {
     }
 
@@ -200,7 +196,5 @@ public class Site extends DelleMuseObject {
     public void setAddressKey(String addressKey) {
         this.addressKey = addressKey;
     }
-
-
 
 };

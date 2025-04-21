@@ -19,7 +19,8 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(ArtExhibitionDBService.class.getName());
 
-    public ArtExhibitionDBService(CrudRepository<ArtExhibition, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
+    public ArtExhibitionDBService(CrudRepository<ArtExhibition, Long> repository, EntityManagerFactory entityManagerFactory,
+            Settings settings) {
         super(repository, entityManagerFactory, settings);
     }
 
@@ -33,7 +34,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
      */
     @Transactional
     @Override
-    public ArtExhibition create(String name,User createdBy) {
+    public ArtExhibition create(String name, User createdBy) {
         ArtExhibition c = new ArtExhibition();
         c.setName(name);
         c.setNameKey(normalize(name));

@@ -16,65 +16,65 @@ import jakarta.persistence.Table;
 @Table(name = "guideContent")
 public class GuideContent extends DelleMuseObject {
 
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
 
-    @Column(name="nameKey")
+    @Column(name = "nameKey")
     private String nameKey;
-    
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
-    @JoinColumn(name = "artExhibitionGuide_id", nullable=true) 
+    @JoinColumn(name = "artExhibitionGuide_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private ArtExhibitionGuide artExhibitionGuide;
-    
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
-    @JoinColumn(name = "artExhibitionItem_id", nullable=true) 
+    @JoinColumn(name = "artExhibitionItem_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private ArtExhibitionItem artExhibitionItem;
-    
-    @Column(name="title")
-    private String title;
-    
-    @Column(name="titleKey")
-    private String  titleKey;
 
-    @Column(name="subtitle")
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "titleKey")
+    private String titleKey;
+
+    @Column(name = "subtitle")
     private String subtitle;
-    
-    @Column(name="subTitleKey")
+
+    @Column(name = "subTitleKey")
     private String subTitleKey;
 
-    @Column(name="info")
+    @Column(name = "info")
     private String info;
-    
-    @Column(name="infoKey")
-    private String infoKey; 
+
+    @Column(name = "infoKey")
+    private String infoKey;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable=true) 
+    @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource photo;
-        
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable=true) 
+    @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable=true) 
+    @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonIgnore
     private Resource audio;
-    
+
     public GuideContent() {
     }
 
@@ -158,6 +158,4 @@ public class GuideContent extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
-
-};    
-
+};

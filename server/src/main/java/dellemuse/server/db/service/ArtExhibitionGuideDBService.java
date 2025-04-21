@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.server.Settings;
-import dellemuse.server.db.model.ArtExhibition;
+
 import dellemuse.server.db.model.ArtExhibitionGuide;
 import dellemuse.server.db.model.User;
 import dellemuse.model.logging.Logger;
@@ -20,7 +20,8 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(ArtExhibitionGuideDBService.class.getName());
 
-    public ArtExhibitionGuideDBService(CrudRepository<ArtExhibitionGuide, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
+    public ArtExhibitionGuideDBService(CrudRepository<ArtExhibitionGuide, Long> repository,
+            EntityManagerFactory entityManagerFactory, Settings settings) {
         super(repository, entityManagerFactory, settings);
     }
 
@@ -34,7 +35,7 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
      */
     @Transactional
     @Override
-    public ArtExhibitionGuide create(String name,User createdBy) {
+    public ArtExhibitionGuide create(String name, User createdBy) {
         ArtExhibitionGuide c = new ArtExhibitionGuide();
         c.setName(name);
         c.setNameKey(normalize(name));
