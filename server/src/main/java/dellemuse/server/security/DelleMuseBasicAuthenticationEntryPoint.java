@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 import org.springframework.stereotype.Component;
 
 @Component
-public class PaletaBasicAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
+public class DelleMuseBasicAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 
 	 @Override
 	 public void commence(
@@ -45,7 +45,7 @@ public class PaletaBasicAuthenticationEntryPoint extends BasicAuthenticationEntr
 
 	    @Override
 	    public void afterPropertiesSet() {
-	        setRealmName("Paleta");
+	        setRealmName("DelleMuse");
 	        super.afterPropertiesSet();
 	    }
 	    

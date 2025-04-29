@@ -11,6 +11,4 @@ public interface Auditable {
 
     public User getLastModifiedUser();
 
-    public Optional<Long> getLastModifiedUserId();
-
 }

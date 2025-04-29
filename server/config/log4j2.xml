@@ -4,7 +4,7 @@
     monitorInterval=60 		[reload file every seconds]
  - -->
 
-<configuration status="OFF"  monitorInterval="30" packages="io.paleta">
+<configuration status="OFF"  monitorInterval="30" packages="dellemuse.server">
 	
 	<Properties>
 		<Property name="log-path">logs</Property>
@@ -15,7 +15,7 @@
 			<PatternLayout pattern="%d{MM.dd.yyyy HH:mm:ss.SSS} [%t] %-5level %c{1.} - %msg%n"/>
 		</Console>
 
-		<RollingFile name="paleta" fileName="${sys:log-path}/dellemuse.log" immediateFlush="false"  filePattern="${sys:log-path}/paleta-%d{yyyy-MM-dd-HH}.log" >
+		<RollingFile name="dellemuse" fileName="${sys:log-path}/dellemuse.log" immediateFlush="false"  filePattern="${sys:log-path}/dellemuse-%d{yyyy-MM-dd-HH}.log" >
 			<PatternLayout pattern="%d{MM.dd.yyyy HH:mm:ss.SSS} [%t] %-5level %c{1.} - %msg%n"/>
 			<Policies>
 				<!-- TimeBasedTriggeringPolicy interval="1" modulate="true"/ -->
@@ -70,6 +70,13 @@
 			<AppenderRef ref="Console"/>
 		</Asynclogger>´
 		
+		<Asynclogger name="dellemuse.server.api"  level="debug" additivity="false">
+			<appender-ref ref="dellemuse"/>
+			<AppenderRef ref="Console"/>
+		</Asynclogger>´
+
+
+
 		<Asynclogger name="org.springframework"  level="error" additivity="false">
 			<appender-ref ref="dellemuse"/>
 			<AppenderRef ref="Console"/>

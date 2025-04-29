@@ -66,6 +66,7 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
 
     public abstract T create(String name, User createdBy);
 
+    
     public <S extends T> S save(S entity) {
         return getRepository().save(entity);
     }
@@ -114,24 +115,18 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
         getRepository().deleteAll();
     }
 
+    
     public TypedQuery<T> createNameQuery() {
-
         TypedQuery<T> query;
-
         CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
-
         CriteriaQuery<T> criteria = criteriabuilder.createQuery(getEntityClass());
-
         Root<T> loaders = criteria.from(getEntityClass());
-
         ParameterExpression<String> nameparameter = criteriabuilder.parameter(String.class);
         criteria.select(loaders).where(criteriabuilder.equal(loaders.get(getNameColumn()), nameparameter));
-
         query = getSessionFactory().getCurrentSession().createQuery(criteria);
         query.setHint("org.hibernate.cacheable", true);
         query.setFlushMode(FlushModeType.COMMIT);
         query.setParameter(nameparameter, "root");
-
         return query;
     }
 

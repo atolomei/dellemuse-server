@@ -1,19 +1,30 @@
 package dellemuse.server.db.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.model.ArtExhibitionGuideModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "artExhibitionGuide")
+@JsonInclude(Include.NON_NULL)
 public class ArtExhibitionGuide extends DelleMuseObject {
 
     @Column(name = "name")
@@ -23,19 +34,26 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     private String nameKey;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
-    @JoinColumn(name = "artExhibition_id", nullable = true)
+    @JoinColumn(name = "artExhibition_id", referencedColumnName="id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
-    private ArtExhibitionStatusType artExhibition;
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    private ArtExhibition artExhibition;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
     @JoinColumn(name = "publisher_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonProperty("publisher")
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Person publisher;
 
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = GuideContent.class)
+    @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable=true)
+    @JsonIgnore
+    @OrderBy("lower(title) ASC")
+    private List<GuideContent> contents;
+    
     @Column(name = "title")
     private String title;
 
@@ -58,21 +76,24 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JoinColumn(name = "photo", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonProperty("photo")
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource photo;
         
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonProperty("video")
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable=true) 
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonProperty("audio")
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
 
     public ArtExhibitionGuide() {
@@ -95,11 +116,11 @@ public class ArtExhibitionGuide extends DelleMuseObject {
         this.nameKey = nameKey;
     }
 
-    public ArtExhibitionStatusType getArtExhibition() {
+    public ArtExhibition getArtExhibition() {
         return artExhibition;
     }
 
-    public void setArtExhibition(ArtExhibitionStatusType artExhibition) {
+    public void setArtExhibition(ArtExhibition artExhibition) {
         this.artExhibition = artExhibition;
     }
 
@@ -157,6 +178,15 @@ public class ArtExhibitionGuide extends DelleMuseObject {
 
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
+    }
+    
+    @Override
+    public ArtExhibitionGuideModel model() {
+        try {
+            return (ArtExhibitionGuideModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), ArtExhibitionGuideModel.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 };

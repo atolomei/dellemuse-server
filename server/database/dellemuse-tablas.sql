@@ -52,6 +52,8 @@ CREATE TABLE file (
 						name				character varying(512) not null,
 						nameKey				character varying(512),
 						
+						media				character varying(512),
+						
 						info		 		text,
 						infoKey 			character varying(512),
 						

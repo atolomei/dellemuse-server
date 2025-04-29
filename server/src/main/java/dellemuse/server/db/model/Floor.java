@@ -1,19 +1,28 @@
 package dellemuse.server.db.model;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.model.FloorModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "floor")
+@JsonInclude(Include.NON_NULL)
 public class Floor extends DelleMuseObject {
 
     @Column(name = "name")
@@ -26,15 +35,21 @@ public class Floor extends DelleMuseObject {
     @JoinColumn(name = "floorType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private FloorType floorType;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Site site;
+    
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = Room.class)
+    @JoinColumn(name = "floor_id", nullable = true, insertable=false)
+    @JsonIgnore
+    @OrderBy("roomNumber ASC")
+    private List<Room> rooms;
 
     @Column(name = "title")
     private String title;
@@ -47,7 +62,7 @@ public class Floor extends DelleMuseObject {
 
     @Column(name = "subTitleKey")
     private String subTitleKey;
-
+    
     @Column(name = "floornumber")
     private String floorNumber;
 
@@ -60,29 +75,7 @@ public class Floor extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonIgnore
-    private Resource photo;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonIgnore
-    private Resource video;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonIgnore
-    private Resource audio;
-
     public Floor() {
-
     }
 
     public String getName() {
@@ -179,6 +172,15 @@ public class Floor extends DelleMuseObject {
 
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
+    }
+
+    @Override
+    public FloorModel model() {
+        try {
+            return (FloorModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), FloorModel.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 };

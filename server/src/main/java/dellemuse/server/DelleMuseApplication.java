@@ -8,8 +8,8 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import dellemuse.model.Constant;
 import dellemuse.model.logging.Logger;
+import dellemuse.model.util.Constant;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
@@ -58,7 +58,6 @@ public class DelleMuseApplication {
                std_logger.info("'Dulce et decorum est pro patria mori'");
                std_logger.info("roman legionaries said when falling in battle");
                std_logger.info("Shuting down... goodbye");
-               
                std_logger.info("");
            }
        });

@@ -1,9 +1,13 @@
 package dellemuse.server.db.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.model.ArtExhibitionItemModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,6 +17,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "artExhibitionItem")
+@JsonInclude(Include.NON_NULL)
 public class ArtExhibitionItem extends DelleMuseObject {
 
     @Column(name = "name")
@@ -25,28 +30,28 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @JoinColumn(name = "artwork_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private ArtWork artwork;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Site site;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
     @JoinColumn(name = "floor_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Floor floor;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
     @JoinColumn(name = "room_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Room room;
 
     @Column(name = "ordinal")
@@ -177,5 +182,17 @@ public class ArtExhibitionItem extends DelleMuseObject {
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
     }
+    
+    
+    @Override
+    public ArtExhibitionItemModel model() {
+        try {
+            return (ArtExhibitionItemModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), ArtExhibitionItemModel.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
 };

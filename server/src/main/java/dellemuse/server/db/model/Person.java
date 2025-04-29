@@ -3,10 +3,15 @@ package dellemuse.server.db.model;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.model.DelleMuseModelObject;
+import dellemuse.model.PersonModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,6 +22,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "person")
+@JsonInclude(Include.NON_NULL)
 public class Person extends DelleMuseObject {
 
     @Column(name = "name")
@@ -52,19 +58,20 @@ public class Person extends DelleMuseObject {
     @Column(name = "email")
     private String email;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class)
+    /**
+     * Lazy gives JSON error (No Session) when serializing
+     * 
+     * hay que probar ->
+     * https://stackoverflow.com/questions/21708339/avoid-jackson-serialization-on-non-fetched-lazy-objects/21760361#21760361
+     * 
+     * 
+     */
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
     @JoinColumn(name = "user_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseUserSerializer.class)
     private User user;
-
-    @JsonProperty("userId")
-    public Optional<Long> getUserId() {
-        if (user != null)
-            return Optional.of(user.getId());
-        return Optional.empty();
-    }
 
     @Column(name = "title")
     private String title;
@@ -88,22 +95,26 @@ public class Person extends DelleMuseObject {
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonProperty("photo")
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonProperty("video")
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonProperty("audio")
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
+
 
     public Person() {
     }
@@ -275,5 +286,15 @@ public class Person extends DelleMuseObject {
     public void setUser(User user) {
         this.user = user;
     }
+    
+    @Override
+    public PersonModel model() {
+        try {
+            return (PersonModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), PersonModel.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }

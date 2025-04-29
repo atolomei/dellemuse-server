@@ -7,10 +7,18 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.server.Settings;
+import dellemuse.server.db.model.ArtExhibitionGuide;
+import dellemuse.server.db.model.ArtExhibitionItem;
 import dellemuse.server.db.model.GuideContent;
 import dellemuse.server.db.model.User;
 import dellemuse.model.logging.Logger;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.FlushModeType;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.ParameterExpression;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service

@@ -1,16 +1,17 @@
 package dellemuse.server.db.model;
 
 import java.time.OffsetDateTime;
-import java.util.Optional;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.JsonObject;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,7 +27,7 @@ import jakarta.persistence.SequenceGenerator;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class DelleMuseObject extends JsonObject implements Identifiable, Auditable {
+public abstract class DelleMuseObject extends JsonObject implements Identifiable, Auditable {
 
     @Id
     @Column(name = "id")
@@ -37,21 +38,17 @@ public class DelleMuseObject extends JsonObject implements Identifiable, Auditab
     @Column(name = "created")
     private OffsetDateTime created;
 
-    @Column(name = "lastmodified")
+    @Column(name = "lastModified")
     private OffsetDateTime lastModified;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = User.class)
     @Fetch(FetchMode.SELECT)
     @JoinColumn(name = "lastModifiedUser", nullable = false)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonProperty("lastModifiedUser")
+    @JsonSerialize(using = DelleMuseUserSerializer.class)
     private User lastModifiedUser;
-
-    @JsonProperty("lastModifiedUserId")
-    public Optional<Long> getLastModifiedUserId() {
-        return (lastModifiedUser != null) ? Optional.of(lastModifiedUser.getId()) : Optional.empty();
-    }
 
     /**
      * @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
@@ -92,4 +89,12 @@ public class DelleMuseObject extends JsonObject implements Identifiable, Auditab
         this.lastModifiedUser = lastmodifiedUser;
     }
 
+    public DelleMuseModelObject model() {
+        try {
+            return (DelleMuseModelObject) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
+                    DelleMuseModelObject.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

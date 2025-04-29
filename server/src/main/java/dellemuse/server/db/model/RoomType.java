@@ -1,5 +1,9 @@
 package dellemuse.server.db.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import dellemuse.model.RoomModel;
+import dellemuse.model.RoomTypeModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -31,6 +35,15 @@ public class RoomType extends DelleMuseObject {
 
     public void setNameKey(String nameKey) {
         this.nameKey = nameKey;
+    }
+
+    @Override
+    public RoomTypeModel model() {
+        try {
+            return (RoomTypeModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),RoomTypeModel.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

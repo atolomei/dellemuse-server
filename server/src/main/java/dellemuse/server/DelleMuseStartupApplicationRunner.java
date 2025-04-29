@@ -1,5 +1,6 @@
 package dellemuse.server;
 
+import java.io.File;
 import java.time.OffsetDateTime;
 import java.util.Locale;
 
@@ -11,25 +12,23 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import dellemuse.model.Constant;
 import dellemuse.model.logging.Logger;
+import dellemuse.model.util.Constant;
 import dellemuse.server.test.TestListObjects;
 
 @Component
 public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 
 	@SuppressWarnings("unused")
-	static private Logger logger = Logger.getLogger(DelleMuseApplication.class.getName());
+	static private Logger logger = Logger.getLogger(DelleMuseStartupApplicationRunner.class.getName());
 	static private Logger startupLogger = Logger.getLogger("StartupLogger");
 
 	@JsonIgnore
 	private final ApplicationContext appContext;
 
-	
   	 @Autowired
 	 TestListObjects test;
 	 
-    
 	
 	public DelleMuseStartupApplicationRunner(ApplicationContext appContext) {
 		this.appContext = appContext;
@@ -45,12 +44,18 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 		}
 
 		Locale.setDefault(Locale.ENGLISH);
-
-		//boolean iGeneral = initGeneral();
-		//if(iGeneral)
-		//	startupLogger.info(ServerConstant.SEPARATOR);
 		
-		startupLogger.info	(Constant.SEPARATOR);
+        boolean iGeneral = initGeneral();
+        if (iGeneral)
+            startupLogger.info(Constant.SEPARATOR);
+
+        
+        boolean iKeys = initKeys();
+        if (iKeys)
+            startupLogger.info(Constant.SEPARATOR);
+        
+		
+		 
 		startupLogger.info	("Startup at -> " + OffsetDateTime.now().toString());
 		
 		test.test();
@@ -61,5 +66,29 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 		return appContext;
 	}
 	
+    private boolean initKeys() {
+        Settings settingsService = getAppContext().getBean(Settings.class);
+        if (settingsService.getAccessKey().equals("dellemuse") && settingsService.getSecretKey().equals("dellemuse")) {
+            startupLogger.info("Dellemuse is running with default vaules for AccessKey and SecretKey (ie. dellemuse/dellemuse)");
+            startupLogger.info("It is recommended to change their values in file -> ." + File.separator + "config" + File.separator
+                    + "odilon.properties");
+            return true;
+        }
+        return false;
+    }
+    
+    
+    private boolean initGeneral() {
+        Settings settingsService = getAppContext().getBean(Settings.class);
 
+        startupLogger.info("Https -> " + (settingsService.isHTTPS() ? "true" : "false"));
+        startupLogger.info("Port-> " + String.valueOf(settingsService.getPort()));
+        
+        return true;
+    }
+
+    
+    
+
+    
 }

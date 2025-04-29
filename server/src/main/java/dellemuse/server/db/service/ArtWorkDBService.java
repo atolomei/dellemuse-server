@@ -7,7 +7,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.server.Settings;
-import dellemuse.server.db.model.ArtExhibition;
 import dellemuse.server.db.model.ArtWork;
 import dellemuse.server.db.model.User;
 import dellemuse.model.logging.Logger;
@@ -56,4 +55,7 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
     protected Class<ArtWork> getEntityClass() {
         return ArtWork.class;
     }
+
+
+    
 }

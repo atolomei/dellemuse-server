@@ -18,7 +18,7 @@ import dellemuse.model.logging.Logger;
 
 /**
  * <p>
- * Server configuration defined in file {@code odilon.properties}
+ * Server configuration defined in file {@code application.properties}
  * </p>
  * 
  * @author atolomei@novamens.com (Alejandro Tolomei)
@@ -30,7 +30,26 @@ public class Settings {
     static private Logger logger = Logger.getLogger(Settings.class.getName());
 
     private static final OffsetDateTime systemStarted = OffsetDateTime.now();
-                        
+
+    /* default -> dellemuse */
+    @Value("${accessKey:dellemuse}")
+    @NonNull
+    protected String accessKey;
+
+    /* default -> dellemuse */
+    @Value("${secretKey:dellemuse}")
+    @NonNull
+    protected String secretKey;
+    
+
+    /* default port -> 9876 */
+    @Value("${server.port:9876}")
+    protected int port;
+
+    @Value("${server.ssl.enabled:false}")
+    protected String ishttps;
+    
+    
     @Value("${app.name:dellemuse}")
     @NonNull
     protected String appName;
@@ -71,6 +90,19 @@ public class Settings {
         return password;
     }
 
+    public int getPort() {
+        return port;
+    }
+
+    public String getAccessKey() {
+        return accessKey;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+    
+    
     @PostConstruct
     protected void onInitialize() {
         
@@ -95,6 +127,11 @@ public class Settings {
     public int getMaxTrafficTokens() {
         return maxTrafficTokens;
     }
+
+    public boolean isHTTPS() {
+        return this.ishttps != null && this.ishttps.toLowerCase().trim().equals("true");
+    }
+
 
 }
 

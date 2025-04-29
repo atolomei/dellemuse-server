@@ -26,11 +26,6 @@ public class ArtWorkTypeDBService extends DBService<ArtWorkType, Long> {
     }
 
 
-    
-    
-    
-    
-    
     /**
      * <p>
      * Annotation Transactional is required to store values into the Database

@@ -1,9 +1,13 @@
 package dellemuse.server.db.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.model.ArtWorkArtistModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,49 +17,27 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "artworkArtist")
+@JsonInclude(Include.NON_NULL)
 public class ArtWorkArtist extends DelleMuseObject {
 
-    @Column(name="name")
-    private String name;
-
-    @Column(name="nameKey")
-    private String nameKey;
-    
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
-    @JoinColumn(name = "artwork_id", nullable=true) 
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtWork.class)
+    @JoinColumn(name = "artwork_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private ArtWork artwork;
-    
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
-    @JoinColumn(name = "person_id", nullable=true) 
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Person.class)
+    @JoinColumn(name = "person_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Person artist;
 
     public ArtWorkArtist() {
-        
+
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
-    }
 
     public ArtWork getArtwork() {
         return artwork;
@@ -73,9 +55,14 @@ public class ArtWorkArtist extends DelleMuseObject {
         this.artist = person;
     }
     
-    
-    
-    
-    
-};    
+    @Override
+    public ArtWorkArtistModel model() {
+        try {
+            return (ArtWorkArtistModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
+                    ArtWorkArtistModel.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+};

@@ -1,4 +1,4 @@
-package dellemuse.server.model;
+package dellemuse.server.api.model;
 
 import org.springframework.stereotype.Service;
 
@@ -12,22 +12,22 @@ import dellemuse.server.db.model.Person;
 public class PersonModelService extends ModelService<Person, PersonModel> {
 
     public PersonModelService(Settings settings) {
-        super(settings);
+        super(settings, Person.class, PersonModel.class);
     }
 
     @Override
-    public PersonModel getModel(Person person) {
+    public PersonModel model(Person person) {
         String json = null;
-
         try {
             json = getObjectMapper().writeValueAsString(person);
+            
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
         PersonModel model;
         try {
-            model = (PersonModel) getObjectMapper().readValue(json, dellemuse.model.PersonModel.class);
+            model = (PersonModel) getObjectMapper().readValue(json, PersonModel.class);
             return model;
 
         } catch (JsonProcessingException e) {
@@ -36,7 +36,7 @@ public class PersonModelService extends ModelService<Person, PersonModel> {
     }
 
     @Override
-    public Person getSource(PersonModel model) {
+    public Person source(PersonModel model) {
         String json = null;
         try {
             json = getObjectMapper().writeValueAsString(model);
