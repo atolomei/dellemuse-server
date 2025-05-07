@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Constant;
+import dellemuse.server.importer.PersonImporter;
+import dellemuse.server.importer.ServerImporter;
 import dellemuse.server.test.TestListObjects;
 
 @Component
@@ -26,8 +28,11 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 	@JsonIgnore
 	private final ApplicationContext appContext;
 
-  	 @Autowired
-	 TestListObjects test;
+  	 //@Autowired
+	 //TestListObjects test;
+  	 
+     @Autowired
+     ServerImporter serverImporter;
 	 
 	
 	public DelleMuseStartupApplicationRunner(ApplicationContext appContext) {
@@ -58,7 +63,10 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 		 
 		startupLogger.info	("Startup at -> " + OffsetDateTime.now().toString());
 		
-		test.test();
+		//test.test();
+		
+		serverImporter.execute();
+		
 		
 	}
 	

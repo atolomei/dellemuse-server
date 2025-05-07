@@ -69,18 +69,6 @@ public class ArtWorkController extends BaseController<ArtWork, ArtWorkModel> {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 /**
 @RequestMapping(value = "/list", produces = "application/json", method = RequestMethod.GET)
 public ResponseEntity<List<ArtWorkModel>> findAll() {

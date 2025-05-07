@@ -2,18 +2,21 @@ package dellemuse.server.db.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.server.Settings;
 import dellemuse.server.db.model.ArtExhibition;
+import dellemuse.server.db.model.Floor;
 import dellemuse.server.db.model.Institution;
 import dellemuse.server.db.model.Person;
 import dellemuse.server.db.model.Room;
 import dellemuse.server.db.model.Site;
 import dellemuse.server.db.model.User;
 import dellemuse.model.ArtExhibitionModel;
+import dellemuse.model.FloorModel;
 import dellemuse.model.InstitutionModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
@@ -56,16 +59,34 @@ public class SiteDBService extends DBService<Site, Long> {
         return getRepository().save(c);
     }
 
-   
-
     /**
      * @param name
      * @return
      */
+    @Transactional
     public List<Site> getByName(String name) {
         return createNameQuery().getResultList();
     }
 
+    @Transactional
+    public Optional<Site> findByShortName(String name) {
+        TypedQuery<Site> query;
+        CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<Site> criteria = criteriabuilder.createQuery(Site.class);
+        Root<Site> loaders = criteria.from(Site.class);
+        criteria.orderBy(criteriabuilder.asc(loaders.get("id")));
+        ParameterExpression<String> idparameter = criteriabuilder.parameter(String.class);
+        criteria.select(loaders).where(criteriabuilder.equal(loaders.get("shortName"), idparameter));
+        query = getSessionFactory().getCurrentSession().createQuery(criteria);
+        query.setHint("org.hibernate.cacheable", true);
+        query.setFlushMode(FlushModeType.COMMIT);
+        query.setParameter(idparameter, name);
+        List<Site> list = query.getResultList();
+        if (list==null || list.isEmpty())
+            return Optional.empty();
+        return Optional.of(list.get(0));
+    }
+    
     @Override
     protected Class<Site> getEntityClass() {
         return Site.class;
@@ -78,7 +99,6 @@ public class SiteDBService extends DBService<Site, Long> {
     
     @Transactional
     public List<ArtExhibition> getArtExhibitions(Long siteid) {
-        
         TypedQuery<ArtExhibition> query;
         CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
         CriteriaQuery<ArtExhibition> criteria = criteriabuilder.createQuery(ArtExhibition.class);
@@ -93,4 +113,40 @@ public class SiteDBService extends DBService<Site, Long> {
         return query.getResultList();
     }
 
+    @Transactional
+    public List<Floor> getFloors(Long siteid) {
+        TypedQuery<Floor> query;
+        CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<Floor> criteria = criteriabuilder.createQuery(Floor.class);
+        Root<Floor> loaders = criteria.from(Floor.class);
+        criteria.orderBy(criteriabuilder.asc(loaders.get("title")));
+        ParameterExpression<Long> idparameter = criteriabuilder.parameter(Long.class);
+        criteria.select(loaders).where(criteriabuilder.equal(loaders.get("site").get("id"), idparameter));
+        query = getSessionFactory().getCurrentSession().createQuery(criteria);
+        query.setHint("org.hibernate.cacheable", true);
+        query.setFlushMode(FlushModeType.COMMIT);
+        query.setParameter(idparameter, siteid);
+        return query.getResultList();
+
+    }
+
+    @Transactional
+    public List<Room> getRooms(Long floorid) {
+        TypedQuery<Room> query;
+        CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<Room> criteria = criteriabuilder.createQuery(Room.class);
+        Root<Room> loaders = criteria.from(Room.class);
+        criteria.orderBy(criteriabuilder.asc(loaders.get("title")));
+        ParameterExpression<Long> idparameter = criteriabuilder.parameter(Long.class);
+        criteria.select(loaders).where(criteriabuilder.equal(loaders.get("floor").get("id"), idparameter));
+        query = getSessionFactory().getCurrentSession().createQuery(criteria);
+        query.setHint("org.hibernate.cacheable", true);
+        query.setFlushMode(FlushModeType.COMMIT);
+        query.setParameter(idparameter, floorid);
+        return query.getResultList();
+    }
+
+
+    
+    
 }

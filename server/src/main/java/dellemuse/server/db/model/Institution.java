@@ -3,7 +3,6 @@ package dellemuse.server.db.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,12 +26,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Institution extends DelleMuseObject {
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "nameKey")
-    private String nameKey;
-
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = InstitutionType.class)
     @JoinColumn(name = "institutionType_id", nullable = true)
     @JsonManagedReference
@@ -40,16 +33,14 @@ public class Institution extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private InstitutionType institutionType;
 
-    @Column(name = "title")
-    private String title;
+    @Column(name = "shortName")
+    private String shortName;
 
-    @Column(name = "titleKey")
-    private String titleKey;
-
+    
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "subTitleKey")
+    @Column(name = "subtitleKey")
     private String subTitleKey;
 
     @Column(name = "info")
@@ -70,6 +61,27 @@ public class Institution extends DelleMuseObject {
     @Column(name = "moreinfoKey")
     private String moreinfoKey;
     
+    @Column(name = "website")
+    private String website;
+
+    @Column(name = "mapurl")
+    private String mapurl;
+    
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "instagram")
+    private String instagram;
+    
+    @Column(name = "whatsapp")
+    private String whatsapp;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "twitter")
+    private String twitter;
+
     @OneToMany(fetch = FetchType.EAGER, targetEntity = Site.class)
     @JoinColumn(name = "institution_id", nullable = true, insertable=false)
     @JsonSerialize(using = DelleMuseListIdSerializer.class)
@@ -78,6 +90,16 @@ public class Institution extends DelleMuseObject {
     @OrderBy("lower(title) ASC")
     private List<Site> sites;
 
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "logo", nullable = true)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonProperty("logo")
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    private Resource logo;
+
+    
+    
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
@@ -105,21 +127,6 @@ public class Institution extends DelleMuseObject {
     public Institution() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
-    }
 
     public InstitutionType getInstitutionType() {
         return institutionType;
@@ -129,21 +136,6 @@ public class Institution extends DelleMuseObject {
         this.institutionType = institutionType;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
-    }
 
     public String getSubtitle() {
         return subtitle;
@@ -226,5 +218,111 @@ public class Institution extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public String getMmapUrl() {
+        return mapurl;
+    }
+
+    public void setMapUrl(String linktomap) {
+        this.mapurl = linktomap;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getInstagram() {
+        return instagram;
+    }
+
+    public void setInstagram(String instagram) {
+        this.instagram = instagram;
+    }
+
+    public String getWhatsapp() {
+        return whatsapp;
+    }
+
+    public void setWhatsapp(String whatsapp) {
+        this.whatsapp = whatsapp;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getTwitter() {
+        return twitter;
+    }
+
+    public void setTwitter(String twitter) {
+        this.twitter = twitter;
+    }
+
+    public Resource getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Resource photo) {
+        this.photo = photo;
+    }
+
+    public Resource getVideo() {
+        return video;
+    }
+
+    public void setVideo(Resource video) {
+        this.video = video;
+    }
+
+    public Resource getAudio() {
+        return audio;
+    }
+
+    public void setAudio(Resource audio) {
+        this.audio = audio;
+    }
+    
+
+    public String getShortName() {
+        return shortName;
+    }
+
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+    
+    
+    public Resource getLogo() {
+        return logo;
+    }
+
+
+    public void setLogo(Resource logo) {
+        this.logo = logo;
+    }
+
+    
+    
+    
+    
+
 
 };

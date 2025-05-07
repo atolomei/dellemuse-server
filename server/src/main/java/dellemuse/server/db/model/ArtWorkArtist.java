@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.ArtWorkArtistModel;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -35,9 +34,7 @@ public class ArtWorkArtist extends DelleMuseObject {
     private Person artist;
 
     public ArtWorkArtist() {
-
     }
-
 
     public ArtWork getArtwork() {
         return artwork;
@@ -54,7 +51,7 @@ public class ArtWorkArtist extends DelleMuseObject {
     public void setPerson(Person person) {
         this.artist = person;
     }
-    
+
     @Override
     public ArtWorkArtistModel model() {
         try {

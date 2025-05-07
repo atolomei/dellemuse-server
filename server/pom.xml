@@ -51,6 +51,8 @@
 	<maven-jar-plugin-version>3.3.0</maven-jar-plugin-version>
 
 	<maven.test.skip>true</maven.test.skip>
+
+	<odilon-client-version>1.8</odilon-client-version>
 	
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
@@ -232,6 +234,13 @@
 		</dependency>
 	
 
+    <!-- ODILON  ====================================================================  -->
+
+		<dependency>
+			<groupId>io.odilon</groupId>
+			<artifactId>odilon-client</artifactId>			
+			<version>${odilon-client-version}</version>
+		</dependency>
 
 	    <!-- TEST =============================================================  -->
 

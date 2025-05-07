@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import dellemuse.model.PersonModel;
 import dellemuse.server.Settings;
 import dellemuse.server.db.model.Person;
+import dellemuse.server.error.InternalErrorException;
 
 @Service
 public class PersonModelService extends ModelService<Person, PersonModel> {
@@ -41,16 +42,13 @@ public class PersonModelService extends ModelService<Person, PersonModel> {
         try {
             json = getObjectMapper().writeValueAsString(model);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new InternalErrorException(e, "write");
         }
 
-        Person person;
         try {
-            person = (Person) getObjectMapper().readValue(json, Person.class);
-            return person;
-
+            return (Person) getObjectMapper().readValue(json, Person.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new InternalErrorException(e, "read");
         }
 
     }

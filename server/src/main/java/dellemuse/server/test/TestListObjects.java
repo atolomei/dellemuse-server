@@ -305,8 +305,6 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
             
             logger.debug(Constant.SEPARATOR);
             
-            
-            
         }
         
     }

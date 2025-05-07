@@ -1,5 +1,6 @@
 package dellemuse.server.api.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,11 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.server.api.model.ArtExhibitionModelService;
 import dellemuse.server.db.model.ArtExhibition;
+import dellemuse.server.db.model.ArtExhibitionGuide;
 import dellemuse.server.db.service.ArtExhibitionDBService;
+import dellemuse.server.error.ObjectNotFoundException;
 import dellemuse.server.security.SecurityService;
 
 @RestController
@@ -46,6 +50,24 @@ public class ArtExhibitionController extends BaseController<ArtExhibition, ArtEx
         this.securityService=securityService;
     }
     
+    @RequestMapping(value = "/artexhibitionguides/{artexhibitionid}", produces = "application/json", method = RequestMethod.GET)
+    public ResponseEntity<List<ArtExhibitionGuideModel>> getGuides(@PathVariable("artexhibitionid") Long id) {
+
+        Optional<ArtExhibition> o_ex = this.getDBService().getRepository().findById(id);
+        
+        if (o_ex.isEmpty())
+            throw new ObjectNotFoundException(id.toString());
+            
+        List<ArtExhibitionGuide> list = this.getDBService().getArtExhibitionGuides(o_ex.get());
+        
+        List<ArtExhibitionGuideModel> m_list = new ArrayList<ArtExhibitionGuideModel>();
+        
+        if (m_list!=null)
+            list.forEach(i->m_list.add(i.model()));
+
+        return new ResponseEntity<List<ArtExhibitionGuideModel>>(m_list, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/getbyname/{name}", produces = "application/json", method = RequestMethod.GET)
     public ResponseEntity<Optional<ArtExhibitionModel>> get(@PathVariable("name") String name) {
         List<ArtExhibition> list = this.getDBService().getByName(name);
@@ -67,9 +89,4 @@ public class ArtExhibitionController extends BaseController<ArtExhibition, ArtEx
         return securityService;
     }
 }
-
-
-
-
-
 

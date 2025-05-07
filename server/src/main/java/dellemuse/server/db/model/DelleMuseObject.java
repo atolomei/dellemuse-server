@@ -35,6 +35,18 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
     @SequenceGenerator(name = "sequence_gen", sequenceName = "sequence_id", allocationSize = 1)
     private Long id;
 
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "nameKey")
+    private String nameKey;
+    
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "titleKey")
+    private String titleKey;
+
     @Column(name = "created")
     private OffsetDateTime created;
 
@@ -49,10 +61,6 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
     @JsonProperty("lastModifiedUser")
     @JsonSerialize(using = DelleMuseUserSerializer.class)
     private User lastModifiedUser;
-
-    /**
-     * @ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
-     */
 
     public DelleMuseObject() {
     }
@@ -89,6 +97,40 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
         this.lastModifiedUser = lastmodifiedUser;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getNameKey() {
+        return nameKey;
+    }
+
+    public void setNameKey(String nameKey) {
+        this.nameKey = nameKey;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitleKey() {
+        return titleKey;
+    }
+
+    public void setTitleKey(String titleKey) {
+        this.titleKey = titleKey;
+    }
+
+    public String getTitle() {
+        if (title!=null)
+            return title;
+        return getName();
+    }
+    
     public DelleMuseModelObject model() {
         try {
             return (DelleMuseModelObject) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),

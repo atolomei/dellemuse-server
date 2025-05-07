@@ -20,19 +20,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.OrderBy;
+
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "artwork")
 @JsonInclude(Include.NON_NULL)
 public class ArtWork extends DelleMuseObject {
-
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "nameKey")
-    private String nameKey;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWorkType.class)
     @JoinColumn(name = "artworkType_id", nullable = true)
@@ -41,16 +35,10 @@ public class ArtWork extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private ArtWorkType artworkType;
 
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "titleKey")
-    private String titleKey;
-
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "subTitleKey")
+    @Column(name = "subtitleKey")
     private String subTitleKey;
 
     @Column(name = "info")
@@ -59,22 +47,13 @@ public class ArtWork extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    
     @OneToMany(fetch = FetchType.EAGER, targetEntity = ArtWorkArtist.class)
-    @JoinColumn(name = "artwork_id", nullable = true, insertable=false)
+    @JoinColumn(name = "artwork_id", nullable = true, insertable = false)
     @JsonSerialize(using = DelleMuseListIdSerializer.class)
     @JsonManagedReference
     @JsonBackReference
     private List<ArtWorkArtist> artWorkArtists;
-    
-    @JsonIgnore
-    public List<Person> getArtists() {
-        List<Person> list = new ArrayList<Person>();
-        if (artWorkArtists!=null)
-            artWorkArtists.forEach(item->list.add(item.getPerson()));
-        return list;
-    }
-    
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
@@ -95,28 +74,13 @@ public class ArtWork extends DelleMuseObject {
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonProperty("audio")    
+    @JsonProperty("audio")
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
 
     public ArtWork() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
-    }
 
     public ArtWorkType getArtworkType() {
         return artworkType;
@@ -126,21 +90,6 @@ public class ArtWork extends DelleMuseObject {
         this.artworkType = artworkType;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
-    }
 
     public String getSubtitle() {
         return subtitle;
@@ -174,6 +123,15 @@ public class ArtWork extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
+    @JsonIgnore
+    public List<Person> getArtists() {
+        List<Person> list = new ArrayList<Person>();
+        if (artWorkArtists != null)
+            artWorkArtists.forEach(item -> list.add(item.getPerson()));
+        return list;
+    }
+
+    
     @Override
     public ArtWorkModel model() {
         try {
@@ -182,5 +140,5 @@ public class ArtWork extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
-    
+
 };

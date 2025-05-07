@@ -62,9 +62,15 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         return createNameQuery().getResultList();
     }
 
+
+    @Transactional
+    public List<GuideContent> getArtExhibitionGuideContents(ArtExhibitionGuide exhibitionGuide) {
+        return  getArtExhibitionGuideContents(exhibitionGuide.getId());
+    }
+
     
     @Transactional
-    public List<GuideContent> getArtExhibitionGuide(ArtExhibitionGuide exhibitionGuide) {
+    public List<GuideContent> getArtExhibitionGuideContents(Long guideid) {
         TypedQuery<GuideContent> query;
         CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
         CriteriaQuery<GuideContent> criteria = criteriabuilder.createQuery(GuideContent.class);
@@ -77,7 +83,7 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         query = getSessionFactory().getCurrentSession().createQuery(criteria);
         query.setHint("org.hibernate.cacheable", true);
         query.setFlushMode(FlushModeType.COMMIT);
-        query.setParameter(idparameter, exhibitionGuide.getId());
+        query.setParameter(idparameter, guideid);
         return query.getResultList();
     }
 
@@ -110,6 +116,7 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
     protected Class<ArtExhibitionGuide> getEntityClass() {
         return ArtExhibitionGuide.class;
     }
+
     
     
 }

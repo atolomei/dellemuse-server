@@ -14,30 +14,9 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class InstitutionType extends DelleMuseObject {
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "nameKey")
-    private String nameKey;
-
     public InstitutionType() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
-    }
 
     @Override
     public InstitutionTypeModel model() {

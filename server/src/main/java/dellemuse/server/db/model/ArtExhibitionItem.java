@@ -20,12 +20,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibitionItem extends DelleMuseObject {
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "nameKey")
-    private String nameKey;
-
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
     @JoinColumn(name = "artwork_id", nullable = true)
     @JsonManagedReference
@@ -75,24 +69,14 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
+    @Column(name = "mapurl")
+    private String mapurl;
+
+    @Column(name = "website")
+    private String wesite;
+    
+    
     public ArtExhibitionItem() {
-
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
     }
 
     public ArtWork getArtwork() {
@@ -192,7 +176,5 @@ public class ArtExhibitionItem extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
-
-
 
 };

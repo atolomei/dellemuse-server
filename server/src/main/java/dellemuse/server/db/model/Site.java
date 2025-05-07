@@ -33,11 +33,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Site extends DelleMuseObject {
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "nameKey")
-    private String nameKey;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
     @JoinColumn(name = "siteType_id", nullable = true)
@@ -60,16 +55,16 @@ public class Site extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Institution institution;
 
-    @Column(name = "title")
-    private String title;
 
-    @Column(name = "titleKey")
-    private String titleKey;
+    @Column(name = "shortName")
+    private String shortName;
 
+    
+    
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "subTitleKey")
+    @Column(name = "subtitleKey")
     private String subTitleKey;
 
     @Column(name = "info")
@@ -84,12 +79,52 @@ public class Site extends DelleMuseObject {
     @Column(name = "addressKey")
     private String addressKey;
 
+    @Column(name = "website")
+    private String website;
+
+    @Column(name = "mapurl")
+    private String mapurl;
+    
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "instagram")
+    private String instagram;
+    
+    @Column(name = "whatsapp")
+    private String whatsapp;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "twitter")
+    private String twitter;
+    
+    
     @OneToMany(fetch = FetchType.LAZY, targetEntity = Floor.class)
     @JoinColumn(name = "site_id", nullable = true, insertable=false)
     @JsonIgnore
     @OrderBy("floorNumber ASC")
     private List<Floor> floors;
     
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @JoinColumn(name = "logo", nullable = true)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonProperty("logo")
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    private Resource logo;
+
+    
+    public Resource getLogo() {
+        return logo;
+    }
+
+
+    public void setLogo(Resource logo) {
+        this.logo = logo;
+    }
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
@@ -117,21 +152,6 @@ public class Site extends DelleMuseObject {
     public Site() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
-    }
 
     public SiteType getSiteType() {
         return siteType;
@@ -149,21 +169,6 @@ public class Site extends DelleMuseObject {
         this.institution = institution;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
-    }
 
     public String getSubtitle() {
         return subtitle;
@@ -185,9 +190,103 @@ public class Site extends DelleMuseObject {
         return info;
     }
 
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public String getMapurl() {
+        return mapurl;
+    }
+
+    public void setMapurl(String mapurl) {
+        this.mapurl = mapurl;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getInstagram() {
+        return instagram;
+    }
+
+    public void setInstagram(String instagram) {
+        this.instagram = instagram;
+    }
+
+    public String getWhatsapp() {
+        return whatsapp;
+    }
+
+    public void setWhatsapp(String whatsapp) {
+        this.whatsapp = whatsapp;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getTwitter() {
+        return twitter;
+    }
+
+    public void setTwitter(String twitter) {
+        this.twitter = twitter;
+    }
+
+    public Resource getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Resource photo) {
+        this.photo = photo;
+    }
+
+    public Resource getVideo() {
+        return video;
+    }
+
+    public void setVideo(Resource video) {
+        this.video = video;
+    }
+
+    public Resource getAudio() {
+        return audio;
+    }
+
+    public void setAudio(Resource audio) {
+        this.audio = audio;
+    }
+
+    public void setFloors(List<Floor> floors) {
+        this.floors = floors;
+    }
+
     public void setInfo(String info) {
         this.info = info;
     }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
 
     public String getInfoKey() {
         return infoKey;
@@ -217,7 +316,6 @@ public class Site extends DelleMuseObject {
         return floors;
     }
 
-    
     @Override
     public SiteModel model() {
         try {

@@ -158,7 +158,7 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
     }
 
     public String normalize(String name) {
-        return this.getClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();
+        return this.getEntityClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();
     }
     
     protected abstract Class<T> getEntityClass();

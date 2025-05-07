@@ -25,11 +25,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Floor extends DelleMuseObject {
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "nameKey")
-    private String nameKey;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = FloorType.class)
     @JoinColumn(name = "floorType_id", nullable = true)
@@ -51,16 +46,10 @@ public class Floor extends DelleMuseObject {
     @OrderBy("roomNumber ASC")
     private List<Room> rooms;
 
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "titleKey")
-    private String titleKey;
-
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "subTitleKey")
+    @Column(name = "subtitleKey")
     private String subTitleKey;
     
     @Column(name = "floornumber")
@@ -78,21 +67,6 @@ public class Floor extends DelleMuseObject {
     public Floor() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
-    }
 
     public FloorType getFloorType() {
         return floorType;
@@ -108,22 +82,6 @@ public class Floor extends DelleMuseObject {
 
     public void setSite(Site site) {
         this.site = site;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
     }
 
     public String getSubtitle() {

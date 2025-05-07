@@ -22,11 +22,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class InstitutionalContent extends DelleMuseObject {
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "nameKey")
-    private String nameKey;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
     @JoinColumn(name = "institution_id", nullable = true)
@@ -42,16 +37,10 @@ public class InstitutionalContent extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Site site;
 
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "titleKey")
-    private String titleKey;
-
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "subTitleKey")
+    @Column(name = "subtitleKey")
     private String subTitleKey;
 
     @Column(name = "info")
@@ -80,29 +69,13 @@ public class InstitutionalContent extends DelleMuseObject {
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonProperty("audio")    
+    @JsonProperty("audio")
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
 
     public InstitutionalContent() {
-
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
-    }
 
     public Institution getInstitution() {
         return institution;
@@ -120,21 +93,6 @@ public class InstitutionalContent extends DelleMuseObject {
         this.site = site;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
-    }
 
     public String getSubtitle() {
         return subtitle;
@@ -171,7 +129,8 @@ public class InstitutionalContent extends DelleMuseObject {
     @Override
     public InstitutionalContentModel model() {
         try {
-            return (InstitutionalContentModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), InstitutionalContentModel.class);
+            return (InstitutionalContentModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
+                    InstitutionalContentModel.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

@@ -61,7 +61,7 @@ public class ArtWorkTypeDBService extends DBService<ArtWorkType, Long> {
      * @param name
      * @return
      */
-    public List<ArtWorkType> getByName(String name) {
+    public List<ArtWorkType> findByName(String name) {
         return createNameQuery().getResultList();
     }
 

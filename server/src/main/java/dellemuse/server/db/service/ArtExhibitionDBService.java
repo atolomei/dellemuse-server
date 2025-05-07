@@ -21,7 +21,7 @@ import jakarta.persistence.FlushModeType;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Order;
+
 import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;

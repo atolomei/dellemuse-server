@@ -22,11 +22,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class GuideContent extends DelleMuseObject {
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "nameKey")
-    private String nameKey;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
     @JoinColumn(name = "artExhibitionGuide_id", nullable = true)
@@ -42,16 +37,10 @@ public class GuideContent extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private ArtExhibitionItem artExhibitionItem;
 
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "titleKey")
-    private String titleKey;
-
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "subTitleKey")
+    @Column(name = "subtitleKey")
     private String subTitleKey;
 
     @Column(name = "info")
@@ -84,24 +73,7 @@ public class GuideContent extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
 
-    
     public GuideContent() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
     }
 
     public ArtExhibitionGuide getArtExhibitionGuide() {
@@ -118,22 +90,6 @@ public class GuideContent extends DelleMuseObject {
 
     public void setArtExhibitionItem(ArtExhibitionItem artExhibitionItem) {
         this.artExhibitionItem = artExhibitionItem;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
     }
 
     public String getSubtitle() {

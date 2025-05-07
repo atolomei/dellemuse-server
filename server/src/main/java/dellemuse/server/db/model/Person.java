@@ -25,14 +25,11 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Person extends DelleMuseObject {
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "namekey")
-    private String nameKey;
-
     @Column(name = "lastname")
     private String lastname;
+
+    @Column(name = "displayname")
+    private String displayname;
 
     @Column(name = "lastnamekey")
     private String lastnameKey;
@@ -82,7 +79,7 @@ public class Person extends DelleMuseObject {
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "subTitleKey")
+    @Column(name = "subtitleKey")
     private String subTitleKey;
 
     @Column(name = "info")
@@ -119,21 +116,6 @@ public class Person extends DelleMuseObject {
     public Person() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
-    }
 
     public String getLastname() {
         return lastname;
@@ -286,6 +268,16 @@ public class Person extends DelleMuseObject {
     public void setUser(User user) {
         this.user = user;
     }
+    public String getDisplayname() {
+        return displayname;
+    }
+
+
+    public void setDisplayname(String displayname) {
+        this.displayname = displayname;
+    }
+
+
     
     @Override
     public PersonModel model() {
@@ -295,6 +287,7 @@ public class Person extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+
 
 
 }

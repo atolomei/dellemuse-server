@@ -2,6 +2,7 @@ package dellemuse.server.api.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,13 +15,25 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.ArtExhibitionModel;
+import dellemuse.model.FloorModel;
+import dellemuse.model.RoomModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.server.api.model.SiteModelService;
 import dellemuse.server.db.model.Site;
 import dellemuse.server.db.service.SiteDBService;
+import dellemuse.server.error.ObjectNotFoundException;
 import dellemuse.server.security.SecurityService;
 
+/**
+ * 
+ * 
+ * 
+ * /site/artexhibitions/{siteid}
+ * /site/floors/{siteid}
+ * /site/floor/rooms/{floorid}
+ * 
+ */
 @RestController
 @RequestMapping(value = "/site")
 public class SiteController extends BaseController<Site, SiteModel> {
@@ -46,11 +59,43 @@ public class SiteController extends BaseController<Site, SiteModel> {
         this.securityService = securityService;
     }
 
+
+    /**
+     * @return
+     */
+    @GetMapping(value = "/shortname/{name}")
+    public ResponseEntity<SiteModel> getByShortName(@PathVariable("name") String name) {
+        Optional<Site> site= this.getDBService().findByShortName(name);
+        if (site.isEmpty()) 
+            throw new ObjectNotFoundException("site not found -> " + name);
+        return new ResponseEntity<SiteModel>(site.get().model(), HttpStatus.OK);
+    }
     
     /**
      * @return
      */
-    @GetMapping(value = "/exhibitions")
+    @GetMapping(value = "/floors/{siteid}")
+    public ResponseEntity<List<FloorModel>> findFloors(@PathVariable("siteid") Long siteid) {
+        List<FloorModel> list = new ArrayList<FloorModel>();
+        this.getDBService().getFloors(siteid).forEach(item -> list.add(item.model()));
+        return new ResponseEntity<List<FloorModel>>(list, HttpStatus.OK);
+    }
+
+
+    /**
+     * @return
+     */
+    @GetMapping(value = "/floor/rooms/{floorid}")
+    public ResponseEntity<List<RoomModel>> findRooms(@PathVariable("floorid") Long siteid) {
+        List<RoomModel> list = new ArrayList<RoomModel>();
+        this.getDBService().getRooms(siteid).forEach(item -> list.add(item.model()));
+        return new ResponseEntity<List<RoomModel>>(list, HttpStatus.OK);
+    }
+
+    /**
+     * @return
+     */
+    @GetMapping(value = "/artexhibitions/{siteid}")
     public ResponseEntity<List<ArtExhibitionModel>> findArtExhibitions(@PathVariable("siteid") Long siteid) {
                     
         
@@ -67,38 +112,11 @@ public class SiteController extends BaseController<Site, SiteModel> {
         if (logger.isDebugEnabled()) {
             list.forEach(item -> logger.debug(item.toString()));
         }
-
         return new ResponseEntity<List<ArtExhibitionModel>>(list, HttpStatus.OK);
-        
     }
 
         
-    /**
-     * @return
-     */
-    @GetMapping(value = "/listbyinstitution/{institutionid}")
-    public ResponseEntity<List<SiteModel>> findByInstitution(@PathVariable("institutionid") Long institutionid) {
-
-        List<SiteModel> list = new ArrayList<SiteModel>();
-
-        /**
-        logger.debug("list -> " + getModelService().getClass().getSimpleName());
-
-        if (logger.isDebugEnabled()) {
-            this.getDBService().getSites(institutionid).forEach(item -> logger.debug(item.toString()));
-        }
-
-        this.getDBService().findSites(institutionid).forEach(item -> list.add(this.getModelService().model(item)));
-
-        if (logger.isDebugEnabled()) {
-            list.forEach(item -> logger.debug(item.toString()));
-        }
-
-        return new ResponseEntity<List<SiteModel>>(list, HttpStatus.OK);
-        */
-        return null;
-        
-    }
+    
 
     @Override
     public SiteDBService getDBService() {

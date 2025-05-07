@@ -25,12 +25,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibition extends DelleMuseObject {
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "nameKey")
-    private String nameKey;
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = ArtExhibitionStatusType.class)
     @JoinColumn(name = "artExhibitionStatusType_id", nullable = true)
     @JsonManagedReference
@@ -54,16 +48,10 @@ public class ArtExhibition extends DelleMuseObject {
     @Column(name = "toDate")
     private OffsetDateTime toDate;
 
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "titleKey")
-    private String titleKey;
-
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "subTitleKey")
+    @Column(name = "subtitleKey")
     private String subTitleKey;
 
     @Column(name = "info")
@@ -99,21 +87,6 @@ public class ArtExhibition extends DelleMuseObject {
     public ArtExhibition() {
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNameKey() {
-        return nameKey;
-    }
-
-    public void setNameKey(String nameKey) {
-        this.nameKey = nameKey;
-    }
 
     public ArtExhibitionStatusType getArtExhibitionStatusType() {
         return artExhibitionStatusType;
@@ -155,21 +128,6 @@ public class ArtExhibition extends DelleMuseObject {
         this.toDate = toDate;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
-    }
 
     public String getSubtitle() {
         return subtitle;
