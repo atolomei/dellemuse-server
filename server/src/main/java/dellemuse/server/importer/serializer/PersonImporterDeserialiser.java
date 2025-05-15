@@ -1,4 +1,4 @@
-package dellemuse.server.importer;
+package dellemuse.server.importer.serializer;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,7 +42,6 @@ public class PersonImporterDeserialiser extends StdDeserializer<Person> {
         this.userDBService=userDBService;
     }
 
-
     /**
      * 
      */
@@ -61,7 +60,6 @@ public class PersonImporterDeserialiser extends StdDeserializer<Person> {
         Person person;
         
         if (o_person.isEmpty()) {
-        
             person = personDBService.create(
                 node.get("name").asText(), 
                 userDBService.findRoot(),

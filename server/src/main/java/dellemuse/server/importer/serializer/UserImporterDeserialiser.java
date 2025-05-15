@@ -1,4 +1,4 @@
-package dellemuse.server.importer;
+package dellemuse.server.importer.serializer;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,9 +45,7 @@ public class UserImporterDeserialiser extends StdDeserializer<User> {
 
         this.personDBService=personDBService;
         this.userDBService=userDBService;
-        
     }
-
 
     @Override
     public User deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {

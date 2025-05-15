@@ -1,7 +1,9 @@
 package dellemuse.server.db.model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,10 +15,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.ArtWorkModel;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -28,11 +33,11 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtWork extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWorkType.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtWorkType.class)
     @JoinColumn(name = "artworkType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private ArtWorkType artworkType;
 
     @Column(name = "subtitle")
@@ -47,19 +52,38 @@ public class ArtWork extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToMany(fetch = FetchType.EAGER, targetEntity = ArtWorkArtist.class)
-    @JoinColumn(name = "artwork_id", nullable = true, insertable = false)
-    @JsonSerialize(using = DelleMuseListIdSerializer.class)
+    /**
+     * @OneToMany(fetch = FetchType.EAGER, targetEntity = ArtWorkArtist.class)
+     * @JoinColumn(name = "artwork_id", nullable = true, insertable = true)
+     * @JsonSerialize(using = DelleMuseListIdSerializer.class)
+     * @JsonManagedReference
+     * @JsonBackReference private List<ArtWorkArtist> artWorkArtists;
+     **/
+
+    /**
+     * @ManyToOne(fetch = FetchType.EAGER, targetEntity = Person.class)
+     * @JoinColumn(name = "person_id", nullable = true)
+     * @JsonManagedReference
+     * @JsonBackReference
+     * @JsonSerialize(using = DelleMuseIdSerializer.class) private List<Person>
+     *                      artists;
+     **/
+
     @JsonManagedReference
     @JsonBackReference
-    private List<ArtWorkArtist> artWorkArtists;
-
+    @JsonSerialize(using = DelleMuseSetIdNameSerializer.class)
+    @ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
+    @JoinTable(name = "ArtWorkArtist", joinColumns = { @JoinColumn(name = "artwork_id") }, inverseJoinColumns = {
+            @JoinColumn(name = "person_id") })
+    Set<Person> artists = new HashSet<>();
+    
+    
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -67,7 +91,7 @@ public class ArtWork extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -75,12 +99,11 @@ public class ArtWork extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource audio;
 
     public ArtWork() {
     }
-
 
     public ArtWorkType getArtworkType() {
         return artworkType;
@@ -89,7 +112,6 @@ public class ArtWork extends DelleMuseObject {
     public void setArtworkType(ArtWorkType artworkType) {
         this.artworkType = artworkType;
     }
-
 
     public String getSubtitle() {
         return subtitle;
@@ -123,15 +145,13 @@ public class ArtWork extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
-    @JsonIgnore
-    public List<Person> getArtists() {
-        List<Person> list = new ArrayList<Person>();
-        if (artWorkArtists != null)
-            artWorkArtists.forEach(item -> list.add(item.getPerson()));
-        return list;
-    }
+    /**
+     * @JsonIgnore public List<Person> getArtists() { List<Person> list = new
+     *             ArrayList<Person>(); if (artWorkArtists != null)
+     *             artWorkArtists.forEach(item -> list.add(item.getPerson()));
+     *             return list; }
+     **/
 
-    
     @Override
     public ArtWorkModel model() {
         try {
@@ -141,4 +161,44 @@ public class ArtWork extends DelleMuseObject {
         }
     }
 
+    public Set<Person> getArtists() {
+        return artists;
+    }
+
+    public void setArtists(Set<Person> artists) {
+        this.artists = artists;
+    }
+
+    public Resource getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Resource photo) {
+        this.photo = photo;
+    }
+
+    public Resource getVideo() {
+        return video;
+    }
+
+    public void setVideo(Resource video) {
+        this.video = video;
+    }
+
+    public Resource getAudio() {
+        return audio;
+    }
+
+    public void setAudio(Resource audio) {
+        this.audio = audio;
+    }
+
 };
+
+//public List<ArtWorkArtist> getArtWorkArtists() {
+//    return artWorkArtists;
+//}
+
+//public void setArtWorkArtists(List<ArtWorkArtist> artWorkArtists) {
+//    this.artWorkArtists = artWorkArtists;
+//}

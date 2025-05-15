@@ -7,6 +7,14 @@ import dellemuse.server.db.model.ArtExhibition;
 import dellemuse.server.db.model.ArtExhibitionGuide;
 import dellemuse.server.db.model.ArtWork;
 import dellemuse.server.db.model.ArtWorkArtist;
+import dellemuse.server.db.model.Floor;
+import dellemuse.server.db.model.FloorType;
+import dellemuse.server.db.model.GuideContent;
+import dellemuse.server.db.model.InstitutionType;
+import dellemuse.server.db.model.InstitutionalContent;
+import dellemuse.server.db.model.Person;
+import dellemuse.server.db.model.Resource;
+import dellemuse.server.db.model.ResourceId;
 
 /**
  *  <S extends T> S save(S entity);
@@ -23,7 +31,7 @@ import dellemuse.server.db.model.ArtWorkArtist;
  *  void deleteAll();
  * 
  */
-@Repository
-public interface ArtWorkArtistRepository extends CrudRepository<ArtWorkArtist, Long> {
+
+public interface ResourceIdRepository extends CrudRepository<ResourceId, Long> {
 
 }

@@ -33,12 +33,11 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Site extends DelleMuseObject {
 
-
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
     @JoinColumn(name = "siteType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private SiteType siteType;
 
     @JsonProperty("siteTypeId")
@@ -48,19 +47,16 @@ public class Site extends DelleMuseObject {
         return Optional.empty();
     }
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Institution.class)
     @JoinColumn(name = "institution_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Institution institution;
-
 
     @Column(name = "shortName")
     private String shortName;
 
-    
-    
     @Column(name = "subtitle")
     private String subtitle;
 
@@ -100,37 +96,26 @@ public class Site extends DelleMuseObject {
     @Column(name = "twitter")
     private String twitter;
     
-    
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = Floor.class)
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = Floor.class)
     @JoinColumn(name = "site_id", nullable = true, insertable=false)
-    @JsonIgnore
     @OrderBy("floorNumber ASC")
+    @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     private List<Floor> floors;
-    
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "logo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("logo")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource logo;
-
-    
-    public Resource getLogo() {
-        return logo;
-    }
-
-
-    public void setLogo(Resource logo) {
-        this.logo = logo;
-    }
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -153,6 +138,23 @@ public class Site extends DelleMuseObject {
     }
 
 
+    @Override
+    public SiteModel model() {
+        try {
+            return (SiteModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),SiteModel.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public Resource getLogo() {
+        return logo;
+    }
+
+    public void setLogo(Resource logo) {
+        this.logo = logo;
+    }
+
+    
     public SiteType getSiteType() {
         return siteType;
     }
@@ -316,13 +318,6 @@ public class Site extends DelleMuseObject {
         return floors;
     }
 
-    @Override
-    public SiteModel model() {
-        try {
-            return (SiteModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),SiteModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
 };

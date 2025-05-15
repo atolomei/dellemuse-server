@@ -20,6 +20,8 @@
 
 BEGIN;
 
+
+CREATE SEQUENCE if not exists objectstorage_id 	START 100;
 CREATE SEQUENCE if not exists sequence_id 		START 100;
 CREATE SEQUENCE if not exists sequence_user_id 	START 100;
 CREATE SEQUENCE if not exists readcode_id 		START 1000;
@@ -54,25 +56,26 @@ alter table users add column  lastmodifieduser bigint references users(id) on de
 
 
 -- ------------------------------------------------------------------------------------------------------------------------------
--- file 
+-- resource
 -- ------------------------------------------------------------------------------------------------------------------------------
 
-CREATE TABLE file (
+CREATE TABLE resource (
 						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
 						nameKey				character varying(512),
-
 						title		 		character varying(1024),
 						titleKey			character varying(512),
 						
-						media				character varying(512),
+
+
+						media				character varying(64),
 						
 						info		 		text,
 						infoKey 			character varying(512),
 						
 						
-						bucket				character varying(512) not null,
+						bucketName			character varying(512) not null,
 						objectName			character varying(512) not null,
 						
 						binaryObject		bytea,
@@ -122,9 +125,9 @@ CREATE TABLE person (
 						infoKey 			character varying(512),
 						
 
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -206,11 +209,11 @@ CREATE TABLE institution (
 						twitter		 		character varying(1024),
 						
 
-						logo				bigint references file(id) on delete restrict,
+						logo				bigint references resource(id) on delete restrict,
 						
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 
 						created				timestamp with time zone DEFAULT now() not null,
@@ -274,11 +277,11 @@ CREATE TABLE site (
 						address		 		text,
 						addressKey 			character varying(512),
 						
-						logo				bigint references file(id) on delete restrict,
+						logo				bigint references resource(id) on delete restrict,
 
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 						
 						created				timestamp with time zone DEFAULT now() not null,
@@ -331,9 +334,9 @@ CREATE TABLE floor (
 						floorNumber			character varying(256),
 						floorNumberKey		character varying(512),
 						
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 
 						created				timestamp with time zone DEFAULT now() not null,
@@ -387,9 +390,9 @@ CREATE TABLE room (
 						info		 		text,
 						infoKey 			character varying(512),
 
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 
 						
@@ -459,9 +462,9 @@ CREATE TABLE artwork (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 						
 						year				integer default 0,
@@ -514,9 +517,9 @@ CREATE TABLE institutionalContent (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 
 						created				timestamp with time zone DEFAULT now() not null,
@@ -582,9 +585,9 @@ CREATE TABLE artExhibition (
 						twitter		 		character varying(1024),
 
 						
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 						
 						permanent			boolean default true,
@@ -605,12 +608,13 @@ CREATE TABLE artExhibitionItem (
 
 						id					bigint primary key default nextval('sequence_id'),
 
-						name	 	   		character varying(512) not null,
+						name				character varying(512) not null,
 						nameKey				character varying(512),
 
 						title		 		character varying(1024),
 						titleKey			character varying(512),
 						
+						artExhibition_id 		bigint references artExhibition(id) on delete restrict,
 						artWork_id 				bigint references artWork(id) on delete restrict not null,
 
 						site_id 				bigint references site(id) on delete restrict,
@@ -619,6 +623,9 @@ CREATE TABLE artExhibitionItem (
 										
 						ordinal					integer default 0,
 
+						mapurl		 			character varying(1024),
+						website		 		character varying(1024),
+						
 						readcode	 			character varying(1024),
 						qcode		 			character varying(1024),
 
@@ -655,9 +662,9 @@ CREATE TABLE artExhibitionGuide (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -685,9 +692,9 @@ CREATE TABLE guideContent (
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						photo				bigint references file(id) on delete restrict,
-						video				bigint references file(id) on delete restrict,
-						audio				bigint references file(id) on delete restrict,
+						photo				bigint references resource(id) on delete restrict,
+						video				bigint references resource(id) on delete restrict,
+						audio				bigint references resource(id) on delete restrict,
 
 
 						

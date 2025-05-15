@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.model.ResourceModel;
 import dellemuse.model.RoomModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,21 +22,19 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Room extends DelleMuseObject {
 
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = RoomType.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = RoomType.class)
     @JoinColumn(name = "roomType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private RoomType roomType;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Floor.class)
     @JoinColumn(name = "floor_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Floor floor;
-
 
     @Column(name = "subtitle")
     private String subtitle;
@@ -57,12 +54,12 @@ public class Room extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -70,7 +67,7 @@ public class Room extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -78,14 +75,11 @@ public class Room extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")    
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource audio;
-
     
     public Room() {
-
     }
-
 
     public RoomType getRoomType() {
         return roomType;
@@ -102,7 +96,6 @@ public class Room extends DelleMuseObject {
     public void setFloor(Floor floor) {
         this.floor = floor;
     }
-
 
     public String getSubtitle() {
         return subtitle;
@@ -160,5 +153,4 @@ public class Room extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
-
 };

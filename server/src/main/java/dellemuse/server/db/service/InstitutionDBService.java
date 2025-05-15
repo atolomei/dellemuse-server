@@ -2,6 +2,7 @@ package dellemuse.server.db.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,34 @@ public class InstitutionDBService extends DBService<Institution, Long> {
         return getRepository().save(c);
     }
 
+    @Transactional
+    public Institution create(  String name, 
+                                Optional<String> shortName, 
+                                Optional<String> address, 
+                                Optional<String> info,
+                                User createdBy) {
+        
+        Institution c = new Institution();
+        c.setName(name);
+        c.setNameKey(normalize(name));
+
+        if (shortName.isPresent())
+            c.setShortName(shortName.get());
+        
+        if (address.isPresent())
+            c.setAddress(address.get());
+        
+        if (info.isPresent())
+            c.setAddress(info.get());
+        
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+        return getRepository().save(c);
+        
+    }
+    
     
     @Transactional
     public List<Site> getSites(Long institutionid) {
@@ -67,10 +96,25 @@ public class InstitutionDBService extends DBService<Institution, Long> {
         query.setFlushMode(FlushModeType.COMMIT);
         query.setParameter(idparameter, institutionid);
         return query.getResultList();
+    }
+    
 
-        
-        
-
+    public Optional<Institution> findByShortName(String name) {
+        TypedQuery<Institution> query;
+        CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<Institution> criteria = criteriabuilder.createQuery(Institution.class);
+        Root<Institution> loaders = criteria.from(Institution.class);
+        criteria.orderBy(criteriabuilder.asc(loaders.get("id")));
+        ParameterExpression<String> idparameter = criteriabuilder.parameter(String.class);
+        criteria.select(loaders).where(criteriabuilder.equal(loaders.get("shortName"), idparameter));
+        query = getSessionFactory().getCurrentSession().createQuery(criteria);
+        query.setHint("org.hibernate.cacheable", true);
+        query.setFlushMode(FlushModeType.COMMIT);
+        query.setParameter(idparameter, name);
+        List<Institution> list = query.getResultList();
+        if (list==null || list.isEmpty())
+            return Optional.empty();
+        return Optional.of(list.get(0));
     }
     
     
@@ -86,4 +130,8 @@ public class InstitutionDBService extends DBService<Institution, Long> {
     protected Class<Institution> getEntityClass() {
         return Institution.class;
     }
+
+    
+
+
 }

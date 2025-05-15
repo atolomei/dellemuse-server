@@ -22,19 +22,18 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class GuideContent extends DelleMuseObject {
 
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
-    @JoinColumn(name = "artExhibitionGuide_id", nullable = true)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibitionGuide.class)
+    @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable=false)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private ArtExhibitionGuide artExhibitionGuide;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
-    @JoinColumn(name = "artExhibitionItem_id", nullable = true)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibitionItem.class)
+    @JoinColumn(name = "artExhibitionItem_id", nullable = true, insertable=false)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private ArtExhibitionItem artExhibitionItem;
 
     @Column(name = "subtitle")
@@ -54,7 +53,7 @@ public class GuideContent extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -62,7 +61,7 @@ public class GuideContent extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -70,7 +69,7 @@ public class GuideContent extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")    
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource audio;
 
     public GuideContent() {

@@ -12,6 +12,8 @@ import com.google.common.io.Files;
 
 import dellemuse.server.Settings;
 import dellemuse.server.db.model.ArtWork;
+import dellemuse.server.db.model.Person;
+import dellemuse.server.db.model.User;
 import dellemuse.server.db.service.UserDBService;
 import dellemuse.server.objectstorage.ObjectStorageService;
 
@@ -26,7 +28,8 @@ public class UserImporter extends BaseImporter {
  
     @Override
     protected boolean read(File file) throws StreamReadException, DatabindException, IOException {
-        
+
+        User user = getObjectMapper().readValue(file, User.class);
         return false;
     }
 

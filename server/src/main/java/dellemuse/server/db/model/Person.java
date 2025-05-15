@@ -93,7 +93,7 @@ public class Person extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -112,10 +112,8 @@ public class Person extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
 
-
     public Person() {
     }
-
 
     public String getLastname() {
         return lastname;
@@ -268,17 +266,15 @@ public class Person extends DelleMuseObject {
     public void setUser(User user) {
         this.user = user;
     }
+
     public String getDisplayname() {
         return displayname;
     }
-
 
     public void setDisplayname(String displayname) {
         this.displayname = displayname;
     }
 
-
-    
     @Override
     public PersonModel model() {
         try {
@@ -287,7 +283,5 @@ public class Person extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
-
-
 
 }

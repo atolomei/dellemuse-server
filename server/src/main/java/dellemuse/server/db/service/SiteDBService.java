@@ -11,14 +11,9 @@ import dellemuse.server.Settings;
 import dellemuse.server.db.model.ArtExhibition;
 import dellemuse.server.db.model.Floor;
 import dellemuse.server.db.model.Institution;
-import dellemuse.server.db.model.Person;
 import dellemuse.server.db.model.Room;
 import dellemuse.server.db.model.Site;
 import dellemuse.server.db.model.User;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.FloorModel;
-import dellemuse.model.InstitutionModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.FlushModeType;
@@ -60,6 +55,28 @@ public class SiteDBService extends DBService<Site, Long> {
     }
 
     /**
+     * <p>
+     * Annotation Transactional is required to store values into the Database
+     * </p>
+     * @param name
+     * @param createdBy
+     */
+    @Transactional
+    public Site create(String name, Institution institution, Optional<String> shortName, Optional<String> address,
+            Optional<String> info, User createdBy) { 
+        Site c = new Site();
+        c.setName(name);
+        c.setInstitution(institution);
+        c.setNameKey(normalize(name));
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        c.setShortName(shortName.get());
+        c.setAddress(address.get());
+        return getRepository().save(c);
+    }
+    
+    /**
      * @param name
      * @return
      */
@@ -87,11 +104,6 @@ public class SiteDBService extends DBService<Site, Long> {
         return Optional.of(list.get(0));
     }
     
-    @Override
-    protected Class<Site> getEntityClass() {
-        return Site.class;
-    }
-
     @Transactional
     public List<ArtExhibition> getArtExhibitions(Site site) {
         return getArtExhibitions(site.getId());
@@ -127,7 +139,6 @@ public class SiteDBService extends DBService<Site, Long> {
         query.setFlushMode(FlushModeType.COMMIT);
         query.setParameter(idparameter, siteid);
         return query.getResultList();
-
     }
 
     @Transactional
@@ -146,7 +157,9 @@ public class SiteDBService extends DBService<Site, Long> {
         return query.getResultList();
     }
 
+    @Override
+    protected Class<Site> getEntityClass() {
+        return Site.class;
+    }
 
-    
-    
 }

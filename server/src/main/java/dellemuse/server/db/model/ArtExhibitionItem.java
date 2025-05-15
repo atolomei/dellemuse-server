@@ -24,28 +24,35 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @JoinColumn(name = "artwork_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private ArtWork artwork;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
+    @JoinColumn(name = "artExhibition_id", referencedColumnName = "id", nullable = true)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    private ArtExhibition artExhibition;
+
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Site site;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
     @JoinColumn(name = "floor_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Floor floor;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
     @JoinColumn(name = "room_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Room room;
 
     @Column(name = "ordinal")
@@ -74,9 +81,18 @@ public class ArtExhibitionItem extends DelleMuseObject {
 
     @Column(name = "website")
     private String wesite;
-    
-    
+
     public ArtExhibitionItem() {
+    }
+
+    @Override
+    public ArtExhibitionItemModel model() {
+        try {
+            return (ArtExhibitionItemModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
+                    ArtExhibitionItemModel.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ArtWork getArtwork() {
@@ -166,15 +182,29 @@ public class ArtExhibitionItem extends DelleMuseObject {
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
     }
-    
-    
-    @Override
-    public ArtExhibitionItemModel model() {
-        try {
-            return (ArtExhibitionItemModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), ArtExhibitionItemModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+
+    public ArtExhibition getArtExhibition() {
+        return artExhibition;
+    }
+
+    public void setArtExhibition(ArtExhibition artExhibition) {
+        this.artExhibition = artExhibition;
+    }
+
+    public String getMapurl() {
+        return mapurl;
+    }
+
+    public void setMapurl(String mapurl) {
+        this.mapurl = mapurl;
+    }
+
+    public String getWesite() {
+        return wesite;
+    }
+
+    public void setWesite(String wesite) {
+        this.wesite = wesite;
     }
 
 };

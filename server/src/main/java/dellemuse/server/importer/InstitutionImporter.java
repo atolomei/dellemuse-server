@@ -15,39 +15,53 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.io.Files;
 
 import dellemuse.server.Settings;
+import dellemuse.server.db.model.Institution;
 import dellemuse.server.db.model.Person;
+import dellemuse.server.db.service.InstitutionDBService;
 import dellemuse.server.db.service.PersonDBService;
 import dellemuse.server.db.service.UserDBService;
+import dellemuse.server.importer.serializer.InstitutionImporterDeserialiser;
 import dellemuse.server.importer.serializer.PersonImporterDeserialiser;
 import dellemuse.server.objectstorage.ObjectStorageService;
 
 
 @Service
-public class PersonImporter extends BaseImporter {
+public class InstitutionImporter extends BaseImporter {
 
-    
     @JsonIgnore
     @Autowired
-    private final PersonDBService personDBService;
+    InstitutionDBService institutionDBService;
     
-    public PersonImporter(Settings settings,  PersonDBService personDBService, UserDBService userDBService,  ObjectStorageService objectStorageService) {
-        super(settings, userDBService,  objectStorageService, Person.class.getSimpleName().toLowerCase());
-
-        this.personDBService=personDBService;
-        PersonImporterDeserialiser personDeserializer = new PersonImporterDeserialiser(Person.class, personDBService, userDBService);
+    
+    public InstitutionImporter(     Settings settings,  
+                                    UserDBService userDBService,  
+                                    ObjectStorageService objectStorageService,
+                                    InstitutionDBService institutionDBService ) {
+        
+        super(settings, userDBService,  objectStorageService, Institution.class.getSimpleName().toLowerCase());
+ 
+        this.institutionDBService=institutionDBService;
+        
+        InstitutionImporterDeserialiser personDeserializer = new InstitutionImporterDeserialiser(Institution.class, this);
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(Person.class, personDeserializer);
+        module.addDeserializer(Institution.class, personDeserializer);
         getObjectMapper().registerModule(module);
         
     }
     
-
     @Override
     protected boolean read(File file) throws StreamReadException, DatabindException, IOException {
-        Person person = getObjectMapper().readValue(file, Person.class);
+        Institution in = getObjectMapper().readValue(file, Institution.class);
         return true;
     }
 
+
+    public InstitutionDBService getInstitutionDBService() {
+        return institutionDBService;
+    }
+
+
+    
 
 
 }

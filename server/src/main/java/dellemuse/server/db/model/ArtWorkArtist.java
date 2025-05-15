@@ -14,9 +14,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-@Entity
-@Table(name = "artworkArtist")
-@JsonInclude(Include.NON_NULL)
+//@Entity
+//@Table(name = "artworkArtist")
+//@JsonInclude(Include.NON_NULL)
 public class ArtWorkArtist extends DelleMuseObject {
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtWork.class)

@@ -1,8 +1,10 @@
 package dellemuse.server.db.model;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +19,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 @Entity
@@ -25,18 +29,18 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibition extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = ArtExhibitionStatusType.class)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = ArtExhibitionStatusType.class)
     @JoinColumn(name = "artExhibitionStatusType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private ArtExhibitionStatusType artExhibitionStatusType;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Site site;
 
     @Column(name = "permanent")
@@ -60,12 +64,18 @@ public class ArtExhibition extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
+    @JoinColumn(name = "artExhibitionItem_id", nullable = true, insertable = true)
+    @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
+    @OrderBy("lower(title) ASC")
+    private List<ArtExhibitionItem> artExhibitionItems;
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -73,7 +83,7 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -81,12 +91,21 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource audio;
 
     public ArtExhibition() {
     }
 
+    @Override
+    public ArtExhibitionModel model() {
+        try {
+            return (ArtExhibitionModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
+                    ArtExhibitionModel.class);
+        } catch (JsonProcessingException e) {
+            throw new InternalErrorException(e);
+        }
+    }
 
     public ArtExhibitionStatusType getArtExhibitionStatusType() {
         return artExhibitionStatusType;
@@ -128,7 +147,6 @@ public class ArtExhibition extends DelleMuseObject {
         this.toDate = toDate;
     }
 
-
     public String getSubtitle() {
         return subtitle;
     }
@@ -161,13 +179,35 @@ public class ArtExhibition extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
-    @Override
-    public ArtExhibitionModel model() {
-        try {
-            return (ArtExhibitionModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
-                    ArtExhibitionModel.class);
-        } catch (JsonProcessingException e) {
-            throw new InternalErrorException(e);
-        }
+    public List<ArtExhibitionItem> getArtExhibitionItems() {
+        return artExhibitionItems;
+    }
+
+    public void setArtExhibitionItems(List<ArtExhibitionItem> artExhibitionItems) {
+        this.artExhibitionItems = artExhibitionItems;
+    }
+
+    public Resource getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Resource photo) {
+        this.photo = photo;
+    }
+
+    public Resource getVideo() {
+        return video;
+    }
+
+    public void setVideo(Resource video) {
+        this.video = video;
+    }
+
+    public Resource getAudio() {
+        return audio;
+    }
+
+    public void setAudio(Resource audio) {
+        this.audio = audio;
     }
 };

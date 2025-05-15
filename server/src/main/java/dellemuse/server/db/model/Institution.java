@@ -35,7 +35,6 @@ public class Institution extends DelleMuseObject {
 
     @Column(name = "shortName")
     private String shortName;
-
     
     @Column(name = "subtitle")
     private String subtitle;
@@ -98,14 +97,12 @@ public class Institution extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource logo;
 
-    
-    
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)

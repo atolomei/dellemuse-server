@@ -14,11 +14,9 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibitionStatusType extends DelleMuseObject {
 
-    
     public ArtExhibitionStatusType() {
     }
 
-    
     @Override
     public ArtExhibitionStatusTypeModel model() {
         try {

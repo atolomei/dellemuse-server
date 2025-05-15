@@ -25,24 +25,23 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Floor extends DelleMuseObject {
 
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = FloorType.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = FloorType.class)
     @JoinColumn(name = "floorType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private FloorType floorType;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Site site;
     
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = Room.class)
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = Room.class)
     @JoinColumn(name = "floor_id", nullable = true, insertable=false)
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("roomNumber ASC")
     private List<Room> rooms;
 

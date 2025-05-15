@@ -2,6 +2,7 @@ package dellemuse.server;
 
 import java.io.File;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Constant;
+import dellemuse.server.db.service.ResourceDBService;
 import dellemuse.server.importer.PersonImporter;
 import dellemuse.server.importer.ServerImporter;
 import dellemuse.server.test.TestListObjects;
@@ -28,8 +30,8 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 	@JsonIgnore
 	private final ApplicationContext appContext;
 
-  	 //@Autowired
-	 //TestListObjects test;
+  	 @Autowired
+	 TestListObjects test;
   	 
      @Autowired
      ServerImporter serverImporter;
@@ -59,13 +61,12 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
         if (iKeys)
             startupLogger.info(Constant.SEPARATOR);
         
-		
 		 
-		startupLogger.info	("Startup at -> " + OffsetDateTime.now().toString());
+		startupLogger.info	("Startup at -> " + DateTimeFormatter.RFC_1123_DATE_TIME.format(OffsetDateTime.now()));
 		
-		//test.test();
-		
-		serverImporter.execute();
+		test.test();
+        
+		//serverImporter.execute();
 		
 		
 	}

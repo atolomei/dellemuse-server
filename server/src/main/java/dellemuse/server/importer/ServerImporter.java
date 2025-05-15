@@ -14,11 +14,9 @@ import dellemuse.server.BaseService;
 import dellemuse.server.Settings;
 import dellemuse.server.db.service.UserDBService;
 
-
 @Service
 public class ServerImporter extends BaseService {
 
-    
     @JsonIgnore
     @Autowired
     final PersonImporter personImporter;
@@ -27,26 +25,47 @@ public class ServerImporter extends BaseService {
     @Autowired
     final UserImporter userImporter;
 
+    
+    @JsonIgnore
+    @Autowired
     ArtWorkImporter  artWorkImporter;
     
+    @JsonIgnore
+    @Autowired
+    ResourceImporter  resourceImporter;
     
+    @JsonIgnore
+    @Autowired
+    InstitutionImporter  institutionImporter;
     
-    public ServerImporter(Settings settings, 
-            PersonImporter personImporter,
-            UserImporter userImporter,
-            ArtWorkImporter  artWorkImporter) {
+
+    @JsonIgnore
+    @Autowired
+    SiteImporter  siteImporter;
+
+    
+    public ServerImporter(
+            Settings            settings, 
+            PersonImporter      personImporter,
+            UserImporter        userImporter,
+            ArtWorkImporter     artWorkImporter,
+            ResourceImporter    resourceImporter,
+            InstitutionImporter institutionImporter,
+            SiteImporter        siteImporter) {
         
         super(settings);
 
-        this.personImporter=personImporter;
-        this.userImporter=userImporter;
-        this.artWorkImporter=artWorkImporter;
-     
+        this.personImporter         =   personImporter;
+        this.userImporter           =   userImporter;
+        this.artWorkImporter        =   artWorkImporter;
+        this.resourceImporter       =   resourceImporter;
+        this.institutionImporter    =   institutionImporter;
+        this.siteImporter           =   siteImporter;
     }
     
-
     public void execute() throws IOException {
         
+        resourceImporter.execute();
         personImporter.execute();
         userImporter.execute();
         artWorkImporter.execute();

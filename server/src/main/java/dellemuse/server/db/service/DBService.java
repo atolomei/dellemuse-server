@@ -37,17 +37,19 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
 
     @JsonIgnore
     static final private ObjectMapper mapper = new ObjectMapper();
-
-    @Autowired
-    private SessionFactory sessionFactory;
-
+    
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(DBService.class.getName());
-
+    
     static {
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
+    
+    @JsonIgnore
+    @Autowired
+    private SessionFactory sessionFactory;
+
 
     @JsonIgnore
     @Autowired

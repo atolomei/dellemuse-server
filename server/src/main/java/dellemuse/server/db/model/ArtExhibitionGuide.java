@@ -3,7 +3,6 @@ package dellemuse.server.db.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -27,11 +26,11 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibitionGuide extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibition.class)
     @JoinColumn(name = "artExhibition_id", referencedColumnName = "id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private ArtExhibition artExhibition;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
@@ -39,12 +38,12 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("publisher")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Person publisher;
 
     @OneToMany(fetch = FetchType.LAZY, targetEntity = GuideContent.class)
     @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = true)
-    @JsonIgnore
+    @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("lower(title) ASC")
     private List<GuideContent> contents;
 
@@ -68,7 +67,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -76,7 +75,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -84,7 +83,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource audio;
 
     public ArtExhibitionGuide() {

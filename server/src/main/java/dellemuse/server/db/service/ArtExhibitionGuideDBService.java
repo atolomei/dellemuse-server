@@ -7,9 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.server.Settings;
-import dellemuse.server.db.model.ArtExhibition;
 import dellemuse.server.db.model.ArtExhibitionGuide;
-import dellemuse.server.db.model.ArtExhibitionItem;
 import dellemuse.server.db.model.GuideContent;
 import dellemuse.server.db.model.Person;
 import dellemuse.server.db.model.User;
@@ -62,13 +60,11 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         return createNameQuery().getResultList();
     }
 
-
     @Transactional
     public List<GuideContent> getArtExhibitionGuideContents(ArtExhibitionGuide exhibitionGuide) {
         return  getArtExhibitionGuideContents(exhibitionGuide.getId());
     }
 
-    
     @Transactional
     public List<GuideContent> getArtExhibitionGuideContents(Long guideid) {
         TypedQuery<GuideContent> query;
@@ -86,7 +82,6 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         query.setParameter(idparameter, guideid);
         return query.getResultList();
     }
-
 
     @Transactional
     public List<GuideContent> getArtExhibitionGuidePublishedBy(Person person) {
@@ -106,17 +101,9 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         return query.getResultList();
     }
 
-    
-    
-    
-    
-    
-    
     @Override
     protected Class<ArtExhibitionGuide> getEntityClass() {
         return ArtExhibitionGuide.class;
     }
 
-    
-    
 }

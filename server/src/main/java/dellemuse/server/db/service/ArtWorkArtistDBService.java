@@ -15,7 +15,7 @@ import dellemuse.model.logging.Logger;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.transaction.Transactional;
 
-@Service
+//@Service
 public class ArtWorkArtistDBService extends DBService<ArtWorkArtist, Long> {
 
     @SuppressWarnings("unused")

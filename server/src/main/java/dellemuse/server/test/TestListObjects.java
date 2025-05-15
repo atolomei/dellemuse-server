@@ -62,61 +62,58 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
     
     public void test() {
       
-        testArtExhibitionGuide();
-        testArtExhibitionGuideBySite();
-        
-        
-        {
-            Tester <Person, PersonDBService> tester = new Tester<Person, PersonDBService>(Person.class, PersonDBService.class);
-            tester.test();
-            
-            
-            TesterModel<Person, PersonDBService, PersonModel, PersonModelService> testerModel = 
-                    new TesterModel(   Person.class, 
-                        PersonDBService.class,
-                        PersonModel.class,
-                        PersonModelService.class);
-            
-            testerModel.test();
-            
-        }
-
-        
-    
-        {
-            Tester <Floor, FloorDBService> tester = new Tester<Floor , FloorDBService>(Floor.class, FloorDBService.class);
-            tester.test();
-        }
-
-        
-        
+   
         {
             Tester <GuideContent, GuideContentDBService> tester = new Tester<GuideContent, GuideContentDBService>(GuideContent.class, GuideContentDBService.class);
             tester.test();
-            
         }
-        
 
         
         {
-            Tester <InstitutionalContent, InstitutionalContentDBService> tester = new Tester<InstitutionalContent, InstitutionalContentDBService>(InstitutionalContent.class, InstitutionalContentDBService.class);
+            Tester <ArtWork, ArtWorkDBService> tester = new Tester<ArtWork, ArtWorkDBService>(ArtWork.class, ArtWorkDBService.class);
             tester.test();
         }
-        
-       
-
         
         {
-            Tester <Room, RoomDBService> tester = new Tester<Room, RoomDBService>(Room.class, RoomDBService.class);
+            Tester <Institution, InstitutionDBService> tester = new Tester<Institution, InstitutionDBService>(Institution.class, InstitutionDBService.class);
             tester.test();
         }
-
 
         {   
             Tester <Site, SiteDBService> tester = new Tester<Site, SiteDBService>(Site.class, SiteDBService.class);
             tester.test();
         }
 
+        
+        
+        {
+            Tester <Person, PersonDBService> tester = new Tester<Person, PersonDBService>(Person.class, PersonDBService.class);
+            tester.test();
+        
+            TesterModel<Person, PersonDBService, PersonModel, PersonModelService> testerModel = 
+                    new TesterModel(    Person.class, 
+                                        PersonDBService.class,
+                                        PersonModel.class,
+                                        PersonModelService.class);
+            
+            testerModel.test();
+        }
+    
+        {
+            Tester <Floor, FloorDBService> tester = new Tester<Floor , FloorDBService>(Floor.class, FloorDBService.class);
+            tester.test();
+        }
+
+   
+        {
+            Tester <InstitutionalContent, InstitutionalContentDBService> tester = new Tester<InstitutionalContent, InstitutionalContentDBService>(InstitutionalContent.class, InstitutionalContentDBService.class);
+            tester.test();
+        }
+        
+        {
+            Tester <Room, RoomDBService> tester = new Tester<Room, RoomDBService>(Room.class, RoomDBService.class);
+            tester.test();
+        }
 
         {   
             Tester <User, UserDBService> tester = new Tester<User, UserDBService>(User.class, UserDBService.class);
@@ -129,6 +126,7 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
             tester.test();
         }
 
+        
         {
             Tester <ArtExhibition, ArtExhibitionDBService> tester = new Tester<ArtExhibition, ArtExhibitionDBService>(ArtExhibition.class, ArtExhibitionDBService.class);
             tester.test();
@@ -140,16 +138,12 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
             tester.test();
         }
 
-        {
-            Tester <ArtWork, ArtWorkDBService> tester = new Tester<ArtWork, ArtWorkDBService>(ArtWork.class, ArtWorkDBService.class);
-            tester.test();
-        }
-
-        {
-            Tester <Institution, InstitutionDBService> tester = new Tester<Institution, InstitutionDBService>(Institution.class, InstitutionDBService.class);
-            tester.test();
-        }
         
+
+        
+        testArtExhibitionGuide();
+        testArtExhibitionGuideBySite();
+
         
         
         

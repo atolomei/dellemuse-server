@@ -6,8 +6,12 @@ import java.io.InputStream;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+import dellemuse.model.logging.Logger;
+import dellemuse.model.util.Constant;
 import dellemuse.server.BaseService;
+import dellemuse.server.DelleMuseStartupApplicationRunner;
 import dellemuse.server.Settings;
 import dellemuse.server.SystemService;
 import io.odilon.client.ODClient;
@@ -20,47 +24,48 @@ import jakarta.annotation.PostConstruct;
 @Service
 public class ObjectStorageService extends BaseService implements SystemService {
 
+  static private Logger logger = Logger.getLogger(ObjectStorageService.class.getName());
+
+  static private Logger startupLogger = Logger.getLogger("StartupLogger");
+
+  static public final String MEDIA = "media";
+  
    @JsonIgnore
    private      OdilonClient client;
    
+   @JsonProperty("endpoint")
    private      String endpoint;
    
+   @JsonProperty("port")
    private      int port;
    
+   @JsonProperty("accessKey")
    private      String accessKey;
    
-   @JsonIgnore
+   @JsonProperty("secretKey")
    private      String secretKey;
- 
     
-    public ObjectStorageService(Settings settings) {
+
+   public ObjectStorageService(Settings settings) {
         super(settings);
-    }
+   }
     
-
-    public void putObject(String bucketName, String objectName, InputStream stream, String fileName) throws IOException {
+   public void putObject(String bucketName, String objectName, InputStream stream, String fileName) throws IOException {
             try {
-
                 getClient().putObjectStream(bucketName, objectName, stream, fileName);
-                
             } catch (ODClientException e) {
                 throw new IOException(e);
             }
-        
     }
 
     public InputStream getObject(String bucketName, String objectName) throws IOException {
-        
         try {
-
             return getClient().getObject(bucketName, objectName);
-            
         } catch (ODClientException e) {
             throw new IOException(e);
         }
     }
     
- 
     public OdilonClient getClient() {
         return this.client;
     }
@@ -79,6 +84,18 @@ public class ObjectStorageService extends BaseService implements SystemService {
         
         if (ping==null || !ping.equals("ok"))
             throw new InternalCriticalException( "Pïng error -> " + ping );
+        
+        try {
+            if (!this.client.existsBucket(MEDIA)) {
+                this.client.createBucket(MEDIA);
+            }
+            
+     } catch (ODClientException e) {
+         throw new InternalCriticalException(e); 
+     }
+
+     startupLogger.debug(this.toString());
+     startupLogger.debug("Startup -> " + this.getClass().getSimpleName());
         
     }
 }

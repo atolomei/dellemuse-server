@@ -7,20 +7,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import dellemuse.model.PersonModel;
 import dellemuse.model.ResourceModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "file")
+@Table(name = "resource")
 @JsonInclude(Include.NON_NULL)
 public class Resource extends DelleMuseObject {
 
-
-    @Column(name = "bucket")
-    private String bucket;
+    @Column(name = "bucketName")
+    private String bucketName;
 
     @Column(name = "objectName")
     private String objectName;
@@ -34,15 +32,12 @@ public class Resource extends DelleMuseObject {
     @Column(name = "media")
     private String media;
 
-    // private String infoKey;
     // File file
     // InputStream
     // InputStream
 
     public Resource() {
     }
-
-    
     
     @Override
     public ResourceModel model() {
@@ -54,13 +49,14 @@ public class Resource extends DelleMuseObject {
     }
 
     
-    public java.io.File getFile() throws IOException {
-        return null;
-    }
+    
+    //public java.io.File getFile() throws IOException {
+    //    return null;
+    //}
 
-    public InputStream getInputStream() throws IOException {
+    //public InputStream getInputStream() throws IOException {
 
-        return null;
+     //   return null;
 
 //        try {
         // return getService(KBFSResourceService.class).getObject();
@@ -69,6 +65,65 @@ public class Resource extends DelleMuseObject {
         // logger.error(e);
         // throw new IOException(e);
         // }
+    //}
+
+
+    public String getBucketName() {
+        return bucketName;
+    }
+
+
+
+    public void setBucketName(String bucket) {
+        this.bucketName = bucket;
+    }
+
+
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+
+
+    public void setObjectName(String objectName) {
+        this.objectName = objectName;
+    }
+
+
+
+    public String getInfo() {
+        return info;
+    }
+
+
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+
+
+    public String getInfoKey() {
+        return infoKey;
+    }
+
+
+
+    public void setInfoKey(String infoKey) {
+        this.infoKey = infoKey;
+    }
+
+
+
+    public String getMedia() {
+        return media;
+    }
+
+
+
+    public void setMedia(String media) {
+        this.media = media;
     }
 
 };
