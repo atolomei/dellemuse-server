@@ -12,7 +12,12 @@
 -- dellemuse=# set client_encoding to 'utf8';
 -- dellemuse=# \i dellemuse-datos.sql
 
+
 -- ------------------------------------------------------------------------------------------------------------------------------
+BEGIN;
+set client_encoding to 'utf8';
+COMMIT;
+
 
 BEGIN;
 
@@ -34,20 +39,54 @@ INSERT INTO site  (id,	name, institution_id,  created, lastmodified,	lastmodifie
 
 -- MNBA > recoleta > Planta Baja
 -- 
-INSERT INTO floor  (id,	name, site_id,  created, lastmodified,	lastmodifieduser) VALUES
-(nextval('sequence_id'), 'Planta Baja', (select id from site where name like '%Nacional de Bellas Artes' limit 1), now(), now(), (select id from users where username='root')),
-(nextval('sequence_id'), 'Primer Piso', (select id from site where name like '%Nacional de Bellas Artes' limit 1), now(), now(), (select id from users where username='root'));
+INSERT INTO floor  (id,	name, subtitle, site_id,  created, lastmodified,	lastmodifieduser) VALUES
+(nextval('sequence_id'), 'Planta Baja', 'Arte europeo del siglo XII al XIX. Arte argentino del siglo XIX', 	(select id from site where name like '%Nacional de Bellas Artes' limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Primer Piso', '', 																(select id from site where name like '%Nacional de Bellas Artes' limit 1), now(), now(), (select id from users where username='root'));
 
 
 -- MNBA > recoleta > Planta Baja > Sala A 
 --
-INSERT INTO room  (id,	name, floor_id,  created, lastmodified,	lastmodifieduser) VALUES 
-(nextval('sequence_id'), 'Hall Central'                            , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
-(nextval('sequence_id'), 'Rampa primer piso - etre salas 31 y 32'  , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
-(nextval('sequence_id'), 'Pabellón de exposiciones temporarias'    , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
-(nextval('sequence_id'), 'Hall y escaleras'                        , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
-(nextval('sequence_id'), 'Sala 2. Arte europeo siglo XII al XVI'   , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
-(nextval('sequence_id'), 'Salón 20 ARTISTAS BRASILEÑOS'            , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root'));
+INSERT INTO room  (id,	name, roomNumber, floor_id,  created, lastmodified,	lastmodifieduser) VALUES 
+(nextval('sequence_id'), 'Hall Central'                               ,'0', (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Tienda del Museo'                           ,'' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 2. Arte europeo siglo XII al XVI'      ,'2' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 3. Arte europeo siglo XV al XVIII'     , '3' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 4. Países Bajos siglo XVII'            , '4' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 5. Arte europeo'    		              , '5' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 6. Arte europeo manierismo y barroco'  , '6' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 7. Arte europeo siglo XVIII'           , '7' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 8. Francisco de Goya'         		  , '8' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 9. Arte europeo'               	      , '9' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 10. Auguste Rodin'                  	  , '10' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 11. Arte francés siglo XIX'           ,'11' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 12. Arte europeo'               		 , '12' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 13. Arte francés siglo XIX'           , '13' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 14. Impresionismo y Postimpresionismo','14' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 15. Arte argentino siglo XIX'         , '15' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 16. Arte europeo siglo XVII al XIX'     , '16' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 17.'                            , '17' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 18. Arte francés siglo XIX'                            , '18' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 19'                            , '19' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 20. Arte argentino siglo XIX'                            , '20' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 21'                            , '21' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 22. Arte colonial'                            , '22' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 23. Arte colonial'                            , '23' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 24. Arte de los antiguos pueblos andinos'     , '24' , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Biblioteca'                            	         ,    '', (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Pabellón de exposiciones temporarias'    	         , '100', (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'SUM'                            			         , ''   , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Rampa primer piso - etre salas 31 y 32'            , ''   , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Hall y escaleras'                                  , ''   , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Sala 2. Arte europeo siglo XII al XVI'             , ''   , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Salón 20 ARTISTAS BRASILEÑOS'                      , ''   , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root'));
+
+
+INSERT INTO room  (id,	name, roomNumber, floor_id,  created, lastmodified,	lastmodifieduser) VALUES 
+(nextval('sequence_id'), 'Escuela de La Boca y realismo social'                             	  ,'' , (select id from floor where name like '%Primer%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Arte latinoamericano y argentino 1910-1945'                             ,'' , (select id from floor where name like '%Primer%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Exposición temporaria' 								 			      ,'' , (select id from floor where name like '%Primer%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Informalismo y expresionismo abstracto'   							  , '',	(select id from floor where name like '%Primer%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Arte concreto y abstracción 1945-1970'  			          			  ,'' , (select id from floor where name like '%Primer%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root'));
 
 
 INSERT INTO site  (id,	name, institution_id,  created, lastmodified,	lastmodifieduser) VALUES
@@ -59,13 +98,17 @@ INSERT INTO site  (id,	name, institution_id,  created, lastmodified,	lastmodifie
   (select id from users where username='root'));
   
 
+  
+  
+--- QUINQUELA
+
 INSERT INTO floor  (id,	name, site_id,  created, lastmodified,	lastmodifieduser) VALUES
 (nextval('sequence_id'), 'Planta Baja', (select id from site where name like '%Quinquela%' limit 1), now(), now(), (select id from users where username='root')),
 (nextval('sequence_id'), 'Primer Piso', (select id from site where name like '%Quinquela%' limit 1), now(), now(), (select id from users where username='root'));
 
 
-INSERT INTO room  (id,	name, floor_id,  created, lastmodified,	lastmodifieduser) VALUES 
-(nextval('sequence_id'), 'Hall Central'    , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Quinquela%' limit 1)  limit 1), now(), now(), (select id from users where username='root'));
+--INSERT INTO room  (id,	name, floor_id,  created, lastmodified,	lastmodifieduser) VALUES 
+--(nextval('sequence_id'), 'Hall Central'    , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Quinquela%' limit 1)  limit 1), now(), now(), (select id from users where username='root'));
 
 
 
@@ -77,7 +120,19 @@ INSERT INTO users (id, username, lastmodifieduser) VALUES  (nextval('sequence_us
 --
 
 INSERT INTO person (id, name, lastname,  physicalid, created, lastmodified, lastmodifieduser) VALUES  
+-- grandes obras del impresionismo
 (nextval('sequence_id'), ''       ,     'root',           '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Alfred' ,     'Sisley',                '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Claude' ,     'Monet',                 '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Camille' ,    'Pissarro',              '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Henri' ,      'Toulouse Lautrec',      '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Paul' ,       'Gauguin', 			     '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Edgar' ,      'Degas', 			     '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Berthe Marie Pauline' , 'Morisot', 	 '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Vicent'			 	, 'Van Gogh', 	 '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Edouard'			 	, 'Manet',   	 '-', now(), now(), (select id from users where username='root')),
+(nextval('sequence_id'), 'Jean Louis'		 	, 'Forain',   	 '-', now(), now(), (select id from users where username='root')),
+-- 
 (nextval('sequence_id'), 'Doménikos',  'Theotokópoulos',  '-', now(), now(), (select id from users where username='root')),
 (nextval('sequence_id'), 'Odilon' ,     'Redon',          '-', now(), now(), (select id from users where username='root')),
 (nextval('sequence_id'), 'Tarsila',     'do Amaral',      '-', now(), now(), (select id from users where username='root'));
@@ -129,8 +184,6 @@ INSERT INTO artwork (id, name, artWorkType_id, title, subtitle,	spec, year, inst
  (select id from person where name like '%Odilon%' limit 1),
  (select id from users where username='root'));
  
-  
-
  
 INSERT INTO artExhibition (id,	name, site_id, title, info, lastmodifieduser) VALUES
 (nextval('sequence_id'), 
@@ -139,9 +192,9 @@ INSERT INTO artExhibition (id,	name, site_id, title, info, lastmodifieduser) VAL
   'Obras Maestras',
   'La obra maestra era el nombre que recibía la pieza artesanal que debía realizar todo oficial que quisiera acceder a la categoría de maestro en el seno de los gremios.',
  (select id from users where username='root'));
- 
 
- INSERT INTO artExhibitionItem  (id, name, title, artExhibition_id, artWork_id, ordinal, readcode, site_id, floor_id, room_id,  info,  lastmodifieduser) VALUES
+
+ INSERT INTO artExhibitionItem  (id, name, title, artExhibition_id, artWork_id, artExhibitionOrder, readcode, site_id, floor_id, room_id,  info,  lastmodifieduser) VALUES
  (nextval('sequence_id'), 
  'Le bain de Vénus (El baño de Venus)', 
  'Le bain de Vénus (El baño de Venus)',
@@ -150,14 +203,14 @@ INSERT INTO artExhibition (id,	name, site_id, title, info, lastmodifieduser) VAL
   1,
   nextval('readcode_id'),
   (select id from site where name like '%Nacional de Bellas Artes%' limit 1),
-  (select id from floor where name like 'Planta Baja%' limit 1),
-  (select id from room where name like 'Hall Central%' limit 1),
+  (select id from floor where name like 'Planta Baja%' and site_id  in (select id from site where name like '%Bellas Artes%') limit 1),
+  (select id from room where name like 'Hall Central%' and floor_id in (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Bellas Artes%')  ) limit 1),
   'El título original de esta pintura puede haber sido puesto por Redon, ya que al parecer la obra fue comprada al artista sin intermediarios. Los toques de azul y verde en la zona inferior derecha de la tela pueden considerarse una representación del agua, y el tocado de la figura puede evocar un personaje mitológico. Estos aspectos, sin embargo, son los únicos que justificarían el título de El baño de Venus. La figura no está desnuda, aparece (apenas) vestida y carece de otro atributo inherente a la diosa del amor. Su movimiento no corresponde a una escena de baño y el personaje demuestra una vacilación indigna de alguien nacido del mar. Con los dos brazos extendidos hacia delante y la cabeza hacia atrás, parece moverse de derecha a izquierda como si estuviese huyendo de algo –en una posición relativamente similar a la del dibujo Female Nude (Bridgestone Museum, Tokio)–. El origen de su miedo o resistencia parece ser la forma circular sobre la derecha (de la mitad del tamaño de la figura) que semeja más a un insecto o a uno de los monstruos submarinos pintados por Redon que a las flores y las hojas reconocibles sobre la izquierda. Esta interpretación se sustenta en el uso del negro para delinear y rellenar parte de esta forma, color asociado por Redon al mundo fantástico de sus primeras carbonillas y litografías.',
  (select id from users where username='root'));
  
 
  
- INSERT INTO artExhibitionItem  (id, name, title, artExhibition_id, artWork_id, ordinal, readcode, site_id, floor_id, room_id,  info, lastmodifieduser) VALUES
+ INSERT INTO artExhibitionItem  (id, name, title, artExhibition_id, artWork_id, artExhibitionOrder, readcode, site_id, floor_id, room_id,  info, lastmodifieduser) VALUES
  (nextval('sequence_id'), 
  'Morro da favela II (Pueblito)', 
  'Morro da favela II (Pueblito)',
@@ -182,7 +235,6 @@ INSERT INTO artExhibition (id,	name, site_id, title, info, lastmodifieduser) VAL
  (select id from users where username='root'));
  
  
- 
  INSERT INTO  guideContent( id, name, title, artExhibitionGuide_id,  artExhibitionItem_id, lastmodifieduser) VALUES
  (nextval('sequence_id'), 
   (select name from artExhibitionItem where name like 'Morro da%' limit 1), 
@@ -202,10 +254,26 @@ INSERT INTO artExhibition (id,	name, site_id, title, info, lastmodifieduser) VAL
  
  
  
- 
- 
-  update institution set shortName = 'MNBA' where name like 'Museo Nacional de Bellas Artes%';
-update site set shortName = 'MNBA' where name like 'Museo Nacional de Bellas Artes%';
+update artexhibitionguide set namekey = 'mnba-impresionismo' where name like 'Grandes obras%';
+update artexhibitionguide set namekey = 'mnba-obras-maestras' where name like '%Maestras%';
+
+update institution set shortName = 'MNBA' where name like '%Museo Nacional de Bellas Artes%';
+update site set shortName = 'MNBA' where name like '%Museo Nacional de Bellas Artes%';
+
+update institution set shortName = 'Museo Quinquela' where name like '%Quinquela%';
+update site set shortName = 'Museo Quinquela' where name like '%Quinquela%';
+
+
+UPDATE  artWork  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
+UPDATE  artExhibition  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
+UPDATE  artExhibitionItem  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
+UPDATE  artExhibitionGuide  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
+UPDATE  GuideContent SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
+
+UPDATE  site  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
+UPDATE institution  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
+
+
 
 COMMIT;
 

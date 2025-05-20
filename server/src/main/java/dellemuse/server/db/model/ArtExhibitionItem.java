@@ -55,8 +55,8 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Room room;
 
-    @Column(name = "ordinal")
-    private int ordinal;
+    @Column(name = "artExhibitionOrder")
+    private int artExhibitionOrder;
 
     @Column(name = "readcode")
     private String readCode;
@@ -125,14 +125,6 @@ public class ArtExhibitionItem extends DelleMuseObject {
 
     public void setRoom(Room room) {
         this.room = room;
-    }
-
-    public int getOrdinal() {
-        return ordinal;
-    }
-
-    public void setOrdinal(int ordinal) {
-        this.ordinal = ordinal;
     }
 
     public String getReadCode() {
@@ -205,6 +197,14 @@ public class ArtExhibitionItem extends DelleMuseObject {
 
     public void setWesite(String wesite) {
         this.wesite = wesite;
+    }
+
+    public int getExhibitionOrder() {
+        return artExhibitionOrder;
+    }
+
+    public void setExhibitionOrder(int exhibitionOrder) {
+        this.artExhibitionOrder = exhibitionOrder;
     }
 
 };

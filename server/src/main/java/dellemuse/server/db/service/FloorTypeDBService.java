@@ -38,7 +38,7 @@ public class FloorTypeDBService extends DBService<FloorType, Long> {
     public FloorType create(String name,User createdBy) {
         FloorType c = new FloorType();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -50,7 +50,7 @@ public class FloorTypeDBService extends DBService<FloorType, Long> {
      * @return
      */
     public List<FloorType> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Override

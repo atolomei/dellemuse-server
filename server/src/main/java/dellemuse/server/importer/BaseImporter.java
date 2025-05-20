@@ -2,40 +2,34 @@ package dellemuse.server.importer;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-import org.apache.commons.compress.harmony.unpack200.bytecode.forms.ThisInitMethodRefForm;
 import org.codehaus.plexus.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.server.BaseService;
 import dellemuse.server.Settings;
-import dellemuse.server.db.model.Person;
 import dellemuse.server.db.model.User;
-import dellemuse.server.db.service.DBService;
 import dellemuse.server.db.service.UserDBService;
 import dellemuse.server.objectstorage.ObjectStorageService;
 
 public abstract class BaseImporter extends BaseService implements Importer {
-                    
+
     static private final Logger logger = Logger.getLogger(BaseImporter.class.getName());
-    
+
     @JsonIgnore
     static private final ObjectMapper importerMapper = new ObjectMapper();
-    
+
     final String baseDir;
 
     final String classDir;
@@ -107,6 +101,30 @@ public abstract class BaseImporter extends BaseService implements Importer {
         return importerMapper;
     }
 
+    private void processDir(File dir) throws IOException {
+
+        for (File file : dir.listFiles()) {
+
+            if (file.isFile()) {
+                if (isJson(file)) {
+                    boolean success = read(file);
+
+                    if (success) {
+                        logger.debug(this.classDir + " - " + file.getName() + " -> ok");
+                        process(file);
+                    }
+                }
+            } else {
+                if (file.isDirectory()) {
+                    if (!file.getName().equals(getMediaDir().getName())) {
+                        processDir(file);
+                    }
+                }
+            }
+        }
+
+    }
+
     public synchronized void execute() throws IOException {
 
         if (!getProcessed().exists() || !getProcessed().isDirectory())
@@ -118,17 +136,8 @@ public abstract class BaseImporter extends BaseService implements Importer {
         if (!getMediaDir().exists() || !getMediaDir().isDirectory())
             FileUtils.forceMkdir(getMediaDir());
 
-        for (File file : getInbox().listFiles()) {
-            
-            if (isJson(file)) {
-                boolean success = read(file);
-                
-                if (success) {
-                    logger.debug( this.classDir + " - " + file.getName() + " -> ok");
-                    process(file);
-                }
-            }
-        }
+        processDir(getInbox());
+
     }
 
     protected abstract boolean read(File file) throws StreamReadException, DatabindException, IOException;
@@ -140,6 +149,7 @@ public abstract class BaseImporter extends BaseService implements Importer {
 
         File destination = new File(getProcessed() + File.separator + file.getName());
         Files.move(file.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
     }
 
     protected boolean isJson(File file) {
@@ -150,7 +160,6 @@ public abstract class BaseImporter extends BaseService implements Importer {
         return getUserDBService().findRoot();
     }
 
-    
     public UserDBService getUserDBService() {
         return userDBService;
     }

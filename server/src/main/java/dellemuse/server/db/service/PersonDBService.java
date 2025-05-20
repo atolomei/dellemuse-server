@@ -57,8 +57,10 @@ public class PersonDBService extends DBService<Person, Long> {
         Person c = new Person();
 
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setLastname(lastname);
+        c.setLastnameKey(nameKey(lastname));
+        
         c.setDisplayname(name + " " + lastname);
 
         c.setCreated(OffsetDateTime.now());
@@ -143,7 +145,7 @@ public class PersonDBService extends DBService<Person, Long> {
      * @return
      */
     public List<Person> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Override

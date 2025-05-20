@@ -65,6 +65,10 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
     public DelleMuseObject() {
     }
 
+    public String getDisplayName() {
+        return getTitle();
+    }
+    
     public Long getId() {
         return id;
     }
@@ -139,4 +143,6 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
             throw new RuntimeException(e);
         }
     }
+
+    
 }

@@ -62,21 +62,31 @@ public class Room extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")    
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
+    
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @JoinColumn(name = "map", nullable = true)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonProperty("map")
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    private Resource map;
+
     
     public Room() {
     }

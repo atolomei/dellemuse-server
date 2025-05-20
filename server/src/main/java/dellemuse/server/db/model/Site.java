@@ -134,6 +134,14 @@ public class Site extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
 
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @JoinColumn(name = "map", nullable = true)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonProperty("map")
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    private Resource map;
+    
     public Site() {
     }
 

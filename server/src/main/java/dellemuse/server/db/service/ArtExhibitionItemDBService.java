@@ -43,7 +43,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
     public ArtExhibitionItem create(String name, User createdBy) {
         ArtExhibitionItem c = new ArtExhibitionItem();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -55,7 +55,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
      * @return
      */
     public List<ArtExhibitionItem> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Override

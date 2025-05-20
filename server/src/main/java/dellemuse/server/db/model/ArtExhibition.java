@@ -4,7 +4,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -64,13 +63,13 @@ public class ArtExhibition extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
-    @JoinColumn(name = "artExhibitionItem_id", nullable = true, insertable = true)
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = ArtExhibitionItem.class)
+    @JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("lower(title) ASC")
     private List<ArtExhibitionItem> artExhibitionItems;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference

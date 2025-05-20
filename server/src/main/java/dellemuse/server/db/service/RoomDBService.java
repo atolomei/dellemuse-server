@@ -37,7 +37,7 @@ public class RoomDBService extends DBService<Room, Long> {
     public Room create(String name,User createdBy) {
         Room c = new Room();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -49,7 +49,7 @@ public class RoomDBService extends DBService<Room, Long> {
      * @return
      */
     public List<Room> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Override

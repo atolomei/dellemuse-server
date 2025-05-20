@@ -35,7 +35,7 @@ public class Institution extends DelleMuseObject {
 
     @Column(name = "shortName")
     private String shortName;
-    
+
     @Column(name = "subtitle")
     private String subtitle;
 
@@ -59,19 +59,19 @@ public class Institution extends DelleMuseObject {
 
     @Column(name = "moreinfoKey")
     private String moreinfoKey;
-    
+
     @Column(name = "website")
     private String website;
 
     @Column(name = "mapurl")
     private String mapurl;
-    
+
     @Column(name = "email")
     private String email;
 
     @Column(name = "instagram")
     private String instagram;
-    
+
     @Column(name = "whatsapp")
     private String whatsapp;
 
@@ -82,7 +82,7 @@ public class Institution extends DelleMuseObject {
     private String twitter;
 
     @OneToMany(fetch = FetchType.EAGER, targetEntity = Site.class)
-    @JoinColumn(name = "institution_id", nullable = true, insertable=false)
+    @JoinColumn(name = "institution_id", nullable = true, insertable = false)
     @JsonSerialize(using = DelleMuseListIdSerializer.class)
     @JsonManagedReference
     @JsonBackReference
@@ -117,13 +117,20 @@ public class Institution extends DelleMuseObject {
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonProperty("audio")    
+    @JsonProperty("audio")
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
 
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @JoinColumn(name = "map", nullable = true)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonProperty("map")
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    private Resource map;
+
     public Institution() {
     }
-
 
     public InstitutionType getInstitutionType() {
         return institutionType;
@@ -132,7 +139,6 @@ public class Institution extends DelleMuseObject {
     public void setInstitutionType(InstitutionType institutionType) {
         this.institutionType = institutionType;
     }
-
 
     public String getSubtitle() {
         return subtitle;
@@ -205,12 +211,12 @@ public class Institution extends DelleMuseObject {
     public void setSites(List<Site> sites) {
         this.sites = sites;
     }
-    
-    
+
     @Override
     public InstitutionModel model() {
         try {
-            return (InstitutionModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), InstitutionModel.class);
+            return (InstitutionModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
+                    InstitutionModel.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -295,31 +301,21 @@ public class Institution extends DelleMuseObject {
     public void setAudio(Resource audio) {
         this.audio = audio;
     }
-    
 
     public String getShortName() {
         return shortName;
     }
 
-
     public void setShortName(String shortName) {
         this.shortName = shortName;
     }
-    
-    
+
     public Resource getLogo() {
         return logo;
     }
 
-
     public void setLogo(Resource logo) {
         this.logo = logo;
     }
-
-    
-    
-    
-    
-
 
 };

@@ -187,6 +187,14 @@ public class Person extends DelleMuseObject {
         this.email = email;
     }
 
+    public String getDisplayName() {
+        StringBuilder str = new StringBuilder();
+        if (getName()!=null)
+            str.append(getName() +" ");
+        str.append( getLastname());
+        return str.toString();
+    }
+
     public String getTitle() {
         return title;
     }

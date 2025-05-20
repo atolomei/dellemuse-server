@@ -24,7 +24,8 @@ public class DelleMuseIdNameSerializer extends StdSerializer<DelleMuseObject> {
     public void serialize(DelleMuseObject value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
         jgen.writeNumberField("id", value.getId());
-        jgen.writeStringField("name", value.getName());
+        if (value.getDisplayName()!=null)
+            jgen.writeStringField("displayName", value.getDisplayName());
         jgen.writeEndObject();
     }
     

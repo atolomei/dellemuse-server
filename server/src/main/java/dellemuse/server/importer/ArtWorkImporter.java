@@ -36,14 +36,12 @@ public class ArtWorkImporter extends BaseImporter {
             ObjectStorageService    objectStorageService, 
             ResourceDBService       resourceDBService,
             ArtWorkDBService        artWorkDBService,
-            //ArtWorkArtistDBService  artWorkArtistDBService,
             PersonDBService         personDBService) {
         super(settings, userDBService, objectStorageService, ArtWork.class.getSimpleName().toLowerCase());
         
         this.resourceDBService=resourceDBService;
         this.artWorkDBService=artWorkDBService;
         this.personDBService = personDBService;
-        //this.artWorkArtistDBService = artWorkArtistDBService;
         
         ArtWorkImporterDeserializer personDeserializer = new ArtWorkImporterDeserializer(ArtWork.class, this);
         SimpleModule module = new SimpleModule();
@@ -70,9 +68,4 @@ public class ArtWorkImporter extends BaseImporter {
     public PersonDBService getPersonDBService() {
         return this.personDBService;
     }
-
-    //public ArtWorkArtistDBService getArtWorkArtistDBService() {
-    //    return artWorkArtistDBService;
-    //}
-
 }

@@ -28,6 +28,11 @@ public class User extends DelleMuseObject {
         this.username = username;
     }
 
+    public String getDisplayName() {
+        return getUsername();
+    }
+    
+    
     @Override
     public UserModel model() {
         try {

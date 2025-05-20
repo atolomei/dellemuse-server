@@ -138,31 +138,18 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
             tester.test();
         }
 
-        
-
-        
         testArtExhibitionGuide();
         testArtExhibitionGuideBySite();
-
-        
-        
-        
-
         
         logger.debug("done");
-        
-        
     }
 
     private void testArtExhibitionGuideBySite() {
-        
 
         logger.debug(ArtExhibitionGuide.class.getName() + " per Site ");
-
         
         SiteDBService site_service          = getApplicationContext().getBean(SiteDBService.class);
         ArtExhibitionDBService a_service    = getApplicationContext().getBean(ArtExhibitionDBService.class);
-        
         
         Iterable<Site> a = site_service.findAll();
         

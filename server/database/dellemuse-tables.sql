@@ -18,7 +18,14 @@
 
 -- sequence sirve para generar ids para las filas de las tablas
 
+
 BEGIN;
+set client_encoding to 'utf8';
+COMMIT;
+
+
+BEGIN;
+
 
 
 CREATE SEQUENCE if not exists objectstorage_id 	START 100;
@@ -214,7 +221,7 @@ CREATE TABLE institution (
 						photo				bigint references resource(id) on delete restrict,
 						video				bigint references resource(id) on delete restrict,
 						audio				bigint references resource(id) on delete restrict,
-
+						map					bigint references resource(id) on delete restrict,			
 
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -282,7 +289,7 @@ CREATE TABLE site (
 						photo				bigint references resource(id) on delete restrict,
 						video				bigint references resource(id) on delete restrict,
 						audio				bigint references resource(id) on delete restrict,
-
+						map					bigint references resource(id) on delete restrict,			
 						
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -334,6 +341,7 @@ CREATE TABLE floor (
 						floorNumber			character varying(256),
 						floorNumberKey		character varying(512),
 						
+						map					bigint references resource(id) on delete restrict,
 						photo				bigint references resource(id) on delete restrict,
 						video				bigint references resource(id) on delete restrict,
 						audio				bigint references resource(id) on delete restrict,
@@ -390,6 +398,7 @@ CREATE TABLE room (
 						info		 		text,
 						infoKey 			character varying(512),
 
+						map					bigint references resource(id) on delete restrict,
 						photo				bigint references resource(id) on delete restrict,
 						video				bigint references resource(id) on delete restrict,
 						audio				bigint references resource(id) on delete restrict,
@@ -621,10 +630,10 @@ CREATE TABLE artExhibitionItem (
 						floor_id 				bigint references floor(id) on delete restrict,
 						room_id 				bigint references room(id) on delete restrict,
 										
-						ordinal					integer default 0,
+						artExhibitionOrder		integer default 0,
 
 						mapurl		 			character varying(1024),
-						website		 		character varying(1024),
+						website		 			character varying(1024),
 						
 						readcode	 			character varying(1024),
 						qcode		 			character varying(1024),
@@ -654,7 +663,8 @@ CREATE TABLE artExhibitionGuide (
 						publisher_id 		bigint references person(id) on delete restrict,
 						artExhibition_id 	bigint references artExhibition(id) on delete restrict,
 						
-
+						artExhibitionGuideOrder	integer default 0,
+						
 						subtitle		 	character varying(1024),
 						subTitleKey			character varying(512),
 
@@ -691,6 +701,8 @@ CREATE TABLE guideContent (
 
 						info		 		text,
 						infoKey 			character varying(512),
+
+						guideOrder			integer default 0,	
 						
 						photo				bigint references resource(id) on delete restrict,
 						video				bigint references resource(id) on delete restrict,

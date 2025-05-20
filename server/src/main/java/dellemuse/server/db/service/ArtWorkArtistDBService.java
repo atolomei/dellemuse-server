@@ -38,7 +38,7 @@ public class ArtWorkArtistDBService extends DBService<ArtWorkArtist, Long> {
     public ArtWorkArtist create(String name,User createdBy) {
         ArtWorkArtist c = new ArtWorkArtist();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -64,7 +64,7 @@ public class ArtWorkArtistDBService extends DBService<ArtWorkArtist, Long> {
      * @return
      */
     public List<ArtWorkArtist> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Override

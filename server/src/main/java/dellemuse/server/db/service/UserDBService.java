@@ -53,6 +53,7 @@ public class UserDBService extends DBService<User, Long> {
         
         User c = new User();
         c.setUsername(name);
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -73,7 +74,7 @@ public class UserDBService extends DBService<User, Long> {
     @Transactional
     @Override
     public List<User> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
 

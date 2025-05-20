@@ -130,6 +130,7 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         c.setBucketName(bucketName);
         c.setObjectName(objectName);
         c.setName(name);
+        c.setNameKey(nameKey(name));
         
         if (media!=null)
             c.setMedia(media);

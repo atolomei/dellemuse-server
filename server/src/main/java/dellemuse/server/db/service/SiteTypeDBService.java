@@ -39,7 +39,7 @@ public class SiteTypeDBService extends DBService<SiteType, Long> {
     public SiteType create(String name,User createdBy) {
         SiteType c = new SiteType();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -51,7 +51,7 @@ public class SiteTypeDBService extends DBService<SiteType, Long> {
      * @return
      */
     public List<SiteType> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Override

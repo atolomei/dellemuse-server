@@ -47,7 +47,7 @@ public class SiteDBService extends DBService<Site, Long> {
     public Site create(String name, User createdBy) {
         Site c = new Site();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -67,7 +67,7 @@ public class SiteDBService extends DBService<Site, Long> {
         Site c = new Site();
         c.setName(name);
         c.setInstitution(institution);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -82,7 +82,7 @@ public class SiteDBService extends DBService<Site, Long> {
      */
     @Transactional
     public List<Site> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Transactional

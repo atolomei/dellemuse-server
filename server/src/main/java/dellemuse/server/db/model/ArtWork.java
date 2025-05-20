@@ -52,23 +52,6 @@ public class ArtWork extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    /**
-     * @OneToMany(fetch = FetchType.EAGER, targetEntity = ArtWorkArtist.class)
-     * @JoinColumn(name = "artwork_id", nullable = true, insertable = true)
-     * @JsonSerialize(using = DelleMuseListIdSerializer.class)
-     * @JsonManagedReference
-     * @JsonBackReference private List<ArtWorkArtist> artWorkArtists;
-     **/
-
-    /**
-     * @ManyToOne(fetch = FetchType.EAGER, targetEntity = Person.class)
-     * @JoinColumn(name = "person_id", nullable = true)
-     * @JsonManagedReference
-     * @JsonBackReference
-     * @JsonSerialize(using = DelleMuseIdSerializer.class) private List<Person>
-     *                      artists;
-     **/
-
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseSetIdNameSerializer.class)
@@ -76,7 +59,6 @@ public class ArtWork extends DelleMuseObject {
     @JoinTable(name = "ArtWorkArtist", joinColumns = { @JoinColumn(name = "artwork_id") }, inverseJoinColumns = {
             @JoinColumn(name = "person_id") })
     Set<Person> artists = new HashSet<>();
-    
     
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
@@ -192,6 +174,7 @@ public class ArtWork extends DelleMuseObject {
     public void setAudio(Resource audio) {
         this.audio = audio;
     }
+
 
 };
 

@@ -33,7 +33,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private ArtExhibition artExhibition;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Person.class)
     @JoinColumn(name = "publisher_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -41,11 +41,14 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Person publisher;
 
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = GuideContent.class)
+    @OneToMany(fetch = FetchType.EAGER, targetEntity = GuideContent.class)
     @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = true)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("lower(title) ASC")
     private List<GuideContent> contents;
+
+    @Column(name = "artExhibitionGuideOrder")
+    private int artExhibitionGuideOrder;
 
     @Column(name = "official")
     private boolean official;
@@ -62,7 +65,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -70,7 +73,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -78,7 +81,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -88,7 +91,6 @@ public class ArtExhibitionGuide extends DelleMuseObject {
 
     public ArtExhibitionGuide() {
     }
-
 
     public ArtExhibition getArtExhibition() {
         return artExhibition;
@@ -105,7 +107,6 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     public void setPublisher(Person publisher) {
         this.publisher = publisher;
     }
-
 
     public String getSubtitle() {
         return subtitle;
@@ -179,6 +180,14 @@ public class ArtExhibitionGuide extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
+    public int getArtExhibitionGuideOrder() {
+        return artExhibitionGuideOrder;
+    }
+
+    public void setArtExhibitionGuideOrder(int artExhibitionGuideOrder) {
+        this.artExhibitionGuideOrder = artExhibitionGuideOrder;
+    }
+
     @Override
     public ArtExhibitionGuideModel model() {
         try {
@@ -188,5 +197,4 @@ public class ArtExhibitionGuide extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
-
 };

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -71,7 +72,7 @@ public class ResourceImporterDeserialiser extends StdDeserializer<Resource> {
                 if (name == null)
                     name = file.getName();
 
-                String objectName = String.valueOf(resourceImporter.getResourceDBService().normalizeFileName(name)  + "-" + this.resourceImporter.getResourceDBService().newId());
+                String objectName = String.valueOf(resourceImporter.getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(file.getName()))  + "-" + this.resourceImporter.getResourceDBService().newId());
 
                 try (InputStream is = new FileInputStream(file)) {
                     

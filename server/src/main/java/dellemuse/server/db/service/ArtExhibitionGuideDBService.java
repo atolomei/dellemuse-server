@@ -14,6 +14,7 @@ import dellemuse.server.db.model.User;
 import dellemuse.model.logging.Logger;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.FlushModeType;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -45,20 +46,29 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
     public ArtExhibitionGuide create(String name, User createdBy) {
         ArtExhibitionGuide c = new ArtExhibitionGuide();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
         return getRepository().save(c);
     }
 
+    
     /**
      * @param name
      * @return
      */
+    @Transactional
     public List<ArtExhibitionGuide> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
+
+    @Transactional
+    public List<ArtExhibitionGuide> findByNameKey(String nameKey) {
+        return getByNameKey(nameKey);
+    }
+
+ 
 
     @Transactional
     public List<GuideContent> getArtExhibitionGuideContents(ArtExhibitionGuide exhibitionGuide) {
@@ -106,4 +116,5 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         return ArtExhibitionGuide.class;
     }
 
+    
 }

@@ -31,6 +31,21 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
         super(repository, entityManagerFactory, settings);
     }
 
+    @Transactional
+    public GuideContent create(ArtExhibitionGuide guide, ArtExhibitionItem item, String name,User createdBy) {
+        GuideContent c = new GuideContent();
+        c.setName(name);
+        c.setNameKey(nameKey(name));
+        c.setArtExhibitionGuide(guide);
+        c.setArtExhibitionItem(item);
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+        return getRepository().save(c);
+        
+    }
+    
     /**
      * <p>
      * Annotation Transactional is required to store values into the Database
@@ -44,7 +59,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     public GuideContent create(String name,User createdBy) {
         GuideContent c = new GuideContent();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -56,7 +71,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
      * @return
      */
     public List<GuideContent> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Override

@@ -50,19 +50,20 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
     public ArtExhibition create(String name, User createdBy) {
         ArtExhibition c = new ArtExhibition();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
         return getRepository().save(c);
     }
+    
 
     /**
      * @param name
      * @return
      */
     public List<ArtExhibition> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Override

@@ -23,14 +23,14 @@ import jakarta.persistence.Table;
 public class GuideContent extends DelleMuseObject {
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibitionGuide.class)
-    @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable=false)
+    @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = false)
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private ArtExhibitionGuide artExhibitionGuide;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibitionItem.class)
-    @JoinColumn(name = "artExhibitionItem_id", nullable = true, insertable=false)
+    @JoinColumn(name = "artExhibitionItem_id", nullable = true, insertable = false)
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
@@ -39,6 +39,9 @@ public class GuideContent extends DelleMuseObject {
     @Column(name = "subtitle")
     private String subtitle;
 
+    @Column(name = "guideOrder")
+    private int guideOrder;
+    
     @Column(name = "subtitleKey")
     private String subTitleKey;
 
@@ -68,7 +71,7 @@ public class GuideContent extends DelleMuseObject {
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonProperty("audio")    
+    @JsonProperty("audio")
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource audio;
 
@@ -122,15 +125,47 @@ public class GuideContent extends DelleMuseObject {
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
     }
-    
+
+    public int getGuideOrder() {
+        return guideOrder;
+    }
+
+    public void setGuideOrder(int guideOrder) {
+        this.guideOrder = guideOrder;
+    }
+
+    public Resource getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Resource photo) {
+        this.photo = photo;
+    }
+
+    public Resource getVideo() {
+        return video;
+    }
+
+    public void setVideo(Resource video) {
+        this.video = video;
+    }
+
+    public Resource getAudio() {
+        return audio;
+    }
+
+    public void setAudio(Resource audio) {
+        this.audio = audio;
+    }
+
     @Override
     public GuideContentModel model() {
         try {
-            return (GuideContentModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), GuideContentModel.class);
+            return (GuideContentModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
+                    GuideContentModel.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
-
 
 };

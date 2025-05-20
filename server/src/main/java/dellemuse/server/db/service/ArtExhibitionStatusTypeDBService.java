@@ -38,7 +38,7 @@ public class ArtExhibitionStatusTypeDBService extends DBService<ArtExhibitionSta
     public ArtExhibitionStatusType create(String name, User createdBy) {
         ArtExhibitionStatusType c = new ArtExhibitionStatusType();
         c.setName(name);
-        c.setNameKey(normalize(name));
+        c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -50,7 +50,7 @@ public class ArtExhibitionStatusTypeDBService extends DBService<ArtExhibitionSta
      * @return
      */
     public List<ArtExhibitionStatusType> getByName(String name) {
-        return createNameQuery().getResultList();
+        return createNameQuery(name).getResultList();
     }
 
     @Override

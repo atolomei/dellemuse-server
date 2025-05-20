@@ -38,7 +38,15 @@ public class ServerImporter extends BaseService {
     @Autowired
     InstitutionImporter  institutionImporter;
     
-
+    @JsonIgnore
+    @Autowired
+    ArtExhibitionGuideImporter artExhibitionGuideImporter;
+    
+    @JsonIgnore
+    @Autowired
+    GuideContentImporter guideContentImporter;
+    
+    
     @JsonIgnore
     @Autowired
     SiteImporter  siteImporter;
@@ -51,7 +59,9 @@ public class ServerImporter extends BaseService {
             ArtWorkImporter     artWorkImporter,
             ResourceImporter    resourceImporter,
             InstitutionImporter institutionImporter,
-            SiteImporter        siteImporter) {
+            SiteImporter        siteImporter,
+            ArtExhibitionGuideImporter artExhibitionGuideImporter,
+            GuideContentImporter guideContentImporter) {
         
         super(settings);
 
@@ -61,14 +71,23 @@ public class ServerImporter extends BaseService {
         this.resourceImporter       =   resourceImporter;
         this.institutionImporter    =   institutionImporter;
         this.siteImporter           =   siteImporter;
+        this.artExhibitionGuideImporter = artExhibitionGuideImporter;
+        this.guideContentImporter              = guideContentImporter;
+            
+        
+        
     }
     
     public void execute() throws IOException {
         
-        resourceImporter.execute();
-        personImporter.execute();
-        userImporter.execute();
-        artWorkImporter.execute();
+        //resourceImporter.execute();
+        //personImporter.execute();
+        //userImporter.execute();
+        
+        // artWorkImporter.execute();
+        
+        //artExhibitionGuideImporter.execute();
+        this.guideContentImporter.execute();
         
     }
 
