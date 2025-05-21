@@ -12,6 +12,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.PersonModel;
+import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseUserSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -68,13 +71,8 @@ public class Person extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseUserSerializer.class)
+    @JsonProperty("user")
     private User user;
-
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "titleKey")
-    private String titleKey;
 
     @Column(name = "subtitle")
     private String subtitle;
@@ -195,22 +193,7 @@ public class Person extends DelleMuseObject {
         return str.toString();
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
-    }
-
+    
     public String getSubtitle() {
         return subtitle;
     }

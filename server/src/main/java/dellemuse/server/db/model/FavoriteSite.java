@@ -13,6 +13,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.ArtWorkModel;
+import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseListIdSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

@@ -38,19 +38,18 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
 
     @JsonIgnore
     static final private ObjectMapper mapper = new ObjectMapper();
-    
+
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(DBService.class.getName());
-    
+
     static {
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
-    
+
     @JsonIgnore
     @Autowired
     private SessionFactory sessionFactory;
-
 
     @JsonIgnore
     @Autowired
@@ -60,7 +59,6 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
     @Autowired
     EntityManagerFactory entityManagerFactory;
 
-
     public DBService(CrudRepository<T, I> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
         super(settings);
         this.repository = repository;
@@ -69,7 +67,6 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
 
     public abstract T create(String name, User createdBy);
 
-    
     @Transactional
     public <S extends T> S save(S entity) {
         return getRepository().save(entity);
@@ -130,27 +127,22 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
         getRepository().deleteAll();
     }
 
-    
-
     @Transactional
     public List<T> getByNameKey(String name) {
         return createNameKeyQuery(name).getResultList();
     }
-    
-    
+
     @Transactional
     public List<T> getByName(String name) {
-        return createNameQuery(name,  false).getResultList();
+        return createNameQuery(name, false).getResultList();
     }
 
-    
     @Transactional
     public List<T> getNameLike(String name) {
         return createNameQuery(name, true).getResultList();
-        
-        
+
     }
-    
+
     /**
      * Set up by Spring
      */
@@ -173,39 +165,37 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
         Root<T> loaders = criteria.from(getEntityClass());
         ParameterExpression<String> nameparameter = criteriabuilder.parameter(String.class);
         criteria.select(loaders).where(criteriabuilder.equal(loaders.get(getNameKeyColumn()), nameparameter));
-        
+
         query = getSessionFactory().getCurrentSession().createQuery(criteria);
         query.setHint("org.hibernate.cacheable", true);
         query.setFlushMode(FlushModeType.COMMIT);
         query.setParameter(nameparameter, name);
         return query;
     }
-    
-    
+
     public TypedQuery<T> createNameQuery(String name) {
-            return createNameQuery(name, false);
+        return createNameQuery(name, false);
     }
-    
+
     public TypedQuery<T> createNameQuery(String name, boolean isLike) {
-        
+
         TypedQuery<T> query;
         CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
         CriteriaQuery<T> criteria = criteriabuilder.createQuery(getEntityClass());
         Root<T> loaders = criteria.from(getEntityClass());
-        
-        
-        
-        ParameterExpression<String> nameparameter = criteriabuilder.parameter(String.class);        
+
+        ParameterExpression<String> nameparameter = criteriabuilder.parameter(String.class);
         if (isLike) {
-            criteria.select(loaders).where(criteriabuilder.like(criteriabuilder.lower(loaders.get(getNameColumn())), nameparameter));
-            //criteria.select(loaders).where(criteriabuilder.like(criteriabuilder.lower(loaders.get(getNameColumn())), "%"+name.toLowerCase()+"%"));
+            criteria.select(loaders)
+                    .where(criteriabuilder.like(criteriabuilder.lower(loaders.get(getNameColumn())), nameparameter));
+            // criteria.select(loaders).where(criteriabuilder.like(criteriabuilder.lower(loaders.get(getNameColumn())),
+            // "%"+name.toLowerCase()+"%"));
             query = getSessionFactory().getCurrentSession().createQuery(criteria);
-            query.setParameter(nameparameter, "%"+name.toLowerCase()+"%");
+            query.setParameter(nameparameter, "%" + name.toLowerCase() + "%");
             query.setHint("org.hibernate.cacheable", true);
             query.setFlushMode(FlushModeType.COMMIT);
             return query;
-        }
-        else {
+        } else {
             criteria.select(loaders).where(criteriabuilder.equal(loaders.get(getNameColumn()), nameparameter));
             query = getSessionFactory().getCurrentSession().createQuery(criteria);
             query.setParameter(nameparameter, name.toLowerCase());
@@ -215,7 +205,6 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
         }
     }
 
-    
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
@@ -224,21 +213,17 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
         return str.toString();
     }
 
-    
-    
     public String normalize(String name) {
         return this.getEntityClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();
     }
-    
+
     protected abstract Class<T> getEntityClass();
 
     protected String nameKey(String name) {
-        return name.toLowerCase()
-        .replaceAll("[^a-z0-9]+", "-")  // Replace non-ASCII alphanumerics with hyphen
-        .replaceAll("(^-+|-+$)", "");   // Trim leading/trailing hyphens
+        return name.toLowerCase().replaceAll("[^a-z0-9]+", "-") // Replace non-ASCII alphanumerics with hyphen
+                .replaceAll("(^-+|-+$)", ""); // Trim leading/trailing hyphens
     }
 
-    
     protected String getNameColumn() {
         return "name";
     }
@@ -246,7 +231,7 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
     protected String getNameKeyColumn() {
         return "nameKey";
     }
-    
+
     // @Bean
     // public SessionFactory getSessionFactory() {
     // if (entityManagerFactory.unwrap(SessionFactory.class) == null) {

@@ -1,35 +1,35 @@
-package dellemuse.server.db.model;
+package dellemuse.server.db.model.serializer;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-public class DelleMuseListIdNameSerializer extends StdSerializer<List<DelleMuseObject>> {
+import dellemuse.server.db.model.DelleMuseObject;
+
+public class DelleMuseSetIdSerializer extends StdSerializer<Set<DelleMuseObject>> {
 
 
     private static final long serialVersionUID = 1L;
 
-    public DelleMuseListIdNameSerializer() {
+    public DelleMuseSetIdSerializer() {
         this(null);
     }
   
-    public DelleMuseListIdNameSerializer(Class<List<DelleMuseObject>> t) {
+    public DelleMuseSetIdSerializer(Class<Set<DelleMuseObject>> t) {
         super(t);
     }
 
     @Override
-    public void serialize(List<DelleMuseObject> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(Set<DelleMuseObject> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartArray();
         for (DelleMuseObject o: value) {
             jgen.writeStartObject();
-            jgen.writeNumberField("id", o.getId());         
-            
-            if (o.getDisplayName()!=null)
-                jgen.writeStringField("displayName", o.getDisplayName());
+            jgen.writeNumberField("id", o.getId());            
             jgen.writeEndObject();
         }
         //jgen.writeStringField("name", value.getName());

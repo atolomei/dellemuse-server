@@ -3,7 +3,6 @@ package dellemuse.server.db.model;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,6 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.FloorModel;
+import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseListIdNameSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -32,6 +34,7 @@ public class Floor extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonProperty("floorType")
     private FloorType floorType;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
@@ -39,12 +42,16 @@ public class Floor extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonProperty("site")
     private Site site;
-    
+
     @OneToMany(fetch = FetchType.EAGER, targetEntity = Room.class)
-    @JoinColumn(name = "floor_id", nullable = true, insertable=false)
+    @JoinColumn(name = "floor_id", nullable = true, insertable = false)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("roomNumber ASC")
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonProperty("rooms")
     private List<Room> rooms;
 
     @Column(name = "subtitle")
@@ -52,7 +59,7 @@ public class Floor extends DelleMuseObject {
 
     @Column(name = "subtitleKey")
     private String subTitleKey;
-    
+
     @Column(name = "floornumber")
     private String floorNumber;
 
@@ -73,7 +80,6 @@ public class Floor extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
-
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
@@ -86,11 +92,10 @@ public class Floor extends DelleMuseObject {
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonProperty("audio")    
+    @JsonProperty("audio")
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource audio;
 
-    
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "map", nullable = true)
     @JsonManagedReference
@@ -99,11 +104,8 @@ public class Floor extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource map;
 
-
-    
     public Floor() {
     }
-
 
     public FloorType getFloorType() {
         return floorType;

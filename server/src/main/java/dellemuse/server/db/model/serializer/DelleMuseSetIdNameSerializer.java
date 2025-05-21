@@ -1,4 +1,4 @@
-package dellemuse.server.db.model;
+package dellemuse.server.db.model.serializer;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,16 +9,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-public class DelleMuseSetIdSerializer extends StdSerializer<Set<DelleMuseObject>> {
+import dellemuse.server.db.model.DelleMuseObject;
 
+public class DelleMuseSetIdNameSerializer extends StdSerializer<Set<DelleMuseObject>> {
 
     private static final long serialVersionUID = 1L;
 
-    public DelleMuseSetIdSerializer() {
+    public DelleMuseSetIdNameSerializer() {
         this(null);
     }
   
-    public DelleMuseSetIdSerializer(Class<Set<DelleMuseObject>> t) {
+    public DelleMuseSetIdNameSerializer(Class<Set<DelleMuseObject>> t) {
         super(t);
     }
 
@@ -28,9 +29,9 @@ public class DelleMuseSetIdSerializer extends StdSerializer<Set<DelleMuseObject>
         for (DelleMuseObject o: value) {
             jgen.writeStartObject();
             jgen.writeNumberField("id", o.getId());            
+            jgen.writeStringField("displayName", o.getName());
             jgen.writeEndObject();
         }
-        //jgen.writeStringField("name", value.getName());
         jgen.writeEndArray();
     }
     

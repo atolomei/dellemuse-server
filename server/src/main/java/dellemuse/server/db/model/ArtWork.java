@@ -1,12 +1,9 @@
 package dellemuse.server.db.model;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,6 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.ArtWorkModel;
+import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseSetIdNameSerializer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +22,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 import jakarta.persistence.Table;
@@ -52,14 +50,15 @@ public class ArtWork extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseSetIdNameSerializer.class)
     @ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
     @JoinTable(name = "ArtWorkArtist", joinColumns = { @JoinColumn(name = "artwork_id") }, inverseJoinColumns = {
-            @JoinColumn(name = "person_id") })
+    @JoinColumn(name = "person_id") })
+    @JsonSerialize(using = DelleMuseSetIdNameSerializer.class)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonProperty("artists")
     Set<Person> artists = new HashSet<>();
-    
+
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
@@ -174,14 +173,4 @@ public class ArtWork extends DelleMuseObject {
     public void setAudio(Resource audio) {
         this.audio = audio;
     }
-
-
 };
-
-//public List<ArtWorkArtist> getArtWorkArtists() {
-//    return artWorkArtists;
-//}
-
-//public void setArtWorkArtists(List<ArtWorkArtist> artWorkArtists) {
-//    this.artWorkArtists = artWorkArtists;
-//}

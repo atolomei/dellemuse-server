@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.JsonObject;
+import dellemuse.server.db.model.serializer.DelleMuseUserSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

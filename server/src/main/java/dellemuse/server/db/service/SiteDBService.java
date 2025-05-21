@@ -58,12 +58,13 @@ public class SiteDBService extends DBService<Site, Long> {
      * <p>
      * Annotation Transactional is required to store values into the Database
      * </p>
+     * 
      * @param name
      * @param createdBy
      */
     @Transactional
     public Site create(String name, Institution institution, Optional<String> shortName, Optional<String> address,
-            Optional<String> info, User createdBy) { 
+            Optional<String> info, User createdBy) {
         Site c = new Site();
         c.setName(name);
         c.setInstitution(institution);
@@ -75,7 +76,7 @@ public class SiteDBService extends DBService<Site, Long> {
         c.setAddress(address.get());
         return getRepository().save(c);
     }
-    
+
     /**
      * @param name
      * @return
@@ -99,16 +100,16 @@ public class SiteDBService extends DBService<Site, Long> {
         query.setFlushMode(FlushModeType.COMMIT);
         query.setParameter(idparameter, name);
         List<Site> list = query.getResultList();
-        if (list==null || list.isEmpty())
+        if (list == null || list.isEmpty())
             return Optional.empty();
         return Optional.of(list.get(0));
     }
-    
+
     @Transactional
     public List<ArtExhibition> getArtExhibitions(Site site) {
         return getArtExhibitions(site.getId());
     }
-    
+
     @Transactional
     public List<ArtExhibition> getArtExhibitions(Long siteid) {
         TypedQuery<ArtExhibition> query;
@@ -161,5 +162,4 @@ public class SiteDBService extends DBService<Site, Long> {
     protected Class<Site> getEntityClass() {
         return Site.class;
     }
-
 }
