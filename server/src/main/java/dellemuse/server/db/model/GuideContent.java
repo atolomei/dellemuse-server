@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.GuideContentModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
+import dellemuse.server.error.InternalErrorException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,6 +30,7 @@ public class GuideContent extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonProperty("artExhibitionGuide")
     private ArtExhibitionGuide artExhibitionGuide;
 
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibitionItem.class)
@@ -35,14 +38,15 @@ public class GuideContent extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonProperty("artExhibitionItem")
     private ArtExhibitionItem artExhibitionItem;
+
+    @Column(name = "guideOrder")
+    private int guideOrder;
 
     @Column(name = "subtitle")
     private String subtitle;
 
-    @Column(name = "guideOrder")
-    private int guideOrder;
-    
     @Column(name = "subtitleKey")
     private String subTitleKey;
 
@@ -52,28 +56,28 @@ public class GuideContent extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
     public GuideContent() {
@@ -165,7 +169,7 @@ public class GuideContent extends DelleMuseObject {
             return (GuideContentModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
                     GuideContentModel.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new InternalErrorException(e, this.toString());
         }
     }
 

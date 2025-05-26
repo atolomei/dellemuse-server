@@ -23,20 +23,25 @@ public class Resource extends DelleMuseObject {
     @Column(name = "objectName")
     private String objectName;
 
+    @Column(name = "media")
+    private String media;
+
     @Column(name = "info")
     private String info;
 
     @Column(name = "infoKey")
     private String infoKey;
     
-    @Column(name = "media")
-    private String media;
-
     // File file
     // InputStream
     // InputStream
 
     public Resource() {
+    }
+    
+    @Override
+    public String getDisplayname() {
+        return getName();
     }
     
     @Override

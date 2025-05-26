@@ -1,6 +1,6 @@
 
-./server/tmp
-./server/tmp/*
+server/tmp
+server/tmp/*
 
 
 # Compiled class file

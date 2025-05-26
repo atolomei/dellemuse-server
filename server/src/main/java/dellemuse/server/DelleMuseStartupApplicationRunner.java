@@ -61,7 +61,7 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 
         // test.test();
 
-        serverImporter.execute();
+        //serverImporter.execute();
 
     }
 

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.model.InstitutionalContentModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -56,7 +57,7 @@ public class InstitutionalContent extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -64,7 +65,7 @@ public class InstitutionalContent extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -72,7 +73,7 @@ public class InstitutionalContent extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
     public InstitutionalContent() {

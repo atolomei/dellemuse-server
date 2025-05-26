@@ -3,6 +3,7 @@ package dellemuse.server.db.model;
 import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,6 +15,7 @@ import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.PersonModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseUserSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,8 +33,8 @@ public class Person extends DelleMuseObject {
     @Column(name = "lastname")
     private String lastname;
 
-    @Column(name = "displayname")
-    private String displayname;
+    //@Column(name = "displayname")
+    //private String displayname;
 
     @Column(name = "lastnamekey")
     private String lastnameKey;
@@ -91,7 +93,7 @@ public class Person extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -99,7 +101,7 @@ public class Person extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -107,12 +109,30 @@ public class Person extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
     public Person() {
     }
 
+    public String getTitle() {
+        if (super.getTitle()!=null)
+            super.getTitle();
+        return getName() + " " + getLastname(); 
+    }
+    
+    
+   @JsonIgnore
+   public String getDisplayName() {
+    
+       if (getTitle()!=null)
+           return getTitle();
+       
+       if (getName()!=null)
+           return getName() + " " + getLastname();
+       return getLastname();
+   }
+   
     public String getLastname() {
         return lastname;
     }
@@ -185,13 +205,10 @@ public class Person extends DelleMuseObject {
         this.email = email;
     }
 
-    public String getDisplayName() {
-        StringBuilder str = new StringBuilder();
-        if (getName()!=null)
-            str.append(getName() +" ");
-        str.append( getLastname());
-        return str.toString();
+    
+    /**public String getDisplayname() {
     }
+    **/
 
     
     public String getSubtitle() {
@@ -256,14 +273,6 @@ public class Person extends DelleMuseObject {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public String getDisplayname() {
-        return displayname;
-    }
-
-    public void setDisplayname(String displayname) {
-        this.displayname = displayname;
     }
 
     @Override

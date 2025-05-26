@@ -39,7 +39,7 @@ public class DelleMusePropertiesListener implements ApplicationListener<Applicat
 		    
 		ConfigurableEnvironment environment = event.getEnvironment();
 		    Properties props = new Properties();
-		    props.put("app.name", "Paleta");
+		    props.put("app.name", "Dellemuse");
 		    props.put("spring.servlet.multipart.max-file-size", "100GB");
 		    props.put("spring.servlet.multipart.max-request-size", "100GB");
 		    props.put("spring.main.banner-mode", "off");
@@ -56,6 +56,6 @@ public class DelleMusePropertiesListener implements ApplicationListener<Applicat
 		    // props.put("spring.resources.cache.cachecontrol.must-revalidate", "true");
 		    // props.put("spring.servlet.multipart.file-size-threshold", "24KB");
 		    
-		    environment.getPropertySources().addFirst(new PropertiesPropertySource("paletaProps", props));
+		    environment.getPropertySources().addFirst(new PropertiesPropertySource("dellemuseProps", props));
 	}
 }

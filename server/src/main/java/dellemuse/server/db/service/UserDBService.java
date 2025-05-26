@@ -52,7 +52,7 @@ public class UserDBService extends DBService<User, Long> {
     public User create(String name, Person person, User createdBy) {
         
         User c = new User();
-        c.setUsername(name);
+        c.setName(name);
         c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
@@ -86,7 +86,7 @@ public class UserDBService extends DBService<User, Long> {
         CriteriaQuery<User> criteria = criteriabuilder.createQuery(getEntityClass());
         Root<User> loaders = criteria.from(getEntityClass());
         ParameterExpression<String> nameparameter = criteriabuilder.parameter(String.class);
-        criteria.select(loaders).where(criteriabuilder.equal(loaders.get("username"), nameparameter));
+        criteria.select(loaders).where(criteriabuilder.equal(loaders.get(getNameColumn()), nameparameter));
         query = getSessionFactory().getCurrentSession().createQuery(criteria);
         query.setHint("org.hibernate.cacheable", true);
         query.setFlushMode(FlushModeType.COMMIT);
@@ -97,12 +97,12 @@ public class UserDBService extends DBService<User, Long> {
         if ((users!=null) && !users.isEmpty())
             return users.get(0);
         
-        throw new ObjectNotFoundException("Database does not have user with username=='root'");
+        throw new ObjectNotFoundException("Database does not have user with name=='root'");
     }
     
     @Override
     protected String getNameColumn() {
-        return "username";
+        return "name";
     }
     
     @Override

@@ -14,6 +14,7 @@ import dellemuse.model.FloorModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseListIdNameSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -77,7 +78,7 @@ public class Floor extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -85,7 +86,7 @@ public class Floor extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -93,7 +94,7 @@ public class Floor extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -101,7 +102,7 @@ public class Floor extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("map")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource map;
 
     public Floor() {

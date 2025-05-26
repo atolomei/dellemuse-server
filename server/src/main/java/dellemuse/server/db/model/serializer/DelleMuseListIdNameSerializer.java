@@ -12,7 +12,6 @@ import dellemuse.server.db.model.DelleMuseObject;
 
 public class DelleMuseListIdNameSerializer extends StdSerializer<List<DelleMuseObject>> {
 
-
     private static final long serialVersionUID = 1L;
 
     public DelleMuseListIdNameSerializer() {
@@ -30,15 +29,10 @@ public class DelleMuseListIdNameSerializer extends StdSerializer<List<DelleMuseO
             jgen.writeStartObject();
             jgen.writeNumberField("id", o.getId());         
             jgen.writeStringField("name", o.getName());
-            if (o.getDisplayName()!=null)
-                jgen.writeStringField("displayName", o.getDisplayName());
-            
+            if (o.getTitle()!=null)
+                jgen.writeStringField("title", o.getTitle());
             jgen.writeEndObject();
         }
-        //jgen.writeStringField("name", value.getName());
         jgen.writeEndArray();
     }
-    
-    
-
 }

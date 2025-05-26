@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.model.RoomModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -70,7 +71,7 @@ public class Room extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
@@ -78,7 +79,7 @@ public class Room extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")    
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
     
     @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
@@ -86,7 +87,7 @@ public class Room extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("map")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource map;
 
     

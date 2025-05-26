@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.ArtWorkModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseSetIdNameSerializer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,6 +46,7 @@ public class ArtWork extends DelleMuseObject {
     @Column(name = "subtitleKey")
     private String subTitleKey;
 
+    @JsonIgnore
     @Column(name = "info")
     private String info;
 
@@ -59,12 +62,12 @@ public class ArtWork extends DelleMuseObject {
     @JsonProperty("artists")
     Set<Person> artists = new HashSet<>();
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -72,7 +75,7 @@ public class ArtWork extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -80,7 +83,7 @@ public class ArtWork extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
     public ArtWork() {

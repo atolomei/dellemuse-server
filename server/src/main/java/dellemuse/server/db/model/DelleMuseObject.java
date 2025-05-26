@@ -6,6 +6,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -66,8 +67,9 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
     public DelleMuseObject() {
     }
 
-    public String getDisplayName() {
-        return getTitle();
+    @JsonIgnore
+    public String getDisplayname() {
+        return (getTitle()!=null) ? getTitle() : getName();
     }
     
     public Long getId() {

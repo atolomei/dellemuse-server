@@ -14,24 +14,24 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class User extends DelleMuseObject {
 
-    @Column(name = "username")
-    private String username;
+    //@Column(name = "username")
+    //private String username;
 
     public User() {
     }
 
     public String getUsername() {
-        return username;
+        return getName();
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    //public void setUsername(String username) {
+    //    this.username = username;
+    //}
 
-    public String getDisplayName() {
+    public String getDisplayname() {
         return getUsername();
     }
-    
+
     
     @Override
     public UserModel model() {

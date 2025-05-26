@@ -734,7 +734,7 @@ CREATE TABLE Favorite (
 						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
-						nameKey				character varying(512),
+						nameKey				character varying(512) default regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g'),
 
 						title		 		character varying(1024),
 						titleKey			character varying(512),

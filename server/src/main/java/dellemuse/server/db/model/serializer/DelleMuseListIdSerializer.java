@@ -28,7 +28,7 @@ public class DelleMuseListIdSerializer extends StdSerializer<List<DelleMuseObjec
         for (DelleMuseObject o: value) {
             jgen.writeStartObject();
             jgen.writeNumberField("id",   o.getId());
-            jgen.writeStringField("displayName", o.getDisplayName());
+            //jgen.writeStringField("name", o.getName());
             jgen.writeEndObject();
         }
         jgen.writeEndArray();

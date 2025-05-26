@@ -3,6 +3,7 @@ package dellemuse.server.db.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -21,32 +22,37 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibitionItem extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
-    @JoinColumn(name = "artwork_id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
-    private ArtWork artwork;
-
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
     @JoinColumn(name = "artExhibition_id", referencedColumnName = "id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonProperty("artExhibition")
     private ArtExhibition artExhibition;
+    
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
+    @JoinColumn(name = "artwork_id", nullable = true)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonProperty("artwork")
+    private ArtWork artwork;
 
+    /**
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Site site;
+    **/
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
     @JoinColumn(name = "floor_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonProperty("floor")
     private Floor floor;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
@@ -54,33 +60,35 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonProperty("room")
     private Room room;
 
     @Column(name = "artExhibitionOrder")
+    @JsonProperty("artExhibitionOrder")
     private int artExhibitionOrder;
 
     @Column(name = "readcode")
+    @JsonProperty("readcode")
     private String readCode;
 
     @Column(name = "qcode")
+    @JsonProperty("qcode")
     private String qCode;
-
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "titleKey")
-    private String titleKey;
-
+    
     @Column(name = "info")
+    @JsonProperty("info")
     private String info;
 
     @Column(name = "infoKey")
+    @JsonProperty("infoKey")
     private String infoKey;
 
     @Column(name = "mapurl")
+    @JsonProperty("mapurl")
     private String mapurl;
 
     @Column(name = "website")
+    @JsonProperty("website")
     private String wesite;
 
     public ArtExhibitionItem() {
@@ -102,14 +110,6 @@ public class ArtExhibitionItem extends DelleMuseObject {
 
     public void setArtwork(ArtWork artwork) {
         this.artwork = artwork;
-    }
-
-    public Site getSite() {
-        return site;
-    }
-
-    public void setSite(Site site) {
-        this.site = site;
     }
 
     public Floor getFloor() {
@@ -144,21 +144,6 @@ public class ArtExhibitionItem extends DelleMuseObject {
         this.qCode = qCode;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTitleKey() {
-        return titleKey;
-    }
-
-    public void setTitleKey(String titleKey) {
-        this.titleKey = titleKey;
-    }
 
     public String getInfo() {
         return info;

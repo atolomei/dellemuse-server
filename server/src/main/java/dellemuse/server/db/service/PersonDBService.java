@@ -61,7 +61,7 @@ public class PersonDBService extends DBService<Person, Long> {
         c.setLastname(lastname);
         c.setLastnameKey(nameKey(lastname));
         
-        c.setDisplayname(name + " " + lastname);
+        c.setTitle(name + " " + lastname);
 
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
@@ -94,9 +94,9 @@ public class PersonDBService extends DBService<Person, Long> {
         if (o_lastname.isPresent()) {
             c.setLastname(o_lastname.get());
             c.setLastnameKey(o_lastname.get().toLowerCase().trim());
-            c.setDisplayname(name + " " + o_lastname.get());
+            c.setTitle(name + " " + o_lastname.get());
         }
-        c.setDisplayname(name);
+        c.setTitle(name);
         
         
         if (o_sex.isPresent())

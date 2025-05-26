@@ -11,12 +11,20 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import dellemuse.model.ArtExhibitionGuideModel;
+import dellemuse.model.ArtExhibitionModel;
+import dellemuse.model.ArtWorkModel;
 import dellemuse.model.DelleMuseModelObject;
+import dellemuse.model.GuideContentModel;
 import dellemuse.model.PersonModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Constant;
 import dellemuse.server.BaseService;
 import dellemuse.server.Settings;
+import dellemuse.server.api.model.ArtExhibitionGuideModelService;
+import dellemuse.server.api.model.ArtExhibitionModelService;
+import dellemuse.server.api.model.ArtWorkModelService;
+import dellemuse.server.api.model.GuideContentModelService;
 import dellemuse.server.api.model.ModelService;
 import dellemuse.server.api.model.PersonModelService;
 import dellemuse.server.db.model.ArtExhibition;
@@ -34,6 +42,7 @@ import dellemuse.server.db.model.Room;
 import dellemuse.server.db.model.Site;
 import dellemuse.server.db.model.User;
 import dellemuse.server.db.service.ArtExhibitionDBService;
+import dellemuse.server.db.service.ArtExhibitionGuideDBService;
 import dellemuse.server.db.service.ArtExhibitionStatusTypeDBService;
 import dellemuse.server.db.service.ArtWorkDBService;
 import dellemuse.server.db.service.ArtWorkTypeDBService;
@@ -61,7 +70,93 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
     
     
     public void test() {
-      
+
+        {
+            
+            TesterModel<GuideContent, GuideContentDBService, GuideContentModel, GuideContentModelService> testerModel = 
+                    new TesterModel(    GuideContent.class, 
+                            GuideContentDBService.class,
+                            GuideContentModel.class,
+                            GuideContentModelService.class);
+            
+            testerModel.test();
+        }
+ 
+        
+        {
+                                
+            TesterModel<ArtExhibitionGuide, ArtExhibitionGuideDBService, ArtExhibitionGuideModel, ArtExhibitionGuideModelService> testerModel = 
+                    new TesterModel(    ArtExhibitionGuide.class, 
+                                        ArtExhibitionGuideDBService.class,
+                                        ArtExhibitionGuideModel.class,
+                                        ArtExhibitionGuideModelService.class);
+            
+            testerModel.test();
+        }
+
+
+        
+        
+        {
+            
+            TesterModel<ArtExhibition, ArtExhibitionDBService, ArtExhibitionModel, ArtExhibitionModelService> testerModel = 
+                    new TesterModel(    ArtExhibition.class, 
+                                        ArtExhibitionDBService.class,
+                                        ArtExhibitionModel.class,
+                                        ArtExhibitionModelService.class);
+            
+            testerModel.test();
+        }
+
+        
+        
+        
+        
+        
+        
+        
+        
+        {
+        
+            TesterModel<Person, PersonDBService, PersonModel, PersonModelService> testerModel = 
+                    new TesterModel(    Person.class, 
+                                        PersonDBService.class,
+                                        PersonModel.class,
+                                        PersonModelService.class);
+            
+            testerModel.test();
+        }
+    
+        
+
+        {
+            
+            TesterModel<ArtWork, ArtWorkDBService, ArtWorkModel, ArtWorkModelService> testerModel = 
+                    new TesterModel(    ArtWork.class, 
+                                        ArtWorkDBService.class,
+                                        ArtWorkModel.class,
+                                        ArtWorkModelService.class);
+            
+            testerModel.test();
+        }
+
+        
+        
+        
+        
+        
+        
+        /**
+        
+        
+        
+
+        {
+        Tester <Person, PersonDBService> tester = new Tester<Person, PersonDBService>(Person.class, PersonDBService.class);
+        tester.test();
+        }
+        
+        
    
         {
             Tester <GuideContent, GuideContentDBService> tester = new Tester<GuideContent, GuideContentDBService>(GuideContent.class, GuideContentDBService.class);
@@ -86,19 +181,6 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
 
         
         
-        {
-            Tester <Person, PersonDBService> tester = new Tester<Person, PersonDBService>(Person.class, PersonDBService.class);
-            tester.test();
-        
-            TesterModel<Person, PersonDBService, PersonModel, PersonModelService> testerModel = 
-                    new TesterModel(    Person.class, 
-                                        PersonDBService.class,
-                                        PersonModel.class,
-                                        PersonModelService.class);
-            
-            testerModel.test();
-        }
-    
         {
             Tester <Floor, FloorDBService> tester = new Tester<Floor , FloorDBService>(Floor.class, FloorDBService.class);
             tester.test();
@@ -140,7 +222,7 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
 
         testArtExhibitionGuide();
         testArtExhibitionGuideBySite();
-        
+        */
         logger.debug("done");
     }
 

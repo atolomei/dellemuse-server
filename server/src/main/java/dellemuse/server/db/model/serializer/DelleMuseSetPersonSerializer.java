@@ -31,8 +31,14 @@ public class DelleMuseSetPersonSerializer extends StdSerializer<Set<Person>> {
             jgen.writeStartObject();
             jgen.writeNumberField("id", o.getId());            
             jgen.writeStringField("name", o.getName());
-            jgen.writeStringField("lastName", o.getLastname());
-            jgen.writeStringField("displayName", o.getDisplayName());
+            jgen.writeStringField("lastname", o.getLastname());
+            //jgen.writeStringField("displayname", o.getDisplayname());
+            
+            jgen.writeStartObject("user");
+                jgen.writeNumberField("id", o.getUser().getId());
+                jgen.writeStringField("name", o.getUser().getName());
+            jgen.writeEndObject();
+            
             jgen.writeEndObject();
         }
         jgen.writeEndArray();

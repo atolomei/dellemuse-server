@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseListIdNameSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import dellemuse.server.error.InternalErrorException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -69,6 +70,7 @@ public class ArtExhibition extends DelleMuseObject {
     @JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("lower(title) ASC")
+    @JsonProperty("artExhibitionItems")
     private List<ArtExhibitionItem> artExhibitionItems;
 
     @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
@@ -76,7 +78,7 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -84,7 +86,7 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -92,7 +94,7 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
     public ArtExhibition() {

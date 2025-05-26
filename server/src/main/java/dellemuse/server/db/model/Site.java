@@ -16,6 +16,7 @@ import dellemuse.model.SiteModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseListIdNameSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -83,13 +84,13 @@ public class Site extends DelleMuseObject {
 
     @Column(name = "mapurl")
     private String mapurl;
-    
+
     @Column(name = "email")
     private String email;
 
     @Column(name = "instagram")
     private String instagram;
-    
+
     @Column(name = "whatsapp")
     private String whatsapp;
 
@@ -98,9 +99,9 @@ public class Site extends DelleMuseObject {
 
     @Column(name = "twitter")
     private String twitter;
-    
+
     @OneToMany(fetch = FetchType.EAGER, targetEntity = Floor.class)
-    @JoinColumn(name = "site_id", nullable = true, insertable=false)
+    @JoinColumn(name = "site_id", nullable = true, insertable = false)
     @OrderBy("floorNumber ASC")
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     private List<Floor> floors;
@@ -110,7 +111,7 @@ public class Site extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("logo")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource logo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -118,7 +119,7 @@ public class Site extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
@@ -126,15 +127,15 @@ public class Site extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
-    @JsonProperty("audio")    
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    @JsonProperty("audio")
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
     @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
@@ -142,21 +143,26 @@ public class Site extends DelleMuseObject {
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("map")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource map;
-    
+
     public Site() {
     }
 
+    @Override
+    public String getDisplayname() {
+        return getName();
+    }
 
     @Override
     public SiteModel model() {
         try {
-            return (SiteModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),SiteModel.class);
+            return (SiteModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), SiteModel.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
+
     public Resource getLogo() {
         return logo;
     }
@@ -165,7 +171,6 @@ public class Site extends DelleMuseObject {
         this.logo = logo;
     }
 
-    
     public SiteType getSiteType() {
         return siteType;
     }
@@ -181,7 +186,6 @@ public class Site extends DelleMuseObject {
     public void setInstitution(Institution institution) {
         this.institution = institution;
     }
-
 
     public String getSubtitle() {
         return subtitle;
@@ -295,11 +299,9 @@ public class Site extends DelleMuseObject {
         return shortName;
     }
 
-
     public void setShortName(String shortName) {
         this.shortName = shortName;
     }
-
 
     public String getInfoKey() {
         return infoKey;
@@ -328,7 +330,5 @@ public class Site extends DelleMuseObject {
     public List<Floor> getFloors() {
         return floors;
     }
-
-
 
 };

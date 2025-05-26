@@ -25,7 +25,7 @@ public class DelleMuseUserSerializer extends StdSerializer<User> {
     public void serialize(User value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
         jgen.writeNumberField("id", value.getId());
-        jgen.writeStringField("username", value.getUsername());
+        jgen.writeStringField("name", value.getName());
         jgen.writeEndObject();
     }
     

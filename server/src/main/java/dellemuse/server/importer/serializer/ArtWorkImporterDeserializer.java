@@ -186,7 +186,7 @@ id  |                                                    name
         aw.setPhoto(resource);
         this.artWorkImporter.getArtWorkDBService().save(aw);
         
-        logger.debug( "saving  -> " + aw.getDisplayName());
+        logger.debug( "saving  -> " + aw.getDisplayname());
         
         return aw;
     }

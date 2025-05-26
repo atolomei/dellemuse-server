@@ -78,7 +78,7 @@ INSERT INTO room  (id,	name, roomNumber, floor_id,  created, lastmodified,	lastm
 (nextval('sequence_id'), 'Rampa primer piso - etre salas 31 y 32'            , ''   , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
 (nextval('sequence_id'), 'Hall y escaleras'                                  , ''   , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
 (nextval('sequence_id'), 'Sala 2. Arte europeo siglo XII al XVI'             , ''   , (select id from floor where name like '%Planta Baja%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root')),
-(nextval('sequence_id'), 'Salón 20 ARTISTAS BRASILEÑOS'                      , ''   , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root'));
+(nextval('sequence_id'), 'Salón 20 Artistas brasileños'                      , ''   , (select id from floor where name like '%Primer Piso%' and site_id in (select id from site where name like '%Nacional de Bellas%' limit 1)  limit 1), now(), now(), (select id from users where username='root'));
 
 
 INSERT INTO room  (id,	name, roomNumber, floor_id,  created, lastmodified,	lastmodifieduser) VALUES 
@@ -96,8 +96,6 @@ INSERT INTO site  (id,	name, institution_id,  created, lastmodified,	lastmodifie
   now(), 
   now(), 
   (select id from users where username='root'));
-  
-
   
   
 --- QUINQUELA
