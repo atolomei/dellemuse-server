@@ -254,15 +254,13 @@ CREATE TABLE site (
 						id					bigint primary key default nextval('sequence_id'),
 						
 						name				character varying(512) not null,
-						nameKey				character varying(512),
-						
-						shortName			character varying(512),
+						namekey				character varying(512),
+						shortname			character varying(512),
 
 						title		 		character varying(1024),
-						titleKey			character varying(512),
+						titlekey			character varying(512),
 
-
-						siteType_id       	bigint references siteType(id) on delete restrict,
+						sitetype_id       	bigint references siteType(id) on delete restrict,
 						institution_id      bigint references institution(id) on delete restrict not null,
 
 						website		 		character varying(1024),
@@ -272,18 +270,26 @@ CREATE TABLE site (
 						whatsapp	 		character varying(1024),
 						phone		 		character varying(1024),
 						twitter		 		character varying(1024),
-						
  						
-
+						opens 				character varying(2048),
+						openskey			character varying(512),
+												
 						subtitle		 	character varying(1024),
-						subTitleKey			character varying(512),
+						subtitlekey			character varying(512),
 
+						abstract	 		text,
 						info		 		text,
-						infoKey 			character varying(512),
+						
+						
+						infokey 			character varying(512),
+						
+						welcome 			text,
+						welcomekey 			character varying(512),
+						
 						
 						address		 		text,
-						addressKey 			character varying(512),
-						
+						addresskey 			character varying(512),
+
 						logo				bigint references resource(id) on delete restrict,
 
 						photo				bigint references resource(id) on delete restrict,
@@ -470,6 +476,9 @@ CREATE TABLE artwork (
 						
 						info		 		text,
 						infoKey 			character varying(512),
+
+						intro		 		text,
+						introKey 			character varying(512),
 						
 						photo				bigint references resource(id) on delete restrict,
 						video				bigint references resource(id) on delete restrict,
@@ -584,7 +593,14 @@ CREATE TABLE artExhibition (
 
 						info		 		text,
 						infoKey 			character varying(512),
-
+						
+						intro 				text,
+						introKey 			character varying(512),
+						
+						
+						opens 				character varying(2048),
+						opensKey 			character varying(512),
+						
 						website		 		character varying(1024),
 						mapurl		 		character varying(1024),
 						email		 		character varying(1024),
@@ -593,6 +609,8 @@ CREATE TABLE artExhibition (
 						phone		 		character varying(1024),
 						twitter		 		character varying(1024),
 
+						location 			character varying (4096);
+						
 						
 						photo				bigint references resource(id) on delete restrict,
 						video				bigint references resource(id) on delete restrict,

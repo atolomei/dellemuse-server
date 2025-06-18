@@ -223,6 +223,8 @@ UPDATE  person			  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-
 UPDATE  artExhibition	  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
 UPDATE  artExhibitionItem SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
 
+update artwork set title = name where title is null;
+
 COMMIT;
 
 

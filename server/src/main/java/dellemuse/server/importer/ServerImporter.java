@@ -39,6 +39,10 @@ public class ServerImporter extends BaseService {
 
     @JsonIgnore
     @Autowired
+    ArtExhibitionImporter artExhibitionImporter;
+    
+    @JsonIgnore
+    @Autowired
     GuideContentImporter guideContentImporter;
 
     @JsonIgnore
@@ -48,7 +52,8 @@ public class ServerImporter extends BaseService {
     public ServerImporter(Settings settings, PersonImporter personImporter, UserImporter userImporter,
             ArtWorkImporter artWorkImporter, ResourceImporter resourceImporter, InstitutionImporter institutionImporter,
             SiteImporter siteImporter, ArtExhibitionGuideImporter artExhibitionGuideImporter,
-            GuideContentImporter guideContentImporter) {
+            GuideContentImporter guideContentImporter,
+            ArtExhibitionImporter artExhibitionImporter) {
 
         super(settings);
 
@@ -60,6 +65,8 @@ public class ServerImporter extends BaseService {
         this.siteImporter = siteImporter;
         this.artExhibitionGuideImporter = artExhibitionGuideImporter;
         this.guideContentImporter = guideContentImporter;
+        this.artExhibitionImporter=artExhibitionImporter;
+        
 
     }
 
@@ -69,10 +76,15 @@ public class ServerImporter extends BaseService {
         // personImporter.execute();
         // userImporter.execute();
 
-        // artWorkImporter.execute();
-
+        // this.artWorkImporter.execute();
+        
         // artExhibitionGuideImporter.execute();
         this.guideContentImporter.execute();
+        
+        // this.siteImporter.execute();
+        
+        // this.artExhibitionImporter.execute();
+        
 
     }
 

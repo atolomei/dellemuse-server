@@ -27,6 +27,23 @@ INSERT INTO institution (id, name, created, lastmodified, lastmodifieduser) VALU
 (nextval('sequence_id'), 'Museo Nacional de Bellas Artes',  now(), now(), (select id from users where username='root')),
 (nextval('sequence_id'), 'Museo Quinquela Martín', now(), now(), (select id from users where username='root'));
 
+
+
+-- MALBA 
+INSERT INTO institution (id, name, shortname, created, lastmodified, lastmodifieduser) VALUES  
+(nextval('sequence_id'), 'MALBA', 'Museo de Arte Latinoaméricano de Buenos Aires', now(), now(), (select id from users where username='root'));
+
+INSERT INTO site  (id,	name, shortname, institution_id,  created, lastmodified,	lastmodifieduser) VALUES
+ (nextval('sequence_id'), 
+  'Museo de Arte Latinoaméricano de Buenos Aires', 
+  'MALBA',
+  (select id from institution where name like 'Museo de Arte Latinoa%' limit 1), 
+  now(), 
+  now(), 
+  (select id from users where username='root'));
+
+
+
 -- MNBA > recoleta
 -- 
 INSERT INTO site  (id,	name, institution_id,  created, lastmodified,	lastmodifieduser) VALUES
@@ -271,6 +288,7 @@ UPDATE  GuideContent SET namekey = regexp_replace(regexp_replace(lower(name),'[^
 UPDATE  site  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
 UPDATE institution  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
 
+update artwork set title = name where title is null;
 
 
 COMMIT;

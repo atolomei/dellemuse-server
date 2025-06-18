@@ -39,7 +39,7 @@ public class FavoriteSite extends DelleMuseObject {
     @JsonProperty("sites")
     private List<Site> sites;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Person.class)
     @JoinColumn(name = "person_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference

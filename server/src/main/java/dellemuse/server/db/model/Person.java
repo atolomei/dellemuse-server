@@ -33,9 +33,6 @@ public class Person extends DelleMuseObject {
     @Column(name = "lastname")
     private String lastname;
 
-    //@Column(name = "displayname")
-    //private String displayname;
-
     @Column(name = "lastnamekey")
     private String lastnameKey;
 
@@ -88,7 +85,7 @@ public class Person extends DelleMuseObject {
     @Column(name = "infokey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -96,7 +93,7 @@ public class Person extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -104,7 +101,7 @@ public class Person extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -116,23 +113,22 @@ public class Person extends DelleMuseObject {
     }
 
     public String getTitle() {
-        if (super.getTitle()!=null)
+        if (super.getTitle() != null)
             super.getTitle();
-        return getName() + " " + getLastname(); 
+        return getName() + " " + getLastname();
     }
-    
-    
-   @JsonIgnore
-   public String getDisplayName() {
-    
-       if (getTitle()!=null)
-           return getTitle();
-       
-       if (getName()!=null)
-           return getName() + " " + getLastname();
-       return getLastname();
-   }
-   
+
+    @JsonIgnore
+    public String getDisplayName() {
+
+        if (getTitle() != null)
+            return getTitle();
+
+        if (getName() != null)
+            return getName() + " " + getLastname();
+        return getLastname();
+    }
+
     public String getLastname() {
         return lastname;
     }
@@ -205,12 +201,10 @@ public class Person extends DelleMuseObject {
         this.email = email;
     }
 
-    
-    /**public String getDisplayname() {
-    }
-    **/
+    /**
+     * public String getDisplayname() { }
+     **/
 
-    
     public String getSubtitle() {
         return subtitle;
     }

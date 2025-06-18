@@ -19,6 +19,7 @@ import dellemuse.server.db.model.Person;
 import dellemuse.server.db.model.Site;
 import dellemuse.server.db.service.InstitutionDBService;
 import dellemuse.server.db.service.PersonDBService;
+import dellemuse.server.db.service.ResourceDBService;
 import dellemuse.server.db.service.SiteDBService;
 import dellemuse.server.db.service.UserDBService;
 import dellemuse.server.importer.serializer.PersonImporterDeserialiser;
@@ -37,13 +38,16 @@ public class SiteImporter extends BaseImporter {
     @Autowired
     private final InstitutionDBService institutionDBService;
     
+    @JsonIgnore
+    @Autowired
+    private final ResourceDBService resourceDBService;
     
-    public SiteImporter(Settings settings,  SiteDBService siteDBService, UserDBService userDBService,  ObjectStorageService objectStorageService, InstitutionDBService institutionDBService) {
+    public SiteImporter(Settings settings,  SiteDBService siteDBService, UserDBService userDBService,  ObjectStorageService objectStorageService, InstitutionDBService institutionDBService, ResourceDBService resourceDBService) {
         super(settings, userDBService,  objectStorageService, Site.class.getSimpleName().toLowerCase());
 
         this.siteDBService=siteDBService;
         this.institutionDBService=institutionDBService;
-        
+        this.resourceDBService=resourceDBService;
         
         SiteImporterDeserialiser siteDeserializer = new SiteImporterDeserialiser(Site.class, this);
         SimpleModule module = new SimpleModule();
@@ -64,6 +68,10 @@ public class SiteImporter extends BaseImporter {
 
     public InstitutionDBService getInstitutionDBService() {
         return institutionDBService;
+    }
+    
+    public ResourceDBService getResourceDBService() {
+        return resourceDBService;
     }
     
 

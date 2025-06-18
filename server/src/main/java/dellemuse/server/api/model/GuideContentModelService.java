@@ -4,28 +4,29 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import dellemuse.model.ArtExhibitionGuideModel;
+import dellemuse.model.ArtWorkModel;
+import dellemuse.model.GuideContentModel;
 import dellemuse.server.Settings;
-import dellemuse.server.db.model.ArtExhibition;
-import dellemuse.server.db.model.ArtExhibitionGuide;
 import dellemuse.server.db.model.ArtWork;
+import dellemuse.server.db.model.GuideContent;
 import dellemuse.server.error.InternalErrorException;
 
 
 @Service 
-public class ArtExhibitionGuideModelService extends ModelService<ArtExhibitionGuide, ArtExhibitionGuideModel> {
+public class GuideContentModelService extends ModelService<GuideContent, GuideContentModel> {
     
-    public ArtExhibitionGuideModelService(Settings settings) {
-        super(settings, ArtExhibitionGuide.class, ArtExhibitionGuideModel.class);
+    public GuideContentModelService(Settings settings) {
+        super(settings, GuideContent.class, GuideContentModel.class);
     }
-    
+
+
     @Override
-    public ArtExhibitionGuideModel model(ArtExhibitionGuide artwork) {
+    public GuideContentModel model(GuideContent artwork) {
         return artwork.model();
     }
 
     @Override
-    public ArtExhibitionGuide source(ArtExhibitionGuideModel model) {
+    public GuideContent source(GuideContentModel model) {
         String json = null;
         try {
             json = getObjectMapper().writeValueAsString(model);
@@ -34,8 +35,7 @@ public class ArtExhibitionGuideModelService extends ModelService<ArtExhibitionGu
         }
 
         try {
-            return (ArtExhibitionGuide) getObjectMapper().readValue(json, ArtExhibitionGuide.class);
-
+            return (GuideContent) getObjectMapper().readValue(json, GuideContent.class);
         } catch (JsonProcessingException e) {
             throw new InternalErrorException(e, "read");
         }

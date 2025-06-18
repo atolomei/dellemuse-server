@@ -3,6 +3,7 @@ package dellemuse.server.db.service;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.hibernate.query.NullPrecedence;
 import org.hibernate.query.SortDirection;
@@ -62,10 +63,36 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
      * @param name
      * @return
      */
+    @Transactional
     public List<ArtExhibition> getByName(String name) {
         return createNameQuery(name).getResultList();
     }
 
+    
+    @Transactional
+    public Optional<ArtExhibition> findByNameKey(String name) {
+        TypedQuery<ArtExhibition> query;
+        CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<ArtExhibition> criteria = criteriabuilder.createQuery(ArtExhibition.class);
+        Root<ArtExhibition> loaders = criteria.from(ArtExhibition.class);
+        criteria.orderBy(criteriabuilder.asc(loaders.get("id")));
+        ParameterExpression<String> idparameter = criteriabuilder.parameter(String.class);
+        criteria.select(loaders).where(criteriabuilder.equal(loaders.get("nameKey"), idparameter));
+        query = getSessionFactory().getCurrentSession().createQuery(criteria);
+        query.setHint("org.hibernate.cacheable", true);
+        query.setFlushMode(FlushModeType.COMMIT);
+        query.setParameter(idparameter, name);
+        List<ArtExhibition> list = query.getResultList();
+        if (list == null || list.isEmpty())
+            return Optional.empty();
+        return Optional.of(list.get(0));
+    }
+    
+    
+    
+    
+    
+    
     @Override
     protected Class<ArtExhibition> getEntityClass() {
         return ArtExhibition.class;
@@ -80,7 +107,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
         CriteriaQuery<ArtExhibitionGuide> criteria = criteriabuilder.createQuery(ArtExhibitionGuide.class);
         Root<ArtExhibitionGuide> loaders = criteria.from(ArtExhibitionGuide.class);
         criteria.orderBy(criteriabuilder.asc(loaders.get("title")));
-        
         
         //List<org.hibernate.query.Order<? super ArtExhibitionGuide>> orderBy = new ArrayList<>(1);
         //orderBy.add(org.hibernate.query.Order.by(ArtExhibitionGuide.class,"name", SortDirection.ASCENDING, NullPrecedence.LAST));

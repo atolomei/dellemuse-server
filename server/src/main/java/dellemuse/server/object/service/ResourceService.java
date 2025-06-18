@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import dellemuse.server.db.model.DelleMuseObject;
 import dellemuse.server.db.model.Resource;
 import dellemuse.server.objectstorage.ObjectStorageService;
 import io.odilon.client.error.ODClientException;
@@ -46,8 +45,10 @@ public class ResourceService extends BaseObjectService {
         } catch (ODClientException e) {
             throw new RuntimeException(e);
         }
-        
     }
+    
+    
+    
     
     @Override
     public  Resource getObject() {

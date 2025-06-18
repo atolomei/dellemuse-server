@@ -12,6 +12,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Constant;
 import dellemuse.server.BaseService;
 import dellemuse.server.DelleMuseStartupApplicationRunner;
+import dellemuse.server.ServerConstant;
 import dellemuse.server.Settings;
 import dellemuse.server.SystemService;
 import io.odilon.client.ODClient;
@@ -28,7 +29,7 @@ public class ObjectStorageService extends BaseService implements SystemService {
 
   static private Logger startupLogger = Logger.getLogger("StartupLogger");
 
-  static public final String MEDIA = "media";
+  
   
    @JsonIgnore
    private      OdilonClient client;
@@ -86,8 +87,15 @@ public class ObjectStorageService extends BaseService implements SystemService {
             throw new InternalCriticalException( "Pïng error -> " + ping );
         
         try {
-            if (!this.client.existsBucket(MEDIA)) {
-                this.client.createBucket(MEDIA);
+            
+            if (!this.client.existsBucket(ServerConstant.MEDIA_BUCKET)) {
+                startupLogger.debug("Creating bucket -> " + ServerConstant.MEDIA_BUCKET);
+                this.client.createBucket(ServerConstant.MEDIA_BUCKET);
+            }
+            
+            if (!this.client.existsBucket(ServerConstant.THUMBNAIL_BUCKET)) {
+                startupLogger.debug("Creating bucket -> " + ServerConstant.THUMBNAIL_BUCKET);
+                this.client.createBucket(ServerConstant.THUMBNAIL_BUCKET);
             }
             
      } catch (ODClientException e) {

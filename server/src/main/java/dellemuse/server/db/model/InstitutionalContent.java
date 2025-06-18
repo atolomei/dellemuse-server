@@ -26,14 +26,14 @@ import jakarta.persistence.Table;
 public class InstitutionalContent extends DelleMuseObject {
 
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Institution.class)
     @JoinColumn(name = "institution_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Institution institution;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -52,7 +52,7 @@ public class InstitutionalContent extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -60,7 +60,7 @@ public class InstitutionalContent extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -68,7 +68,7 @@ public class InstitutionalContent extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference

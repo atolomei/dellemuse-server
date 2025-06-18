@@ -30,7 +30,7 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Institution extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = InstitutionType.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = InstitutionType.class)
     @JoinColumn(name = "institutionType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -93,7 +93,7 @@ public class Institution extends DelleMuseObject {
     @OrderBy("lower(title) ASC")
     private List<Site> sites;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "logo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -101,7 +101,7 @@ public class Institution extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Resource logo;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -109,7 +109,7 @@ public class Institution extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -117,7 +117,7 @@ public class Institution extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference

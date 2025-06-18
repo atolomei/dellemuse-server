@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.model.ArtWorkModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
-import dellemuse.server.db.model.serializer.DelleMuseSetIdNameSerializer;
+import dellemuse.server.db.model.serializer.DelleMuseSetPersonSerializer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,6 +32,15 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtWork extends DelleMuseObject {
 
+    @ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
+    @JoinTable(name = "ArtWorkArtist", joinColumns = { @JoinColumn(name = "artwork_id") }, inverseJoinColumns = {
+            @JoinColumn(name = "person_id") })
+    @JsonSerialize(using = DelleMuseSetPersonSerializer.class)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonProperty("artists")
+    Set<Person> artists = new HashSet<>();
+
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtWorkType.class)
     @JoinColumn(name = "artworkType_id", nullable = true)
     @JsonManagedReference
@@ -43,24 +51,23 @@ public class ArtWork extends DelleMuseObject {
     @Column(name = "subtitle")
     private String subtitle;
 
+    @Column(name = "spec")
+    private String spec;
+
     @Column(name = "subtitleKey")
     private String subTitleKey;
 
-    @JsonIgnore
     @Column(name = "info")
     private String info;
 
     @Column(name = "infoKey")
     private String infoKey;
 
-    @ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
-    @JoinTable(name = "ArtWorkArtist", joinColumns = { @JoinColumn(name = "artwork_id") }, inverseJoinColumns = {
-    @JoinColumn(name = "person_id") })
-    @JsonSerialize(using = DelleMuseSetIdNameSerializer.class)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("artists")
-    Set<Person> artists = new HashSet<>();
+    @Column(name = "intro")
+    private String intro;
+
+    @Column(name = "introKey")
+    private String introKey;
 
     @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
@@ -70,7 +77,7 @@ public class ArtWork extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -78,7 +85,7 @@ public class ArtWork extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -129,13 +136,6 @@ public class ArtWork extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
-    /**
-     * @JsonIgnore public List<Person> getArtists() { List<Person> list = new
-     *             ArrayList<Person>(); if (artWorkArtists != null)
-     *             artWorkArtists.forEach(item -> list.add(item.getPerson()));
-     *             return list; }
-     **/
-
     @Override
     public ArtWorkModel model() {
         try {
@@ -165,6 +165,14 @@ public class ArtWork extends DelleMuseObject {
         return video;
     }
 
+    public String getSpec() {
+        return spec;
+    }
+
+    public void setSpec(String spec) {
+        this.spec = spec;
+    }
+
     public void setVideo(Resource video) {
         this.video = video;
     }
@@ -175,5 +183,21 @@ public class ArtWork extends DelleMuseObject {
 
     public void setAudio(Resource audio) {
         this.audio = audio;
+    }
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
+    public String getIntroKey() {
+        return introKey;
+    }
+
+    public void setIntroKey(String introKey) {
+        this.introKey = introKey;
     }
 };

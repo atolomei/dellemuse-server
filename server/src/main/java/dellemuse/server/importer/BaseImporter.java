@@ -30,6 +30,14 @@ public abstract class BaseImporter extends BaseService implements Importer {
     @JsonIgnore
     static private final ObjectMapper importerMapper = new ObjectMapper();
 
+    static {
+        importerMapper.registerModule(new JavaTimeModule());
+        importerMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        importerMapper.registerModule(new Jdk8Module());
+        // mapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
+    }
+
+    
     final String baseDir;
 
     final String classDir;
@@ -43,13 +51,7 @@ public abstract class BaseImporter extends BaseService implements Importer {
     @JsonIgnore
     final File processed;
 
-    static {
-        importerMapper.registerModule(new JavaTimeModule());
-        importerMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        importerMapper.registerModule(new Jdk8Module());
-        // mapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
-    }
-
+    
     @JsonIgnore
     @Autowired
     private final UserDBService userDBService;
@@ -57,9 +59,14 @@ public abstract class BaseImporter extends BaseService implements Importer {
     @JsonIgnore
     @Autowired
     private final ObjectStorageService objectStorageService;
+    
+    
 
-    public BaseImporter(Settings settings, UserDBService userDBService, ObjectStorageService objectStorageService,
-            String classDir) {
+    public BaseImporter(Settings settings, 
+                        UserDBService userDBService, 
+                        ObjectStorageService objectStorageService,
+                        String classDir) {
+        
         super(settings);
 
         this.objectStorageService = objectStorageService;

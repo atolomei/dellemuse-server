@@ -94,6 +94,8 @@ public class InstitutionDBService extends DBService<Institution, Long> {
         return query.getResultList();
     }
 
+    
+    @Transactional
     public Optional<Institution> findByShortName(String name) {
         TypedQuery<Institution> query;
         CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();

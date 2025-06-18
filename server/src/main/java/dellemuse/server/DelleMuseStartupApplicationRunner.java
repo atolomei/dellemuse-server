@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Constant;
 import dellemuse.server.importer.ServerImporter;
+import dellemuse.server.objectstorage.ObjectStorageService;
 import dellemuse.server.test.TestListObjects;
 
 @Component
@@ -57,11 +58,29 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
         if (iKeys)
             startupLogger.info(Constant.SEPARATOR);
 
+        
+        
+        
+        Settings settings=appContext.getBean(Settings.class);
+        ObjectStorageService oservice =appContext.getBean(ObjectStorageService.class);
+        
+        
+
+        startupLogger.info    ("App name -> " + settings.getAppName());
+        startupLogger.info    ("Port -> "     + settings.getPort());
+        
+        
+        startupLogger.info    ("Object Storage endpoint -> " + settings.getObjectStorageUrl());
+        startupLogger.info    ("Object Storage  port -> " + String.valueOf(settings.getObjectStoragePort()));
+                
+        
+        
+        
         startupLogger.info("Startup at -> " + DateTimeFormatter.RFC_1123_DATE_TIME.format(OffsetDateTime.now()));
 
         // test.test();
 
-        //serverImporter.execute();
+        serverImporter.execute();
 
     }
 
@@ -74,7 +93,7 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
         if (settingsService.getAccessKey().equals("dellemuse") && settingsService.getSecretKey().equals("dellemuse")) {
             startupLogger.info("Dellemuse is running with default vaules for AccessKey and SecretKey (ie. dellemuse/dellemuse)");
             startupLogger.info("It is recommended to change their values in file -> ." + File.separator + "config" + File.separator
-                    + "odilon.properties");
+                    + "application.properties");
             return true;
         }
         return false;

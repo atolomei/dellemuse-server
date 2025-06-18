@@ -90,15 +90,16 @@ public abstract class BaseController<T extends DelleMuseObject, M extends DelleM
         
         logger.debug( "list -> "+ getModelService().getClass().getSimpleName());
         
-        if (logger.isDebugEnabled()) {
-            this.getDBService().getRepository().findAll().forEach(item -> logger.debug(item.toString()));
-        }
+        //if (logger.isDebugEnabled()) {
+        //    this.getDBService().getRepository().findAll().forEach(item -> logger.debug(item.toString()));
+        //}
         
-        this.getDBService().getRepository().findAll().forEach(item -> list.add(this.getModelService().model(item)));
-
-        if (logger.isDebugEnabled()) {
-            list.forEach(item -> logger.debug(item.toString()));
-        }
+        //this.getDBService().getRepository().findAll().forEach(item -> list.add(this.getModelService().model(item)));
+        this.getDBService().findAllSorted().forEach(item -> list.add(this.getModelService().model(item)));
+        
+        //if (logger.isDebugEnabled()) {
+        //    list.forEach(item -> logger.debug(item.toString()));
+        //}
         
         return new ResponseEntity<List<M>>(list, HttpStatus.OK);
     }

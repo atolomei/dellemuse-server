@@ -22,7 +22,7 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibitionItem extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibition.class)
     @JoinColumn(name = "artExhibition_id", referencedColumnName = "id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -30,7 +30,7 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @JsonProperty("artExhibition")
     private ArtExhibition artExhibition;
     
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtWork.class)
     @JoinColumn(name = "artwork_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -38,16 +38,7 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @JsonProperty("artwork")
     private ArtWork artwork;
 
-    /**
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
-    @JoinColumn(name = "site_id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
-    private Site site;
-    **/
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Floor.class)
     @JoinColumn(name = "floor_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -55,7 +46,7 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @JsonProperty("floor")
     private Floor floor;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
+    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Room.class)
     @JoinColumn(name = "room_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -97,8 +88,7 @@ public class ArtExhibitionItem extends DelleMuseObject {
     @Override
     public ArtExhibitionItemModel model() {
         try {
-            return (ArtExhibitionItemModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
-                    ArtExhibitionItemModel.class);
+            return (ArtExhibitionItemModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), ArtExhibitionItemModel.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -143,7 +133,6 @@ public class ArtExhibitionItem extends DelleMuseObject {
     public void setqCode(String qCode) {
         this.qCode = qCode;
     }
-
 
     public String getInfo() {
         return info;

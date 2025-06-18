@@ -6,7 +6,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 
-
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
@@ -31,36 +31,10 @@ public class Settings {
 
     private static final OffsetDateTime systemStarted = OffsetDateTime.now();
 
-
-    public String getObjectStorageAccessKey() {
-        return objectStorageAccessKey;
-    }
-
-    public void setObjectStorageSAccessKey(String objectStorageAccessKey) {
-        this.objectStorageAccessKey = objectStorageAccessKey;
-    }
-
-    public String getObjectStorageSecretKey() {
-        return objectStorageSecretKey;
-    }
-
-    public void setObjectStorageSecretKey(String objectStorageSecretKey) {
-        this.objectStorageSecretKey = objectStorageSecretKey;
-    }
-
-    public String getObjectStorageUrl() {
-        return objectStorageUrl;
-    }
-
-    public void setObjectStorageUrl(String objectStorageUrl) {
-        this.objectStorageUrl = objectStorageUrl;
-    }
-
-    public int getObjectStoragePort() {
-           return objectStoragePort;
-    }
-
-
+    
+    
+    /**  ObjectStorage **/
+    
     @Value("${objectstorage.accessKey:odilon}")
     @NonNull
     protected String objectStorageAccessKey;
@@ -73,11 +47,12 @@ public class Settings {
     @NonNull
     protected String objectStorageUrl;
     
-    @Value("${objectstorage.port:9211}")
+    @Value("${objectstorage.port:9234}")
     @NonNull
     protected int objectStoragePort;
     
     
+    /**  Server **/
     
     /* default -> dellemuse */
     @Value("${accessKey:dellemuse}")
@@ -88,8 +63,8 @@ public class Settings {
     @Value("${secretKey:dellemuse}")
     @NonNull
     protected String secretKey;
-    
 
+    
     /* default port -> 9876 */
     @Value("${server.port:9876}")
     protected int port;
@@ -97,11 +72,19 @@ public class Settings {
     @Value("${server.ssl.enabled:false}")
     protected String ishttps;
     
-    
-    @Value("${app.name:dellemuse}")
-    @NonNull
-    protected String appName;
 
+        
+    
+    
+    
+    @Value("${trafficTokens:10}")
+    protected int maxTrafficTokens;
+
+
+    
+    
+    /** Database */
+    
     @Value("${driverClassName:org.postgresql.Driver}")
     protected String driverClassName;
     
@@ -114,9 +97,17 @@ public class Settings {
     @Value("${database.url:jdbc:postgresql://localhost:5432/dellemuse}")
     protected String dburl;
     
+    @Value("${app.name:dellemuse}")
+    @NonNull
+    protected String appName;
+
+    /** Work */
+    
     @Value("${importer.dir:impoter}")
     protected String importerBaseDir;
 
+    @Value("${work.dir:work}")
+    protected String workDir;
 
     
     public Settings() {
@@ -164,18 +155,25 @@ public class Settings {
     
     private void checkDirs() {
 
-        //try {
-        //    if ((!personImporterDir.exists()) || (!personImporterDir.isDirectory()))
-        //        FileUtils.forceMkdir(personImporterDir);
-        //} catch (IOException e) {
-        //    throw new RuntimeException(e);
-        //}
+        try {
+            File wDir = new File (workDir);
+            if ((!wDir.exists()) || (!wDir.isDirectory()))
+                FileUtils.forceMkdir(wDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+        try {
+            File thDir = new File (workDir, ServerConstant.THUMBNAIL_BUCKET);
+            if ((!thDir.exists()) || (!thDir.isDirectory()))
+                FileUtils.forceMkdir(thDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
     }
 
     
-    @Value("${trafficTokens:10}")
-    protected int maxTrafficTokens;
-
     public int getMaxTrafficTokens() {
         return maxTrafficTokens;
     }
@@ -188,6 +186,42 @@ public class Settings {
         return importerBaseDir;
     }
 
+    public String getObjectStorageAccessKey() {
+        return objectStorageAccessKey;
+    }
+
+    public void setObjectStorageSAccessKey(String objectStorageAccessKey) {
+        this.objectStorageAccessKey = objectStorageAccessKey;
+    }
+
+    public String getObjectStorageSecretKey() {
+        return objectStorageSecretKey;
+    }
+
+    public void setObjectStorageSecretKey(String objectStorageSecretKey) {
+        this.objectStorageSecretKey = objectStorageSecretKey;
+    }
+
+    public String getObjectStorageUrl() {
+        return objectStorageUrl;
+    }
+
+    public void setObjectStorageUrl(String objectStorageUrl) {
+        this.objectStorageUrl = objectStorageUrl;
+    }
+
+    public int getObjectStoragePort() {
+           return objectStoragePort;
+    }
+
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public String getWorkDir() {
+        return this.workDir;
+    }
 
 
 }

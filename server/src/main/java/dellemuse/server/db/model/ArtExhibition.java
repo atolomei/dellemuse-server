@@ -48,6 +48,12 @@ public class ArtExhibition extends DelleMuseObject {
     @Column(name = "permanent")
     private boolean permanent;
 
+    @Column(name = "opens")
+    private String opens;
+
+    @Column(name = "opensKey")
+    private String opensKey;
+
     @Column(name = "fromDate")
     private OffsetDateTime fromDate;
 
@@ -66,6 +72,15 @@ public class ArtExhibition extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
+    @Column(name = "intro")
+    private String intro;
+
+    @Column(name = "introKey")
+    private String introKey;
+
+    @Column(name = "location")
+    private String location;
+
     @OneToMany(fetch = FetchType.EAGER, targetEntity = ArtExhibitionItem.class)
     @JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
@@ -81,7 +96,7 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -89,7 +104,7 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -210,7 +225,47 @@ public class ArtExhibition extends DelleMuseObject {
         return audio;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     public void setAudio(Resource audio) {
         this.audio = audio;
+    }
+
+    public String getOpens() {
+        return opens;
+    }
+
+    public void setOpens(String opens) {
+        this.opens = opens;
+    }
+
+    public String getOpensKey() {
+        return opensKey;
+    }
+
+    public void setOpensKey(String opensKey) {
+        this.opensKey = opensKey;
+    }
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
+    public String getIntroKey() {
+        return introKey;
+    }
+
+    public void setIntroKey(String introKey) {
+        this.introKey = introKey;
     }
 };

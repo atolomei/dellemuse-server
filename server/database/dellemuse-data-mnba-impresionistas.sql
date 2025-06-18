@@ -758,6 +758,10 @@ UPDATE  artExhibitionItem SET namekey = regexp_replace(regexp_replace(lower(name
 
 UPDATE  guideContent		SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g') where (artExhibitionGuide_id in ( select id from artExhibitionGuide where name like '%mpresionismo%'));
 
+update artwork set title = name where title is null;
+update site set title = name where title is null;
+update person set title = concat(lastname,' ',name) where title is null;
+ 
 COMMIT;
 
 

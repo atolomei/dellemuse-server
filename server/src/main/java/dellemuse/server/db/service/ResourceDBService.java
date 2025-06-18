@@ -24,6 +24,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class ResourceDBService extends DBService<Resource, Long> implements ApplicationContextAware {
 
+    @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(ResourceDBService.class.getName());
 
     @JsonIgnore

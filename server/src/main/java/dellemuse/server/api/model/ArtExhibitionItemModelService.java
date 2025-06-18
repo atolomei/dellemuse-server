@@ -4,27 +4,29 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import dellemuse.model.ArtExhibitionItemModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.server.Settings;
 import dellemuse.server.db.model.ArtExhibition;
+import dellemuse.server.db.model.ArtExhibitionItem;
 import dellemuse.server.db.model.ArtWork;
 
 
 @Service 
-public class ArtExhibitionModelService extends ModelService<ArtExhibition, ArtExhibitionModel> {
+public class ArtExhibitionItemModelService extends ModelService<ArtExhibitionItem, ArtExhibitionItemModel> {
     
-    public ArtExhibitionModelService(Settings settings) {
-        super(settings, ArtExhibition.class, ArtExhibitionModel.class);
+    public ArtExhibitionItemModelService(Settings settings) {
+        super(settings, ArtExhibitionItem.class, ArtExhibitionItemModel.class);
     }
 
     
     @Override
-    public ArtExhibitionModel model(ArtExhibition artwork) {
+    public ArtExhibitionItemModel model(ArtExhibitionItem artwork) {
         return artwork.model();
     }
 
     @Override
-    public ArtExhibition source(ArtExhibitionModel model) {
+    public ArtExhibitionItem source(ArtExhibitionItemModel model) {
         String json = null;
         try {
             json = getObjectMapper().writeValueAsString(model);
@@ -33,7 +35,7 @@ public class ArtExhibitionModelService extends ModelService<ArtExhibition, ArtEx
         }
 
         try {
-            return (ArtExhibition) getObjectMapper().readValue(json, ArtExhibition.class);
+            return (ArtExhibitionItem) getObjectMapper().readValue(json, ArtExhibitionItem.class);
 
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

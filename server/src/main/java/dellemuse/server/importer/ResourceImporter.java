@@ -62,11 +62,11 @@ public class ResourceImporter extends BaseImporter {
     protected boolean read(File file) throws StreamReadException, DatabindException, IOException {
 
         Resource resource = getObjectMapper().readValue(file, Resource.class);
-        logger.debug(resource.toString());
 
-        ResourceService service = this.resourceDBService.getResourceService(resource);
-        String url = service.getPresignedUrl();
-        logger.debug(url);
+        //ResourceService service = this.resourceDBService.getResourceService(resource);
+        //String url = service.getPresignedUrl();
+        //logger.debug(url);
+        
         return true;
     }
 

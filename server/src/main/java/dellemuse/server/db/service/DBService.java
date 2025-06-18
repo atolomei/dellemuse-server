@@ -15,6 +15,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dellemuse.server.BaseService;
 import dellemuse.server.Settings;
 import dellemuse.server.SystemService;
+import dellemuse.server.db.model.ArtExhibition;
+import dellemuse.server.db.model.ArtExhibitionGuide;
 import dellemuse.server.db.model.User;
 import dellemuse.model.logging.Logger;
 import jakarta.persistence.EntityManagerFactory;
@@ -92,6 +94,25 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
         return getRepository().findAll();
     }
 
+    @Transactional
+    public Iterable<T> findAllSorted() {
+
+        TypedQuery<T> query;
+        CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
+        
+        CriteriaQuery<T> criteria = criteriabuilder.createQuery(getEntityClass());
+        Root<T> loaders = criteria.from(getEntityClass());
+        criteria.orderBy(criteriabuilder.asc(loaders.get("title")));
+        query = getSessionFactory().getCurrentSession().createQuery(criteria);
+        query.setHint("org.hibernate.cacheable", true);
+        query.setFlushMode(FlushModeType.COMMIT);
+        return query.getResultList();
+    }
+    
+    
+    
+    
+    
     @Transactional
     public Iterable<T> findAllById(Iterable<I> ids) {
         return getRepository().findAllById(ids);

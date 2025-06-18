@@ -256,6 +256,8 @@ UPDATE  artExhibitionItem 	SET titlekey = regexp_replace(regexp_replace(lower(ti
 UPDATE  guideContent		SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g') where (artExhibitionGuide_id in ( select id from artExhibitionGuide where name like 'Arte argentino%'));
 UPDATE  guideContent		SET titlekey = regexp_replace(regexp_replace(lower(titlekey),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g') where (artExhibitionGuide_id in ( select id from artExhibitionGuide where name like 'Arte argentino%'));
 
+update artwork set title = name where title is null;
+
 COMMIT;
 
 

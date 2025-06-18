@@ -26,19 +26,20 @@ public class DelleMuseSetPersonSerializer extends StdSerializer<Set<Person>> {
 
     @Override
     public void serialize(Set<Person> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+        
         jgen.writeStartArray();
         for (Person o: value) {
             jgen.writeStartObject();
             jgen.writeNumberField("id", o.getId());            
             jgen.writeStringField("name", o.getName());
             jgen.writeStringField("lastname", o.getLastname());
-            //jgen.writeStringField("displayname", o.getDisplayname());
             
-            jgen.writeStartObject("user");
-                jgen.writeNumberField("id", o.getUser().getId());
-                jgen.writeStringField("name", o.getUser().getName());
-            jgen.writeEndObject();
-            
+            if (o.getUser()!=null) { 
+                jgen.writeStartObject("user");
+                    jgen.writeNumberField("id", o.getUser().getId());
+                    jgen.writeStringField("name", o.getUser().getName());
+                jgen.writeEndObject();
+            }
             jgen.writeEndObject();
         }
         jgen.writeEndArray();
