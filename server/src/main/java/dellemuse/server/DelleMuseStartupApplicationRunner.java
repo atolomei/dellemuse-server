@@ -59,11 +59,8 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
             startupLogger.info(Constant.SEPARATOR);
 
         
-        
-        
         Settings settings=appContext.getBean(Settings.class);
         ObjectStorageService oservice =appContext.getBean(ObjectStorageService.class);
-        
         
 
         startupLogger.info    ("App name -> " + settings.getAppName());
