@@ -21,8 +21,8 @@ public class FloorTypeDBService extends DBService<FloorType, Long> {
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(FloorTypeDBService.class.getName());
 
-    public FloorTypeDBService(CrudRepository<FloorType, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
+    public FloorTypeDBService(CrudRepository<FloorType, Long> repository,  Settings settings) {
+        super(repository,   settings);
     }
 
     /**

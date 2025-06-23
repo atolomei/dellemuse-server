@@ -13,9 +13,9 @@ import jakarta.transaction.Transactional;
 public class ResourceIdDBService extends DBService<ResourceId, Long> {
 
     
-    public ResourceIdDBService(CrudRepository<ResourceId, Long> repository, EntityManagerFactory entityManagerFactory,
+    public ResourceIdDBService(CrudRepository<ResourceId, Long> repository, 
             Settings settings) {
-        super(repository, entityManagerFactory, settings);
+        super(repository,   settings);
     }
 
     @Override

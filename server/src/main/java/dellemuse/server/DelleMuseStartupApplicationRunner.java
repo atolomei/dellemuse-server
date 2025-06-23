@@ -60,25 +60,18 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
 
         
         Settings settings=appContext.getBean(Settings.class);
-        ObjectStorageService oservice =appContext.getBean(ObjectStorageService.class);
+        //ObjectStorageService oservice =appContext.getBean(ObjectStorageService.class);
         
-
         startupLogger.info    ("App name -> " + settings.getAppName());
         startupLogger.info    ("Port -> "     + settings.getPort());
         
-        
         startupLogger.info    ("Object Storage endpoint -> " + settings.getObjectStorageUrl());
         startupLogger.info    ("Object Storage  port -> " + String.valueOf(settings.getObjectStoragePort()));
-                
-        
-        
         
         startupLogger.info("Startup at -> " + DateTimeFormatter.RFC_1123_DATE_TIME.format(OffsetDateTime.now()));
 
         // test.test();
-
-        serverImporter.execute();
-
+        //serverImporter.execute();
     }
 
     public ApplicationContext getAppContext() {

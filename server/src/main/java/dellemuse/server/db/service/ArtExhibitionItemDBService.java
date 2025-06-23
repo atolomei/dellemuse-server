@@ -21,9 +21,8 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
     static private Logger logger = Logger.getLogger(ArtExhibitionItemDBService.class.getName());
 
     
-    public ArtExhibitionItemDBService(CrudRepository<ArtExhibitionItem, Long> repository, EntityManagerFactory entityManagerFactory,
-            Settings settings) {
-        super(repository, entityManagerFactory, settings);
+    public ArtExhibitionItemDBService(CrudRepository<ArtExhibitionItem, Long> repository, Settings settings) {
+        super(repository, settings);
     }
 
     /**

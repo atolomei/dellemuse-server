@@ -21,8 +21,8 @@ public class ArtExhibitionStatusTypeDBService extends DBService<ArtExhibitionSta
     static private Logger logger = Logger.getLogger(ArtExhibitionStatusTypeDBService.class.getName());
 
     public ArtExhibitionStatusTypeDBService(CrudRepository<ArtExhibitionStatusType, Long> repository,
-            EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
+             Settings settings) {
+        super(repository, settings);
     }
 
     /**

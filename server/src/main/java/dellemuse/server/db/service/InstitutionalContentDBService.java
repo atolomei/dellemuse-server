@@ -21,8 +21,8 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(InstitutionalContentDBService.class.getName());
 
-    public InstitutionalContentDBService(CrudRepository< InstitutionalContent, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
+    public InstitutionalContentDBService(CrudRepository< InstitutionalContent, Long> repository,   Settings settings) {
+        super(repository,   settings);
     }
 
     /**

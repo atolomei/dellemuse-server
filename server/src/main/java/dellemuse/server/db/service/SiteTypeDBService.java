@@ -22,8 +22,8 @@ public class SiteTypeDBService extends DBService<SiteType, Long> {
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(SiteTypeDBService.class.getName());
 
-    public SiteTypeDBService(CrudRepository<SiteType, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
+    public SiteTypeDBService(CrudRepository<SiteType, Long> repository,   Settings settings) {
+        super(repository,   settings);
     }
 
     /**

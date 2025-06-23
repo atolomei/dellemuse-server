@@ -19,8 +19,8 @@ public class FloorDBService extends DBService<Floor, Long> {
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(FloorDBService.class.getName());
 
-    public FloorDBService(CrudRepository<Floor, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
+    public FloorDBService(CrudRepository<Floor, Long> repository,  Settings settings) {
+        super(repository,   settings);
     }
 
     /**

@@ -27,8 +27,6 @@ import dellemuse.server.security.SecurityService;
 
 /**
  * 
- * 
- * 
  * /site/artexhibitions/{siteid}
  * /site/floors/{siteid}
  * /site/floor/rooms/{floorid}
@@ -101,7 +99,7 @@ public class SiteController extends BaseController<Site, SiteModel> {
         
         List<ArtExhibitionModel> list = new ArrayList<ArtExhibitionModel>();
 
-        logger.debug("list -> " + getModelService().getClass().getSimpleName());
+        //logger.debug("list -> " + getModelService().getClass().getSimpleName());
 
         if (logger.isDebugEnabled()) {
             this.getDBService().getArtExhibitions(siteid).forEach(item -> logger.debug(item.toString()));
@@ -114,9 +112,6 @@ public class SiteController extends BaseController<Site, SiteModel> {
         }
         return new ResponseEntity<List<ArtExhibitionModel>>(list, HttpStatus.OK);
     }
-
-        
-    
 
     @Override
     public SiteDBService getDBService() {

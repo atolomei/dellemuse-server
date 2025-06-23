@@ -18,8 +18,117 @@ import dellemuse.server.db.model.User;
 import dellemuse.server.object.service.ResourceService;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.FSUtil;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+
+
+
+
+@Service
+public class ResourceDBService extends DBService<Resource, Long> implements ApplicationContextAware {
+
+    @SuppressWarnings("unused")
+    static private Logger logger = Logger.getLogger(ResourceDBService.class.getName());
+
+    @JsonIgnore
+    private ApplicationContext applicationContext;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public ResourceDBService(CrudRepository<Resource, Long> repository,
+                             Settings settings) {
+        super(repository,  settings);
+    }
+
+    @Transactional
+    public Long newId() {
+        // Usamos EntityManager para la consulta nativa
+        return ((Number) entityManager.createNativeQuery("SELECT nextval('objectstorage_id')").getSingleResult()).longValue();
+    }
+
+    public String normalizeFileName(String name) {
+        String str = name.replaceAll("[^\\x00-\\x7F]|[\\s]+", "-").toLowerCase().trim();
+        if (str.length() < 100)
+            return str;
+        return str.substring(0, 100);
+    }
+
+    public String getMimeType(String fileName) {
+        if (FSUtil.isImage(fileName)) {
+            String ext = FilenameUtils.getExtension(fileName).toLowerCase();
+
+            if (ext.equals("jpg") || ext.equals("jpeg"))
+                return "image/jpeg";
+
+            return "image/" + ext;
+        }
+
+        if (FSUtil.isPdf(fileName))
+            return "application/pdf";
+
+        if (FSUtil.isVideo(fileName))
+            return "video/" + FilenameUtils.getExtension(fileName);
+
+        if (FSUtil.isAudio(fileName))
+            return "audio/" + FilenameUtils.getExtension(fileName);
+
+        return "";
+    }
+
+    @Override
+    @Transactional
+    public Resource create(String objectName, User createdBy) {
+        return create(ServerConstant.MEDIA_BUCKET, objectName, objectName, null, createdBy);
+    }
+
+    @Transactional
+    public Resource create(String objectName, String name, User createdBy) {
+        return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, createdBy);
+    }
+
+    @Transactional
+    public Resource create(String bucketName, String objectName, String name, String media, User createdBy) {
+        Resource c = new Resource();
+        c.setBucketName(bucketName);
+        c.setObjectName(objectName);
+        c.setName(name);
+        c.setNameKey(nameKey(name));
+        if (media != null)
+            c.setMedia(media);
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        return getRepository().save(c);
+    }
+
+    @Override
+    protected Class<Resource> getEntityClass() {
+        return Resource.class;
+    }
+
+    public ResourceService getResourceService(Resource resource) {
+        return this.applicationContext.getBean(ResourceService.class, resource);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+}
+
+
+
+
+
+
+
+
+
+/**
+ * 
 
 @Service
 public class ResourceDBService extends DBService<Resource, Long> implements ApplicationContextAware {
@@ -75,15 +184,7 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
 
         return "";
     }
-
-    /**
-     * <p>
-     * Annotation Transactional is required to store values into the Database
-     * </p>
-     * 
-     * @param name
-     * @param createdBy
-     */
+ 
 
     @Override
     @Transactional
@@ -127,4 +228,6 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-}
+    
+    */
+

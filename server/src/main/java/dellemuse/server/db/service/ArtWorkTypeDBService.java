@@ -21,8 +21,8 @@ public class ArtWorkTypeDBService extends DBService<ArtWorkType, Long> {
     static private Logger logger = Logger.getLogger(ArtWorkTypeDBService.class.getName());
 
     
-    public ArtWorkTypeDBService(CrudRepository<ArtWorkType, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
+    public ArtWorkTypeDBService(CrudRepository<ArtWorkType, Long> repository,  Settings settings) {
+        super(repository, settings);
     }
 
 

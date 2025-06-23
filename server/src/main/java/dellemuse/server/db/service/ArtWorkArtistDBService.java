@@ -21,8 +21,8 @@ public class ArtWorkArtistDBService extends DBService<ArtWorkArtist, Long> {
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(ArtWorkArtistDBService.class.getName());
 
-    public ArtWorkArtistDBService(CrudRepository<ArtWorkArtist, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
+    public ArtWorkArtistDBService(CrudRepository<ArtWorkArtist, Long> repository,  Settings settings) {
+        super(repository,  settings);
     }
 
     /**

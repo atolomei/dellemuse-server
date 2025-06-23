@@ -27,8 +27,8 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(GuideContentDBService.class.getName());
 
-    public GuideContentDBService(CrudRepository<GuideContent, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
+    public GuideContentDBService(CrudRepository<GuideContent, Long> repository, Settings settings) {
+        super(repository,  settings);
     }
 
     @Transactional

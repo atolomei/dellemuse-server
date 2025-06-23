@@ -22,11 +22,11 @@ public class DelleMuseApplication {
 
     static public String[] cmdArgs = null;
     
-    static public String hibernateConfPackages ="dellemuse.server.db";
-    static public String driverClassName = "org.postgresql.Driver";
-    static public String url = "jdbc:postgresql://localhost:5432/dellemuse";
-    static public String userName = "postgres";
-    static public String password = "novamens";
+    //static public String hibernateConfPackages ="dellemuse.server.db";
+    //static public String driverClassName = "org.postgresql.Driver";
+    //static public String url = "jdbc:postgresql://localhost:5432/dellemuse";
+    //static public String userName = "postgres";
+    //static public String password = "novamens";
 
     public static void main(String[] args) {
         SpringApplication application = new SpringApplication(DelleMuseApplication.class);

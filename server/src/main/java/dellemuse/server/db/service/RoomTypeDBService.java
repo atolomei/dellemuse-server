@@ -21,8 +21,8 @@ public class RoomTypeDBService extends DBService<RoomType, Long> {
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(RoomTypeDBService.class.getName());
 
-    public RoomTypeDBService(CrudRepository<RoomType, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
+    public RoomTypeDBService(CrudRepository<RoomType, Long> repository,  Settings settings) {
+        super(repository,  settings);
     }
 
     /**
