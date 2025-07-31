@@ -1,13 +1,9 @@
 package dellemuse.server.db.model;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
-import dellemuse.model.ResourceModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -32,9 +28,10 @@ public class Resource extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
     
-    // File file
-    // InputStream
-    // InputStream
+    @Column(name = "usethumbnail")
+    @JsonProperty("usethumbnail")
+    private boolean usethumbnail;
+   
 
     public Resource() {
     }
@@ -43,64 +40,26 @@ public class Resource extends DelleMuseObject {
     public String getDisplayname() {
         return getName();
     }
-    
-    @Override
-    public ResourceModel model() {
-        try {
-            return (ResourceModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), ResourceModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    
-    
-    //public java.io.File getFile() throws IOException {
-    //    return null;
-    //}
-
-    //public InputStream getInputStream() throws IOException {
-
-     //   return null;
-
-//        try {
-        // return getService(KBFSResourceService.class).getObject();
-        // }
-        // catch (FileServerException e) {
-        // logger.error(e);
-        // throw new IOException(e);
-        // }
-    //}
-
-
+  
     public String getBucketName() {
         return bucketName;
     }
-
-
 
     public void setBucketName(String bucket) {
         this.bucketName = bucket;
     }
 
-
-
     public String getObjectName() {
         return objectName;
     }
-
-
 
     public void setObjectName(String objectName) {
         this.objectName = objectName;
     }
 
-
-
     public String getInfo() {
         return info;
     }
-
 
 
     public void setInfo(String info) {
@@ -131,4 +90,11 @@ public class Resource extends DelleMuseObject {
         this.media = media;
     }
 
+	public boolean isUsethumbnail() {
+		return usethumbnail;
+	}
+
+	public void setUsethumbnail(boolean usethumbnail) {
+		this.usethumbnail = usethumbnail;
+	}
 };

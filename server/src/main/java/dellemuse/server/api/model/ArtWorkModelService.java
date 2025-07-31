@@ -7,22 +7,63 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import dellemuse.model.ArtWorkModel;
 import dellemuse.server.Settings;
 import dellemuse.server.db.model.ArtWork;
+import dellemuse.server.db.service.ArtWorkDBService;
 import dellemuse.server.error.InternalErrorException;
+import jakarta.transaction.Transactional;
 
 
 @Service 
 public class ArtWorkModelService extends ModelService<ArtWork, ArtWorkModel> {
     
-    public ArtWorkModelService(Settings settings) {
-        super(settings, ArtWork.class, ArtWorkModel.class);
+	//ArtWorkDBService dbService;
+	
+    public ArtWorkModelService(Settings settings, ArtWorkDBService dbService) {
+        super(settings, ArtWork.class, ArtWorkModel.class, dbService);
+    
+      //  this.dbService=dbService;
+        
+    }
+    
+    
+    
+    //@Transactional
+    //public ArtWork refreshEntity(ArtWork entity) {
+     //   dbService.getEntityManager().refresh(entity);
+     //   return entity;
+    //}
+    
+
+  //  public boolean isDetached(EntityManager em, MyEntity entity) {
+   //     return !em.contains(entity);
+    //}
+    
+    @Transactional
+    @Override
+    public ArtWorkModel model(ArtWork src) {
+    	
+    	if (isDetached(src)) 
+ 		   src = getDBService().findById(src.getId()).get();
+	 	
+    	  String json = null;
+    	  
+    	  try {
+              json = getObjectMapper().writeValueAsString(src);
+          } catch (JsonProcessingException e) {
+              throw new RuntimeException(e);
+          }
+          
+    	  try {
+          	  return (ArtWorkModel) getObjectMapper().readValue(json, ArtWorkModel.class);
+          } catch (JsonProcessingException e) {
+              throw new RuntimeException(e);
+          }
     }
 
-    @Override
-    public ArtWorkModel model(ArtWork artwork) {
-        return artwork.model();
-    }
+    
+    
 
-    @Override
+
+	@Override
     public ArtWork source(ArtWorkModel model) {
         String json = null;
         try {

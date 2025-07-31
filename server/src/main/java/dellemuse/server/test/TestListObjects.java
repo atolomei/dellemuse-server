@@ -17,6 +17,7 @@ import dellemuse.model.ArtWorkModel;
 import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.GuideContentModel;
 import dellemuse.model.PersonModel;
+import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Constant;
 import dellemuse.server.BaseService;
@@ -27,6 +28,7 @@ import dellemuse.server.api.model.ArtWorkModelService;
 import dellemuse.server.api.model.GuideContentModelService;
 import dellemuse.server.api.model.ModelService;
 import dellemuse.server.api.model.PersonModelService;
+import dellemuse.server.api.model.SiteModelService;
 import dellemuse.server.db.model.ArtExhibition;
 import dellemuse.server.db.model.ArtExhibitionGuide;
 import dellemuse.server.db.model.ArtExhibitionStatusType;
@@ -71,6 +73,35 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
     
     public void test() {
 
+           {
+            
+            TesterModel<Site, SiteDBService, SiteModel, SiteModelService> testerModel = 
+            			new TesterModel(    Site.class, 
+                    		SiteDBService.class,
+                    		SiteModel.class,
+                    		SiteModelService.class);
+            
+            testerModel.test();
+        }
+
+        
+    	/**
+
+        {
+            
+            TesterModel<ArtWork, ArtWorkDBService, ArtWorkModel, ArtWorkModelService> testerModel = 
+                    new TesterModel(    ArtWork.class, 
+                                        ArtWorkDBService.class,
+                                        ArtWorkModel.class,
+                                        ArtWorkModelService.class);
+            
+            testerModel.test();
+        }
+
+        
+        
+        
+        
         {
             
             TesterModel<GuideContent, GuideContentDBService, GuideContentModel, GuideContentModelService> testerModel = 
@@ -127,22 +158,8 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
             testerModel.test();
         }
     
-        
+        **/
 
-        {
-            
-            TesterModel<ArtWork, ArtWorkDBService, ArtWorkModel, ArtWorkModelService> testerModel = 
-                    new TesterModel(    ArtWork.class, 
-                                        ArtWorkDBService.class,
-                                        ArtWorkModel.class,
-                                        ArtWorkModelService.class);
-            
-            testerModel.test();
-        }
-
-        
-        
-        
         
         
         
@@ -357,7 +374,7 @@ public class TestListObjects extends BaseService  implements ApplicationContextA
 
                 while (it.hasNext()) {
                         DelleMuseObject item = (DelleMuseObject) it.next();
-                        logger.debug(String.valueOf(counter++) + ". " + item.toString());
+                        //logger.debug(String.valueOf(counter++) + ". " + item.toString());
                         
                         @SuppressWarnings("unchecked")
                         DelleMuseModelObject model = modelService.model((T) item);

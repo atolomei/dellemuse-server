@@ -112,9 +112,14 @@ public abstract class BaseController<T extends DelleMuseObject, M extends DelleM
     
     @PostMapping(value = "/create/{name}", produces = "application/json")
     public ResponseEntity<M> create(@PathVariable("name") String name) {
-        T item = this.getDBService().create(name, getSecurityService().getRootUser());
-        @SuppressWarnings("unchecked")
-        M model = (M) item.model();
+        
+    	T item = this.getDBService().create(name, getSecurityService().getRootUser());
+ 
+        
+        //M model = (M) item.model();
+        
+        M model = (M) getModelService().model( item );
+        
         return new ResponseEntity<M>(model, HttpStatus.OK);
     }
 

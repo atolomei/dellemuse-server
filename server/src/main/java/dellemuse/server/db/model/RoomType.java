@@ -17,6 +17,7 @@ public class RoomType extends DelleMuseObject {
     }
 
 
+    /**
     @Override
     public RoomTypeModel model() {
         try {
@@ -25,5 +26,6 @@ public class RoomType extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 
 }

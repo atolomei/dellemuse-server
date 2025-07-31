@@ -18,6 +18,7 @@ import dellemuse.model.InstitutionModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.server.api.model.InstitutionModelService;
+import dellemuse.server.api.model.SiteModelService;
 import dellemuse.server.db.model.Institution;
 import dellemuse.server.db.service.InstitutionDBService;
 import dellemuse.server.security.SecurityService;
@@ -52,13 +53,20 @@ public class InstitutionController extends BaseController<Institution, Instituti
 
     @JsonIgnore
     @Autowired
+    private final SiteModelService siteModelService;
+
+    
+    @JsonIgnore
+    @Autowired
     private final SecurityService securityService;
     
-    public InstitutionController(InstitutionDBService dbService, InstitutionModelService modelService, SecurityService securityService) {
+    public InstitutionController(InstitutionDBService dbService, InstitutionModelService modelService, SecurityService securityService, SiteModelService siteModelService) {
         super(securityService);
         this.modelService = modelService;
         this.dbService = dbService;
         this.securityService=securityService;
+       this.siteModelService=siteModelService;
+        
     }
 
     /**
@@ -69,7 +77,7 @@ public class InstitutionController extends BaseController<Institution, Instituti
 
         List<SiteModel> list = new ArrayList<SiteModel>();
         
-        this.getDBService().getSites(institutionid).forEach(item -> list.add(item.model()));
+        this.getDBService().getSites(institutionid).forEach(item -> list.add( siteModelService.model(item)));
 
         return new ResponseEntity<List<SiteModel>>(list, HttpStatus.OK);
     }

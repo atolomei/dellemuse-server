@@ -31,19 +31,20 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibition extends DelleMuseObject {
 
+
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
+    @JoinColumn(name = "site_id", nullable = true)
+    @JsonManagedReference
+    @JsonBackReference
+    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+    private Site site;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = ArtExhibitionStatusType.class)
     @JoinColumn(name = "artExhibitionStatusType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private ArtExhibitionStatusType artExhibitionStatusType;
-
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
-    @JoinColumn(name = "site_id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
-    private Site site;
 
     @Column(name = "permanent")
     private boolean permanent;
@@ -66,12 +67,17 @@ public class ArtExhibition extends DelleMuseObject {
     @Column(name = "subtitleKey")
     private String subTitleKey;
 
+    // descripcion 
+    //
     @Column(name = "info")
     private String info;
 
     @Column(name = "infoKey")
     private String infoKey;
 
+    
+    // en la lista de resultados
+    //
     @Column(name = "intro")
     private String intro;
 
@@ -81,14 +87,14 @@ public class ArtExhibition extends DelleMuseObject {
     @Column(name = "location")
     private String location;
 
-    @OneToMany(fetch = FetchType.EAGER, targetEntity = ArtExhibitionItem.class)
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
     @JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("lower(title) ASC")
     @JsonProperty("artExhibitionItems")
     private List<ArtExhibitionItem> artExhibitionItems;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -96,7 +102,7 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -104,7 +110,7 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -112,18 +118,14 @@ public class ArtExhibition extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
+    
+    @Column(name = "website")
+    private String website;
+
     public ArtExhibition() {
     }
 
-    @Override
-    public ArtExhibitionModel model() {
-        try {
-            return (ArtExhibitionModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
-                    ArtExhibitionModel.class);
-        } catch (JsonProcessingException e) {
-            throw new InternalErrorException(e);
-        }
-    }
+    
 
     public ArtExhibitionStatusType getArtExhibitionStatusType() {
         return artExhibitionStatusType;
@@ -268,4 +270,13 @@ public class ArtExhibition extends DelleMuseObject {
     public void setIntroKey(String introKey) {
         this.introKey = introKey;
     }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
 };

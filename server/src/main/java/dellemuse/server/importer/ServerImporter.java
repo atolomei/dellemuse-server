@@ -72,17 +72,23 @@ public class ServerImporter extends BaseService {
 
     public void execute() throws IOException {
 
+    	
+    	 //this.artExhibitionImporter.execute();
+    	  
+    	//this.siteImporter.execute();
+    	//this.artWorkImporter.execute();
+         
         // resourceImporter.execute();
         // personImporter.execute();
         // userImporter.execute();
 
-        // this.artWorkImporter.execute();
+        
+    	
         
         // artExhibitionGuideImporter.execute();
-        this.guideContentImporter.execute();
+        //this.guideContentImporter.execute();
         
-        // this.siteImporter.execute();
-        
+         
         // this.artExhibitionImporter.execute();
         
 

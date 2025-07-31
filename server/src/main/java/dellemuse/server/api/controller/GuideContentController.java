@@ -13,14 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import dellemuse.model.ArtWorkModel;
 import dellemuse.model.GuideContentModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.server.api.model.ArtWorkModelService;
 import dellemuse.server.api.model.GuideContentModelService;
-import dellemuse.server.db.model.ArtWork;
 import dellemuse.server.db.model.GuideContent;
-import dellemuse.server.db.service.ArtWorkDBService;
 import dellemuse.server.db.service.GuideContentDBService;
 import dellemuse.server.security.SecurityService;
 

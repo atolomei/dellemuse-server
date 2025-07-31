@@ -29,7 +29,7 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibitionGuide extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibition.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
     @JoinColumn(name = "artExhibition_id", referencedColumnName = "id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -37,7 +37,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonProperty("artExhibition")
     private ArtExhibition artExhibition;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Person.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
     @JoinColumn(name = "publisher_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -45,10 +45,12 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Person publisher;
 
-    @OneToMany(fetch = FetchType.EAGER, targetEntity = GuideContent.class)
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = GuideContent.class)
     @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = true)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("lower(title) ASC")
+    @JsonManagedReference
+    @JsonBackReference
     @JsonProperty("contents")
     private List<GuideContent> contents;
 
@@ -70,7 +72,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -78,7 +80,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -86,7 +88,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -193,6 +195,8 @@ public class ArtExhibitionGuide extends DelleMuseObject {
         this.artExhibitionGuideOrder = artExhibitionGuideOrder;
     }
 
+    
+    /**
     @Override
     public ArtExhibitionGuideModel model() {
         try {
@@ -202,4 +206,5 @@ public class ArtExhibitionGuide extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 };

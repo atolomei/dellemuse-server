@@ -13,48 +13,55 @@ import dellemuse.server.db.model.Resource;
 
 public class DelleMuseArtExhibitionItemSerializer extends StdSerializer<ArtExhibitionItem> {
 
+	private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = 1L;
+	public DelleMuseArtExhibitionItemSerializer() {
+		this(null);
+	}
 
-    public DelleMuseArtExhibitionItemSerializer() {
-        this(null);
-    }
-  
-    public DelleMuseArtExhibitionItemSerializer(Class<ArtExhibitionItem> t) {
-        super(t);
-    }
+	public DelleMuseArtExhibitionItemSerializer(Class<ArtExhibitionItem> t) {
+		super(t);
+	}
 
-    @Override
-    public void serialize(ArtExhibitionItem value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
-        
-        jgen.writeStartObject();
+	@Override
+	public void serialize(ArtExhibitionItem value, JsonGenerator jgen, SerializerProvider provider)
+			throws IOException, JsonProcessingException {
 
-        jgen.writeNumberField("id", value.getId());
-        jgen.writeStringField("name", value.getName());
-        
-        if (value.getArtExhibition()!=null) {
-            
-            jgen.writeStartObject("artExhibition");
-                jgen.writeStringField("id", value.getArtExhibition().getId().toString());
-                jgen.writeStringField("name", value.getArtExhibition().getName().toString());
-            jgen.writeEndObject();
-            
-        }
-        if (value.getArtwork()!=null) {
-            
-            jgen.writeStartObject("artwork");
-                jgen.writeStringField("id", value.getArtwork().getId().toString());
-                jgen.writeStringField("name", value.getArtwork().getName().toString());
-                jgen.writeEndObject();
-            
-        }
-            
-        
-        
-        
-        jgen.writeEndObject();
-    }
-    
-    
+		jgen.writeStartObject();
+
+		jgen.writeNumberField("id", value.getId());
+		jgen.writeStringField("name", value.getName());
+
+		if (value.getArtExhibition() != null) {
+
+			jgen.writeStartObject("artExhibition");
+				jgen.writeStringField("id", value.getArtExhibition().getId().toString());
+				jgen.writeStringField("name", value.getArtExhibition().getName().toString());
+	
+				jgen.writeStartObject("site");
+					jgen.writeStringField("id", value.getArtExhibition().getSite().getId().toString());
+					jgen.writeStringField("name", value.getArtExhibition().getSite().getName().toString());
+				jgen.writeEndObject();
+
+			jgen.writeEndObject();
+
+		}
+		if (value.getArtwork() != null) {
+
+			jgen.writeStartObject("artwork");
+				jgen.writeStringField("id", value.getArtwork().getId().toString());
+				jgen.writeStringField("name", value.getArtwork().getName().toString());
+	
+				jgen.writeStartObject("site");
+					jgen.writeStringField("id", value.getArtExhibition().getSite().getId().toString());
+					jgen.writeStringField("name", value.getArtExhibition().getSite().getName().toString());
+				jgen.writeEndObject();
+
+			jgen.writeEndObject();
+
+		}
+
+		jgen.writeEndObject();
+	}
 
 }

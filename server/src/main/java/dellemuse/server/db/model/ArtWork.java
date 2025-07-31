@@ -24,7 +24,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-
 import jakarta.persistence.Table;
 
 @Entity
@@ -32,172 +31,196 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtWork extends DelleMuseObject {
 
-    @ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.EAGER)
-    @JoinTable(name = "ArtWorkArtist", joinColumns = { @JoinColumn(name = "artwork_id") }, inverseJoinColumns = {
-            @JoinColumn(name = "person_id") })
-    @JsonSerialize(using = DelleMuseSetPersonSerializer.class)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("artists")
-    Set<Person> artists = new HashSet<>();
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
+	@JoinColumn(name = "site_owner_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	private Site site;
+	
+	@ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
+	@JoinTable(name = "ArtWorkArtist", joinColumns = { @JoinColumn(name = "artwork_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "person_id") })
+	@JsonSerialize(using = DelleMuseSetPersonSerializer.class)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("artists")
+	Set<Person> artists = new HashSet<>();
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtWorkType.class)
-    @JoinColumn(name = "artworkType_id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
-    private ArtWorkType artworkType;
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWorkType.class)
+	@JoinColumn(name = "artworkType_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	private ArtWorkType artworkType;
 
-    @Column(name = "subtitle")
-    private String subtitle;
+	@Column(name = "subtitle")
+	private String subtitle;
 
-    @Column(name = "spec")
-    private String spec;
+	@Column(name = "spec")
+	private String spec;
 
-    @Column(name = "subtitleKey")
-    private String subTitleKey;
+	@Column(name = "subtitleKey")
+	private String subTitleKey;
 
-    @Column(name = "info")
-    private String info;
+	@Column(name = "info")
+	private String info;
 
-    @Column(name = "infoKey")
-    private String infoKey;
+	@Column(name = "infoKey")
+	private String infoKey;
 
-    @Column(name = "intro")
-    private String intro;
+	@Column(name = "intro")
+	private String intro;
 
-    @Column(name = "introKey")
-    private String introKey;
+	@Column(name = "introKey")
+	private String introKey;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource photo;
+	/**
+	 * by default it is true, sometimes the thumbnail generated is not correct, for
+	 * those images we dont use thumbnail
+	 */
+	@Column(name = "usethumbnail")
+	@JsonProperty("usethumbnail")
+	private boolean usethumbnail;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource video;
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "photo", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("photo")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource photo;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource audio;
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "video", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("video")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource video;
 
-    public ArtWork() {
-    }
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "audio", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("audio")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource audio;
 
-    public ArtWorkType getArtworkType() {
-        return artworkType;
-    }
+	
 
-    public void setArtworkType(ArtWorkType artworkType) {
-        this.artworkType = artworkType;
-    }
+	public ArtWork() {
+	}
 
-    public String getSubtitle() {
-        return subtitle;
-    }
+	public ArtWorkType getArtworkType() {
+		return artworkType;
+	}
 
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-    }
+	public void setArtworkType(ArtWorkType artworkType) {
+		this.artworkType = artworkType;
+	}
 
-    public String getSubTitleKey() {
-        return subTitleKey;
-    }
+	public String getSubtitle() {
+		return subtitle;
+	}
 
-    public void setSubTitleKey(String subTitleKey) {
-        this.subTitleKey = subTitleKey;
-    }
+	public void setSubtitle(String subtitle) {
+		this.subtitle = subtitle;
+	}
 
-    public String getInfo() {
-        return info;
-    }
+	public String getSubTitleKey() {
+		return subTitleKey;
+	}
 
-    public void setInfo(String info) {
-        this.info = info;
-    }
+	public void setSubTitleKey(String subTitleKey) {
+		this.subTitleKey = subTitleKey;
+	}
 
-    public String getInfoKey() {
-        return infoKey;
-    }
+	public String getInfo() {
+		return info;
+	}
 
-    public void setInfoKey(String infoKey) {
-        this.infoKey = infoKey;
-    }
+	public void setInfo(String info) {
+		this.info = info;
+	}
 
-    @Override
-    public ArtWorkModel model() {
-        try {
-            return (ArtWorkModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), ArtWorkModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	public String getInfoKey() {
+		return infoKey;
+	}
 
-    public Set<Person> getArtists() {
-        return artists;
-    }
+	public void setInfoKey(String infoKey) {
+		this.infoKey = infoKey;
+	}
 
-    public void setArtists(Set<Person> artists) {
-        this.artists = artists;
-    }
+	public Site getSite() {
+		return site;
+	}
 
-    public Resource getPhoto() {
-        return photo;
-    }
+	public void setSite(Site site) {
+		this.site = site;
+	}
 
-    public void setPhoto(Resource photo) {
-        this.photo = photo;
-    }
+	public Set<Person> getArtists() {
+		return artists;
+	}
 
-    public Resource getVideo() {
-        return video;
-    }
+	public void setArtists(Set<Person> artists) {
+		this.artists = artists;
+	}
 
-    public String getSpec() {
-        return spec;
-    }
+	public Resource getPhoto() {
+		return photo;
+	}
 
-    public void setSpec(String spec) {
-        this.spec = spec;
-    }
+	public void setPhoto(Resource photo) {
+		this.photo = photo;
+	}
 
-    public void setVideo(Resource video) {
-        this.video = video;
-    }
+	public Resource getVideo() {
+		return video;
+	}
 
-    public Resource getAudio() {
-        return audio;
-    }
+	public String getSpec() {
+		return spec;
+	}
 
-    public void setAudio(Resource audio) {
-        this.audio = audio;
-    }
+	public void setSpec(String spec) {
+		this.spec = spec;
+	}
 
-    public String getIntro() {
-        return intro;
-    }
+	public void setVideo(Resource video) {
+		this.video = video;
+	}
 
-    public void setIntro(String intro) {
-        this.intro = intro;
-    }
+	public Resource getAudio() {
+		return audio;
+	}
 
-    public String getIntroKey() {
-        return introKey;
-    }
+	public void setAudio(Resource audio) {
+		this.audio = audio;
+	}
 
-    public void setIntroKey(String introKey) {
-        this.introKey = introKey;
-    }
+	public String getIntro() {
+		return intro;
+	}
+
+	public void setIntro(String intro) {
+		this.intro = intro;
+	}
+
+	public String getIntroKey() {
+		return introKey;
+	}
+
+	public void setIntroKey(String introKey) {
+		this.introKey = introKey;
+	}
+
+	public boolean isUsethumbnail() {
+		return usethumbnail;
+	}
+
+	public void setUsethumbnail(boolean usethumbnail) {
+		this.usethumbnail = usethumbnail;
+	}
 };

@@ -1,3 +1,4 @@
+
 package dellemuse.server.objectstorage;
 
 import java.io.IOException;
@@ -82,9 +83,6 @@ public class ObjectStorageService extends BaseService implements SystemService {
 
         connect();
 
-        startupLogger.info("Connected to Server -> " + this.client.getUrl());
-        
-        
         this.timerConnect = new TimerThread() {
             
             public long getSleepTimeMillis() {
@@ -125,6 +123,8 @@ public class ObjectStorageService extends BaseService implements SystemService {
         thread.setName(ObjectStorageService.class.getSimpleName() + " - connection timer");
         thread.start();
 
+        startupLogger.info("Connected to Odilon server -> " + this.client.getSchemaAndHost() + ":" + String.valueOf( this.port ));
+
         startupLogger.debug(this.toString());
         startupLogger.debug("Startup -> " + this.getClass().getSimpleName());
     }
@@ -137,6 +137,11 @@ public class ObjectStorageService extends BaseService implements SystemService {
     private synchronized void connect() {
         
         this.client = new ODClient(this.endpoint, this.port, this.accessKey, this.secretKey);
+
+        this.client.setPresignedUrl(    getSettings().getObjectStoragePresignedUrl(),
+                                        getSettings().getObjectStoragePresignedPort(), 
+                                        getSettings().isObjectStoragePresignedSSL()
+                                   );
         
         String ping = this.client.ping();
 
@@ -157,6 +162,8 @@ public class ObjectStorageService extends BaseService implements SystemService {
         } catch (ODClientException e) {
             throw new InternalCriticalException(e);
         }
+   
+        logger.debug("Connected to Odilon server -> " + this.client.getSchemaAndHost() + ":" + String.valueOf( this.port ));
+        
     }
-
 }

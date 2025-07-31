@@ -18,6 +18,7 @@ public class FloorType extends DelleMuseObject {
     public FloorType() {
     }
 
+    /**
     @Override
     public FloorTypeModel model() {
         try {
@@ -26,5 +27,6 @@ public class FloorType extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
     
 }

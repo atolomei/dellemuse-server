@@ -41,15 +41,11 @@ CREATE SEQUENCE if not exists readcode_id 		START 1000;
 CREATE TABLE users (
 						id					bigint primary key default nextval('sequence_user_id'),
 						
-						
 						name				character varying(512),
 						nameKey				character varying(512),
 
 						title		 		character varying(1024),
 						titleKey			character varying(512),
-						
-						
-						
 						
 						username			character varying(512) not null unique,
 						created				timestamp with time zone DEFAULT now() not null,
@@ -57,9 +53,6 @@ CREATE TABLE users (
 					);
 					
 alter table users add column  lastmodifieduser bigint references users(id) on delete restrict;
-
-
-
 
 
 -- ------------------------------------------------------------------------------------------------------------------------------
@@ -73,27 +66,24 @@ CREATE TABLE resource (
 						nameKey				character varying(512),
 						title		 		character varying(1024),
 						titleKey			character varying(512),
-						
-
 
 						media				character varying(64),
 						
 						info		 		text,
 						infoKey 			character varying(512),
 						
-						
 						bucketName			character varying(512) not null,
 						objectName			character varying(512) not null,
 						
 						binaryObject		bytea,
 						
+						usethumbnail 		boolean default true,
+							
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
 						lastmodifieduser	bigint references users(id) on delete restrict not null
 					);
 					
-
-
 -- ------------------------------------------------------------------------------------------------------------------------------
 -- persona
 -- ------------------------------------------------------------------------------------------------------------------------------
@@ -464,9 +454,7 @@ CREATE TABLE artwork (
 
 						shortName 			character varying(64),
 
-
 						artWorkType_id		bigint references artWorkType(id) on delete restrict,
-
 
 						subtitle		 	character varying(1024),
 						subTitleKey			character varying(512),
@@ -483,12 +471,14 @@ CREATE TABLE artwork (
 						photo				bigint references resource(id) on delete restrict,
 						video				bigint references resource(id) on delete restrict,
 						audio				bigint references resource(id) on delete restrict,
-
 						
 						year				integer default 0,
 						
 						person_owner_id			bigint references person(id) on delete restrict,
 						institution_owner_id	bigint references institution(id) on delete restrict,
+						site_owner_id			bigint references site(id) on delete restrict,
+						
+						usethumbnail 			boolean default true,
 						
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -496,6 +486,8 @@ CREATE TABLE artwork (
 						
 						);
 
+
+						
 CREATE TABLE artworkArtist (
 						id					bigint primary key default nextval('sequence_id'),
 						

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-import dellemuse.server.db.model.DelleMuseObject;
 import dellemuse.server.db.model.Resource;
 
 public class DelleMuseResourceSerializer extends StdSerializer<Resource> {
@@ -38,6 +37,9 @@ public class DelleMuseResourceSerializer extends StdSerializer<Resource> {
         
         if (value.getObjectName()!=null)
             jgen.writeStringField("objectName", value.getObjectName());
+        
+        jgen.writeStringField("usethumbnail", Boolean.valueOf(value.isUsethumbnail()).toString());
+        
         
         jgen.writeEndObject();
     }

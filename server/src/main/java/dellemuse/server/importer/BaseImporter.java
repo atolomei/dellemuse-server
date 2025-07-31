@@ -77,8 +77,7 @@ public abstract class BaseImporter extends BaseService implements Importer {
 
         this.inbox = new File(getBaseDir() + File.separator + "inbox" + File.separator + getClassDir());
         this.processed = new File(getBaseDir() + File.separator + "processed" + File.separator + getClassDir());
-        this.mediaDir = new File(
-                getBaseDir() + File.separator + "inbox" + File.separator + getClassDir() + File.separator + "media");
+        this.mediaDir = new File(getBaseDir() + File.separator + "inbox" + File.separator + getClassDir() + File.separator + "media");
 
     }
 

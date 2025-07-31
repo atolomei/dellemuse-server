@@ -52,6 +52,7 @@ public class FavoriteSite extends DelleMuseObject {
     }
 
 
+    /**
     @Override
     public ArtWorkModel model() {
         try {
@@ -60,5 +61,6 @@ public class FavoriteSite extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 
 };

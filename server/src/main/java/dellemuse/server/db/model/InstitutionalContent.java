@@ -129,6 +129,7 @@ public class InstitutionalContent extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
+    /**
     @Override
     public InstitutionalContentModel model() {
         try {
@@ -138,5 +139,6 @@ public class InstitutionalContent extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 
 };

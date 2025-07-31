@@ -85,7 +85,7 @@ public class Person extends DelleMuseObject {
     @Column(name = "infokey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -93,7 +93,7 @@ public class Person extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -101,7 +101,7 @@ public class Person extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -269,6 +269,11 @@ public class Person extends DelleMuseObject {
         this.user = user;
     }
 
+
+    /**
+     * 
+     * @return
+     
     @Override
     public PersonModel model() {
         try {
@@ -278,4 +283,6 @@ public class Person extends DelleMuseObject {
         }
     }
 
+*/
+    
 }

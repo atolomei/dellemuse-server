@@ -16,14 +16,13 @@ import jakarta.persistence.ManyToOne;
 //@JsonInclude(Include.NON_NULL)
 public class ArtWorkArtist extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtWork.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
     @JoinColumn(name = "artwork_id", nullable = true)
-    @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private ArtWork artwork;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Person.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
     @JoinColumn(name = "person_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -49,6 +48,7 @@ public class ArtWorkArtist extends DelleMuseObject {
         this.artist = person;
     }
 
+    /**
     @Override
     public ArtWorkArtistModel model() {
         try {
@@ -58,5 +58,6 @@ public class ArtWorkArtist extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 
 };

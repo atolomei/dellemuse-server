@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.logging.Logger;
+import dellemuse.server.api.model.ArtExhibitionGuideModelService;
 import dellemuse.server.api.model.ArtExhibitionModelService;
 import dellemuse.server.db.model.ArtExhibition;
 import dellemuse.server.db.model.ArtExhibitionGuide;
@@ -39,15 +40,23 @@ public class ArtExhibitionController extends BaseController<ArtExhibition, ArtEx
     @Autowired
     private final ArtExhibitionModelService modelService;
 
+    
+    @JsonIgnore
+    @Autowired
+    private final ArtExhibitionGuideModelService guideModelService;
+    
+    
     @JsonIgnore
     @Autowired
     private final SecurityService securityService;
 
-    public ArtExhibitionController(ArtExhibitionDBService db, ArtExhibitionModelService modelService, SecurityService securityService) {
+    public ArtExhibitionController(ArtExhibitionDBService db, ArtExhibitionModelService modelService, SecurityService securityService, ArtExhibitionGuideModelService guideModelService) {
         super(securityService);
         this.modelService = modelService;
         this.dbService = db;
         this.securityService=securityService;
+        this.guideModelService=guideModelService;
+    
     }
     
     @RequestMapping(value = "/artexhibitionguides/{artexhibitionid}", produces = "application/json", method = RequestMethod.GET)
@@ -62,9 +71,12 @@ public class ArtExhibitionController extends BaseController<ArtExhibition, ArtEx
         
         List<ArtExhibitionGuideModel> m_list = new ArrayList<ArtExhibitionGuideModel>();
         
-        if (m_list!=null)
-            list.forEach(i->m_list.add(i.model()));
-
+        if (m_list!=null) {
+            list.forEach(i->m_list.add(guideModelService.model(i)));
+        }
+        
+        
+        
         return new ResponseEntity<List<ArtExhibitionGuideModel>>(m_list, HttpStatus.OK);
     }
 

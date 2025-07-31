@@ -28,6 +28,4 @@ public class DelleMuseUserSerializer extends StdSerializer<User> {
         jgen.writeStringField("name", value.getName());
         jgen.writeEndObject();
     }
-    
-
 }

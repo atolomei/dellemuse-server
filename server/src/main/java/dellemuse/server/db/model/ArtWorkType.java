@@ -18,7 +18,7 @@ public class ArtWorkType extends DelleMuseObject {
     public ArtWorkType() {
     }
 
-    
+    /**
     @Override
     public  ArtWorkTypeModel model() {
         try {
@@ -27,5 +27,6 @@ public class ArtWorkType extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 
 }

@@ -30,7 +30,7 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Floor extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = FloorType.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = FloorType.class)
     @JoinColumn(name = "floorType_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -38,7 +38,7 @@ public class Floor extends DelleMuseObject {
     @JsonProperty("floorType")
     private FloorType floorType;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -46,7 +46,7 @@ public class Floor extends DelleMuseObject {
     @JsonProperty("site")
     private Site site;
 
-    @OneToMany(fetch = FetchType.EAGER, targetEntity = Room.class)
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = Room.class)
     @JoinColumn(name = "floor_id", nullable = true, insertable = false)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("roomNumber ASC")
@@ -73,33 +73,29 @@ public class Floor extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
-    @JsonManagedReference
     @JsonBackReference
     @JsonProperty("photo")
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
-    @JsonManagedReference
     @JsonBackReference
     @JsonProperty("video")
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
-    @JsonManagedReference
     @JsonBackReference
     @JsonProperty("audio")
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "map", nullable = true)
-    @JsonManagedReference
     @JsonBackReference
     @JsonProperty("map")
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
@@ -172,6 +168,7 @@ public class Floor extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
+    /**
     @Override
     public FloorModel model() {
         try {
@@ -180,5 +177,6 @@ public class Floor extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 
 };

@@ -158,6 +158,7 @@ public class Room extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
+    /**
     @Override
     public RoomModel model() {
         try {
@@ -166,4 +167,5 @@ public class Room extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    */
 };

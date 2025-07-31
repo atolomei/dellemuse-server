@@ -1,12 +1,9 @@
 package dellemuse.server.db.service;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.hibernate.query.NullPrecedence;
-import org.hibernate.query.SortDirection;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,18 +15,13 @@ import dellemuse.server.db.model.Site;
 import dellemuse.server.db.model.User;
 import dellemuse.model.logging.Logger;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.FlushModeType;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 
-import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
-    
 @Service
 public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 

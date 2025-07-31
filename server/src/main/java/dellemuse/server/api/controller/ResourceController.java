@@ -56,7 +56,7 @@ import io.odilon.net.ODHttpStatus;
 @RequestMapping(value = "/resource")
 public class ResourceController extends BaseController<Resource, ResourceModel> {
 
-    @SuppressWarnings("unused")
+     
     static private dellemuse.model.logging.Logger logger = Logger.getLogger(ResourceController.class.getName());
 
     @JsonIgnore
@@ -78,7 +78,6 @@ public class ResourceController extends BaseController<Resource, ResourceModel> 
     @JsonIgnore
     @Autowired
     private final Settings settings;
-    
     
     
     public ResourceController(SecurityService securityService, ResourceDBService dbService, ResourceModelService modelService,
@@ -127,7 +126,7 @@ public class ResourceController extends BaseController<Resource, ResourceModel> 
     
     
     @RequestMapping(value = "/getpresignedthumbnail/{size}/{id}", produces = "application/json", method = RequestMethod.GET)
-    public ResponseEntity<String> presignedThumbnailSmUrl(@PathVariable("size") String size, @PathVariable("id") String id) {
+    public ResponseEntity<String> presignedThumbnailUrl(@PathVariable("size") String size, @PathVariable("id") String id) {
 
         Long lid = Long.valueOf(id);
 
@@ -143,13 +142,15 @@ public class ResourceController extends BaseController<Resource, ResourceModel> 
         final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
         final String t_object = res.getBucketName()+"-"+ String.valueOf(res.getObjectName().hashCode()) + "-" + thumbnailSize.getLabel();
         
+        int cacheDurationSecs = ServerConstant.THUMBNAIL_CACHE_DURATION_SECS;
+        
         /** if exists -> return existings thumbnail */
         try {
             if (getObjectService().getClient().existsObject(t_bucket, t_object)) {
                 return ResponseEntity
                 .ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS))
-                .body(getObjectService().getClient().getPresignedObjectUrl(t_bucket, t_object));
+                .cacheControl( CacheControl.maxAge(cacheDurationSecs, TimeUnit.SECONDS))
+                .body(getObjectService().getClient().getPresignedObjectUrl(t_bucket, t_object, Optional.of(cacheDurationSecs)));
             }
         } catch (ODClientException e) {
             throw new RuntimeException ( e );
@@ -207,8 +208,8 @@ public class ResourceController extends BaseController<Resource, ResourceModel> 
         try {
             return ResponseEntity
                     .ok()
-                    .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS))
-                    .body(getObjectService().getClient().getPresignedObjectUrl(t_bucket, t_object));
+                    .cacheControl( CacheControl.maxAge(cacheDurationSecs, TimeUnit.SECONDS))
+                    .body(getObjectService().getClient().getPresignedObjectUrl(t_bucket, t_object, Optional.of(cacheDurationSecs)));
             
         } catch (ODClientException e) {
             throw new RuntimeException ( e );
@@ -276,7 +277,6 @@ public class ResourceController extends BaseController<Resource, ResourceModel> 
         // } catch (Exception e) {
         // throw new OdilonServerAPIException(ODHttpStatus.INTERNAL_SERVER_ERROR,
         // ErrorCode.INTERNAL_ERROR, getMessage(e));
-
         // } finally {
         //
         // }
@@ -289,11 +289,10 @@ public class ResourceController extends BaseController<Resource, ResourceModel> 
         return null;
 
         // try {
-
         // if (stringToken == null)
         // throw new OdilonServerAPIException("token is null");
-
         // AuthToken authToken = this.tokenService.decrypt(stringToken);
+        
         /**
          * if (authToken == null) throw new OdilonServerAPIException("AuthToken is
          * null");

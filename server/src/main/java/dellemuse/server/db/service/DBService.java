@@ -132,6 +132,11 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
         return entityManager.createQuery(cq);
     }
 
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	
     protected abstract Class<T> getEntityClass();
 
     protected String getNameColumn() {

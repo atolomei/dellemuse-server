@@ -2,10 +2,7 @@ package dellemuse.server.db.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
-import dellemuse.model.UserModel;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
@@ -14,9 +11,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class User extends DelleMuseObject {
 
-    //@Column(name = "username")
-    //private String username;
-
     public User() {
     }
 
@@ -24,15 +18,12 @@ public class User extends DelleMuseObject {
         return getName();
     }
 
-    //public void setUsername(String username) {
-    //    this.username = username;
-    //}
-
     public String getDisplayname() {
         return getUsername();
     }
 
-    
+    /**
+      
     @Override
     public UserModel model() {
         try {
@@ -41,4 +32,5 @@ public class User extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    */
 }

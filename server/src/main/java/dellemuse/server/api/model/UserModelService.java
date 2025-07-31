@@ -4,21 +4,28 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import dellemuse.model.PersonModel;
 import dellemuse.model.UserModel;
 import dellemuse.server.Settings;
-import dellemuse.server.db.model.Person;
 import dellemuse.server.db.model.User;
+import dellemuse.server.db.service.UserDBService;
 
+/**
+ * 
+ * 
+ */
 @Service
 public class UserModelService extends ModelService<User, UserModel> {
 
-    public UserModelService(Settings settings) {
-        super(settings, User.class, UserModel.class);
+    public UserModelService(Settings settings,  UserDBService dbService) {
+        super(settings, User.class, UserModel.class, dbService);
     }
 
     @Override
     public UserModel model(User item) {
+    	
+    	if (isDetached(item)) 
+    		item = getDBService().findById(item.getId()).get();
+    	
         String json = null;
         try {
             json = getObjectMapper().writeValueAsString(item);
@@ -42,7 +49,6 @@ public class UserModelService extends ModelService<User, UserModel> {
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-
 
         try {
             return (User) getObjectMapper().readValue(json, User.class);

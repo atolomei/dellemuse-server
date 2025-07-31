@@ -54,44 +54,7 @@ public class ArtWorkImporterDeserializer extends StdDeserializer<ArtWork> {
         this.artWorkImporter=artWorkImporter;
     }
     
-    
-    private void addFields(ArtWork aw, JsonNode node) {
-
-        String artistFirstName  = (node.get("artistFirstName")  != null) ? node.get("artistFirstName").asText() : null;
-        String artistLastName   = (node.get("artistLastName")   != null) ? node.get("artistLastName").asText()  : null;
-        String title            = (node.get("title")            != null) ? node.get("title").asText()           : null;
-        
-        if (title!=null)
-            aw.setTitle(title);
-
-        Optional<Person> o_person;
-        
-        Person person = null;
-         
-        if (artistFirstName==null) {    
-            o_person =  this.artWorkImporter.getPersonDBService().findByLastName(artistLastName);
-            person = o_person.isPresent() ? o_person.get() : null;
-        }
-        else {
-            o_person = this.artWorkImporter.getPersonDBService().findByName(artistFirstName, Optional.of(artistLastName));
-            if (o_person.isEmpty())
-                person = this.artWorkImporter.getPersonDBService().create(artistFirstName, artistLastName,  findRoot());
-            else
-                person = o_person.get();
-        }
-
-        if (person==null) {
-            if (artistLastName==null)
-                throw new RuntimeException("no artist");
-            person = this.artWorkImporter.getPersonDBService().create(artistFirstName, artistLastName,  findRoot());
-        }
-        
-        if (person!=null) {
-          Set<Person> set = new HashSet<Person>();
-          set.add(person);
-          aw.setArtists(set);
-        }
-    }
+  
 
     
 /**
@@ -121,8 +84,6 @@ id  |                                                    name
 
     @Override
     public ArtWork deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JacksonException {
-
-        
         
         
         JsonNode node = jp.getCodec().readTree(jp);
@@ -197,6 +158,44 @@ id  |                                                    name
         
     }
 
+    
+    private void addFields(ArtWork aw, JsonNode node) {
+
+        String artistFirstName  = (node.get("artistFirstName")  != null) ? node.get("artistFirstName").asText() : null;
+        String artistLastName   = (node.get("artistLastName")   != null) ? node.get("artistLastName").asText()  : null;
+        String title            = (node.get("title")            != null) ? node.get("title").asText()           : null;
+        
+        if (title!=null)
+            aw.setTitle(title);
+
+        Optional<Person> o_person;
+        
+        Person person = null;
+         
+        if (artistFirstName==null) {    
+            o_person =  this.artWorkImporter.getPersonDBService().findByLastName(artistLastName);
+            person = o_person.isPresent() ? o_person.get() : null;
+        }
+        else {
+            o_person = this.artWorkImporter.getPersonDBService().findByName(artistFirstName, Optional.of(artistLastName));
+            if (o_person.isEmpty())
+                person = this.artWorkImporter.getPersonDBService().create(artistFirstName, artistLastName,  findRoot());
+            else
+                person = o_person.get();
+        }
+
+        if (person==null) {
+            if (artistLastName==null)
+                throw new RuntimeException("no artist");
+            person = this.artWorkImporter.getPersonDBService().create(artistFirstName, artistLastName,  findRoot());
+        }
+        
+        if (person!=null) {
+          Set<Person> set = new HashSet<Person>();
+          set.add(person);
+          aw.setArtists(set);
+        }
+    }
     
     /**
     private String findLastName(String artistname) {

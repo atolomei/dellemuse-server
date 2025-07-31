@@ -16,19 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
 import dellemuse.model.GuideContentModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.server.api.model.ArtExhibitionGuideModelService;
-import dellemuse.server.api.model.ArtExhibitionModelService;
-import dellemuse.server.api.model.ArtWorkModelService;
-import dellemuse.server.db.model.ArtExhibition;
+import dellemuse.server.api.model.GuideContentModelService;
 import dellemuse.server.db.model.ArtExhibitionGuide;
-import dellemuse.server.db.model.ArtWork;
-import dellemuse.server.db.service.ArtExhibitionDBService;
 import dellemuse.server.db.service.ArtExhibitionGuideDBService;
-import dellemuse.server.db.service.ArtWorkDBService;
 import dellemuse.server.security.SecurityService;
 
 @RestController
@@ -45,14 +38,22 @@ public class ArtExhibitionGuideController extends BaseController<ArtExhibitionGu
     @Autowired
     private final ArtExhibitionGuideModelService modelService;
 
+    
+    @JsonIgnore
+    @Autowired
+    private final GuideContentModelService guideContentModelService;
+
+    
+    
     @JsonIgnore
     @Autowired
     private final SecurityService securityService;
 
-    public ArtExhibitionGuideController(ArtExhibitionGuideDBService db, ArtExhibitionGuideModelService modelService, SecurityService securityService) {
+    public ArtExhibitionGuideController(ArtExhibitionGuideDBService db, ArtExhibitionGuideModelService modelService, SecurityService securityService, GuideContentModelService guideContentModelService) {
         super(securityService);
         this.modelService = modelService;
         this.dbService = db;
+        this.guideContentModelService=guideContentModelService;
         this.securityService=securityService;
     }
     
@@ -72,13 +73,8 @@ public class ArtExhibitionGuideController extends BaseController<ArtExhibitionGu
                     
         List<GuideContentModel> list = new ArrayList<GuideContentModel>();
 
-        logger.debug("list -> " + getModelService().getClass().getSimpleName());
-
-        if (logger.isDebugEnabled()) {
-            this.getDBService().getArtExhibitionGuideContents(guideid).forEach(item -> logger.debug(item.toString()));
-        }
-
-        this.getDBService().getArtExhibitionGuideContents(guideid).forEach(item -> list.add(item.model()));
+     
+        this.getDBService().getArtExhibitionGuideContents(guideid).forEach(item -> list.add(guideContentModelService.model(item)));
 
         if (logger.isDebugEnabled()) {
             list.forEach(item -> logger.debug(item.toString()));

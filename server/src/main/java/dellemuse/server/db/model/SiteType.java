@@ -20,7 +20,7 @@ public class SiteType extends DelleMuseObject {
 
     }
 
-
+/**
     @Override
     public SiteTypeModel model() {
         try {
@@ -29,4 +29,5 @@ public class SiteType extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    */
 }

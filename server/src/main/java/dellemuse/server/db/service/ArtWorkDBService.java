@@ -47,6 +47,7 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
      * @param name
      * @return
      */
+    @Transactional
     public List<ArtWork> getByName(String name) {
         return createNameQuery(name).getResultList();
     }
@@ -55,6 +56,7 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
     protected Class<ArtWork> getEntityClass() {
         return ArtWork.class;
     }
+
 
 
     

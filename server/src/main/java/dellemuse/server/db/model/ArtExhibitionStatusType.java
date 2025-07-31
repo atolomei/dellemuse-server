@@ -17,6 +17,7 @@ public class ArtExhibitionStatusType extends DelleMuseObject {
     public ArtExhibitionStatusType() {
     }
 
+    /**
     @Override
     public ArtExhibitionStatusTypeModel model() {
         try {
@@ -25,4 +26,5 @@ public class ArtExhibitionStatusType extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 }

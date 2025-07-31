@@ -2,8 +2,6 @@ package dellemuse.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.Path;
 import java.time.OffsetDateTime;
 
 import org.apache.commons.io.FileUtils;
@@ -31,9 +29,7 @@ public class Settings {
 
     private static final OffsetDateTime systemStarted = OffsetDateTime.now();
 
-    
-    
-    /**  ObjectStorage **/
+    /** ObjectStorage **/
     
     @Value("${objectstorage.accessKey:odilon}")
     @NonNull
@@ -51,8 +47,18 @@ public class Settings {
     @NonNull
     protected int objectStoragePort;
     
+    @Value("${objectstorage.presigned.url:null}")
+    protected String objectStoragePresignedUrl;
     
-    /**  Server **/
+    @Value("${objectstorage.presigned.port:-1}")
+    protected int objectStoragePresignedPort;
+
+    @Value("${objectstorage.presigned.isSSL:null}")
+    protected String isSSLStr;
+
+    protected boolean isPresignedSSL; 
+    
+        /**  Server **/
     
     /* default -> dellemuse */
     @Value("${accessKey:dellemuse}")
@@ -72,16 +78,10 @@ public class Settings {
     @Value("${server.ssl.enabled:false}")
     protected String ishttps;
     
-
-        
-    
-    
     
     @Value("${trafficTokens:10}")
     protected int maxTrafficTokens;
 
-
-    
     
     /** Database */
     
@@ -103,7 +103,7 @@ public class Settings {
 
     /** Work */
     
-    @Value("${importer.dir:impoter}")
+    @Value("${importer.dir:importer}")
     protected String importerBaseDir;
 
     @Value("${work.dir:work}")
@@ -150,6 +150,17 @@ public class Settings {
     protected void onInitialize() {
         
         checkDirs();
+        
+        if (objectStoragePresignedUrl==null || objectStoragePresignedUrl.equals("null")) 
+            objectStoragePresignedUrl=this.objectStorageUrl.replace("https://", "").replace("http://", "");
+        
+        if (objectStoragePresignedPort==-1)
+            objectStoragePresignedPort=objectStoragePort;
+
+            if (isSSLStr==null || isSSLStr.equals("null"))
+                isPresignedSSL = this.isHTTPS();
+            else
+                isPresignedSSL = isSSLStr.toLowerCase().trim().equals("true");
     }
 
     
@@ -221,6 +232,30 @@ public class Settings {
 
     public String getWorkDir() {
         return this.workDir;
+    }
+
+    public String getObjectStoragePresignedUrl() {
+        return objectStoragePresignedUrl;
+    }
+
+    public void setObjectStoragePresignedUrl(String objectStoragePresignedUrl) {
+        this.objectStoragePresignedUrl = objectStoragePresignedUrl;
+    }
+
+    public int getObjectStoragePresignedPort() {
+        return objectStoragePresignedPort;
+    }
+
+    public void setObjectStoragePresignedPort(int objectStoragePresignedPort) {
+        this.objectStoragePresignedPort = objectStoragePresignedPort;
+    }
+
+    public boolean isObjectStoragePresignedSSL() {
+        return isPresignedSSL;
+    }
+
+    public void setObjectStoragePresignedSSL(boolean isPresignedSSL) {
+        this.isPresignedSSL = isPresignedSSL;
     }
 
 

@@ -10,10 +10,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.JsonObject;
+import dellemuse.model.logging.Logger;
 import dellemuse.server.db.model.serializer.DelleMuseUserSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +37,31 @@ import jakarta.persistence.SequenceGenerator;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class DelleMuseObject extends JsonObject implements Identifiable, Auditable {
 
+	@JsonIgnore 
+	static final private ObjectMapper hb6mapper = new ObjectMapper();
+	  
+	static private Logger logger =	Logger.getLogger(DelleMuseObject.class.getName());
+
+	
+	static  {
+		
+		hb6mapper.registerModule(new JavaTimeModule());
+		hb6mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		hb6mapper.registerModule(new Jdk8Module());
+		hb6mapper.registerModule(new Hibernate6Module());
+		
+		// hb6mapper.registerModule(new Hibernate6Module().configure(Hibernate6Module.Feature.FORCE_LAZY_LOADING, false));
+		// mapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
+	}
+
+	
+	@Override
+	@JsonIgnore 
+	public ObjectMapper getObjectMapper() {
+		return hb6mapper;
+	}
+
+	
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_gen")
@@ -55,7 +86,7 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
     @Column(name = "lastModified")
     private OffsetDateTime lastModified;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = User.class)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = User.class)
     @Fetch(FetchMode.SELECT)
     @JoinColumn(name = "lastModifiedUser", nullable = false)
     @JsonManagedReference
@@ -138,14 +169,18 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
         return getName();
     }
     
-    public DelleMuseModelObject model() {
-        try {
-            return (DelleMuseModelObject) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
-                    DelleMuseModelObject.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    
+	
+	@Override
+	public String toJSON() {
+	  try {
+			
+		  return getObjectMapper().writeValueAsString(this);
+			
+		} catch (Exception e) {
+			
+				logger.error("Serialization does not work if this entity is detached (JPA FetchType.LAZY relationships)");
+				return " { \"error\": \"" + e.getClass().getName() + (e.getMessage()!=null? (" | " + e.getMessage().replace("\"", "'" + "\"")) : "") + " }"; 
+		}
+	}
+   
 }

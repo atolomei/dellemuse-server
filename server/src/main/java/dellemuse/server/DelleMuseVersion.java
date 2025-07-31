@@ -2,7 +2,7 @@ package dellemuse.server;
 
 public class DelleMuseVersion {
 
-	public static final String VERSION = "0.1 beta";
+	public static final String VERSION = "0.2 beta";
 	
 	private static String[] brand_char = null;
 	

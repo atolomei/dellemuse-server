@@ -70,7 +70,7 @@ public class DelleMuseStartupApplicationRunner implements ApplicationRunner {
         
         startupLogger.info("Startup at -> " + DateTimeFormatter.RFC_1123_DATE_TIME.format(OffsetDateTime.now()));
 
-        // test.test();
+        test.test();
         //serverImporter.execute();
     }
 

@@ -25,7 +25,7 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class GuideContent extends DelleMuseObject {
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibitionGuide.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
     @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = false)
     @JsonManagedReference
     @JsonBackReference
@@ -33,7 +33,7 @@ public class GuideContent extends DelleMuseObject {
     @JsonProperty("artExhibitionGuide")
     private ArtExhibitionGuide artExhibitionGuide;
 
-    @ManyToOne(fetch = FetchType.EAGER, targetEntity = ArtExhibitionItem.class)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
     @JoinColumn(name = "artExhibitionItem_id", nullable = true, insertable = false)
     @JsonManagedReference
     @JsonBackReference
@@ -56,7 +56,7 @@ public class GuideContent extends DelleMuseObject {
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -64,7 +64,7 @@ public class GuideContent extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource photo;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -72,7 +72,7 @@ public class GuideContent extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
+    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
     @JsonBackReference
@@ -162,15 +162,5 @@ public class GuideContent extends DelleMuseObject {
     public void setAudio(Resource audio) {
         this.audio = audio;
     }
-
-    @Override
-    public GuideContentModel model() {
-        try {
-            return (GuideContentModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
-                    GuideContentModel.class);
-        } catch (JsonProcessingException e) {
-            throw new InternalErrorException(e, this.toString());
-        }
-    }
-
+    
 };

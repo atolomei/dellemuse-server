@@ -18,6 +18,7 @@ public class InstitutionType extends DelleMuseObject {
     }
 
 
+    /**
     @Override
     public InstitutionTypeModel model() {
         try {
@@ -26,4 +27,5 @@ public class InstitutionType extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 }

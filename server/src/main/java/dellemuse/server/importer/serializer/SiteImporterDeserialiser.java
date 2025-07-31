@@ -32,6 +32,7 @@ import dellemuse.server.db.model.Resource;
 import dellemuse.server.db.model.Site;
 import dellemuse.server.db.service.PersonDBService;
 import dellemuse.server.db.service.UserDBService;
+import dellemuse.server.importer.BaseImporter;
 import dellemuse.server.importer.InstitutionImporter;
 import dellemuse.server.importer.SiteImporter;
 
@@ -49,17 +50,89 @@ public class SiteImporterDeserialiser extends StdDeserializer<Site> {
         this.importer=impoter;
     }
 
-    private void importFile(Site site, String fileName) throws IOException {
+ 
+	/**
+     * 
+     */
+    @Override
+    public Site deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
 
-        File file = new File(this.importer.getMediaDir(), fileName);
+        JsonNode node = p.getCodec().readTree(p);
+        
+        Optional<String> institutionShortName  = node.get("institutionShortName")!=null            ? Optional.of(node.get("institutionShortName").asText())            : Optional.empty();
+        Optional<String> name       = node.get("name")!=null        	    ? Optional.of(node.get("name").asText())            : Optional.empty();
+        Optional<String> address    = node.get("address")!=null     	    ? Optional.of(node.get("address").asText())         : Optional.empty();  
+        Optional<String> shortName  = node.get("shortName")!=null  		    ? Optional.of(node.get("shortName").asText())       : Optional.empty();
+        Optional<String> info       = node.get("info")!=null       	  	   	? Optional.of(node.get("info").asText())            : Optional.empty(); 
+        Optional<String> photoFileName   = node.get("photo")!=null          ? Optional.of(node.get("photo").asText())     : Optional.empty();
+        Optional<String> logoFileName   = node.get("logo")!=null            ? Optional.of(node.get("logo").asText())     : Optional.empty();
+
+        if (institutionShortName.isEmpty())
+            throw new RuntimeException("institutionShortName can not be null");
+        
+        Optional<Institution>  institution = this.importer.getInstitutionDBService().findByShortName(institutionShortName.get());
+        
+ 
+        
+        Optional<Site> o_site = this.importer.getSiteDBService().findByShortName(shortName.get());
+        
+        if (o_site.isEmpty()) {
+            
+            if (institution.isEmpty())
+                throw new RuntimeException("institution is null for new site");
+            
+            if (name.isEmpty())
+                throw new RuntimeException("name can not be null for new site");
+            
+            Site site = this.importer.getSiteDBService().create(name.get(), institution.get(), shortName, address, info, this.importer.findRoot());
+            
+            if (photoFileName.isPresent()) {
+                importFile(site, photoFileName.get(), "photo");
+            }
+            
+            if (logoFileName.isPresent()) {
+                importFile(site, logoFileName.get(), "logo");
+            }
+            
+            logger.debug(site.toString());
+            return site;
+        }
+        else {
+            
+            Site site = o_site.get();
+            
+            if (address.isPresent())   site.setAddress(address.get());
+            if (shortName.isPresent()) site.setAddress(shortName.get());
+            if (info.isPresent())      site.setAddress(info.get());
+            
+            site.setLastModified(OffsetDateTime.now());
+            this.importer.getSiteDBService().save(site);
+            
+            if (photoFileName.isPresent()) {
+                importFile(site, photoFileName.get(), "photo");
+            }
+            
+            if (logoFileName.isPresent()) {
+                importFile(site, logoFileName.get(), "logo");
+            }
+
+            logger.debug(site.toString());
+            return site;
+        }
+    }
+
+    
+    private void importFile(Site site, String fileName, String field) throws IOException {
+
+        File file = new File(getImporter().getMediaDir(), fileName);
         
         if (file.exists()) {
             
-            String objectName = String.valueOf(importer.getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(file.getName()))  + "-" + this.importer.getResourceDBService().newId());
+            String objectName = String.valueOf(getImporter().getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(file.getName()))  + "-" + this.importer.getResourceDBService().newId());
 
             try (InputStream is = new FileInputStream(file)) {
                 
-                this.importer.getObjectStorageService().putObject(
+            	getImporter().getObjectStorageService().putObject(
                         ServerConstant.MEDIA_BUCKET, objectName, 
                         is,
                         file.getName());
@@ -75,75 +148,21 @@ public class SiteImporterDeserialiser extends StdDeserializer<Site> {
                     getMimeType(file.getName()), 
                     this.importer.getUserDBService().findRoot());
             
+            if (field.equals("photo"))
+            	site.setPhoto(resource);
+            else if (field.equals("logo"))
+            	site.setLogo(resource);
+            	
             
-            
-            site.setPhoto(resource);
             site.setLastModified(OffsetDateTime.now());
             
             this.importer.getSiteDBService().save(site);
         }
     }
-    /**
-     * 
-     */
-    @Override
-    public Site deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
 
-        JsonNode node = p.getCodec().readTree(p);
-        
-        Optional<String> institutionShortName  = node.get("institutionShortName")!=null            ? Optional.of(node.get("institutionShortName").asText())            : Optional.empty();
-        
-        
-        Optional<String> name       = node.get("name")!=null            ? Optional.of(node.get("name").asText())            : Optional.empty();
-        
-        Optional<String> address    = node.get("address")!=null         ? Optional.of(node.get("address").asText())         : Optional.empty();  
-        Optional<String> shortName  = node.get("shortName")!=null       ? Optional.of(node.get("shortName").asText())       : Optional.empty();
-        Optional<String> info       = node.get("info")!=null            ? Optional.of(node.get("info").asText())            : Optional.empty(); 
-        
-        Optional<String> photoFileName   = node.get("photo")!=null            ? Optional.of(node.get("photo").asText())            : Optional.empty();
-        
-        
-        if (institutionShortName.isEmpty())
-            throw new RuntimeException("institutionShortName can not be null");
-        
-        Optional<Institution>  institution = this.importer.getInstitutionDBService().findByShortName(institutionShortName.get());
-        
-        if (institution.isEmpty())
-            throw new RuntimeException("institution is null");
-        
-
-        Optional<Site> o_site = this.importer.getSiteDBService().findByShortName(shortName.get());
-        
-        if (o_site.isEmpty()) {
-            
-            if (name.isEmpty())
-                throw new RuntimeException("name can not be null");
-            
-            Site site = this.importer.getSiteDBService().create(name.get(), institution.get(), shortName, address, info, this.importer.findRoot());
-            if (photoFileName.isPresent()) {
-                importFile(site, photoFileName.get());
-            }
-            logger.debug(site.toString());
-            return site;
-        }
-        else {
-            
-            Site site = o_site.get();
-            
-            if (address.isPresent()) site.setAddress(address.get());
-            if (shortName.isPresent()) site.setAddress(shortName.get());
-            if (info.isPresent()) site.setAddress(info.get());
-            site.setLastModified(OffsetDateTime.now());
-            this.importer.getSiteDBService().save(site);
-            
-            if (photoFileName.isPresent()) {
-                importFile(site, photoFileName.get());
-            }
-            
-            logger.debug(site.toString());
-            return site;
-        }
-    }
+    private SiteImporter getImporter() {
+		return this.importer;
+	}
 
     
     private String getMimeType(String fileName) {

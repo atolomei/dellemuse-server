@@ -216,6 +216,7 @@ public class Institution extends DelleMuseObject {
         this.sites = sites;
     }
 
+    /**
     @Override
     public InstitutionModel model() {
         try {
@@ -225,6 +226,7 @@ public class Institution extends DelleMuseObject {
             throw new RuntimeException(e);
         }
     }
+    **/
 
     public String getWebsite() {
         return website;

@@ -7,18 +7,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import dellemuse.model.PersonModel;
 import dellemuse.server.Settings;
 import dellemuse.server.db.model.Person;
+import dellemuse.server.db.service.PersonDBService;
 import dellemuse.server.error.InternalErrorException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class PersonModelService extends ModelService<Person, PersonModel> {
 
-    public PersonModelService(Settings settings) {
-        super(settings, Person.class, PersonModel.class);
+    public PersonModelService(Settings settings, PersonDBService dbService) {
+        super(settings, Person.class, PersonModel.class, dbService);
     }
 
+    @Transactional
     @Override
     public PersonModel model(Person person) {
-        String json = null;
+
+    	if (isDetached(person)) 
+    		person = getDBService().findById(person.getId()).get();
+
+    	String json = null;
         try {
             json = getObjectMapper().writeValueAsString(person);
             
