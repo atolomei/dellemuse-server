@@ -8,14 +8,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.model.ArtExhibitionModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
-import dellemuse.server.error.InternalErrorException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,7 +27,6 @@ import jakarta.persistence.Table;
 @Table(name = "artExhibition")
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibition extends DelleMuseObject {
-
 
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
     @JoinColumn(name = "site_id", nullable = true)

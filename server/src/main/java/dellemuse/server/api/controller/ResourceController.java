@@ -149,7 +149,7 @@ public class ResourceController extends BaseController<Resource, ResourceModel> 
             if (getObjectService().getClient().existsObject(t_bucket, t_object)) {
                 return ResponseEntity
                 .ok()
-                .cacheControl( CacheControl.maxAge(cacheDurationSecs, TimeUnit.SECONDS))
+                .cacheControl(CacheControl.maxAge(cacheDurationSecs, TimeUnit.SECONDS))
                 .body(getObjectService().getClient().getPresignedObjectUrl(t_bucket, t_object, Optional.of(cacheDurationSecs)));
             }
         } catch (ODClientException e) {
