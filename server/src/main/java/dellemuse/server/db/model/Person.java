@@ -1,20 +1,13 @@
 package dellemuse.server.db.model;
 
-import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.model.DelleMuseModelObject;
-import dellemuse.model.PersonModel;
-import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
-import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseUserSerializer;
 import jakarta.persistence.Column;

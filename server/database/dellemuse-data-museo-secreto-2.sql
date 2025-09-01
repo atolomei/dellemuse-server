@@ -121,6 +121,8 @@ INSERT INTO GuideContent (id, guideOrder, name, title, artExhibitionGuide_id, ar
 
 UPDATE artWork SET namekey = regexp_replace(regexp_replace(lower(name),'[^a-z0-9]+', '-', 'g'),'(^-+|-+$)', '', 'g');
 update artwork set site_owner_id = (select id from site where lower(name) like '%nacional%' limit 1) where site_owner_id is null;
+update person set sortlastfirstname = concat( lower(lastname), ' ', lower(name));
+
 
 COMMIT;
 

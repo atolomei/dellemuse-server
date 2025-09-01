@@ -61,6 +61,7 @@ public abstract class DBService<T, I> extends BaseService implements SystemServi
         return repository.save(entity);
     }
 
+    
     @Transactional
     public Optional<T> findById(I id) {
         return repository.findById(id);

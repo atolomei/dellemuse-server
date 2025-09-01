@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Constant;
 import dellemuse.server.importer.ServerImporter;
-import dellemuse.server.objectstorage.ObjectStorageService;
+
 import dellemuse.server.test.TestListObjects;
 
 @Component

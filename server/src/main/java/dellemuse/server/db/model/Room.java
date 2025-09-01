@@ -5,12 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.model.RoomModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
-import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -65,7 +62,6 @@ public class Room extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Resource photo;
 
-
     @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "video", nullable = true)
     @JsonManagedReference
@@ -90,7 +86,6 @@ public class Room extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource map;
 
-    
     public Room() {
     }
 
@@ -157,15 +152,4 @@ public class Room extends DelleMuseObject {
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
     }
-
-    /**
-    @Override
-    public RoomModel model() {
-        try {
-            return (RoomModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),RoomModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    */
 };

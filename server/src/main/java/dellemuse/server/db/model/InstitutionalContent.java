@@ -5,11 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.model.InstitutionalContentModel;
-import dellemuse.server.db.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
 import dellemuse.server.db.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
@@ -128,17 +125,4 @@ public class InstitutionalContent extends DelleMuseObject {
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
     }
-
-    /**
-    @Override
-    public InstitutionalContentModel model() {
-        try {
-            return (InstitutionalContentModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
-                    InstitutionalContentModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    **/
-
 };

@@ -173,11 +173,8 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	@Override
 	public String toJSON() {
 	  try {
-			
 		  return getObjectMapper().writeValueAsString(this);
-			
 		} catch (Exception e) {
-			
 				logger.error("Serialization does not work if this entity is detached (JPA FetchType.LAZY relationships)");
 				return " { \"error\": \"" + e.getClass().getName() + (e.getMessage()!=null? (" | " + e.getMessage().replace("\"", "'" + "\"")) : "") + " }"; 
 		}

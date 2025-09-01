@@ -290,6 +290,8 @@ UPDATE institution  SET namekey = regexp_replace(regexp_replace(lower(name),'[^a
 
 update artwork set title = name where title is null;
 
+update person set sortlastfirstname = concat( lower(lastname), ' ', lower(name));
+
 
 COMMIT;
 

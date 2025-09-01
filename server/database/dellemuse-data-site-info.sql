@@ -15,4 +15,12 @@ update site set info='El Museo Nacional de Bellas Artes (MNBA), ubicado en la Ci
 
 update site set info='El Museo de Artistas Argentinos "Benito Quinquela Martín" está ubicado en el barrio de La Boca, de la Comuna 4 en la Ciudad Autónoma de Buenos Aires, Argentina. Fundado en el año 1938, está construido sobre terrenos originalmente donados por el pintor. En esos terrenos, en 1936 se inauguró la Escuela Pedro de Mendoza y dos años más tarde abrió las puertas el museo. Denominado originalmente Museo de Artistas Argentinos. Cuenta actualmente con la mayor colección reunida del artista plástico, más de 90 de sus obras.\n  Martes a domingos y feriados de 11.15 a 18 (UTC-3).', address='	Pedro de Mendoza 1835, Ciudad Autónoma de Buenos Aires',website='https://buenosaires.gob.ar/educacion/gestion-cultural/museo-benito-quinquela-martin', phone='54 911 66892321' where lower(name) like '%uinquela%';
 
+update person set sortlastfirstname = concat( lower(lastname), ' ', lower(name));
+
+alter table person add column isex integer default 1;
+
+update person set isex=0 where name like 'Tarsila%';
+update person set isex=0 where name like 'Bert%';
+
+
 COMMIT

@@ -1,4 +1,4 @@
-package dellemuse.server;
+package dellemuse.serverdb.service.base;
 /*
  * Odilon Object Storage
  * (c) kbee 
@@ -26,6 +26,8 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dellemuse.model.JsonObject;
+import dellemuse.serverdb.ServiceStatus;
+import dellemuse.serverdb.ServerDBSettings;
 
 
 
@@ -45,18 +47,18 @@ public abstract class BaseService extends  JsonObject {
 
     @JsonIgnore
     @Autowired
-    private final Settings settings;
+    private final ServerDBSettings settings;
     
     @JsonIgnore
     private ServiceStatus status;
 
 
-    public BaseService(Settings settings) {
+    public BaseService(ServerDBSettings settings) {
         this.status = ServiceStatus.STOPPED;        
         this.settings=settings;
     }
 
-    public Settings getSettings() {
+    public ServerDBSettings getSettings() {
         return settings;
     }
     

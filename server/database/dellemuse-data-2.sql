@@ -89,7 +89,9 @@ update artwork set intro ='El Retrato de Juan Manuel de Rosas, pintado por el ar
 
 update artwork set info = intro  where lower(name) like '%rosas%';
 
-alter table artwork add column if not exists site_owner_id bigint references  site(id) on delete restrict;
+ 
+
+
 update artwork set institution_owner_id=135, site_owner_id=(select id from site where name like '%acional%' limit 1);
 
 

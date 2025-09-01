@@ -2,10 +2,8 @@ package dellemuse.server.db.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.model.ArtWorkArtistModel;
 import dellemuse.server.db.model.serializer.DelleMuseIdSerializer;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -47,17 +45,4 @@ public class ArtWorkArtist extends DelleMuseObject {
     public void setPerson(Person person) {
         this.artist = person;
     }
-
-    /**
-    @Override
-    public ArtWorkArtistModel model() {
-        try {
-            return (ArtWorkArtistModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
-                    ArtWorkArtistModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    **/
-
 };

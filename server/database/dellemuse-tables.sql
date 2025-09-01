@@ -68,6 +68,7 @@ CREATE TABLE resource (
 						titleKey			character varying(512),
 
 						media				character varying(64),
+						size				bigint default 0,
 						
 						info		 		text,
 						infoKey 			character varying(512),
@@ -99,12 +100,15 @@ CREATE TABLE person (
 						lastname			character varying(512) not null,
 						lastnameKey			character varying(512),
 						
+						sortlastfirstname character varying(1024),
 						
 						displayname			character varying(512),
 						
 						nickname			character varying(512),
 						
 						sex					character varying(2),
+						isex				integer default 1,  -- male=1 female=0  
+   					
 						physicalid			character varying(64),
 						address				character varying(4096),
 						zipcode				character varying(64),

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.server.Settings;
 import dellemuse.server.db.model.ArtWork;
+import dellemuse.server.db.model.Site;
 import dellemuse.server.db.model.User;
 import dellemuse.model.logging.Logger;
 import jakarta.persistence.EntityManagerFactory;
@@ -43,6 +44,26 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
         return getRepository().save(c);
     }
 
+    public boolean isDetached(ArtWork entity) {
+	      return !getEntityManager().contains(entity);
+	 }
+	 
+	 @Transactional
+	 public void reloadIfDetached(ArtWork src) {
+		 if ( !getEntityManager().contains(src)) {
+		   src = findById(src.getId()).get();
+		 }
+	 }
+
+	 @Transactional
+	 public Site loadSite(ArtWork aw) {
+	    	reloadIfDetached(aw);
+	    	Site site = aw.getSite();
+	    	return site;
+	    }
+
+
+	 
     /**
      * @param name
      * @return
@@ -56,8 +77,6 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
     protected Class<ArtWork> getEntityClass() {
         return ArtWork.class;
     }
-
-
 
     
 }

@@ -70,12 +70,7 @@
 			<id>my-local-repo</id>
 			<url>file://${basedir}/nonstandardlib/</url>
 		</repository>
-
-		<!--repository>
-			<id>novamens-releases</id>		
-			<url>https://maven.novamens.com/nexus/content/repositories/releases/</url>
-		</ repository-->
-
+		 
 	</repositories>
 
 	<developers>
