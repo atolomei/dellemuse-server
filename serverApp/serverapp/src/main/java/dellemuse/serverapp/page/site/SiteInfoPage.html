@@ -1,0 +1,49 @@
+<html xmlns:wicket="http://wicket.apache.org">
+<body>
+	<wicket:extend>
+	
+		<section wicket:id="top-panel" />
+	
+		<section class="container-xxl main">
+			<div style="float: left; width: 100%;" class="mb-4" wicket:id="page-header"></div>
+
+			<!-- div wicket:id="imageContainer" class="mt-2 mb-2 border pt-3 pb-3 ps-3 pe-3" style="float: left; width: 100%;">
+				<div class="row">
+					<div class="col-xxl-3 col-xl-3 col-lg-3 col-md-5 col-sm-12 col-xs-12">
+						<a class="mb-2 mb-lg-0" wicket:id="image-link" style="position: relative; float: left; width: 100%; padding: 0;"
+							href="#"> <img class="thumbnail" wicket:id="image" />
+						</a>
+					</div>
+
+					<div class="col-xxl-9 col-xl-9 col-lg-9 col-md-7 col-sm-12 col-xs-12">
+						<span wicket:id="info"></span>
+					</div>
+
+				</div>
+			</div -->
+
+
+			<div class="mt-4 mb-4" style="float: left; width: 100%; padding: 0;">
+
+				<div class="row">
+					<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<h2>
+							<wicket:message key="general-info" />
+						</h2>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="mt-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<wicket:container wicket:id="siteEditor" />
+					</div>
+				</div>
+			</div>
+
+		</section>
+
+		<section style="float: left; width: 100%;" class="hide-sm" wicket:id="footer-panel" />
+
+	</wicket:extend>
+</body>
+</html>

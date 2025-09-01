@@ -1,0 +1,16 @@
+<html xmlns:wicket="http://wicket.apache.org">
+<body>
+	<wicket:extend>
+		<section wicket:id="top-panel" />
+		<section class="container-xxl main">
+			<div style="float: left; width: 100%;" class="mb-4" wicket:id="page-header"></div>
+			<div class="row">
+					<div class="mt-2 mb-4 col-xxl-10 col-xl-10 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<wicket:container wicket:id="personEditor"/>
+					</div>
+			</div>
+		</section>
+		<section style="float: left; width: 100%;" class="hide-sm" wicket:id="footer-panel" />
+	</wicket:extend>
+</body>
+</html>
