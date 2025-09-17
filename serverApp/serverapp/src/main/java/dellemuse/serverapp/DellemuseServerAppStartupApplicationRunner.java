@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
 
 @Component
@@ -42,8 +40,6 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 			args.getNonOptionArgs().forEach( item -> startupLogger.debug(item));
 		}
 
-		// Locale.setDefault(Locale.forLanguageTag("en"));
-
 		Locale.setDefault(Locale.ENGLISH);
 		
 		startupLogger.info(SEPARATOR);
@@ -59,7 +55,16 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 		
 		startupLogger.info	("Startup at -> " + DateTimeFormatter.RFC_1123_DATE_TIME.format(OffsetDateTime.now()));
 		
-
+		/**
+		CommandService service = (CommandService) ServiceLocator.getInstance().getBean(CommandService.class);
+		ResourceDBService rs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		rs.findAll().forEach( r -> {
+			service.run( new ImageCalculateDimensionsCommand(r.getId()));
+			logger.debug(r.toString());
+		});
+		logger.debug("done");
+		**/
+		
 		//
 		// ResourceDBService service = (ResourceDBService) ServiceLocator.getInstance().getBean( ResourceDBService.class);
 		// service.findAll().forEach( r -> service.checkAndSetSize(r) );

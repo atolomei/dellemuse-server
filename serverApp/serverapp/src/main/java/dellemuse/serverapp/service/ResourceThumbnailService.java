@@ -205,6 +205,11 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 	                return ret;
 	            }
 
+	            if (ex.equals("svg")) {
+	                ret.use_image = true;
+	                return ret;
+	            }
+	            
 	            BufferedImage bimg = ImageIO.read(srcfile);
 
 	            if (bimg == null)

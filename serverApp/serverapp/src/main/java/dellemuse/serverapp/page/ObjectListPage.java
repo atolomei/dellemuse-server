@@ -41,8 +41,15 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.menu.LinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
+import io.wktui.nav.toolbar.Toolbar;
+import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
+import wktui.base.InvisiblePanel;
 
 
 /**
@@ -50,7 +57,7 @@ import io.wktui.struct.list.ListPanelMode;
  * site 
  * foto 
  * Info - exhibitions
- * 
+ * "ps-0 pe-0 pt-0 pb-0 float-start w-100 toolbar"
  */
 
 public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage {
@@ -60,14 +67,35 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	static private Logger logger = Logger.getLogger(ObjectListPage.class.getName());
 
 	private List<IModel<T>> list;
-	private Link<T> create;
-	private WebMarkupContainer createContainer;
-	private Label createLabel;
 	private ListPanel<T> panel;
+	private WebMarkupContainer titleContainer;
+	private Label title;
+	
+	private Link<T> create;
+	private Label createLabel;
+	private WebMarkupContainer createContainer;
+	private WebMarkupContainer toolbarContainer;
+	private WebMarkupContainer toolbar;
+	
+	//private WebMarkupContainer submenuContainer;
 	
 	private boolean b_create = false;
 	
-	
+	protected abstract void addHeaderPanel();
+	 
+    public abstract IRequestablePage getObjectPage(IModel<T> model);
+    public abstract Iterable<T> getObjects();
+    
+    public abstract IModel<String> getObjectInfo(IModel<T> model);
+    public abstract IModel<String> getObjectTitle(IModel<T> model);
+    
+    public abstract void onClick(IModel<T> model);
+    
+    public abstract IModel<String> getPageTitle();
+    public abstract IModel<String> getListPanelLabel();
+    
+
+    
 	public  ObjectListPage() {
 		super();
 	}		
@@ -76,44 +104,18 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		 super(parameters);
 	 }
 	
-	
-	public void setCreate( boolean b) {
-		this.b_create=b;
-	}
-	
-	protected boolean isCreate() {
-		return b_create;
-	}
-	  
-	 	
-    
-    public abstract IRequestablePage getObjectPage(IModel<T> model);
-    public abstract Iterable<T> getObjects();
-    
-    public abstract IModel<String> getObjectInfo(IModel<T> model);
-    public abstract IModel<String> getObjectTitle(IModel<T> model);
-    
-    public abstract void onClick(IModel<T> model);
-
-    
-    public abstract IModel<String> getPageTitle();
-    public abstract IModel<String> getListPanelLabel();
-    
-    
+	    
     public void setPageHeaderPanel(Panel panel) {
     	addOrReplace(panel);
     }
 
     public void addDefaultPageHeaderPanel() {
-        BreadCrumb<Void> bc = createBreadCrumb();
-        bc.addElement(new BCElement(getPageTitle()));
-    	PageHeaderPanel<Void> ph = new PageHeaderPanel<Void>("page-header", null, getPageTitle());
-		ph.setBreadCrumb(bc);
-		add(ph);
-	}
+    	this.addOrReplace(new InvisiblePanel("page-header"));
+   }
 
     public void onBeforeRender() {
 		super.onBeforeRender();
+		
 		if ( get("page-header")==null)
 			this.addDefaultPageHeaderPanel();
 	}
@@ -123,44 +125,240 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	public void onDetach() {
 	    super.onDetach();
 	    
-	    if (list!=null)
-	    	list.forEach(i->i.detach());
+	    if (this.list!=null)
+	    	this.list.forEach(i->i.detach());
     }
 	
 	public List<IModel<T>> getList() {
-		return list;
+		return this.list;
 	}
 	
+	public void setCreate(boolean b) {
+		this.b_create=b;
+	}
+	
+	protected boolean isCreate() {
+		return b_create;
+	}
+		
+	
+	protected boolean isTitle() {
+		return getTitleLabel()!=null;
+	}
+	
+	
+	private void addToolbar() {
+		
+		this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
+			private static final long serialVersionUID = 1L;
+			public boolean isVisible() {
+				return getToolbarItems()!=null && getToolbarItems().size()>0;
+			}
+		};
+		add(this.toolbarContainer);
+		
 
-	@Override
-	public void onInitialize() {
-		super.onInitialize();
+		//this.toolbar = new WebMarkupContainer("toolbar") {
+		//	private static final long serialVersionUID = 1L;
+		//	public boolean isVisible() {
+		//		return isToolbar();
+		//	}
+		//};
+		//this.toolbarContainer.add(this.toolbar);
 		
-    	add(new GlobalTopPanel("top-panel"));
-		add(new GlobalFooterPanel<>("footer-panel"));
 		
-		createContainer = new WebMarkupContainer("createContainer") {
+		/**
+		this.createContainer = new WebMarkupContainer("createContainer") {
 			private static final long serialVersionUID = 1L;
 			public boolean isVisible() {
 				return isCreate();
 			}
 		};
-		
-		add(createContainer);
-	       
-		create = new Link<T>("create", null) {
+		this.create = new Link<T>("create", null) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick() {
 				ObjectListPage.this.onCreate();
 			}
 		};
+		this.createLabel = new Label("create", getCreateLabel());
+		this.create.add(this.createLabel);
+		this.createContainer.add(this.create);
+		**/
+		
+		
+		//this.submenuContainer = new WebMarkupContainer("submenuContainer") {
+		//	private static final long serialVersionUID = 1L;
+		//	public boolean isVisible() {
+		//		return isSubmenu();
+		//	}
+		//};
+		//if (getSubmenu()!=null)
+		//		this.submenuContainer.add(getSubmenu());
+		//	else
+		//		this.submenuContainer.add(new InvisiblePanel("submenu"));
+		//this.toolbar.add(this.createContainer);
+		//this.toolbar.add(this.submenuContainer);
+		
 	
-		createLabel = new Label("create", getCreateLabel());
-		create.add(createLabel);
+		List<ToolbarItem> list = getToolbarItems();
+
+		if (list!=null && list.size()>0) {
+			Toolbar toolbarItems = new Toolbar("toolbarItems");
+			list.forEach(t -> toolbarItems.addItem(t));
+			this.toolbarContainer.add(toolbarItems);
+		}
+		else {
+			this.toolbarContainer.add( new InvisiblePanel("toolbarItems"));
+		}
 		
-		createContainer.add(create);
+		/**
+		DropDownMenuToolbarItem<Void> ddm;
+		ddm = new DropDownMenuToolbarItem<Void>("item", null, Model.of("Left"));
+		ddm.addItem(new io.wktui.nav.menu.MenuItemFactory<Void>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Void> getItem(String id) {
+
+				return new  LinkMenuItem<Void>(id) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick() {
+					}
+					@Override
+					public IModel<String> getLabel() {
+						return new Model<String>("Contáctenos");
+					}
+					@Override
+					public String getBeforeClick() {
+						return null;
+					}
+				};
+			}
+		});
+
 		
+		ddm.addItem(new io.wktui.nav.menu.MenuItemFactory<Void>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Void> getItem(String id) {
+
+				return new  LinkMenuItem<Void>(id) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick() {
+					}
+					@Override
+					public IModel<String> getLabel() {
+						return new Model<String>("info");
+					}
+					@Override
+					public String getBeforeClick() {
+						return null;
+					}
+				};
+			}
+		});
+		
+		toolbarItems.addItem(ddm, Align.TOP_LEFT);
+		
+
+		DropDownMenuToolbarItem<Void> ddmR;
+		ddmR = new DropDownMenuToolbarItem<Void>("item", null, Model.of("Right"));
+		ddmR.addItem(new io.wktui.nav.menu.MenuItemFactory<Void>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Void> getItem(String id) {
+
+				return new  LinkMenuItem<Void>(id) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick() {
+					}
+					@Override
+					public IModel<String> getLabel() {
+						return new Model<String>("R Contáctenos");
+					}
+					@Override
+					public String getBeforeClick() {
+						return null;
+					}
+				};
+			}
+		});
+
+		
+		ddmR.addItem(new io.wktui.nav.menu.MenuItemFactory<Void>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Void> getItem(String id) {
+
+				return new  LinkMenuItem<Void>(id) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick() {
+					}
+					@Override
+					public IModel<String> getLabel() {
+						return new Model<String>("R info");
+					}
+					@Override
+					public String getBeforeClick() {
+						return null;
+					}
+				};
+			}
+		});
+		
+		toolbarItems.addItem(ddmR, Align.TOP_RIGHT);
+
+		*/
+		
+				
+	}
+	
+	
+	protected abstract List<ToolbarItem> getToolbarItems();
+
+	
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
+		
+    	add(new GlobalTopPanel("top-panel"));
+		add(new GlobalFooterPanel<>("footer-panel"));
+			
+		addHeaderPanel();
+		
+		addToolbar();
+		
+		this.titleContainer = new WebMarkupContainer("titleContainer") {
+			private static final long serialVersionUID = 1L;
+			public boolean isVisible() {
+				return isTitle();
+			}
+		};
+		add(this.titleContainer);
+	       
+		
+		if (isTitle()) {
+			Label title =new Label("title", getTitleLabel());
+			this.titleContainer.add(title);
+		}
+		else {
+			this.titleContainer.add( new InvisiblePanel("title"));
+					
+		}
+		
+	 	
 		loadList();
 		
         this.panel = new ListPanel<>("contents", getList()) {
@@ -219,12 +417,19 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
             }
         };
     
-        panel.setSettings(isSettings());
-        panel.setTitle(getListPanelLabel());
-        panel.setListPanelMode(getListPanelMode());
-        add(panel);
+        this.panel.setSettings(isSettings());
+        this.panel.setTitle(getListPanelLabel());
+        this.panel.setListPanelMode(getListPanelMode());
+        add(this.panel);
 	}
 	
+	
+
+	//protected boolean isSubmenu() {
+	//	return getSubmenu()!=null;
+	//}
+	//protected abstract WebMarkupContainer getSubmenu();
+
 	
 	protected String getImageSrc(IModel<T> model) {
 		return null;
@@ -235,20 +440,23 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	}
 
 	protected ListPanelMode getListPanelMode() {
-		return  ListPanelMode.TITLE;
+		return ListPanelMode.TITLE;
 	}
 
 	protected IModel<String> getCreateLabel() {
-		return getLabel("new");
+		return getLabel("create");
 	}
-
+	protected IModel<String> getTitleLabel() {
+		return null;
+	}
+	
 	protected void onCreate() {
 		logger.debug("on create");
 	}
 
     protected void loadList() {
-		list = new ArrayList<IModel<T>>();
-		getObjects().forEach(s -> list.add(new ObjectModel<T>(s)));
+    	this.list = new ArrayList<IModel<T>>();
+		getObjects().forEach(s -> this.list.add(new ObjectModel<T>(s)));
 
     }
     

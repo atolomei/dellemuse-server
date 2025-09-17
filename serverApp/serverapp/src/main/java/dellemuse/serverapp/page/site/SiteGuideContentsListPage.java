@@ -26,10 +26,12 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.library.SiteListPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
@@ -49,6 +51,9 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 
@@ -69,7 +74,14 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 	private StringValue stringValue;
 	private IModel<Site> siteModel;
 
-
+	//@Override
+	//protected WebMarkupContainer getSubmenu() {
+	//	return new SiteNavDropDownMenuToolbarItem("submenu", getSiteModel(), Model.of(getSiteModel().getObject().getShortName()));
+	//}
+	
+	protected IModel<String> getTitleLabel() {
+		return getLabel("guide-contents");
+	}
 	
 	public SiteGuideContentsListPage() {
 		super();
@@ -86,8 +98,6 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 		getPageParameters().add("id", model.getObject().getId().toString());
 	}
  
-	
-	
 	@Override
 	public void onInitialize() {
 		
@@ -107,11 +117,31 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 		
 		super.onInitialize();
 
-		addPageHeader();
+		 
 	}
 
+
+	protected List<ToolbarItem> getToolbarItems() {
+		
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+
+		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
+			private static final long serialVersionUID = 1L;
+			protected void onClick() {
+				SiteGuideContentsListPage.this.onCreate();
+			}
+		};
 	
-	public void addPageHeader() {
+		create.setAlign(Align.TOP_LEFT);
+		list.add(create);
+	
+		
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(),   Align.TOP_RIGHT ));
+		return list;
+	}
+	
+	
+	protected void addHeaderPanel() {
 	    BreadCrumb<Void> bc = createBreadCrumb();
 		   
 	    bc.addElement(new HREFBCElement( "/site/list", getLabel("sites")));
@@ -120,8 +150,10 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
         
         bc.addElement(new BCElement( getLabel("guide-contents")));
     
-		PageHeaderPanel<Void> ph = new PageHeaderPanel<Void>("page-header", null, new Model<String>(getSiteModel().getObject().getDisplayname()));
+		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, new Model<String>(getSiteModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
+
+		ph.setTagline(getLabel("guide-contents"));
 		add(ph);
 
 	}
@@ -159,14 +191,7 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 	public IModel<String> getPageTitle() {
 		return new Model<String>(getSiteModel().getObject().getDisplayname());
 	}
-	
-	public IModel<String> getListPanelLabel() {
-		return getLabel("guide-contents");
-		  
- }
-
 	 
- 
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -183,6 +208,12 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
+	}
+
+	@Override
+	public IModel<String> getListPanelLabel() {
+		 
+		return null;
 	}
 
 }

@@ -2,13 +2,16 @@ package dellemuse.serverapp.serverdb.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
@@ -25,6 +28,25 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
     public ArtExhibitionItemDBService(CrudRepository<ArtExhibitionItem, Long> repository, ServerDBSettings settings) {
         super(repository, settings);
     }
+    
+    
+    @Transactional
+	public Optional<ArtExhibitionItem> findByIdWithDeps(Long id) {
+
+		Optional<ArtExhibitionItem> o = super.findById(id);
+
+		if (o.isEmpty())
+			return o;
+
+		ArtExhibitionItem a = o.get();
+
+		a.setDependencies(true);
+
+		a.getArtExhibition().getDisplayname();
+
+		return o;
+	}
+
 
     /**
      * <p>

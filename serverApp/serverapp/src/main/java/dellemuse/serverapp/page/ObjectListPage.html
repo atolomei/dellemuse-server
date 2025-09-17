@@ -8,13 +8,36 @@
 
 			<div style="float: left; width: 100%;" wicket:id="page-header"></div>
 
-			<div wicket:id="createContainer" class="row">
-				<div class="mt-4 mb-2 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-					<a class="btn btn-lg btn-primary" href="#" wicket:id="create"> <span wicket:id="create"></span></a>
+
+			<div wicket:id="toolbarContainer" class="row">
+				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+					<div class="mt-1 mb-1 float-start w-100 bg-body-primary">
+						<div class="d-block float-start text-sm-start text-start w-100" wicket:id="toolbarItems" />
+					</div>
+					<!-- div  wicket:id="toolbar" class="mt-3 mb-3 float-start w-100 bg-body-primary" -->
+						<!-- div wicket:id="createContainer" class="d-inline-block float-start"> 
+							<a class="btn btn-sm btn-outline-primary" href="#" wicket:id="create"> <span wicket:id="create"></span></a>
+						</div -->
+						<!-- div wicket:id="submenuContainer" class=" d-inline-block float-end"> 
+							<div wicket:id="submenu" /> 
+						</div-->
+					<!--  /div -->
+		
 				</div>
 			</div>
+
+
+			<div wicket:id="titleContainer" class="row">
+				<div class="mt-1 mb-1 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+					<h2 wicket:id="title"></h2>
+				</div>
+			</div>
+
+
+
+
 			<div class="row">
-				<div class="mt-2 mb-2 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+				<div class="mb-4 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
 					<div wicket:id="contents"></div>
 				</div>
 			</div>

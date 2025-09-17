@@ -46,6 +46,9 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 
@@ -68,18 +71,31 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 	IModel<Site> siteModel;
 
+	
+
+
+	
 	public SiteArtExhibitionsListPage() {
 		super();
+		setCreate(true);
 	}
 
+	
+	protected IModel<String> getTitleLabel() {
+		return getLabel("artexhibitions");
+	}
+
+	
 	public SiteArtExhibitionsListPage(PageParameters parameters) {
 		super(parameters);
 		stringValue = getPageParameters().get("id");
+		setCreate(true);
 	}
 
 	public SiteArtExhibitionsListPage(IModel<Site> siteModel) {
 		super();
 		setSiteModel(siteModel);
+		setCreate(true);
 	}
 
 	@Override
@@ -100,11 +116,10 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		
 		super.onInitialize();
 
-		addPageHeader();
 	}
 
 	
-	public void addPageHeader() {
+ protected void addHeaderPanel() {
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
 		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(),
@@ -167,4 +182,32 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		this.siteModel = siteModel;
 	}
 
+	protected List<ToolbarItem> getToolbarItems() {
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		list.add(new SiteNavDropDownMenuToolbarItem(	"item", 
+														getSiteModel(), 
+														Align.TOP_RIGHT));
+		
+
+		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
+			private static final long serialVersionUID = 1L;
+			protected void onClick() {
+				SiteArtExhibitionsListPage.this.onCreate();
+			}
+		};
+		create.setAlign(Align.TOP_LEFT);
+
+		
+		
+		return list;
+	}
+	
+	protected List<ToolbarItem> getToolbarItemsLeft() {return null;}
+
+	//@Override
+	//protected WebMarkupContainer getSubmenu() {
+	//	return new SiteNavDropDownMenuToolbarItem("submenu", getSiteModel(), Model.of(getSiteModel().getObject().getShortName()));
+	//}
+	
+	
 }

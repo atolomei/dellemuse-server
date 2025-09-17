@@ -39,7 +39,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class ResourceDBService extends DBService<Resource, Long> implements ApplicationContextAware {
 
-    @SuppressWarnings("unused")
+  
     static private Logger logger = Logger.getLogger(ResourceDBService.class.getName());
 
     @JsonIgnore
@@ -92,8 +92,10 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     }
 
     public String getMimeType(String fileName) {
-        if (FSUtil.isImage(fileName)) {
-            String ext = FilenameUtils.getExtension(fileName).toLowerCase();
+
+    	if (FSUtil.isImage(fileName)) {
+        
+    		String ext = FilenameUtils.getExtension(fileName).toLowerCase();
 
             if (ext.equals("jpg") || ext.equals("jpeg"))
                 return "image/jpeg";
@@ -158,6 +160,7 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
         return getRepository().save(c);
+    
     }
 
     

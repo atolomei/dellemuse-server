@@ -16,9 +16,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
+import org.aspectj.util.FileUtil;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
+import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -45,6 +47,8 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 	private Form<Institution> form;
 
 	private TextField<String> nameField;
+	private TextAreaField<String> subtitleField;
+
 	private TextField<String> shortNameField;
 	private TextAreaField<String> addressField;
 	private TextField<String> websiteField;
@@ -81,12 +85,8 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 	
 		if (logoModel!=null)
 			logoModel.detach();
-		
-	
 	}
 
-	
-	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -110,7 +110,8 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		setForm(this.form);
 
 	 	nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		shortNameField 	= new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
+	 	subtitleField	= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
+	 	shortNameField 	= new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
 		addressField 	= new TextAreaField<String>("address", new PropertyModel<String>(getModel(), "address"), getLabel("address"), 4);
 		websiteField 	= new TextField<String>("website", new PropertyModel<String>(getModel(), "website"), getLabel("website"));
 		mapurlField 	= new TextField<String>("mapurl", new PropertyModel<String>(getModel(), "mapUrl"), getLabel("mapurl"));
@@ -132,7 +133,9 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 			}
 
 			public String getFileName() {
-				return InstitutionEditor.this.getPhotoFileName();
+				if (getModel()==null)
+					return null;
+				return InstitutionEditor.this.getPhotoMeta( getModel().getObject() );
 			}
 
 			public boolean isThumbnail() {
@@ -163,7 +166,8 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		};
 
 	 	form.add(nameField);
-		form.add(shortNameField);
+		form.add(shortNameField);	
+		form.add(subtitleField);
 		form.add(infoField);
 		form.add(addressField);
 		form.add(websiteField);
@@ -174,25 +178,6 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		form.add(whatsappField);
 		form.add(photoField);
 		form.add(logoField);
-
-		
-		AjaxLink<Institution> edit_link = new AjaxLink<Institution>("edit-link", getModel()) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				onEdit(target);
-				target.add(getForm());
-			}
-
-			@Override
-			public boolean isVisible() {
-				return getForm().getFormState() == FormState.VIEW;
-			}
-		};
-
-		getForm().add(edit_link);
 
 		EditButtons<Institution> b_buttons = new EditButtons<Institution>("buttons-bottom", getForm(), getModel()) {
 
@@ -216,7 +201,41 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 			}
 		};
 
+		
+		EditButtons<Institution> b_buttons_top = new EditButtons<Institution>("buttons-top", getForm(), getModel()) {
+
+			private static final long serialVersionUID = 1L;
+
+			public void onEdit(AjaxRequestTarget target) {
+				InstitutionEditor.this.onEdit(target);
+			}
+
+			public void onCancel(AjaxRequestTarget target) {
+				InstitutionEditor.this.onCancel(target);
+			}
+
+			public void onSave(AjaxRequestTarget target) {
+				InstitutionEditor.this.onSave(target);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return getForm().getFormState() == FormState.EDIT;
+			}
+			
+			protected String getSaveClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
+			
+			protected String getCancelClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
+
+		};
+
+		getForm().add(b_buttons_top);
 		getForm().add(b_buttons);
+		
 	}
 
 	protected Image getLogoThumbnail() {
@@ -224,7 +243,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		if (getLogoModel() == null)
 			return null;
 
-		String presignedThumbnail = getPresignedThumbnailSmall(getLogoModel().getObject());
+		String presignedThumbnail = getPresignedThumbnail(getLogoModel().getObject(), ThumbnailSize.SMALL);
 
 		Image image;
 
@@ -267,7 +286,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		if (getPhotoModel() == null)
 			return null;
 
-		String presignedThumbnail = getPresignedThumbnailSmall(getPhotoModel().getObject());
+		String presignedThumbnail = getPresignedThumbnail(getPhotoModel().getObject(), ThumbnailSize.SMALL);
 
 		Image image;
 
@@ -352,8 +371,11 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 								upload.getClientFileName());
 						User user = getUserDBService().findRoot();
 
-						Resource resource = getResourceDBService().create(bucketName, objectName,
-								upload.getClientFileName(), upload.getClientFileName(), upload.getSize(), user);
+						Resource resource = getResourceDBService().create(bucketName, 
+								objectName,
+								upload.getClientFileName(), 
+								getMimeType( upload.getClientFileName()), 
+								upload.getSize(), user);
 						
 						setLogoModel(new ObjectModel<Resource>(resource));
 
@@ -377,6 +399,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 	}
 
 	
+
 	/**
 	public Resource getPhoto() {
 		if (getPhotoModel()==null)

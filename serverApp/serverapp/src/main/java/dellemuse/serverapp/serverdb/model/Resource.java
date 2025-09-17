@@ -36,6 +36,14 @@ public class Resource extends DelleMuseObject {
     @JsonProperty("size")
     private long size;
 
+    @Column(name = "width")
+    @JsonProperty("width")
+    private long width;
+
+    @Column(name = "height")
+    @JsonProperty("height")
+    private long height;
+ 
     
     public Resource() {
     }
@@ -108,6 +116,22 @@ public class Resource extends DelleMuseObject {
 
 	public void setUsethumbnail(boolean usethumbnail) {
 		this.usethumbnail = usethumbnail;
+	}
+
+	public long getWidth() {
+		return width;
+	}
+
+	public long getHeight() {
+		return height;
+	}
+
+	public void setWidth(long width) {
+		this.width = width;
+	}
+
+	public void setHeight(long height) {
+		this.height = height;
 	}
 
 

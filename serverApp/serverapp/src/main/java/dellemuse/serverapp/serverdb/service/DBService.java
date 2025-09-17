@@ -180,6 +180,8 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
     }
 
     protected String nameKey(String name) {
+    	if (name==null)
+    		return null;
         return name.toLowerCase().replaceAll("[^a-z0-9]+", "-") // Replace non-ASCII alphanumerics with hyphen
                 .replaceAll("(^-+|-+$)", ""); // Trim leading/trailing hyphens
     }

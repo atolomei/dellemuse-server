@@ -12,6 +12,7 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -36,11 +37,31 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
         super(repository, settings);
     }
 
+    @Transactional
+	public Optional<ArtExhibition> findByIdWithDeps(Long id) {
+
+		Optional<ArtExhibition> o = super.findById(id);
+
+		if (o.isEmpty())
+			return o;
+
+		ArtExhibition a = o.get();
+
+		a.setDependencies(true);
+
+		a.getSite().getDisplayname();
+		
+		Resource photo = a.getPhoto();
+		
+		if (photo != null)
+			photo.getBucketName();
+
+		return o;
+	}
     
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
     }
     
     @Transactional
@@ -84,7 +105,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
     }
 
     @Transactional
-    public List<ArtExhibitionItem> getArtExhibitionItem(ArtExhibition exhibition) {
+    public List<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition exhibition) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<ArtExhibitionItem> cq = cb.createQuery(ArtExhibitionItem.class);
         Root<ArtExhibitionItem> root = cq.from(ArtExhibitionItem.class);

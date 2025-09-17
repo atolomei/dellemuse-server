@@ -3,6 +3,7 @@ package dellemuse.serverapp.editor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
@@ -11,9 +12,15 @@ import org.apache.wicket.util.visit.IVisitor;
 
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.page.model.DBModelPanel;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
+import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
+import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.editor.Editor;
@@ -181,17 +188,30 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		return NumberFormatter.formatFileSize(size);
 	}
 
+	public void save(ArtExhibition a) {
+		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance()
+				.getBean(ArtExhibitionDBService.class);
+		service.save(a);
+	}
+	
 	public void save(Institution inst) {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
 				.getBean(InstitutionDBService.class);
 		service.save(inst);
-
 	}
 
 	public void save(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		service.save(site);
+	}
 
+	public void save(ArtWork artwork) {
+		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+		service.save(artwork);
+	}
+
+	protected String getMimeType(String clientFileName) {
+		return super.getResourceDBService().getMimeType(clientFileName);
 	}
 
 }

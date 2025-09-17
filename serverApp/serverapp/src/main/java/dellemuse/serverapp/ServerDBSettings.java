@@ -55,6 +55,13 @@ public class ServerDBSettings {
     protected int maxTrafficTokens;
 
     
+    /** **/
+    
+    @Value("${dispatcher.poolsize:10}")
+    protected int poolsize;
+
+    
+    
     /** ObjectStorage **/
     
     @Value("${objectstorage.accessKey:odilon}")
@@ -260,6 +267,10 @@ public class ServerDBSettings {
     public void setObjectStoragePresignedSSL(boolean isPresignedSSL) {
         this.isPresignedSSL = isPresignedSSL;
     }
+
+	public int getDispatcherPoolSize() {
+		return this.poolsize;
+	}
 
 
 }

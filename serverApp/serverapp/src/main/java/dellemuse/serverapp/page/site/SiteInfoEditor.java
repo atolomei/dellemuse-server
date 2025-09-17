@@ -48,16 +48,19 @@ import io.wktui.form.field.TextField;
 import jakarta.transaction.Transactional;
 import wktui.base.ModelPanel;
 
-public class SiteEditor extends DBObjectEditor<Site> {
+public class SiteInfoEditor extends DBObjectEditor<Site> {
 
 	private static final long serialVersionUID = 1L;
 
-	static private Logger logger = Logger.getLogger(SiteEditor.class.getName());
+	static private Logger logger = Logger.getLogger(SiteInfoEditor.class.getName());
 		
 	
     // ChoiceField<Institution>  institutionField;
 
 	private TextField<String> nameField;
+	private TextAreaField<String> subtitleField;
+
+
 	private TextField<String> shortNameField;
 	private TextAreaField<String> infoField;
 	private TextAreaField<String> opensField;
@@ -85,17 +88,14 @@ public class SiteEditor extends DBObjectEditor<Site> {
 	 * @param id
 	 * @param model
 	 */
-	public SiteEditor(String id, IModel<Site> model) {
+	public SiteInfoEditor(String id, IModel<Site> model) {
 		super(id, model);
 	}
-
-
 	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		
-
 		Optional<Site> o_i = getSiteDBService().findByIdWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<Site>(o_i.get()));
 		
@@ -109,13 +109,9 @@ public class SiteEditor extends DBObjectEditor<Site> {
 			setLogoModel(new ObjectModel<Resource>(o_r.get()));
 		}
 		
-		
 		Form<Site> form = new Form<Site>("siteForm", getModel());
-        
-	    
-		add(form);
+    	add(form);
 		setForm(form);
-
        
         Site site = getModel().getObject();
         getSiteDBService().reloadIfDetached(site);
@@ -124,7 +120,6 @@ public class SiteEditor extends DBObjectEditor<Site> {
         // logger.debug(site.toString());
     
         List<Institution> list = new ArrayList<Institution>();
-
         getInstitutions().forEach(x -> list.add(x));
         
         //  StreamSupport.stream(getInstitutions().spliterator(), false).collect(Collectors.toList());
@@ -151,6 +146,7 @@ public class SiteEditor extends DBObjectEditor<Site> {
         //institutionField.setChoices(new ListModel<Institution>( StreamSupport.stream(getInstitutions().spliterator(), false).collect(Collectors.toList()) ));
         
         nameField 			= new TextField<String>("name", 		new PropertyModel<String>(getModel(), "name") , getLabel("name"));
+	 	subtitleField		= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
         shortNameField  	= new TextField<String>("shortName", 	new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
         infoField  			= new TextAreaField<String>("info", 	new PropertyModel<String>(getModel(), "info"), getLabel("info"), 8);
         opensField  		= new TextAreaField<String>("opens", 	new PropertyModel<String>(getModel(), "opens"), getLabel("opens"), 8);
@@ -167,17 +163,20 @@ public class SiteEditor extends DBObjectEditor<Site> {
 			private static final long serialVersionUID = 1L;
 
 			protected boolean processFileUploads(List<FileUpload> uploads) {
-				return SiteEditor.this.processPhotoUpload(uploads);
+				return SiteInfoEditor.this.processPhotoUpload(uploads);
 			}
 
 			public Image getImage() {
 				if (getPhotoModel()==null)
 					return null;
-				return SiteEditor.this.getThumbnail(getPhotoModel().getObject());
+				return SiteInfoEditor.this.getThumbnail(getPhotoModel().getObject());
 			}
 
 			public String getFileName() {
-				return SiteEditor.this.getPhotoFileName();
+				if (getPhotoModel()==null)
+					return null;
+				return SiteInfoEditor.this.getPhotoMeta( getPhotoModel().getObject() );
+				
 			}
 
 			public boolean isThumbnail() {
@@ -192,11 +191,11 @@ public class SiteEditor extends DBObjectEditor<Site> {
 			public Image getImage() {
 				if (getLogoModel()==null)
 					return null;
-				return SiteEditor.this.getThumbnail(getLogoModel().getObject());
+				return SiteInfoEditor.this.getThumbnail(getLogoModel().getObject());
 			}
 
 			public String getFileName() {
-				return SiteEditor.this.getLogoFileName();
+				return SiteInfoEditor.this.getLogoFileName();
 			}
 
 			public boolean isThumbnail() {
@@ -204,11 +203,12 @@ public class SiteEditor extends DBObjectEditor<Site> {
 			}
 
 			protected boolean processFileUploads(List<FileUpload> uploads) {
-				return SiteEditor.this.processLogoUpload(uploads);
+				return SiteInfoEditor.this.processLogoUpload(uploads);
 			}
 		};
 	 
 		form.add( nameField );
+		form.add( subtitleField );
         form.add( shortNameField ); 
         form.add( infoField ); 
         form.add( opensField );
@@ -228,15 +228,15 @@ public class SiteEditor extends DBObjectEditor<Site> {
 
 			@Override
 			public void onEdit( AjaxRequestTarget target ) {
-				 SiteEditor.this.onEdit(target);
+				 SiteInfoEditor.this.onEdit(target);
 			}
 			@Override
 			public void onCancel( AjaxRequestTarget target ) {
-				SiteEditor.this.onCancel(target);
+				SiteInfoEditor.this.onCancel(target);
 			}
 			@Override
 			public void onSave(AjaxRequestTarget target ) {
-				SiteEditor.this.onSave(target);
+				SiteInfoEditor.this.onSave(target);
 			}
 			
 			@Override
@@ -246,24 +246,44 @@ public class SiteEditor extends DBObjectEditor<Site> {
 		};
         form.add(buttons);
         
+        
     	
-		AjaxLink<Site> edit_link = new AjaxLink<Site>("edit-link", getModel()) {
+		EditButtons<Site> b_buttons_top = new EditButtons<Site>("buttons-top", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
 
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				onEdit(target);
-				target.add(getForm());
+			public void onEdit(AjaxRequestTarget target) {
+				SiteInfoEditor.this.onEdit(target);
+			}
+
+			public void onCancel(AjaxRequestTarget target) {
+				SiteInfoEditor.this.onCancel(target);
+			}
+
+			public void onSave(AjaxRequestTarget target) {
+				SiteInfoEditor.this.onSave(target);
 			}
 
 			@Override
 			public boolean isVisible() {
-				return getForm().getFormState() == FormState.VIEW;
+				return getForm().getFormState() == FormState.EDIT;
 			}
+			
+			protected String getSaveClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
+			
+			protected String getCancelClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
+
 		};
 
-		getForm().add(edit_link);
+		getForm().add(b_buttons_top);
+        
+        
+        
+         
 	}
 	
 	@Override
@@ -287,6 +307,8 @@ public class SiteEditor extends DBObjectEditor<Site> {
 
 	protected void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
+		target.add(getForm());
+		
 		//getForm().setFormState(FormState.EDIT);
 		//target.add(getForm());
 	}
@@ -362,7 +384,7 @@ public class SiteEditor extends DBObjectEditor<Site> {
 								.normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-"
 								+ String.valueOf(getResourceDBService().newId());
 
-						Resource resource = uploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+						Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
 						
 						setPhotoModel(new ObjectModel<Resource>(resource));
 						getModel().getObject().setPhoto(resource);
@@ -405,7 +427,7 @@ public class SiteEditor extends DBObjectEditor<Site> {
 								.normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-"
 								+ String.valueOf(getResourceDBService().newId());
 						
-						Resource resource = uploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+						Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
 						setLogoModel(new ObjectModel<Resource>(resource));
 						getModel().getObject().setLogo(resource);
 						
@@ -490,5 +512,6 @@ public class SiteEditor extends DBObjectEditor<Site> {
 					? " ( " + formatFileSize(getLogoModel().getObject().getSize()) + " )"
 					: "");
 		}
+
 	 
 }

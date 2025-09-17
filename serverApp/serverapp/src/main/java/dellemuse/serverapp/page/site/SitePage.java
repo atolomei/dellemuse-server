@@ -28,12 +28,14 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ErrorPage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -52,6 +54,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.listNavigator.ListNavigator;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
@@ -75,29 +78,29 @@ public class SitePage extends BasePage {
 	private IModel<Site> siteModel;
 	
 	private Link<Site> linkInfo;
+	private Link<Site> linkInst;
+
 	private Link<Site> linkArtWork;
+	private Link<Site> linkArtists;
+
 	private Link<Site> linkFloors;
 	private Link<Site> linkContents;
 	
 	private Image image;
 	private WebMarkupContainer imageContainer;
-	
 	private Link<Resource> imageLink;
+
 	private List<IModel<ArtExhibition>> listPermanent;
 	private List<IModel<ArtExhibition>> listTemporary;
-	
 	
 	private List<IModel<Site>> siteList;
 	private int current = 0;
 	private WebMarkupContainer navigatorContainer;
-
 	private Exception exceptionError;
 
-	
 	public SitePage() {
 		super();
 	}
-
 
 	public SitePage(PageParameters parameters) {
 		super(parameters);
@@ -111,33 +114,8 @@ public class SitePage extends BasePage {
 		getPageParameters().add("id", model.getObject().getId().toString());
 		this.setSiteList(list);
 	}
-
-	private void setUpModel() {
-
-		try {
-			if (getSiteModel() == null) {
-				if (stringValue != null) {
-					Optional<Site> o_site = findByIdWithDeps(Long.valueOf(stringValue.toLong()));
-					if (o_site.isPresent()) {
-						setSiteModel(new ObjectModel<Site>(o_site.get()));
-					}
-				}
-			}
-			else {
-				if (!getSiteModel().getObject().isDependencies()) {
-					Optional<Site> o_site = findByIdWithDeps(Long.valueOf(getSiteModel().getObject().getId()));
-					if (o_site.isPresent()) {
-						setSiteModel(new ObjectModel<Site>(o_site.get()));
-					}
-				}
-			}
-		} catch (Exception  e) {
-			logger.error(e);
-			exceptionError = e;
-		}
-	}
 	
-	
+		
 	/**
 	 * Institution Site Artwork Person Exhibition ExhibitionItem GuideContent User
 	 */
@@ -153,16 +131,36 @@ public class SitePage extends BasePage {
 			return;
 		}
 	
-		 
-
 		setCurrent();
 	
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
 		bc.addElement(new BCElement(new Model<String>(getSiteModel().getObject().getDisplayname())));
-		PageHeaderPanel<Site> ph = new PageHeaderPanel<Site>("page-header", getSiteModel(),
+		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(),
 				new Model<String>(getSiteModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
+		
+		if (getSiteModel().getObject().getSubtitle()!=null)
+			ph.setTagline( Model.of( getSiteModel().getObject().getSubtitle()));
+		
+		if (getSiteModel().getObject().getPhoto()!=null)
+			ph.setPhotoModel(new ObjectModel<Resource>( getSiteModel().getObject().getPhoto()));
+	
+	 	
+		if (getSiteList()!=null && getSiteList().size()>0) {
+			Navigator<Site> nav = new Navigator<Site>("navigator", getCurrent(), getSiteList()) {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void navigate(int current) {
+					setResponsePage( new SitePage( getList().get(current), getList() ));
+				}
+			};
+			bc.setNavigator(nav);
+		}
+		
+		
+		
+		
 		
 		add(ph);
 
@@ -177,13 +175,21 @@ public class SitePage extends BasePage {
 			public void onClick() {
 				setResponsePage(new SiteInfoPage(getSiteModel()));
 			}
-
 		};
 		
 		add(linkInfo);
+		linkInst = new Link<Site>("institution", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick() {
+				setResponsePage(new InstitutionPage(
+						getInstitutionModel() ));
+				
+			}
+		};
+		add(linkInst);
+		
 
-		
-		
 		linkArtWork = new Link<Site>("artwork", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -192,8 +198,15 @@ public class SitePage extends BasePage {
 			}
 		};
 		add(linkArtWork);
-
 		
+		linkArtists = new Link<Site>("artists", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick() {
+				setResponsePage(new SiteArtistsListPage(getSiteModel()));
+			}
+		};
+		add(linkArtists);
 
 		linkFloors = new Link<Site>("floors", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
@@ -203,7 +216,6 @@ public class SitePage extends BasePage {
 			}
 		};
 		add(linkFloors);
-		
 		
 		linkContents = new Link<Site>("contents", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
@@ -215,18 +227,28 @@ public class SitePage extends BasePage {
 		add(linkContents);
 		
 		addNavigator();
-		addImageAndInfo();
+		//addImageAndInfo();
 	
 	}
 
+	protected IModel<Institution> getInstitutionModel() {
+		return new ObjectModel<Institution>(getInstitution(getSiteModel().getObject().getInstitution().getId()).get());
+	}
+
+	protected int getCurrent() {
+		return this.current;
+	}
+	
+	
 	private void addNavigator() {
+	
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
 		add(this.navigatorContainer);
 		
 		this.navigatorContainer.setVisible(getSiteList()!=null && getSiteList().size()>0);
 
 		if (getSiteList() != null) {
-			ListNavigator<Site> nav = new ListNavigator<Site>("navigator", this.current,
+			ListNavigator<Site> nav = new ListNavigator<Site>("navigator", getCurrent(),
 					getSiteList()) {
 				private static final long serialVersionUID = 1L;
 
@@ -247,7 +269,7 @@ public class SitePage extends BasePage {
 	}
 	
 	
-	 
+	 /**
 	private void addImageAndInfo() {
 
 		this.imageContainer = new WebMarkupContainer("imageContainer");
@@ -263,7 +285,7 @@ public class SitePage extends BasePage {
 		
 		this.imageContainer.add(this.imageLink);
 		
-		Label info = new Label("info", TextCleaner.clean(getSiteModel().getObject().getIntro()));
+		Label info = new Label("info", TextCleaner.clean(getSiteModel().getObject().getInfo()));
 		info.setEscapeModelStrings(false);
 		this.imageContainer.add(info);
 		
@@ -285,7 +307,8 @@ public class SitePage extends BasePage {
 		
 		
 	}
-
+*/
+	
 	private void addExhibitions() {
 
 		{
@@ -320,6 +343,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
+							setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
 						}
 
 						protected IModel<String> getInfo() {
@@ -332,7 +356,7 @@ public class SitePage extends BasePage {
 			};
 			 add(panel);
 			
-			panel.setTitle(getLabel("exhibitions-permanent"));
+			//panel.setTitle(getLabel("exhibitions-permanent"));
 	        panel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
 			panel.setLiveSearch(false);
 	        panel.setSettings(true);
@@ -371,6 +395,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
+							setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
 						}
 
 						protected IModel<String> getInfo() {
@@ -383,7 +408,7 @@ public class SitePage extends BasePage {
 			};
 			add(panel);
 			
-			panel.setTitle(getLabel("exhibitions-temporary"));
+			//panel.setTitle(getLabel("exhibitions-temporary"));
 
 	        panel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
 			panel.setLiveSearch(false);
@@ -479,4 +504,30 @@ public class SitePage extends BasePage {
 		}
 	}
 
+	private void setUpModel() {
+
+		try {
+			if (getSiteModel() == null) {
+				if (stringValue != null) {
+					Optional<Site> o_site = findByIdWithDeps(Long.valueOf(stringValue.toLong()));
+					if (o_site.isPresent()) {
+						setSiteModel(new ObjectModel<Site>(o_site.get()));
+					}
+				}
+			}
+			else {
+				if (!getSiteModel().getObject().isDependencies()) {
+					Optional<Site> o_site = findByIdWithDeps(Long.valueOf(getSiteModel().getObject().getId()));
+					if (o_site.isPresent()) {
+						setSiteModel(new ObjectModel<Site>(o_site.get()));
+					}
+				}
+			}
+		} catch (Exception  e) {
+			logger.error(e);
+			exceptionError = e;
+		}
+	}
+	
+	
 }

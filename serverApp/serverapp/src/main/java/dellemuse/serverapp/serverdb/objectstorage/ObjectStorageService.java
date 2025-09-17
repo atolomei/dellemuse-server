@@ -67,10 +67,8 @@ public class ObjectStorageService extends BaseService implements SystemService {
           } catch (ODClientException e) {
               throw new RuntimeException(e);
           }
-    	
     }
 
-    	
     public InputStream getObject(String bucketName, String objectName) throws IOException {
         try {
             return getClient().getObject(bucketName, objectName);
@@ -83,7 +81,6 @@ public class ObjectStorageService extends BaseService implements SystemService {
         return this.client;
     }
 
-    
     @PostConstruct
     protected void onInit() {
 
@@ -135,7 +132,6 @@ public class ObjectStorageService extends BaseService implements SystemService {
         thread.start();
 
         startupLogger.info("Connected to Odilon server -> " + this.client.getSchemaAndHost() + ":" + String.valueOf( this.port ));
-
         startupLogger.debug(this.toString());
         startupLogger.debug("Startup -> " + this.getClass().getSimpleName());
     }
@@ -143,7 +139,6 @@ public class ObjectStorageService extends BaseService implements SystemService {
     protected String getEndPoint() {
         return this.endpoint;
     }
-    
     
     private synchronized void connect() {
         

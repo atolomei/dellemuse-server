@@ -7,7 +7,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.page.model.DBModelPanel;
-import dellemuse.serverapp.page.site.SiteEditor;
+import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.form.Form;
@@ -20,7 +20,7 @@ public class UserEditor extends DBModelPanel<User> {
 
 	private static final long serialVersionUID = 1L;
 
-	static private Logger logger = Logger.getLogger(SiteEditor.class.getName());
+	static private Logger logger = Logger.getLogger(SiteInfoEditor.class.getName());
 
 	private Form<User> form;
 	private TextField<String> nameField;

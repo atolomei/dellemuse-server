@@ -15,7 +15,9 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.ArtWorkArtist;
+import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -45,10 +47,47 @@ public class PersonDBService extends DBService<Person, Long> {
         super(repository, settings);
     }
 
+    
+    @Transactional
+	public void reloadIfDetached(Person src) {
+
+		if (!getEntityManager().contains(src)) {
+			src = findById(src.getId()).get();
+			//@SuppressWarnings("unused")
+			//Institution i = src.getInstitution();
+		}
+	}
+    
+
+	@Transactional
+	public Optional<Person> findByIdWithDeps(Long id) {
+
+		Optional<Person> o_aw = super.findById(id);
+
+		if (o_aw.isEmpty())
+			return  o_aw;
+		
+		Person aw = o_aw.get();
+		
+
+		Resource photo = aw.getPhoto();
+
+		User u = aw.getLastModifiedUser();
+		
+		if (u!=null)
+			u.getDisplayname();
+		
+		if (photo != null)
+			photo.getBucketName();
+
+		aw.setDependencies(true);
+
+		return o_aw;
+	}
+	
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
     }
     
     @Transactional
@@ -62,7 +101,7 @@ public class PersonDBService extends DBService<Person, Long> {
     
     @Override
     public Person create(String name, User createdBy) {
-        return create(name, null, createdBy);
+        return create(null, name, createdBy);
     }
 
     @Transactional
@@ -70,9 +109,12 @@ public class PersonDBService extends DBService<Person, Long> {
         Person c = new Person();
         c.setName(name);
         c.setNameKey(nameKey(name));
+        
         c.setLastname(lastname);
         c.setLastnameKey(nameKey(lastname));
+        
         c.setTitle(name + " " + lastname);
+        
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);

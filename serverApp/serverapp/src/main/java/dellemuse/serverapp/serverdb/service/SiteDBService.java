@@ -1,8 +1,11 @@
 package dellemuse.serverapp.serverdb.service;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
@@ -17,10 +20,12 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Room;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.repository.PersonRepository;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -41,9 +46,14 @@ public class SiteDBService extends DBService<Site, Long> {
 
 	@PersistenceContext
 	private EntityManager entityManager;
+	
+	private final PersonRepository personRepository;
 
-	public SiteDBService(CrudRepository<Site, Long> repository, ServerDBSettings settings) {
+	
+
+	public SiteDBService(CrudRepository<Site, Long> repository, ServerDBSettings settings, PersonRepository personRepository) {
 		super(repository, settings);
+		 this.personRepository=personRepository;
 	}
 
 	@Transactional
@@ -65,19 +75,22 @@ public class SiteDBService extends DBService<Site, Long> {
 	@Transactional
 	public Site create(String name, Institution institution, Optional<String> shortName, Optional<String> address,
 			Optional<String> info, User createdBy) {
+
 		Site c = new Site();
+		
 		c.setName(name);
 		c.setTitle(name);
 
 		c.setInstitution(institution);
 		c.setNameKey(nameKey(name));
 		c.setTitleKey(nameKey(name));
-
+		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		shortName.ifPresent(c::setShortName);
 		address.ifPresent(c::setAddress);
+		
 		return getRepository().save(c);
 	}
 
@@ -96,6 +109,8 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setTitle(in.getTitle());
 		c.setTitleKey(nameKey(in.getTitle()));
 
+		c.setSubtitle(in.getSubtitle());
+		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
@@ -117,17 +132,14 @@ public class SiteDBService extends DBService<Site, Long> {
 		return getRepository().save(c);
 	}
 	
-	
-
     @Transactional
     public Iterable<Site> findAllSorted() {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Site> cq = cb.createQuery(getEntityClass());
         Root<Site> root = cq.from(getEntityClass());
         cq.orderBy(cb.asc( cb.lower(root.get("name"))));
-        return entityManager.createQuery(cq).getResultList();
+        return getEntityManager().createQuery(cq).getResultList();
     }
-
 
 
 	@Transactional
@@ -171,6 +183,7 @@ public class SiteDBService extends DBService<Site, Long> {
 
 		if (!getEntityManager().contains(src)) {
 			src = findById(src.getId()).get();
+			@SuppressWarnings("unused")
 			Institution i = src.getInstitution();
 		}
 	}
@@ -206,7 +219,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
 		cq.orderBy(cb.asc(root.get("title")));
 
-		return entityManager.createQuery(cq).getResultList();
+		return getEntityManager().createQuery(cq).getResultList();
 	}
 
 	@Transactional
@@ -217,9 +230,84 @@ public class SiteDBService extends DBService<Site, Long> {
 		cq.select(root).where(cb.equal(root.get("artExhibition").get("site").get("id"), siteId));
 		cq.orderBy(cb.asc(root.get("title")));
 
-		return entityManager.createQuery(cq).getResultList();
+		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	
+	/**
+	 * 
+	 * select name from person where id in (select person_id from artworkArtist where artwork_id in (select id from artwork where site_owner_id = 137));
+	 * 
+	 * select distinct p.lastname from person p where p.id in (select person_id from artworkartist AA, artwork A  where A.id=AA.artwork_id and A.site_owner_id=137) order by p.lastname;
+	 * 
+	 * @param siteId
+	 * @return
+	 */
+	
+	@Transactional
+	public Set<Person> getSiteArtists(Long siteId) {
+		
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtWork> cq = cb.createQuery(ArtWork.class);
+
+		Root<ArtWork> root = cq.from(ArtWork.class);
+		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
+
+		List<ArtWork> list = getEntityManager().createQuery(cq).getResultList();
+		
+		Set<Person> persons = new HashSet<Person>();
+		
+		list.forEach( i -> { 
+			i.getArtists().forEach( k -> 	
+			persons.add(k) );
+		});
+		
+		return persons;
+	}
+	
+	
+	
+	
+     
+	@Transactional
+    public List<Person> getArtistsBySiteId(Long siteId) {
+        return personRepository.findDistinctPersonsBySiteId(siteId);
+    }
+    
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * 
+	 
+	 
+	 public interface PersonRepository extends JpaRepository<Person, Long> {
+
+    @Query("""
+        SELECT DISTINCT aa.person
+        FROM ArtworkArtist aa
+        JOIN aa.artwork a
+        WHERE a.site.id = :siteId
+    """)
+    List<Person> findDistinctPersonsBySiteId(@Param("siteId") Long siteId);
+}
+
+
+
+
+
+	 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * 
+	 * @param siteId
+	 * @return
+	 */
+	
 	@Transactional
 	public List<GuideContent> getSiteGuideContent(Long siteId) {
 
@@ -230,7 +318,7 @@ public class SiteDBService extends DBService<Site, Long> {
 				.where(cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), siteId));
 		cq.orderBy(cb.asc(root.get("title")));
 
-		return entityManager.createQuery(cq).getResultList();
+		return getEntityManager().createQuery(cq).getResultList();
 	}
 
 	@Transactional
@@ -241,7 +329,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
 		cq.orderBy(cb.asc(root.get("title")));
 
-		return entityManager.createQuery(cq).getResultList();
+		return getEntityManager().createQuery(cq).getResultList();
 	}
 
 	@Transactional
@@ -252,7 +340,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		cq.select(root).where(cb.equal(root.get("floor").get("id"), floorId));
 		cq.orderBy(cb.asc(root.get("title")));
 
-		return entityManager.createQuery(cq).getResultList();
+		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
 	

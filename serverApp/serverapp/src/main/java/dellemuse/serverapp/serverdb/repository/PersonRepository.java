@@ -1,6 +1,12 @@
 package dellemuse.serverapp.serverdb.repository;
 
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import dellemuse.serverapp.serverdb.model.Person;
@@ -21,6 +27,35 @@ import dellemuse.serverapp.serverdb.model.Person;
  * 
  */
 @Repository
-public interface PersonRepository extends CrudRepository<Person, Long> {
+public interface PersonRepository extends ListCrudRepository<Person, Long> {
 
+	 
+	@Query("""
+	        SELECT DISTINCT aa.person
+	        FROM ArtWorkArtist aa
+	        JOIN aa.artwork a
+	        WHERE a.site.id = :siteId 
+	        order by aa.person.sortlastfirstname
+	    """)
+	    List<Person> findDistinctPersonsBySiteId(@Param("siteId") Long siteId);
+	 
+	
 }
+
+
+/**
+
+
+public interface SiteArtistsRepository extends JpaRepository<Person, Long> {
+
+	@Query("""
+	        SELECT DISTINCT aa.person
+	        FROM ArtworkArtist aa
+	        JOIN aa.artwork a
+	        WHERE a.site.id = :siteId
+	    """)
+	    List<Person> findDistinctPersonsBySiteId(@Param("siteId") Long siteId);
+	
+	
+}
+**/

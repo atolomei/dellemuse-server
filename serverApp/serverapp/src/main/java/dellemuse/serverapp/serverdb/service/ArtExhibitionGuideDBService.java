@@ -2,15 +2,18 @@ package dellemuse.serverapp.serverdb.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
@@ -39,12 +42,38 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         super(repository, settings);
     }
     
+    @Transactional
+	public Optional<ArtExhibitionGuide> findByIdWithDeps(Long id) {
+
+		Optional<ArtExhibitionGuide> o = super.findById(id);
+
+		if (o.isEmpty())
+			return o;
+
+		ArtExhibitionGuide a = o.get();
+
+		a.setDependencies(true);
+
+		a.getArtExhibition().getDisplayname();
+		
+		Resource photo = a.getPhoto();
+		
+		if (photo != null)
+			photo.getBucketName();
+
+		return o;
+	}
+
+    
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
     }
 
+    
+    
+    
+    
     @Transactional
     @Override
     public ArtExhibitionGuide create(String name, User createdBy) {

@@ -43,14 +43,7 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 	private WebMarkupContainer titleTextContainer;
 	private WebMarkupContainer textContainer;
 	
-	
-	//public ObjectListItemPanel(String id) {
-	//	this(id, null);
-	//}
-
-	//public ObjectListItemPanel(String id, IModel<T> model) {
-	//	super(id, model);
-	//}
+	 
 
 	public ObjectListItemPanel(String id, IModel<T> model, ListPanelMode mode) {
 		super(id, model);
@@ -144,6 +137,10 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 				ObjectListItemPanel.this.onClick();
 			}
 		};	
+		
+		if (getTitleLinkCss()!=null)
+			titleLink.add( new org.apache.wicket.AttributeModifier( "class",getTitleLinkCss()));
+		
 		this.titleTextContainer.add(titleLink);
 
 		Label title = new Label("title", getObjectTitle() );
@@ -156,6 +153,11 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 		this.textContainer.setVisible( this.mode!=ListPanelMode.TITLE);
 		
 	}
+
+	protected String getTitleLinkCss() {
+		return "title-link";
+	}
+
 
 	protected IModel<String> getObjectTitle() {
 		return new Model<String> (getModel().getObject().getDisplayname() );

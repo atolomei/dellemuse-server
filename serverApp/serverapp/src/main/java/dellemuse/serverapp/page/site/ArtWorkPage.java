@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
@@ -13,6 +16,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Url;
+import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.UrlResourceReference;
 import org.apache.wicket.util.string.StringValue;
@@ -31,15 +35,23 @@ import dellemuse.model.ref.RefPersonModel;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
+import dellemuse.serverapp.page.ObjectPage;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.person.PersonPage;
+import dellemuse.serverapp.page.user.UserEditor;
+import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
@@ -47,13 +59,19 @@ import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
+import io.odilon.util.Check;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.listNavigator.ListNavigator;
+import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
+import wktui.base.DummyBlockPanel;
 import wktui.base.InvisiblePanel;
 
 /**
@@ -63,25 +81,21 @@ import wktui.base.InvisiblePanel;
  */
 
 @MountPath("/artwork/${id}")
-public class ArtWorkPage extends BasePage {
+public class ArtWorkPage extends ObjectPage<ArtWork> {
 
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(ArtWorkPage.class.getName());
 
-	private StringValue stringValue;
-
 	private IModel<Site> siteModel;
-	private IModel<ArtWork> artWorkModel;
-	private List<IModel<ArtWork>> list;
 
-	private Link<ArtWork> imageLink;
-	private Image image;
-	private WebMarkupContainer imageContainer;
+	private ArtWorkMainPanel editor;
 
-	private ArtWorkEditor editor;
-
-	private int current = 0;
+	
+	@Override
+	protected void onEdit(AjaxRequestTarget target) {
+		editor.getEditor().onEdit(target);
+	}
 
 	public ArtWorkPage() {
 		super();
@@ -89,65 +103,126 @@ public class ArtWorkPage extends BasePage {
 
 	public ArtWorkPage(PageParameters parameters) {
 		super(parameters);
-		stringValue = getPageParameters().get("id");
 	}
 
 	public ArtWorkPage(IModel<ArtWork> model) {
 		this(model, null);
 	}
-
+	
 	public ArtWorkPage(IModel<ArtWork> model, List<IModel<ArtWork>> list) {
-		setArtWorkModel(model);
-
-		setList(list);
-
-		if (list != null) {
-			int n = 0;
-			for (IModel<ArtWork> m : list) {
-				if (model.getObject().getId().equals(m.getObject().getId())) {
-					this.current = n;
-					break;
-				}
-				n++;
-			}
-		}
-		getPageParameters().add("id", model.getObject().getId().toString());
+		super( model, list);
+	}
+	
+		
+	
+	@Override
+	protected Optional<ArtWork> getObject(Long id) {
+		return getArtWork( id );
 	}
 
-	/**
-	 * 
-	 * 
-	 */
+
 	@Override
-	public void onInitialize() {
-		super.onInitialize();
-
-		if (getArtWorkModel() == null) {
-			if (stringValue != null) {
-				Optional<ArtWork> o_aw = getArtWork(Long.valueOf(stringValue.toLong()));
-				if (o_aw.isPresent()) {
-					setArtWorkModel(new ObjectModel<ArtWork>(o_aw.get()));
-				}
-			}
-		}
-
-		if (getArtWorkModel() == null) {
-			throw new RuntimeException("no ArtWork");
-		}
-		
-		if (!getArtWorkModel().getObject().isDependencies()) {
-			Optional<ArtWork> o_i = getArtWorkDBService().findByIdWithDeps(getArtWorkModel().getObject().getId());
-			setArtWorkModel(new ObjectModel<ArtWork>(o_i.get()));
-		}
-
-		setSiteModel(new ObjectModel<Site>( getArtWorkModel().getObject().getSite() ));
-
-		if (!getSiteModel().getObject().isDependencies()) {
-			Optional<Site> o_i = getSiteDBService().findByIdWithDeps(getSiteModel().getObject().getId());
-			setSiteModel(new ObjectModel<Site>(o_i.get()));
-		}
-
+	protected IModel<String> getPageTitle() {
+		return new Model<String> (getModel().getObject().getName());
+	}
 	
+
+	static final int PANEL_EDITOR = 0;
+	static final int PANEL_AUDIT = 1;
+	
+	@Override
+	protected List<ToolbarItem> getToolbarItems() {
+	
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
+		
+		AjaxButtonToolbarItem<Void> edit = new AjaxButtonToolbarItem<Void>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onCick(AjaxRequestTarget target) {
+				ArtWorkPage.this.togglePanel(PANEL_EDITOR, target);
+				ArtWorkPage.this.onEdit(target);
+			}
+			@Override
+			public IModel<String> getButtonLabel() {
+				return getLabel("edit");
+			}
+		};
+		
+		
+		
+		
+		
+		
+		edit.setAlign(Align.TOP_LEFT);
+		
+		list.add(edit);		
+		
+		
+		
+
+		AjaxButtonToolbarItem<Person> audit = new AjaxButtonToolbarItem<Person>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onCick(AjaxRequestTarget target) {
+				ArtWorkPage.this.togglePanel(PANEL_AUDIT, target);
+			}
+			@Override
+			public IModel<String> getButtonLabel() {
+				return getLabel("audit");
+			}
+		};
+		audit.setAlign(Align.TOP_RIGHT);
+		list.add(audit);
+		
+		
+		
+		
+		
+		
+		return list;
+	
+	}
+	
+	
+	protected List<ITab> getInternalPanels() {
+		
+		List<ITab> tabs = new ArrayList<ITab>();
+		
+		AbstractTab tab_1=new AbstractTab(Model.of("editor")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getEditor(panelId);
+			}
+		};
+		tabs.add(tab_1);
+		
+		AbstractTab tab_2=new AbstractTab(Model.of("audit")) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return new DummyBlockPanel(panelId,getLabel("audit"));
+			}
+		};
+		tabs.add(tab_2);
+	
+		return tabs;
+	}
+	
+	protected Panel getEditor(String id) {
+		if (this.editor==null)
+			editor = new ArtWorkMainPanel(id, getModel());
+		return (editor);
+	}
+	
+
+	@Override
+	protected void addHeaderPanel() {
 		
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
@@ -156,103 +231,63 @@ public class ArtWorkPage extends BasePage {
 		bc.addElement(new HREFBCElement("/site/artwork/" + getSiteModel().getObject().getId().toString(),
 				getLabel("artworks")));
 
-		bc.addElement(new BCElement(new Model<String>(getArtWorkModel().getObject().getDisplayname())));
+		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
 
-		PageHeaderPanel<ArtWork> ph = new PageHeaderPanel<ArtWork>("page-header", getArtWorkModel(),
-				new Model<String>(getArtWorkModel().getObject().getDisplayname()));
+		JumboPageHeaderPanel<ArtWork> ph = new JumboPageHeaderPanel<ArtWork>("page-header", getModel(),
+				new Model<String>(getModel().getObject().getDisplayname()));
 
-		ph.setBreadCrumb(bc);
-		add(ph);
-		add(new GlobalTopPanel("top-panel"));
-		add(new GlobalFooterPanel<>("footer-panel"));
-
-		this.editor = new ArtWorkEditor("artworkEditor", getArtWorkModel());
-		add(this.editor);
+		if (getModel().getObject().getArtists()!=null) 
+			ph.setTagline(Model.of(getArtistStr(getModel().getObject())));
 		
-		
-		
-		
-		
-		/**
-		StringBuilder info = new StringBuilder();
-		int n = 0;
-		for (Person p : getArtWorkModel().getObject().getArtists()  ) {
-			if (n++ > 0)
-					info.append(", ");
-				info.append(p.getDisplayname());
-		}
-		ph.setTagline(new Model<String>(info.toString()));
-
-		if (isInfoGral()) {
-			Label infoGral = new Label("infoGral", getInfoGral());
-			infoGral.setEscapeModelStrings(false);
-			addOrReplace(infoGral);
-		} else {
-			addOrReplace(new InvisiblePanel("infoGral"));
-		}
-		
-		
-		add( new Label("info", "info"));
-		
-		if (getList() != null) {
-			ListNavigator<ArtWork> list = new ListNavigator<ArtWork>("navigator", this.current, getList()) {
+		if (getModel().getObject().getPhoto()!=null)
+			ph.setPhotoModel(new ObjectModel<Resource>( getModel().getObject().getPhoto()));
+	
+		if (getList()!=null && getList().size()>0) {
+			Navigator<ArtWork> nav = new Navigator<ArtWork>("navigator", getCurrent(), getList()) {
 				private static final long serialVersionUID = 1L;
-
 				@Override
-				protected IModel<String> getLabel(IModel<ArtWork> model) {
-					return new Model<String>(model.getObject().getDisplayname());
-				}
-
-				@Override
-				protected void navigate(int current) {
-					setResponsePage(new ArtWorkPage(getList().get(current), getList()));
+				public void navigate(int current) {
+					setResponsePage( new ArtWorkPage( getList().get(current), getList() ));
 				}
 			};
-			add(list);
-		} else {
-			add(new InvisiblePanel("navigator"));
+			bc.setNavigator(nav);
 		}
-
-		this.imageContainer = new WebMarkupContainer("imageContainer");
-		this.imageContainer.setVisible(getArtWorkModel().getObject().getPhoto() != null);
-		addOrReplace(this.imageContainer);
-
-		this.imageLink = new Link<>("image-link", getArtWorkModel()) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				// GuideContentPage.this.onImageClick(getModel());
-			}
-		};
-		this.imageContainer.add(this.imageLink);
-
-		// if (getImageSrc(getArtWorkModel()) != null) {
-		// Url url = Url.parse(getImageSrc(getArtWorkModel()));
-		// UrlResourceReference resourceReference = new UrlResourceReference(url);
-		// this.image = new Image("image", resourceReference);
-		// this.imageLink.addOrReplace(this.image);
-		// } else {
-		this.image = new Image("image", new UrlResourceReference(Url.parse("")));
-		this.image.setVisible(false);
-		this.imageLink.addOrReplace(image);
-		// }
-		///
-		///
-		 */
-
+		
+		ph.setBreadCrumb(bc);
+		add(ph);
 	}
 
+
+	@Override
+	protected IRequestablePage getObjectPage(IModel<ArtWork> model, List<IModel<ArtWork>> list) {
+	 	return new ArtWorkPage( model, list );
+	}
+	
+	protected void setUpModel() {
+		super.setUpModel();
+		
+		if (!getModel().getObject().isDependencies()) {
+			Optional<ArtWork> o_i = getArtWorkDBService().findByIdWithDeps(getModel().getObject().getId());
+			setModel(new ObjectModel<ArtWork>(o_i.get()));
+		}
+		
+		setSiteModel(new ObjectModel<Site>( getModel().getObject().getSite() ));
+		
+		if (!getSiteModel().getObject().isDependencies()) {
+			Optional<Site> o_i = getSiteDBService().findByIdWithDeps(getSiteModel().getObject().getId());
+			setSiteModel(new ObjectModel<Site>(o_i.get()));
+		}
+	}
+
+	
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
+	}
+
+	
 	public IModel<Site> getSiteModel() {
 		return siteModel;
-	}
-
-	public void setArtWorkModel(IModel<ArtWork> model) {
-		this.artWorkModel = model;
-	}
-
-	public IModel<ArtWork> getArtWorkModel() {
-		return artWorkModel;
 	}
 
 	public void setSiteModel(IModel<Site> siteModel) {
@@ -265,47 +300,33 @@ public class ArtWorkPage extends BasePage {
 
 		if (siteModel != null)
 			siteModel.detach();
-
-		if (artWorkModel != null)
-			artWorkModel.detach();
-
+		
+		editor.detach();
+		
 	}
 	
-	public List<IModel<ArtWork>> getList() {
-		return list;
-	}
-
-	
+	/**
 	private String getInfoGral() {
-		return TextCleaner.clean(getArtWorkModel().getObject().getSpec() + " <br/>" + " id: "
-				+ getArtWorkModel().getObject().getId().toString());
+		return TextCleaner.clean(getModel().getObject().getSpec() + " <br/>" + " id: "
+				+ getModel().getObject().getId().toString());
 	}
 
 	private boolean isInfoGral() {
-		return  getArtWorkModel() != null && 
-				getArtWorkModel().getObject() != null && 
-				getArtWorkModel().getObject().getId() != null || 
-				getArtWorkModel().getObject().getSpec() != null;
+		return  getModel() != null && 
+				getModel().getObject() != null && 
+				getModel().getObject().getId() != null || 
+				getModel().getObject().getSpec() != null;
 	}
-
-	public void setList(List<IModel<ArtWork>> list) {
-		this.list = list;
-	}
-
-
-	private String getImageSrc(IModel<ArtWork> model) {
-
-		// ArtWorkDBService db = (ArtWorkDBService)
-		// ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+ **/
+	
+	protected String getImageSrc(IModel<ArtWork> model) {
 
 		try {
-
-			if (getArtWorkModel().getObject().getPhoto() == null)
+			if (getModel().getObject().getPhoto() == null)
 				return null;
-
 			ResourceThumbnailService ths = (ResourceThumbnailService) ServiceLocator.getInstance()
 					.getBean(ResourceThumbnailService.class);
-			return ths.getPresignedThumbnailUrl(getArtWorkModel().getObject().getPhoto(), ThumbnailSize.MEDIUM);
+			return ths.getPresignedThumbnailUrl(getModel().getObject().getPhoto(), ThumbnailSize.MEDIUM);
 
 		} catch (Exception e) {
 			logger.error(e);
@@ -314,8 +335,10 @@ public class ArtWorkPage extends BasePage {
 	}
 
 	private boolean isAudio() {
-		return getArtWorkModel().getObject().getAudio() != null;
+		return getModel().getObject().getAudio() != null;
 	}
+
+ 
 
 	/**
 	protected List<Person> getArtists(ArtWork aw) {

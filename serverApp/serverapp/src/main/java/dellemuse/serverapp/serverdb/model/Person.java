@@ -55,7 +55,14 @@ public class Person extends DelleMuseObject {
     private String sortlastfirstname;
     
     
+    @Column(name = "webpage")
+    private String webpage;
+    
+    
     /**
+     * 
+     * alter table person add column webpage character varying (2048);
+     * 
      * Lazy gives JSON error (No Session) when serializing
      * 
      * hay que probar ->
@@ -283,6 +290,14 @@ public class Person extends DelleMuseObject {
 			str.append(getName());
 		}
 		return str.toString();
+	}
+
+	public String getWebpage() {
+		return webpage;
+	}
+
+	public void setWebpage(String webpage) {
+		this.webpage = webpage;
 	}
 
  

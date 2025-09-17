@@ -33,3 +33,5 @@ replay_pid*
 ./server/tmp
 ./server/logs
 ./server/target
+./servarpp/tmp/*
+

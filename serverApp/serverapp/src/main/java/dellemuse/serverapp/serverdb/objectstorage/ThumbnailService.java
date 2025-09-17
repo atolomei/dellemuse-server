@@ -101,6 +101,8 @@ public class ThumbnailService extends BaseService {
                 return ret;
             }
 
+            
+            
             if (ret.th_w != 0 && ret.th_h != 0) {
 
                 // Si la imagen es más chica que el thumbnail requerido -> devuelve la imagen
@@ -111,20 +113,35 @@ public class ThumbnailService extends BaseService {
                     return ret;
                 }
 
-                // Si la imagen es más grande que el thumbnail requerido, recorta
-                //
+                
+                if (size==ThumbnailSize.EYEFISH) {
+                
+                	int delta_w = 0;
+                    int delta_h = (ret.img_h - ret.th_h);
 
-                int delta_w = (ret.img_w - ret.th_w);
-                int delta_h = (ret.img_h - ret.th_h);
+                    if (delta_h < delta_w) {
+                        ret.ho = ret.th_h;
+                        ret.wo = (ret.img_h > 0) ? ret.img_w * ret.ho / ret.img_h : (int) (ret.th_w);
+                    } else {
+                        ret.wo = ret.th_w;
+                        ret.ho = (ret.img_w > 0) ? ret.img_h * ret.wo / ret.img_w : (int) (ret.th_h);
+                    }
 
-                if (delta_h < delta_w) {
-                    ret.ho = ret.th_h;
-                    ret.wo = (ret.img_h > 0) ? ret.img_w * ret.ho / ret.img_h : (int) (ret.th_w);
-                } else {
-                    ret.wo = ret.th_w;
-                    ret.ho = (ret.img_w > 0) ? ret.img_h * ret.wo / ret.img_w : (int) (ret.th_h);
                 }
+                else {
+                	
+                    int delta_w = (ret.img_w - ret.th_w);
+                    int delta_h = (ret.img_h - ret.th_h);
 
+                    if (delta_h < delta_w) {
+                        ret.ho = ret.th_h;
+                        ret.wo = (ret.img_h > 0) ? ret.img_w * ret.ho / ret.img_h : (int) (ret.th_w);
+                    } else {
+                        ret.wo = ret.th_w;
+                        ret.ho = (ret.img_w > 0) ? ret.img_h * ret.wo / ret.img_w : (int) (ret.th_h);
+                    }
+                }
+ 
                 return ret;
             }
 
