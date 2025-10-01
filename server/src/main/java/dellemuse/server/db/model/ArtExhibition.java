@@ -82,10 +82,14 @@ public class ArtExhibition extends DelleMuseObject {
 	@Column(name = "location")
 	private String location;
 
+	@Column(name = "map")
+	private String map;
+
+	
 	@OneToMany(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
 	@JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
-	@OrderBy("lower(title) ASC")
+	@OrderBy("lower(name) ASC")
 	@JsonProperty("artExhibitionItems")
 	private List<ArtExhibitionItem> artExhibitionItems;
 
@@ -269,6 +273,14 @@ public class ArtExhibition extends DelleMuseObject {
 
 	public void setWebsite(String website) {
 		this.website = website;
+	}
+
+	public String getMap() {
+		return map;
+	}
+
+	public void setMap(String map) {
+		this.map = map;
 	}
 
 };

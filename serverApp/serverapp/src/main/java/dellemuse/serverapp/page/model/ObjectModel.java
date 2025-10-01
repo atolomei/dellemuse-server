@@ -20,47 +20,70 @@ public class ObjectModel<T extends DelleMuseObject> implements IModel<T> {
 	private static final long serialVersionUID = 1L;
 	
 	private Long id;
-	private Class<?> clazz;
+	private Class<?> clazza;
 	private T object;
 	private boolean detached = false;
 	
 		
 	public ObjectModel(T object) {
 		this.id=object.getId();
-		 setObject(object);
+		
+		if (clazza==null) {
+			String classname = object.getClass().getName();
+			int i = classname.indexOf("_");
+			if (i>0) classname = classname.substring(0, i);
+			i = classname.indexOf("$");
+			if (i>0) classname = classname.substring(0, i);
+		try {
+			clazza = Class.forName(classname);
+			} catch (ClassNotFoundException e) {
+			 throw new RuntimeException(e);
+			}
+		}
+		setObject(object);
 	}
-	
 	
 	@SuppressWarnings("unchecked")
 	@Override
 	public T getObject()  {
 
-		 
-		if (detached) {
-			if (id==null)
-				throw new RuntimeException("id: " +id +(clazz!=null ? (" | class:"+clazz.getName()) : " | no class"));
+		if (this.detached) {
 			
-			DBService<?,Long> service = DBService.getDBService(clazz);
-			Optional<?> o = service.findById(getId());
+			if (this.id==null)
+				throw new RuntimeException("id: " +id +(getObjectClass()!=null ? (" | class:"+getObjectClass().getName()) : " | no class"));
 			
+			 // DBService<?,Long> service = DBService.getDBService(getObjectClass());
+			 // Optional<?> o =	service.findById(getId());
+			
+			Optional<?> o =	load();
+						
 			if (o.isPresent()) {
-				detached = false;
-				object = (T) o.get();
+				this.detached = false;
+				this.object = (T) o.get();
 			}
 
-			if (object==null)
-				throw new RuntimeException("id: " +id +(clazz!=null ? (" | class:"+clazz.getName()) : " | no class"));
+			if (this.object==null)
+				throw new RuntimeException("id: " +id +(getObjectClass()!=null ? (" | class:"+getObjectClass().getName()) : " | no class"));
 			
 		}	
-		return object;
+		return this.object;
 	}
 
+	protected Optional<?> load() {
+		DBService<?,Long> service = DBService.getDBService(getObjectClass());
+		Optional<?> o =	service.findById(getId());
+		return o;
+	}
+	
+	protected Class<?> getObjectClass() {
+		return this.clazza;
+	}
+	
 	
 	public void setObject(T object) {
 		this.object = object;
 		if (object!=null)
 			id = ((DelleMuseObject) object).getId();
-	
 	}
 	
 	@Override
@@ -70,15 +93,16 @@ public class ObjectModel<T extends DelleMuseObject> implements IModel<T> {
 			if (detached) 
 				return;
 			
-			if (clazz==null) {
+		 
+			if (clazza==null) {
 				String classname = object.getClass().getName();
 				int i = classname.indexOf("_");
 				if (i>0) classname = classname.substring(0, i);
 				i = classname.indexOf("$");
 				if (i>0) classname = classname.substring(0, i);
-				clazz = Class.forName(classname);
+				clazza = Class.forName(classname);
 			}
-		
+			 
 			id= ((DelleMuseObject)object).getId();
 			
 			detached = true;
@@ -87,8 +111,8 @@ public class ObjectModel<T extends DelleMuseObject> implements IModel<T> {
 		catch (java.lang.NullPointerException e1 ) {
 			detached = true;
 		}
-		catch (ClassNotFoundException  e2 ) {
-			throw new RuntimeException(e2);
+		 catch (ClassNotFoundException  e2 ) {
+			 throw new RuntimeException(e2);
 		}
 	}
 	

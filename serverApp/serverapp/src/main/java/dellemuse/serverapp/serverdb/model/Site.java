@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -150,7 +151,7 @@ public class Site extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource map;
 
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = Floor.class)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = Floor.class)
 	@JoinColumn(name = "site_id", nullable = true, insertable = false)
 	@OrderBy("floorNumber ASC")
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)

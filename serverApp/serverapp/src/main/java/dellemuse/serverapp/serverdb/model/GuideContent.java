@@ -23,7 +23,7 @@ import jakarta.persistence.Table;
 public class GuideContent extends DelleMuseObject {
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
-    @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = false)
+    @JoinColumn(name = "artExhibitionGuide_id", nullable = false, insertable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
@@ -31,7 +31,7 @@ public class GuideContent extends DelleMuseObject {
     private ArtExhibitionGuide artExhibitionGuide;
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
-    @JoinColumn(name = "artExhibitionItem_id", nullable = true, insertable = false)
+    @JoinColumn(name = "artExhibitionItem_id", nullable = true, insertable = true)
     @JsonManagedReference
     @JsonBackReference
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)

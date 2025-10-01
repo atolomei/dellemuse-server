@@ -1,86 +1,44 @@
 <html xmlns:wicket="http://wicket.apache.org">
 <body>
 	<wicket:extend>
-		
+
 		<section wicket:id="top-panel" />
-		
+
 		<section class="container-xxl main">
-		
-			<div style="float: left; width: 100%;" class="mb-0" wicket:id="page-header"></div>
-		
-	
-		
-			<!-- div wicket:id="toolbarContainer" class="row">
-				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-				
-					<div  wicket:id="toolbar" class="mt-3 mb-0 float-start w-100 bg-body-primary">
-						
-						<div wicket:id="editContainer"  class="d-inline-block float-start">
-							<a class="btn btn-sm btn-outline-primary" href="#" wicket:id="editLink"> <span class="pb-2 pt-2" wicket:id="edit"></span></a>
-						</div>
-						<div wicket:id="submenuContainer" class="d-inline-block float-end"> 
-							<div class="pt-1 pb-1" wicket:id="submenu" /> 
-						</div>
-					</div>
-				</div>
-			</div-->
-	
-	
-	
-				<div wicket:id="toolbarContainer" class="row">
-					<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-						<div class="mt-1 mb-1 float-start w-100 bg-body-primary">
-							<div class="d-block float-start text-sm-start text-start w-100" wicket:id="toolbarItems" />
-						</div>
-					<!-- div  wicket:id="toolbar" class="mt-3 mb-3 float-start w-100 bg-body-primary" -->
-						<!-- div wicket:id="createContainer" class="d-inline-block float-start"> 
-							<a class="btn btn-sm btn-outline-primary" href="#" wicket:id="create"> <span wicket:id="create"></span></a>
-						</div -->
-						<!-- div wicket:id="submenuContainer" class=" d-inline-block float-end"> 
-							<div wicket:id="submenu" /> 
-						</div-->
-					<!--  /div -->
-		
-					</div>
-				</div>
-	
-	
-	
-			
-			<!--  div class="row">
-					<div class="mb-3 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<h2>
-							<wicket:message key="general-info" />
-						</h2>
-					</div>
-			</div -->
-			
-			
+
 			<div class="row">
-					<div class="mt-0 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<div wicket:id="editor" />
-					</div>
+				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12"> 
+					<div style="width:100%; float:left;" wicket:id="page-header"></div>
+				</div>
 			</div>
 			
+			<div wicket:id="toolbarContainer" class="row">
+				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+					<div class="mt-1 mb-1 float-start w-100 bg-body-primary">
+						<div class="d-block float-start text-sm-start text-start w-100" wicket:id="toolbarItems" />
+					</div>
+				</div>
+			</div>
+
 			<div wicket:id="internalPanelContainer" class="row">
-					<div class="mt-0 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-						<div wicket:id="internalPanel" />				
-					</div>
+				<div class="mt-0 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div wicket:id="internalPanel" />
+				</div>
 			</div>
-			
-			
+
 		</section>
-		
-		<section wicket:id="navigatorContainer" class="container-fluid bg-body-tertiary border-top" style="width: 100%; float: left;">
+
+		<section wicket:id="navigatorContainer" class="container-fluid bg-body-tertiary border-top"
+			style="width: 100%; float: left;">
 			<div class="container">
 				<div class="container mt-4 mb-4">
 					<div wicket:id="navigator" />
 				</div>
 			</div>
 		</section>
-	
+
 		<section style="float: left; width: 100%;" class="hide-sm" wicket:id="footer-panel" />
-	
+
 	</wicket:extend>
 </body>
 </html>

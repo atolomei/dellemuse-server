@@ -2,6 +2,7 @@ package dellemuse.serverapp.serverdb.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
@@ -32,18 +33,54 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     public GuideContentDBService(CrudRepository<GuideContent, Long> repository, ServerDBSettings settings) {
         super(repository,  settings);
     }
+    
+    
+    @Transactional
+    public boolean existsInGuide(ArtExhibitionGuide guide, ArtExhibitionItem item) {
+    	
+    	 CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+         CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
+         Root<GuideContent> root = cq.from(getEntityClass());
+         cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("id"), item.getId() ));
+         return getEntityManager().createQuery(cq).getResultList().size()>0;
+    }
 
     @Transactional
-    public GuideContent create(ArtExhibitionGuide guide, ArtExhibitionItem item, String name,User createdBy) {
-        GuideContent c = new GuideContent();
-        c.setName(name);
-        c.setNameKey(nameKey(name));
+    public List<GuideContent> findByArtExhibitionItem(ArtExhibitionGuide guide, ArtExhibitionItem item) {
+    	
+    	 CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+         CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
+         Root<GuideContent> root = cq.from(getEntityClass());
+         cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("id"), item.getId() ));
+         return getEntityManager().createQuery(cq).getResultList();
+    }
+
+    @Transactional
+    public GuideContent create(ArtExhibitionGuide guide, ArtExhibitionItem item, User createdBy) {
+        
+    	boolean exists = existsInGuide(guide, item);
+    	
+    	if (exists) {
+    		List<GuideContent> list = findByArtExhibitionItem( guide, item);
+    		
+    		if (list.size()>0)
+				return list.get(0);
+			
+    		return null;
+    	}
+    	
+    	
+    	GuideContent c = new GuideContent();
+        c.setName(item.getName());
+        c.setNameKey(nameKey(item.getName()));
+
         c.setArtExhibitionGuide(guide);
         c.setArtExhibitionItem(item);
+        
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
-        
+         
         return getRepository().save(c);
         
     }
@@ -51,8 +88,41 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
     }
+
+	@Transactional
+	public void  delete(GuideContent c) {
+		this.getRepository().delete(c);
+	}
+
+	@Transactional
+	public Optional<GuideContent> findWithDeps(Long id) {
+
+		Optional<GuideContent> o = super.findById(id);
+
+		if (o.isEmpty())
+			return o;
+
+		GuideContent a = o.get();
+
+		if (a.getArtExhibitionGuide() != null)
+			a.getArtExhibitionGuide().getDisplayname();
+
+		if (a.getArtExhibitionItem()!=null)
+			a.getArtExhibitionItem().getDisplayname();
+		
+		if (a.getPhoto() != null)
+			a.getPhoto().getBucketName();
+
+		if (a.getAudio() != null)
+			a.getAudio().getBucketName();
+
+		a.setDependencies(true);
+
+		return o;
+	}
+
+	
     /**
      * <p>
      * Annotation Transactional is required to store values into the Database

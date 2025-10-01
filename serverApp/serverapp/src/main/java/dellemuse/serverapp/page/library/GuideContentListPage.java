@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -25,14 +26,15 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artexhibitionguide.GuideContentPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.site.GuideContentPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -52,6 +54,9 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
@@ -73,29 +78,29 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 	public GuideContentListPage() {
 		super();
-		setCreate(true);
+		 
 	}		
 	
 	
 
 	public GuideContentListPage(PageParameters parameters) {
 		 super(parameters);
-		 setCreate(true);
+		 
 	 }
 	
 	 protected void addHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new BCElement(getLabel("guide-contents")));
-		PageHeaderPanel<Void> ph = new PageHeaderPanel<Void>("page-header", null, getLabel("guide-contents"));
+		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("guide-contents"));
 		ph.setBreadCrumb(bc);
+		
+		 ph.setContext(getLabel("guide-contents"));
+		
 		add(ph);
 	}
 
-	@Override
-	public IRequestablePage getObjectPage(IModel<GuideContent> model) {
-		return null;
-	}
+	 
 
 	@Override
 	public Iterable<GuideContent> getObjects() {
@@ -130,6 +135,66 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 	
 	
 	@Override
+	protected WebMarkupContainer getObjectMenu(IModel<GuideContent> model) {
+		
+		NavDropDownMenu<GuideContent> menu = new NavDropDownMenu<GuideContent>("menu", model, null);
+		
+		menu.setOutputMarkupId(true);
+
+		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<GuideContent> getItem(String id) {
+
+				return new AjaxLinkMenuItem<GuideContent>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit");
+					}
+				};
+			}
+		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<GuideContent> getItem(String id) {
+
+				return new AjaxLinkMenuItem<GuideContent>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+			}
+		});
+		return menu;
+	}
+	
+	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
@@ -157,7 +222,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 	}
    
 	@Override
-	protected String getImageSrc(IModel<GuideContent> model) {
+	protected String getObjectImageSrc(IModel<GuideContent> model) {
 		 if (model.getObject().getPhoto()!=null) {
 		 		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
 		 	    return getPresignedThumbnailSmall(photo);

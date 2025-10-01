@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -27,6 +28,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
@@ -50,6 +52,9 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
@@ -70,27 +75,27 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 	
 	public  ArtWorkListPage() {
 		super();
-		setCreate(true);
+		 
 	}		
 	
 	public  ArtWorkListPage(PageParameters parameters) {
 		 super(parameters);
-		 setCreate(true);
+		  
 	 }
 	
 	 protected void addHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new BCElement(getLabel("artworks")));
-		PageHeaderPanel<Void> ph = new PageHeaderPanel<Void>("page-header", null, getLabel("artworks"));
+		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("artworks"));
 		ph.setBreadCrumb(bc);
+		
+		 ph.setContext(getLabel("artworks"));
+			
 		add(ph);
 	}
 
-	@Override
-	public IRequestablePage getObjectPage(IModel<ArtWork> model) {
-		return null;
-	}
+	 
 
 	@Override
 	public Iterable<ArtWork> getObjects() {
@@ -128,6 +133,68 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 	public IModel<String> getListPanelLabel() {
 		return null;
 	}
+	
+	
+	@Override
+	protected WebMarkupContainer getObjectMenu(IModel<ArtWork> model) {
+		
+		NavDropDownMenu<ArtWork> menu = new NavDropDownMenu<ArtWork>("menu", model, null);
+		
+		menu.setOutputMarkupId(true);
+
+		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtWork> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtWork>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit");
+					}
+				};
+			}
+		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtWork> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtWork>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+			}
+		});
+		return menu;
+	}
+	
 
 	 
 	@Override
@@ -149,7 +216,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 
 	
 	@Override
-	protected String getImageSrc(IModel<ArtWork> model) {
+	protected String getObjectImageSrc(IModel<ArtWork> model) {
 		 if (model.getObject().getPhoto()!=null) {
 		 		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
 		 	    return getPresignedThumbnailSmall(photo);
@@ -162,7 +229,10 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		ArtWork in = getArtWorkDBService().create("new", getUserDBService().findRoot());
 			IModel<ArtWork> m =  new ObjectModel<ArtWork>(in);
 			getList().add(m);
-			setResponsePage( new ArtWorkPage(m, getList()));
+			
+			ArtWorkPage a=new ArtWorkPage(m, getList());
+			//a.se
+			setResponsePage(a);
 	}
 
 }

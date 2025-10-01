@@ -8,15 +8,19 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.SimpleWicketEvent;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
  
 
 public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site> {
@@ -30,9 +34,9 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 		
 		if (getModel()!=null && getModel().getObject()!=null) {
 			if (model.getObject().getShortName()!=null)
-				setLabel( Model.of(model.getObject().getShortName()) );
+				setLabel( getLabel( "site-header", model.getObject().getShortName()) );
 		else
-			setLabel( Model.of(model.getObject().getDisplayname()) );
+			setLabel( getLabel( "site-header", model.getObject().getDisplayname()) );
 		}		
 	}
 
@@ -51,6 +55,9 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 	public void onInitialize() {
 		super.onInitialize();
 		
+		
+		
+		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -62,12 +69,35 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick()  {
-						setResponsePage( new SiteInfoPage( getModel()));
+						fire(new SimpleWicketEvent(ServerAppConstant.action_site_home));
 					}
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("info");
+						return getLabel("home");
+					}
+				};
+			}
+		});
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new LinkMenuItem<Site>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick()  {
+						setResponsePage(new SiteInfoPage( getModel()));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("site-general-info");
 					}
 				};
 			}
@@ -151,6 +181,52 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick()  {
+						setResponsePage( new SiteArtExhibitionsListPage( getModel() ));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("exhibitions");
+					}
+				};
+			}
+		});
+		
+		 /**
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new LinkMenuItem<Site>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick()  {
+						setResponsePage( new SiteGuideContentsListPage( getModel() ));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("contents");
+					}
+				};
+			}
+		});
+		**/
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new LinkMenuItem<Site>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick()  {
 						setResponsePage( new SiteArtWorkListPage( getModel() ));
 					}
 
@@ -186,29 +262,29 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				};
 			}
 		});
-	 
+		
+		
+		
+	
+	
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
-
+			
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public MenuItemPanel<Site> getItem(String id) {
-
-				return new LinkMenuItem<Site>(id, getModel()) {
+				 
+				return new io.wktui.nav.menu.SeparatorMenuItem<Site>(id) {
 					private static final long serialVersionUID = 1L;
+					 
 					@Override
-					public void onClick()  {
-						setResponsePage( new SiteGuideContentsListPage( getModel() ));
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("contents");
+					public boolean isVisible() {
+						return true;
 					}
 				};
 			}
 		});
-	
+ 
 	
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 

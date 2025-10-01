@@ -61,8 +61,9 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     
     
     
-   	@Transactional
-       public Optional<Resource> findByIdWithDeps(Long id) {
+   	@SuppressWarnings("unused")
+	@Transactional
+       public Optional<Resource> findWithDeps(Long id) {
        
    		Optional<Resource> o_i = super.findById(id);
    		

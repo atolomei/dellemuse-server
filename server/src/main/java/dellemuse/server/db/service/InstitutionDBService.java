@@ -74,7 +74,7 @@ public class InstitutionDBService extends DBService<Institution, Long> {
         CriteriaQuery<Site> cq = cb.createQuery(Site.class);
         Root<Site> root = cq.from(Site.class);
         cq.select(root).where(cb.equal(root.get("institution").get("id"), institutionId));
-        cq.orderBy(cb.asc(root.get("title")));
+        cq.orderBy(cb.asc(root.get("name")));
 
         return getEntityManager().createQuery(cq).getResultList();
     }

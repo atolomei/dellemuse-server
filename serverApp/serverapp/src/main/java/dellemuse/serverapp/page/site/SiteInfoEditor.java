@@ -1,54 +1,41 @@
 package dellemuse.serverapp.page.site;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.request.Url;
-import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
-import dellemuse.serverapp.page.model.DBModelPanel;
+import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.PersonEditor;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.service.DBService;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
-import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
-import jakarta.transaction.Transactional;
-import wktui.base.ModelPanel;
+import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 
-public class SiteInfoEditor extends DBObjectEditor<Site> {
+public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -57,6 +44,9 @@ public class SiteInfoEditor extends DBObjectEditor<Site> {
 	
     // ChoiceField<Institution>  institutionField;
 
+
+	private ChoiceField<ObjectState> objectStateField;
+	
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
 
@@ -96,16 +86,16 @@ public class SiteInfoEditor extends DBObjectEditor<Site> {
 	public void onInitialize() {
 		super.onInitialize();
 		
-		Optional<Site> o_i = getSiteDBService().findByIdWithDeps(getModel().getObject().getId());
+		Optional<Site> o_i = getSiteDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<Site>(o_i.get()));
 		
 		if (getModel().getObject().getPhoto()!=null) {
-			Optional<Resource> o_r = getResourceDBService().findByIdWithDeps(getModel().getObject().getPhoto().getId());
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
 		}
 		
 		if (getModel().getObject().getLogo()!=null) {
-			Optional<Resource> o_r = getResourceDBService().findByIdWithDeps(getModel().getObject().getLogo().getId());
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getLogo().getId());
 			setLogoModel(new ObjectModel<Resource>(o_r.get()));
 		}
 		
@@ -145,6 +135,31 @@ public class SiteInfoEditor extends DBObjectEditor<Site> {
         **/
         //institutionField.setChoices(new ListModel<Institution>( StreamSupport.stream(getInstitutions().spliterator(), false).collect(Collectors.toList()) ));
         
+        
+        objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
+		
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public IModel<List<ObjectState>> getChoices() {
+				return new ListModel<ObjectState> (b_state);
+			}
+			
+			@Override
+			protected String getDisplayValue(ObjectState value) {
+				if (value==null)
+					return null;
+				return value.getLabel(getLocale());
+			}
+			
+			@Override
+			protected String getIdValue(ObjectState value) {
+				return String.valueOf(value.getId());
+			}
+		};
+		form.add(objectStateField);
+		
+		
         nameField 			= new TextField<String>("name", 		new PropertyModel<String>(getModel(), "name") , getLabel("name"));
 	 	subtitleField		= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
         shortNameField  	= new TextField<String>("shortName", 	new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
@@ -280,11 +295,33 @@ public class SiteInfoEditor extends DBObjectEditor<Site> {
 		};
 
 		getForm().add(b_buttons_top);
-        
-        
-        
          
 	}
+	
+	
+	@Override
+	public List<ToolbarItem> getToolbarItems() {
+		
+	List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		
+		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onCick(AjaxRequestTarget target) {
+ 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_site_edit, target));
+			}
+			@Override
+			public IModel<String> getButtonLabel() {
+				return getLabel("edit");
+			}
+		};
+		create.setAlign(Align.TOP_LEFT);
+		list.add(create);
+		return list;
+	}
+
+	
 	
 	@Override
 	public void onDetach() {

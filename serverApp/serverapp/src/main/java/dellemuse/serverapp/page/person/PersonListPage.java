@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.model.Site;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -33,6 +34,7 @@ import dellemuse.serverapp.page.site.SiteArtExhibitionsListPage;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
@@ -42,6 +44,9 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
@@ -67,13 +72,14 @@ public class PersonListPage extends ObjectListPage<Person> {
 	
 	public  PersonListPage() {
 		super();
-		setCreate(true);
+		 setIsExpanded(true);
+		 
 	}		
 	
 	public  PersonListPage(PageParameters parameters) {
 		 super(parameters);
-		 setCreate(true);
-	 }
+		 setIsExpanded(true);
+	}
 	 	
 	@Override
 	protected void onCreate() {
@@ -82,7 +88,66 @@ public class PersonListPage extends ObjectListPage<Person> {
 			getList().add(m);
 			setResponsePage(new PersonPage(m, getList()));
 	}
+	@Override
+	protected WebMarkupContainer getObjectMenu(IModel<Person> model) {
+		
+		NavDropDownMenu<Person> menu = new NavDropDownMenu<Person>("menu", model, null);
+		
+		menu.setOutputMarkupId(true);
 
+		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Person>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit");
+					}
+				};
+			}
+		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Person>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+			}
+		});
+		return menu;
+	}
+	
 	
 	@Override
 	protected void addHeaderPanel() {
@@ -94,11 +159,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 	}
 
 	
-	@Override
-	public IRequestablePage getObjectPage(IModel<Person> model) {
-		return new PersonPage(model );
-	}
-	
+	 
 	
 	@Override
 	public Iterable<Person> getObjects() {
@@ -145,7 +206,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 	}
    
 	@Override
-	protected String getImageSrc(IModel<Person> model) {
+	protected String getObjectImageSrc(IModel<Person> model) {
 		 if ( model.getObject().getPhoto()!=null) {
 		 		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
 		 	    return getPresignedThumbnailSmall(photo);

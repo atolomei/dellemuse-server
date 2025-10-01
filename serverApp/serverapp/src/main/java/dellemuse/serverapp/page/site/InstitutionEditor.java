@@ -2,6 +2,7 @@ package dellemuse.serverapp.page.site;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 import org.aspectj.util.FileUtil;
@@ -23,28 +25,41 @@ import dellemuse.model.util.NumberFormatter;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
+import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.NumberField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
+import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 
-public class InstitutionEditor extends DBObjectEditor<Institution> {
+public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(InstitutionEditor.class.getName());
 
 	private Form<Institution> form;
+	
+
+	private ChoiceField<ObjectState> objectStateField;
+	
 
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
@@ -91,16 +106,16 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 	public void onInitialize() {
 		super.onInitialize();
 
-		Optional<Institution> o_i = getInstitutionDBService().findByIdWithDeps(getModel().getObject().getId());
+		Optional<Institution> o_i = getInstitutionDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<Institution>(o_i.get()));
 		
 		if (getModel().getObject().getPhoto()!=null) {
-			Optional<Resource> o_r = getResourceDBService().findByIdWithDeps(getModel().getObject().getPhoto().getId());
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
 		}
 		
 		if (getModel().getObject().getLogo()!=null) {
-			Optional<Resource> o_r = getResourceDBService().findByIdWithDeps(getModel().getObject().getLogo().getId());
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getLogo().getId());
 			setLogoModel(new ObjectModel<Resource>(o_r.get()));
 		}
 		
@@ -108,6 +123,24 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 		add(this.form);
 		setForm(this.form);
+		
+objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
+			
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public IModel<List<ObjectState>> getChoices() {
+				return new ListModel<ObjectState> (b_state);
+			}
+			
+			@Override
+			protected String getDisplayValue(ObjectState value) {
+				if (value==null)
+					return null;
+				return value.getLabel(getLocale());
+			}
+		};
+		form.add(objectStateField);
 
 	 	nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 	 	subtitleField	= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
@@ -238,6 +271,9 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		
 	}
 
+	 
+
+	
 	protected Image getLogoThumbnail() {
 
 		if (getLogoModel() == null)

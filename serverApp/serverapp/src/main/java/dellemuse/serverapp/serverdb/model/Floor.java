@@ -15,6 +15,7 @@ import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -46,7 +47,7 @@ public class Floor extends DelleMuseObject {
     @JsonProperty("site")
     private Site site;
 
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = Room.class)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = Room.class)
     @JoinColumn(name = "floor_id", nullable = true, insertable = false)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
     @OrderBy("roomNumber ASC")

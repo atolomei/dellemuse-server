@@ -2,12 +2,14 @@ package dellemuse.serverapp.serverdb.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.InstitutionalContent;
 import dellemuse.serverapp.serverdb.model.User;
@@ -26,6 +28,24 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
     public InstitutionalContentDBService(CrudRepository< InstitutionalContent, Long> repository,   ServerDBSettings settings) {
         super(repository,   settings);
     }
+
+    
+
+	@Transactional
+	public Optional<InstitutionalContent> findWithDeps(Long id) {
+
+		Optional< InstitutionalContent> o = super.findById(id);
+
+		if (o.isEmpty())
+			return o;
+
+		 InstitutionalContent a = o.get();
+
+
+		a.setDependencies(true);
+
+		return o;
+	}
 
     /**
      * <p>

@@ -41,6 +41,7 @@ import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -56,6 +57,9 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.wktui.error.ErrorPanel;
+import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.SimpleWicketEvent;
+import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -67,7 +71,9 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.DummyBlockPanel;
+import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
+import wktui.base.NamedTab;
 
 /**
  * 
@@ -133,6 +139,11 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 				new Model<String>(getModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
 		
+		ph.setContext(getLabel("site"));
+		
+		if (getModel().getObject().getSubtitle()!=null)
+			ph.setTagline( Model.of( getModel().getObject().getSubtitle()));
+
 		if (getModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 
@@ -164,63 +175,85 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 		super.setUpModel();
 
 		if (!getModel().getObject().isDependencies()) {
-			Optional<Site> o_i = getSiteDBService().findByIdWithDeps(getModel().getObject().getId());
+			Optional<Site> o_i = getSiteDBService().findWithDeps(getModel().getObject().getId());
 			setModel(new ObjectModel<Site>(o_i.get()));
 		}
 	}
 	
 	
-	static final int PANEL_EDITOR = 0;
-	static final int PANEL_AUDIT = 1;
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+				logger.debug(event.toString());
+
+				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+					SiteFloorsPage.this.onEdit(event.getTarget());
+				}
+			
+				else if (event.getName().equals(ServerAppConstant.site_info)) {
+					SiteFloorsPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
+				}
+			
+				else if (event.getName().equals(ServerAppConstant.audit)) {
+					SiteFloorsPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleAjaxWicketEvent)
+					return true;
+				return false;
+			}
+		});
+
+	
+		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleWicketEvent event) {
+				if (event.getName().equals(ServerAppConstant.action_site_home)) {
+					setResponsePage(new SitePage( getModel(), getList()));
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleWicketEvent)
+					return true;
+				return false;
+			}
+		});
+	
+	
+	
+	
+	
+	}
 
 	protected List<ToolbarItem> getToolbarItems() {
 		
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		
-		
-		
-		AjaxButtonToolbarItem<User> create = new AjaxButtonToolbarItem<User>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				SiteFloorsPage.this.togglePanel(PANEL_EDITOR, target);
-				SiteFloorsPage.this.onEdit(target);
-			}
-		};
-		create.setAlign(Align.TOP_LEFT);
-
-			
-
-		AjaxButtonToolbarItem<Person> audit = new AjaxButtonToolbarItem<Person>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				SiteFloorsPage.this.togglePanel(PANEL_AUDIT, target);
-			}
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("audit");
-			}
-		};
-		audit.setAlign(Align.TOP_RIGHT);
-		list.add(audit);
-		
-		list.add(new SiteNavDropDownMenuToolbarItem("item", getModel(), Model.of(getModel().getObject().getShortName()), Align.TOP_RIGHT ));
+		String name = getModel().getObject().getShortName() !=null ? getModel().getObject().getShortName() : getModel().getObject().getName();
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getModel(), Model.of(name), Align.TOP_RIGHT ));
 	
 		return list;
 	}
 	
 	
-	
-	
+
 	@Override
-	protected List<ITab> getInternalPanels() {
+	protected List<INamedTab> getInternalPanels() {
+
+		List<INamedTab> tabs = new ArrayList<INamedTab>();
 		
-		List<ITab> tabs = new ArrayList<ITab>();
-		
-		AbstractTab tab_1=new AbstractTab(Model.of("editor")) {
+		NamedTab tab_1=new NamedTab(Model.of("editor"), "editor") {
+		 
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -230,7 +263,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 		};
 		tabs.add(tab_1);
 		
-		AbstractTab tab_2=new AbstractTab(Model.of("audit")) {
+		NamedTab tab_2=new NamedTab(Model.of("audit"), "audit") {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -241,6 +274,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 	
 		return tabs;
 	}
+
 
 	
 }

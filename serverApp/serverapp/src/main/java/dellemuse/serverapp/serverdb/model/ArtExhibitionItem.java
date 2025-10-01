@@ -44,6 +44,16 @@ public class ArtExhibitionItem extends DelleMuseObject {
 	@JsonProperty("floor")
 	private Floor floor;
 
+	
+	@Column(name = "floorStr")
+	@JsonProperty("floorStr")
+	private String floorStr;
+
+	@Column(name = "roomStr")
+	@JsonProperty("roomStr")
+	private String roomStr;
+	
+	
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
 	@JoinColumn(name = "room_id", nullable = true)
 	@JsonManagedReference
@@ -61,8 +71,8 @@ public class ArtExhibitionItem extends DelleMuseObject {
 	private String readCode;
 
 	@Column(name = "qcode")
-	@JsonProperty("qcode")
-	private String qCode;
+	@JsonProperty("QRCode")
+	private String qRCode;
 
 	@Column(name = "info")
 	@JsonProperty("info")
@@ -84,11 +94,11 @@ public class ArtExhibitionItem extends DelleMuseObject {
 	}
  
 	
-	public ArtWork getArtwork() {
+	public ArtWork getArtWork() {
 		return artwork;
 	}
 
-	public void setArtwork(ArtWork artwork) {
+	public void setArtWork(ArtWork artwork) {
 		this.artwork = artwork;
 	}
 
@@ -116,12 +126,12 @@ public class ArtExhibitionItem extends DelleMuseObject {
 		this.readCode = readCode;
 	}
 
-	public String getqCode() {
-		return qCode;
+	public String getQRCode() {
+		return qRCode;
 	}
 
-	public void setqCode(String qCode) {
-		this.qCode = qCode;
+	public void setQRCode(String qCode) {
+		this.qRCode = qCode;
 	}
 
 	public String getInfo() {
@@ -170,6 +180,56 @@ public class ArtExhibitionItem extends DelleMuseObject {
 
 	public void setExhibitionOrder(int exhibitionOrder) {
 		this.artExhibitionOrder = exhibitionOrder;
+	}
+
+
+	public ArtWork getArtwork() {
+		return artwork;
+	}
+
+
+	public String getFloorStr() {
+		return floorStr;
+	}
+
+
+	public String getRoomStr() {
+		return roomStr;
+	}
+
+
+	public int getArtExhibitionOrder() {
+		return artExhibitionOrder;
+	}
+
+
+	public String getqRCode() {
+		return qRCode;
+	}
+
+
+	public void setArtwork(ArtWork artwork) {
+		this.artwork = artwork;
+	}
+
+
+	public void setFloorStr(String floorStr) {
+		this.floorStr = floorStr;
+	}
+
+
+	public void setRoomStr(String roomStr) {
+		this.roomStr = roomStr;
+	}
+
+
+	public void setArtExhibitionOrder(int artExhibitionOrder) {
+		this.artExhibitionOrder = artExhibitionOrder;
+	}
+
+
+	public void setqRCode(String qRCode) {
+		this.qRCode = qRCode;
 	}
 
 };

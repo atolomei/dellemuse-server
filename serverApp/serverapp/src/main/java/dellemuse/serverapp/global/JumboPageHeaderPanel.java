@@ -1,5 +1,6 @@
 package dellemuse.serverapp.global;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
@@ -37,13 +38,21 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 
 	private IModel<String> title;
 	private IModel<String> tagLine;// = Model.of("En el barrio de San Telmo, el museo alberga más de 7000 obras de arte argentino e internacional.");
+							
+	private IModel<String> context;
+	
 	private Image image;
 	private WebMarkupContainer imageContainer;
 	private Link<Resource> imageLink;
 	private IModel<Resource> photo;
 	private WebMarkupContainer frame = new WebMarkupContainer("frame");
+
+	private WebMarkupContainer contextContainer;
+
+	
 	private boolean imageAdded = false;
 
+	private boolean photoVisible = true;
 	
 	
 	public JumboPageHeaderPanel(String id) {
@@ -57,7 +66,9 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	public JumboPageHeaderPanel(String id, IModel<T> model, IModel<String> title) {
 		super(id, model);
 		this.title=title; 
+		setOutputMarkupId(true); 
 	}
+
 
 	@Override
 	public void onDetach() {
@@ -72,15 +83,49 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	public void onInitialize() {
 		super.onInitialize();
 		Label title = new Label("title", getTitle());
+		
 		frame.add(title);
 		add(frame);
 		
+		addImageAndInfo();
+		
+		frame.add(new org.apache.wicket.AttributeModifier("class", getCss()));
+		
+		 if (getTagline()!=null) {
+	            WebMarkupContainer taglineContainer =  new WebMarkupContainer("taglineContainer");
+	            taglineContainer.add((new Label("tagline", getTagline())).setEscapeModelStrings(false));
+	            frame.addOrReplace(taglineContainer);
+	            
+	     }
+	     else {
+	       	frame.addOrReplace( new InvisiblePanel("taglineContainer"));
+	    }
+		 if (getContext()!=null) {
+	            WebMarkupContainer taglineContainer =  new WebMarkupContainer("contextContainer");
+	            taglineContainer.add((new Label("context", getContext())).setEscapeModelStrings(false));
+	            frame.addOrReplace(taglineContainer);
+	            
+	     }
+	     else {
+	       	frame.addOrReplace( new InvisiblePanel("contextContainer"));
+	    }
+		 
+		 
 	}
-	
 
-    protected String getCss() {
-    	return ((this.image!=null&&this.image.isVisible())?"pb-4 border-bottom":"pb-2");
+	
+    public void setContext(IModel<String> context) {
+		this.context=context;
 	}
+
+    
+    public IModel<String> getContext() {
+		return this.context;
+	}
+
+	public void setPhotoVisible(boolean b) {
+    	this.photoVisible=b;
+    }
 
 	@Override
     public void onBeforeRender() {
@@ -90,20 +135,11 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
         	frame.addOrReplace(new InvisiblePanel("breadcrumb"));
         }
         
-        if (getTagline()!=null) {
-            WebMarkupContainer taglineContainer =  new WebMarkupContainer("taglineContainer");
-            taglineContainer.add((new Label("tagline", getTagline())).setEscapeModelStrings(false));
-            frame.addOrReplace(taglineContainer);
-            
-        }
-        else {
-        	frame.addOrReplace( new InvisiblePanel("taglineContainer"));
-        }
         
-        if (!imageAdded) {
-        	addImageAndInfo();
-			frame.add(new org.apache.wicket.AttributeModifier("class", getCss()));
-        }
+       // if (!imageAdded) {
+       // 	addImageAndInfo();
+	//		frame.add(new org.apache.wicket.AttributeModifier("class", getCss()));
+      //  }
     }
     
    
@@ -132,14 +168,28 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
     	this.photo=p;
     }
 
+
+    protected String getCss() {
+    	return ((this.image!=null&&this.image.isVisible())?"mb-0 pb-4 border-bottom":"mb-0 pb-2 border-bottom");
+	}
+
+    
 	
     private void addImageAndInfo() {
 
 		imageAdded = true;
 	
-		this.imageContainer = new WebMarkupContainer("imageContainer");
+		this.imageContainer = new WebMarkupContainer("imageContainer") {
+		 	private static final long serialVersionUID = 1L;
+			public boolean isVisible() {
+				if (getPhotoModel() == null)
+					return false;
+				return isPhotoVisible();
+			}
+		};
 
-		this.imageContainer.setVisible(getPhotoModel() != null);
+		this.imageContainer.setOutputMarkupId(true);
+		
 		frame.addOrReplace(this.imageContainer);
 		this.imageLink = new Link<Resource>("image-link", null) {
 			private static final long serialVersionUID = 1L;
@@ -149,12 +199,13 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 			}
 		};
 		
+		
+		if (imgCss!=null)
+			this.imageLink.add( new AttributeModifier("class", imgCss));
+		
 		this.imageContainer.add(this.imageLink);
 		
-		//Label info = new Label("info", TextCleaner.clean(getPhotoModel().getObject().getInfo()));
-		//info.setEscapeModelStrings(false);
-		//this.imageContainer.add(info);
-		
+	 
 		String presignedThumbnail = null;
 		
 		if (getPhotoModel()!=null && getPhotoModel().getObject() !=null) 
@@ -175,7 +226,14 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	}
 	
     
-    private IModel<String> getTitle() {
+    
+        
+    
+    protected boolean isPhotoVisible() {
+		return photoVisible;
+	}
+
+	private IModel<String> getTitle() {
     
     	if (this.title!=null)
     		return this.title;
@@ -188,4 +246,15 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
     	return new Model<String>( getClass().getSimpleName());  
       
     }
+
+	String imgCss = "jumbo-img jumbo-md mb-2 mb-lg-0 border bg-body-tertiary";
+	
+	public void setImageLinkCss(String css) {
+		
+		imgCss = css;
+		
+		if (this.imageLink!=null)
+			this.imageLink.add( new AttributeModifier("class", imgCss));
+	
+	}
 }

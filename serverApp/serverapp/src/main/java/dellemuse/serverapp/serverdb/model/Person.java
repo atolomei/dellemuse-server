@@ -54,10 +54,8 @@ public class Person extends DelleMuseObject {
     @Column(name = "sortlastfirstname")
     private String sortlastfirstname;
     
-    
     @Column(name = "webpage")
     private String webpage;
-    
     
     /**
      * 
@@ -139,9 +137,19 @@ public class Person extends DelleMuseObject {
         return lastname;
     }
 
+    
+    public void setName(String name) {
+    	super.setName(name);
+    	generateSortName();
+	}
+    
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    	generateSortName();
     }
+
+    
+    
 
     public String getLastnameKey() {
         return lastnameKey;
@@ -300,6 +308,8 @@ public class Person extends DelleMuseObject {
 		this.webpage = webpage;
 	}
 
- 
-    
+ 	private void generateSortName() {
+	    	this.sortlastfirstname= (lastname!=null?lastname.toLowerCase().trim():"") + ( getName()!=null? (" "+getName().toLowerCase().trim() ) :"");
+	}
+	  
 }

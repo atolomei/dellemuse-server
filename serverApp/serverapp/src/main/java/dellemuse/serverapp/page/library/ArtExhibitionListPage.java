@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -28,6 +29,7 @@ import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
@@ -50,6 +52,9 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
@@ -69,26 +74,24 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 
 	public  ArtExhibitionListPage() {
 		super();
-		setCreate(true);
 	}		
 	
 	public  ArtExhibitionListPage(PageParameters parameters) {
 		 super(parameters);
-		 setCreate(true);
 	 }
 	
   protected void addHeaderPanel() {
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new BCElement(getLabel("exhibitions")));
-		PageHeaderPanel<Void> ph = new PageHeaderPanel<Void>("page-header", null, getLabel("exhibitions"));
+		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("exhibitions"));
 		ph.setBreadCrumb(bc);
+		
+		 ph.setContext(getLabel("exhibitions"));
+		
 		add(ph);
 	}
 
-	@Override
-	public IRequestablePage getObjectPage(IModel<ArtExhibition> model) {
-		return null;
-	}
+	 
 
 	@Override
 	public Iterable<ArtExhibition> getObjects() {
@@ -133,7 +136,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 	}
    
 	@Override
-	protected String getImageSrc(IModel<ArtExhibition> model) {
+	protected String getObjectImageSrc(IModel<ArtExhibition> model) {
 		 if (model.getObject().getPhoto()!=null) {
 		 		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
 		 	    return getPresignedThumbnailSmall(photo);
@@ -145,6 +148,67 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 
 	protected List<ToolbarItem> getToolbarItems() {return null;}
 
+	
+	@Override
+	protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
+		
+		NavDropDownMenu<ArtExhibition> menu = new NavDropDownMenu<ArtExhibition>("menu", model, null);
+		
+		menu.setOutputMarkupId(true);
+
+		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibition>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit");
+					}
+				};
+			}
+		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibition>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+			}
+		});
+		return menu;
+	}
+	
 	
 	protected IModel<String> getTitleLabel() {
 		return getLabel("exhibitions");

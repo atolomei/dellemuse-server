@@ -41,6 +41,7 @@ import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.PersonPage;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -55,6 +56,7 @@ import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
@@ -65,7 +67,9 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import wktui.base.DummyBlockPanel;
+import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
+import wktui.base.NamedTab;
 
 /**
  * 
@@ -82,19 +86,71 @@ public class SiteInfoPage extends ObjectPage<Site> {
 
 	private SiteInfoEditor editor;
 
+	
+
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+				logger.debug(event.toString());
+
+				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+					SiteInfoPage.this.onEdit(event.getTarget());
+				}
+			
+				else if (event.getName().equals(ServerAppConstant.site_info)) {
+					SiteInfoPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
+				}
+			
+				else if (event.getName().equals(ServerAppConstant.audit)) {
+					SiteInfoPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleAjaxWicketEvent)
+					return true;
+				return false;
+			}
+		});
+
+	
+		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleWicketEvent event) {
+				if (event.getName().equals(ServerAppConstant.action_site_home)) {
+					setResponsePage( new SitePage( getModel(), getList()));
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleWicketEvent)
+					return true;
+				return false;
+			}
+		});
+	
+	
+	
+	
+	
+	}
 	public SiteInfoPage() {
 		super();
-		super.setEdit(true);
 	}
 
 	public SiteInfoPage(PageParameters parameters) {
 		super(parameters);
-		super.setEdit(true);
 	}
 
 	public SiteInfoPage(IModel<Site> model) {
 		super(model);
-		super.setEdit(true);
 	}
 
 	@Override
@@ -109,31 +165,7 @@ public class SiteInfoPage extends ObjectPage<Site> {
 
 	
 
-	@Override
-	protected void addListeners() {
-		super.addListeners();
-		
-		
-		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(SimpleAjaxWicketEvent event) {
-				logger.debug(event.toString());
-				//refresh(event.getRequestTarget());
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleAjaxWicketEvent)
-					return true;
-				return false;
-			}
-		});
-	}
+ 
 	
 	@Override
 	protected void addHeaderPanel() {
@@ -147,6 +179,11 @@ public class SiteInfoPage extends ObjectPage<Site> {
 				new Model<String>(getModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
 
+		ph.setContext(getLabel("site"));
+
+		if (getModel().getObject().getSubtitle()!=null)
+			ph.setTagline( Model.of( getModel().getObject().getSubtitle()));
+		
 		if (getModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 
@@ -164,13 +201,12 @@ public class SiteInfoPage extends ObjectPage<Site> {
 		return this.editor;
 	}
 
-	static final int PANEL_EDITOR = 0;
-	static final int PANEL_AUDIT = 1;
+ 
 
 	protected List<ToolbarItem> getToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		
-	
+	/**
 		AjaxButtonToolbarItem<Site> create = new AjaxButtonToolbarItem<Site>() {
 			private static final long serialVersionUID = 1L;
 
@@ -205,6 +241,7 @@ public class SiteInfoPage extends ObjectPage<Site> {
 		};
 		audit.setAlign(Align.TOP_RIGHT);
 		list.add(audit);
+		*/
 		
 		
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getModel(),  Align.TOP_RIGHT ));
@@ -212,12 +249,14 @@ public class SiteInfoPage extends ObjectPage<Site> {
 		return list;
 	}
 	
+
 	@Override
-	protected List<ITab> getInternalPanels() {
+	protected List<INamedTab> getInternalPanels() {
+
+		List<INamedTab> tabs = new ArrayList<INamedTab>();
 		
-		List<ITab> tabs = new ArrayList<ITab>();
-		
-		AbstractTab tab_1=new AbstractTab(Model.of("editor")) {
+		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
+		 
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -227,7 +266,7 @@ public class SiteInfoPage extends ObjectPage<Site> {
 		};
 		tabs.add(tab_1);
 		
-		AbstractTab tab_2=new AbstractTab(Model.of("audit")) {
+		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -242,7 +281,7 @@ public class SiteInfoPage extends ObjectPage<Site> {
 	
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
-		editor.onEdit(target);
+		this.editor.onEdit(target);
 
 	}
 
@@ -250,16 +289,13 @@ public class SiteInfoPage extends ObjectPage<Site> {
 		super.setUpModel();
 
 		if (!getModel().getObject().isDependencies()) {
-			Optional<Site> o_i = getSiteDBService().findByIdWithDeps(getModel().getObject().getId());
+			Optional<Site> o_i = getSiteDBService().findWithDeps(getModel().getObject().getId());
 			setModel(new ObjectModel<Site>(o_i.get()));
 		}
 	}
 
 	/**
-	 * 
 	 * Institution Site Artwork Person Exhibition ExhibitionItem GuideContent User
-	 * 
-	 * 
 	 */
 	@Override
 	public void onInitialize() {

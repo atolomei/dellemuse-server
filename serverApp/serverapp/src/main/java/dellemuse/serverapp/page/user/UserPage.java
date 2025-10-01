@@ -30,12 +30,14 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.PersonPage;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.ArtWorkEditor;
 import dellemuse.serverapp.page.site.InstitutionPage;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -49,16 +51,23 @@ import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
+import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
+import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import wktui.base.DummyBlockPanel;
+import wktui.base.INamedTab;
+import wktui.base.NamedTab;
 
 
 /**
@@ -114,6 +123,40 @@ public class UserPage extends ObjectPage<User> {
 		super.onInitialize();
 	}
 
+	
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+				logger.debug(event.toString());
+
+				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+					UserPage.this.onEdit(event.getTarget());
+				}
+			
+				else if (event.getName().equals(ServerAppConstant.site_info)) {
+					UserPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
+				}
+			
+				else if (event.getName().equals(ServerAppConstant.audit)) {
+					UserPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleAjaxWicketEvent)
+					return true;
+				return false;
+			}
+		});
+	}
+	
+	
+	
 	@Override
 	protected Optional<User> getObject(Long id) {
 		return getUser( id );
@@ -137,7 +180,7 @@ public class UserPage extends ObjectPage<User> {
 		BreadCrumb<Void> bc = createBreadCrumb();
         bc.addElement(new HREFBCElement( "/user/list", getLabel("users")));
         bc.addElement(new BCElement( new Model<String>( getModel().getObject().getUsername())));
-      	PageHeaderPanel<User> ph = new PageHeaderPanel<User>("page-header", getModel(), 
+      	JumboPageHeaderPanel<User> ph = new JumboPageHeaderPanel<User>("page-header", getModel(), 
     			new Model<String>(getModel().getObject().getDisplayname() ));
 		ph.setBreadCrumb(bc);
 		
@@ -153,7 +196,8 @@ public class UserPage extends ObjectPage<User> {
 			bc.setNavigator(nav);
 		}
 
-		
+		ph.setContext(getLabel("user"));
+
 		
 		add(ph);
 	}
@@ -173,42 +217,59 @@ public class UserPage extends ObjectPage<User> {
 		
 	}
 
-	static final int PANEL_EDITOR = 0;
-	static final int PANEL_AUDIT = 1;
+	 
 	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 		
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		
-		AjaxButtonToolbarItem<User> create = new AjaxButtonToolbarItem<User>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				UserPage.this.togglePanel(PANEL_EDITOR, target);
-				UserPage.this.onEdit(target);
-			}
-		};
-		create.setAlign(Align.TOP_LEFT);
-
-			
-
-		AjaxButtonToolbarItem<Person> audit = new AjaxButtonToolbarItem<Person>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				UserPage.this.togglePanel(PANEL_AUDIT, target);
-			}
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("audit");
-			}
-		};
-		audit.setAlign(Align.TOP_RIGHT);
-		list.add(audit);
+		 
 		
+	 	DropDownMenuToolbarItem<User> menu  = new DropDownMenuToolbarItem<User>("item", getModel(), Align.TOP_RIGHT);
+		menu.setLabel(getLabel("menu"));
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public MenuItemPanel<User> getItem(String id) {
+					return new AjaxLinkMenuItem<User>(id, getModel()) {
+						private static final long serialVersionUID = 1L;
+						@Override
+						public void onClick(AjaxRequestTarget target)  {
+							fire (new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.site_info, target));
+						}
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("info");
+						}
+					};
+				}
+			});
+				 
+
+		 
+		 menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<User> getItem(String id) {
+					return new AjaxLinkMenuItem<User>(id, getModel()) {
+						private static final long serialVersionUID = 1L;
+						@Override
+						public void onClick(AjaxRequestTarget target)  {
+							fire (new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.audit, target));
+						}
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("audit");
+						}
+					};
+				}
+			});
+				 
+		list.add(menu);
 		
 		
 		
@@ -218,11 +279,12 @@ public class UserPage extends ObjectPage<User> {
 	
 	
 	@Override
-	protected List<ITab> getInternalPanels() {
+	protected List<INamedTab> getInternalPanels() {
+
+		List<INamedTab> tabs = new ArrayList<INamedTab>();
 		
-		List<ITab> tabs = new ArrayList<ITab>();
-		
-		AbstractTab tab_1=new AbstractTab(Model.of("editor")) {
+		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
+		 
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -231,8 +293,8 @@ public class UserPage extends ObjectPage<User> {
 			}
 		};
 		tabs.add(tab_1);
-		
-		AbstractTab tab_2=new AbstractTab(Model.of("audit")) {
+	  
+		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -241,9 +303,9 @@ public class UserPage extends ObjectPage<User> {
 		};
 		tabs.add(tab_2);
 	
+		
 		return tabs;
 	}
-
 	
 	
 	

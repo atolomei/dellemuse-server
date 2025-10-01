@@ -37,6 +37,8 @@ import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.model.ObjectWithDepModel;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -56,6 +58,7 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.DummyBlockPanel;
+import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
 
 
@@ -81,17 +84,18 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private int current = 0;
 	private WebMarkupContainer navigatorContainer;
 	private WebMarkupContainer internalPanelContainer;
-	 
+	private int currentIndex = 0;
+	private WebMarkupContainer toolbarContainer;
+
+	
 	protected abstract Optional<T> getObject(Long id);
 	protected abstract IModel<String> getPageTitle();
 	protected abstract void addHeaderPanel();
-	protected abstract IRequestablePage getObjectPage(IModel<T> iModel, List<IModel<T>> list2);
-	
-	
-	protected void addListeners() {
-			super.addListeners();
-	}
-	
+	protected abstract IRequestablePage getObjectPage(IModel<T> iModel, List<IModel<T>> list);
+	protected abstract List<INamedTab> getInternalPanels();
+	protected abstract List<ToolbarItem> getToolbarItems();
+	 
+		
 	public ObjectPage() {
 		super();
 	}		
@@ -103,10 +107,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	
 	public ObjectPage(IModel<T> model) {
 		setModel(model);
-		getPageParameters().add( "id", model.getObject().getId().toString());
+		getPageParameters().add("id", model.getObject().getId().toString());
 	}
 	
-
 	public ObjectPage(IModel<T> model, List<IModel<T>> list) {
 		Check.requireNonNullArgument(model, "model is null");
 		Check.requireTrue(model.getObject()!=null, "modelOjbect is null");
@@ -118,12 +121,10 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
     public IModel<T> getModel() {
     		return this.model;		
 	}
- 	
-    
+ 
     public void setModel(IModel<T> model) {
     		this.model=model;		
 	}
-
     
 	public List<IModel<T>> getList() {
 		return list;
@@ -133,8 +134,6 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		this.list = siteList;
 	}
 	
-	
-    
     public void setPageHeaderPanel(Panel panel) {
     	addOrReplace(panel);
     }
@@ -148,32 +147,49 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		
 		if (get("page-header")==null)
 			this.addDefaultPageHeaderPanel();
-		
-		if (get("editor")==null)
-			this.addOrReplace(new ErrorPanel("editor", new Model<String>("no editor")));
 	}
+    
+    public void togglePanel(String name, AjaxRequestTarget target) {
+    	
+    	List<INamedTab> tabs = getInternalPanels();
+    	
+    	int current = 0;
+    	int selected = 0;
+    	for (INamedTab tab: tabs) {
+    		if (tab.getName().equals(name)) {
+    			selected = current;
+    			break;
+    		}
+    		current++;
+    	}
+    	togglePanel(selected, target);
+    } 	
 
-    
-    
-    
     public void togglePanel(int panelOrder, AjaxRequestTarget target) {
-    
-    	this.currentPanel = panelOrder;
-    	List<ITab> tabs = getInternalPanels();
-		WebMarkupContainer pa=tabs.get(currentPanel).getPanel("internalPanel");
-		internalPanelContainer.addOrReplace(pa);
-		target.add(internalPanelContainer);
+   
+    	if (this.currentIndex==panelOrder) {
+    		target.add(this.toolbarContainer);
+    		target.add(this.internalPanelContainer);
+    		return;
+    	}
+    	
+    	this.currentIndex = panelOrder;
+    	this.currentPanel=getInternalPanels().get(getCurrentIndex()).getPanel("internalPanel");
+		this.internalPanelContainer.addOrReplace(this.currentPanel);
+	
+		addToolbar();
+
+		target.add(this.toolbarContainer);
+		target.add(this.internalPanelContainer);
     }
     
-    
-	@Override
+    @Override
 	public void onDetach() {
 	    super.onDetach();
 	    
 	    if (getList()!=null)
 	    	getList().forEach(i->i.detach());
     }
-	
 	 
 	@Override
 	public void onInitialize() {
@@ -182,10 +198,25 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		try {
 			setUpModel();
 		} catch (Exception e) {
+			
+			logger.error(e);
 			addErrorPanels(e);
 			return;
 		}
-	
+
+		this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
+			private static final long serialVersionUID = 1L;
+			public boolean isVisible() {
+				return getToolbarItems()!=null && getToolbarItems().size()>0;
+			}
+		};
+		this.toolbarContainer.setOutputMarkupId(true);
+		add(this.toolbarContainer);
+
+		internalPanelContainer = new WebMarkupContainer("internalPanelContainer");
+		internalPanelContainer.setOutputMarkupId(true);
+		add(internalPanelContainer);
+		
 		setCurrent();
 		
     	add(new GlobalTopPanel("top-panel"));
@@ -194,181 +225,72 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		addHeaderPanel();
 		addNavigator();
 		
-		/**
-		Panel e=getEditor();
-
-		if (!e.getId().equals("editor")) {
-			addOrReplace(new ErrorPanel("editor", null, new Model<String>( "Editor must have id='editor'")));
-		}
-		else {
-			addOrReplace(e);
-		}
-		 **/
+		tabs = getInternalPanels();
+		currentPanel = tabs.get(getCurrentIndex()).getPanel("internalPanel");
+		internalPanelContainer.add(currentPanel);
 		
 		addToolbar();
+
 		
-		internalPanelContainer = new WebMarkupContainer("internalPanelContainer");
-		internalPanelContainer.setOutputMarkupId(true);
-		add(internalPanelContainer);
-		List<ITab> tabs = getInternalPanels();
-		WebMarkupContainer pa=tabs.get(getCurrentPanel()).getPanel("internalPanel");
-		internalPanelContainer.add(pa);
 	}
 
-
-	protected int getCurrentPanel() {
+	
+	protected int getCurrentIndex() {
+		return this.currentIndex;
+	}
+	
+	protected WebMarkupContainer getCurrentPanel() {
 		return this.currentPanel;
 	}
 	
-	protected abstract List<ITab> getInternalPanels();
 	
-	/**{
-		
-		List<ITab> tabs = new ArrayList<ITab>();
-		
-		AbstractTab tab_1=new AbstractTab(Model.of("1")) {
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return new DummyBlockPanel(panelId, Model.of("0"));
-			}
-		};
-		tabs.add(tab_1);
-		
-		AbstractTab tab_2=new AbstractTab(Model.of("2")) {
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return new DummyBlockPanel(panelId, Model.of("1"));
-			}
-		};
-		
-		tabs.add(tab_2);
-		
-		return tabs;
+
+	private List<INamedTab> tabs;
+	private WebMarkupContainer currentPanel;
+	
+	
+	
+	protected List<INamedTab> getTabs() {
+		return this.tabs;
 	}
-	**/
 	
-	private int currentPanel = 0;
 	
-
-	private AjaxLink<T> edit;
-	private Label editLabel;
-	private WebMarkupContainer editContainer;
-	private WebMarkupContainer toolbarContainer;
-	private WebMarkupContainer toolbar;
-	private WebMarkupContainer submenuContainer;
-	private boolean b_edit = false;
-
-	
-
-	protected abstract List<ToolbarItem> getToolbarItems();
-
 	
 	private void addToolbar() {
 		
-		this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
-			private static final long serialVersionUID = 1L;
-			public boolean isVisible() {
-				return getToolbarItems()!=null && getToolbarItems().size()>0;
-			}
-		};
+		WebMarkupContainer wCurrent = getCurrentPanel();
+	
+		Toolbar toolbarItems = new Toolbar("toolbarItems");
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		List<ToolbarItem> localItems = null;
+		List<ToolbarItem> globalItems = getToolbarItems();
 		
-		add(this.toolbarContainer);
+		if (wCurrent instanceof InternalPanel)
+			localItems = ((InternalPanel) wCurrent).getToolbarItems();
 
+		if (localItems!=null)
+			list.addAll(localItems);
 		
-		List<ToolbarItem> list = getToolbarItems();
-
-		if (list!=null && list.size()>0) {
-			Toolbar toolbarItems = new Toolbar("toolbarItems");
+		if (globalItems!=null)
+			list.addAll(globalItems);
+		
+		if (list.size()>0) {
 			list.forEach(t -> toolbarItems.addItem(t));
-			this.toolbarContainer.add(toolbarItems);
+			this.toolbarContainer.addOrReplace(toolbarItems);
 		}
 		else {
-			this.toolbarContainer.add( new InvisiblePanel("toolbarItems"));
+			this.toolbarContainer.addOrReplace(new InvisiblePanel("toolbarItems"));
 		}
-		
-		
-		/**
-		this.toolbar = new WebMarkupContainer("toolbar") {
-			private static final long serialVersionUID = 1L;
-			public boolean isVisible() {
-				return isEdit() || isSubmenu();
-			}
-		};
-		this.toolbarContainer.add(this.toolbar);
-		
-		
-		this.editContainer = new WebMarkupContainer("editContainer") {
-			private static final long serialVersionUID = 1L;
-			public boolean isVisible() {
-				return isEdit();
-			}
-		};
-		this.edit= new AjaxLink<T>("editLink", getModel()) {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				ObjectPage.this.onEdit(target);
-			}
-		};
-		this.editLabel = new Label("edit", getEditLabel());
-		this.edit.add(this.editLabel);
-		this.editContainer.add(this.edit);
-		
-		
-		
-		this.submenuContainer = new WebMarkupContainer("submenuContainer") {
-			private static final long serialVersionUID = 1L;
-			public boolean isVisible() {
-				return isSubmenu();
-			}
-		};
-		
-		if (getSubmenu()!=null)
-			this.submenuContainer.add(getSubmenu());
-		else
-			this.submenuContainer.add(new InvisiblePanel("submenu"));
-			
-		
-		this.toolbar.add(this.editContainer);
-		this.toolbar.add(this.submenuContainer);
-	    
-		/**
-		WebMarkupContainer sm=getSubmenu();
-		
-		if (sm==null) {
-			submenuContainer.add(  new InvisiblePanel("submenu") );
-			submenuContainer.setVisible(false);
-		}
-		else {
-			submenuContainer.add(sm);
-			submenuContainer.setVisible(sm.isVisible());
-		}
-	**/
-		
 	}
 	
 	protected IModel<String> getEditLabel() {
 		return getLabel("edit");
 	}
 	
-	
-	protected abstract void onEdit(AjaxRequestTarget target);
-    
-    
-    public void setEdit(boolean b) {
-		this.b_edit=b;
-	}
-	
-	protected boolean isEdit() {
-		return b_edit;
-	}
-    
-    
-    
 	protected void setUpModel() {
 		if (getModel()==null) {
-			if (stringValue!=null) {
-				Optional<T> o =  getObject(Long.valueOf(stringValue.toLong()));  
+			if (this.stringValue!=null) {
+				Optional<T> o =  getObject(Long.valueOf(this.stringValue.toLong()));  
 				if (o.isPresent()) {
 					setModel(new ObjectModel<T>(o.get()));
 				}
@@ -396,7 +318,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		int n = 0;
 
 		for (IModel<T> m : this.getList()) {
-			if ( getModel().getObject().getId().equals(m.getObject().getId())) {
+			if (getModel().getObject().getId().equals(m.getObject().getId())) {
 				current = n;
 				logger.debug("current -> " + String.valueOf(current));
 				break;
@@ -408,16 +330,27 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected void addErrorPanels(Exception e) {
 		
 		addOrReplace(new GlobalTopPanel("top-panel"));
-		addOrReplace(new GlobalFooterPanel<>("footer-panel"));
-		addOrReplace(new ErrorPanel("editor", e));
+		addOrReplace(new InvisiblePanel("page-header"));
+		addOrReplace( new InvisiblePanel("toolbarContainer"));
+		internalPanelContainer = new WebMarkupContainer("internalPanelContainer");
+		add(internalPanelContainer);
+		internalPanelContainer.add(new ErrorPanel("internalPanel", e));
 		addOrReplace(new InvisiblePanel("navigatorContainer"));
-		
+		addOrReplace(new GlobalFooterPanel<>("footer-panel"));
 		
 	}
 
+	protected void addListeners() {
+			super.addListeners();
+	}
+
+	protected abstract void onEdit(AjaxRequestTarget target);
+    
 	
 	private void addNavigator() {
+
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
+		
 		add(this.navigatorContainer);
 		
 		this.navigatorContainer.setVisible(getList()!=null && getList().size()>0);
@@ -434,7 +367,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 				@Override
 				protected void navigate(int current) {
-					setResponsePage( getObjectPage(getList().get(current), getList()));
+					setResponsePage(getObjectPage(getList().get(current), getList()));
 				}
 			};
 			this.navigatorContainer.add(nav);
@@ -442,7 +375,5 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			this.navigatorContainer.add(new InvisiblePanel("navigator"));
 		}
 	}
-	 
-
 }
 

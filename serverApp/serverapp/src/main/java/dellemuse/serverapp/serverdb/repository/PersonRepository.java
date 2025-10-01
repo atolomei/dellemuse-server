@@ -9,6 +9,7 @@ import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Person;
 
 /**
@@ -40,11 +41,23 @@ public interface PersonRepository extends ListCrudRepository<Person, Long> {
 	    List<Person> findDistinctPersonsBySiteId(@Param("siteId") Long siteId);
 	 
 	
+	@Query("""
+	        SELECT aa.artwork
+	        FROM ArtWorkArtist aa
+	        WHERE aa.person.id = :personId 
+	        order by aa.artwork.name
+	    """)
+	    List<ArtWork> findDistinctArtWorkByPersonId(@Param("personId") Long personId);
+	
+	
+	
 }
 
 
 /**
 
+
+ JOIN aa.person p
 
 public interface SiteArtistsRepository extends JpaRepository<Person, Long> {
 

@@ -1,5 +1,6 @@
 package dellemuse.serverapp.page.person;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,31 +11,45 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.SimpleWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.button.SubmitButton;
+import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
+import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
+import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 
-public class PersonEditor extends DBObjectEditor<Person> {
+public class PersonEditor extends DBObjectEditor<Person> implements InternalPanel  {
 
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(SiteInfoEditor.class.getName());
 
+
+	private ChoiceField<ObjectState> objectStateField;
+	
 	private TextField<String> nameField;
 	private TextField<String> lastnameField;
 	private TextField<String> nicknameField;
@@ -47,6 +62,9 @@ public class PersonEditor extends DBObjectEditor<Person> {
 	private FileUploadSimpleField<Void> photoField;
 	private IModel<Resource> photoModel;
 
+	private TextAreaField<String> infoField;
+	
+	
 	private boolean uploadedPhoto = false;
 	
 	/**
@@ -62,7 +80,7 @@ public class PersonEditor extends DBObjectEditor<Person> {
 		super.onInitialize();
 		
 		if (getModel().getObject().getPhoto()!=null) {
-			Optional<Resource> o_r = getResourceDBService().findByIdWithDeps(getModel().getObject().getPhoto().getId());
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
 		}
 		 
@@ -79,17 +97,40 @@ public class PersonEditor extends DBObjectEditor<Person> {
 		
 		form.setFormState(FormState.VIEW);
 
-		nameField 			= new TextField<String>("name", 	Model.of(getModel().getObject().getName()),		 	getLabel("name"));
-		lastnameField 		= new TextField<String>("lastname",	Model.of(getModel().getObject().getLastname()), 	getLabel("lastname"));
-		nicknameField 		= new TextField<String>("nickname", Model.of(getModel().getObject().getNickname()), 	getLabel("nickname"));
-		sexField 			= new TextField<String>("sex", 		Model.of(getModel().getObject().getSex()), 			getLabel("sex"));
-		addressField 		= new TextField<String>("address", 	Model.of(getModel().getObject().getAddress()), 		getLabel("address"));
-		phoneField 			= new TextField<String>("phone", 	Model.of(getModel().getObject().getPhone()), 		getLabel("phone"));
-		emailField 			= new TextField<String>("email", 	Model.of(getModel().getObject().getEmail()), 		getLabel("email"));
-		webpageField        = new TextField<String>("webpage",	Model.of(getModel().getObject().getWebpage()), 		getLabel("webpage"));
-		
-		
+		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
+			
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public IModel<List<ObjectState>> getChoices() {
+				return new ListModel<ObjectState> (b_state);
+			}
+			
+			@Override
+			protected String getDisplayValue(ObjectState value) {
+				if (value==null)
+					return null;
+				return value.getLabel();
+			}
 
+			@Override
+			protected String getIdValue(ObjectState value) {
+				return String.valueOf(value.getId());
+			}
+			
+
+		};
+		form.add(objectStateField);
+		
+		infoField 			= new TextAreaField<String>("info", 	new PropertyModel<String>(getModel(), "info"),		 	getLabel("info"), 10);
+		nameField 			= new TextField<String>("name", 	new PropertyModel<String>(getModel(), "name"),		 	getLabel("name"));
+		lastnameField 		= new TextField<String>("lastname",	new PropertyModel<String>(getModel(), "lastname"), 		getLabel("lastname"));
+		nicknameField 		= new TextField<String>("nickname", new PropertyModel<String>(getModel(), "nickname"),	 	getLabel("nickname"));
+		sexField 			= new TextField<String>("sex", 		new PropertyModel<String>(getModel(), "sex"), 			getLabel("sex"));
+		addressField 		= new TextField<String>("address", 	new PropertyModel<String>(getModel(), "address"), 		getLabel("address"));
+		phoneField 			= new TextField<String>("phone", 	new PropertyModel<String>(getModel(), "phone"), 		getLabel("phone"));
+		emailField 			= new TextField<String>("email", 	new PropertyModel<String>(getModel(), "email"), 		getLabel("email"));
+		webpageField        = new TextField<String>("webpage",	new PropertyModel<String>(getModel(), "webpage"), 		getLabel("webpage"));
         photoField 			= new FileUploadSimpleField<Void>("photo", getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
@@ -116,7 +157,6 @@ public class PersonEditor extends DBObjectEditor<Person> {
 			}
 		};
 		
-		
 		form.add(nameField);
 		form.add(lastnameField);
 		form.add(nicknameField);
@@ -126,6 +166,11 @@ public class PersonEditor extends DBObjectEditor<Person> {
 		form.add(emailField);
 		form.add(photoField);
 		form.add(webpageField);
+		
+		form.add(infoField);
+		
+		 
+		
 
 		EditButtons<Person> buttons = new EditButtons<Person>("buttons", getForm(), getModel()) {
 
@@ -189,10 +234,32 @@ public class PersonEditor extends DBObjectEditor<Person> {
 	public void onDetach() {
 		super.onDetach();
 		
-		if (photoModel!=null)
-			photoModel.detach();
+		if (this.photoModel!=null)
+			this.photoModel.detach();
 	}
 	
+	@Override
+	public List<ToolbarItem> getToolbarItems() {
+		
+	List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		
+		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onCick(AjaxRequestTarget target) {
+ 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_site_edit, target));
+			}
+			@Override
+			public IModel<String> getButtonLabel() {
+				return getLabel("edit");
+			}
+		};
+		create.setAlign(Align.TOP_LEFT);
+		list.add(create);
+		return list;
+	}
+
 	
 	protected void onCancel(AjaxRequestTarget target) {
 		getForm().setFormState(FormState.VIEW);
@@ -201,21 +268,26 @@ public class PersonEditor extends DBObjectEditor<Person> {
 
 	protected void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
-		//getForm().setFormState(FormState.EDIT);
 		target.add(getForm());
 	}
-
 	
 	protected void onSave(AjaxRequestTarget target) {
 
-		getForm().setFormState(FormState.VIEW);
 		target.add(getForm());
-
 		logger.debug("");
 		logger.debug("onSubmit");
 		logger.debug(getForm().isSubmitted());
 		logger.debug("done");
 		logger.debug("");
+		
+		
+		save(getModelObject());
+		
+		uploadedPhoto = false;
+		getForm().setFormState(FormState.VIEW);
+		logger.debug("done");
+		target.add(this);
+		
 
 	}
 
@@ -263,6 +335,7 @@ public class PersonEditor extends DBObjectEditor<Person> {
 
 		return uploadedPhoto;
 	}
+
 
 	
 }

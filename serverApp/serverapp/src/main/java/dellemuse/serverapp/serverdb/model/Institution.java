@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -82,12 +83,12 @@ public class Institution extends DelleMuseObject {
 	@Column(name = "twitter")
 	private String twitter;
 
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = Site.class)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = Site.class)
 	@JoinColumn(name = "institution_id", nullable = true, insertable = false)
 	@JsonSerialize(using = DelleMuseListIdSerializer.class)
 	@JsonManagedReference
 	@JsonBackReference
-	@OrderBy("lower(title) ASC")
+	@OrderBy("lower(name) ASC")
 	private List<Site> sites;
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)

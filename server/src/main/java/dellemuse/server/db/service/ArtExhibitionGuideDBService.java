@@ -71,7 +71,7 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         Root<GuideContent> root = cq.from(GuideContent.class);
 
         cq.select(root).where(cb.equal(root.get("artExhibitionGuide").get("id"), guideId));
-        cq.orderBy(cb.asc(root.get("title")));
+        cq.orderBy(cb.asc(root.get("name")));
 
         return entityManager.createQuery(cq).getResultList();
     }
@@ -83,7 +83,7 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         Root<GuideContent> root = cq.from(GuideContent.class);
 
         cq.select(root).where(cb.equal(root.get("publisher").get("id"), person.getId()));
-        cq.orderBy(cb.asc(root.get("title")));
+        cq.orderBy(cb.asc(root.get("name")));
 
         return entityManager.createQuery(cq).getResultList();
     }
@@ -95,93 +95,5 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 }
 
 
-
-
-/**
-@Service
-public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, Long> {
-
-    @SuppressWarnings("unused")
-    static private Logger logger = Logger.getLogger(ArtExhibitionGuideDBService.class.getName());
-
-    public ArtExhibitionGuideDBService(CrudRepository<ArtExhibitionGuide, Long> repository,
-            EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
-    }
-
-    
-    @Transactional
-    @Override
-    public ArtExhibitionGuide create(String name, User createdBy) {
-        ArtExhibitionGuide c = new ArtExhibitionGuide();
-        c.setName(name);
-        c.setNameKey(nameKey(name));
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
-
-    
-    
-    @Transactional
-    public List<ArtExhibitionGuide> getByName(String name) {
-        return createNameQuery(name).getResultList();
-    }
-
-    @Transactional
-    public List<ArtExhibitionGuide> findByNameKey(String nameKey) {
-        return getByNameKey(nameKey);
-    }
-
  
-
-    @Transactional
-    public List<GuideContent> getArtExhibitionGuideContents(ArtExhibitionGuide exhibitionGuide) {
-        return  getArtExhibitionGuideContents(exhibitionGuide.getId());
-    }
-
-    @Transactional
-    public List<GuideContent> getArtExhibitionGuideContents(Long guideid) {
-        TypedQuery<GuideContent> query;
-        CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
-        CriteriaQuery<GuideContent> criteria = criteriabuilder.createQuery(GuideContent.class);
-        Root<GuideContent> loaders = criteria.from(GuideContent.class);
-        
-        criteria.orderBy(criteriabuilder.asc(loaders.get("title")));
-        
-        ParameterExpression<Long> idparameter = criteriabuilder.parameter(Long.class);
-        criteria.select(loaders).where(criteriabuilder.equal(loaders.get("artExhibitionGuide").get("id"), idparameter));
-        query = getSessionFactory().getCurrentSession().createQuery(criteria);
-        query.setHint("org.hibernate.cacheable", true);
-        query.setFlushMode(FlushModeType.COMMIT);
-        query.setParameter(idparameter, guideid);
-        return query.getResultList();
-    }
-
-    @Transactional
-    public List<GuideContent> getArtExhibitionGuidePublishedBy(Person person) {
-        TypedQuery<GuideContent> query;
-        CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
-        CriteriaQuery<GuideContent> criteria = criteriabuilder.createQuery(GuideContent.class);
-        Root<GuideContent> loaders = criteria.from(GuideContent.class);
-
-        criteria.orderBy(criteriabuilder.asc(loaders.get("title")));
-        
-        ParameterExpression<Long> idparameter = criteriabuilder.parameter(Long.class);
-        criteria.select(loaders).where(criteriabuilder.equal(loaders.get("publisher").get("id"), idparameter));
-        query = getSessionFactory().getCurrentSession().createQuery(criteria);
-        query.setHint("org.hibernate.cacheable", true);
-        query.setFlushMode(FlushModeType.COMMIT);
-        query.setParameter(idparameter, person.getId());
-        return query.getResultList();
-    }
-
-    @Override
-    protected Class<ArtExhibitionGuide> getEntityClass() {
-        return ArtExhibitionGuide.class;
-    }
-
-**/
-
 

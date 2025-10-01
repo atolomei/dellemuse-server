@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -35,6 +36,7 @@ import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.page.user.UserListPage;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -50,6 +52,9 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
@@ -75,12 +80,12 @@ public class SiteListPage extends ObjectListPage<Site> {
 
 	public SiteListPage() {
 		super();
-		setCreate(true);
+		super.setIsExpanded(true);
 	}
 
 	public SiteListPage(PageParameters parameters) {
 		super(parameters);
-		setCreate(true);
+		super.setIsExpanded(true);
 	}
 
 	@Override
@@ -100,10 +105,7 @@ public class SiteListPage extends ObjectListPage<Site> {
 		add(ph);
 	}
 
-	@Override
-	public IRequestablePage getObjectPage(IModel<Site> model) {
-		return null;
-	}
+	 
 
 	@Override
 	public Iterable<Site> getObjects() {
@@ -136,6 +138,8 @@ public class SiteListPage extends ObjectListPage<Site> {
 		return null;
 
 	}
+	
+	
 
 	@Override
 	public void onDetach() {
@@ -148,7 +152,7 @@ public class SiteListPage extends ObjectListPage<Site> {
 	}
 
 	@Override
-	protected String getImageSrc(IModel<Site> model) {
+	protected String getObjectImageSrc(IModel<Site> model) {
 		if (model.getObject().getPhoto() != null) {
 			Resource photo = getResource(model.getObject().getPhoto().getId()).get();
 			return getPresignedThumbnailSmall(photo);
@@ -156,6 +160,68 @@ public class SiteListPage extends ObjectListPage<Site> {
 		return null;
 	}
 
+	 
+	 @Override
+		protected WebMarkupContainer getObjectMenu(IModel<Site> model) {
+			
+			NavDropDownMenu<Site> menu = new NavDropDownMenu<Site>("menu", model, null);
+			
+			menu.setOutputMarkupId(true);
+
+			menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+			menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+
+			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<Site> getItem(String id) {
+
+					return new AjaxLinkMenuItem<Site>(id) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							// refresh(target);
+						}
+
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("edit");
+						}
+					};
+				}
+			});
+
+			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<Site> getItem(String id) {
+
+					return new AjaxLinkMenuItem<Site>(id) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							// refresh(target);
+						}
+
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("delete");
+						}
+					};
+				}
+			});
+			return menu;
+		}
+		
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -167,7 +233,7 @@ public class SiteListPage extends ObjectListPage<Site> {
 	
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 
-		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
+		/**ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
 			protected void onClick() {
 				SiteListPage.this.onCreate();
@@ -175,7 +241,7 @@ public class SiteListPage extends ObjectListPage<Site> {
 		};
 		create.setAlign(Align.TOP_LEFT);
 		list.add(create);
-		
+		**/
 		return list;
 		
 	}

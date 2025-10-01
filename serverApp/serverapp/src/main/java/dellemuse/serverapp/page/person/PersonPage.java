@@ -39,6 +39,7 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.ArtWorkPage;
 import dellemuse.serverapp.page.site.InstitutionPage;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -51,19 +52,25 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.odilon.util.Check;
+import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.listNavigator.ListNavigator;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
+import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import wktui.base.DummyBlockPanel;
-import wktui.base.InvisiblePanel;
+import wktui.base.INamedTab;
+import wktui.base.NamedTab;
 
 /**
  * 
@@ -80,36 +87,55 @@ public class PersonPage extends ObjectPage<Person> {
 
 	private PersonEditor editor;
 
-	
-	
-
-	
 	public PersonPage() {
-		super();
-		super.setEdit(true);
+		super();//
+	}
+
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+
+				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+					PersonPage.this.onEdit(event.getTarget());
+				}
+
+				else if (event.getName().equals(ServerAppConstant.site_info)) {
+					PersonPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
+				}
+
+				else if (event.getName().equals(ServerAppConstant.audit)) {
+					PersonPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleAjaxWicketEvent)
+					return true;
+				return false;
+			}
+		});
 	}
 
 	public PersonPage(PageParameters parameters) {
 		super(parameters);
-		super.setEdit(true);
-
 	}
 
 	public PersonPage(IModel<Person> model) {
 		super(model);
-		super.setEdit(true);
-
 	}
 
 	public PersonPage(IModel<Person> model, List<IModel<Person>> list) {
 		super(model, list);
-		super.setEdit(true);
-
 	}
 
 	/**
-	 *  Institution Site Artwork Person 
-	 *  Exhibition ExhibitionItem GuideContent User
+	 * Institution Site Artwork Person Exhibition ExhibitionItem GuideContent User
 	 */
 	@Override
 	public void onInitialize() {
@@ -120,7 +146,7 @@ public class PersonPage extends ObjectPage<Person> {
 	public void onDetach() {
 		super.onDetach();
 	}
-	
+
 	@Override
 	protected Optional<Person> getObject(Long id) {
 		return getPerson(id);
@@ -153,6 +179,9 @@ public class PersonPage extends ObjectPage<Person> {
 				new Model<String>(getModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
 
+		
+		 ph.setContext(getLabel("person"));
+		 
 		if (getList() != null && getList().size() > 0) {
 			Navigator<Person> nav = new Navigator<Person>("navigator", getCurrent(), getList()) {
 				private static final long serialVersionUID = 1L;
@@ -164,13 +193,11 @@ public class PersonPage extends ObjectPage<Person> {
 			};
 			bc.setNavigator(nav);
 		}
-
 		add(ph);
-
 	}
-	
+
 	protected Panel getEditor(String id) {
-		if (this.editor==null)
+		if (this.editor == null)
 			this.editor = new PersonEditor(id, getModel());
 		return this.editor;
 	}
@@ -182,60 +209,69 @@ public class PersonPage extends ObjectPage<Person> {
 
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
-		editor.onEdit(target);
+		this.editor.onEdit(target);
 	}
-	
-	
-	static final int PANEL_EDITOR = 0;
-	static final int PANEL_AUDIT = 1;
-	
+
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
-		
+
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		
-		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
+
+		DropDownMenuToolbarItem<Person> menu = new DropDownMenuToolbarItem<Person>("item", getModel(), Align.TOP_RIGHT);
+		menu.setLabel(getLabel("menu"));
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				PersonPage.this.togglePanel(PANEL_EDITOR, target);
-				PersonPage.this.onEdit(target);
+			public MenuItemPanel<Person> getItem(String id) {
+				return new AjaxLinkMenuItem<Person>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.site_info, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("info");
+					}
+				};
 			}
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("edit");
-			}
-		};
-		create.setAlign(Align.TOP_RIGHT);
-		list.add(create);
-		
-		
-		AjaxButtonToolbarItem<Person> audit = new AjaxButtonToolbarItem<Person>() {
+		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				PersonPage.this.togglePanel(PANEL_AUDIT, target);
+			public MenuItemPanel<Person> getItem(String id) {
+				return new AjaxLinkMenuItem<Person>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.audit, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("audit");
+					}
+				};
 			}
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("audit");
-			}
-		};
-		audit.setAlign(Align.TOP_RIGHT);
-		list.add(audit);
-		
+		});
+
+		list.add(menu);
 		return list;
 	}
 
-	
+	protected List<INamedTab> getInternalPanels() {
 
-	protected List<ITab> getInternalPanels() {
-		
-		List<ITab> tabs = new ArrayList<ITab>();
-		
-		AbstractTab tab_1=new AbstractTab(Model.of("editor")) {
+		List<INamedTab> tabs = new ArrayList<INamedTab>();
+
+		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -244,23 +280,18 @@ public class PersonPage extends ObjectPage<Person> {
 			}
 		};
 		tabs.add(tab_1);
-		
-		AbstractTab tab_2=new AbstractTab(Model.of("info")) {
+
+		NamedTab tab_2 = new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return new DummyBlockPanel(panelId,getLabel("audit"));
+				return new DummyBlockPanel(panelId, getLabel("audit"));
 			}
 		};
 		tabs.add(tab_2);
-	
+
 		return tabs;
 	}
-	
-
-	//@Override
-	//protected Panel getEditor() {
-	//	return new InvisiblePanel("editor");
-	//}
 
 }

@@ -14,6 +14,7 @@ import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -45,10 +46,10 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseIdNameSerializer.class)
     private Person publisher;
 
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = GuideContent.class)
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = GuideContent.class, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = true)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
-    @OrderBy("lower(title) ASC")
+    @OrderBy("lower(name) ASC")
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("contents")
@@ -143,7 +144,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
         return infoKey;
     }
 
-    public List<GuideContent> getContents() {
+    public List<GuideContent> getGuideContents() {
         return contents;
     }
 

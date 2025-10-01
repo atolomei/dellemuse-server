@@ -46,11 +46,11 @@ public class DelleMuseArtExhibitionItemSerializer extends StdSerializer<ArtExhib
 			jgen.writeEndObject();
 
 		}
-		if (value.getArtwork() != null) {
+		if (value.getArtWork() != null) {
 
 			jgen.writeStartObject("artwork");
-				jgen.writeStringField("id", value.getArtwork().getId().toString());
-				jgen.writeStringField("name", value.getArtwork().getName().toString());
+				jgen.writeStringField("id", value.getArtWork().getId().toString());
+				jgen.writeStringField("name", value.getArtWork().getName().toString());
 	
 				jgen.writeStartObject("site");
 					jgen.writeStringField("id", value.getArtExhibition().getSite().getId().toString());

@@ -72,8 +72,13 @@ public class ArtWork extends DelleMuseObject {
 
 	@Column(name = "introKey")
 	private String introKey;
+	
+	@Column(name = "year")
+	private int year;
 
+	
 	/**
+	 * 
 	 * by default it is true, sometimes the thumbnail generated is not correct, for
 	 * those images we dont use thumbnail
 	 */
@@ -105,6 +110,19 @@ public class ArtWork extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource audio;
 
+	@Column(name = "url")
+	private String url;
+
+	
+	public void setUrl( String url ) {
+		this.url=url;
+	}
+	
+	public String geturl() {
+		return this.url;
+	}
+	
+	
 	public ArtWork() {
 	}
 
@@ -205,7 +223,7 @@ public class ArtWork extends DelleMuseObject {
 	}
 
 	public String getIntroKey() {
-		return introKey;
+		return introKey; 
 	}
 
 	public void setIntroKey(String introKey) {
@@ -219,4 +237,15 @@ public class ArtWork extends DelleMuseObject {
 	public void setUsethumbnail(boolean usethumbnail) {
 		this.usethumbnail = usethumbnail;
 	}
+	
+	
+	public void setYear( int year ) {
+		this.year=year;
+	}
+	
+	public int getYear() {
+		return this.year;
+	}
+	
+	
 };

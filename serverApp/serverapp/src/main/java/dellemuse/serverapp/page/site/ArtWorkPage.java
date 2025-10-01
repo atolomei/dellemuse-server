@@ -43,6 +43,7 @@ import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.PersonPage;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.user.UserEditor;
 import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -60,6 +61,9 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.odilon.util.Check;
+import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.SimpleWicketEvent;
+import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -72,7 +76,9 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.DummyBlockPanel;
+import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
+import wktui.base.NamedTab;
 
 /**
  * 
@@ -92,10 +98,7 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 	private ArtWorkMainPanel editor;
 
 	
-	@Override
-	protected void onEdit(AjaxRequestTarget target) {
-		editor.getEditor().onEdit(target);
-	}
+
 
 	public ArtWorkPage() {
 		super();
@@ -116,6 +119,62 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 		
 	
 	@Override
+	protected void onEdit(AjaxRequestTarget target) {
+		editor.getEditor().onEdit(target);
+	}
+	
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+				logger.debug(event.toString());
+
+				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+					ArtWorkPage.this.onEdit(event.getTarget());
+				}
+			
+				else if (event.getName().equals(ServerAppConstant.site_info)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
+				}
+			
+				else if (event.getName().equals(ServerAppConstant.audit)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleAjaxWicketEvent)
+					return true;
+				return false;
+			}
+		});
+	
+	 
+		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleWicketEvent event) {
+				if (event.getName().equals(ServerAppConstant.action_site_home)) {
+					setResponsePage( new SitePage( getSiteModel(), null));
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleWicketEvent)
+					return true;
+				return false;
+			}
+		});
+ 	
+	
+	}
+	
+	@Override
 	protected Optional<ArtWork> getObject(Long id) {
 		return getArtWork( id );
 	}
@@ -126,10 +185,6 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 		return new Model<String> (getModel().getObject().getName());
 	}
 	
-
-	static final int PANEL_EDITOR = 0;
-	static final int PANEL_AUDIT = 1;
-	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 	
@@ -137,6 +192,7 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 		
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 		
+		/**
 		AjaxButtonToolbarItem<Void> edit = new AjaxButtonToolbarItem<Void>() {
 			private static final long serialVersionUID = 1L;
 
@@ -150,37 +206,11 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 				return getLabel("edit");
 			}
 		};
-		
-		
-		
-		
-		
-		
 		edit.setAlign(Align.TOP_LEFT);
 		
 		list.add(edit);		
 		
-		
-		
-
-		AjaxButtonToolbarItem<Person> audit = new AjaxButtonToolbarItem<Person>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				ArtWorkPage.this.togglePanel(PANEL_AUDIT, target);
-			}
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("audit");
-			}
-		};
-		audit.setAlign(Align.TOP_RIGHT);
-		list.add(audit);
-		
-		
-		
-		
+		**/
 		
 		
 		return list;
@@ -188,11 +218,13 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 	}
 	
 	
-	protected List<ITab> getInternalPanels() {
+	@Override
+	protected List<INamedTab> getInternalPanels() {
+
+		List<INamedTab> tabs = new ArrayList<INamedTab>();
 		
-		List<ITab> tabs = new ArrayList<ITab>();
-		
-		AbstractTab tab_1=new AbstractTab(Model.of("editor")) {
+		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
+		 
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -202,7 +234,7 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 		};
 		tabs.add(tab_1);
 		
-		AbstractTab tab_2=new AbstractTab(Model.of("audit")) {
+		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -213,6 +245,7 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 	
 		return tabs;
 	}
+
 	
 	protected Panel getEditor(String id) {
 		if (this.editor==null)
@@ -236,6 +269,9 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 		JumboPageHeaderPanel<ArtWork> ph = new JumboPageHeaderPanel<ArtWork>("page-header", getModel(),
 				new Model<String>(getModel().getObject().getDisplayname()));
 
+		ph.setImageLinkCss("jumbo-img jumbo-lg mb-2 mb-lg-0 border bg-body-tertiary");
+		
+		
 		if (getModel().getObject().getArtists()!=null) 
 			ph.setTagline(Model.of(getArtistStr(getModel().getObject())));
 		
@@ -253,6 +289,8 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 			bc.setNavigator(nav);
 		}
 		
+		ph.setContext(getLabel("artwork"));
+		
 		ph.setBreadCrumb(bc);
 		add(ph);
 	}
@@ -267,14 +305,14 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 		super.setUpModel();
 		
 		if (!getModel().getObject().isDependencies()) {
-			Optional<ArtWork> o_i = getArtWorkDBService().findByIdWithDeps(getModel().getObject().getId());
+			Optional<ArtWork> o_i = getArtWorkDBService().findWithDeps(getModel().getObject().getId());
 			setModel(new ObjectModel<ArtWork>(o_i.get()));
 		}
 		
 		setSiteModel(new ObjectModel<Site>( getModel().getObject().getSite() ));
 		
 		if (!getSiteModel().getObject().isDependencies()) {
-			Optional<Site> o_i = getSiteDBService().findByIdWithDeps(getSiteModel().getObject().getId());
+			Optional<Site> o_i = getSiteDBService().findWithDeps(getSiteModel().getObject().getId());
 			setSiteModel(new ObjectModel<Site>(o_i.get()));
 		}
 	}
@@ -339,16 +377,6 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 	}
 
  
-
-	/**
-	protected List<Person> getArtists(ArtWork aw) {
-		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
-		List<Person> list = new ArrayList<Person>(); 
-		for (Person person: aw.getArtists()) {
-			list.add(service.findById(person.getId()).get());
-		}
-		return list;
-	}
-	**/
+ 
 	
 }

@@ -92,6 +92,11 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	@JsonSerialize(using = DelleMuseUserSerializer.class)
 	private User lastModifiedUser;
 
+	@Column(name = "state")
+	private ObjectState state;
+
+	
+	
 	@Transient
 	private  boolean dependecies = false;
 	
@@ -119,6 +124,15 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	public void setId(Long id) {
 		this.id = id;
 	}
+	
+	public ObjectState getState() {
+		return this.state;
+	}
+	
+	public void setObjectState( ObjectState state) {
+		this.state=state;
+	}
+	
 
 	public OffsetDateTime getCreated() {
 		return created;

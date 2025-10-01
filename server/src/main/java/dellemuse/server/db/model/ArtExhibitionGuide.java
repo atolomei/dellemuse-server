@@ -48,7 +48,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @OneToMany(fetch = FetchType.LAZY, targetEntity = GuideContent.class)
     @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = true)
     @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
-    @OrderBy("lower(title) ASC")
+    @OrderBy("lower(name) ASC")
     @JsonManagedReference
     @JsonBackReference
     @JsonProperty("contents")

@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -31,7 +33,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
     
     
     @Transactional
-	public Optional<ArtExhibitionItem> findByIdWithDeps(Long id) {
+	public Optional<ArtExhibitionItem> findWithDeps(Long id) {
 
 		Optional<ArtExhibitionItem> o = super.findById(id);
 
@@ -42,8 +44,21 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 
 		a.setDependencies(true);
 
-		a.getArtExhibition().getDisplayname();
+		if (a.getArtExhibition()!=null)
+			a.getArtExhibition().getDisplayname();
+		
+		if (a.getArtWork()!=null)
+			a.getArtWork().getDisplayname();
 
+		if (a.getFloor()!=null)
+			a.getFloor().getDisplayname();
+		
+		if (a.getRoom()!=null)
+			a.getRoom().getDisplayname();
+		
+		if (a.getLastModifiedUser()!=null)
+			a.getLastModifiedUser().getDisplayname();
+		
 		return o;
 	}
 
@@ -68,6 +83,24 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
         return getRepository().save(c);
     }
 
+    @Transactional
+    public ArtExhibitionItem create(String name, ArtExhibition ex, ArtWork artWork, User createdBy) {
+        ArtExhibitionItem c = new ArtExhibitionItem();
+        
+        c.setName(name);
+        c.setNameKey(nameKey(name));
+        
+        c.setArtWork(artWork);
+        c.setArtExhibition(ex);
+        
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+        return getRepository().save(c);
+    }
+    
+    
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);

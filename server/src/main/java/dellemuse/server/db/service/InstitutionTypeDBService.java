@@ -78,7 +78,7 @@ public class InstitutionTypeDBService extends DBService<InstitutionType, Long> {
 
         cq.select(root)
           .where(cb.equal(root.get("institution").get("id"), institutionId))
-          .orderBy(cb.asc(root.get("title")));
+          .orderBy(cb.asc(root.get("name")));
 
         return entityManager.createQuery(cq).getResultList();
     }

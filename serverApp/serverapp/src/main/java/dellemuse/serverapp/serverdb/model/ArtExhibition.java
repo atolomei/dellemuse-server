@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -76,16 +77,31 @@ public class ArtExhibition extends DelleMuseObject {
 	@Column(name = "intro")
 	private String intro;
 
+	
+	@Column(name = "spec")
+	private String spec;
+
+	@Column(name = "shortname")
+	private String shortname;
+
+	
+	@Column(name = "shortnameKey")
+	private String shortnamekey;
+	
 	@Column(name = "introKey")
 	private String introKey;
 
 	@Column(name = "location")
 	private String location;
+	
+	@Column(name = "mapurl")
+	private String map;
+	
 
-	@OneToMany(fetch = FetchType.LAZY, targetEntity = ArtExhibitionItem.class)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = ArtExhibitionItem.class)
 	@JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
-	@OrderBy("lower(title) ASC")
+	@OrderBy("lower(name) ASC")
 	@JsonProperty("artExhibitionItems")
 	private List<ArtExhibitionItem> artExhibitionItems;
 
@@ -269,6 +285,38 @@ public class ArtExhibition extends DelleMuseObject {
 
 	public void setWebsite(String website) {
 		this.website = website;
+	}
+
+	public String getMap() {
+		return map;
+	}
+
+	public void setMap(String map) {
+		this.map = map;
+	}
+
+	public String getSpec() {
+		return spec;
+	}
+
+	public void setSpec(String spec) {
+		this.spec = spec;
+	}
+
+	public String getShortname() {
+		return shortname;
+	}
+
+	public String getShortnamekey() {
+		return shortnamekey;
+	}
+
+	public void setShortname(String shortname) {
+		this.shortname = shortname;
+	}
+
+	public void setShortnamekey(String shortnamekey) {
+		this.shortnamekey = shortnamekey;
 	}
 
 };

@@ -54,7 +54,7 @@ public class RoomDBService extends DBService<Room, Long> {
     }
 
     @Transactional
-	public Optional<Room> findByIdWithDeps(Long id) {
+	public Optional<Room> findWithDeps(Long id) {
 
 		Optional<Room> o_aw = super.findById(id);
 

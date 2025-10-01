@@ -91,7 +91,7 @@ CREATE TABLE resource (
 CREATE TABLE person (
 						id					bigint primary key default nextval('sequence_id'),
 						
-						name				character varying(512) not null,
+						name				character varying(512),
 						nameKey				character varying(512),
 
 						title		 		character varying(1024),
@@ -101,7 +101,7 @@ CREATE TABLE person (
 						lastnameKey			character varying(512),
 						
 						sortlastfirstname character varying(1024),
-						
+	 					
 						displayname			character varying(512),
 						
 						nickname			character varying(512),
@@ -483,6 +483,7 @@ CREATE TABLE artwork (
 						site_owner_id			bigint references site(id) on delete restrict,
 						
 						usethumbnail 			boolean default true,
+						url 					character varying(1024),
 						
 						created				timestamp with time zone DEFAULT now() not null,
 						lastmodified		timestamp with time zone DEFAULT now() not null,
@@ -577,6 +578,10 @@ CREATE TABLE artExhibition (
 						name				character varying(512) not null,
 						nameKey				character varying(512),
 
+						shortName			character varying(512),
+						shortNameKey		character varying(512),
+							
+							
 						title		 		character varying(1024),
 						titleKey			character varying(512),
 

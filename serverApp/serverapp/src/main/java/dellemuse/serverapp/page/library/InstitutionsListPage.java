@@ -37,6 +37,7 @@ import dellemuse.serverapp.page.person.PersonListPage;
 import dellemuse.serverapp.page.site.InstitutionPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -51,6 +52,9 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
@@ -76,13 +80,14 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	
 	public InstitutionsListPage() {
 		super();
-		setCreate(true);
+		super.setIsExpanded(true); 
 	}
 
 	
 	public InstitutionsListPage(PageParameters parameters) {
 		super(parameters);
-		setCreate(true);
+		super.setIsExpanded(true);
+	 
 	}
  
 
@@ -110,6 +115,65 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	}
 
 	
+	@Override
+	protected WebMarkupContainer getObjectMenu(IModel<Institution> model) {
+		
+		NavDropDownMenu<Institution> menu = new NavDropDownMenu<Institution>("menu", model, null);
+		
+		menu.setOutputMarkupId(true);
+
+		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Institution> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Institution>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit");
+					}
+				};
+			}
+		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Institution> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Institution>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+			}
+		});
+		return menu;
+	}
 	
 	 protected void addHeaderPanel() {
 
@@ -120,10 +184,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		add(ph);
 	}
 
-	@Override
-	public IRequestablePage getObjectPage(IModel<Institution> model) {
-		return null;
-	}
+
 
 	@Override
 	public Iterable<Institution> getObjects() {
@@ -169,7 +230,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	}
 
 	@Override
-	protected String getImageSrc(IModel<Institution> model) {
+	protected String getObjectImageSrc(IModel<Institution> model) {
 		 if ( model.getObject().getPhoto()!=null) {
 		 		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
 		 	    return getPresignedThumbnailSmall(photo);

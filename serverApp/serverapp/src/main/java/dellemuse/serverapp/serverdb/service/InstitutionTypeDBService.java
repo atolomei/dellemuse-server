@@ -85,8 +85,9 @@ public class InstitutionTypeDBService extends DBService<InstitutionType, Long> {
         Root<Site> root = cq.from(Site.class);
 
         cq.select(root)
-          .where(cb.equal(root.get("institution").get("id"), institutionId))
-          .orderBy(cb.asc(root.get("title")));
+          .where(cb.equal(root.get("institution").get("id"), institutionId));
+
+        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
 
         return entityManager.createQuery(cq).getResultList();
     }
@@ -103,62 +104,4 @@ public class InstitutionTypeDBService extends DBService<InstitutionType, Long> {
 }
 
 
-
-/**
-@Service
-public class InstitutionTypeDBService extends DBService<InstitutionType, Long> {
-
-    @SuppressWarnings("unused")
-    static private Logger logger = Logger.getLogger(InstitutionTypeDBService.class.getName());
-
-    public InstitutionTypeDBService(CrudRepository<InstitutionType, Long> repository, EntityManagerFactory entityManagerFactory, Settings settings) {
-        super(repository, entityManagerFactory, settings);
-    }
-
-    @Transactional
-    @Override
-    public InstitutionType create(String name,User createdBy) {
-        InstitutionType c = new InstitutionType();
-        c.setName(name);
-        c.setNameKey(nameKey(name));
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
-
-    
-    @Transactional
-    public List<Site> findSites(Institution institution) {
-        return findSites(institution.getId());
-    }
-
-    
-    @Transactional
-    public List<Site> findSites(Long institutionid) {
-        TypedQuery<Site> query;
-        CriteriaBuilder criteriabuilder = getSessionFactory().getCurrentSession().getCriteriaBuilder();
-        CriteriaQuery<Site> criteria = criteriabuilder.createQuery(Site.class);
-        Root<Site> loaders = criteria.from(Site.class);
-        criteria.orderBy(criteriabuilder.asc(loaders.get("title")));
-        ParameterExpression<Long> idparameter = criteriabuilder.parameter(Long.class);
-        criteria.select(loaders).where(criteriabuilder.equal(loaders.get("institution.id"), idparameter));
-        query = getSessionFactory().getCurrentSession().createQuery(criteria);
-        query.setHint("org.hibernate.cacheable", true);
-        query.setFlushMode(FlushModeType.COMMIT);
-        query.setParameter(idparameter, institutionid);
-        return query.getResultList();
-
-    }
-    @Override
-    public List<InstitutionType> getByName(String name) {
-        return createNameQuery(name).getResultList();
-    }
-
-    @Override
-    protected Class<InstitutionType> getEntityClass() {
-        return InstitutionType.class;
-    }
-}
-
-*/
+ 

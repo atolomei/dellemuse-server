@@ -51,8 +51,11 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		c.setName(name);
 		c.setNameKey(nameKey(name));
 		c.setCreated(OffsetDateTime.now());
+		c.setUsethumbnail(true);
+	
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+		
 		return getRepository().save(c);
 	}
 
@@ -69,13 +72,15 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+		c.setUsethumbnail(true);
 		
 		return getRepository().save(c);
 	}
 
     
+	@SuppressWarnings("unused")
 	@Transactional
-	public Optional<ArtWork> findByIdWithDeps(Long id) {
+	public Optional<ArtWork> findWithDeps(Long id) {
 
 		Optional<ArtWork> o_aw = super.findById(id);
 
@@ -99,6 +104,12 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		if (photo != null)
 			photo.getBucketName();
 
+	 
+		
+		for( Person p: aw.getArtists()) {
+			Long p_id = p.getId();
+		}
+		
 		aw.setDependencies(true);
 
 		return o_aw;
@@ -119,6 +130,7 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		return !getEntityManager().contains(entity);
 	}
 
+	/**
 	@Transactional
 	public ArtWork lazyLoad(ArtWork s) {
 		ArtWork src = findById(s.getId()).get();
@@ -136,7 +148,8 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		return src;
 
 	}
-
+**/
+	
 	@Transactional
 	public void reloadIfDetached(ArtWork src) {
 		if (!getEntityManager().contains(src)) {

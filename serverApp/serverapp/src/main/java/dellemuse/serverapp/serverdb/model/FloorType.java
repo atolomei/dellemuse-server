@@ -17,16 +17,5 @@ public class FloorType extends DelleMuseObject {
  
     public FloorType() {
     }
-
-    /**
-    @Override
-    public FloorTypeModel model() {
-        try {
-            return (FloorTypeModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), FloorTypeModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    **/
     
 }

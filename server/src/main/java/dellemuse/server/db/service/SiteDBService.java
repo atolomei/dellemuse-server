@@ -99,7 +99,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		CriteriaQuery<ArtExhibition> cq = cb.createQuery(ArtExhibition.class);
 		Root<ArtExhibition> root = cq.from(ArtExhibition.class);
 		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
+		cq.orderBy(cb.asc(root.get("name")));
 
 		return entityManager.createQuery(cq).getResultList();
 	}
@@ -110,7 +110,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		CriteriaQuery<ArtExhibitionItem> cq = cb.createQuery(ArtExhibitionItem.class);
 		Root<ArtExhibitionItem> root = cq.from(ArtExhibitionItem.class);
 		cq.select(root).where(cb.equal(root.get("artexhibition").get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
+		cq.orderBy(cb.asc(root.get("name")));
 
 		return entityManager.createQuery(cq).getResultList();
 	}
@@ -122,7 +122,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		Root<GuideContent> root = cq.from(GuideContent.class);
 		cq.select(root)
 				.where(cb.equal(root.get("artexhibitionitem").get("artexhibition").get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
+		cq.orderBy(cb.asc(root.get("name")));
 
 		return entityManager.createQuery(cq).getResultList();
 	}
@@ -133,7 +133,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		CriteriaQuery<Floor> cq = cb.createQuery(Floor.class);
 		Root<Floor> root = cq.from(Floor.class);
 		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
+		cq.orderBy(cb.asc(root.get("name")));
 
 		return entityManager.createQuery(cq).getResultList();
 	}
@@ -144,7 +144,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		CriteriaQuery<Room> cq = cb.createQuery(Room.class);
 		Root<Room> root = cq.from(Room.class);
 		cq.select(root).where(cb.equal(root.get("floor").get("id"), floorId));
-		cq.orderBy(cb.asc(root.get("title")));
+		cq.orderBy(cb.asc(root.get("name")));
 
 		return entityManager.createQuery(cq).getResultList();
 	}
@@ -161,7 +161,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		Root<ArtWork> root = cq.from(ArtWork.class);
 
 		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
+		cq.orderBy(cb.asc(root.get("name")));
 
 		return entityManager.createQuery(cq).getResultList();
 	}

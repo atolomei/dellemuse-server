@@ -13,12 +13,19 @@ import org.apache.wicket.util.visit.IVisitor;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -45,6 +52,15 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	private static final long serialVersionUID = 1L;
 
+	
+	static public final List<ObjectState> b_state = new ArrayList<ObjectState>();
+	static {
+		 b_state.add(ObjectState.DRAFT 		);
+		 b_state.add(ObjectState.EDTIION 	);
+		 b_state.add(ObjectState.PUBLISHED  );
+		 b_state.add(ObjectState.ARCHIVED 	);
+	}
+	
 	private Form<T> form;
 //	private IModel<T> model;
 	private boolean readonly = false;
@@ -188,6 +204,24 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		return NumberFormatter.formatFileSize(size);
 	}
 
+	public void save(GuideContent a) {
+		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance()
+				.getBean(GuideContentDBService.class);
+		service.save(a);
+	}
+
+	public void save(ArtExhibitionItem a) {
+		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance()
+				.getBean(ArtExhibitionItemDBService.class);
+		service.save(a);
+	}
+	
+	public void save(ArtExhibitionGuide a) {
+		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance()
+				.getBean(ArtExhibitionGuideDBService.class);
+		service.save(a);
+	}
+	
 	public void save(ArtExhibition a) {
 		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance()
 				.getBean(ArtExhibitionDBService.class);
@@ -208,6 +242,12 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 	public void save(ArtWork artwork) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		service.save(artwork);
+	}
+	
+	
+	public void save(Person person) {
+		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
+		service.save(person);
 	}
 
 	protected String getMimeType(String clientFileName) {

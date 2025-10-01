@@ -39,6 +39,7 @@ import dellemuse.model.ref.RefPersonModel;
 import dellemuse.model.ref.RefResourceModel;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -49,6 +50,7 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
@@ -186,7 +188,9 @@ public abstract class BasePage extends WebPage {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-
+		
+		addListeners();
+		
 		// cacheArtExhibitionItem = new HashMap<Long, IModel<ArtExhibitionItemModel>>();
 
 		if (logger.isDebugEnabled())
@@ -463,6 +467,16 @@ public abstract class BasePage extends WebPage {
 		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 	}
 	
+
+	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
+		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
+	}
+	
+	
+	protected ArtExhibitionGuideDBService getArtExhibitionGuideDBService() {
+		return (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
+	}
+	
 	protected ResourceDBService getResourceDBService() {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
@@ -475,14 +489,19 @@ public abstract class BasePage extends WebPage {
 		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 	}
 
-	/** DB Services */
-
+	/** Object ----------------  */
+/**
 	public ArtWork lazyLoad(ArtWork s) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		ArtWork a = service.lazyLoad(s);
 		return a;
 	}
-
+**/
+	public Optional<ArtWork> findArtWorkByIdWithDeps(Long id) {
+		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+		return service.findWithDeps(id);
+	}
+	
 	public Optional<Person> getPerson(Long id) {
 		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 		return service.findById(id);
@@ -494,6 +513,9 @@ public abstract class BasePage extends WebPage {
 		return service.findById(id);
 	}
 
+	
+	/** Iterable */
+	
 	public Iterable<Person> getPersons() {
 		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 		return service.findAllSorted();
@@ -510,9 +532,17 @@ public abstract class BasePage extends WebPage {
 		return service.getSites(in.getId());
 	}
 
+	public Iterable<ArtExhibition> getSiteArtExhibitions( Site site ) {
+		SiteDBService service= (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return service.getArtExhibitions(site.getId());
+	}
+
+	
+	
+	
 	public Iterable<ArtWork> getArtWorks(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		return service.getSiteArtWork(site);
+		return service.getSiteArtWorks(site);
 	}
 
 	public Iterable<User> getUsers() {
@@ -520,15 +550,11 @@ public abstract class BasePage extends WebPage {
 		return service.findAllSorted();
 	}
 	
-	
-
 	public Iterable<GuideContent> getGuideContents(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
 			.getBean(SiteDBService.class);
 		return service.getSiteGuideContent(site.getId());
 	}
-	
-	
 	
 	public Optional<Site> getSite(Long id) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
@@ -550,16 +576,21 @@ public abstract class BasePage extends WebPage {
 	
 	public Optional<Site> findByIdWithDeps(Long id) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		return service.findByIdWithDeps(id);
+		return service.findWithDeps(id);
 	}
 
 	/** Object */
+	
 	public Optional<ArtWork> getArtWork(Long id) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		return service.findById(id);
 	}
 	
 	public String getArtistStr(ArtWork aw) {
+		
+		if (!aw.isDependencies()) {
+			aw=this.findArtWorkByIdWithDeps(aw.getId()).get();
+		}
 		
 		StringBuilder info = new StringBuilder();
 		int n = 0;
@@ -575,6 +606,12 @@ public abstract class BasePage extends WebPage {
 	
 	protected Optional<ArtExhibitionItem> getArtExhibitionItem(Long id) {
 		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
+		return service.findById(id);
+	}
+	
+	
+	public Optional<ArtExhibitionGuide> getArtExhibitionGuide(Long id) {
+		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 		return service.findById(id);
 	}
 	
@@ -620,6 +657,11 @@ public abstract class BasePage extends WebPage {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public ArtExhibition createExhibition(Site site) {
+		 
+		return getArtExhibitionDBService().create("new", site,   getUserDBService().findRoot());
 	}
 
 }

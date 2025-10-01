@@ -8,6 +8,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -34,7 +35,10 @@ import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.page.InternalPanel;
+import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
+import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -56,6 +60,11 @@ import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.listNavigator.ListNavigator;
+import io.wktui.nav.toolbar.ButtonToolbarItem;
+import io.wktui.nav.toolbar.LinkButtonToolbarItem;
+import io.wktui.nav.toolbar.Toolbar;
+import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import jakarta.transaction.Transactional;
@@ -85,12 +94,10 @@ public class SitePage extends BasePage {
 
 	private Link<Site> linkFloors;
 	private Link<Site> linkContents;
-	
-	private Image image;
-	private WebMarkupContainer imageContainer;
-	private Link<Resource> imageLink;
 
-	private List<IModel<ArtExhibition>> listPermanent;
+	private Link<Site> linkExhibitions;
+
+ 	private List<IModel<ArtExhibition>> listPermanent;
 	private List<IModel<ArtExhibition>> listTemporary;
 	
 	private List<IModel<Site>> siteList;
@@ -98,6 +105,23 @@ public class SitePage extends BasePage {
 	private WebMarkupContainer navigatorContainer;
 	private Exception exceptionError;
 
+	
+	
+	private void addToolbar() {
+		
+		Toolbar toolbarItems = new Toolbar("toolbarItems");
+	
+		
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		list.add(new SiteNavDropDownMenuToolbarItem(	"item", 
+														getSiteModel(), 
+													  Align.TOP_RIGHT));
+	
+		list.forEach( t-> toolbarItems.addItem(t));
+		add( toolbarItems );
+	}
+	
+	
 	public SitePage() {
 		super();
 	}
@@ -107,6 +131,10 @@ public class SitePage extends BasePage {
 		stringValue = getPageParameters().get("id");
 	}
 
+	public SitePage(IModel<Site> model) {
+		this(model, null);
+		
+	}
 	public SitePage(IModel<Site> model,  List<IModel<Site>> list) {
 		Check.requireNonNullArgument(model, "model is null");
 		Check.requireTrue(model.getObject()!=null, "modelOjbect is null");
@@ -115,7 +143,6 @@ public class SitePage extends BasePage {
 		this.setSiteList(list);
 	}
 	
-		
 	/**
 	 * Institution Site Artwork Person Exhibition ExhibitionItem GuideContent User
 	 */
@@ -140,6 +167,9 @@ public class SitePage extends BasePage {
 				new Model<String>(getSiteModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
 		
+		
+		 ph.setContext(getLabel("site"));
+		 
 		if (getSiteModel().getObject().getSubtitle()!=null)
 			ph.setTagline( Model.of( getSiteModel().getObject().getSubtitle()));
 		
@@ -157,10 +187,6 @@ public class SitePage extends BasePage {
 			};
 			bc.setNavigator(nav);
 		}
-		
-		
-		
-		
 		
 		add(ph);
 
@@ -226,9 +252,21 @@ public class SitePage extends BasePage {
 		};
 		add(linkContents);
 		
+		
+		linkExhibitions = new Link<Site>("exhibitions", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick() {
+				setResponsePage(new SiteArtExhibitionsListPage(getSiteModel()));
+			}
+		};
+		add(linkExhibitions);
+		
+		
 		addNavigator();
 		//addImageAndInfo();
-	
+		addToolbar();
+		 
 	}
 
 	protected IModel<Institution> getInstitutionModel() {
@@ -309,8 +347,40 @@ public class SitePage extends BasePage {
 	}
 */
 	
+	
+	private WebMarkupContainer exToolbarContainer;
+	
 	private void addExhibitions() {
 
+		
+		this.exToolbarContainer = new WebMarkupContainer("exToolbarContainer");
+		this.exToolbarContainer.setOutputMarkupId(true);
+		add(this.exToolbarContainer);
+		
+		Toolbar toolbarItems = new Toolbar("toolbarItems");
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		
+		ButtonToolbarItem<Site> create = new LinkButtonToolbarItem<Site>(getSiteModel(), getLabel("create")) {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onClick() {
+				
+				SitePage.this.onCreateExhibition();
+				 
+			}
+		};
+		list.add(create);
+		
+		 
+		list.forEach(t -> toolbarItems.addItem(t));
+		this.exToolbarContainer.addOrReplace(toolbarItems);
+		
+		
+		
 		{
 			ListPanel<ArtExhibition> panel = new ListPanel<>("exhibitionsPermanent", getArtExhibitionsPermanent()) {
 				private static final long serialVersionUID = 1L;
@@ -326,7 +396,44 @@ public class SitePage extends BasePage {
 					return list;
 				}
 
-				@Override
+				
+				 @Override
+		         protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
+		            	logger.debug("expand");
+		            	return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
+		            		
+							private static final long serialVersionUID = 1L;
+		            		
+		            		@Override
+		            		protected IModel<String> getObjectSubtitle() {
+								if (getMode()==ListPanelMode.TITLE)
+									return null;
+								   return Model.of( getModel().getObject().getSubtitle() );
+		                   }
+
+		            		@Override
+							protected String getImageSrc() {
+								if (getModel().getObject().getPhoto() != null) {
+									Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+									return getPresignedThumbnailSmall(photo);
+								}
+								return null;
+							}
+
+							@Override
+							public void onClick() {
+								setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+							}
+
+							protected IModel<String> getInfo() {
+								String str = TextCleaner.clean(getModel().getObject().getIntro());
+								return new Model<String>(str);
+							}
+							
+		            	};
+		            }
+
+				 @Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
 					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element",
 							model, getListPanelMode()) {
@@ -354,10 +461,13 @@ public class SitePage extends BasePage {
 					return panel;
 				}
 			};
-			 add(panel);
+			 
+			
+			panel.setHasExpander(true);
+			add(panel);
 			
 			//panel.setTitle(getLabel("exhibitions-permanent"));
-	        panel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
+	        panel.setListPanelMode(ListPanelMode.TITLE);
 			panel.setLiveSearch(false);
 	        panel.setSettings(true);
 
@@ -377,6 +487,41 @@ public class SitePage extends BasePage {
 					});
 					return list;
 				}
+				 @Override
+		         protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
+		            	logger.debug("expand");
+		            	return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
+		            		
+							private static final long serialVersionUID = 1L;
+		            		
+		            		@Override
+		            		protected IModel<String> getObjectSubtitle() {
+								if (getMode()==ListPanelMode.TITLE )
+									return null;
+								   return Model.of( getModel().getObject().getSubtitle() );
+		                   }
+
+		            		@Override
+							protected String getImageSrc() {
+								if (getModel().getObject().getPhoto() != null) {
+									Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+									return getPresignedThumbnailSmall(photo);
+								}
+								return null;
+							}
+
+							@Override
+							public void onClick() {
+								setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+							}
+
+							protected IModel<String> getInfo() {
+								String str = TextCleaner.clean(getModel().getObject().getIntro());
+								return new Model<String>(str);
+							}
+							
+		            	};
+		            }
 
 				@Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
@@ -410,10 +555,16 @@ public class SitePage extends BasePage {
 			
 			//panel.setTitle(getLabel("exhibitions-temporary"));
 
-	        panel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
+	        panel.setListPanelMode(ListPanelMode.TITLE);
 			panel.setLiveSearch(false);
-	        panel.setSettings(true);
+			panel.setHasExpander(true);
+			panel.setSettings(true);
 		}
+	}
+
+	protected void onCreateExhibition() {
+			ArtExhibition ae = createExhibition(getSiteModel().getObject());
+			setResponsePage( new ArtExhibitionPage( new ObjectModel<ArtExhibition>(ae)));
 	}
 
 	@Override

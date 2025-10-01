@@ -134,7 +134,7 @@ public class SiteDBService extends DBService<Site, Long> {
 	
     @Transactional
     public Iterable<Site> findAllSorted() {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Site> cq = cb.createQuery(getEntityClass());
         Root<Site> root = cq.from(getEntityClass());
         cq.orderBy(cb.asc( cb.lower(root.get("name"))));
@@ -143,7 +143,7 @@ public class SiteDBService extends DBService<Site, Long> {
 
 
 	@Transactional
-	public Optional<Site> findByIdWithDeps(Long id) {
+	public Optional<Site> findWithDeps(Long id) {
 
 		Optional<Site> o_site = super.findById(id);
 
@@ -168,9 +168,6 @@ public class SiteDBService extends DBService<Site, Long> {
 		return o_site;
 	}
 
-	public boolean isDetached(Site entity) {
-		return !getEntityManager().contains(entity);
-	}
 
 	@Transactional
 	public Optional<Resource> loadPhoto(Site src) {
@@ -196,7 +193,7 @@ public class SiteDBService extends DBService<Site, Long> {
 	@Transactional
 	public Optional<Site> findByShortName(String name) {
 		Check.requireNonNullStringArgument(name, "name is null");
-		CriteriaBuilder cb = this.entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Site> cq = cb.createQuery(Site.class);
 		Root<Site> root = cq.from(Site.class);
 		cq.select(root).where(cb.equal(cb.lower(root.get("shortName")), name.toLowerCase()));
@@ -213,22 +210,21 @@ public class SiteDBService extends DBService<Site, Long> {
 
 	@Transactional
 	public List<ArtExhibition> getArtExhibitions(Long siteId) {
-		CriteriaBuilder cb = this.entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibition> cq = cb.createQuery(ArtExhibition.class);
 		Root<ArtExhibition> root = cq.from(ArtExhibition.class);
 		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
-
+		cq.orderBy(cb.asc( cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
 	@Transactional
 	public List<ArtExhibitionItem> getSiteArtExhibitionItems(Long siteId) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionItem> cq = cb.createQuery(ArtExhibitionItem.class);
 		Root<ArtExhibitionItem> root = cq.from(ArtExhibitionItem.class);
 		cq.select(root).where(cb.equal(root.get("artExhibition").get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
+		cq.orderBy(cb.asc( cb.lower(root.get("name"))));
 
 		return getEntityManager().createQuery(cq).getResultList();
 	}
@@ -271,9 +267,21 @@ public class SiteDBService extends DBService<Site, Long> {
      
 	@Transactional
     public List<Person> getArtistsBySiteId(Long siteId) {
-        return personRepository.findDistinctPersonsBySiteId(siteId);
+        return getPersonRepository().findDistinctPersonsBySiteId(siteId);
     }
     
+
+	@Transactional
+	public Iterable<ArtWork> findDistinctArtWorkByPersonId(Long id) {
+		return getPersonRepository().findDistinctArtWorkByPersonId(id);
+	}
+
+	
+	
+	public boolean isDetached(Site entity) {
+		return !getEntityManager().contains(entity);
+	}
+	
 	
 	/**
 	 * 
@@ -290,20 +298,11 @@ public class SiteDBService extends DBService<Site, Long> {
         JOIN aa.artwork a
         WHERE a.site.id = :siteId
     """)
-    List<Person> findDistinctPersonsBySiteId(@Param("siteId") Long siteId);
+    List<Person> findDisti nctPersonsBySiteId(@Param("siteId") Long siteId);
 }
 
 
-
-
-
-	 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
+ 
 	 * @param siteId
 	 * @return
 	 */
@@ -311,35 +310,53 @@ public class SiteDBService extends DBService<Site, Long> {
 	@Transactional
 	public List<GuideContent> getSiteGuideContent(Long siteId) {
 
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(GuideContent.class);
 		Root<GuideContent> root = cq.from(GuideContent.class);
 		cq.select(root)
 				.where(cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
+		cq.orderBy(cb.asc( cb.lower(root.get("name"))));
 
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
 	@Transactional
 	public List<Floor> getFloors(Long siteId) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb =getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Floor> cq = cb.createQuery(Floor.class);
 		Root<Floor> root = cq.from(Floor.class);
 		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
-
+		cq.orderBy(cb.asc( cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
 	@Transactional
 	public List<Room> getRooms(Long floorId) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Room> cq = cb.createQuery(Room.class);
 		Root<Room> root = cq.from(Room.class);
 		cq.select(root).where(cb.equal(root.get("floor").get("id"), floorId));
-		cq.orderBy(cb.asc(root.get("title")));
+		cq.orderBy(cb.asc( cb.lower(root.get("name"))));
 
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+
+	@Transactional
+	public List<ArtWork> getSiteArtWorks(Site site) {
+		Check.requireNonNull(site, "site is null");
+		return this.getSiteArtWorks(site.getId());
+	}
+
+	@Transactional
+	public List<ArtWork> getSiteArtWorks(Long siteId) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtWork> cq = cb.createQuery(ArtWork.class);
+		Root<ArtWork> root = cq.from(ArtWork.class);
+
+		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
+		cq.orderBy(cb.asc( cb.lower(root.get("name"))));
+		   
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
@@ -354,22 +371,9 @@ public class SiteDBService extends DBService<Site, Long> {
 		return Site.class;
 	}
 
-	@Transactional
-	public List<ArtWork> getSiteArtWork(Site site) {
-		Check.requireNonNull(site, "site is null");
-		return this.getSiteArtWork(site.getId());
-	}
-
-	@Transactional
-	public List<ArtWork> getSiteArtWork(Long siteId) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<ArtWork> cq = cb.createQuery(ArtWork.class);
-		Root<ArtWork> root = cq.from(ArtWork.class);
-
-		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
-		cq.orderBy(cb.asc(root.get("title")));
-
-		return entityManager.createQuery(cq).getResultList();
+	
+	private PersonRepository getPersonRepository() {
+		 return this.personRepository;
 	}
 
 }

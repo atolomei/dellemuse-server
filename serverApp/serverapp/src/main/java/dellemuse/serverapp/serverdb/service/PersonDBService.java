@@ -60,7 +60,7 @@ public class PersonDBService extends DBService<Person, Long> {
     
 
 	@Transactional
-	public Optional<Person> findByIdWithDeps(Long id) {
+	public Optional<Person> findWithDeps(Long id) {
 
 		Optional<Person> o_aw = super.findById(id);
 
@@ -68,8 +68,7 @@ public class PersonDBService extends DBService<Person, Long> {
 			return  o_aw;
 		
 		Person aw = o_aw.get();
-		
-
+	
 		Resource photo = aw.getPhoto();
 
 		User u = aw.getLastModifiedUser();
@@ -96,12 +95,13 @@ public class PersonDBService extends DBService<Person, Long> {
         CriteriaQuery<Person> cq = cb.createQuery(getEntityClass());
         Root<Person> root = cq.from(getEntityClass());
         cq.orderBy(cb.asc(root.get("sortlastfirstname")));
-        return entityManager.createQuery(cq).getResultList();
+        
+        return getEntityManager().createQuery(cq).getResultList();
     }
     
     @Override
     public Person create(String name, User createdBy) {
-        return create(null, name, createdBy);
+        return create(name, name, createdBy);
     }
 
     @Transactional

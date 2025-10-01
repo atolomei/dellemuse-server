@@ -101,12 +101,12 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 
     @Transactional
     public Iterable<T> findAllSorted() {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
         Root<T> root = cq.from(getEntityClass());
-        cq.orderBy(cb.asc(root.get("title")));
+        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
 
-        return entityManager.createQuery(cq).getResultList();
+        return getEntityManager().createQuery(cq).getResultList();
     }
 
     @Transactional

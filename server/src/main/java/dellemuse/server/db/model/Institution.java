@@ -90,7 +90,7 @@ public class Institution extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseListIdSerializer.class)
     @JsonManagedReference
     @JsonBackReference
-    @OrderBy("lower(title) ASC")
+    @OrderBy("lower(name) ASC")
     private List<Site> sites;
 
     @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.maven.model.Site;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -29,6 +30,7 @@ import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -41,6 +43,9 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.struct.list.ListPanel;
@@ -60,9 +65,7 @@ public class UserListPage extends ObjectListPage<User> {
 	
 	static private Logger logger = Logger.getLogger(UserListPage.class.getName());
 
-	protected  WebMarkupContainer getSubmenu() {
-		return null;
-	}
+	 
 
 	
 	protected IModel<String> getTitleLabel() {
@@ -71,12 +74,13 @@ public class UserListPage extends ObjectListPage<User> {
 	  
 	public  UserListPage() {
 		super();
-		 setCreate(true);
+		 setIsExpanded(true);
+		 
 	}		
 	
 	public  UserListPage(PageParameters parameters) {
 		 super(parameters);
-		 setCreate(true);
+		 setIsExpanded(true);	  
 	}
 	
 	@Override
@@ -86,7 +90,66 @@ public class UserListPage extends ObjectListPage<User> {
 			getList().add(m);
 			//setResponsePage( new UserPage(m,getList()));
 	}
+	 @Override
+		protected WebMarkupContainer getObjectMenu(IModel<User> model) {
+			
+			NavDropDownMenu<User> menu = new NavDropDownMenu<User>("menu", model, null);
+			
+			menu.setOutputMarkupId(true);
 
+			menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+			menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+
+			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<User> getItem(String id) {
+
+					return new AjaxLinkMenuItem<User>(id) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							// refresh(target);
+						}
+
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("edit");
+						}
+					};
+				}
+			});
+
+			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<User> getItem(String id) {
+
+					return new AjaxLinkMenuItem<User>(id) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							// refresh(target);
+						}
+
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("delete");
+						}
+					};
+				}
+			});
+			return menu;
+		}
+	 
 	@Override
 	protected void addHeaderPanel() {
 		 BreadCrumb<Void> bc = createBreadCrumb();
@@ -102,10 +165,7 @@ public class UserListPage extends ObjectListPage<User> {
 		super.onInitialize();
 	}
     
-	@Override
-	public IRequestablePage getObjectPage(IModel<User> model) {
-		return new UserPage(model);
-	}
+	
 	
 	@Override
 	public Iterable<User> getObjects() {
@@ -159,5 +219,16 @@ public class UserListPage extends ObjectListPage<User> {
 	public IModel<String> getPageTitle() {
 		return null;
 	}
+	
+	
+	@Override
+	protected String getObjectImageSrc(IModel<User> model) {
+	//	if (model.getObject().getPhoto() != null) {
+	//		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+	//		return getPresignedThumbnailSmall(photo);
+	//	}
+		return null;
+	}
+	
 
 }

@@ -13,6 +13,8 @@ import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.artexhibitionguide.GuideContentPage;
+import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.library.SiteListPage;
@@ -64,21 +66,22 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 	
 	public SiteContentGuideListPage() {
 		super();
-		setCreate(true);
+		 setIsExpanded(true);
 	}		
 	
 	public  SiteContentGuideListPage(PageParameters parameters) {
 	 super(parameters);
 	 	stringValue = getPageParameters().get("id");
-	 	setCreate(true);
+	 	 setIsExpanded(true);
 	}
 	 	
 	public SiteContentGuideListPage(IModel<Site> siteModel) {
 		super();
 		Check.requireNonNullArgument(siteModel, "siteModel is null");
-		setCreate(true);
+		 
 		setSiteModel(siteModel);
 		getPageParameters().add("id", siteModel.getObject().getId().toString());
+		 setIsExpanded(true);
 	}
 	
 	protected void addHeaderPanel() {
@@ -88,16 +91,18 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
         			  new Model<String>( getSiteModel().getObject().getDisplayname())) );
         
         bc.addElement(new BCElement(getLabel("guide-contents")));
-		PageHeaderPanel<Void> ph = new PageHeaderPanel<Void>("page-header", null, new Model<String>(getSiteModel().getObject().getDisplayname()));
+	
+        
+        JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, new Model<String>(getSiteModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
+
+		ph.setContext(getLabel("site"));
+
+		
 		add(ph);
 	}
 	
-	@Override
-	public IRequestablePage getObjectPage(IModel<GuideContent> model) {
-		return null;
-	}
-
+	 
 	@Override
 	public Iterable<GuideContent> getObjects() {
 		return super.getGuideContents(getSiteModel().getObject());
@@ -179,7 +184,7 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 	}
 
 	@Override
-	protected String getImageSrc(IModel<GuideContent> model) {
+	protected String getObjectImageSrc(IModel<GuideContent> model) {
 		if (model.getObject().getPhoto()!=null) {
     		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
     	    return getPresignedThumbnailSmall(photo);

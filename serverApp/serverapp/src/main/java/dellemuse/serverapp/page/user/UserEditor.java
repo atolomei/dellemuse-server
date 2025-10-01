@@ -1,22 +1,31 @@
 package dellemuse.serverapp.page.user;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.User;
+import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.TextField;
+import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 
-public class UserEditor extends DBModelPanel<User> {
+public class UserEditor extends DBModelPanel<User> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -70,6 +79,29 @@ public class UserEditor extends DBModelPanel<User> {
 		
 		this.form.add(buttons);
 	
+	}
+
+	
+	@Override
+	public List<ToolbarItem> getToolbarItems() {
+		
+	List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		
+		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onCick(AjaxRequestTarget target) {
+ 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_site_edit, target));
+			}
+			@Override
+			public IModel<String> getButtonLabel() {
+				return getLabel("edit");
+			}
+		};
+		create.setAlign(Align.TOP_LEFT);
+		list.add(create);
+		return list;
 	}
 
 	
