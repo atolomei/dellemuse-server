@@ -22,6 +22,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dellemuse.model.JsonObject;
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseUserSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,23 +43,19 @@ import jakarta.persistence.Transient;
 public abstract class DelleMuseObject extends JsonObject implements Identifiable, Auditable {
 
 	@JsonIgnore
-	static final private ObjectMapper hb6mapper = new ObjectMapper();
+	static final private ObjectMapper hb6mapper = new DellemuseObjectMapper();
 
+	@JsonIgnore
+	static final private JsonFactory factory = new JsonFactory();
+	
+	@JsonIgnore
 	static private Logger logger = Logger.getLogger(DelleMuseObject.class.getName());
 
+	@JsonIgnore
 	static final DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss XXX");
 
-	static {
-		hb6mapper.registerModule(new JavaTimeModule());
-		hb6mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		hb6mapper.registerModule(new Jdk8Module());
-		hb6mapper.registerModule(new Hibernate6Module());
-		// hb6mapper.registerModule(new
-		// Hibernate6Module().configure(Hibernate6Module.Feature.FORCE_LAZY_LOADING,
-		// false));
-		// mapper.configure(SerializationFeature.FAIL_ON_SELF_REFERENCES, false);
-	}
-
+	protected DateTimeFormatter getDateTimeFormatter() { return df;}
+	
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_gen")
@@ -70,12 +67,6 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 
 	@Column(name = "nameKey")
 	private String nameKey;
-
-	@Column(name = "title")
-	private String title;
-
-	@Column(name = "titleKey")
-	private String titleKey;
 
 	@Column(name = "created")
 	private OffsetDateTime created;
@@ -95,10 +86,12 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	@Column(name = "state")
 	private ObjectState state;
 
-	
-	
+	@Column(name = "language")
+	private  String language;
+
 	@Transient
 	private  boolean dependecies = false;
+
 	
 	public DelleMuseObject() {
 	}
@@ -174,23 +167,39 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		this.nameKey = nameKey;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+	
+	// @Column(name = "title")
+	// private String title;
 
-	public String getTitleKey() {
-		return titleKey;
-	}
+	// @Column(name = "titleKey")
+	// private String titleKey;
+	
+	//public void setTitle(String title) {
+	//	this.title = title;
+	//}
 
-	public void setTitleKey(String titleKey) {
-		this.titleKey = titleKey;
-	}
+	//public String getTitleKey() {
+	//	return titleKey;
+	//}
+
+	//public void setTitleKey(String titleKey) {
+	//	this.titleKey = titleKey;
+	//}
 
 	public String getTitle() {
-		if (title != null)
-			return title;
+		//if (title != null)
+		//	return title;
 		return getName();
 	}
+	
+	public String getLanguage() {
+		return this.language;
+	}
+	
+	public void setLanguage( String lang) {
+		 language=lang;
+	}
+	
 
 	@Override
 	@JsonIgnore
@@ -198,26 +207,35 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		return hb6mapper;
 	}
 	
-	static JsonFactory factory = new JsonFactory();
+	
+	protected String baseJSON() {
+		StringBuilder str = new StringBuilder();
+		
+		str.append(getClass().getSimpleName());
+		
+		str.append("\"id\": "+ getId().toString());
+		
+		if (name!=null)
+			str.append(", \"name\": \""+ getName().toString()+"\"");
+		
+		//if (title!=null)
+		//	str.append(", \"title\": \""+ getName().toString()+"\"");
+		
+		if (lastModified!=null)
+			str.append(", \"lastModified\": \""+ getDateTimeFormatter().format(getLastModified()));
+
+		return str.toString();
+	}
 	
 	@Override
 	public String toString() {
 
 		StringBuilder str = new StringBuilder();
-	
 		str.append(getClass().getSimpleName());
+		str.append(" { ");
+		str.append(baseJSON());
+		str.append(" } ");
 		
-		str.append(" { \"id\": "+ getId().toString());
-		
-		if (name!=null)
-			str.append(", \"name\": \""+ getName().toString()+"\"");
-		
-		if (title!=null)
-			str.append(", \"title\": \""+ getName().toString()+"\"");
-		
-		if (lastModified!=null)
-			str.append(", \"lastModified\": \""+ df.format(getLastModified())+"\" }");
-
 		return str.toString();
 		
 

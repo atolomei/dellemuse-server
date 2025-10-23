@@ -28,20 +28,21 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
+import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.site.ArtWorkPage;
-import dellemuse.serverapp.page.site.InstitutionPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -52,6 +53,7 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.odilon.util.Check;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
@@ -107,15 +109,19 @@ public class PersonPage extends ObjectPage<Person> {
 				else if (event.getName().equals(ServerAppConstant.site_info)) {
 					PersonPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
 				}
+				
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					PersonPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+				}
 
-				else if (event.getName().equals(ServerAppConstant.audit)) {
-					PersonPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.site_audit)) {
+					PersonPage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());
 				}
 			}
 
 			@Override
 			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleAjaxWicketEvent)
+				if (event instanceof MenuAjaxEvent)
 					return true;
 				return false;
 			}
@@ -200,6 +206,7 @@ public class PersonPage extends ObjectPage<Person> {
 		if (this.editor == null)
 			this.editor = new PersonEditor(id, getModel());
 		return this.editor;
+	
 	}
 
 	@Override
@@ -230,7 +237,7 @@ public class PersonPage extends ObjectPage<Person> {
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						fire(new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.site_info, target));
+						fire(new MenuAjaxEvent(ServerAppConstant.person_info, target));
 					}
 
 					@Override
@@ -240,7 +247,39 @@ public class PersonPage extends ObjectPage<Person> {
 				};
 			}
 		});
+		
+		
+		
+		
+	
 
+		
+		
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+				return new AjaxLinkMenuItem<Person>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("meta");
+					}
+				};
+			}
+		});
+		
+		
+		
+		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 
 			private static final long serialVersionUID = 1L;
@@ -252,7 +291,7 @@ public class PersonPage extends ObjectPage<Person> {
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						fire(new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.audit, target));
+						fire(new MenuAjaxEvent(ServerAppConstant.person_audit, target));
 					}
 
 					@Override
@@ -269,9 +308,9 @@ public class PersonPage extends ObjectPage<Person> {
 
 	protected List<INamedTab> getInternalPanels() {
 
-		List<INamedTab> tabs = new ArrayList<INamedTab>();
+		List<INamedTab> tabs = super.createInternalPanels();
 
-		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
+		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.person_info) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -281,7 +320,40 @@ public class PersonPage extends ObjectPage<Person> {
 		};
 		tabs.add(tab_1);
 
-		NamedTab tab_2 = new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
+		
+		
+		
+		List<Language> list = getLanguageService().getLanguages();
+			
+			for ( Language la:list ) {
+				
+				if (!la.getLanguageCode().equals( getModel().getObject().getMasterLanguage()) ) {
+					
+					NamedTab tab=new NamedTab(Model.of(la.getLanguageCode()), ServerAppConstant.artworkrecord_info+"-"+la.getLanguageCode(), la.getLanguageCode()) {
+						 
+						private static final long serialVersionUID = 1L;
+		
+						@Override
+						public WebMarkupContainer getPanel(String panelId) {
+							//return getPersonRecordEditor(panelId, getMoreInfo());
+							return new DummyBlockPanel(panelId);	
+						}
+					};
+					tabs.add(tab);
+				}
+			}
+			
+			
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		NamedTab tab_2 = new NamedTab(Model.of("audit"), ServerAppConstant.person_audit) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -291,6 +363,8 @@ public class PersonPage extends ObjectPage<Person> {
 		};
 		tabs.add(tab_2);
 
+		setStartTab( ServerAppConstant.person_info );
+		
 		return tabs;
 	}
 

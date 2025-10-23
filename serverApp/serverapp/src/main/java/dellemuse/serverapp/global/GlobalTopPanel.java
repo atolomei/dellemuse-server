@@ -23,7 +23,10 @@ public class GlobalTopPanel extends ModelPanel<User> {
 	
 	private boolean isSearch = false;
 	private String srcUrl;
+	
 	private Panel userGlobalTopPanel;
+	private Panel languagePanel;
+	
 	
 	public GlobalTopPanel(String id) {
 		this(id, null,  null);
@@ -43,8 +46,6 @@ public class GlobalTopPanel extends ModelPanel<User> {
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		
-	 
 	}
 
 	@Override
@@ -53,7 +54,7 @@ public class GlobalTopPanel extends ModelPanel<User> {
 		
 		NavBar<Void> nav = new NavBar<Void>("navbarLeft");
 
-		LabelLinkPanel logo = new LabelLinkPanel("item", new Model<String>("DM")) {
+		LabelLinkPanel logo = new LabelLinkPanel("item", getLabel( "dellemuselogo")) {
             private static final long serialVersionUID = 1L;
             @Override
             protected void onClick() {
@@ -64,7 +65,7 @@ public class GlobalTopPanel extends ModelPanel<User> {
 		nav.addNoCollapseLeft(logo);
 		
 		logo.setLinkStyle("text-decoration: none;");
-		logo.setStyle("font-size: 0.85em; font-weight: 500; color: orange; font-style: normal;");
+		logo.setStyle("font-size: 0.65em; font-weight: 500; color: orange; text-transform:uppercase; font-size: 0.65em; font-style: normal;");
 		
 		add(nav);
 
@@ -87,7 +88,6 @@ public class GlobalTopPanel extends ModelPanel<User> {
             public void onClick() {
                     //setResponsePage( new DellemuseWebSignupPage());   
             }
-            
         };
         
         sup.setVisible(false);
@@ -106,13 +106,17 @@ public class GlobalTopPanel extends ModelPanel<User> {
         add(si);
         
         if (getModel()!=null) {
-        	userGlobalTopPanel = new UserGlobalTopPanel("userGlobalTopPanel", getModel());
+        	this.userGlobalTopPanel = new UserGlobalTopPanel("userGlobalTopPanel", getModel());
        }
         else {
-        	userGlobalTopPanel = new InvisiblePanel("userGlobalTopPanel");
+        	this.userGlobalTopPanel = new InvisiblePanel("userGlobalTopPanel");
        }
 	   
-        add(userGlobalTopPanel);
+        add(this.userGlobalTopPanel);
+        
+        
+        this.languagePanel = new LanguagePanel("languagePanel");
+        add(this.languagePanel);
    }
 	
 /**

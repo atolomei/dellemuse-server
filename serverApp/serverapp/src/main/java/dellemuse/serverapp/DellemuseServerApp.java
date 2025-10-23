@@ -17,7 +17,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import dellemuse.model.logging.Logger;
 import jakarta.annotation.PostConstruct;
 
-
 @SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
 @EnableJpaRepositories({"dellemuse.serverapp.serverdb.repository"})
 @ComponentScan({"dellemuse.serverapp"})

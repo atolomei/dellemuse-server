@@ -183,6 +183,12 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			protected String getImageSrc() {
 				return ArtExhibitionGuideContentsPanel.this.getObjectImageSrc(getModel());
 			}
+			
+			@Override
+			protected String getIcon() {
+				return isAudio( getModel() ) ? "fa-solid fa-headphones iconOver" :null;
+			}
+			
 		};
 	}
 
@@ -421,8 +427,8 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 			@Override
 			protected Panel getListItemPanel(IModel<GuideContent> model) {
-				ObjectListItemPanel<GuideContent> panel = new ObjectListItemPanel<GuideContent>("row-element",
-						model, getListPanelMode()) {
+				
+				ObjectListItemPanel<GuideContent> panel = new ObjectListItemPanel<GuideContent>("row-element", model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -444,6 +450,13 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 					protected WebMarkupContainer getObjectMenu() {
 						return ArtExhibitionGuideContentsPanel.this.getMenu(getModel());
 					}
+					
+					@Override
+					protected String getIcon() {
+						return isAudio( getModel() ) ? "fa-solid fa-headphones iconOver" :null;
+					}
+
+					
 				};
 				return panel;
 			}
@@ -490,6 +503,8 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		this.artExhibitionModel = artExhibitionModel;
 	}
 
-	
+	protected boolean isAudio(IModel<GuideContent> model) {
+		return model.getObject().getAudio()!=null;
+	}
 
 }

@@ -32,7 +32,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "Site")
 @JsonInclude(Include.NON_NULL)
-public class Site extends DelleMuseObject {
+public class Site extends MultiLanguageObject {
 
 	// List
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
@@ -59,14 +59,6 @@ public class Site extends DelleMuseObject {
 	@Column(name = "shortName")
 	private String shortName;
 
-	@Column(name = "subtitle")
-	private String subtitle;
-
-	@Column(name = "subtitleKey")
-	private String subTitleKey;
-
-	@Column(name = "info")
-	private String info;
 
 	@Column(name = "intro")
 	private String intro;
@@ -119,29 +111,6 @@ public class Site extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource logo;
 
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "photo", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("photo")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource photo;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "video", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("video")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource video;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "audio", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("audio")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource audio;
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "map", nullable = true)
@@ -193,25 +162,7 @@ public class Site extends DelleMuseObject {
 		this.institution = institution;
 	}
 
-	public String getSubtitle() {
-		return subtitle;
-	}
-
-	public void setSubtitle(String subtitle) {
-		this.subtitle = subtitle;
-	}
-
-	public String getSubTitleKey() {
-		return subTitleKey;
-	}
-
-	public void setSubTitleKey(String subTitleKey) {
-		this.subTitleKey = subTitleKey;
-	}
-
-	public String getInfo() {
-		return info;
-	}
+	 
 
 	public String getWebsite() {
 		return website;
@@ -293,37 +244,9 @@ public class Site extends DelleMuseObject {
 		this.twitter = twitter;
 	}
 
-	public Resource getPhoto() {
-		return photo;
-	}
+ 
 
-	public void setPhoto(Resource photo) {
-		this.photo = photo;
-	}
-
-	public Resource getVideo() {
-		return video;
-	}
-
-	public void setVideo(Resource video) {
-		this.video = video;
-	}
-
-	public Resource getAudio() {
-		return audio;
-	}
-
-	public void setAudio(Resource audio) {
-		this.audio = audio;
-	}
-
-	public void setFloors(List<Floor> floors) {
-		this.floors = floors;
-	}
-
-	public void setInfo(String info) {
-		this.info = info;
-	}
+ 
 
 	public String getShortName() {
 		return shortName;

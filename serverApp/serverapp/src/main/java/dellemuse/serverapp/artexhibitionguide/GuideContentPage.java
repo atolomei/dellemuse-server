@@ -26,6 +26,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
@@ -141,9 +142,15 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 					 GuideContentPage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(GuideContentPage.this.getHeader());
 				}
+				
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					 GuideContentPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+					 GuideContentPage.this.getHeader().setPhotoVisible(true);
+					event.getTarget().add(GuideContentPage.this.getHeader());
+				}
 
-				else if (event.getName().equals(ServerAppConstant.audit)) {
-					 GuideContentPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.site_audit)) {
+					 GuideContentPage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());
 					 GuideContentPage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(GuideContentPage.this.getHeader());
 				}
@@ -151,7 +158,7 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 
 			@Override
 			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleAjaxWicketEvent)
+				if (event instanceof MenuAjaxEvent)
 					return true;
 				return false;
 			}
@@ -190,20 +197,7 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 																	Align.TOP_RIGHT));
 		
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(),  Align.TOP_RIGHT ));
-		
-		/**
-		AjaxButtonToolbarItem<ArtExhibition> edit = new AjaxButtonToolbarItem<ArtExhibition>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				GuideContentPage.this.togglePanel(0, target);
-				GuideContentPage.this.onEdit(target);
-			}
-		};
-		edit.setAlign(Align.TOP_LEFT);
-		list.add(edit);
-		 **/
+	 
 		
 		return list;
 	}
@@ -212,7 +206,7 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
-		List<INamedTab> tabs = new ArrayList<INamedTab>();
+		List<INamedTab> tabs = super.createInternalPanels();
 		
 		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.guide_content_info) {
 		 
@@ -225,7 +219,7 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 		};
 		tabs.add(tab_1);
 		
-		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
+		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.site_audit) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -233,7 +227,9 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 			}
 		};
 		tabs.add(tab_2);
-	
+		
+		setStartTab( ServerAppConstant.guide_content_info );
+
 		return tabs;
 	}
 
@@ -260,7 +256,7 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 
 		bc.addElement(new HREFBCElement("/site/exhibitions/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
 		bc.addElement(new HREFBCElement("/artexhibition/" + getArtExhibitionModel().getObject().getId().toString(),  Model.of( getArtExhibitionModel().getObject().getDisplayname()  + " (E)" )));
-		bc.addElement(new HREFBCElement("/guide/" + getArtExhibitionGuideModel().getObject().getId().toString(),  Model.of( getArtExhibitionGuideModel().getObject().getDisplayname()  + " (A)")));
+		bc.addElement(new HREFBCElement("/guide/" + getArtExhibitionGuideModel().getObject().getId().toString(),  Model.of( getArtExhibitionGuideModel().getObject().getDisplayname()  + " (AG)")));
 		
 		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
 
@@ -298,6 +294,10 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 			bc.setNavigator(nav);
 		}
 		
+		
+		
+		header.setTagline(Model.of(getArtistStr(getArtWorkModel().getObject())));
+	
 		
 		
 		

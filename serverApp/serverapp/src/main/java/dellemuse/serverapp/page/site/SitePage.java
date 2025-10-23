@@ -30,10 +30,12 @@ import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
+import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
+import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
@@ -93,7 +95,7 @@ public class SitePage extends BasePage {
 	private Link<Site> linkArtists;
 
 	private Link<Site> linkFloors;
-	private Link<Site> linkContents;
+	//private Link<Site> linkContents;
 
 	private Link<Site> linkExhibitions;
 
@@ -105,21 +107,12 @@ public class SitePage extends BasePage {
 	private WebMarkupContainer navigatorContainer;
 	private Exception exceptionError;
 
-	
-	
-	private void addToolbar() {
-		
-		Toolbar toolbarItems = new Toolbar("toolbarItems");
-	
-		
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		list.add(new SiteNavDropDownMenuToolbarItem(	"item", 
-														getSiteModel(), 
-													  Align.TOP_RIGHT));
-	
-		list.forEach( t-> toolbarItems.addItem(t));
-		add( toolbarItems );
-	}
+	private WebMarkupContainer exToolbarContainer;
+
+	private ObjectMetaEditor<Site> metaEditor;
+
+
+
 	
 	
 	public SitePage() {
@@ -243,6 +236,7 @@ public class SitePage extends BasePage {
 		};
 		add(linkFloors);
 		
+		/**
 		linkContents = new Link<Site>("contents", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -251,7 +245,7 @@ public class SitePage extends BasePage {
 			}
 		};
 		add(linkContents);
-		
+		**/
 		
 		linkExhibitions = new Link<Site>("exhibitions", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
@@ -276,6 +270,12 @@ public class SitePage extends BasePage {
 	protected int getCurrent() {
 		return this.current;
 	}
+	
+	protected Panel getMetaEditor(String id) {
+		if (this.metaEditor==null)
+			metaEditor = new ObjectMetaEditor<Site>(id, getSiteModel());
+		return (metaEditor);
+	} 
 	
 	
 	private void addNavigator() {
@@ -306,49 +306,8 @@ public class SitePage extends BasePage {
 		}
 	}
 	
+	 
 	
-	 /**
-	private void addImageAndInfo() {
-
-		this.imageContainer = new WebMarkupContainer("imageContainer");
-		this.imageContainer.setVisible(getSiteModel().getObject().getPhoto() != null);
-		addOrReplace(this.imageContainer);
-		this.imageLink = new Link<Resource>("image-link", null) {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onClick() {
-				logger.debug("on click");
-			}
-		};
-		
-		this.imageContainer.add(this.imageLink);
-		
-		Label info = new Label("info", TextCleaner.clean(getSiteModel().getObject().getInfo()));
-		info.setEscapeModelStrings(false);
-		this.imageContainer.add(info);
-		
-		String presignedThumbnail = null;
-		
-		if (getSiteModel().getObject().getPhoto()!=null) 
-			presignedThumbnail = getPresignedThumbnailSmall(getSiteModel().getObject().getPhoto());
-		
-		if (presignedThumbnail != null) {
-			Url url = Url.parse(presignedThumbnail);
-			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			this.image = new Image("image", resourceReference);
-			this.imageLink.addOrReplace(this.image);
-		} else {
-			this.image = new Image("image", new UrlResourceReference(Url.parse("")));
-			this.image.setVisible(false);
-			this.imageLink.addOrReplace(image);
-		}
-		
-		
-	}
-*/
-	
-	
-	private WebMarkupContainer exToolbarContainer;
 	
 	private void addExhibitions() {
 
@@ -680,5 +639,20 @@ public class SitePage extends BasePage {
 		}
 	}
 	
+
+	private void addToolbar() {
+		
+		Toolbar toolbarItems = new Toolbar("toolbarItems");
 	
+		
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		list.add(new SiteNavDropDownMenuToolbarItem(	"item", 
+														getSiteModel(), 
+													  Align.TOP_RIGHT));
+	
+		list.forEach( t-> toolbarItems.addItem(t));
+		add( toolbarItems );
+	}
+	
+
 }

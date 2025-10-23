@@ -26,7 +26,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "institution")
 @JsonInclude(Include.NON_NULL)
-public class Institution extends DelleMuseObject {
+public class Institution extends MultiLanguageObject {
 	
 	@ManyToOne(fetch = FetchType.EAGER, targetEntity = InstitutionType.class)
 	@JoinColumn(name = "institutionType_id", nullable = true)
@@ -38,14 +38,11 @@ public class Institution extends DelleMuseObject {
 	@Column(name = "shortName")
 	private String shortName;
 
-	@Column(name = "subtitle")
-	private String subtitle;
+	//@Column(name = "subtitleKey")
+	//private String subTitleKey;
 
-	@Column(name = "subtitleKey")
-	private String subTitleKey;
-
-	@Column(name = "info")
-	private String info;
+	//@Column(name = "info")
+	//private String info;
 
 	@Column(name = "infoKey")
 	private String infoKey;
@@ -99,29 +96,7 @@ public class Institution extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseIdSerializer.class)
 	private Resource logo;
 
-	@OneToOne(fetch = FetchType.LAZY,  targetEntity = Resource.class)
-	@JoinColumn(name = "photo", nullable = true,  updatable = true, insertable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("photo")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource photo;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "video", updatable = true, nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("video")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource video;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "audio", updatable = true, nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("audio")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource audio;
+	 
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "map", updatable = true, nullable = true)
@@ -146,31 +121,7 @@ public class Institution extends DelleMuseObject {
 	public void setInstitutionType(InstitutionType institutionType) {
 		this.institutionType = institutionType;
 	}
-
-	public String getSubtitle() {
-		return subtitle;
-	}
-
-	public void setSubtitle(String subtitle) {
-		this.subtitle = subtitle;
-	}
-
-	public String getSubTitleKey() {
-		return subTitleKey;
-	}
-
-	public void setSubTitleKey(String subTitleKey) {
-		this.subTitleKey = subTitleKey;
-	}
-
-	public String getInfo() {
-		return info;
-	}
-
-	public void setInfo(String info) {
-		this.info = info;
-	}
-
+ 
 	public String getInfoKey() {
 		return infoKey;
 	}
@@ -275,29 +226,7 @@ public class Institution extends DelleMuseObject {
 		this.twitter = twitter;
 	}
 
-	public Resource getPhoto() {
-		return photo;
-	}
-
-	public void setPhoto(Resource photo) {
-		this.photo = photo;
-	}
-
-	public Resource getVideo() {
-		return video;
-	}
-
-	public void setVideo(Resource video) {
-		this.video = video;
-	}
-
-	public Resource getAudio() {
-		return audio;
-	}
-
-	public void setAudio(Resource audio) {
-		this.audio = audio;
-	}
+ 
 
 	public String getShortName() {
 		return shortName;

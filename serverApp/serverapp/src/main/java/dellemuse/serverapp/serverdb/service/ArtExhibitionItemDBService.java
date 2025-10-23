@@ -10,14 +10,15 @@ import org.springframework.stereotype.Service;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -25,12 +26,10 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(ArtExhibitionItemDBService.class.getName());
-
     
     public ArtExhibitionItemDBService(CrudRepository<ArtExhibitionItem, Long> repository, ServerDBSettings settings) {
         super(repository, settings);
     }
-    
     
     @Transactional
 	public Optional<ArtExhibitionItem> findWithDeps(Long id) {
@@ -85,13 +84,22 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 
     @Transactional
     public ArtExhibitionItem create(String name, ArtExhibition ex, ArtWork artWork, User createdBy) {
-        ArtExhibitionItem c = new ArtExhibitionItem();
+
+    	ArtExhibitionItem c = new ArtExhibitionItem();
         
-        c.setName(name);
+    	if (!ex.isDependencies())  
+    		ex=getArtExhibitionDBService().findById(ex.getId()).get();
+    
+    	int size = 	ex.getArtExhibitionItems().size();
+
+    	c.setName(name);
         c.setNameKey(nameKey(name));
         
+		c.setMasterLanguage(ex.getMasterLanguage());
+
         c.setArtWork(artWork);
         c.setArtExhibition(ex);
+        c.setArtExhibitionOrder(size);
         
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
@@ -100,11 +108,19 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
         return getRepository().save(c);
     }
     
-    
+
+	public Iterable<GuideContent> getGuideContents(ArtExhibitionItem o) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContent> cq = cb.createQuery(GuideContent.class);
+		Root<GuideContent> root = cq.from(GuideContent.class);
+		cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("id"), o.getId()));
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
     }
     
     /**
@@ -119,4 +135,5 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
     protected Class<ArtExhibitionItem> getEntityClass() {
         return ArtExhibitionItem.class;
     }
+
 }

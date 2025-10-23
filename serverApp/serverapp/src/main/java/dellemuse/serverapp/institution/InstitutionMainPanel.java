@@ -1,4 +1,4 @@
-package dellemuse.serverapp.page.site;
+package dellemuse.serverapp.institution;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +11,19 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -58,7 +61,7 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
-				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_site_edit, target));
+				fire(new MenuAjaxEvent(ServerAppConstant.action_institution_edit, target));
 			}
 
 			@Override
@@ -102,9 +105,13 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 
 					@Override
 					protected String getImageSrc() {
-						if (getModel().getObject().getPhoto() != null) {
-							Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-							return getPresignedThumbnail(photo, ThumbnailSize.SMALL);
+						try {
+							if (getModel().getObject().getPhoto() != null) {
+								Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+								return getPresignedThumbnail(photo, ThumbnailSize.SMALL);
+							}
+						} catch (Exception e) {
+							logger.error(e, ServerConstant.NOT_THROWN);
 						}
 						return null;
 					}

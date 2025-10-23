@@ -1,52 +1,41 @@
 package dellemuse.serverapp.artexhibitionguide;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+ 
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebPage;
+
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.model.DBModelPanel;
+ 
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
-import dellemuse.serverapp.page.site.ArtWorkEditor;
+ 
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Institution;
+ 
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.service.DBService;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
-import io.wktui.form.button.SubmitButton;
-import io.wktui.form.field.BooleanField;
+ 
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
@@ -54,8 +43,7 @@ import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import jakarta.transaction.Transactional;
-import wktui.base.ModelPanel;
+ 
 
 
 /**
@@ -70,36 +58,20 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 
 	static private Logger logger = Logger.getLogger(ArtExhibitionGuideEditor.class.getName());
 
-	//private ArtExhibitionItemsPanel itemsPanel;
-
-
 	private ChoiceField<ObjectState> objectStateField;
 	
 	private TextField<String> nameField;
-	private TextField<String> shortField;
 	private TextField<String> subtitleField;
-	private TextField<String> urlField;
-	private TextAreaField<String> specField;
-	private TextAreaField<String> locationField;
 	private TextAreaField<String> infoField;
-	private TextAreaField<String> introField;
 	
 	private FileUploadSimpleField<Resource> photoField;
 	private FileUploadSimpleField<Resource> audioField;
-	
-	
-	private TextField<String> mapField;
-	private TextField<String> fromField;
-	private TextField<String> toField;
-	private ChoiceField<Person> artistField;
-	private ChoiceField<Boolean> c_useThumbnailField;
 	
 	private IModel<Resource> photoModel;
 	private IModel<Resource> audioModel;
 	
 	private boolean uploadedPhoto = false;
 	private boolean uploadedAudio = false;
-
 	
 	private IModel<Site> siteModel;
 	private IModel<ArtExhibition> artExhibitionModel;
@@ -125,13 +97,13 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		setForm(form);
 		
 
-		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
+		this.objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 			
 			private static final long serialVersionUID = 1L;
 			
 			@Override
 			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (b_state);
+				return new ListModel<ObjectState> (getStates());
 			}
 			
 			@Override
@@ -141,15 +113,13 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 				return value.getLabel( getLocale() );
 			}
 		};
-		form.add(objectStateField);
+		form.add(this.objectStateField);
 		
 		
-		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
-	 	//introField = new TextAreaField<String>("intro", new PropertyModel<String>(getModel(), "intro"), getLabel("intro"), 5);
-		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 12);
-			
-	 	photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
+		this.nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		this.subtitleField 	= new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
+		this.infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 12);
+		this.photoField 	= new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -175,7 +145,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		};
 
 		
-		audioField = new FileUploadSimpleField<Resource>("audio", getPhotoModel(), getLabel("audio")) {
+		this.audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -191,9 +161,16 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 				//return ArtExhibitionGuideEditor.this.getThumbnail(getPhotoModel().getObject());
 			}
 
+			protected String getAudioSrc() {
+				
+				if (getAudioModel() == null || getAudioModel().getObject()==null )
+					return null;
+				return ArtExhibitionGuideEditor.this.getPresignedUrl(getAudioModel().getObject());
+			}
+			
 			public String getFileName() {
-				if (getModel()!=null  || getModel().getObject()==null )
-					return ArtExhibitionGuideEditor.this.getAudioMeta( getModel().getObject() );
+				if (getAudioModel()!=null  || getAudioModel().getObject()==null )
+					return ArtExhibitionGuideEditor.this.getAudioMeta( getAudioModel().getObject() );
 				return null;
 			}
 
@@ -287,22 +264,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		// target.add(getForm());
 	}
 
-	protected void onSave(AjaxRequestTarget target) {
-		logger.debug("onSave");
-		logger.debug("updated parts:");
-		getUpdatedParts().forEach(s -> logger.debug(s));
-		logger.debug("saving...");
-		
-		
-		save(getModelObject());
-		
-		uploadedPhoto = false;
-		
-		getForm().setFormState(FormState.VIEW);
-		logger.debug("done");
-		target.add(this);
-	
-	}
+
 
  	@Override
 	public List<ToolbarItem> getToolbarItems() {
@@ -314,7 +276,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_guide_edit_info, target));
+ 				fire(new MenuAjaxEvent(ServerAppConstant.action_guide_edit_info, target));
 			}
 			@Override
 			public IModel<String> getButtonLabel() {
@@ -327,6 +289,21 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		return list;
 	}
 
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
+
+	public IModel<ArtExhibition> getArtExhibitionModel() {
+		return artExhibitionModel;
+	}
+
+	public void setArtExhibitionModel(IModel<ArtExhibition> siteModel) {
+		this.artExhibitionModel = siteModel;
+	}
 	
 	@Override
 	public void onDetach() {
@@ -368,6 +345,24 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		logger.debug("");
 	}
 
+	protected void onSave(AjaxRequestTarget target) {
+		logger.debug("onSave");
+		logger.debug("updated parts:");
+		getUpdatedParts().forEach(s -> logger.debug(s));
+		logger.debug("saving...");
+		
+		
+		save(getModelObject());
+		
+		uploadedPhoto = false;
+		uploadedAudio = false;
+		
+		getForm().setFormState(FormState.VIEW);
+		logger.debug("done");
+		target.add(this);
+	
+	}
+	
 	protected boolean processPhotoUpload(List<FileUpload> uploads) {
 
 		if (this.uploadedPhoto)
@@ -424,6 +419,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 					logger.debug("Size -> " + upload.getSize());
 
 					String bucketName = ServerConstant.MEDIA_BUCKET;
+					
 					String objectName = getResourceDBService()
 							.normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-"
 							+ String.valueOf(getResourceDBService().newId());
@@ -451,22 +447,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 
 
 
-	public IModel<Site> getSiteModel() {
-		return siteModel;
-	}
 
-	public void setSiteModel(IModel<Site> siteModel) {
-		this.siteModel = siteModel;
-	}
-
-	public IModel<ArtExhibition> getArtExhibitionModel() {
-		return artExhibitionModel;
-	}
-
-	public void setArtExhibitionModel(IModel<ArtExhibition> siteModel) {
-		this.artExhibitionModel = siteModel;
-	}
-	
 	private void setUpModel() {
 
 		Optional<ArtExhibitionGuide> o_i = getArtExhibitionGuideDBService().findWithDeps(getModel().getObject().getId());

@@ -88,8 +88,8 @@ public class InstitutionDBService extends DBService<Institution, Long> {
         c.setName(name);
 		c.setNameKey(nameKey(name));
 
-		c.setTitle(name);
-		c.setTitleKey(nameKey(name));
+		//c.setTitle(name);
+		//c.setTitleKey(nameKey(name));
 
 		c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
@@ -105,8 +105,8 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		c.setName(name);
 		c.setNameKey(nameKey(name));
 
-		c.setTitle(name);
-		c.setTitleKey(nameKey(name));
+		//c.setTitle(name);
+		//c.setTitleKey(nameKey(name));
 
 		shortName.ifPresent(c::setShortName);
         address.ifPresent(c::setAddress);

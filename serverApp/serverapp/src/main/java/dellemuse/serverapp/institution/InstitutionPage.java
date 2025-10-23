@@ -1,7 +1,9 @@
-package dellemuse.serverapp.page.site;
+package dellemuse.serverapp.institution;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -22,6 +24,10 @@ import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.artwork.ArtWorkPage;
+import dellemuse.serverapp.artwork.ArtWorkRecordEditor;
+import dellemuse.serverapp.editor.ObjectMetaEditor;
+import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -33,14 +39,19 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.PersonPage;
 import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
+import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
@@ -66,7 +77,7 @@ import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
 /**
- * site foto Info - exhibitions
+ * site foto info - exhibitions
  */
 
 @MountPath("/institution/${id}")
@@ -80,6 +91,10 @@ public class InstitutionPage extends ObjectPage<Institution> {
 	private WebMarkupContainer imageContainer;
 	private Link<Resource> imageLink;
 	private InstitutionMainPanel editor;
+	private ObjectMetaEditor<Institution> metaEditor;
+
+	private Map<String, ObjectRecordEditor<InstitutionRecord, Institution>> recordEditors = new HashMap<String, ObjectRecordEditor<InstitutionRecord, Institution>>();
+
 
 	public InstitutionPage() {
 		super();
@@ -107,38 +122,71 @@ public class InstitutionPage extends ObjectPage<Institution> {
 
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
+
 				logger.debug(event.toString());
 
-				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+				// ------
+				// action
+				// ------
+				
+				if (event.getName().equals(ServerAppConstant.action_institution_edit)) {
 					InstitutionPage.this.onEdit(event.getTarget());
 				}
-
-				else if (event.getName().equals(ServerAppConstant.site_info)) {
-					InstitutionPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
+				
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+					InstitutionPage.this.onEditMeta(event.getTarget());
+				}
+				
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
+					InstitutionPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
+				}
+				
+				// ------
+				// panel
+				// ------
+				
+				else if (event.getName().equals(ServerAppConstant.institution_info)) {
+					InstitutionPage.this.togglePanel(ServerAppConstant.institution_info, event.getTarget());
 				}
 
-				else if (event.getName().equals(ServerAppConstant.audit)) {
-					InstitutionPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				else if (event.getName().startsWith(ServerAppConstant.institutionrecord_info)) {
+					InstitutionPage.this.togglePanel(event.getName(), event.getTarget());
 				}
+				else if (event.getName().equals(ServerAppConstant.institution_meta)) {
+					InstitutionPage.this.togglePanel(ServerAppConstant.institution_meta, event.getTarget());
+					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
+					// event.getTarget().add(ArtWorkPage.this.getHeader());
+				}
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					InstitutionPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
+					// event.getTarget().add(ArtWorkPage.this.getHeader());
+				}
+				
+				else if (event.getName().equals(ServerAppConstant.institution_audit)) {
+					InstitutionPage.this.togglePanel(ServerAppConstant.institution_audit, event.getTarget());
+				}
+			
+			
 			}
 
 			@Override
 			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleAjaxWicketEvent)
+				if (event instanceof MenuAjaxEvent)
 					return true;
 				return false;
 			}
 		});
 	}
 
+
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
-
+  
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-
-		DropDownMenuToolbarItem<Institution> menu = new DropDownMenuToolbarItem<Institution>("item", getModel(),
-				Align.TOP_RIGHT);
-		menu.setLabel(Model.of( TextCleaner.truncate ( getModel().getObject().getName(), 24) +" (I)" ));
+		
+		DropDownMenuToolbarItem<Institution> menu = new DropDownMenuToolbarItem<Institution>("item", getModel(), Align.TOP_RIGHT);
+		menu.setLabel(Model.of( TextCleaner.truncate ( getModel().getObject().getName(), 24) +" (Inst)" ));
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
@@ -150,7 +198,7 @@ public class InstitutionPage extends ObjectPage<Institution> {
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						fire(new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.site_info, target));
+						fire(new MenuAjaxEvent(ServerAppConstant.institution_info, target));
 					}
 
 					@Override
@@ -160,24 +208,79 @@ public class InstitutionPage extends ObjectPage<Institution> {
 				};
 			}
 		});
-
+	 
 		
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
-
+		for (Language la: getLanguageService().getLanguages()) {
+			
+			final String langCode = la.getLanguageCode();
+			
+			if (!langCode.equals( getModel().getObject().getMasterLanguage())) {
+				
+				menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+	
+					private static final long serialVersionUID = 1L;
+	
+					@Override
+					public MenuItemPanel<Institution> getItem(String id) {
+	
+						return new AjaxLinkMenuItem<Institution>(id, getModel()) {
+							private static final long serialVersionUID = 1L;
+							@Override
+							public void onClick(AjaxRequestTarget target)  {
+								fire ( new MenuAjaxEvent(ServerAppConstant.institutionrecord_info+"-"+langCode, target));
+							}
+	
+							@Override
+							public IModel<String> getLabel() {
+								return getLabel("institution-record", langCode);
+							}
+						};
+					}
+				});
+			}
+		}
+		
+ 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new SeparatorMenuItem<Institution>(id, getModel());
 			}
 		});
 		
-
-		
+ 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
+			public MenuItemPanel<Institution> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Institution>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick(AjaxRequestTarget target)  {
+						fire ( new MenuAjaxEvent(ServerAppConstant.institution_meta, target));
+					}
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("institution-meta");
+					}
+				};
+			}
+		});		
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<Institution> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<Institution>(id);
+			}
+		});
+		
+ 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+			private static final long serialVersionUID = 1L;
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new TitleMenuItem<Institution>(id) {
@@ -191,14 +294,11 @@ public class InstitutionPage extends ObjectPage<Institution> {
 			}
 		});
 		
-		
-
-		
-		getSites(getModel().getObject()).forEach( site ->  {
 			
+		getSites(getModel().getObject()).forEach( site ->  {
+	
 			final Long siteId = site.getId();
 			final String siteName = site.getDisplayname();
-					
 			
 			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 
@@ -226,9 +326,7 @@ public class InstitutionPage extends ObjectPage<Institution> {
 		
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
-
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new SeparatorMenuItem<Institution>(id, getModel());
@@ -237,9 +335,7 @@ public class InstitutionPage extends ObjectPage<Institution> {
 
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
-
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new AjaxLinkMenuItem<Institution>(id, getModel()) {
@@ -247,7 +343,7 @@ public class InstitutionPage extends ObjectPage<Institution> {
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						fire(new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.audit, target));
+						fire(new MenuAjaxEvent(ServerAppConstant.institution_audit, target));
 					}
 
 					@Override
@@ -257,23 +353,52 @@ public class InstitutionPage extends ObjectPage<Institution> {
 				};
 			}
 		});
-		
-		
-		
-		
-		
-		
-
+	 
 		list.add(menu);
+	
 		return list;
 	}
+ 
+	/**
+	 * 
+	 * 
+	 * 
+	 * @param id
+	 * @param lang
+	 * @return
+	 */
+	
+	protected Panel getInstitutionRecordEditor(String id, String lang) {
+		
+		if (this.recordEditors.containsKey(lang))
+			return this.recordEditors.get(lang);
+		
+		InstitutionRecord ar = null;
+		
+		Optional<InstitutionRecord> a = getInstitutionRecordDBService().findByInstitution(getModel().getObject(), lang);
+		
+		if (a.isEmpty()) {
+			ar =  getInstitutionRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+		}
+		else
+			ar=a.get();
+				
+		IModel<InstitutionRecord> arm =new ObjectModel<InstitutionRecord>(ar);
+		ObjectRecordEditor<InstitutionRecord, Institution> e = new ObjectRecordEditor<InstitutionRecord, Institution>(id, arm, getModel(), getLabel("institution-info"));
+		
+		this.recordEditors.put(lang, e);
+	
+		return e;
+		
+	}
 
+		
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
-		List<INamedTab> tabs = new ArrayList<INamedTab>();
+		List<INamedTab> tabs = super.createInternalPanels();
 
-		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
+		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.institution_info) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -284,7 +409,7 @@ public class InstitutionPage extends ObjectPage<Institution> {
 		};
 		tabs.add(tab_1);
 
-		NamedTab tab_2 = new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
+		NamedTab tab_2 = new NamedTab(Model.of("audit"), ServerAppConstant.institution_audit) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -293,12 +418,67 @@ public class InstitutionPage extends ObjectPage<Institution> {
 			}
 		};
 		tabs.add(tab_2);
+		
+		super.setStartTab(ServerAppConstant.institution_info);
+		
+		List<Language> list = getLanguageService().getLanguages();
+		
+		for ( Language la:list ) {
+			
+			if (!la.getLanguageCode().equals( getModel().getObject().getMasterLanguage()) ) {
+				
+				NamedTab tab=new NamedTab(Model.of(la.getLanguageCode()), ServerAppConstant.institutionrecord_info+"-"+la.getLanguageCode(), la.getLanguageCode()) {
+					 
+					private static final long serialVersionUID = 1L;
+	
+					@Override
+					public WebMarkupContainer getPanel(String panelId) {
+						return getInstitutionRecordEditor(panelId, getMoreInfo());
+					}
+				};
+				tabs.add(tab);
+			}
+		}
+
+		setStartTab( ServerAppConstant.institution_info );
 
 		return tabs;
 	}
 
+	
+	protected IModel<String> getMainTitle() {
+			return new Model<String>(getModel().getObject().getDisplayname());
+	}
+
+	
+	protected IModel<String> getMainSubtitle() {
+
+		String masterLang = getModel().getObject().getMasterLanguage();
+		String userLang = getSessionUser().get().getLanguage();
+		
+		if (masterLang==null || userLang==null) {
+			return null;
+		}
+
+
+		if (masterLang.equals(userLang))  {
+			if (getModel().getObject().getSubtitle()!=null) 
+				return Model.of(getModel().getObject().getSubtitle());
+			else
+				return null;
+		}
+		
+		
+		StringBuilder str = new StringBuilder();
+		
+		
+		return new Model<String>(getModel().getObject().getDisplayname());
+	}
+	
+	
 	@Override
 	protected void addHeaderPanel() {
+		
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/institution/list", getLabel("institutions")));
 		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
@@ -315,12 +495,23 @@ public class InstitutionPage extends ObjectPage<Institution> {
 			bc.setNavigator(nav);
 		}
 
-		JumboPageHeaderPanel<Institution> ph = new JumboPageHeaderPanel<Institution>("page-header", getModel(),
-				new Model<String>(getModel().getObject().getDisplayname()));
+		
+		JumboPageHeaderPanel<Institution> ph = new JumboPageHeaderPanel<Institution>("page-header", getModel(), getMainTitle());
 
-		if (getModel().getObject().getSubtitle() != null)
+		
+		StringBuilder str = new StringBuilder();
+		
+		if (!getModel().getObject().getMasterLanguage().equals(getSessionUser().get().getLanguage())) {
+			
+			str.append(getModel().getObject() );
+		}
+	
+			
+		if (getModel().getObject().getSubtitle() != null) {
 			ph.setTagline(Model.of(getModel().getObject().getSubtitle()));
-
+		}
+		
+		
 		if (getModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 
@@ -371,7 +562,14 @@ public class InstitutionPage extends ObjectPage<Institution> {
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
 		editor.getInstitutionEditor().edit(target);
+	}
 
+	protected void onEditMeta(AjaxRequestTarget target) {
+		super.getMetaEditor().edit(target);
+	}
+
+	protected void onEditRecord(AjaxRequestTarget target, String lang) {
+				this.recordEditors.get(lang).edit(target);		
 	}
 
 }

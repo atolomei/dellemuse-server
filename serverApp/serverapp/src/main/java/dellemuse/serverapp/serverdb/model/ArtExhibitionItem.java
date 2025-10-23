@@ -18,7 +18,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "artExhibitionItem")
 @JsonInclude(Include.NON_NULL)
-public class ArtExhibitionItem extends DelleMuseObject {
+public class ArtExhibitionItem extends MultiLanguageObject {
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
 	@JoinColumn(name = "artExhibition_id", referencedColumnName = "id", nullable = true)
@@ -44,7 +44,6 @@ public class ArtExhibitionItem extends DelleMuseObject {
 	@JsonProperty("floor")
 	private Floor floor;
 
-	
 	@Column(name = "floorStr")
 	@JsonProperty("floorStr")
 	private String floorStr;
@@ -52,7 +51,6 @@ public class ArtExhibitionItem extends DelleMuseObject {
 	@Column(name = "roomStr")
 	@JsonProperty("roomStr")
 	private String roomStr;
-	
 	
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
 	@JoinColumn(name = "room_id", nullable = true)
@@ -74,15 +72,7 @@ public class ArtExhibitionItem extends DelleMuseObject {
 	@JsonProperty("QRCode")
 	private String qRCode;
 
-	@Column(name = "info")
-	@JsonProperty("info")
-	private String info;
-
-	@Column(name = "infoKey")
-	@JsonProperty("infoKey")
-	private String infoKey;
-
-	@Column(name = "mapurl")
+ 	@Column(name = "mapurl")
 	@JsonProperty("mapurl")
 	private String mapurl;
 
@@ -93,7 +83,6 @@ public class ArtExhibitionItem extends DelleMuseObject {
 	public ArtExhibitionItem() {
 	}
  
-	
 	public ArtWork getArtWork() {
 		return artwork;
 	}
@@ -134,21 +123,7 @@ public class ArtExhibitionItem extends DelleMuseObject {
 		this.qRCode = qCode;
 	}
 
-	public String getInfo() {
-		return info;
-	}
-
-	public void setInfo(String info) {
-		this.info = info;
-	}
-
-	public String getInfoKey() {
-		return infoKey;
-	}
-
-	public void setInfoKey(String infoKey) {
-		this.infoKey = infoKey;
-	}
+	 
 
 	public ArtExhibition getArtExhibition() {
 		return artExhibition;
@@ -182,31 +157,25 @@ public class ArtExhibitionItem extends DelleMuseObject {
 		this.artExhibitionOrder = exhibitionOrder;
 	}
 
-
 	public ArtWork getArtwork() {
 		return artwork;
 	}
-
 
 	public String getFloorStr() {
 		return floorStr;
 	}
 
-
 	public String getRoomStr() {
 		return roomStr;
 	}
-
 
 	public int getArtExhibitionOrder() {
 		return artExhibitionOrder;
 	}
 
-
 	public String getqRCode() {
 		return qRCode;
 	}
-
 
 	public void setArtwork(ArtWork artwork) {
 		this.artwork = artwork;
@@ -222,11 +191,9 @@ public class ArtExhibitionItem extends DelleMuseObject {
 		this.roomStr = roomStr;
 	}
 
-
 	public void setArtExhibitionOrder(int artExhibitionOrder) {
 		this.artExhibitionOrder = artExhibitionOrder;
 	}
-
 
 	public void setqRCode(String qRCode) {
 		this.qRCode = qRCode;

@@ -2,6 +2,7 @@ package dellemuse.serverapp.page.model;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,10 +12,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
+import dellemuse.model.ref.RefResourceModel;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.command.CommandService;
-import dellemuse.serverapp.command.ImageCalculateDimensionsCommand;
+import dellemuse.serverapp.command.ResourceMetadataCommand;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
@@ -37,7 +39,18 @@ import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
+import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
+import dellemuse.serverapp.service.language.LanguageService;
+import dellemuse.serverapp.service.language.TranslationService;
 import io.wktui.model.TextCleaner;
 import wktui.base.ModelPanel;
 
@@ -136,6 +149,11 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 	protected User getRootUser() {
 		return getUserDBService().findRoot();
 	}
+
+	protected User getSessionUser() {
+		return getUserDBService().getSessionUser();
+	}
+
 	
 	/** Save */
 	public void save(ArtExhibition ex) {
@@ -160,6 +178,9 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		getGuideContentDBService().create(g, item, addedBy);
 	}
 	
+	public LanguageService getLanguageService() {
+		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
+	}
 	
 	/** Deps */
 	
@@ -234,43 +255,102 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 	}
 	
 	public Iterable<ArtWork> getSiteArtWorks(Site site) {
-		return getSiteDBService().getSiteArtWorks(site);
-		
+		return getSiteDBService().getSiteArtWorks(site);		
 	} 
+	
+	public Iterable<GuideContent> getGuideContens(ArtExhibitionItem o) {
+		return getArtExhibitionItemDBService().getGuideContents(o);
+	}
 
+	
 	/** DBService  ------------------------- */
 
 	protected InstitutionDBService getInstitutionDBService() {
 		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 	}
 	
+	protected InstitutionRecordDBService getInstitutionRecordDBService() {
+		return (InstitutionRecordDBService) ServiceLocator.getInstance().getBean(InstitutionRecordDBService.class);
+	}
+	
 	protected GuideContentDBService getGuideContentDBService() {
 		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
+	}
+	
+	protected GuideContentRecordDBService getGuideContentRecordDBService() {
+		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
 	}
 	
 	protected  ArtExhibitionItemDBService getArtExhibitionItemDBService() {
 		return ( ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 	}
+	
+	protected  ArtExhibitionItemRecordDBService getArtExhibitionItemRecordDBService() {
+		return ( ArtExhibitionItemRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemRecordDBService.class);
+	}
+	
+	protected  DateTimeService getDateTimeService() {
+		return (DateTimeService) ServiceLocator.getInstance().getBean(DateTimeService.class);
+	}
+
+	
+
+	
+	
+	
 
 	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
 	
+
+	protected SiteRecordDBService getSiteRecordDBService() {
+		return (SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class);
+	}
+	
+	
+	
+	
 	protected  ArtExhibitionDBService getArtExhibitionDBService() {
 		return ( ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
+	}
+	protected  ArtExhibitionRecordDBService getArtExhibitionRecordDBService() {
+		return ( ArtExhibitionRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionRecordDBService.class);
 	}
 
 	protected  ArtExhibitionGuideDBService getArtExhibitionGuideDBService() {
 		return ( ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 	}
 	
+	protected  ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
+		return ( ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
+	}
+	
+	
+	
+	
 	protected ArtWorkDBService getArtWorkDBService() {
 		return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 	}
+	protected ArtWorkRecordDBService getArtWorkRecordDBService() {
+		return (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);
+	}
+	
+	
+	
 	
 	protected PersonDBService getPersonDBService() {
 		return  (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 	}
+	protected PersonRecordDBService getPersonRecordDBService() {
+		return  (PersonRecordDBService) ServiceLocator.getInstance().getBean(PersonRecordDBService.class);
+	}
+	
+	
+	
+	
+	
+	
 	
 	protected ResourceDBService getResourceDBService() {
 		return  (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
@@ -283,7 +363,12 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 	protected CommandService getCommandService() {
 		return (CommandService) ServiceLocator.getInstance().getBean(CommandService.class);
 	}
-
+	 
+	protected TranslationService getTranslationService() {
+		return (TranslationService) ServiceLocator.getInstance().getBean(TranslationService.class);
+	}
+	
+	
 	/** DBService  ------------------------- */
 
 	protected Iterable<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition o) {
@@ -324,8 +409,11 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return str.toString();
 	}
 	
-
-	
+	/**
+	 * 
+	 * @param resource
+	 * @return
+	 */
 	public Image getThumbnail(Resource resource) {
 		
 		if (resource == null)
@@ -360,7 +448,7 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 				photo=this.getResourceDBService().findWithDeps(photo.getId()).get();
 			}
 			
-			if (photo.getMedia().contains(".svg") || photo.getMedia().contains(".webp") ) {
+			if ((photo.getMedia()!=null) && (photo.getMedia().contains(".svg") || photo.getMedia().contains(".webp")) ) {
 				ObjectStorageService service=(ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
 				return service.getClient().getPresignedObjectUrl( photo.getBucketName(), photo.getObjectName());
 			}
@@ -411,13 +499,29 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 	}
 
 	
+	public String getPresignedUrl(Resource resource) {
+		try {
+			Optional<Integer> urlExpiresInSeconds = Optional.of(120); 
+			Optional<Integer> objectCacheExpiresInSeconds = Optional.of(120);
+			String url=getObjectStorageService().getClient().getPresignedObjectUrl(resource.getBucketName(), resource.getObjectName(), urlExpiresInSeconds, objectCacheExpiresInSeconds);
+			return url;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public ObjectStorageService getObjectStorageService() {
+		return ( ObjectStorageService) ServiceLocator.getInstance().getBean( ObjectStorageService.class);
+	}
+
+
 	public Resource createAndUploadFile(InputStream inputStream, String bucketName, String objectName, String fileName, long size) {
 
 		try (InputStream is = inputStream) {
 			getResourceDBService().upload(bucketName, objectName, is, fileName);
 			User user = getUserDBService().findRoot();
-			Resource resource = getResourceDBService().create(bucketName, objectName, fileName,getResourceDBService().getMimeType(fileName), size, user);
-			getCommandService().run(new ImageCalculateDimensionsCommand(resource.getId()));
+			Resource resource = getResourceDBService().create(bucketName, objectName, fileName,getResourceDBService().getMimeType(fileName), size, null, user);
+			// getCommandService().run(new ResourceMetadataCommand(resource.getId()));
 			return resource;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
@@ -466,15 +570,37 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return e.getInfo();
 	}
 	
-	public String getInfo(ArtExhibitionGuide g) {
+	public String getInfo(ArtExhibitionGuide g, boolean useExhibitionIfNull) {
 
-		if (g.getInfo()!=null) 
-			return g.getInfo();
-			
+		
 		if (!g.isDependencies())
 			g=this.findArtExhibitionGuideWithDeps(g.getId()).get();
+		
+		
+		List<String> l=new ArrayList<String>();
+		
+		StringBuilder str = new StringBuilder();
+		
+		if (g.getPublisher()!=null) {
+			l.add("publisher: " + g.getPublisher().getDisplayName());
+		}
+		
+		if (g.getAudio()!=null)
+			l.add("audio: " + g.getAudio().getDisplayname());
+		
+		if (g.getGuideContents()!=null)
+			l.add("artworks: " + String.valueOf( g.getGuideContents().size()));
+		
+		if (g.getInfo()!=null)  {
+			l.add("info: " + g.getInfo());
+		}
+		else if (useExhibitionIfNull) {
+			l.add("info: " + getInfo(g.getArtExhibition()));
+		}
+		
+		l.forEach( item -> str.append( ((str.length()>0) ? "\n" : "") + item));
 			
-		return getInfo(g.getArtExhibition());
+		return TextCleaner.clean(str.toString());
 	}
 	
 	public String getInfo(ArtExhibitionItem item ) {
@@ -546,16 +672,23 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		
 		str.append(resource.getName().toLowerCase());
 		
-		if (resource.getSize()>0) {
-			str.append(" - " + NumberFormatter.formatFileSize(resource.getSize()) );
-		}
+	
 
 		if (media!=null) {
 			if (media.contains("audio")) {
-				str.append(" - " + media);
-				str.append(	" - [duration] ");
+				//str.append(" - " + media);
+				
+				if (resource.getDurationMilliseconds()>0) {
+					str.append(" - " + NumberFormatter.formatDuration(resource.getDurationMilliseconds()) );
+				}
 			}
 		}
+		
+		if (resource.getSize()>0) {
+			str.append(" - " + NumberFormatter.formatFileSize(resource.getSize()) );
+		}
+		
+		
 		return str.toString();
 	}
 	

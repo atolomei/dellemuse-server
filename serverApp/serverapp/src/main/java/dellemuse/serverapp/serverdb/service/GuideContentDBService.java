@@ -33,11 +33,9 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     public GuideContentDBService(CrudRepository<GuideContent, Long> repository, ServerDBSettings settings) {
         super(repository,  settings);
     }
-    
-    
+     
     @Transactional
     public boolean existsInGuide(ArtExhibitionGuide guide, ArtExhibitionItem item) {
-    	
     	 CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
          CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
          Root<GuideContent> root = cq.from(getEntityClass());
@@ -47,7 +45,6 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 
     @Transactional
     public List<GuideContent> findByArtExhibitionItem(ArtExhibitionGuide guide, ArtExhibitionItem item) {
-    	
     	 CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
          CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
          Root<GuideContent> root = cq.from(getEntityClass());
@@ -69,20 +66,19 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     		return null;
     	}
     	
-    	
     	GuideContent c = new GuideContent();
+    	
+    	c.setMasterLanguage(item.getMasterLanguage());
+
         c.setName(item.getName());
         c.setNameKey(nameKey(item.getName()));
-
         c.setArtExhibitionGuide(guide);
         c.setArtExhibitionItem(item);
-        
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
          
         return getRepository().save(c);
-        
     }
     
     @PostConstruct
@@ -122,12 +118,10 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		return o;
 	}
 
-	
     /**
      * <p>
      * Annotation Transactional is required to store values into the Database
      * </p>
-     * 
      * @param name
      * @param createdBy
      */

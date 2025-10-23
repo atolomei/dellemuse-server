@@ -23,7 +23,7 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 	private static final long serialVersionUID = 1L;
 
 	private IModel<String> subtitle;
-	private IModel<String> icon;
+	private String icon;
 	private IModel<String> iconCss;
 	private Link<T> imageLink;
 	private Image image;
@@ -57,7 +57,6 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 
 			@Override
 			public void onEvent(ListPanelWicketEvent<T> event) {
-
 				if (event.getModel().getObject().getId()
 						.equals(ObjectListItemPanel.this.getModel().getObject().getId())) {
 					if (event.getName().equals(ListPanel.ITEM_EXPAND)) {
@@ -87,6 +86,7 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 
 		if (getIcon() != null) {
 			WebMarkupContainer ic = new WebMarkupContainer("icon");
+			ic.add( new org.apache.wicket.AttributeModifier("class", getIcon()));
 			this.imageLink.addOrReplace(ic);
 
 		} else {
@@ -120,21 +120,14 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 
 	}
 
-	public IModel<String> getIcon() {
+	protected String getIcon() {
 		return icon;
 	}
 
-	public void setIcon(IModel<String> icon) {
-		this.icon = icon;
-	}
+	//public void setIcon(String icon) {
+	//	this.icon = icon;
+	//}
 
-	public IModel<String> getIconCss() {
-		return iconCss;
-	}
-
-	public void setIconCss(IModel<String> iconCss) {
-		this.iconCss = iconCss;
-	}
 
 	public void setObjectSubtitle(IModel<String> subtitle) {
 		this.subtitle = subtitle;

@@ -34,6 +34,8 @@
 		did not work with LogManager  -->
 		
 		<dropwizard-metrics-version>4.2.25</dropwizard-metrics-version>
+
+		<google-cloud-translate-version>2.77.0</google-cloud-translate-version>
 		
 		
 		<hibernate-core-version>6.4.4.Final</hibernate-core-version>
@@ -307,6 +309,30 @@
 		</dependency>
 
 
+
+			<dependency>
+			    <groupId>com.googlecode.soundlibs</groupId>
+			    <artifactId>mp3spi</artifactId>
+			    <version>1.9.5.4</version>
+			</dependency>
+			<dependency>
+			    <groupId>com.googlecode.soundlibs</groupId>
+			    <artifactId>jlayer</artifactId>
+			    <version>1.0.1.4</version>
+			</dependency>
+	
+			<dependency>
+				    <groupId>com.google.zxing</groupId>
+				    <artifactId>core</artifactId>
+				    <version>3.3.0</version>
+			</dependency>
+			<dependency>
+				    <groupId>com.google.zxing</groupId>
+				    <artifactId>javase</artifactId>
+				    <version>3.3.0</version>
+			</dependency>
+
+
 		<!-- s. WICKET  SPRING
 		====================================================  -->
 		<!--  
@@ -339,10 +365,27 @@
 			<artifactId>wktui</artifactId>
 			<version>${wktui-version}</version>
 		</dependency>
+		
+		
+		
+	<dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>libraries-bom</artifactId>
+      <version>26.70.0</version>
+        <type>pom</type>
+    </dependency>
+		
+		
+	<dependency>
+	    <groupId>com.google.cloud</groupId>
+	    <artifactId>google-cloud-translate</artifactId>
+	    <version>${google-cloud-translate-version}</version>
+	</dependency>
+		
+   	
+	<!-- s. TEST ====================================================  -->
 
-		<!-- s. TEST ====================================================  -->
-
-		<!-- exclude junit 4 -->
+	<!-- exclude junit 4 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

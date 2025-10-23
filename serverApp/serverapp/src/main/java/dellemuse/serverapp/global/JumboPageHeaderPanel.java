@@ -13,10 +13,13 @@ import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.DelleMuseModelObject;
+import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.menu.DropDownMenu;
@@ -33,6 +36,8 @@ import wktui.base.ModelPanel;
 
 
 public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
+
+	static private Logger logger = Logger.getLogger(JumboPageHeaderPanel.class.getName());
 
 	private static final long serialVersionUID = 1L;
 
@@ -134,12 +139,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
         if (frame.get("breadcrumb")==null) {
         	frame.addOrReplace(new InvisiblePanel("breadcrumb"));
         }
-        
-        
-       // if (!imageAdded) {
-       // 	addImageAndInfo();
-	//		frame.add(new org.apache.wicket.AttributeModifier("class", getCss()));
-      //  }
+   
     }
     
    
@@ -208,19 +208,27 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	 
 		String presignedThumbnail = null;
 		
-		if (getPhotoModel()!=null && getPhotoModel().getObject() !=null) 
-			presignedThumbnail = getPresignedThumbnail(getPhotoModel().getObject(), ThumbnailSize.W980) ;
-			if (presignedThumbnail != null) {
-				Url url = Url.parse(presignedThumbnail);
-				UrlResourceReference resourceReference = new UrlResourceReference(url);
-				this.image = new Image("image", resourceReference);
-				this.imageLink.addOrReplace(this.image);
-			} else {
-				this.image = new Image("image", new UrlResourceReference(Url.parse("")));
-				this.image.setVisible(false);
-				this.imageLink.addOrReplace(image);
-			}
-		
+		try {
+				if (getPhotoModel()!=null && getPhotoModel().getObject() !=null) { 
+					presignedThumbnail = getPresignedThumbnail(getPhotoModel().getObject(), ThumbnailSize.W980);
+				}
+				
+				if (presignedThumbnail != null) {
+						Url url = Url.parse(presignedThumbnail);
+						UrlResourceReference resourceReference = new UrlResourceReference(url);
+						this.image = new Image("image", resourceReference);
+						this.imageLink.addOrReplace(this.image);
+					} else {
+						this.image = new Image("image", new UrlResourceReference(Url.parse("")));
+						this.image.setVisible(false);
+						this.imageLink.addOrReplace(image);
+					}
+		} catch (Exception e) {
+			this.image = new Image("image", new UrlResourceReference(Url.parse("")));
+			this.image.setVisible(false);
+			this.imageLink.addOrReplace(image);
+			logger.error(e, ServerConstant.NOT_THROWN);
+		}
 				
 			
 	}

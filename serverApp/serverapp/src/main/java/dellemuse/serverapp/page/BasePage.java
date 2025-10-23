@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Session;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -38,20 +39,26 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.ref.RefPersonModel;
 import dellemuse.model.ref.RefResourceModel;
 import dellemuse.model.util.ThumbnailSize;
+ 
+import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionSectionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
@@ -60,7 +67,17 @@ import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionSectionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
+import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
@@ -189,6 +206,9 @@ public abstract class BasePage extends WebPage {
 	public void onInitialize() {
 		super.onInitialize();
 		
+		
+		
+
 		addListeners();
 		
 		// cacheArtExhibitionItem = new HashMap<Long, IModel<ArtExhibitionItemModel>>();
@@ -198,11 +218,24 @@ public abstract class BasePage extends WebPage {
 
 		// ()!=null? getSession().getLocale().getLanguage() : null;
 
-		this.language = Locale.forLanguageTag("es").getLanguage();
-
+		Optional<User> ou=getSessionUser();
+		
+		if (ou.isPresent() && ou.get().getLanguage()!=null) {
+			this.language = getSessionUser().get().getLanguage();
+			//this.language = Locale.forLanguageTag(Language.EN).getLanguage();
+		}
+		else
+			this.language = Locale.forLanguageTag(Language.ES).getLanguage();
+	
+		
 		if (getSession() != null)
 			getSession().setLocale(Locale.forLanguageTag(this.language));
 
+		//Session.get().setLocale(Locale.ENGLISH);
+		
+		logger.debug( this.getClass().getSimpleName() + " -> " + Session.get().getLocale().getLanguage() );
+		
+		
 		this.wfont = new WebMarkupContainer("google-font");
 		this.wfont.add(new AttributeModifier("rel", "stylesheet"));
 		this.wfont.add(new AttributeModifier("href", getPageFonts()));
@@ -447,35 +480,97 @@ public abstract class BasePage extends WebPage {
 
 	/** DB Services */
 
-	protected ArtWorkDBService getArtWorkDBService() {
-		return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
-	}
 
-	protected SiteDBService getSiteDBService() {
-		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-	}
-
-	protected GuideContentDBService getGuideContentDBService() {
-		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
-	}
-	
-	protected PersonDBService getPersonDBService() {
-		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
-	}
 
 	protected ArtExhibitionDBService getArtExhibitionDBService() {
 		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 	}
-	
+	protected ArtExhibitionRecordDBService getArtExhibitionRecordDBService() {
+		return (ArtExhibitionRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionRecordDBService.class);
+	}
 
-	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
-		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
+	
+	protected ArtExhibitionSectionDBService getArtExhibitionSectionDBService() {
+		return (ArtExhibitionSectionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionSectionDBService.class);
 	}
 	
+	protected ArtExhibitionSectionRecordDBService getArtExhibitionSectionRecordDBService() {
+		return (ArtExhibitionSectionRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionSectionRecordDBService.class);
+	}
 	
 	protected ArtExhibitionGuideDBService getArtExhibitionGuideDBService() {
 		return (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 	}
+	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
+		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
+	}
+	
+	
+	
+
+	
+	
+	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
+		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
+	}
+	
+	protected ArtExhibitionItemRecordDBService getArtExhibitionItemRecordDBService() {
+		return (ArtExhibitionItemRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemRecordDBService.class);
+	}
+
+	
+	
+	
+	
+	protected ArtWorkDBService getArtWorkDBService() 				{return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);}
+	protected  ArtWorkRecordDBService getArtWorkRecordDBService() 	{return (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);	}
+
+	
+	
+
+	protected InstitutionDBService getInstitutionDBService() {
+		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
+	}
+	
+	protected InstitutionRecordDBService getInstitutionRecordDBService() {
+		return (InstitutionRecordDBService) ServiceLocator.getInstance().getBean(InstitutionRecordDBService.class);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	protected GuideContentDBService getGuideContentDBService() {
+		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
+	}
+	protected GuideContentRecordDBService getGuideContentRecordDBService() {
+		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
+	}
+	
+	
+
+	
+	protected PersonDBService getPersonDBService() {
+		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
+	}
+	
+	protected PersonRecordDBService getPersonRecordDBService() {
+		return (PersonRecordDBService) ServiceLocator.getInstance().getBean(PersonRecordDBService.class);
+	}
+	
+
+	protected SiteDBService getSiteDBService() {
+		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+	}
+	protected SiteRecordDBService getSiteRecordDBService() {
+		return (SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class);
+	}
+
+	
+	
 	
 	protected ResourceDBService getResourceDBService() {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
@@ -485,10 +580,34 @@ public abstract class BasePage extends WebPage {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
 
-	protected InstitutionDBService getInstitutionDBService() {
-		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
+	
+	 
+	
+	
+	
+	
+	 
+
+
+	protected Optional<ArtExhibitionSection> getArtExhibitionSection(Long id) {
+		return null;
+	}
+	
+	
+	
+	
+	
+	
+	
+	 
+
+	
+	
+	protected LanguageService getLanguageService() {
+		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
 
+	 
 	/** Object ----------------  */
 /**
 	public ArtWork lazyLoad(ArtWork s) {

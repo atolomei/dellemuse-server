@@ -42,11 +42,6 @@ public class UserDBService extends DBService<User, Long> {
         this.personDBService = personDBService;
     }
 
-    @PostConstruct
-    protected void onInitialize() {
-    	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
-    }
     
     @Transactional
     @Override
@@ -82,10 +77,14 @@ public class UserDBService extends DBService<User, Long> {
     public List<User> getByName(String name) {
         return createNameQuery(name).getResultList();
     }
-
+    
+    public User getSessionUser() {
+    	return findRoot();
+    }
+   
     @Transactional
     public User findRoot() {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<User> criteria = cb.createQuery(getEntityClass());
         Root<User> root = criteria.from(getEntityClass());
 
@@ -96,9 +95,7 @@ public class UserDBService extends DBService<User, Long> {
         query.setHint("org.hibernate.cacheable", true);
         query.setFlushMode(FlushModeType.COMMIT);
         query.setParameter(nameParam, "root");
-
         List<User> users = query.getResultList();
-
         if (users != null && !users.isEmpty()) {
             return users.get(0);
         }
@@ -115,12 +112,7 @@ public class UserDBService extends DBService<User, Long> {
         return User.class;
     }
     
-    
-    public User getSessionUser() {
-    	
-    	return null;
-    	
-    }
+   
 /**
     	try {
 			if (SecurityContextHolder.getContext().getAuthentication()==null) 
@@ -138,4 +130,11 @@ public class UserDBService extends DBService<User, Long> {
 		}
 	}
    **/ 
+    
+    @PostConstruct
+    protected void onInitialize() {
+    	super.register(getEntityClass(), this);
+    }
+   
+    
 }

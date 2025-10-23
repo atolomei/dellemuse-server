@@ -3,9 +3,10 @@ package dellemuse.serverapp.serverdb.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.compress.utils.FileNameUtils;
+  
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -19,26 +20,23 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.FSUtil;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
-import dellemuse.serverapp.serverdb.ServerDBConstant;
-import dellemuse.serverapp.serverdb.model.Institution;
+
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.object.service.ResourceService;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import io.odilon.model.ObjectMetadata;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-
-
 
 
 @Service
 public class ResourceDBService extends DBService<Resource, Long> implements ApplicationContextAware {
-
   
     static private Logger logger = Logger.getLogger(ResourceDBService.class.getName());
 
@@ -48,20 +46,29 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     @PersistenceContext
     private EntityManager entityManager;
 
-    public ResourceDBService(CrudRepository<Resource, Long> repository,
-                             ServerDBSettings settings) {
-        super(repository,  settings);
+    public ResourceDBService(CrudRepository<Resource, Long> repository, ServerDBSettings settings) {
+        super(repository, settings);
     }
 
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
-    	 
     }
-    
-    
-    
-   	@SuppressWarnings("unused")
+     
+	@Transactional
+    public void delete(Resource r) {
+    	r.setLastModifiedUser(null);
+    	super.delete(r);
+    }
+   
+	@Transactional
+    public void delete(Long id) {
+		Resource r = findWithDeps( id ).get();
+		r.setLastModifiedUser(null);
+    	super.delete(id);
+    }
+   
+	@SuppressWarnings("unused")
 	@Transactional
        public Optional<Resource> findWithDeps(Long id) {
        
@@ -71,18 +78,15 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
    			return o_i;
    		
    		Resource i = o_i.get();
-   		
    		User user = i.getLastModifiedUser();
-
    		i.setDependencies(true);
-   		
    		return o_i;
 
    	}
     
     @Transactional
     public Long newId() {
-        return ((Number) entityManager.createNativeQuery("SELECT nextval('objectstorage_id')").getSingleResult()).longValue();
+        return ((Number) getEntityManager().createNativeQuery("SELECT nextval('objectstorage_id')").getSingleResult()).longValue();
     }
 
     public String normalizeFileName(String name) {
@@ -94,6 +98,9 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
 
     public String getMimeType(String fileName) {
 
+    	if (fileName==null)
+    		return null;
+    	
     	if (FSUtil.isImage(fileName)) {
         
     		String ext = FilenameUtils.getExtension(fileName).toLowerCase();
@@ -134,36 +141,52 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
 		}
     }
     
-    
+    @Transactional
+	public List<Resource> getDefaultAvatars() {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Resource> cq = cb.createQuery(Resource.class);
+		Root<Resource> root = cq.from(Resource.class);
+		cq.select(root).where(cb.equal(root.get("tag"), "avatar"));
+		cq.orderBy(cb.asc( cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
     
     @Override
     @Transactional
     public Resource create(String objectName, User createdBy) {
-        return create(ServerDBConstant.MEDIA_BUCKET, objectName, objectName, null, 0, createdBy);
+        return create(ServerConstant.MEDIA_BUCKET, objectName, objectName, null, 0, null, createdBy);
     }
 
     @Transactional
     public Resource create(String objectName, String name, long size, User createdBy) {
-        return create(ServerDBConstant.MEDIA_BUCKET, objectName, name, null, size, createdBy);
+        return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, size, null, createdBy);
     }
 
     @Transactional
-    public Resource create(String bucketName, String objectName, String name, String media, long size, User createdBy) {
+    public Resource create(String bucketName, String objectName, String name, String media, long size, String tag, User createdBy) {
         Resource c = new Resource();
         c.setBucketName(bucketName);
         c.setObjectName(objectName);
         c.setName(name);
-        c.setSize( size );
+        c.setSize(size);
+        c.setTag(tag);
         c.setNameKey(nameKey(name));
+        
         if (media != null)
             c.setMedia(media);
+        else 
+        	c.setMedia(getMimeType(name));
+               
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
+        
         return getRepository().save(c);
-    
     }
-
+    
+    /**
+     *  getCommandService().run(new ResourceMetadataCommand(resource.getId()));
+     * */
     
     @Transactional
     public void checkAndSetSize(Resource resource) {
@@ -193,119 +216,9 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     protected Class<Resource> getEntityClass() {
         return Resource.class;
     }
-
-
 }
 
 
 
 
-
-
-
-
-
-/**
- * 
-
-@Service
-public class ResourceDBService extends DBService<Resource, Long> implements ApplicationContextAware {
-
-    @SuppressWarnings("unused")
-    static private Logger logger = Logger.getLogger(ResourceDBService.class.getName());
-
-    @JsonIgnore
-    ApplicationContext applicationContext;
-
-    public ResourceDBService(CrudRepository<Resource, Long> repository, EntityManagerFactory entityManagerFactory,
-            Settings settings) {
-        super(repository, entityManagerFactory, settings);
-
-    }
-
-    @Transactional
-    public Long newId() {
-        Long nextVal = (Long) getSessionFactory().getCurrentSession()
-                .createNativeQuery("SELECT nextval('objectstorage_id')", Long.class).getSingleResult();
-        return nextVal;
-    }
-
-    public String normalizeFileName(String name) {
-        String str = name.replaceAll("[^\\x00-\\x7F]|[\\s]+", "-").toLowerCase().trim();
-        if (str.length() < 100)
-            return str;
-        return str.substring(0, 100);
-    }
-
-    public String getMimeType(String fileName) {
-
-        if (FSUtil.isImage(fileName)) {
-            String str = FilenameUtils.getExtension(fileName);
-
-            if (str.equals("jpg"))
-                return "image/jpeg";
-
-            if (str.equals("jpeg"))
-                return "image/jpeg";
-
-            return "image/" + str;
-        }
-
-        if (FSUtil.isPdf(fileName))
-            return "application/pdf";
-
-        if (FSUtil.isVideo(fileName))
-            return "video/" + FilenameUtils.getExtension(fileName);
-
-        if (FSUtil.isAudio(fileName))
-            return "audio/" + FilenameUtils.getExtension(fileName);
-
-        return "";
-    }
  
-
-    @Override
-    @Transactional
-    public Resource create(String objectName, User createdBy) {
-        return create(ServerConstant.MEDIA_BUCKET, objectName, objectName, null, createdBy);
-    }
-
-    @Transactional
-    public Resource create(String objectName, String name, User createdBy) {
-        return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, createdBy);
-    }
-
-    public void test() {
-    }
-
-    @Transactional
-    public Resource create(String bucketName, String objectName, String name, String media, User createdBy) {
-        Resource c = new Resource();
-        c.setBucketName(bucketName);
-        c.setObjectName(objectName);
-        c.setName(name);
-        c.setNameKey(nameKey(name));
-        if (media != null)
-            c.setMedia(media);
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
-
-    @Override
-    protected Class<Resource> getEntityClass() {
-        return Resource.class;
-    }
-
-    public ResourceService getResourceService(Resource resource) {
-        return this.applicationContext.getBean(ResourceService.class, resource);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
-    
-    */
-

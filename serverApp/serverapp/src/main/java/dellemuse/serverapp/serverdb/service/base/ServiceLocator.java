@@ -23,7 +23,7 @@ public class ServiceLocator extends BaseService implements ApplicationContextAwa
 	static ServiceLocator instance;
 
 
-	private Map<Class<?>, DBService<?, Long>> map = new HashMap<Class<?>, DBService<?, Long>>();
+	// private Map<Class<?>, DBService<?, Long>> map = new HashMap<Class<?>, DBService<?, Long>>();
 	
 	
 	@Autowired

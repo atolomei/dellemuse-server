@@ -1,5 +1,7 @@
 package dellemuse.serverapp.serverdb.model;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -21,5 +23,9 @@ public class User extends DelleMuseObject {
     public String getDisplayname() {
         return getUsername();
     }
+
+	public Locale getLocale() {
+		return Locale.forLanguageTag(getLanguage());
+	}
  
 }

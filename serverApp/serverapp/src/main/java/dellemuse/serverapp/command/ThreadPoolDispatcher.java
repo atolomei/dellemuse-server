@@ -9,6 +9,7 @@ import EDU.oswego.cs.dl.util.concurrent.LinkedQueue;
 import EDU.oswego.cs.dl.util.concurrent.PooledExecutor;
 import dellemuse.model.JsonObject;
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.ServerConstant;
 
 public class ThreadPoolDispatcher extends JsonObject implements Dispatcher  {
 
@@ -146,7 +147,7 @@ public class ThreadPoolDispatcher extends JsonObject implements Dispatcher  {
 
             this.threadPool.execute(runnable);
         } catch (InterruptedException e) {
-            // logger.error(e, SharedConstant.NOT_THROWN);
+            logger.error(e, ServerConstant.NOT_THROWN);
         }
     }
 
@@ -154,7 +155,7 @@ public class ThreadPoolDispatcher extends JsonObject implements Dispatcher  {
         try {
             this.threadPool.execute(runnable);
         } catch (InterruptedException e) {
-            // logger.error(e, SharedConstant.NOT_THROWN);
+            logger.error(e, ServerConstant.NOT_THROWN);
         }
     }
 
@@ -162,6 +163,14 @@ public class ThreadPoolDispatcher extends JsonObject implements Dispatcher  {
         this.maxPoolSize = value;
         this.threadPool.setMaximumPoolSize(value);
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        str.append(this.getClass().getSimpleName());
+        str.append(toJSON());
+        return str.toString();
+    }	
 
     private void makePool() {
         this.threadPool = new PooledExecutor(new LinkedQueue(), maxPoolSize);
@@ -173,11 +182,4 @@ public class ThreadPoolDispatcher extends JsonObject implements Dispatcher  {
         this.threadPool.waitWhenBlocked(); // Wait for a free thread when blocked.
     }
     
-    @Override
-    public String toString() {
-        StringBuilder str = new StringBuilder();
-        str.append(this.getClass().getSimpleName());
-        str.append(toJSON());
-        return str.toString();
-    }	
 }

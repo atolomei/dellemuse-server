@@ -1,4 +1,4 @@
-package dellemuse.serverapp.page.site;
+package dellemuse.serverapp.institution;
 
 import java.io.File;
 import java.io.InputStream;
@@ -29,6 +29,7 @@ import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -59,8 +60,9 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 	
 
 	private ChoiceField<ObjectState> objectStateField;
-	
+	private ChoiceField<Language> languageField;
 
+	
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
 
@@ -123,14 +125,14 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 		add(this.form);
 		setForm(this.form);
-		
-objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
+		/**
+		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 			
 			private static final long serialVersionUID = 1L;
 			
 			@Override
 			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (b_state);
+				return new ListModel<ObjectState> (getStates());
 			}
 			
 			@Override
@@ -141,7 +143,10 @@ objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<Objec
 			}
 		};
 		form.add(objectStateField);
-
+**/
+		
+		
+		
 	 	nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 	 	subtitleField	= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
 	 	shortNameField 	= new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
@@ -303,9 +308,11 @@ objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<Objec
 	}
 	
 	protected String getLogoFileName() {
+		
 		if (getLogoModel() == null)
 			return null;
-		return getLogoModel().getObject().getDisplayname() + (getPhotoModel().getObject().getSize() != 0
+		
+		return getLogoModel().getObject().getDisplayname() + (getLogoModel().getObject().getSize() != 0
 				? " ( " + formatFileSize(getLogoModel().getObject().getSize()) + " )"
 				: "");
 	}
@@ -322,8 +329,8 @@ objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<Objec
 		if (getPhotoModel() == null)
 			return null;
 
+		try {
 		String presignedThumbnail = getPresignedThumbnail(getPhotoModel().getObject(), ThumbnailSize.SMALL);
-
 		Image image;
 
 		if (presignedThumbnail != null) {
@@ -335,6 +342,10 @@ objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<Objec
 			image.setVisible(false);
 		}
 		return image;
+		} catch (Exception e) {
+			logger.error(e, ServerConstant.NOT_THROWN);
+			return null;
+		}
 		
 	}
 
@@ -361,7 +372,7 @@ objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<Objec
 						User user = getUserDBService().findRoot();
 
 						Resource resource = getResourceDBService().create(bucketName, objectName,
-								upload.getClientFileName(), upload.getClientFileName(), upload.getSize(), user);
+								upload.getClientFileName(), upload.getClientFileName(), upload.getSize(), null, user);
 						
 						setPhotoModel(new ObjectModel<Resource>(resource));
 
@@ -411,7 +422,7 @@ objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<Objec
 								objectName,
 								upload.getClientFileName(), 
 								getMimeType( upload.getClientFileName()), 
-								upload.getSize(), user);
+								upload.getSize(), null, user);
 						
 						setLogoModel(new ObjectModel<Resource>(resource));
 

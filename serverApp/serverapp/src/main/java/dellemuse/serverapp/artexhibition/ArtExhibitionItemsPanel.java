@@ -3,6 +3,7 @@ package dellemuse.serverapp.artexhibition;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -24,6 +25,7 @@ import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -31,6 +33,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.UIEvent;
 import io.wktui.form.FormState;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
@@ -41,6 +44,7 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
+import io.wktui.struct.list.ListPanelWicketEvent;
 
 public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> implements InternalPanel {
 
@@ -130,6 +134,8 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		return super.getImageSrc(model.getObject());
 	}
 	
+	
+	 
 
 
 	@Override

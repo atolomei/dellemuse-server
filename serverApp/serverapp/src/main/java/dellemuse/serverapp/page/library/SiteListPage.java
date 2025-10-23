@@ -35,30 +35,17 @@ import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
-import dellemuse.serverapp.page.user.UserListPage;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
-import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
-import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
-import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 
 /**
@@ -88,24 +75,6 @@ public class SiteListPage extends ObjectListPage<Site> {
 		super.setIsExpanded(true);
 	}
 
-	@Override
-	protected void onCreate() {
-		Site in = getSiteDBService().create("new", getUserDBService().findRoot());
-		IModel<Site> m = new ObjectModel<Site>(in);
-		getList().add(m);
-		setResponsePage(new SitePage(m, getList()));
-	}
-
-	protected void addHeaderPanel() {
-
-		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(new BCElement(getLabel("sites")));
-		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("sites"));
-		ph.setBreadCrumb(bc);
-		add(ph);
-	}
-
-	 
 
 	@Override
 	public Iterable<Site> getObjects() {
@@ -145,6 +114,43 @@ public class SiteListPage extends ObjectListPage<Site> {
 	public void onDetach() {
 		super.onDetach();
 	}
+
+	
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
+
+	}
+
+	
+	@Override
+	protected void onCreate() {
+		Site in = getSiteDBService().create("new", getUserDBService().findRoot());
+		IModel<Site> m = new ObjectModel<Site>(in);
+		getList().add(m);
+		setResponsePage(new SitePage(m, getList()));
+	}
+
+	protected void addHeaderPanel() {
+
+		BreadCrumb<Void> bc = createBreadCrumb();
+		bc.addElement(new BCElement(getLabel("sites")));
+		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("sites"));
+		ph.setBreadCrumb(bc);
+		add(ph);
+	}
+
+	
+	@Override
+	protected List<ToolbarItem> getToolbarItems() {
+	
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+
+	 
+		return list;
+		
+	}
+
 
 	@Override
 	protected ListPanelMode getListPanelMode() {
@@ -221,30 +227,5 @@ public class SiteListPage extends ObjectListPage<Site> {
 			return menu;
 		}
 		
-	
-	@Override
-	public void onInitialize() {
-		super.onInitialize();
-
-	}
-
-	@Override
-	protected List<ToolbarItem> getToolbarItems() {
-	
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-
-		/**ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
-			private static final long serialVersionUID = 1L;
-			protected void onClick() {
-				SiteListPage.this.onCreate();
-			}
-		};
-		create.setAlign(Align.TOP_LEFT);
-		list.add(create);
-		**/
-		return list;
-		
-	}
-
 
 }

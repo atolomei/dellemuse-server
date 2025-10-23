@@ -32,7 +32,7 @@ public class ObjectListItemExpandedPanel<T extends DelleMuseObject> extends Mode
 	private static final long serialVersionUID = 1L;
 
 	private IModel<String> subtitle;
-	private IModel<String> icon;
+	private String icon;
 	private IModel<String> iconCss;
 	private Link<T> imageLink;
 	private Image image;
@@ -128,6 +128,7 @@ public class ObjectListItemExpandedPanel<T extends DelleMuseObject> extends Mode
 
 		if (getIcon() != null) {
 			WebMarkupContainer ic = new WebMarkupContainer("icon");
+			ic.add( new org.apache.wicket.AttributeModifier("class", getIcon()));
 			imageLink.addOrReplace(ic);
 
 		} else {
@@ -188,21 +189,15 @@ public class ObjectListItemExpandedPanel<T extends DelleMuseObject> extends Mode
 	}
 	
 	
-	public IModel<String> getIcon() {
+	protected String getIcon() {
 		return icon;
 	}
 
-	public void setIcon(IModel<String> icon) {
+	public void setIcon(String icon) {
 		this.icon = icon;
 	}
 
-	public IModel<String> getIconCss() {
-		return iconCss;
-	}
-
-	public void setIconCss(IModel<String> iconCss) {
-		this.iconCss = iconCss;
-	}
+	 
 
 	public void setObjectSubtitle(IModel<String> subtitle) {
 		this.subtitle = subtitle;

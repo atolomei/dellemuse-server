@@ -31,7 +31,8 @@ import jakarta.transaction.Transactional;
 @Service
 public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 
-    private static final Logger logger = Logger.getLogger(ArtExhibitionDBService.class.getName());
+    @SuppressWarnings("unused")
+	private static final Logger logger = Logger.getLogger(ArtExhibitionDBService.class.getName());
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -39,7 +40,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
     public ArtExhibitionDBService(CrudRepository<ArtExhibition, Long> repository, ServerDBSettings settings) {
         super(repository, settings);
     }
-    
     
     @Transactional
 	public Optional<ArtExhibition> findWithDeps(Long id) {
@@ -51,7 +51,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 
 		ArtExhibition a = o.get();
 		
-		
 		Long siteId=a.getSite().getId();
 		
 		if (siteId!=null) {
@@ -62,7 +61,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		if (a.getArtExhibitionItems()!=null) {
 			ArtExhibitionDBService se=(ArtExhibitionDBService) ServiceLocator.getInstance().getBean( ArtExhibitionDBService.class);
 			a.setArtExhibitionItems(se.getArtExhibitionItems(a));
-			//a.getArtExhibitionItems().forEach( i -> i.getDisplayname() );
 		}
 		
 		Resource photo = a.getPhoto();
@@ -85,8 +83,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 	public void addItem(ArtExhibition exhibition, ArtWork artwork, User addedBy) {
 
     	boolean contains = false;
-    	
-    	
+     	
     	List<ArtExhibitionItem> list = getArtExhibitionItems(exhibition);
     	
     	for (ArtExhibitionItem i: list) {
@@ -104,9 +101,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 				exhibition, 
 				artwork, 
 				addedBy );
-
-    	
-    	
+ 	
     	list.add(item);
     	exhibition.setArtExhibitionItems(list);
     	
@@ -121,10 +116,8 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
     	
     	boolean contains = false;
     	int index = -1;
-    	
 
     	List<ArtExhibitionItem> list = getArtExhibitionItems(c);
-    	
     		
     	for (ArtExhibitionItem i: list) {
     		index++;
@@ -144,7 +137,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
         getRepository().save(c);
     }
     
-    
     @Transactional
     @Override
     public ArtExhibition create(String name, User createdBy) {
@@ -163,6 +155,9 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
         ArtExhibition c = new ArtExhibition();
         c.setName(name);
         c.setNameKey(nameKey(name));
+        
+		c.setMasterLanguage(site.getMasterLanguage());
+
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -171,8 +166,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
         return getRepository().save(c);
     }
     
-    
-
     @Transactional
     public List<ArtExhibition> getByName(String name) {
         return createNameQuery(name).getResultList();
@@ -226,7 +219,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
     protected Class<ArtExhibition> getEntityClass() {
         return ArtExhibition.class;
     }
-
 	
 }
     

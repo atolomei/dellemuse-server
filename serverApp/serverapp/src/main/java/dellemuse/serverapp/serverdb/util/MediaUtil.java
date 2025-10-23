@@ -1,9 +1,19 @@
 package dellemuse.serverapp.serverdb.util;
 
+import java.io.File;
+import java.util.Map;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
+
 import org.springframework.http.MediaType;
 
+import wktui.base.Logger;
+
 public class MediaUtil {
-    
+
+	static private Logger logger = Logger.getLogger(MediaUtil.class.getName());
+	
     public static MediaType estimateContentType(String f_name) {
 
         if (f_name == null)
@@ -90,4 +100,34 @@ public class MediaUtil {
         return isGeneralImage(string) || string.toLowerCase().matches("^.*\\.(webp)$");
     }
 
+    
+    static public long getAudioDurationMilliseconds(File file) {
+    	
+    	
+        try {
+            AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(file);
+            
+            // Get the properties from the file format
+            Map<String, Object> properties = baseFileFormat.properties();
+            
+            // Retrieve the duration property (in microseconds)
+            Long durationMicroseconds = (Long) properties.get("duration");
+            
+            if (durationMicroseconds != null) {
+                long durationMillis = durationMicroseconds / 1000;
+                
+                return durationMillis;
+                //long totalSeconds = durationMillis / 1000;
+                //long minutes = totalSeconds / 60;
+                //long seconds = totalSeconds % 60;
+                //System.out.println("MP3 duration: " + minutes + " minutes, " + seconds + " seconds");
+            } else {
+                logger.error("Could not retrieve duration for the MP3 file.");
+            }
+        }
+        catch (Exception e) {
+            logger.error(e);
+        }
+        return -1;
+    }
 }

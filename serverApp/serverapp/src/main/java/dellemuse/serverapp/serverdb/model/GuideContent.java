@@ -20,7 +20,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "guideContent")
 @JsonInclude(Include.NON_NULL)
-public class GuideContent extends DelleMuseObject {
+public class GuideContent extends MultiLanguageObject {
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
     @JoinColumn(name = "artExhibitionGuide_id", nullable = false, insertable = true)
@@ -69,6 +69,10 @@ public class GuideContent extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource video;
 
+    @Column(name = "videoKey")
+    private String videoKey;
+    
+    
     @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
     @JoinColumn(name = "audio", nullable = true)
     @JsonManagedReference
@@ -77,6 +81,12 @@ public class GuideContent extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource audio;
 
+    @Column(name = "audioKey")
+    private String audioKey;
+    
+    
+    
+    
     public GuideContent() {
     }
 
@@ -128,6 +138,15 @@ public class GuideContent extends DelleMuseObject {
         this.infoKey = infoKey;
     }
 
+    public String getAudioKey() {
+        return audioKey;
+    }
+
+    public void setAudioKey(String infoKey) {
+        this.audioKey = infoKey;
+    }
+    
+    
     public int getGuideOrder() {
         return guideOrder;
     }

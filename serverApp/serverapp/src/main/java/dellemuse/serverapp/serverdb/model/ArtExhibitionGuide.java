@@ -28,7 +28,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "artExhibitionGuide")
 @JsonInclude(Include.NON_NULL)
-public class ArtExhibitionGuide extends DelleMuseObject {
+public class ArtExhibitionGuide extends MultiLanguageObject {
 
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
     @JoinColumn(name = "artExhibition_id", referencedColumnName = "id", nullable = true)
@@ -61,41 +61,14 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     @Column(name = "official")
     private boolean official;
 
-    @Column(name = "subtitle")
-    private String subtitle;
-
     @Column(name = "subtitleKey")
     private String subTitleKey;
 
-    @Column(name = "info")
-    private String info;
-
+    
     @Column(name = "infoKey")
     private String infoKey;
 
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource photo;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource video;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource audio;
+    
 
     public ArtExhibitionGuide() {
     }
@@ -116,13 +89,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
         this.publisher = publisher;
     }
 
-    public String getSubtitle() {
-        return subtitle;
-    }
-
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-    }
+    
 
     public String getSubTitleKey() {
         return subTitleKey;
@@ -132,13 +99,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
         this.subTitleKey = subTitleKey;
     }
 
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
+     
 
     public String getInfoKey() {
         return infoKey;
@@ -160,29 +121,7 @@ public class ArtExhibitionGuide extends DelleMuseObject {
         this.official = official;
     }
 
-    public Resource getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(Resource photo) {
-        this.photo = photo;
-    }
-
-    public Resource getVideo() {
-        return video;
-    }
-
-    public void setVideo(Resource video) {
-        this.video = video;
-    }
-
-    public Resource getAudio() {
-        return audio;
-    }
-
-    public void setAudio(Resource audio) {
-        this.audio = audio;
-    }
+    
 
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
@@ -197,15 +136,4 @@ public class ArtExhibitionGuide extends DelleMuseObject {
     }
 
     
-    /**
-    @Override
-    public ArtExhibitionGuideModel model() {
-        try {
-            return (ArtExhibitionGuideModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
-                    ArtExhibitionGuideModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    **/
 };

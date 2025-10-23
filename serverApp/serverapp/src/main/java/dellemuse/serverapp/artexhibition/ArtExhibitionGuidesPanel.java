@@ -30,6 +30,7 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.FormState;
 import io.wktui.model.TextCleaner;
@@ -53,15 +54,11 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	private FormState state = FormState.VIEW;
 	
 	
-	WebMarkupContainer itemsContainer;
-	ListPanel<ArtExhibitionGuide> panel;
-
+	private WebMarkupContainer itemsContainer;
+	private ListPanel<ArtExhibitionGuide> panel;
 
 
 	/**
-	 * 
-	 * 
-	 * 
 	 * @param id
 	 * @param model
 	 */
@@ -74,9 +71,9 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	public void onInitialize() {
 		super.onInitialize();
 		
-		itemsContainer =new WebMarkupContainer("itemsContainer");
-		itemsContainer.setOutputMarkupId(true);
-		add(itemsContainer);
+		this.itemsContainer =new WebMarkupContainer("itemsContainer");
+		this.itemsContainer.setOutputMarkupId(true);
+		add(this.itemsContainer);
 		
 		addItems();
 	}
@@ -99,7 +96,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
-				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_exhibition_guide_create, target));
+				fire(new MenuAjaxEvent(ServerAppConstant.action_exhibition_guide_create, target));
 			}
 
 			@Override
@@ -143,7 +140,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		if (getItems().size()<0)
 			name = name + "-"+String.valueOf(getItems().size());
 
-		service.create(name, getModel().getObject(), getRootUser());
+		service.create(name, getModel().getObject(), getSessionUser());
 	
 		resetItems();
 		target.add(this.itemsContainer);
@@ -239,8 +236,21 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	
 	protected IModel<String> getObjectInfo(IModel<ArtExhibitionGuide> model) {
 		
+		/**
+		 * 
+		 * published by
+		 * how many contents ?
+		 * is official
+		 * audio 
+		 * 
+		 *  
+		 * 
+		 * 
+		 */
 		
-		return Model.of( getInfo( model.getObject() ));
+		
+		
+		return Model.of(getInfo(model.getObject(), false ));
 	}
 	
 	

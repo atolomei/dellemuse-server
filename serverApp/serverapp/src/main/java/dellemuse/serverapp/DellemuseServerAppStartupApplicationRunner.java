@@ -13,6 +13,12 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.command.CommandService;
+import dellemuse.serverapp.command.EmtyQRCodesCommand;
+import dellemuse.serverapp.command.ResourceMetadataCommand;
+import dellemuse.serverapp.security.google.GoogleAuth;
+import dellemuse.serverapp.serverdb.service.ResourceDBService;
+import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
 
 @Component
@@ -54,7 +60,7 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 		startupLogger.info(SEPARATOR);
 		
 		startupLogger.info	("Startup at -> " + DateTimeFormatter.RFC_1123_DATE_TIME.format(OffsetDateTime.now()));
-		
+	
 		/**
 		CommandService service = (CommandService) ServiceLocator.getInstance().getBean(CommandService.class);
 		ResourceDBService rs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
@@ -65,10 +71,20 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 		logger.debug("done");
 		**/
 		
+		//CommandService service = (CommandService) ServiceLocator.getInstance().getBean(CommandService.class);
+		//service.run( new EmtyQRCodesCommand() );
+				
 		//
 		// ResourceDBService service = (ResourceDBService) ServiceLocator.getInstance().getBean( ResourceDBService.class);
 		// service.findAll().forEach( r -> service.checkAndSetSize(r) );
 		//
+		
+		
+		//GoogleAuth g = new GoogleAuth();
+		//g.execute();
+		
+		
+				
 		
 	}
 	

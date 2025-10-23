@@ -9,32 +9,16 @@ import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 import dellemuse.server.ServerConstant;
-import dellemuse.server.db.model.ArtExhibition;
-import dellemuse.server.db.model.ArtExhibitionGuide;
-import dellemuse.server.db.model.ArtWork;
-import dellemuse.server.db.model.ArtWorkArtist;
-import dellemuse.server.db.model.ArtWorkType;
 import dellemuse.server.db.model.GuideContent;
-import dellemuse.server.db.model.Institution;
-import dellemuse.server.db.model.Person;
 import dellemuse.server.db.model.Resource;
-import dellemuse.server.db.model.Site;
-import dellemuse.server.db.service.PersonDBService;
-import dellemuse.server.db.service.UserDBService;
-import dellemuse.server.importer.ArtExhibitionGuideImporter;
-import dellemuse.server.importer.ArtExhibitionImporter;
 import dellemuse.server.importer.GuideContentImporter;
-import dellemuse.server.importer.InstitutionImporter;
-import dellemuse.server.importer.SiteImporter;
 
 public class GuideContentImporterDeserialiser extends StdDeserializer<GuideContent> {
 

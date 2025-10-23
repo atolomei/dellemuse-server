@@ -1,7 +1,9 @@
-package dellemuse.serverapp.page.site;
+package dellemuse.serverapp.artwork;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.wicket.Component;
@@ -24,43 +26,43 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
 
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
+
 import dellemuse.model.logging.Logger;
 import dellemuse.model.ref.RefPersonModel;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artexhibition.ArtExhibitionNavDropDownMenuToolbarItem;
+import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
+import dellemuse.serverapp.editor.ObjectMetaEditor;
+import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.PersonPage;
 import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
+import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.page.user.UserEditor;
 import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.PersonDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
+import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
+import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.odilon.util.Check;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
@@ -87,7 +89,7 @@ import wktui.base.NamedTab;
  */
 
 @MountPath("/artwork/${id}")
-public class ArtWorkPage extends ObjectPage<ArtWork> {
+public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -97,7 +99,9 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 
 	private ArtWorkMainPanel editor;
 
+	private Map<String, Panel> recordEditors = new HashMap<String, Panel>();
 	
+	//private ObjectMetaEditor<ArtWork> metaEditor;
 
 
 	public ArtWorkPage() {
@@ -116,12 +120,15 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 		super( model, list);
 	}
 	
-		
-	
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
-		editor.getEditor().onEdit(target);
+		editor.onEdit(target);
 	}
+
+	protected void onEditMeta(AjaxRequestTarget target) {
+		getMetaEditor().onEdit(target);
+	}
+	
 	
 	protected void addListeners() {
 		super.addListeners();
@@ -130,8 +137,10 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
+				
 				logger.debug(event.toString());
 
+				/**	
 				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
 					ArtWorkPage.this.onEdit(event.getTarget());
 				}
@@ -140,14 +149,61 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 					ArtWorkPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
 				}
 			
-				else if (event.getName().equals(ServerAppConstant.audit)) {
+				if (event.getName().equals(ServerAppConstant.audit)) {
 					ArtWorkPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
 				}
-			}
+				**/
+				
+				if (event.getName().equals(ServerAppConstant.artwork_audit)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_audit, event.getTarget());
+				}
+				
+				// edit --------------------------------------
+				//
+				//
+				//
+				if (event.getName().equals(ServerAppConstant.action_artwork_edit_info)) {
+					ArtWorkPage.this.onEdit(event.getTarget());
+				}
+				
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+					ArtWorkPage.this.onEditMeta(event.getTarget());
+				}
+	
+				
+				// panels --------------------------------------
+				//
+				//
+				//
+				else if (event.getName().equals(ServerAppConstant.artwork_info)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_info, event.getTarget());
+					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
+					// event.getTarget().add(ArtWorkPage.this.getHeader());
+				}
+				else if (event.getName().startsWith(ServerAppConstant.artworkrecord_info)) {
+					ArtWorkPage.this.togglePanel(event.getName(), event.getTarget());
+				}
+				else if (event.getName().equals(ServerAppConstant.artwork_meta)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_meta, event.getTarget());
+					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
+					// event.getTarget().add(ArtWorkPage.this.getHeader());
+				}
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
+					// event.getTarget().add(ArtWorkPage.this.getHeader());
+				}
+				
+				else if (event.getName().equals(ServerAppConstant.artwork_audit)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_audit, event.getTarget());
+					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
+					// event.getTarget().add(ArtWorkPage.this.getHeader());
+				}
+	 		}
 
 			@Override
 			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleAjaxWicketEvent)
+				if (event instanceof MenuAjaxEvent)
 					return true;
 				return false;
 			}
@@ -190,6 +246,9 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 	
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		
+		String name=getModel().getObject().getName();
+		
+		list.add(new ArtWorkNavDropDownMenuToolbarItem("item", getModel(), getLabel("artwork-menu-title", TextCleaner.truncate(name, 32)), Align.TOP_RIGHT));
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 		
 		/**
@@ -221,39 +280,117 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
-		List<INamedTab> tabs = new ArrayList<INamedTab>();
+		List<INamedTab> tabs = super.createInternalPanels();
 		
-		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
+		//List<INamedTab> tabs = new ArrayList<INamedTab>();
+		
+		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.artwork_info) {
 		 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return getEditor(panelId);
+				return ArtWorkPage.this.getEditor(panelId);
 			}
 		};
 		tabs.add(tab_1);
 		
-		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
+		
+		
+		List<Language> list = getLanguageService().getLanguages();
+		
+		for ( Language la:list ) {
+			
+			if (!la.getLanguageCode().equals( getModel().getObject().getMasterLanguage()) ) {
+				
+				NamedTab tab=new NamedTab(Model.of(la.getLanguageCode()), ServerAppConstant.artworkrecord_info+"-"+la.getLanguageCode(), la.getLanguageCode()) {
+					 
+					private static final long serialVersionUID = 1L;
+	
+					@Override
+					public WebMarkupContainer getPanel(String panelId) {
+						return getArtWorkRecordEditor(panelId, getMoreInfo());
+					}
+				};
+				tabs.add(tab);
+			}
+		}
+		
+		
+
+		NamedTab tab_2=new NamedTab(Model.of("metainfo"), ServerAppConstant.artwork_meta) {
+			 
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return new DummyBlockPanel(panelId,getLabel("audit"));
+				return getMetaEditor(panelId);
 			}
 		};
 		tabs.add(tab_2);
+		
+
+		NamedTab tab_3=new NamedTab(Model.of("artwork-audit"), ServerAppConstant.artwork_audit) {
+			 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return new DummyBlockPanel(panelId,getLabel("artwork-audit"));
+			}
+		};
+		tabs.add(tab_3);
+
+		setStartTab( ServerAppConstant.artwork_info );
+
+
+		
+		
+		 
 	
 		return tabs;
 	}
 
 	
+	
+	protected Panel getArtWorkRecordEditor(String id, String lang) {
+		
+		if (recordEditors.containsKey(lang))
+			return recordEditors.get(lang);
+		
+		
+		ArtWorkRecord ar = null;
+		
+		Optional<ArtWorkRecord> a = getArtWorkRecordDBService().findByArtWork(getModel().getObject(), lang);
+		
+		if (a.isEmpty()) {
+			ar = getArtWorkRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+		}
+		else
+			ar=a.get();
+				
+	 	
+		IModel<ArtWorkRecord> arm =new ObjectModel<ArtWorkRecord>(ar);
+		ObjectRecordEditor<ArtWorkRecord, ArtWork> e = new ObjectRecordEditor<ArtWorkRecord, ArtWork>(id, arm, getModel(), getLabel("information"));
+		
+		recordEditors.put(lang, e);
+		return e;
+		
+		
+	//ArtWorkRecordEditor e = new ArtWorkRecordEditor(id, getModel(), arm);
+		//DummyBlockPanel d=new DummyBlockPanel(id, Model.of(ar.toString()));
+		//recordEditors.put(lang, d);
+		//return d;
+	
+	}
+
+
 	protected Panel getEditor(String id) {
 		if (this.editor==null)
 			editor = new ArtWorkMainPanel(id, getModel());
 		return (editor);
 	}
 	
-
 	@Override
 	protected void addHeaderPanel() {
 		
@@ -342,21 +479,7 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 		editor.detach();
 		
 	}
-	
-	/**
-	private String getInfoGral() {
-		return TextCleaner.clean(getModel().getObject().getSpec() + " <br/>" + " id: "
-				+ getModel().getObject().getId().toString());
-	}
-
-	private boolean isInfoGral() {
-		return  getModel() != null && 
-				getModel().getObject() != null && 
-				getModel().getObject().getId() != null || 
-				getModel().getObject().getSpec() != null;
-	}
- **/
-	
+	 
 	protected String getImageSrc(IModel<ArtWork> model) {
 
 		try {
@@ -371,11 +494,7 @@ public class ArtWorkPage extends ObjectPage<ArtWork> {
 			return null;
 		}
 	}
-
-	private boolean isAudio() {
-		return getModel().getObject().getAudio() != null;
-	}
-
+ 
  
  
 	

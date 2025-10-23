@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 
@@ -14,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -40,143 +40,136 @@ import jakarta.transaction.Transactional;
 
 public abstract class BaseDBService<T, I> extends BaseService implements SystemService {
 
-    @JsonIgnore
-    static final private ObjectMapper mapper = new ObjectMapper();
+	@JsonIgnore
+	static final private ObjectMapper mapper = new DellemuseObjectMapper();
 
-    static {
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+	//static {
+	//	mapper.registerModule(new JavaTimeModule());
+	//	mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	//}
 
-    @JsonIgnore
-    @Autowired
-    private final CrudRepository<T, I> repository;
+	@JsonIgnore
+	@Autowired
+	private final CrudRepository<T, I> repository;
 
-    @JsonIgnore
-    @PersistenceContext
-    private EntityManager entityManager;
+	@JsonIgnore
+	@PersistenceContext
+	private EntityManager entityManager;
 
-    
-    
-    private static Map<Class<?>, BaseDBService<?, Long>> map = new HashMap<Class<?>, BaseDBService<?, Long>>();
-	
-    public static void register(Class<?> entityClass, BaseDBService<?, Long> dbService) {
+	private static Map<Class<?>, BaseDBService<?, Long>> map = new HashMap<Class<?>, BaseDBService<?, Long>>();
+
+	public static void register(Class<?> entityClass, BaseDBService<?, Long> dbService) {
 		map.put(entityClass, dbService);
 	}
 
-	public static BaseDBService<?, Long> getDBService( Class<?> entityClass ) {
+	public static BaseDBService<?, Long> getDBService(Class<?> entityClass) {
 		return map.get(entityClass);
 	}
-    
-    
-    public BaseDBService(CrudRepository<T, I> repository, ServerDBSettings settings) {
-        super(settings);
-        this.repository = repository;
-    }
 
-    public abstract T create(String name, User createdBy);
+	public BaseDBService(CrudRepository<T, I> repository, ServerDBSettings settings) {
+		super(settings);
+		this.repository = repository;
+	}
 
-    
-    
-    
-    @Transactional
-    public <S extends T> S save(S entity) {
-    	    return repository.save(entity);
-    }
+	public abstract T create(String name, User createdBy);
 
-    @Transactional
-    public Optional<T> findById(I id) {
-        return repository.findById(id);
-    }
+	@Transactional
+	public <S extends T> S save(S entity) {
+		return repository.save(entity);
+	}
 
-    @Transactional
-    public boolean existsById(I id) {
-        return repository.existsById(id);
-    }
+	@Transactional
+	public Optional<T> findById(I id) {
+		return repository.findById(id);
+	}
 
-    @Transactional
-    public Iterable<T> findAll() {
-        return repository.findAll();
-    }
+	@Transactional
+	public boolean existsById(I id) {
+		return repository.existsById(id);
+	}
 
-    @Transactional
-    public Iterable<T> findAllSorted() {
-        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
-        Root<T> root = cq.from(getEntityClass());
-        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
+	@Transactional
+	public Iterable<T> findAll() {
+		return repository.findAll();
+	}
 
-        return getEntityManager().createQuery(cq).getResultList();
-    }
+	@Transactional
+	public Iterable<T> findAllSorted() {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
+		Root<T> root = cq.from(getEntityClass());
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 
-    @Transactional
-    public List<T> getByNameKey(String name) {
-        return createNameKeyQuery(name).getResultList();
-    }
+		return getEntityManager().createQuery(cq).getResultList();
+	}
 
-    @Transactional
-    public List<T> getByName(String name) {
-        return createNameQuery(name, false).getResultList();
-    }
+	@Transactional
+	public List<T> getByNameKey(String name) {
+		return createNameKeyQuery(name).getResultList();
+	}
 
-    @Transactional
-    public List<T> getNameLike(String name) {
-        return createNameQuery(name, true).getResultList();
-    }
+	@Transactional
+	public List<T> getByName(String name) {
+		return createNameQuery(name, false).getResultList();
+	}
 
-    public CrudRepository<T, I> getRepository() {
-        return repository;
-    }
+	@Transactional
+	public List<T> getNameLike(String name) {
+		return createNameQuery(name, true).getResultList();
+	}
 
-    public TypedQuery<T> createNameQuery(String name) {
-        return createNameQuery(name, false);
-    }
-    
-    public TypedQuery<T> createNameKeyQuery(String name) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
-        Root<T> root = cq.from(getEntityClass());
-        cq.select(root).where(cb.equal(root.get(getNameKeyColumn()), name));
+	public CrudRepository<T, I> getRepository() {
+		return repository;
+	}
 
-        return entityManager.createQuery(cq);
-    }
+	public TypedQuery<T> createNameQuery(String name) {
+		return createNameQuery(name, false);
+	}
 
-    public TypedQuery<T> createNameQuery(String name, boolean isLike) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
-        Root<T> root = cq.from(getEntityClass());
+	public TypedQuery<T> createNameKeyQuery(String name) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
+		Root<T> root = cq.from(getEntityClass());
+		cq.select(root).where(cb.equal(root.get(getNameKeyColumn()), name));
 
-        if (isLike) {
-            cq.select(root).where(cb.like(cb.lower(root.get(getNameColumn())), "%" + name.toLowerCase() + "%"));
-        } else {
-            cq.select(root).where(cb.equal(cb.lower(root.get(getNameColumn())), name.toLowerCase()));
-        }
+		return entityManager.createQuery(cq);
+	}
 
-        return entityManager.createQuery(cq);
-    }
+	public TypedQuery<T> createNameQuery(String name, boolean isLike) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
+		Root<T> root = cq.from(getEntityClass());
+
+		if (isLike) {
+			cq.select(root).where(cb.like(cb.lower(root.get(getNameColumn())), "%" + name.toLowerCase() + "%"));
+		} else {
+			cq.select(root).where(cb.equal(cb.lower(root.get(getNameColumn())), name.toLowerCase()));
+		}
+
+		return entityManager.createQuery(cq);
+	}
 
 	public EntityManager getEntityManager() {
 		return entityManager;
 	}
 
-	
-    protected abstract Class<T> getEntityClass();
+	protected abstract Class<T> getEntityClass();
 
-    protected String getNameColumn() {
-        return "name";
-    }
+	protected String getNameColumn() {
+		return "name";
+	}
 
-    protected String getNameKeyColumn() {
-        return "nameKey";
-    }
+	protected String getNameKeyColumn() {
+		return "nameKey";
+	}
 
-    public String normalize(String name) {
-        return this.getEntityClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();
-    }
+	public String normalize(String name) {
+		return this.getEntityClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();
+	}
 
-    protected String nameKey(String name) {
-        return name.toLowerCase().replaceAll("[^a-z0-9]+", "-") // Replace non-ASCII alphanumerics with hyphen
-                .replaceAll("(^-+|-+$)", ""); // Trim leading/trailing hyphens
-    }
+	protected String nameKey(String name) {
+		return name.toLowerCase().replaceAll("[^a-z0-9]+", "-") // Replace non-ASCII alphanumerics with hyphen
+				.replaceAll("(^-+|-+$)", ""); // Trim leading/trailing hyphens
+	}
 
 }

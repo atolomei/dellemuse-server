@@ -26,6 +26,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dellemuse.model.JsonObject;
+import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.ServiceStatus;
 
@@ -37,13 +38,7 @@ import dellemuse.serverapp.serverdb.ServiceStatus;
 public abstract class BaseService extends  JsonObject {
                         
     @JsonIgnore
-    static final private ObjectMapper mapper = new ObjectMapper();
-
-    static {
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.registerModule(new Jdk8Module());
-    }
+    static final private ObjectMapper mapper = new DellemuseObjectMapper();
 
     @JsonIgnore
     @Autowired

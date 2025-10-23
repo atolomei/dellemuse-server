@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.User;
@@ -40,12 +41,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	static private Logger logger = Logger.getLogger(DBService.class.getName());
 
 	@JsonIgnore
-	static final private ObjectMapper mapper = new ObjectMapper();
-
-	static {
-		mapper.registerModule(new JavaTimeModule());
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	}
+	static final private ObjectMapper mapper = new DellemuseObjectMapper();
 
 	@JsonIgnore
 	@Autowired
@@ -72,6 +68,14 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 	public abstract T create(String name, User createdBy);
 
+	
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public <S extends T> S saveViaBaseClass(DelleMuseObject entity) {
+		return repository.save((S) entity);
+	}
+
+	
 	@Transactional
 	public <S extends T> S save(S entity) {
 		entity.setLastModified(OffsetDateTime.now());
@@ -94,6 +98,17 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	}
 
 	@Transactional
+	public void delete(I id) {
+		repository.deleteById(id); 
+	}
+
+	@Transactional
+	public void delete(T o) {
+		repository.delete(o); 
+	}
+
+	
+	@Transactional
 	public Iterable<T> findAll() {
 		return repository.findAll();
 	}
@@ -108,6 +123,17 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	@Transactional
+	public void flush() {
+		 getEntityManager().flush();
+	}
+
+	@Transactional
+	public void evict(T o) {
+		logger.debug("evict -> " + o.getDisplayname());
+		getEntityManager().detach(o);
+	}
+	
 	@Transactional
 	public List<T> getByNameKey(String name) {
 		return createNameKeyQuery(name).getResultList();
@@ -177,11 +203,22 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 	}
 
+ 	protected ArtExhibitionDBService getArtExhibitionDBService() {
+		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
+	}
+
+	protected ResourceDBService getResourceDBService() {
+		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+	}
+ 	
 	protected String nameKey(String name) {
 		if (name == null)
 			return null;
 		return name.toLowerCase().replaceAll("[^a-z0-9]+", "-") // Replace non-ASCII alphanumerics with hyphen
 				.replaceAll("(^-+|-+$)", ""); // Trim leading/trailing hyphens
 	}
+
+
+	
 
 }

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.ServerDBConstant;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -30,6 +31,7 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.base.BaseService;
+import dellemuse.serverapp.serverdb.util.MediaUtil;
 import io.odilon.client.error.ODClientException;
 import jakarta.transaction.Transactional;
 import net.coobird.thumbnailator.Thumbnails;
@@ -48,13 +50,97 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 		super(settings);
 	}
 
+	public long getAudioDurationMilliseconds(Resource resource) {
+		
+        File sourceFile = new File(getSettings().getWorkDir(), resource.getName());
+        
+       	try (InputStream in = getObjectStorageService().getClient().getObject(resource.getBucketName(), resource.getObjectName())) {
+                Files.copy(in, sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (ODClientException e) {
+                throw new RuntimeException (e);
+        } catch (IOException e) {
+                throw new RuntimeException (e);
+        }
+
+      	return MediaUtil.getAudioDurationMilliseconds(sourceFile);
+	}
 	
 	
+	  public String getPresignedThumbnailUrl(String bucketName, String objectName, ThumbnailSize size) {
+		  
+		  
+		  final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
+          final String t_object = bucketName+"-"+ String.valueOf(objectName.hashCode()) + "-" + size.getLabel();
+	      
+          int cacheDurationSecs = ServerConstant.THUMBNAIL_CACHE_DURATION_SECS;
+	         
+	         try {
+	             if (getObjectStorageService().getClient().existsObject(t_bucket, t_object)) {
+	                 return getObjectStorageService().getClient().getPresignedObjectUrl(t_bucket, t_object, Optional.of(cacheDurationSecs));
+	             }
+	         } catch (ODClientException e) {
+	             throw new RuntimeException ( e );
+	         } catch (IOException e) {
+	             throw new RuntimeException ( e );
+	         }
+	         
+	         
+	         /** create thumbnail  */
+	         
+	         File sourceFile = new File(getSettings().getWorkDir(), objectName);
+
+	         try {
+	             try (InputStream in = getObjectStorageService().getClient().getObject(bucketName, objectName)) {
+	                 Files.copy(in, sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+	             } catch (ODClientException e) {
+	                 throw new RuntimeException (e);
+	             } catch (IOException e) {
+	                 throw new RuntimeException (e);
+	             }
+	             
+	             File thumbnail = null;
+	             try {
+	                 thumbnail = create( Long.valueOf(objectName.hashCode()).longValue(), sourceFile, size);
+	             } catch (IOException e) {
+	                 throw new RuntimeException ( e );
+	             }
+	     
+	             if (thumbnail==null)
+	                 throw new RuntimeException ("thumbnail is null");
+	             
+	             /** save into object storage  */
+	             
+	             try {
+	                 getObjectStorageService().getClient().putObject(t_bucket, t_object, thumbnail);
+	             } catch (ODClientException e) {
+	                 throw new RuntimeException ( e );
+	             }
+	         } finally {
+	             if (sourceFile.exists()) {
+	                 try {
+	                     FileUtils.forceDelete(sourceFile);
+	                 } catch (IOException e) {
+	                         logger.error(e);
+	                 }
+	             }
+	         }
+	         
+	         try {
+				
+	        	 return getObjectStorageService().getClient().getPresignedObjectUrl(t_bucket, t_object, Optional.of(cacheDurationSecs));
+			
+	         } catch (ODClientException e) {
+
+				throw new RuntimeException (e);
+			}
+	  }
+	
+	  
     public String getPresignedThumbnailUrl(Resource resource, ThumbnailSize size) {
     	
-    	 final String t_bucket = ServerDBConstant.THUMBNAIL_BUCKET;
+    	 final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
          final String t_object = resource.getBucketName()+"-"+ String.valueOf(resource.getObjectName().hashCode()) + "-" + size.getLabel();
-         int cacheDurationSecs = ServerDBConstant.THUMBNAIL_CACHE_DURATION_SECS;
+         int cacheDurationSecs = ServerConstant.THUMBNAIL_CACHE_DURATION_SECS;
          
          try {
              if (getObjectStorageService().getClient().existsObject(t_bucket, t_object)) {
@@ -166,7 +252,7 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 	        if (frame == null)
 	            return null;
 
-	        File thDir = new File(getSettings().getWorkDir() + File.separator + ServerDBConstant.THUMBNAIL_BUCKET);
+	        File thDir = new File(getSettings().getWorkDir() + File.separator + ServerConstant.THUMBNAIL_BUCKET);
 	        String ext = FilenameUtils.getExtension(file.getName());
 	        File fileOut = new File(thDir, String.valueOf(id) + "." + ext);
 
@@ -174,7 +260,6 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 	        	try (FileOutputStream out = new FileOutputStream(fileOut)) {
 		            Files.copy(file.toPath(), out);
 	        	}
-	            // Files.copy(file, fileOut);
 	            return fileOut;
 	        }
 

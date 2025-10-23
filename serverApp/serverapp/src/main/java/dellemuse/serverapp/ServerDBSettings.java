@@ -41,7 +41,7 @@ public class ServerDBSettings {
     @NonNull
     protected String secretKey;
 
-    @Value("${server.port:8098}")
+    @Value("${server.port:8099}")
     protected int port;
 
     @Value("${dellemuse.serverapp.endpoint:http://localhost}")
@@ -54,6 +54,9 @@ public class ServerDBSettings {
     @Value("${trafficTokens:10}")
     protected int maxTrafficTokens;
 
+    @Value("${server.qr:https://dellemuse.app/qrcode/artwork/}")
+    protected String qrurl;
+    
     
     /** **/
     
@@ -116,9 +119,29 @@ public class ServerDBSettings {
     @Value("${importer.dir:importer}")
     protected String importerBaseDir;
 
+    @Value("${avatar.dir:avatar}")
+    protected String avatarDir;
+    
+  
     @Value("${work.dir:work}")
     protected String workDir;
 
+    
+    @Value("${qrcode.generation:true}")
+    protected String qrcodeQenerationStr;
+
+    
+    protected boolean qrcodeQeneration;
+
+
+    
+    /** Google translate ----------------------------------------------------- */
+    
+    
+    public String getGoogleTranslateAuthPath() {
+    	return "."+File.separator+"config"+File.separator+"googleTranslate.json";	
+    }
+    
     
     public ServerDBSettings() {
     }
@@ -126,6 +149,11 @@ public class ServerDBSettings {
     public OffsetDateTime getSystemStartTime() {
         return systemStarted;
     }
+    
+    public boolean isQRCodeGenerate() {
+    	return this.qrcodeQeneration;
+    }
+    
     
     public String getDriverClassName() {
         return driverClassName;
@@ -167,10 +195,16 @@ public class ServerDBSettings {
         if (objectStoragePresignedPort==-1)
             objectStoragePresignedPort=objectStoragePort;
 
-            if (isSSLStr==null || isSSLStr.equals("null"))
-                isPresignedSSL = this.isHTTPS();
-            else
-                isPresignedSSL = isSSLStr.toLowerCase().trim().equals("true");
+        if (isSSLStr==null || isSSLStr.equals("null"))
+               isPresignedSSL = this.isHTTPS();
+        else
+            isPresignedSSL = isSSLStr.toLowerCase().trim().equals("true");
+    
+        if (qrcodeQenerationStr==null || qrcodeQenerationStr.equals("null"))
+        	qrcodeQeneration = true;
+        else
+        	qrcodeQeneration = qrcodeQenerationStr.toLowerCase().trim().equals("true");
+    
     }
 
     
@@ -185,9 +219,26 @@ public class ServerDBSettings {
         }
         
         try {
-            File thDir = new File (workDir, ServerDBConstant.THUMBNAIL_BUCKET);
+            File thDir = new File (workDir, ServerConstant.THUMBNAIL_BUCKET);
             if ((!thDir.exists()) || (!thDir.isDirectory()))
                 FileUtils.forceMkdir(thDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+     
+        try {
+            File thDir = new File (workDir, "objectStorage");
+            if ((!thDir.exists()) || (!thDir.isDirectory()))
+                FileUtils.forceMkdir(thDir);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        
+
+        try {
+            File avDir = new File (avatarDir);
+            if ((!avDir.exists()) || (!avDir.isDirectory()))
+                FileUtils.forceMkdir(avDir);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -240,6 +291,10 @@ public class ServerDBSettings {
         return appName;
     }
 
+    public String getObjectStorageTempDir() {
+        return this.workDir+File.separator+"objectStorage";
+    }
+    
     public String getWorkDir() {
         return this.workDir;
     }
@@ -270,6 +325,15 @@ public class ServerDBSettings {
 
 	public int getDispatcherPoolSize() {
 		return this.poolsize;
+	}
+
+	public String getAvatarDir() {
+		return avatarDir;
+	}
+
+	public String getQRServer() {
+		 
+		return qrurl;
 	}
 
 

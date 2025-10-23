@@ -18,10 +18,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
+
+/**
+ * 
+ * alter table person  add column translation integer default 0;
+   alter table person  add column masterlanguage character varying(24) default 'es';;
+ */
+
 @Entity
 @Table(name = "person")
 @JsonInclude(Include.NON_NULL)
-public class Person extends DelleMuseObject {
+public class Person extends MultiLanguageObject {
 
     @Column(name = "lastname")
     private String lastname;
@@ -76,41 +83,8 @@ public class Person extends DelleMuseObject {
     @JsonProperty("user")
     private User user;
 
-    @Column(name = "subtitle")
-    private String subtitle;
-
-    @Column(name = "subtitleKey")
-    private String subTitleKey;
-
-    @Column(name = "info")
-    private String info;
-
-    @Column(name = "infokey")
-    private String infoKey;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource photo;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource video;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource audio;
+    
+  
 
     public Person() {
     }
@@ -214,66 +188,8 @@ public class Person extends DelleMuseObject {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    /**
-     * public String getDisplayname() { }
-     **/
-
-    public String getSubtitle() {
-        return subtitle;
-    }
-
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-    }
-
-    public String getSubTitleKey() {
-        return subTitleKey;
-    }
-
-    public void setSubTitleKey(String subTitleKey) {
-        this.subTitleKey = subTitleKey;
-    }
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
-    public String getInfoKey() {
-        return infoKey;
-    }
-
-    public void setInfoKey(String infoKey) {
-        this.infoKey = infoKey;
-    }
-
-    public Resource getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(Resource photo) {
-        this.photo = photo;
-    }
-
-    public Resource getVideo() {
-        return video;
-    }
-
-    public void setVideo(Resource video) {
-        this.video = video;
-    }
-
-    public Resource getAudio() {
-        return audio;
-    }
-
-    public void setAudio(Resource audio) {
-        this.audio = audio;
-    }
+ 
+ 
 
     public User getUser() {
         return user;

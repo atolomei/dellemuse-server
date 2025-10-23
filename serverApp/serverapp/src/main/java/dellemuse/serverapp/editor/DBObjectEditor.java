@@ -21,6 +21,10 @@ import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
+import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
+import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
@@ -30,6 +34,10 @@ import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
 import io.wktui.editor.Editor;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
@@ -53,12 +61,17 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 	private static final long serialVersionUID = 1L;
 
 	
-	static public final List<ObjectState> b_state = new ArrayList<ObjectState>();
+	public List<ObjectState> getStates() {
+		return b_state;
+	}
+	
+	static private final List<ObjectState> b_state = new ArrayList<ObjectState>();
 	static {
 		 b_state.add(ObjectState.DRAFT 		);
 		 b_state.add(ObjectState.EDTIION 	);
 		 b_state.add(ObjectState.PUBLISHED  );
 		 b_state.add(ObjectState.ARCHIVED 	);
+		 b_state.add(ObjectState.APPROVED 	);
 	}
 	
 	private Form<T> form;
@@ -216,6 +229,12 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		service.save(a);
 	}
 	
+	public void save(ArtExhibitionItemRecord ir) {
+		ArtExhibitionItemRecordDBService service = (ArtExhibitionItemRecordDBService) ServiceLocator.getInstance()
+				.getBean(ArtExhibitionItemRecordDBService.class);
+		service.save(ir);
+	}
+	
 	public void save(ArtExhibitionGuide a) {
 		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance()
 				.getBean(ArtExhibitionGuideDBService.class);
@@ -233,17 +252,46 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 				.getBean(InstitutionDBService.class);
 		service.save(inst);
 	}
+	
+	public void save(InstitutionRecord ir) {
+		InstitutionRecordDBService service = (InstitutionRecordDBService) ServiceLocator.getInstance()
+				.getBean(InstitutionRecordDBService.class);
+		service.save(ir);
+		
+	}
+	
 
+	
+	
+	
+	
+	
+	
+	
 	public void save(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		service.save(site);
 	}
+	
+	public void save(SiteRecord ir) {
+		SiteRecordDBService service = (SiteRecordDBService) ServiceLocator.getInstance()
+				.getBean(SiteRecordDBService.class);
+		service.save(ir);
+		
+	}
+	
+	
+	
 
 	public void save(ArtWork artwork) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		service.save(artwork);
 	}
-	
+
+	public void save(ArtWorkRecord o) {
+		ArtWorkRecordDBService service = (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);
+		service.save(o);
+	}
 	
 	public void save(Person person) {
 		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);

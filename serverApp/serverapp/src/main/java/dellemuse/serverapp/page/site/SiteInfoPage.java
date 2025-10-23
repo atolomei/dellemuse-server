@@ -55,6 +55,7 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.wktui.error.ErrorPanel;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
@@ -104,15 +105,18 @@ public class SiteInfoPage extends ObjectPage<Site> {
 				else if (event.getName().equals(ServerAppConstant.site_info)) {
 					SiteInfoPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
 				}
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					SiteInfoPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+				}
 			
-				else if (event.getName().equals(ServerAppConstant.audit)) {
-					SiteInfoPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.site_audit)) {
+					SiteInfoPage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());
 				}
 			}
 
 			@Override
 			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleAjaxWicketEvent)
+				if (event instanceof MenuAjaxEvent)
 					return true;
 				return false;
 			}
@@ -253,7 +257,7 @@ public class SiteInfoPage extends ObjectPage<Site> {
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
-		List<INamedTab> tabs = new ArrayList<INamedTab>();
+		List<INamedTab> tabs = super.createInternalPanels();
 		
 		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
 		 
@@ -266,7 +270,7 @@ public class SiteInfoPage extends ObjectPage<Site> {
 		};
 		tabs.add(tab_1);
 		
-		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
+		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.site_audit) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -275,6 +279,7 @@ public class SiteInfoPage extends ObjectPage<Site> {
 		};
 		tabs.add(tab_2);
 	
+		super.setStartTab(ServerAppConstant.site_info);
 		return tabs;
 	}
 

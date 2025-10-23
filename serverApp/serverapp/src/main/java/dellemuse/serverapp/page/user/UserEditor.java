@@ -15,6 +15,7 @@ import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.User;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
@@ -92,7 +93,7 @@ public class UserEditor extends DBModelPanel<User> implements InternalPanel {
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_site_edit, target));
+ 				fire(new MenuAjaxEvent(ServerAppConstant.action_site_edit, target));
 			}
 			@Override
 			public IModel<String> getButtonLabel() {
@@ -104,17 +105,13 @@ public class UserEditor extends DBModelPanel<User> implements InternalPanel {
 		return list;
 	}
 
-	
-
 	public Form<User> getForm() {
 		return form;
 	}
  
-
 	public void setForm(Form<User> form) {
 		this.form = form;
 	}
- 
 	
 	protected void onCancel(AjaxRequestTarget target) {
 		this.form.setFormState(FormState.VIEW);
@@ -125,7 +122,6 @@ public class UserEditor extends DBModelPanel<User> implements InternalPanel {
 		this.form.setFormState(FormState.EDIT);
 		target.add(this.form);
 	}
-
 	
 	protected void onSave(AjaxRequestTarget target) {
 

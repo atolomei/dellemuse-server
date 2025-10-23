@@ -33,6 +33,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, Long> {
 
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ArtExhibitionGuideDBService.class.getName());
 
 	@PersistenceContext
@@ -42,16 +43,13 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		super(repository, settings);
 	}
 
-
 	@Transactional
     public void removeItem(ArtExhibitionGuide c, GuideContent  item, User removedBy) {
     	
     	boolean contains = false;
     	int index = -1;
     	
-
     	List<GuideContent> list = getGuideContents(c);
-    	
     		
     	for (GuideContent i: list) {
     		index++;
@@ -129,6 +127,8 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 
 		c.setOfficial(true);
 		c.setArtExhibition(ex);
+
+		c.setMasterLanguage(ex.getMasterLanguage());
 
 		
 		c.setCreated(OffsetDateTime.now());

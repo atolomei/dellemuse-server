@@ -29,19 +29,16 @@ import dellemuse.serverapp.serverdb.repository.PersonRepository;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.FlushModeType;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
 public class SiteDBService extends DBService<Site, Long> {
 
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(SiteDBService.class.getName());
 
 	@PersistenceContext
@@ -49,11 +46,9 @@ public class SiteDBService extends DBService<Site, Long> {
 	
 	private final PersonRepository personRepository;
 
-	
-
 	public SiteDBService(CrudRepository<Site, Long> repository, ServerDBSettings settings, PersonRepository personRepository) {
 		super(repository, settings);
-		 this.personRepository=personRepository;
+		this.personRepository=personRepository;
 	}
 
 	@Transactional
@@ -63,8 +58,8 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setName(name);
 		c.setNameKey(nameKey(name));
 
-		c.setTitle(name);
-		c.setTitleKey(nameKey(name));
+		//c.setTitle(name);
+		//c.setTitleKey(nameKey(name));
 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -79,11 +74,12 @@ public class SiteDBService extends DBService<Site, Long> {
 		Site c = new Site();
 		
 		c.setName(name);
-		c.setTitle(name);
+		//c.setTitle(name);
 
+		c.setMasterLanguage(institution.getMasterLanguage());
 		c.setInstitution(institution);
 		c.setNameKey(nameKey(name));
-		c.setTitleKey(nameKey(name));
+		//c.setTitleKey(nameKey(name));
 		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -106,9 +102,12 @@ public class SiteDBService extends DBService<Site, Long> {
 
 		c.setShortName(in.getShortName());
 
-		c.setTitle(in.getTitle());
-		c.setTitleKey(nameKey(in.getTitle()));
+		//c.setTitle(in.getTitle());
+		//c.setTitleKey(nameKey(in.getTitle()));
 
+		c.setMasterLanguage(in.getMasterLanguage());
+
+		
 		c.setSubtitle(in.getSubtitle());
 		
 		c.setCreated(OffsetDateTime.now());
@@ -261,10 +260,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		return persons;
 	}
 	
-	
-	
-	
-     
+	   
 	@Transactional
     public List<Person> getArtistsBySiteId(Long siteId) {
         return getPersonRepository().findDistinctPersonsBySiteId(siteId);

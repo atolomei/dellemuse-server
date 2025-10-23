@@ -17,6 +17,7 @@ import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;

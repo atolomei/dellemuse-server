@@ -57,6 +57,7 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.wktui.error.ErrorPanel;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
@@ -188,6 +189,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
+				
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
@@ -198,14 +200,19 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 					SiteFloorsPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
 				}
 			
-				else if (event.getName().equals(ServerAppConstant.audit)) {
-					SiteFloorsPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					SiteFloorsPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+				}
+				
+				else if (event.getName().equals(ServerAppConstant.site_audit)) {
+					SiteFloorsPage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());
 				}
 			}
 
 			@Override
 			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleAjaxWicketEvent)
+				if (event instanceof MenuAjaxEvent)
 					return true;
 				return false;
 			}
@@ -228,11 +235,6 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 				return false;
 			}
 		});
-	
-	
-	
-	
-	
 	}
 
 	protected List<ToolbarItem> getToolbarItems() {
@@ -250,7 +252,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
-		List<INamedTab> tabs = new ArrayList<INamedTab>();
+		List<INamedTab> tabs = super.createInternalPanels();
 		
 		NamedTab tab_1=new NamedTab(Model.of("editor"), "editor") {
 		 

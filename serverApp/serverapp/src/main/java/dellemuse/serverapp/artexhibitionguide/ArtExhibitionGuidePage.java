@@ -4,62 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.Url;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.UrlResourceReference;
-import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
-
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.model.ref.RefPersonModel;
-import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.artexhibition.ArtExhibitionEditor;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
-import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.PersonEditor;
-import dellemuse.serverapp.page.person.PersonPage;
 import dellemuse.serverapp.page.person.ServerAppConstant;
-import dellemuse.serverapp.page.site.SiteInfoPage;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
-import dellemuse.serverapp.page.user.UserEditor;
-import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.GuideContent;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
@@ -95,6 +59,8 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 	 
 	private ArtExhibitionGuideContentsPanel guideContents;
 	private JumboPageHeaderPanel<ArtExhibitionGuide> header;
+	private ArtExhibitionGuideEditor editor;
+	
 
 	public ArtExhibitionGuidePage() {
 		super();
@@ -119,40 +85,46 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
+				
 				logger.debug(event.toString());
 
-				// action
+				// action -----------
 				
 				if (event.getName().equals(ServerAppConstant.action_guide_edit_info)) {
 					ArtExhibitionGuidePage.this.onEdit(event.getTarget());
 				}
 				
-				// panels 
+				// panels  -----------
 				
-				else if (event.getName().equals(ServerAppConstant.guide_info)) {
-					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.guide_info, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.artexhibitionguide_info)) {
+					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.artexhibitionguide_info, event.getTarget());
 					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
 				}
 
-				else if (event.getName().equals(ServerAppConstant.guide_contents)) {
-					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.guide_contents, event.getTarget());
-					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
-					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
-				}
-
-				
-				else if (event.getName().equals(ServerAppConstant.audit)) {
-					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.artexhibitionguide_contents)) {
+					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.artexhibitionguide_contents, event.getTarget());
 					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
 				}
 				
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
+					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
+				}
+				
+				
+				else if (event.getName().equals(ServerAppConstant.artexhibitionguide_audit)) {
+					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());
+					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
+					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
+				}
 			}
 
 			@Override
 			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleAjaxWicketEvent)
+				if (event instanceof MenuAjaxEvent)
 					return true;
 				return false;
 			}
@@ -163,7 +135,7 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
 				if (event.getName().equals(ServerAppConstant.action_site_home)) {
-					setResponsePage( new SitePage(getSiteModel(), null));
+					setResponsePage(new SitePage(getSiteModel(), null));
 				}
 			}
 
@@ -179,7 +151,7 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
-		editor.onEdit(target);
+		this.editor.onEdit(target);
 	}
 
 	protected void onGuideCreate(AjaxRequestTarget target) { 
@@ -193,22 +165,18 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 
 		list.add(new ArtExhibitionGuideNavDropDownMenuToolbarItem("item", getModel(), 
 				getLabel("audio-guide",TextCleaner.truncate(getModel().getObject().getName(), 24)), Align.TOP_RIGHT));
-	
-		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Model.of(getSiteModel().getObject().getShortName()), Align.TOP_RIGHT ));
-		
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Model.of(getSiteModel().getObject().getShortName()), Align.TOP_RIGHT));
 		return list;
 	}
 	
-	ArtExhibitionGuideEditor editor;
-	
 	protected WebMarkupContainer getArtExhibitionGuideEditor(String id) {
-		if (editor==null)
-			editor = new ArtExhibitionGuideEditor(id, getModel(), getSiteModel());
-		return editor;
+		if (this.editor==null)
+			this.editor = new ArtExhibitionGuideEditor(id, getModel(), getSiteModel());
+		return this.editor;
 	}
 
 	protected WebMarkupContainer getGuideContentsPanel(String id) {
-		if (guideContents==null)
+		if (this.guideContents==null)
 			guideContents = new ArtExhibitionGuideContentsPanel(id, getModel(), getSiteModel());
 		return guideContents;
 	}
@@ -216,9 +184,9 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
-		List<INamedTab> tabs = new ArrayList<INamedTab>();
+		List<INamedTab> tabs = super.createInternalPanels();
 		
-		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.guide_info) {
+		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.artexhibitionguide_info) {
 		 
 			private static final long serialVersionUID = 1L;
 
@@ -230,7 +198,7 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 		tabs.add(tab_1);
 		
 
-		NamedTab tab_2=new NamedTab(Model.of("contents"), ServerAppConstant.guide_contents) {
+		NamedTab tab_2=new NamedTab(Model.of("contents"), ServerAppConstant.artexhibitionguide_contents) {
 			 
 			private static final long serialVersionUID = 1L;
 
@@ -243,7 +211,7 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 
 		
 		
-		NamedTab tab_3=new NamedTab(Model.of("audit"), ServerAppConstant.audit) {
+		NamedTab tab_3=new NamedTab(Model.of("audit"), ServerAppConstant.artexhibitionguide_audit) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -251,6 +219,9 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 			}
 		};
 		tabs.add(tab_3);
+		
+		
+		setStartTab( ServerAppConstant.artexhibitionguide_info );
 		
 		return tabs;
 	}
@@ -283,14 +254,14 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 		bc.addElement(new HREFBCElement("/artexhibition/" + getArtExhibitionModel().getObject().getId().toString(),  
 				Model.of( getArtExhibitionModel().getObject().getDisplayname() + " (E)")));
 
-		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname()  + " (A)" )));
+		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname()  + " (AG)" )));
 
-		header = new JumboPageHeaderPanel<ArtExhibitionGuide>("page-header", getModel(),
+		this.header = new JumboPageHeaderPanel<ArtExhibitionGuide>("page-header", getModel(),
 				new Model<String>(getModel().getObject().getDisplayname()));
 		
-		header.setContext(getLabel("exhibition-guide"));
+		this.header.setContext(getLabel("exhibition-guide"));
 		
-		header.add( new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
+		this.header.add( new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 		
 		
 		if (getList()!=null && getList().size()>0) {
@@ -314,10 +285,25 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 		else  if (getArtExhibitionModel().getObject().getSubtitle()!=null)
 			header.setTagline(Model.of(getArtExhibitionModel().getObject().getSubtitle()));
 			
-		header.setBreadCrumb(bc);
-		add(header);
+		this.header.setBreadCrumb(bc);
+		add(this.header);
+	}
+ 
+	public IModel<Site> getSiteModel() {
+		return this.siteModel;
 	}
 
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (this.siteModel != null)
+			this.siteModel.detach();
+	}
 	@Override
 	protected IRequestablePage getObjectPage(IModel<ArtExhibitionGuide> model, List<IModel<ArtExhibitionGuide>> list) {
 	 	return new ArtExhibitionGuidePage(model, list);
@@ -349,25 +335,8 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 	protected IModel<ArtExhibition> getArtExhibitionModel() {
 		return this.artExhibitionModel;
 	}
-
-	public IModel<Site> getSiteModel() {
-		return siteModel;
-	}
-
-	public void setSiteModel(IModel<Site> siteModel) {
-		this.siteModel = siteModel;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-
-		if (siteModel != null)
-			siteModel.detach();
-	}
-
 	private JumboPageHeaderPanel<?> getHeader() {
-		return header;
+		return this.header;
 	}
 
  

@@ -4,35 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.upload.FileUpload;
-import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.field.ChoiceField;
-import io.wktui.form.field.FileUploadSimpleField;
-import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -53,16 +44,11 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 	
 	private TextField<String> nameField;
 	
-	//private TextField<String> floorField;
-	//private TextField<String> roomField;
-	
+ 	
 	private TextField<String> orderField;
 	private TextField<String> readCodeField;
 	private TextField<String> qrCodeField;
-
-	// private TextField<String> floorField;
-	// private TextField<String> roomField;
-
+ 
 	private TextField<String> floorStrField;
 	private TextField<String> roomStrField;
 	
@@ -98,7 +84,7 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 			
 			@Override
 			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (b_state);
+				return new ListModel<ObjectState> (getStates());
 			}
 			
 			@Override
@@ -109,25 +95,20 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 			}
 		};
 		
-		nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		
-		floorStrField 		= new TextField<String>("floor", new PropertyModel<String>(getModel(), "floorStr"), getLabel("floor"));
-		roomStrField 		= new TextField<String>("room", new PropertyModel<String>(getModel(), "roomStr"), getLabel("room"));
-
-		orderField	 	= new TextField<String>("order", new PropertyModel<String>(getModel(), "exhibitionOrder"), getLabel("order"));
-		readCodeField 	= new TextField<String>("readcode", new PropertyModel<String>(getModel(), "readCode"), getLabel("readcode"));
-		qrCodeField 	= new TextField<String>("qrcode", new PropertyModel<String>(getModel(), "qRCode"), getLabel("qrcode"));
-		
+		this.nameField 		= new TextField<String>("name", 	new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		this.floorStrField 	= new TextField<String>("floor", 	new PropertyModel<String>(getModel(), "floorStr"), getLabel("floor"));
+		this.roomStrField 	= new TextField<String>("room", 	new PropertyModel<String>(getModel(), "roomStr"), getLabel("room"));
+		this.orderField	 	= new TextField<String>("order", 	new PropertyModel<String>(getModel(), "exhibitionOrder"), getLabel("order"));
+		this.readCodeField 	= new TextField<String>("readcode", new PropertyModel<String>(getModel(), "readCode"), getLabel("readcode"));
+		this.qrCodeField 	= new TextField<String>("qrcode", 	new PropertyModel<String>(getModel(), "qRCode"), getLabel("qrcode"));
 		
 		form.add(nameField);
 		form.add(objectStateField);
-		
 		form.add(floorStrField);
 		form.add(roomStrField);
 		form.add(orderField);
 		form.add(readCodeField);
 		form.add(qrCodeField);
-		
 		
 		EditButtons<ArtExhibitionItem> buttons = new EditButtons<ArtExhibitionItem>("buttons-bottom", getForm(), getModel()) {
 
@@ -186,8 +167,9 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 
 		};
 		getForm().add(b_buttons_top);
+		
+		add(new ArtExhibitionItemsGuidesPanel("items", getModel(), getSiteModel()));
 	}
-
 	
 	protected void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
@@ -201,19 +183,6 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 		// target.add(getForm());
 	}
 
-	protected void onSave(AjaxRequestTarget target) {
-		logger.debug("onSave");
-		logger.debug("updated parts:");
-		getUpdatedParts().forEach(s -> logger.debug(s));
-		logger.debug("saving...");
-		
-		save(getModelObject());
-		
-		getForm().setFormState(FormState.VIEW);
-		logger.debug("done");
-		target.add(this);
-	}
-
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 		
@@ -224,7 +193,7 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_exhibition_item_info_edit, target));
+ 				fire(new MenuAjaxEvent(ServerAppConstant.action_exhibition_item_info_edit, target));
 			}
 			@Override
 			public IModel<String> getButtonLabel() {
@@ -245,7 +214,6 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 		this.artExhibitionItemModel = artExhibitionItemModel;
 	}
 	
-	
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -260,14 +228,6 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 			artExhibitionItemModel.detach();
 	}
 
-	
- 
-	protected void onSubmit() {
-		logger.debug("");
-		logger.debug("onSubmit");
-		logger.debug("");
-	}
- 
 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
@@ -284,6 +244,25 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 		this.artExhibitionModel = siteModel;
 	}
 	
+	protected void onSubmit() {
+		logger.debug("");
+		logger.debug("onSubmit");
+		logger.debug("");
+	}
+
+	protected void onSave(AjaxRequestTarget target) {
+		logger.debug("onSave");
+		logger.debug("updated parts:");
+		getUpdatedParts().forEach(s -> logger.debug(s));
+		logger.debug("saving...");
+		
+		save(getModelObject());
+		
+		getForm().setFormState(FormState.VIEW);
+		logger.debug("done");
+		target.add(this);
+	}
+
 	private void setUpModel() {
 
 		Optional<ArtExhibitionItem> o_i = getArtExhibitionItemDBService().findWithDeps(getModel().getObject().getId());
@@ -295,6 +274,5 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 		Optional<Site> o_s = getSiteDBService().findWithDeps(getArtExhibitionModel().getObject().getSite().getId());
 		setSiteModel(new ObjectModel<Site>(o_s.get()));
 	}
-	
 	
 }

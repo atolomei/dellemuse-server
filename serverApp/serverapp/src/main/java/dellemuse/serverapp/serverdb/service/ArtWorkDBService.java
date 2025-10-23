@@ -1,5 +1,6 @@
 package dellemuse.serverapp.serverdb.service;
 
+import java.io.File;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,15 +14,19 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
+import dellemuse.serverapp.service.language.LanguageService;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManagerFactory;
+ 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -32,10 +37,17 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 
 	static private Logger logger = Logger.getLogger(ArtWorkDBService.class.getName());
 
-	public ArtWorkDBService(CrudRepository<ArtWork, Long> repository, ServerDBSettings settings) {
+	final ArtWorkRecordDBService artWorkRecordDBService;
+	final LanguageService languageService;
+	
+	
+	public ArtWorkDBService(CrudRepository<ArtWork, Long> repository, ServerDBSettings settings, LanguageService languageService, ArtWorkRecordDBService artWorkRecordDBService) {
 		super(repository, settings);
+		this.artWorkRecordDBService = artWorkRecordDBService;
+		this.languageService=languageService;
 	}
 
+	
 	/**
 	 * <p>
 	 * Annotation Transactional is required to store values into the Database
@@ -45,21 +57,24 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 	 * @param createdBy
 	 */
 	@Transactional
-	@Override
 	public ArtWork create(String name, User createdBy) {
 		ArtWork c = new ArtWork();
 		c.setName(name);
 		c.setNameKey(nameKey(name));
+		
 		c.setCreated(OffsetDateTime.now());
 		c.setUsethumbnail(true);
-	
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+		
+		for ( Language la:getLanguageService().getLanguages() ) {
+			getArtWorkRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+		}
 		
 		return getRepository().save(c);
 	}
 
-
+ 
 	@Transactional
 	public ArtWork create(String name, Site site, User createdBy) {
 		ArtWork c = new ArtWork();
@@ -68,16 +83,60 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		c.setNameKey(nameKey(name));
 		
 		c.setSite(site);
+		c.setMasterLanguage(site.getMasterLanguage());
 		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		c.setUsethumbnail(true);
 		
+		for ( Language la:getLanguageService().getLanguages() ) {
+			getArtWorkRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+		}
+		
 		return getRepository().save(c);
 	}
 
-    
+	
+	@Transactional
+	public ArtWork addQR(ArtWork aw, String bucketName, String objectName, String name, String media,  long size, User createdBy) {
+
+			ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+			Resource res=rdbs.create(bucketName,  objectName, name, media, size, ServerConstant.QR_CODE, createdBy);
+			aw.setQRCode(res);
+			return getRepository().save(aw);
+	}
+
+
+	@Transactional
+	private void deleteResources(Long id) {
+		
+		Optional<ArtWork> o_aw = super.findWithDeps(id);
+
+		if (o_aw.isEmpty())
+			return;
+		
+		ArtWork a=o_aw.get();
+		
+		getResourceDBService().delete(a.getPhoto());
+		getResourceDBService().delete(a.getAudio());
+		getResourceDBService().delete(a.getVideo());
+		getResourceDBService().delete(a.getQRCode());
+		
+	}
+	 
+	@Transactional
+	public void delete(Long id) {
+		deleteResources(id);
+		super.delete(id);
+	}
+
+	@Transactional
+	public void delete(ArtWork o) {
+		this.delete(o.getId()); 
+	}
+	
+	
 	@SuppressWarnings("unused")
 	@Transactional
 	public Optional<ArtWork> findWithDeps(Long id) {
@@ -90,6 +149,7 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		ArtWork aw = o_aw.get();
 		
 		aw.getSite().getDisplayname();
+		
 		for ( Person p: aw.getArtists()) {
 			p.getDisplayName();
 		}
@@ -104,7 +164,13 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		if (photo != null)
 			photo.getBucketName();
 
-	 
+		Resource qrcode = aw.getQRCode();
+
+		
+		if (qrcode != null) {
+			User qu = qrcode.getLastModifiedUser();
+			qrcode.getBucketName();
+		}
 		
 		for( Person p: aw.getArtists()) {
 			Long p_id = p.getId();
@@ -130,6 +196,10 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		return !getEntityManager().contains(entity);
 	}
 
+	public LanguageService getLanguageService() {
+		return this.languageService;
+	}
+
 	/**
 	@Transactional
 	public ArtWork lazyLoad(ArtWork s) {
@@ -146,9 +216,8 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		}
 		src.setArtists(list);
 		return src;
-
 	}
-**/
+	 **/
 	
 	@Transactional
 	public void reloadIfDetached(ArtWork src) {
@@ -190,10 +259,17 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		return ArtWork.class;
 	}
 	
+	public ArtWorkRecordDBService getArtWorkRecordDBService() {
+		return this.artWorkRecordDBService;
+	}
+
+	
 	@PostConstruct
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
+
+	 
 
 
 }

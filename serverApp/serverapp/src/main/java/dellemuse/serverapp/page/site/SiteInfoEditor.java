@@ -23,6 +23,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
@@ -142,7 +143,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 			
 			@Override
 			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (b_state);
+				return new ListModel<ObjectState> (getStates());
 			}
 			
 			@Override
@@ -309,7 +310,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_site_edit, target));
+ 				fire(new MenuAjaxEvent(ServerAppConstant.action_site_edit, target));
 			}
 			@Override
 			public IModel<String> getButtonLabel() {

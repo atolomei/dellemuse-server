@@ -26,6 +26,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
@@ -62,7 +63,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 	private TextAreaField<String> infoField;
 	private TextAreaField<String> introField;
 	
-	private FileUploadSimpleField<Resource> photoField;
+	//private FileUploadSimpleField<Resource> photoField;
 	private FileUploadSimpleField<Resource> audioField;
 	
 	private TextField<String> mapField;
@@ -112,7 +113,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 			
 			@Override
 			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (b_state);
+				return new ListModel<ObjectState> (getStates());
 			}
 			
 			@Override
@@ -126,6 +127,9 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
 	 	infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("audio-info"), 12);
+	
+	 	
+	 	/**
 	 	photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
@@ -150,7 +154,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 				return true;
 			}
 		};
-
+       **/
 		
 		audioField = new FileUploadSimpleField<Resource>("audio", getPhotoModel(), getLabel("audio")) {
 
@@ -162,26 +166,27 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 
 			public Image getImage() {
 				return null;
-				//if (getPhotoModel() == null || getPhotoModel().getObject()==null )
-				//	return null;
-				//return ArtExhibitionGuideEditor.this.getThumbnail(getPhotoModel().getObject());
 			}
 
+			
+			protected String getAudioSrc() {
+			
+				if (getAudioModel() == null || getAudioModel().getObject()==null )
+					return null;
+				return GuideContentEditor.this.getPresignedUrl(getAudioModel().getObject());
+			}
+			
 			public String getFileName() {
-				if (getModel()!=null  || getModel().getObject()==null )
-					return GuideContentEditor.this.getAudioMeta( getModel().getObject() );
+				if (getAudioModel()!=null  || getAudioModel().getObject()==null )
+					return GuideContentEditor.this.getAudioMeta( getAudioModel().getObject() );
 				return null;
 			}
 
-			public boolean isThumbnail() {
-				return true;
-			}
 		};
 
 		form.add(nameField);
 		form.add(subtitleField);
 		form.add(infoField);
-		form.add(photoField);
 		form.add(audioField);
 		form.add(objectStateField);
 		
@@ -282,7 +287,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_guide_content_edit, target));
+ 				fire(new MenuAjaxEvent(ServerAppConstant.action_guide_content_edit, target));
 			}
 			@Override
 			public IModel<String> getButtonLabel() {

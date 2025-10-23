@@ -27,6 +27,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.form.Form;
@@ -103,7 +104,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 			
 			@Override
 			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (b_state);
+				return new ListModel<ObjectState> (getStates());
 			}
 			
 			@Override
@@ -122,7 +123,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		};
 		form.add(objectStateField);
 		
-		infoField 			= new TextAreaField<String>("info", 	new PropertyModel<String>(getModel(), "info"),		 	getLabel("info"), 10);
+		infoField 			= new TextAreaField<String>("info", 	new PropertyModel<String>(getModel(), "info"), 		getLabel("info"), 10);
 		nameField 			= new TextField<String>("name", 	new PropertyModel<String>(getModel(), "name"),		 	getLabel("name"));
 		lastnameField 		= new TextField<String>("lastname",	new PropertyModel<String>(getModel(), "lastname"), 		getLabel("lastname"));
 		nicknameField 		= new TextField<String>("nickname", new PropertyModel<String>(getModel(), "nickname"),	 	getLabel("nickname"));
@@ -167,7 +168,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		form.add(photoField);
 		form.add(webpageField);
 		
-		form.add(infoField);
+		//form.add(infoField);
 		
 		 
 		
@@ -248,7 +249,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_site_edit, target));
+ 				fire(new MenuAjaxEvent(ServerAppConstant.action_site_edit, target));
 			}
 			@Override
 			public IModel<String> getButtonLabel() {

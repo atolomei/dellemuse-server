@@ -23,13 +23,13 @@ import org.apache.wicket.model.util.ListModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.artwork.ArtWorkEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.model.ObjectWithDepModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
-import dellemuse.serverapp.page.site.ArtWorkEditor;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -41,6 +41,7 @@ import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
@@ -147,7 +148,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 			
 			@Override
 			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (b_state);
+				return new ListModel<ObjectState> (getStates());
 			}
 			
 			@Override
@@ -361,7 +362,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_site_edit, target));
+ 				fire(new MenuAjaxEvent(ServerAppConstant.action_site_edit, target));
 			}
 			@Override
 			public IModel<String> getButtonLabel() {
@@ -372,24 +373,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		list.add(create);
 
 		
-		/**
-		  
-		AjaxButtonToolbarItem<ArtExhibition> items = new AjaxButtonToolbarItem<ArtExhibition>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
- 				fire(new SimpleAjaxWicketEvent(ServerAppConstant.action_items, target));
-			}
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("items");
-			}
-		};
-		create.setAlign(Align.TOP_LEFT);
-		list.add(items);
-		 **/
-		
+		 
 		return list;
 	}
 

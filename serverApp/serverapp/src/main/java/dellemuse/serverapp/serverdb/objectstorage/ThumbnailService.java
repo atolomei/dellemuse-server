@@ -14,6 +14,7 @@ import com.google.common.io.Files;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.ServerDBConstant;
 import dellemuse.serverapp.serverdb.service.base.BaseService;
@@ -49,7 +50,7 @@ public class ThumbnailService extends BaseService {
         if (frame == null)
             return null;
 
-        File thDir = new File(getSettings().getWorkDir() + File.separator + ServerDBConstant.THUMBNAIL_BUCKET);
+        File thDir = new File(getSettings().getWorkDir() + File.separator + ServerConstant.THUMBNAIL_BUCKET);
         String ext = FilenameUtils.getExtension(file.getName());
         File fileOut = new File(thDir, String.valueOf(id) + "." + ext);
 

@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import dellemuse.serverapp.jpa.events.ResourceEventListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "resource")
+@EntityListeners(ResourceEventListener.class)
 @JsonInclude(Include.NON_NULL)
 public class Resource extends DelleMuseObject {
 
@@ -38,12 +41,20 @@ public class Resource extends DelleMuseObject {
 
     @Column(name = "width")
     @JsonProperty("width")
-    private long width;
+    private int width;
 
     @Column(name = "height")
     @JsonProperty("height")
-    private long height;
+    private int height;
  
+
+    @Column(name = "durationMilliseconds")
+    @JsonProperty("durationMilliseconds")
+    private long durationMilliseconds;
+ 
+    @Column(name = "tag")
+    private String tag;
+    
     
     public Resource() {
     }
@@ -126,12 +137,28 @@ public class Resource extends DelleMuseObject {
 		return height;
 	}
 
-	public void setWidth(long width) {
+	public void setWidth(int width) {
 		this.width = width;
 	}
 
-	public void setHeight(long height) {
+	public void setHeight(int height) {
 		this.height = height;
+	}
+
+	public long getDurationMilliseconds() {
+		return durationMilliseconds;
+	}
+
+	public void setDurationMilliseconds(long durationMilliseconds) {
+		this.durationMilliseconds = durationMilliseconds;
+	}
+
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
 	}
 
 

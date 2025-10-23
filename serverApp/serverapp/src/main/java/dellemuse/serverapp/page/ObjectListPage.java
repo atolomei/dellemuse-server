@@ -2,56 +2,31 @@ package dellemuse.serverapp.page;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.maven.model.Site;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
+ 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.component.IRequestablePage;
+ 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.string.StringValue;
-import org.wicketstuff.annotation.mount.MountPath;
-
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.SiteModel;
+ 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
+ 
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.serverdb.model.ArtWork;
+ 
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
-import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.service.PersonDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import io.wktui.model.TextCleaner;
-import io.wktui.nav.breadcrumb.BCElement;
-import io.wktui.nav.breadcrumb.BreadCrumb;
-import io.wktui.nav.breadcrumb.HREFBCElement;
-import io.wktui.nav.menu.LinkMenuItem;
-import io.wktui.nav.menu.MenuItemPanel;
-import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
+ 
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
-import io.wktui.nav.toolbar.ToolbarItem.Align;
+ 
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.InvisiblePanel;
-import wktui.base.LabelPanel;
-
+ 
 /**
  * 
  * site foto Info - exhibitions "ps-0 pe-0 pt-0 pb-0 float-start w-100 toolbar"
@@ -74,7 +49,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	private WebMarkupContainer toolbarContainer;
 	private WebMarkupContainer toolbar;
 
-	// private WebMarkupContainer submenuContainer;
+	 
 
 	private boolean b_expand = false;
 
@@ -82,7 +57,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 	public abstract Iterable<T> getObjects();
 
-	// protected abstract IRequestablePage getObjectPage(IModel<T> model);
+	 
 	protected abstract IModel<String> getObjectInfo(IModel<T> model);
 
 	protected abstract IModel<String> getObjectTitle(IModel<T> model);
@@ -174,7 +149,6 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			protected String getImageSrc() {
 				return ObjectListPage.this.getObjectImageSrc(getModel());
 			}
-
 		};
 	}
 
@@ -186,7 +160,6 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		add(new GlobalFooterPanel<>("footer-panel"));
 
 		addHeaderPanel();
-
 		addToolbar();
 
 		this.titleContainer = new WebMarkupContainer("titleContainer") {
@@ -288,11 +261,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		add(this.panel);
 	}
 
-	// protected boolean isSubmenu() {
-	// return getSubmenu()!=null;
-	// }
-	// protected abstract WebMarkupContainer getSubmenu();
-
+	 
 	protected boolean isSettings() {
 		return true;
 	}
@@ -301,9 +270,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		return ListPanelMode.TITLE;
 	}
 
-	protected IModel<String> getCreateLabel() {
-		return getLabel("create");
-	}
+	 
 
 	protected IModel<String> getTitleLabel() {
 		return null;

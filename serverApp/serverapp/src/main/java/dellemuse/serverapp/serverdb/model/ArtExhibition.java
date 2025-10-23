@@ -27,7 +27,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "artExhibition")
 @JsonInclude(Include.NON_NULL)
-public class ArtExhibition extends DelleMuseObject {
+public class ArtExhibition extends MultiLanguageObject {
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
 	@JoinColumn(name = "site_id", nullable = true)
@@ -66,8 +66,7 @@ public class ArtExhibition extends DelleMuseObject {
 
 	// descripcion
 	//
-	@Column(name = "info")
-	private String info;
+	//@Column(name = "info")
 
 	@Column(name = "infoKey")
 	private String infoKey;
@@ -105,29 +104,7 @@ public class ArtExhibition extends DelleMuseObject {
 	@JsonProperty("artExhibitionItems")
 	private List<ArtExhibitionItem> artExhibitionItems;
 
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "photo", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("photo")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource photo;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "video", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("video")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource video;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "audio", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("audio")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource audio;
+	 
 
 	@Column(name = "website")
 	private String website;
@@ -191,13 +168,7 @@ public class ArtExhibition extends DelleMuseObject {
 		this.subTitleKey = subTitleKey;
 	}
 
-	public String getInfo() {
-		return info;
-	}
-
-	public void setInfo(String info) {
-		this.info = info;
-	}
+ 
 
 	public String getInfoKey() {
 		return infoKey;
@@ -214,26 +185,7 @@ public class ArtExhibition extends DelleMuseObject {
 	public void setArtExhibitionItems(List<ArtExhibitionItem> artExhibitionItems) {
 		this.artExhibitionItems = artExhibitionItems;
 	}
-
-	public Resource getPhoto() {
-		return photo;
-	}
-
-	public void setPhoto(Resource photo) {
-		this.photo = photo;
-	}
-
-	public Resource getVideo() {
-		return video;
-	}
-
-	public void setVideo(Resource video) {
-		this.video = video;
-	}
-
-	public Resource getAudio() {
-		return audio;
-	}
+ 
 
 	public String getLocation() {
 		return location;
@@ -243,9 +195,7 @@ public class ArtExhibition extends DelleMuseObject {
 		this.location = location;
 	}
 
-	public void setAudio(Resource audio) {
-		this.audio = audio;
-	}
+ 
 
 	public String getOpens() {
 		return opens;

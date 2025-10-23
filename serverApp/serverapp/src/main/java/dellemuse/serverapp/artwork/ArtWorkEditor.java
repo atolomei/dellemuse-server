@@ -1,4 +1,4 @@
-package dellemuse.serverapp.page.site;
+package dellemuse.serverapp.artwork;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,18 +42,11 @@ import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
-import io.wktui.form.button.SubmitButton;
-import io.wktui.form.field.BooleanField;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.NumberField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
-import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
-import io.wktui.nav.toolbar.ToolbarItem;
-import io.wktui.nav.toolbar.ToolbarItem.Align;
-import jakarta.transaction.Transactional;
-import wktui.base.ModelPanel;
 
 public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 
@@ -61,36 +54,27 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 
 	static private Logger logger = Logger.getLogger(ArtWorkEditor.class.getName());
 
-
 	static private final List<Boolean> b_list = new ArrayList<Boolean>();
 	static {
+		
 		 b_list.add(Boolean.TRUE );
 		 b_list.add(Boolean.FALSE);
 	}
 
-	private TextField<String> urlField;
-
-
-	private ChoiceField<ObjectState> objectStateField;
-	
-	private TextField<String> nameField;
-	private TextAreaField<String> infoField;
-	private TextAreaField<String> specField;
+	private TextField<String> 				urlField;
+	private ChoiceField<ObjectState> 		objectStateField;
+	private TextField<String> 				nameField;
+	private TextAreaField<String> 			infoField;
+	private TextAreaField<String> 			specField;
 	private FileUploadSimpleField<Resource> photoField;
-	private ChoiceField<Long> artistField;
-	private ChoiceField<Boolean> c_useThumbnailField;
-
-
-	private NumberField<Integer> c_numberField;
-
-	
-	//private TextAreaField<String> introField;
-	//private BooleanField useThumbnailField;
-	
-	private IModel<Resource> photoModel;
+	private ChoiceField<Long> 				artistField;
+	private ChoiceField<Boolean> 			c_useThumbnailField;
+	private NumberField<Integer> 			c_numberField;
+	private IModel<Resource> 				photoModel;
 
 	private boolean uploadedPhoto = false;
-
+	private List<Long> mainArtists;
+	
 	/**
 	 * @param id
 	 * @param model
@@ -98,60 +82,24 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 	public ArtWorkEditor(String id, IModel<ArtWork> model) {
 		super(id, model);
 	}
-
-	private void setUpModel() {
-
-		Optional<ArtWork> o_i = getArtWorkDBService().findWithDeps(getModel().getObject().getId());
-		setModel(new ObjectModel<ArtWork>(o_i.get()));
-
-		if (getModel().getObject().getPhoto() != null) {
-			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
-			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
-		}
-	}
-	
  
-
+ 	/**
+	 * 
+	 * @param id
+	 */
 	public void setMainArtist(Long id) {
-
 		mainArtists.add(id);
-		
 		//Set<Person> set = new HashSet<>();
 		//set.add(p);
 		//getModel().getObject().setArtists(set);
 	}
 
-	List<Long> mainArtists;
+	
 	
 	public Long getMainArtist() {
-		
-		
 		if (mainArtists!=null && mainArtists.size()>0)
 			return mainArtists.get(0);
-		
 		return null;
-		
-		/**
-		 if (getModel()==null)
-			 return null;
-		 
-		 
-		 ArtWork aw;
-		 
-		 if (!getModel().getObject().isDependencies()) {
-			 aw = getArtWorkDBService().findByIdWithDeps(getModel().getObject().getId()).get();
-		 }
-		 else 
-			 aw = getModel().getObject();
-		
-		Set<Person> list = aw.getArtists();
-		
-		if (list==null || list.isEmpty())
-			return null;
-		
-		return list.iterator().next().getId();
-		**/
-		
 	}
 	
 	@Override
@@ -170,69 +118,13 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 		add(form);
 		setForm(form);
 
-		//      introField = new TextAreaField<String>("intro", new PropertyModel<String>(getModel(), "intro"),
-		//		getLabel("intro"), 8);
-		//      useThumbnailField = new BooleanField("usethumbnail", new PropertyModel<Boolean>(getModel(), "info"),
-		//		getLabel("usethumbnail"));
-				
-		
-		/**
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-		 * 
-
-Update artwork set photo =  300 where name like 'Abel%';
-Update artwork set photo =  465 where name like 'Apoca%';
-Update artwork set photo =  314 where name like 'Dane%';
-Update artwork set photo =  302 where name like '%riada%';
-
-Update artwork set photo =  (select id from resource where name like  '%ecurso%') where name like '%ecurso%';
-Update artwork set photo =  (select id from resource where name like  '%ormandie%') where name like '%ormandie%';
-
-Update artwork set photo =  (select id from resource where name like  '%alencia%') where name like '%alencia%';
-Update artwork set photo =  (select id from resource where name like  '%reserve%') where name like '%reserve%';
-
-Update artwork set photo =  (select id from resource where name like  '%ampesina%') where name like '%ampesina%';
-Update artwork set photo =  (select id from resource where name like  '%einado%') where name like '%einado%';
-
-Update artwork set photo =  (select id from resource where name like  '%rman%') where name like '%rman%';
-
-update artwork set photo =  (select id from resource where name like  '%costa%') where name like '%costa%';
-update artwork set photo =  (select id from resource where name like  '%observation%') where name like '%observation%';
-
-update artwork set photo =  (select id from resource where name like  '%champs%') where name like '%champs%';
- 
-
-update artwork set photo =  (select id from resource where name like  '%einado%') where name like '%einado%';
-
-
-update artwork set photo =  (select id from resource where name like  '%mperatriz%') where name like '%mperatriz%';
-
-update artwork set photo =  (select id from resource where name like  '%surprise%') where name like '%surprise%';
- 
-update artwork set photo =  (select id from resource where name like  '%bain%') where name like '%bain%';
-
- 
-
-update artwork set photo =  (select id from resource where name like  '%rairies%') where name like '%rairies%';
-
-  
-    *
-		 *
-		 */
-	
-		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
+	 	objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 			
 			private static final long serialVersionUID = 1L;
 			
 			@Override
 			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (b_state);
+				return new ListModel<ObjectState> (getStates());
 			}
 			
 			@Override
@@ -244,13 +136,11 @@ update artwork set photo =  (select id from resource where name like  '%rairies%
 		};
 		form.add(objectStateField);
 		
-		
-		urlField = new TextField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"));
-		specField = new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8);
-		
-		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20);
-		photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
+		this.urlField   = new TextField<String>					("url", new PropertyModel<String>(getModel(), "url"), getLabel("url")			);
+		this.specField  = new TextAreaField<String>				("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8		);
+		this.nameField  = new TextField<String>					("name", new PropertyModel<String>(getModel(), "name"), getLabel("name")		);
+		this.infoField  = new TextAreaField<String>				("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20	);
+		this.photoField = new FileUploadSimpleField<Resource>	("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -299,9 +189,7 @@ update artwork set photo =  (select id from resource where name like  '%rairies%
 		};
 		
 		c_numberField = new NumberField<Integer>("year", new PropertyModel<Integer>(getModel(), "year"), getLabel("year"));
-		
-		 
-		artistField = new ChoiceField<Long>("artist", new PropertyModel<Long>( this, "mainArtist"), getLabel("artist")) {
+	 	artistField = new ChoiceField<Long>("artist", new PropertyModel<Long>( this, "mainArtist"), getLabel("artist")) {
 			
 			private static final long serialVersionUID = 1L;
 			
@@ -329,7 +217,6 @@ update artwork set photo =  (select id from resource where name like  '%rairies%
 
 		form.add(urlField);
 		form.add(specField);
-
 		form.add(nameField);
 		form.add(infoField);
 		form.add(photoField);
@@ -337,7 +224,6 @@ update artwork set photo =  (select id from resource where name like  '%rairies%
 		form.add(artistField);
 		form.add(c_numberField);
 
-		
 		EditButtons<ArtWork> buttons = new EditButtons<ArtWork>("buttons-bottom", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -363,9 +249,7 @@ update artwork set photo =  (select id from resource where name like  '%rairies%
 			}
 		};
 		form.add(buttons);
-
-		 
-	
+ 
 		EditButtons<ArtWork> b_buttons_top = new EditButtons<ArtWork>("buttons-top", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -397,29 +281,25 @@ update artwork set photo =  (select id from resource where name like  '%rairies%
 
 		};
 		getForm().add(b_buttons_top);
-	
-	
 	}
-
-	
 
 	public Optional<Person> getPerson(Long value) {
 		return super.getPerson(value);
 	}
 
-	protected void onCancel(AjaxRequestTarget target) {
+	public void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
 		// getForm().setFormState(FormState.VIEW);
 		// target.add(getForm());
 	}
 
-	protected void onEdit(AjaxRequestTarget target) {
+	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
 		// getForm().setFormState(FormState.EDIT);
 		// target.add(getForm());
 	}
 
-	protected void onSave(AjaxRequestTarget target) {
+	public void onSave(AjaxRequestTarget target) {
 		logger.debug("onSave");
 		logger.debug("updated parts:");
 		getUpdatedParts().forEach(s -> logger.debug(s));
@@ -445,12 +325,8 @@ update artwork set photo =  (select id from resource where name like  '%rairies%
 		target.add(this);
 	
 		// TODO AT
-		// fire( new (target));
-		
-		
-		
-	
-	}
+		// fir e( ne w (target));
+ 	}
 
 	@Override
 	public void onDetach() {
@@ -514,5 +390,15 @@ update artwork set photo =  (select id from resource where name like  '%rairies%
 
 		return uploadedPhoto;
 	}
+	
+	private void setUpModel() {
 
+		Optional<ArtWork> o_i = getArtWorkDBService().findWithDeps(getModel().getObject().getId());
+		setModel(new ObjectModel<ArtWork>(o_i.get()));
+
+		if (getModel().getObject().getPhoto() != null) {
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
+			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
+		}
+	}
 }

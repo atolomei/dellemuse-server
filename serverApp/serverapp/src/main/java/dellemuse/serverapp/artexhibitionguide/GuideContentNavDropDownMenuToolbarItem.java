@@ -11,10 +11,14 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.language.LanguageService;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
@@ -64,7 +68,7 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("info");
+						return getLabel("artexhibition-guide");
 					}
 				};
 			}
@@ -73,6 +77,49 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 		
  
 		
+		for (Language la: getLanguageService().getLanguages()) {
+			
+			final String langCode = la.getLanguageCode();
+			
+			if (!langCode.equals(getModel().getObject().getMasterLanguage())) {
+				
+				addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+	
+					private static final long serialVersionUID = 1L;
+	
+					@Override
+					public MenuItemPanel< ArtExhibitionGuide> getItem(String id) {
+	
+						return new AjaxLinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+							private static final long serialVersionUID = 1L;
+							@Override
+							public void onClick(AjaxRequestTarget target)  {
+								fire ( new MenuAjaxEvent(ServerAppConstant.artworkrecord_info+"-"+langCode, target));
+							}
+	
+							@Override
+							public IModel<String> getLabel() {
+								return getLabel("artwork-record", langCode);
+							}
+						};
+					}
+				});
+			}
+			
+		}
+		
+		
+	 	
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id);
+			}
+		});
+
+		
+		 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
@@ -99,20 +146,10 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 		 
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-			
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-				 
-				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
-					private static final long serialVersionUID = 1L;
-					 
-					@Override
-					public boolean isVisible() {
-						return true;
-					}
-				};
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id);
 			}
 		});
 		
@@ -137,6 +174,10 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 				};
 			}
 		});
+	}
+	
+	protected LanguageService getLanguageService() {
+		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
 
 }

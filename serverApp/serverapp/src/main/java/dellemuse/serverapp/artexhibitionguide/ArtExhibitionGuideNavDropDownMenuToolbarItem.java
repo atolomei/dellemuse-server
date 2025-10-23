@@ -12,9 +12,12 @@ import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.language.LanguageService;
+import io.wktui.event.MenuAjaxEvent;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
@@ -58,12 +61,12 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick(AjaxRequestTarget target)  {
-						fire ( new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.guide_info, target));
+						fire ( new MenuAjaxEvent(ServerAppConstant.artexhibitionguide_info, target));
 					}
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("info");
+						return getLabel("artexhibitionguide-info");
 					}
 				};
 			}
@@ -72,6 +75,94 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 		
  
 		
+		for (Language la: getLanguageService().getLanguages()) {
+			
+			final String langCode = la.getLanguageCode();
+			
+			if (!langCode.equals(getModel().getObject().getMasterLanguage())) {
+			
+				addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+	
+					private static final long serialVersionUID = 1L;
+	
+					@Override
+					public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+	
+						return new AjaxLinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+							private static final long serialVersionUID = 1L;
+							@Override
+							public void onClick(AjaxRequestTarget target)  {
+								fire ( new MenuAjaxEvent(ServerAppConstant.artexhibitionguiderecord_info+"-"+langCode, target));
+							}
+	
+							@Override
+							public IModel<String> getLabel() {
+								return getLabel("artexhibitionguide-record", langCode);
+							}
+						};
+					}
+				});
+			}
+		}
+		 
+		
+	addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+				 
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+		
+		 
+
+	
+
+	addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+
+			return new AjaxLinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void onClick(AjaxRequestTarget target)  {
+					fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+				}
+
+				@Override
+				public IModel<String> getLabel() {
+					return getLabel("meta");
+				}
+			};
+		}
+	});
+	
+	
+	
+	
+	
+	
+	addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+		
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+			 
+			return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
+				private static final long serialVersionUID = 1L;
+			};
+		}
+	});
+	
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
@@ -83,19 +174,17 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick(AjaxRequestTarget target)  {
-						fire ( new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.guide_contents, target));
+						fire ( new MenuAjaxEvent(ServerAppConstant.artexhibitionguide_contents, target));
 					}
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("artwork-audio-guides");
+						return getLabel("artexhibitionguide-contents");
 					}
 				};
 			}
 		});
-
-		
-		 
+ 
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 			
@@ -106,11 +195,6 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 				 
 				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
 					private static final long serialVersionUID = 1L;
-					 
-					@Override
-					public boolean isVisible() {
-						return true;
-					}
 				};
 			}
 		});
@@ -126,7 +210,7 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick(AjaxRequestTarget target)  {
-						fire ( new io.wktui.event.SimpleAjaxWicketEvent(ServerAppConstant.audit, target));
+						fire ( new MenuAjaxEvent(ServerAppConstant.artexhibitionguide_audit, target));
 					}
 
 					@Override
@@ -136,37 +220,10 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 				};
 			}
 		});
-
- 
-		
-		
-	 
-		
-		/**
-		 
-		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Site> getItem(String id) {
-				 
-				return new io.wktui.nav.menu.SeparatorMenuItem<Site>(id) {
-					private static final long serialVersionUID = 1L;
-					 
-					@Override
-					public boolean isVisible() {
-						return true;
-					}
-				};
-			}
-		});
- **/
-		
-	 
-		
-	 
 	}
-	
+
+	protected LanguageService getLanguageService() {
+		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
+	}
 
 }

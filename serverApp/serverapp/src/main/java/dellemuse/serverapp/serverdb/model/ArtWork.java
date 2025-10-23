@@ -10,12 +10,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.jpa.events.ArtWorkEventListener;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseSetPersonSerializer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -26,8 +28,10 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "artwork")
+@EntityListeners(ArtWorkEventListener.class)
 @JsonInclude(Include.NON_NULL)
-public class ArtWork extends DelleMuseObject {
+
+public class ArtWork extends MultiLanguageObject {
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
 	@JoinColumn(name = "site_owner_id", nullable = true)
@@ -52,18 +56,13 @@ public class ArtWork extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private ArtWorkType artworkType;
 
-	@Column(name = "subtitle")
-	private String subtitle;
-
 	@Column(name = "spec")
 	private String spec;
 
 	@Column(name = "subtitleKey")
 	private String subTitleKey;
 
-	@Column(name = "info")
-	private String info;
-
+	
 	@Column(name = "infoKey")
 	private String infoKey;
 
@@ -76,54 +75,27 @@ public class ArtWork extends DelleMuseObject {
 	@Column(name = "year")
 	private int year;
 
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "qrcode", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("qrcode")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource qrcode;
 	
-	/**
-	 * 
-	 * by default it is true, sometimes the thumbnail generated is not correct, for
-	 * those images we dont use thumbnail
-	 */
-	@Column(name = "usethumbnail")
-	@JsonProperty("usethumbnail")
-	private boolean usethumbnail;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "photo", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("photo")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource photo;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "video", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("video")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource video;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "audio", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonProperty("audio")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource audio;
-
 	@Column(name = "url")
 	private String url;
 
 	
+	public ArtWork() {
+	}
+
 	public void setUrl( String url ) {
 		this.url=url;
 	}
 	
 	public String geturl() {
 		return this.url;
-	}
-	
-	
-	public ArtWork() {
 	}
 
 	public ArtWorkType getArtworkType() {
@@ -134,13 +106,7 @@ public class ArtWork extends DelleMuseObject {
 		this.artworkType = artworkType;
 	}
 
-	public String getSubtitle() {
-		return subtitle;
-	}
-
-	public void setSubtitle(String subtitle) {
-		this.subtitle = subtitle;
-	}
+	
 
 	public String getSubTitleKey() {
 		return subTitleKey;
@@ -150,14 +116,7 @@ public class ArtWork extends DelleMuseObject {
 		this.subTitleKey = subTitleKey;
 	}
 
-	public String getInfo() {
-		return info;
-	}
-
-	public void setInfo(String info) {
-		this.info = info;
-	}
-
+	
 	public String getInfoKey() {
 		return infoKey;
 	}
@@ -181,18 +140,18 @@ public class ArtWork extends DelleMuseObject {
 	public void setArtists(Set<Person> artists) {
 		this.artists = artists;
 	}
+	
 
-	public Resource getPhoto() {
-		return photo;
+
+	public Resource getQRCode() {
+		return this.qrcode;
 	}
 
-	public void setPhoto(Resource photo) {
-		this.photo = photo;
+	public void setQRCode(Resource qrcode) {
+		this.qrcode = qrcode;
 	}
+	
 
-	public Resource getVideo() {
-		return video;
-	}
 
 	public String getSpec() {
 		return spec;
@@ -202,18 +161,8 @@ public class ArtWork extends DelleMuseObject {
 		this.spec = spec;
 	}
 
-	public void setVideo(Resource video) {
-		this.video = video;
-	}
-
-	public Resource getAudio() {
-		return audio;
-	}
-
-	public void setAudio(Resource audio) {
-		this.audio = audio;
-	}
-
+	
+	
 	public String getIntro() {
 		return intro;
 	}
@@ -230,13 +179,7 @@ public class ArtWork extends DelleMuseObject {
 		this.introKey = introKey;
 	}
 
-	public boolean isUsethumbnail() {
-		return usethumbnail;
-	}
-
-	public void setUsethumbnail(boolean usethumbnail) {
-		this.usethumbnail = usethumbnail;
-	}
+	
 	
 	
 	public void setYear( int year ) {
