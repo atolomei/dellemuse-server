@@ -126,6 +126,9 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 	}
 	
 	 
+	protected  boolean isSpecVisible() {
+		return true;
+	};
 
 	@Override
 	protected Optional<ArtWorkRecord> loadTranslationRecord(String lang) {
@@ -436,7 +439,7 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 		}
 	}
  
- 
+	
  
 	
 }

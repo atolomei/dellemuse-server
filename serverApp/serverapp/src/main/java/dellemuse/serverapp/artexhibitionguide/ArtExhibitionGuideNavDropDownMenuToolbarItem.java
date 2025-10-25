@@ -92,7 +92,7 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 							private static final long serialVersionUID = 1L;
 							@Override
 							public void onClick(AjaxRequestTarget target)  {
-								fire ( new MenuAjaxEvent(ServerAppConstant.artexhibitionguiderecord_info+"-"+langCode, target));
+								fire ( new MenuAjaxEvent(ServerAppConstant.object_translation_record_info+"-"+langCode, target));
 							}
 	
 							@Override

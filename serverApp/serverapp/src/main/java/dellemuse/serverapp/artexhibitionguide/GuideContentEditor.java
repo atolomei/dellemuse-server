@@ -156,7 +156,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		};
        **/
 		
-		audioField = new FileUploadSimpleField<Resource>("audio", getPhotoModel(), getLabel("audio")) {
+		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -435,7 +435,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 			logger.debug("No file uploaded.");
 		}
 
-		return uploadedPhoto;
+		return uploadedAudio;
 	}
 
 	public IModel<Site> getSiteModel() {

@@ -41,9 +41,7 @@ public class GuideContent extends MultiLanguageObject {
     @Column(name = "guideOrder")
     private int guideOrder;
  
-    
-    
-
+  
     public GuideContent() {
     }
 

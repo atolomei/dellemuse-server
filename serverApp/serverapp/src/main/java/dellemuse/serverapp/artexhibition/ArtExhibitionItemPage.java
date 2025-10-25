@@ -110,6 +110,12 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 		return getArtExhibitionItemRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
 	
+	protected boolean isAudioVisible() {
+		return true;
+	}
+	
+	
+	
 	protected List<ToolbarItem> getToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		
@@ -128,9 +134,10 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 				getLabel("art-exhibition-item", name), Align.TOP_RIGHT));
 		
 		
+	String ae_name = TextCleaner.truncate( this.getArtExhibitionModel().getObject().getName(), 24);
 		
 		list.add(new ArtExhibitionAWNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), 
-				getLabel("art-exhibition", name), Align.TOP_RIGHT));
+				getLabel("art-exhibition", ae_name), Align.TOP_RIGHT));
 		
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Model.of(getSiteModel().getObject().getShortName()), Align.TOP_RIGHT ));
  		

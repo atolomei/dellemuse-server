@@ -102,6 +102,10 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return getSiteRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
 	
+	@Override
+	protected boolean isOpensVisible() {
+		return true;
+	}
 	
 	@Override
 	protected void addListeners() {

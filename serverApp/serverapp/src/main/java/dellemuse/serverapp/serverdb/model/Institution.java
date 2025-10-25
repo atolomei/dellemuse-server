@@ -38,8 +38,6 @@ public class Institution extends MultiLanguageObject {
 	@Column(name = "shortName")
 	private String shortName;
  
- 
-
 	@Column(name = "address")
 	private String address;
 
@@ -88,8 +86,6 @@ public class Institution extends MultiLanguageObject {
 	@JsonProperty("logo")
 	@JsonSerialize(using = DelleMuseIdSerializer.class)
 	private Resource logo;
-
-	 
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "map", updatable = true, nullable = true)

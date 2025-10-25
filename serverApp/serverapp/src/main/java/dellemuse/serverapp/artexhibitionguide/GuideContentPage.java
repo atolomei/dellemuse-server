@@ -389,6 +389,13 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 	}
 **/
 	
+	
+	
+	protected boolean isAudioVisible() {
+		return true;
+	}
+
+	
 	private JumboPageHeaderPanel<?> getHeader() {
 		return header;
 	}

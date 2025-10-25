@@ -46,44 +46,30 @@ public class ArtExhibition extends MultiLanguageObject {
 	@Column(name = "permanent")
 	private boolean permanent;
 
-	@Column(name = "opens")
-	private String opens;
-
-	@Column(name = "opensKey")
-	private String opensKey;
-
-	@Column(name = "fromDate")
+ 	@Column(name = "fromDate")
 	private OffsetDateTime fromDate;
 
 	@Column(name = "toDate")
 	private OffsetDateTime toDate;
   
-
 	@Column(name = "shortname")
 	private String shortname;
-
 	
 	@Column(name = "shortnameKey")
 	private String shortnamekey;
 	
-	@Column(name = "introKey")
-	private String introKey;
-
 	@Column(name = "location")
 	private String location;
 	
 	@Column(name = "mapurl")
 	private String map;
 	
-
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = ArtExhibitionItem.class)
 	@JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
 	@OrderBy("lower(name) ASC")
 	@JsonProperty("artExhibitionItems")
 	private List<ArtExhibitionItem> artExhibitionItems;
-
-	 
 
 	@Column(name = "website")
 	private String website;
@@ -130,10 +116,6 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setToDate(OffsetDateTime toDate) {
 		this.toDate = toDate;
 	}
-
-	 
- 
- 
  
 	public List<ArtExhibitionItem> getArtExhibitionItems() {
 		return artExhibitionItems;
@@ -151,27 +133,6 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-
- 
-
-	public String getOpens() {
-		return opens;
-	}
-
-	public void setOpens(String opens) {
-		this.opens = opens;
-	}
-
-	public String getOpensKey() {
-		return opensKey;
-	}
-
-	public void setOpensKey(String opensKey) {
-		this.opensKey = opensKey;
-	}
-
-	 
-
 
 	public String getWebsite() {
 		return website;

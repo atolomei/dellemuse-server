@@ -83,9 +83,6 @@ public class Site extends MultiLanguageObject {
 	@Column(name = "whatsapp")
 	private String whatsapp;
 
-	@Column(name = "opens")
-	private String opens;
-
 	@Column(name = "phone")
 	private String phone;
 
@@ -182,14 +179,6 @@ public class Site extends MultiLanguageObject {
 
 	public void setSiteAbstract(String siteAbstract) {
 		this.siteAbstract = siteAbstract;
-	}
-
-	public String getOpens() {
-		return opens;
-	}
-
-	public void setOpens(String opens) {
-		this.opens = opens;
 	}
 
 	public Resource getMap() {

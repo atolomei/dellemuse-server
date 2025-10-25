@@ -89,6 +89,11 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	@Column(name = "language")
 	private  String language;
 
+	
+	@Column(name = "audioAutoGenerate")
+	private  boolean audioAutoGenerate;
+	
+	
 	@Transient
 	private  boolean dependecies = false;
 
@@ -279,6 +284,18 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 			return " { \"error\": \"" + e.getClass().getName()
 					+ (e.getMessage() != null ? (" | " + e.getMessage().replace("\"", "'" + "\"")) : "") + " }";
 		}
+	}
+
+	public boolean isAudioAutoGenerate() {
+		return audioAutoGenerate;
+	}
+
+	public void setState(ObjectState state) {
+		this.state = state;
+	}
+
+	public void setAudioAutoGenerate(boolean audioAutoGenerate) {
+		this.audioAutoGenerate = audioAutoGenerate;
 	}
 
 }

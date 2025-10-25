@@ -74,6 +74,10 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		return getArtExhibitionGuideRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
 	
+	protected boolean isAudioVisible() {
+		return true;
+	}
+
 	
 	
 	public ArtExhibitionGuidePage() {

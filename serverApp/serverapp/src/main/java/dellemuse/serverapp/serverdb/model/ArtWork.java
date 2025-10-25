@@ -56,10 +56,6 @@ public class ArtWork extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private ArtWorkType artworkType;
 
-
-	  
- 
-	
 	@Column(name = "year")
 	private int year;
 
@@ -93,10 +89,7 @@ public class ArtWork extends MultiLanguageObject {
 	public void setArtworkType(ArtWorkType artworkType) {
 		this.artworkType = artworkType;
 	}
-
-	
  
-
 	public Site getSite() {
 		return site;
 	}
@@ -113,8 +106,6 @@ public class ArtWork extends MultiLanguageObject {
 		this.artists = artists;
 	}
 	
-
-
 	public Resource getQRCode() {
 		return this.qrcode;
 	}

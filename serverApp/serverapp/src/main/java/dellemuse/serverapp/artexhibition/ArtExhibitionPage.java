@@ -114,12 +114,22 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 	protected ArtExhibitionRecord createTranslationRecord(String lang) {
 		return getArtExhibitionRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
-
-
 	
+	@Override
+	protected boolean isOpensVisible() {
+		return true;
+	}
+
+	@Override
 	protected boolean isIntroVisible() {
 		return true;
 	}
+	
+	protected boolean isAudioVisible() {
+		return true;
+	}
+	
+	
 	/**
 	protected Panel getArtExhibitionRecordEditor(String id, String lang) {
 		

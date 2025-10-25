@@ -61,10 +61,7 @@ public class ArtExhibitionGuide extends MultiLanguageObject {
     @Column(name = "official")
     private boolean official;
  
-    
-    
-
-    
+     
 
     public ArtExhibitionGuide() {
     }
@@ -84,10 +81,6 @@ public class ArtExhibitionGuide extends MultiLanguageObject {
     public void setPublisher(Person publisher) {
         this.publisher = publisher;
     }
-
-    
- 
-      
 
     public List<GuideContent> getGuideContents() {
         return contents;
