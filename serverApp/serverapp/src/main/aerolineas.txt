@@ -1,0 +1,23 @@
+
+
+
+INFRAESTRUCTURA 
+---------------
+
+PostgreSQL 17 Odilon 13 o superior Java 11  Java 17 
+PLAN GENERAL
+Migración de datos
+Definición de plan de migración  (qué migrar, cuantas versiones previas etc.)
+Documento de estrategia de sincronización luego de poner en producción.
+Instalación migrado en servidores de Aerolíneas
+
+
+
+Gestión de contenidos
+Revisión de las aplicaciones y ajustes
+Portal
+Actualización de componentes de software de infraestructura para el portal.
+ Instalación de infraestructura de base 
+
+
+
