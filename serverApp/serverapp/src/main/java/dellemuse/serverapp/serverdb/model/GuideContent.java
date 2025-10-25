@@ -41,47 +41,9 @@ public class GuideContent extends MultiLanguageObject {
     @Column(name = "guideOrder")
     private int guideOrder;
  
-
-    @Column(name = "info")
-    private String info;
-
-    @Column(name = "infoKey")
-    private String infoKey;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource photo;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource video;
-
-    @Column(name = "videoKey")
-    private String videoKey;
     
     
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource audio;
 
-    @Column(name = "audioKey")
-    private String audioKey;
-    
-    
-    
-    
     public GuideContent() {
     }
 
@@ -101,32 +63,7 @@ public class GuideContent extends MultiLanguageObject {
         this.artExhibitionItem = artExhibitionItem;
     }
 
-    
-
-    public String getInfo() {
-        return info;
-    }
-
-    public void setInfo(String info) {
-        this.info = info;
-    }
-
-    public String getInfoKey() {
-        return infoKey;
-    }
-
-    public void setInfoKey(String infoKey) {
-        this.infoKey = infoKey;
-    }
-
-    public String getAudioKey() {
-        return audioKey;
-    }
-
-    public void setAudioKey(String infoKey) {
-        this.audioKey = infoKey;
-    }
-    
+   
     
     public int getGuideOrder() {
         return guideOrder;
@@ -136,28 +73,6 @@ public class GuideContent extends MultiLanguageObject {
         this.guideOrder = guideOrder;
     }
 
-    public Resource getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(Resource photo) {
-        this.photo = photo;
-    }
-
-    public Resource getVideo() {
-        return video;
-    }
-
-    public void setVideo(Resource video) {
-        this.video = video;
-    }
-
-    public Resource getAudio() {
-        return audio;
-    }
-
-    public void setAudio(Resource audio) {
-        this.audio = audio;
-    }
+    
     
 };

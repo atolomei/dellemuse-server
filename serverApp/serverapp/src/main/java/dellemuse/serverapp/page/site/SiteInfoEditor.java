@@ -46,7 +46,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
     // ChoiceField<Institution>  institutionField;
 
 
-	private ChoiceField<ObjectState> objectStateField;
+	//private ChoiceField<ObjectState> objectStateField;
 	
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
@@ -136,7 +136,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
         **/
         //institutionField.setChoices(new ListModel<Institution>( StreamSupport.stream(getInstitutions().spliterator(), false).collect(Collectors.toList()) ));
         
-        
+        /**
         objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 		
 			private static final long serialVersionUID = 1L;
@@ -159,7 +159,8 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 			}
 		};
 		form.add(objectStateField);
-		
+		**/
+        
 		
         nameField 			= new TextField<String>("name", 		new PropertyModel<String>(getModel(), "name") , getLabel("name"));
 	 	subtitleField		= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);

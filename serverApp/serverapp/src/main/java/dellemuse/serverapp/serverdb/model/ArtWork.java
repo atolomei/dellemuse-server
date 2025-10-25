@@ -56,8 +56,6 @@ public class ArtWork extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private ArtWorkType artworkType;
 
-	@Column(name = "spec")
-	private String spec;
 
 	  
  
@@ -126,14 +124,6 @@ public class ArtWork extends MultiLanguageObject {
 	}
 	
 
-
-	public String getSpec() {
-		return spec;
-	}
-
-	public void setSpec(String spec) {
-		this.spec = spec;
-	}
 
 	
  

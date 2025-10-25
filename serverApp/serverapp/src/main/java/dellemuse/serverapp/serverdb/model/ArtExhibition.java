@@ -57,9 +57,7 @@ public class ArtExhibition extends MultiLanguageObject {
 
 	@Column(name = "toDate")
 	private OffsetDateTime toDate;
- 
-  	@Column(name = "spec")
-	private String spec;
+  
 
 	@Column(name = "shortname")
 	private String shortname;
@@ -190,14 +188,7 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setMap(String map) {
 		this.map = map;
 	}
-
-	public String getSpec() {
-		return spec;
-	}
-
-	public void setSpec(String spec) {
-		this.spec = spec;
-	}
+ 
 
 	public String getShortname() {
 		return shortname;

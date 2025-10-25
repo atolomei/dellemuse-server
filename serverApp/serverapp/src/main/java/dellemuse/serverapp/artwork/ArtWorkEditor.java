@@ -62,7 +62,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 	}
 
 	private TextField<String> 				urlField;
-	private ChoiceField<ObjectState> 		objectStateField;
+	//private ChoiceField<ObjectState> 		objectStateField;
 	private TextField<String> 				nameField;
 	private TextAreaField<String> 			infoField;
 	private TextAreaField<String> 			specField;
@@ -118,6 +118,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 		add(form);
 		setForm(form);
 
+		/**
 	 	objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 			
 			private static final long serialVersionUID = 1L;
@@ -135,6 +136,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 			}
 		};
 		form.add(objectStateField);
+		**/
 		
 		this.urlField   = new TextField<String>					("url", new PropertyModel<String>(getModel(), "url"), getLabel("url")			);
 		this.specField  = new TextAreaField<String>				("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8		);

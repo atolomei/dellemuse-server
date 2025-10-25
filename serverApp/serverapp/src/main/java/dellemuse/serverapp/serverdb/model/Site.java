@@ -59,8 +59,6 @@ public class Site extends MultiLanguageObject {
 	@Column(name = "shortName")
 	private String shortName;
 
- 
-
 	@Column(name = "abstract")
 	private String siteAbstract;
  
@@ -118,9 +116,7 @@ public class Site extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
 	private List<Floor> floors;
 
-	
-	
-	
+ 	
 	
 	public Site() {
 	}

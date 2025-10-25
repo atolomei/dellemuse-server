@@ -78,7 +78,7 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 		add(form);
 		setForm(form);
 	
-		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
+		/**objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 			
 			private static final long serialVersionUID = 1L;
 			
@@ -94,6 +94,8 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 				return value.getLabel( getLocale());
 			}
 		};
+		*/
+		
 		
 		this.nameField 		= new TextField<String>("name", 	new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		this.floorStrField 	= new TextField<String>("floor", 	new PropertyModel<String>(getModel(), "floorStr"), getLabel("floor"));
@@ -103,7 +105,7 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 		this.qrCodeField 	= new TextField<String>("qrcode", 	new PropertyModel<String>(getModel(), "qRCode"), getLabel("qrcode"));
 		
 		form.add(nameField);
-		form.add(objectStateField);
+		//form.add(objectStateField);
 		form.add(floorStrField);
 		form.add(roomStrField);
 		form.add(orderField);

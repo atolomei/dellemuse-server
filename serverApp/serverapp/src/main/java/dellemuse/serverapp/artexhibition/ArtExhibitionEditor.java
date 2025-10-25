@@ -61,6 +61,10 @@ import wktui.base.ModelPanel;
 
 /**
  * 
+ * horario
+ * información técnica
+ * 
+ * 
  * 
  * alter table artexhibition add column spec text;
  * 

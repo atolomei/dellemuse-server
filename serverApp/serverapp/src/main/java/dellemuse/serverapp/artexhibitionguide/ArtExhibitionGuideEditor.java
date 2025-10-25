@@ -96,7 +96,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		add(form);
 		setForm(form);
 		
-
+/**
 		this.objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 			
 			private static final long serialVersionUID = 1L;
@@ -114,6 +114,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 			}
 		};
 		form.add(this.objectStateField);
+	**/
 		
 		
 		this.nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
