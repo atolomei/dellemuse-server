@@ -38,6 +38,7 @@ import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
@@ -55,13 +56,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.PersonDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import io.odilon.util.Check;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
@@ -89,7 +84,7 @@ import wktui.base.NamedTab;
  */
 
 @MountPath("/artexhibitionitem/${id}")
-public class ArtExhibitionItemPage extends ObjectPage<ArtExhibitionItem> {
+public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibitionItem, ArtExhibitionItemRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -104,8 +99,16 @@ public class ArtExhibitionItemPage extends ObjectPage<ArtExhibitionItem> {
 	private WebMarkupContainer imageContainer;
 
 	private ArtExhibitionItemEditor editor;
-	JumboPageHeaderPanel<ArtExhibitionItem> header;
+	private JumboPageHeaderPanel<ArtExhibitionItem> header;
 	
+
+	protected Optional<ArtExhibitionItemRecord> loadTranslationRecord(String lang) {
+		return getArtExhibitionItemRecordDBService().findByArtExhibitionItem(getModel().getObject(), lang);
+	}
+	
+	protected ArtExhibitionItemRecord createTranslationRecord(String lang) {
+		return getArtExhibitionItemRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
 	
 	protected List<ToolbarItem> getToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
@@ -113,11 +116,19 @@ public class ArtExhibitionItemPage extends ObjectPage<ArtExhibitionItem> {
 		
 	String name = null;
 		
-		if (getArtExhibitionModel().getObject().getShortname()!=null)
-			name=TextCleaner.truncate(getArtExhibitionModel().getObject().getShortname(), 24);
-		else
-			name=TextCleaner.truncate(getArtExhibitionModel().getObject().getName(), 24);
+		//if (getArtExhibitionModel().getObject().getShortname()!=null)
+		//	name=TextCleaner.truncate(getArtExhibitionModel().getObject().getShortname(), 24);
+		//else
+		//	name=TextCleaner.truncate(getArtExhibitionModel().getObject().getName(), 24);
 				
+
+		name=TextCleaner.truncate(getModel().getObject().getName(), 24);
+
+	list.add(new ArtExhibitionItemNavDropDownMenuToolbarItem("item", getModel(), 
+				getLabel("art-exhibition-item", name), Align.TOP_RIGHT));
+		
+		
+		
 		list.add(new ArtExhibitionAWNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), 
 				getLabel("art-exhibition", name), Align.TOP_RIGHT));
 		
@@ -144,17 +155,19 @@ public class ArtExhibitionItemPage extends ObjectPage<ArtExhibitionItem> {
 				if (event.getName().equals(ServerAppConstant.action_exhibition_item_info_edit)) {
 					ArtExhibitionItemPage.this.onEdit(event.getTarget());
 				}
-
-				 
-
-
+ 
+				else if (event.getName().equals(ServerAppConstant.artexhibition_item_info)) {
+					ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.artexhibition_item_info, event.getTarget());
+				}
+				
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
+					ArtExhibitionItemPage.this.togglePanel(event.getName(), event.getTarget());
+				}
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
 				
-				else if (event.getName().equals(ServerAppConstant.exhibition_item_info)) {
-					ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.exhibition_item_info, event.getTarget());
-				}
+			
 			
 				//else if (event.getName().equals(ServerAppConstant.audit)) {
 				//	ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());
@@ -395,7 +408,7 @@ public class ArtExhibitionItemPage extends ObjectPage<ArtExhibitionItem> {
 		List<INamedTab> tabs = super.createInternalPanels();
 
 		
-		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.exhibition_item_info) {
+		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.artexhibition_item_info) {
 		 
 			private static final long serialVersionUID = 1L;
 
@@ -406,7 +419,7 @@ public class ArtExhibitionItemPage extends ObjectPage<ArtExhibitionItem> {
 		};
 		tabs.add(tab_1);
 		
-		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.site_audit) {
+		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -415,7 +428,7 @@ public class ArtExhibitionItemPage extends ObjectPage<ArtExhibitionItem> {
 		};
 		tabs.add(tab_2);
 	
-		setStartTab( ServerAppConstant.exhibition_item_info );
+		setStartTab( ServerAppConstant.artexhibition_item_info );
 		
 		
 		return tabs;

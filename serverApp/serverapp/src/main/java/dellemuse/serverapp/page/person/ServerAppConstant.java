@@ -43,6 +43,11 @@ public class ServerAppConstant {
 	/**   */
 	
 	static final public String object_meta = "object-meta";
+	static final public String object_translation_record_info = "object-translation-record";
+	static final public String object_audit = "object-audit";
+
+	
+	
 	static final public String action_object_edit_record = "object-edit-record";
 	static final public String action_object_edit_meta = "object_action_edit_meta";
 
@@ -58,6 +63,12 @@ public class ServerAppConstant {
 	static final public String action_artwork_edit_meta = "artwork_action_edit_meta";
 	
 
+	
+	
+	/** art exhibition item */	
+	static final public String artexhibition_item_info 			= "artexhibition-item-info";
+	
+	
 	
 	/** art exhibition guide */	
 	static final public String artexhibitionguide_info 			= "artexhibition-guide_action_edit_info";

@@ -28,6 +28,7 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artexhibition.ArtExhibitionItemPage;
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
@@ -35,6 +36,7 @@ import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
@@ -46,6 +48,8 @@ import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
+import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
@@ -81,7 +85,7 @@ import wktui.base.NamedTab;
  */
 
 @MountPath("/person/${id}")
-public class PersonPage extends ObjectPage<Person> {
+public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -90,7 +94,16 @@ public class PersonPage extends ObjectPage<Person> {
 	private PersonEditor editor;
 
 	public PersonPage() {
-		super();//
+		super();
+	}
+	
+	
+	protected Optional<PersonRecord> loadTranslationRecord(String lang) {
+		return getPersonRecordDBService().findByPerson(getModel().getObject(), lang);
+	}
+	
+	protected PersonRecord createTranslationRecord(String lang) {
+		return getPersonRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
 
 	protected void addListeners() {
@@ -114,6 +127,9 @@ public class PersonPage extends ObjectPage<Person> {
 					PersonPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
 
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
+					PersonPage.this.togglePanel(event.getName(), event.getTarget());
+				}
 				else if (event.getName().equals(ServerAppConstant.site_audit)) {
 					PersonPage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());
 				}
@@ -248,11 +264,7 @@ public class PersonPage extends ObjectPage<Person> {
 			}
 		});
 		
-		
-		
-		
-	
-
+		 
 		
 		
 

@@ -40,12 +40,7 @@ public class GuideContent extends MultiLanguageObject {
 
     @Column(name = "guideOrder")
     private int guideOrder;
-
-    @Column(name = "subtitle")
-    private String subtitle;
-
-    @Column(name = "subtitleKey")
-    private String subTitleKey;
+ 
 
     @Column(name = "info")
     private String info;
@@ -106,21 +101,7 @@ public class GuideContent extends MultiLanguageObject {
         this.artExhibitionItem = artExhibitionItem;
     }
 
-    public String getSubtitle() {
-        return subtitle;
-    }
-
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-    }
-
-    public String getSubTitleKey() {
-        return subTitleKey;
-    }
-
-    public void setSubTitleKey(String subTitleKey) {
-        this.subTitleKey = subTitleKey;
-    }
+    
 
     public String getInfo() {
         return info;

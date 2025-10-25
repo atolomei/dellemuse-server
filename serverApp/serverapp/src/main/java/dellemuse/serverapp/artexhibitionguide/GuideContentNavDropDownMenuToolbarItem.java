@@ -31,17 +31,12 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 	private static final long serialVersionUID = 1L;
 
 	
-	
+	/**
 	public GuideContentNavDropDownMenuToolbarItem(String id, IModel< ArtExhibitionGuide> model, Align align) {
 		this(id, model, null, align);
-		
-		if (getModel().getObject()!=null) {
-			if (model.getObject().getName()!=null)
-				setLabel( Model.of(model.getObject().getName()) );
-		else
-			setLabel(Model.of(model.getObject().getDisplayname()) );
-		}		
+		 
 	}
+	**/
 
 	public GuideContentNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<String> title, Align align) {
 		super(id, model, title, align);
@@ -68,7 +63,7 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("artexhibition-guide");
+						return getLabel("guide-content-audio");
 					}
 				};
 			}
@@ -99,7 +94,7 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 	
 							@Override
 							public IModel<String> getLabel() {
-								return getLabel("artwork-record", langCode);
+								return getLabel("guide-content-record", langCode);
 							}
 						};
 					}
@@ -119,39 +114,10 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 		});
 
 		
-		 
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-
-				return new LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-					@Override
-					public void onClick()  {
-						setResponsePage(new ArtExhibitionGuidePage(GuideContentNavDropDownMenuToolbarItem.this.getModel()));
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("artwork-audio-guides");
-					}
-				};
-			}
-		});
-
+	 
+ 
 		
-		 
 		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id);
-			}
-		});
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 

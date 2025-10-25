@@ -97,7 +97,7 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends DropDownMenuToolbar
 
 							@Override
 							public void onClick(AjaxRequestTarget target) {
-								fire(new MenuAjaxEvent(ServerAppConstant.exhibitionrecord_info + "-" + langCode, target));
+								fire(new MenuAjaxEvent(ServerAppConstant.object_translation_record_info + "-" + langCode, target));
 							}
 
 							@Override

@@ -37,15 +37,8 @@ public class Institution extends MultiLanguageObject {
 
 	@Column(name = "shortName")
 	private String shortName;
-
-	//@Column(name = "subtitleKey")
-	//private String subTitleKey;
-
-	//@Column(name = "info")
-	//private String info;
-
-	@Column(name = "infoKey")
-	private String infoKey;
+ 
+ 
 
 	@Column(name = "address")
 	private String address;
@@ -121,14 +114,7 @@ public class Institution extends MultiLanguageObject {
 	public void setInstitutionType(InstitutionType institutionType) {
 		this.institutionType = institutionType;
 	}
- 
-	public String getInfoKey() {
-		return infoKey;
-	}
-
-	public void setInfoKey(String infoKey) {
-		this.infoKey = infoKey;
-	}
+  
 
 	public String getAddress() {
 		return address;

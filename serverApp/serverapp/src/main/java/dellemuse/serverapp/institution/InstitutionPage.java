@@ -33,6 +33,7 @@ import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
@@ -47,6 +48,7 @@ import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -81,7 +83,7 @@ import wktui.base.NamedTab;
  */
 
 @MountPath("/institution/${id}")
-public class InstitutionPage extends ObjectPage<Institution> {
+public class InstitutionPage extends MultiLanguageObjectPage<Institution, InstitutionRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -93,9 +95,7 @@ public class InstitutionPage extends ObjectPage<Institution> {
 	private InstitutionMainPanel editor;
 	private ObjectMetaEditor<Institution> metaEditor;
 
-	private Map<String, ObjectRecordEditor<InstitutionRecord, Institution>> recordEditors = new HashMap<String, ObjectRecordEditor<InstitutionRecord, Institution>>();
-
-
+	 	
 	public InstitutionPage() {
 		super();
 	}
@@ -114,6 +114,14 @@ public class InstitutionPage extends ObjectPage<Institution> {
 
 	}
 
+	protected Optional<InstitutionRecord> loadTranslationRecord(String lang) {
+		return getInstitutionRecordDBService().findByInstitution(getModel().getObject(), lang);
+	}
+	
+	protected InstitutionRecord createTranslationRecord(String lang) {
+		return getInstitutionRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
+	
 	protected void addListeners() {
 		super.addListeners();
 
@@ -149,9 +157,16 @@ public class InstitutionPage extends ObjectPage<Institution> {
 					InstitutionPage.this.togglePanel(ServerAppConstant.institution_info, event.getTarget());
 				}
 
-				else if (event.getName().startsWith(ServerAppConstant.institutionrecord_info)) {
+				//else if (event.getName().startsWith(ServerAppConstant.institutionrecord_info)) {
+				//	InstitutionPage.this.togglePanel(event.getName(), event.getTarget());
+				//}
+			
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
+				
 					InstitutionPage.this.togglePanel(event.getName(), event.getTarget());
+				
 				}
+				
 				else if (event.getName().equals(ServerAppConstant.institution_meta)) {
 					InstitutionPage.this.togglePanel(ServerAppConstant.institution_meta, event.getTarget());
 					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
@@ -227,7 +242,7 @@ public class InstitutionPage extends ObjectPage<Institution> {
 							private static final long serialVersionUID = 1L;
 							@Override
 							public void onClick(AjaxRequestTarget target)  {
-								fire ( new MenuAjaxEvent(ServerAppConstant.institutionrecord_info+"-"+langCode, target));
+								fire ( new MenuAjaxEvent(ServerAppConstant.object_translation_record_info+"-"+langCode, target));
 							}
 	
 							@Override
@@ -260,7 +275,7 @@ public class InstitutionPage extends ObjectPage<Institution> {
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.institution_meta, target));
+						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
 					}
 					@Override
 					public IModel<String> getLabel() {
@@ -359,40 +374,6 @@ public class InstitutionPage extends ObjectPage<Institution> {
 		return list;
 	}
  
-	/**
-	 * 
-	 * 
-	 * 
-	 * @param id
-	 * @param lang
-	 * @return
-	 */
-	
-	protected Panel getInstitutionRecordEditor(String id, String lang) {
-		
-		if (this.recordEditors.containsKey(lang))
-			return this.recordEditors.get(lang);
-		
-		InstitutionRecord ar = null;
-		
-		Optional<InstitutionRecord> a = getInstitutionRecordDBService().findByInstitution(getModel().getObject(), lang);
-		
-		if (a.isEmpty()) {
-			ar =  getInstitutionRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
-		}
-		else
-			ar=a.get();
-				
-		IModel<InstitutionRecord> arm =new ObjectModel<InstitutionRecord>(ar);
-		ObjectRecordEditor<InstitutionRecord, Institution> e = new ObjectRecordEditor<InstitutionRecord, Institution>(id, arm, getModel(), getLabel("institution-info"));
-		
-		this.recordEditors.put(lang, e);
-	
-		return e;
-		
-	}
-
-		
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
@@ -419,27 +400,6 @@ public class InstitutionPage extends ObjectPage<Institution> {
 		};
 		tabs.add(tab_2);
 		
-		super.setStartTab(ServerAppConstant.institution_info);
-		
-		List<Language> list = getLanguageService().getLanguages();
-		
-		for ( Language la:list ) {
-			
-			if (!la.getLanguageCode().equals( getModel().getObject().getMasterLanguage()) ) {
-				
-				NamedTab tab=new NamedTab(Model.of(la.getLanguageCode()), ServerAppConstant.institutionrecord_info+"-"+la.getLanguageCode(), la.getLanguageCode()) {
-					 
-					private static final long serialVersionUID = 1L;
-	
-					@Override
-					public WebMarkupContainer getPanel(String panelId) {
-						return getInstitutionRecordEditor(panelId, getMoreInfo());
-					}
-				};
-				tabs.add(tab);
-			}
-		}
-
 		setStartTab( ServerAppConstant.institution_info );
 
 		return tabs;
@@ -569,7 +529,7 @@ public class InstitutionPage extends ObjectPage<Institution> {
 	}
 
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
-				this.recordEditors.get(lang).edit(target);		
+				getRecordEditors().get(lang).edit(target);		
 	}
 
 }

@@ -32,11 +32,13 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artexhibition.ArtExhibitionItemPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -48,6 +50,8 @@ import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
+import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
@@ -79,7 +83,7 @@ import wktui.base.NamedTab;
  */
 
 @MountPath("/site/info/${id}")
-public class SiteInfoPage extends ObjectPage<Site> {
+public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -88,7 +92,18 @@ public class SiteInfoPage extends ObjectPage<Site> {
 	private SiteInfoEditor editor;
 
 	
-
+	@Override
+	protected Optional<SiteRecord> loadTranslationRecord(String lang) {
+		return getSiteRecordDBService().findBySite(getModel().getObject(), lang);
+	}
+	
+	@Override
+	protected SiteRecord createTranslationRecord(String lang) {
+		return getSiteRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
+	
+	
+	@Override
 	protected void addListeners() {
 		super.addListeners();
 
@@ -107,6 +122,10 @@ public class SiteInfoPage extends ObjectPage<Site> {
 				}
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					SiteInfoPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+				}
+			
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
+					SiteInfoPage.this.togglePanel(event.getName(), event.getTarget());
 				}
 			
 				else if (event.getName().equals(ServerAppConstant.site_audit)) {
@@ -248,6 +267,9 @@ public class SiteInfoPage extends ObjectPage<Site> {
 		*/
 		
 		
+		
+		
+		list.add( new SiteInfoNavDropDownMenuToolbarItem("item", getModel(),  Align.TOP_RIGHT ));
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getModel(),  Align.TOP_RIGHT ));
 		
 		return list;

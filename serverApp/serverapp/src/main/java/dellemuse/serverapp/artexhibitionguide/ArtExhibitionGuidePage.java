@@ -13,7 +13,9 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -23,6 +25,8 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -48,7 +52,7 @@ dellemuse=# alter table artexhibition alter column todate drop not null;
  */
 
 @MountPath("/guide/${id}")
-public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
+public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitionGuide, ArtExhibitionGuideRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -62,6 +66,16 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 	private ArtExhibitionGuideEditor editor;
 	
 
+	protected Optional< ArtExhibitionGuideRecord> loadTranslationRecord(String lang) {
+		return getArtExhibitionGuideRecordDBService().findByArtExhibitionGuide(getModel().getObject(), lang);
+	}
+	
+	protected  ArtExhibitionGuideRecord createTranslationRecord(String lang) {
+		return getArtExhibitionGuideRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
+	
+	
+	
 	public ArtExhibitionGuidePage() {
 		super();
 	}
@@ -113,7 +127,9 @@ public class ArtExhibitionGuidePage extends ObjectPage<ArtExhibitionGuide> {
 					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
 				}
-				
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
+					ArtExhibitionGuidePage.this.togglePanel(event.getName(), event.getTarget());
+				}
 				
 				else if (event.getName().equals(ServerAppConstant.artexhibitionguide_audit)) {
 					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());

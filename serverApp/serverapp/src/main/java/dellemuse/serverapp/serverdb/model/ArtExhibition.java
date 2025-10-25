@@ -57,27 +57,8 @@ public class ArtExhibition extends MultiLanguageObject {
 
 	@Column(name = "toDate")
 	private OffsetDateTime toDate;
-
-	@Column(name = "subtitle")
-	private String subtitle;
-
-	@Column(name = "subtitleKey")
-	private String subTitleKey;
-
-	// descripcion
-	//
-	//@Column(name = "info")
-
-	@Column(name = "infoKey")
-	private String infoKey;
-
-	// en la lista de resultados
-	//
-	@Column(name = "intro")
-	private String intro;
-
-	
-	@Column(name = "spec")
+ 
+  	@Column(name = "spec")
 	private String spec;
 
 	@Column(name = "shortname")
@@ -152,32 +133,10 @@ public class ArtExhibition extends MultiLanguageObject {
 		this.toDate = toDate;
 	}
 
-	public String getSubtitle() {
-		return subtitle;
-	}
-
-	public void setSubtitle(String subtitle) {
-		this.subtitle = subtitle;
-	}
-
-	public String getSubTitleKey() {
-		return subTitleKey;
-	}
-
-	public void setSubTitleKey(String subTitleKey) {
-		this.subTitleKey = subTitleKey;
-	}
-
+	 
  
-
-	public String getInfoKey() {
-		return infoKey;
-	}
-
-	public void setInfoKey(String infoKey) {
-		this.infoKey = infoKey;
-	}
-
+ 
+ 
 	public List<ArtExhibitionItem> getArtExhibitionItems() {
 		return artExhibitionItems;
 	}
@@ -213,21 +172,8 @@ public class ArtExhibition extends MultiLanguageObject {
 		this.opensKey = opensKey;
 	}
 
-	public String getIntro() {
-		return intro;
-	}
+	 
 
-	public void setIntro(String intro) {
-		this.intro = intro;
-	}
-
-	public String getIntroKey() {
-		return introKey;
-	}
-
-	public void setIntroKey(String introKey) {
-		this.introKey = introKey;
-	}
 
 	public String getWebsite() {
 		return website;

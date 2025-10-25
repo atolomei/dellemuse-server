@@ -59,18 +59,8 @@ public class ArtWork extends MultiLanguageObject {
 	@Column(name = "spec")
 	private String spec;
 
-	@Column(name = "subtitleKey")
-	private String subTitleKey;
-
-	
-	@Column(name = "infoKey")
-	private String infoKey;
-
-	@Column(name = "intro")
-	private String intro;
-
-	@Column(name = "introKey")
-	private String introKey;
+	  
+ 
 	
 	@Column(name = "year")
 	private int year;
@@ -107,23 +97,7 @@ public class ArtWork extends MultiLanguageObject {
 	}
 
 	
-
-	public String getSubTitleKey() {
-		return subTitleKey;
-	}
-
-	public void setSubTitleKey(String subTitleKey) {
-		this.subTitleKey = subTitleKey;
-	}
-
-	
-	public String getInfoKey() {
-		return infoKey;
-	}
-
-	public void setInfoKey(String infoKey) {
-		this.infoKey = infoKey;
-	}
+ 
 
 	public Site getSite() {
 		return site;
@@ -162,22 +136,7 @@ public class ArtWork extends MultiLanguageObject {
 	}
 
 	
-	
-	public String getIntro() {
-		return intro;
-	}
-
-	public void setIntro(String intro) {
-		this.intro = intro;
-	}
-
-	public String getIntroKey() {
-		return introKey; 
-	}
-
-	public void setIntroKey(String introKey) {
-		this.introKey = introKey;
-	}
+ 
 
 	
 	

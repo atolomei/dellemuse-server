@@ -110,6 +110,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 
+		/**
 		for (Language la : getLanguageService().getLanguages()) {
 
 			final String langCode = la.getLanguageCode();
@@ -128,7 +129,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 
 							@Override
 							public void onClick(AjaxRequestTarget target) {
-								fire(new MenuAjaxEvent(ServerAppConstant.siterecord_info + "-" + langCode, target));
+								fire(new MenuAjaxEvent(ServerAppConstant.object_translation_record_info + "-" + langCode, target));
 							}
 
 							@Override
@@ -140,6 +141,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				});
 			}
 		}
+		**/
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 

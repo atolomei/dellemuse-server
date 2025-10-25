@@ -72,6 +72,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public <S extends T> S saveViaBaseClass(DelleMuseObject entity) {
+		entity.setLastModified(OffsetDateTime.now());
 		return repository.save((S) entity);
 	}
 
@@ -209,6 +210,10 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 	protected ResourceDBService getResourceDBService() {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+	}
+	
+	protected UserDBService getUserDBService() {
+		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
  	
 	protected String nameKey(String name) {

@@ -135,11 +135,16 @@ public class ServerDBSettings {
 
 
     
+    @Value("${google.translate.auth:null}")
+    protected String googleTranslateAuth;
+    
+    
     /** Google translate ----------------------------------------------------- */
     
     
     public String getGoogleTranslateAuthPath() {
-    	return "."+File.separator+"config"+File.separator+"googleTranslate.json";	
+    	//return "."+File.separator+"config"+File.separator+"googleTranslate.json";	
+    	return googleTranslateAuth;
     }
     
     

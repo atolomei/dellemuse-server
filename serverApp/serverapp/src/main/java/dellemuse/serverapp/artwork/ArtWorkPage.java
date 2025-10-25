@@ -99,10 +99,6 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 
 	private ArtWorkMainPanel editor;
 
-	private Map<String, Panel> recordEditors = new HashMap<String, Panel>();
-	
-	//private ObjectMetaEditor<ArtWork> metaEditor;
-
 
 	public ArtWorkPage() {
 		super();
@@ -129,6 +125,18 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 		getMetaEditor().onEdit(target);
 	}
 	
+	 
+
+	@Override
+	protected Optional<ArtWorkRecord> loadTranslationRecord(String lang) {
+		return getArtWorkRecordDBService().findByArtWork(getModel().getObject(), lang);
+	}
+
+	
+	@Override
+	protected ArtWorkRecord createTranslationRecord(String lang) {
+		return getArtWorkRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
 	
 	protected void addListeners() {
 		super.addListeners();
@@ -180,7 +188,7 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
 					// event.getTarget().add(ArtWorkPage.this.getHeader());
 				}
-				else if (event.getName().startsWith(ServerAppConstant.artworkrecord_info)) {
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 					ArtWorkPage.this.togglePanel(event.getName(), event.getTarget());
 				}
 				else if (event.getName().equals(ServerAppConstant.artwork_meta)) {
@@ -295,41 +303,7 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 		};
 		tabs.add(tab_1);
 		
-		
-		
-		List<Language> list = getLanguageService().getLanguages();
-		
-		for ( Language la:list ) {
-			
-			if (!la.getLanguageCode().equals( getModel().getObject().getMasterLanguage()) ) {
-				
-				NamedTab tab=new NamedTab(Model.of(la.getLanguageCode()), ServerAppConstant.artworkrecord_info+"-"+la.getLanguageCode(), la.getLanguageCode()) {
-					 
-					private static final long serialVersionUID = 1L;
-	
-					@Override
-					public WebMarkupContainer getPanel(String panelId) {
-						return getArtWorkRecordEditor(panelId, getMoreInfo());
-					}
-				};
-				tabs.add(tab);
-			}
-		}
-		
-		
-
-		NamedTab tab_2=new NamedTab(Model.of("metainfo"), ServerAppConstant.artwork_meta) {
-			 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getMetaEditor(panelId);
-			}
-		};
-		tabs.add(tab_2);
-		
-
+	 
 		NamedTab tab_3=new NamedTab(Model.of("artwork-audit"), ServerAppConstant.artwork_audit) {
 			 
 			private static final long serialVersionUID = 1L;
@@ -351,40 +325,7 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 		return tabs;
 	}
 
-	
-	
-	protected Panel getArtWorkRecordEditor(String id, String lang) {
-		
-		if (recordEditors.containsKey(lang))
-			return recordEditors.get(lang);
-		
-		
-		ArtWorkRecord ar = null;
-		
-		Optional<ArtWorkRecord> a = getArtWorkRecordDBService().findByArtWork(getModel().getObject(), lang);
-		
-		if (a.isEmpty()) {
-			ar = getArtWorkRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
-		}
-		else
-			ar=a.get();
-				
-	 	
-		IModel<ArtWorkRecord> arm =new ObjectModel<ArtWorkRecord>(ar);
-		ObjectRecordEditor<ArtWorkRecord, ArtWork> e = new ObjectRecordEditor<ArtWorkRecord, ArtWork>(id, arm, getModel(), getLabel("information"));
-		
-		recordEditors.put(lang, e);
-		return e;
-		
-		
-	//ArtWorkRecordEditor e = new ArtWorkRecordEditor(id, getModel(), arm);
-		//DummyBlockPanel d=new DummyBlockPanel(id, Model.of(ar.toString()));
-		//recordEditors.put(lang, d);
-		//return d;
-	
-	}
-
-
+ 	
 	protected Panel getEditor(String id) {
 		if (this.editor==null)
 			editor = new ArtWorkMainPanel(id, getModel());

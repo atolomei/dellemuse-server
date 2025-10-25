@@ -14,6 +14,7 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -26,6 +27,8 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
+import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -48,7 +51,7 @@ import wktui.base.NamedTab;
  */
 
 @MountPath("/guidecontent/${id}")
-public class GuideContentPage extends ObjectPage<GuideContent> {
+public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, GuideContentRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -65,7 +68,13 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 	private JumboPageHeaderPanel<GuideContent> header;
 
 	
+	protected Optional<GuideContentRecord> loadTranslationRecord(String lang) {
+		return getGuideContentRecordDBService().findByGuideContent(getModel().getObject(), lang);
+	}
 	
+	protected GuideContentRecord createTranslationRecord(String lang) {
+		return getGuideContentRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
 	
 	public GuideContentPage() {
 		super();
@@ -193,7 +202,7 @@ public class GuideContentPage extends ObjectPage<GuideContent> {
 		
 		list.add(new GuideContentNavDropDownMenuToolbarItem(	"item", 
 																	getArtExhibitionGuideModel(), 
-																	getLabel("audio-guide", TextCleaner.truncate(getArtExhibitionGuideModel().getObject().getName(), 24)),
+																	getLabel("guide-content-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 24)),
 																	Align.TOP_RIGHT));
 		
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(),  Align.TOP_RIGHT ));

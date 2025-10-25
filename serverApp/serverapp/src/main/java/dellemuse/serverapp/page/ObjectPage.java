@@ -187,8 +187,13 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
     	int current = 0;
     	int selected = 0;
     	for (INamedTab tab: tabs) {
+    		
+    		logger.debug("tab->" + tab.getTitle().getObject().toString());
+    		
     		if (tab.getName().equals(name)) {
-	    			selected = current;
+
+    			logger.debug("Selected title -> " + tab.getTitle().getObject().toString());
+    			selected = current;
 	    			break;
     		}
     		current++;

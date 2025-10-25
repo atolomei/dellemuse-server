@@ -80,7 +80,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 	}
 	
 
-	private ChoiceField<ObjectState> objectStateField;
+//	private ChoiceField<ObjectState> objectStateField;
 	
 	private TextAreaField<String> opensField;
 
@@ -141,7 +141,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		Form<ArtExhibition> form = new Form<ArtExhibition>("form");
 		add(form);
 		setForm(form);
-		
+	/**
 		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 			
 			private static final long serialVersionUID = 1L;
@@ -159,6 +159,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 			}
 		};
 		form.add(objectStateField);
+		**/
 		
 		
 		permanentField = new ChoiceField<Boolean>("permanent", new PropertyModel<Boolean>(getModel(), "permanent"), getLabel("duration")) {

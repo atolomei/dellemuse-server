@@ -60,13 +60,9 @@ public class ArtExhibitionGuide extends MultiLanguageObject {
 
     @Column(name = "official")
     private boolean official;
-
-    @Column(name = "subtitleKey")
-    private String subTitleKey;
-
+ 
     
-    @Column(name = "infoKey")
-    private String infoKey;
+    
 
     
 
@@ -90,20 +86,8 @@ public class ArtExhibitionGuide extends MultiLanguageObject {
     }
 
     
-
-    public String getSubTitleKey() {
-        return subTitleKey;
-    }
-
-    public void setSubTitleKey(String subTitleKey) {
-        this.subTitleKey = subTitleKey;
-    }
-
-     
-
-    public String getInfoKey() {
-        return infoKey;
-    }
+ 
+      
 
     public List<GuideContent> getGuideContents() {
         return contents;
@@ -120,12 +104,7 @@ public class ArtExhibitionGuide extends MultiLanguageObject {
     public void setOfficial(boolean official) {
         this.official = official;
     }
-
-    
-
-    public void setInfoKey(String infoKey) {
-        this.infoKey = infoKey;
-    }
+ 
 
     public int getArtExhibitionGuideOrder() {
         return artExhibitionGuideOrder;

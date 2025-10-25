@@ -59,19 +59,11 @@ public class Site extends MultiLanguageObject {
 	@Column(name = "shortName")
 	private String shortName;
 
-
-	@Column(name = "intro")
-	private String intro;
-
-	@Column(name = "introKey")
-	private String introKey;
+ 
 
 	@Column(name = "abstract")
 	private String siteAbstract;
-
-	@Column(name = "infoKey")
-	private String infoKey;
-
+ 
 	@Column(name = "address")
 	private String address;
 
@@ -244,10 +236,6 @@ public class Site extends MultiLanguageObject {
 		this.twitter = twitter;
 	}
 
- 
-
- 
-
 	public String getShortName() {
 		return shortName;
 	}
@@ -256,21 +244,7 @@ public class Site extends MultiLanguageObject {
 		this.shortName = shortName;
 	}
 
-	public String getIntro() {
-		return intro;
-	}
-
-	public void setIntro(String welcome) {
-		this.intro = welcome;
-	}
-
-	public String getInfoKey() {
-		return infoKey;
-	}
-
-	public void setInfoKey(String infoKey) {
-		this.infoKey = infoKey;
-	}
+	 
 
 	public String getAddress() {
 		return address;

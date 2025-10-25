@@ -139,7 +139,7 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 
 				@Override
 				public IModel<String> getLabel() {
-					return getLabel("meta");
+					return getLabel("metadata");
 				}
 			};
 		}

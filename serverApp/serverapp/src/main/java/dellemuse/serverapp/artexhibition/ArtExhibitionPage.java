@@ -43,6 +43,7 @@ import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
@@ -63,6 +64,7 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
+import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -88,7 +90,7 @@ dellemuse=# alter table artexhibition alter column todate drop not null;
  */
 
 @MountPath("/artexhibition/${id}")
-public class ArtExhibitionPage extends ObjectPage<ArtExhibition> {
+public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, ArtExhibitionRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -100,8 +102,25 @@ public class ArtExhibitionPage extends ObjectPage<ArtExhibition> {
 	private ArtExhibitionGuidesPanel guides = null;
 	private JumboPageHeaderPanel<ArtExhibition> header;
 
-	private Map<String, Panel> recordEditors = new HashMap<String, Panel>();
+	//private Map<String, Panel> recordEditors = new HashMap<String, Panel>();
 
+	
+
+	protected Optional<ArtExhibitionRecord> loadTranslationRecord(String lang) {
+		return getArtExhibitionRecordDBService().findByArtExhibition(getModel().getObject(), lang);
+	}
+
+	
+	protected ArtExhibitionRecord createTranslationRecord(String lang) {
+		return getArtExhibitionRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
+
+
+	
+	protected boolean isIntroVisible() {
+		return true;
+	}
+	/**
 	protected Panel getArtExhibitionRecordEditor(String id, String lang) {
 		
 		if (recordEditors.containsKey(lang))
@@ -120,7 +139,7 @@ public class ArtExhibitionPage extends ObjectPage<ArtExhibition> {
 				
 	 	
 		IModel<ArtExhibitionRecord> arm =new ObjectModel<ArtExhibitionRecord>(ar);
-		ObjectRecordEditor<ArtExhibitionRecord,ArtExhibition> e = new ObjectRecordEditor<ArtExhibitionRecord, ArtExhibition>(id, arm, getModel(), getLabel("information", ar.getLanguage()));
+		ObjectRecordEditor<ArtExhibition,ArtExhibitionRecord> e = new ObjectRecordEditor<ArtExhibition, ArtExhibitionRecord>(id, getModel(), arm);
 		
 		recordEditors.put(lang, e);
 		return e;
@@ -132,6 +151,8 @@ public class ArtExhibitionPage extends ObjectPage<ArtExhibition> {
 		//return d;
 	
 	}
+	*/
+	
 	public ArtExhibitionPage() {
 		super();
 	}
@@ -195,7 +216,7 @@ public class ArtExhibitionPage extends ObjectPage<ArtExhibition> {
 					event.getTarget().add(ArtExhibitionPage.this.getHeader());
 				}
 				
-				else if (event.getName().startsWith(ServerAppConstant.exhibitionrecord_info)) {
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 					ArtExhibitionPage.this.togglePanel(event.getName(), event.getTarget());
 				}
 		
@@ -296,7 +317,7 @@ public class ArtExhibitionPage extends ObjectPage<ArtExhibition> {
 		
 		
 		
-		
+		/**
 		List<Language> list = getLanguageService().getLanguages();
 		
 		for ( Language la:list ) {
@@ -315,16 +336,7 @@ public class ArtExhibitionPage extends ObjectPage<ArtExhibition> {
 				tabs.add(tab);
 			}
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		**/
 		
 		
 		NamedTab tab_3=new NamedTab(Model.of("items"), ServerAppConstant.exhibition_items) {
@@ -368,7 +380,7 @@ public class ArtExhibitionPage extends ObjectPage<ArtExhibition> {
 		tabs.add(tab_2);
 		
 		
-		setStartTab( ServerAppConstant.exhibition_items );
+		setStartTab( ServerAppConstant.exhibition_info );
 		
 		
 		return tabs;
@@ -432,6 +444,7 @@ public class ArtExhibitionPage extends ObjectPage<ArtExhibition> {
 			};
 			bc.setNavigator(nav);
 		}
+		
 		
 		if (getModel().getObject().getPhoto()!=null)
 			header.setPhotoModel(new ObjectModel<Resource>( getModel().getObject().getPhoto()));
