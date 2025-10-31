@@ -12,6 +12,7 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.UserModel;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.AvatarService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -97,11 +98,12 @@ public class UserGlobalTopPanel extends ModelPanel<User> {
 						
 						@Override
 						public void onClick() {
+							setResponsePage( new UserPage(UserGlobalTopPanel.this.getModel()));
 						}
 
 						@Override
 						public IModel<String> getLabel() {
-							return new Model<String>("Account");
+							return getLabel("account");
 						}
 
 						@Override
@@ -125,11 +127,13 @@ public class UserGlobalTopPanel extends ModelPanel<User> {
 						
 						@Override
 						public void onClick() {
+							setResponsePage( new UserPage(UserGlobalTopPanel.this.getModel() ));
 						}
 
 						@Override
 						public IModel<String> getLabel() {
-							return new Model<String>("sign outAccount");
+							return getLabel("sign-out");
+
 						}
 
 						@Override

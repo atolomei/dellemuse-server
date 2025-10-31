@@ -1,12 +1,15 @@
 package dellemuse.serverapp.service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -75,7 +78,7 @@ public class DateTimeService extends BaseService {
     public final static int Full = 0;
     public final static int Month_Day_Year_hh_mm_ss_zzz = 1;
     public final static int Month_Day_Year_hh_mm = 2;
-    public final static int Month_Day_Year = 3;
+    public final static int Day_of_Year = 3;
 
     public final static int Month_Day_hr_min = 4;
     public final static int Dateformat_short_this_year = 5;
@@ -100,8 +103,8 @@ public class DateTimeService extends BaseService {
     public final static int Dow_Month_Day_year = 18;
 
     
-static DateTimeFormatter formatter_eng[] = { DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z uuuu", Locale.ENGLISH), // 0 for
-            // Time
+static DateTimeFormatter formatter_eng[] = { 
+DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z uuuu", Locale.ENGLISH), // 0 for Time
 DateTimeFormatter.ofPattern("MMM d yyyy HH:mm:ss zz", Locale.ENGLISH),
 DateTimeFormatter.ofPattern("MMM d yyyy h:mm a", Locale.ENGLISH), // Default agrega am pm aparte.
 DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH), // month day year 3
@@ -123,12 +126,12 @@ DateTimeFormatter.ofPattern("EEE MMM d yyyy", Locale.ENGLISH)
 
 };
 
-static DateTimeFormatter formatter_spa[] = { DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z uuuu", LOCALE_ES), // · HH:mm:ss
-       // z uuuu
-DateTimeFormatter.ofPattern("d MMM yyyy HH:mm:ss zzz", LOCALE_ES),
-DateTimeFormatter.ofPattern("d MMM yyyy h:mm a", LOCALE_ES),
-DateTimeFormatter.ofPattern("d MMM yyyy", LOCALE_ES),
-DateTimeFormatter.ofPattern("d MMM h:mm a z", LOCALE_ES), 
+static DateTimeFormatter formatter_spa[] = { 
+DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z uuuu", LOCALE_ES), // · HH:mm:ss     // z uuuu 0
+DateTimeFormatter.ofPattern("d MMM yyyy HH:mm:ss zzz", LOCALE_ES), // 1
+DateTimeFormatter.ofPattern("d MMM yyyy h:mm a", LOCALE_ES), //2
+DateTimeFormatter.ofPattern("d MMM yyyy", LOCALE_ES),  // 3
+DateTimeFormatter.ofPattern("d MMM h:mm a z", LOCALE_ES),  
 DateTimeFormatter.ofPattern("d MMM, h:mm a z", LOCALE_ES),
 DateTimeFormatter.ofPattern("h:mm a", LOCALE_ES), 
 DateTimeFormatter.ofPattern("EEEE h:mm", LOCALE_ES),
@@ -147,9 +150,9 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
 
     static public DateTimeFormatter getDefaultDateTime_Date_Formatter() {
         if (Locale.getDefault().getLanguage().equals("es"))
-            return formatter_spa[Month_Day_Year];
+            return formatter_spa[Day_of_Year];
         else
-            return formatter_eng[Month_Day_Year];
+            return formatter_eng[Day_of_Year];
 
     }
 
@@ -264,17 +267,15 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
         LABELS[SPA].day = day_spa;
         LABELS[SPA].days = days_spa;
         LABELS[SPA].suffix = suffix_spa;
-
-    
-    
-    
-    
-    
     
     }
     
     public String format(OffsetDateTime date) {
         return format(date, null, null, DTFormatter.Month_Day_Year_hh_mm);
+    }
+    
+    public String format(OffsetDateTime date, DTFormatter f) {
+        return format(date, null, null, f);
     }
     
     
@@ -286,17 +287,17 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
      * @param formatter
      * @return
      */
-    public String format(OffsetDateTime date, String zid, Locale locale, DTFormatter o_formatter) {
+    public String format(OffsetDateTime date, String zoneId, Locale locale, DTFormatter o_formatter) {
 
         if (date == null)
             return "err";
 
         ZoneId zone = null;
 
-        if (zid == null) {
+        if (zoneId == null) {
             zone = getDefaultZoneId();
         } else
-            zone = ZoneId.of(zid);
+            zone = ZoneId.of(zoneId);
 
         if (locale == null) {
             locale = getDefaultLocale();
@@ -311,7 +312,10 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
         	if (formatter < 0 || formatter > (formatter_spa.length - 1))
                 return full_spa.format(zdate);
 
-            if (formatter == Month_Day_Year_hh_mm)
+        	   if (formatter == Day_of_Year)
+        		    return formatter_spa[formatter].format(zdate);
+        	   
+        	else if (formatter == Month_Day_Year_hh_mm)
                 return formatter_spa[formatter].format(zdate);// + formatter_spa[Am_pm_format].format(date).toLowerCase();
 
             else if (formatter == Dow_Month_Day_Year_hh_mm)
@@ -327,7 +331,10 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
             if (formatter < 0 || formatter > (formatter_eng.length - 1))
                 return full_eng.format(zdate);
 
-            if (formatter == Month_Day_Year_hh_mm)
+            if (formatter == Day_of_Year)
+    		    return formatter_eng[formatter].format(zdate);
+            
+            else if (formatter == Month_Day_Year_hh_mm)
                 return formatter_eng[formatter].format(zdate);// + formatter_eng[Am_pm_format].format(date).toLowerCase();
 
             else if (formatter == Dow_Month_Day_Year_hh_mm)
@@ -368,7 +375,7 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
 
         ZoneId zid = null;
 
-        User user = getSessionUser();
+        //User user = getSessionUser();
 
         //if (user != null)
         //    zid = user.getZoneId();
@@ -388,5 +395,197 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
         return locale;
     }
 
+    
+    
+    public LocalDate parseFlexibleDate(String input, Locale locale) {
+        
+    	if (locale==Locale.ENGLISH) {
+   		
+    		String trimmed = input.trim().replaceAll("\\s+", " ").toLowerCase().replace(" of ", " ");
+	        
+	       for (DateTimeFormatter formatter : FORMATTERS_ENG) {
+	            try {
+	                return LocalDate.parse(trimmed, formatter);
+	            } catch (DateTimeParseException ignored) {
+	                // try next format
+	            }
+	        }
+	        throw new IllegalArgumentException("Unrecognized date format: " + input);
+	    }
+    		
+    	
+    	if (locale.getLanguage()==Locale.forLanguageTag("es").getLanguage()) {
+       		
+    		String trimmed = input.trim().replaceAll("\\s+", " ").toLowerCase().replace(" de ", " ");
+	        
+	       for (DateTimeFormatter formatter : FORMATTERS_SPA) {
+	            try {
+	                return LocalDate.parse(trimmed, formatter);
+	            } catch (DateTimeParseException ignored) {
+	                // try next format
+	            }
+	        }
+	        throw new IllegalArgumentException("Unrecognized date format: " + input);
+	    }
+    	
+    	
+    		
+
+    	if (locale.getLanguage()==Locale.forLanguageTag("pt-BR").getLanguage()) {
+       		
+    		String trimmed = input.trim().replaceAll("\\s+", " ").toLowerCase().replace(" de ", " ");
+	        
+	       for (DateTimeFormatter formatter : FORMATTERS_PT) {
+	            try {
+	                return LocalDate.parse(trimmed, formatter);
+	            } catch (DateTimeParseException ignored) {
+	                // try next format
+	            }
+	        }
+	        throw new IllegalArgumentException("Unrecognized date format: " + input);
+	    }
+    	
+    	
+    		
+    	String trimmed = input.trim().replaceAll("\\s+", " ").toLowerCase().replace(" of ", " ");
+	        
+	    for (DateTimeFormatter formatter : FORMATTERS_ENG) {
+	            try {
+	                return LocalDate.parse(trimmed, formatter);
+	            } catch (DateTimeParseException ignored) {
+	                // try next format
+	            }
+	        }
+	     throw new IllegalArgumentException("Unrecognized date format: " + input);
+		}
+    	
+    
+    
+    
+    private static final List<DateTimeFormatter> FORMATTERS_SPA = List.of(
+
+			 
+		 	DateTimeFormatter.ofPattern("d/M/yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d/M/yyyy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d M yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d M yyyy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d-M-yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d/M/yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d/M/yyyy", Locale.forLanguageTag("es")),
+
+		 	DateTimeFormatter.ofPattern("dd/M/yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd/M/yyyy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd M yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd M yyyy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd-M-yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd/M/yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd/M/yyyy", Locale.forLanguageTag("es")),
+	        
+		 	DateTimeFormatter.ofPattern("d/MM/yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d/MM/yyyy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d MM yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d MM yyyy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d-MM-yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d/MM/yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d/MM/yyyy", Locale.forLanguageTag("es")),
+
+		 	DateTimeFormatter.ofPattern("dd/MM/yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd MM yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd MM yyyy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd-MM-yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd/MM/yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.forLanguageTag("es")),
+	        
+	        DateTimeFormatter.ofPattern("d MMM yy",  Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d MMM yyyy",  Locale.forLanguageTag("es")),
+
+	        DateTimeFormatter.ofPattern("d MMMM yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("es")),
+
+	        DateTimeFormatter.ofPattern("MMMM d yy", Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("MMMM d yyyy", Locale.forLanguageTag("es"))
+	    );
+
+    private static final List<DateTimeFormatter> FORMATTERS_ENG = List.of(
+
+    		 
+		 	DateTimeFormatter.ofPattern("M/d/yy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("M/d/yyyy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("M-d-yy", Locale.ENGLISH),
+		    DateTimeFormatter.ofPattern("M d yy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("M d yyyy", Locale.ENGLISH),
+	        
+	        DateTimeFormatter.ofPattern("M/d/yyyy"),
+	        DateTimeFormatter.ofPattern("dd MMM yy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH),
+
+	        DateTimeFormatter.ofPattern("d MMM yy", Locale.ENGLISH),
+   			DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("MMMM d yyyy", Locale.ENGLISH)
+    		
+    		
+    		
+    		
+    		);
+
+    
+    
+    
+    
+    
+    private static final List<DateTimeFormatter> FORMATTERS_PT= List.of(
+
+			 
+		 	DateTimeFormatter.ofPattern("d/M/yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d/M/yyyy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d M yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d M yyyy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d-M-yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d/M/yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d/M/yyyy", Locale.forLanguageTag("pt-BR")),
+	        
+
+		 	DateTimeFormatter.ofPattern("dd/M/yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd/M/yyyy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd M yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd M yyyy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd-M-yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd/M/yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd/M/yyyy", Locale.forLanguageTag("pt-BR")),
+	        
+
+		 	DateTimeFormatter.ofPattern("d/MM/yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d/MM/yyyy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d MM yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d MM yyyy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d-MM-yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d/MM/yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d/MM/yyyy", Locale.forLanguageTag("pt-BR")),
+
+		 	DateTimeFormatter.ofPattern("dd/MM/yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd MM yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd MM yyyy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd-MM-yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd/MM/yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.forLanguageTag("pt-BR")),
+	        
+	        DateTimeFormatter.ofPattern("d MMM yy",  Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d MMM yyyy",  Locale.forLanguageTag("pt-BR")),
+
+	        DateTimeFormatter.ofPattern("d MMMM yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("pt-BR")),
+
+	        DateTimeFormatter.ofPattern("MMMM d yy", Locale.forLanguageTag("pt-BR")),
+	        DateTimeFormatter.ofPattern("MMMM d yyyy", Locale.forLanguageTag("pt-BR"))
+	        
+    		);  
+    
+    
+    
+    
+    
 
 }

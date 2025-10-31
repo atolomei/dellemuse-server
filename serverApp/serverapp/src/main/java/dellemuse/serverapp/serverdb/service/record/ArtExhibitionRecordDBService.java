@@ -138,7 +138,7 @@ public class ArtExhibitionRecordDBService extends DBService<ArtExhibitionRecord,
 		ArtExhibitionRecord c = new ArtExhibitionRecord();
 		
 		c.setName(name);
-		c.setNameKey(nameKey(name));
+		//c.setNameKey(nameKey(name));
 		c.setArtExhibition(ArtExhibition); 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());

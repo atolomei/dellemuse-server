@@ -26,6 +26,7 @@ import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
+import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -277,6 +278,24 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		this.siteModel = siteModel;
 	}
 
+	
+	@Override
+	protected void onCreate() {
+		try {
+		ArtExhibition in = getArtExhibitionDBService().create("new", getSiteModel().getObject(), getUserDBService().findRoot());
+		IModel<ArtExhibition> m =  new ObjectModel<ArtExhibition>(in);
+		getList().add(m);
+		ArtExhibitionPage a=new ArtExhibitionPage(m, getList());
+		setResponsePage(a);
+		} catch (Exception e) {
+			logger.error(e);
+			//setResponsePage(new ErrorPage(e));
+			
+		}
+	}
+
+	
+	
 	protected List<ToolbarItem> getToolbarItems() {
 		
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();

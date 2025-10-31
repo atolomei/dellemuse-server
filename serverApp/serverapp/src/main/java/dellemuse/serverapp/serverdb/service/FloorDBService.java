@@ -38,7 +38,7 @@ public class FloorDBService extends DBService<Floor, Long> {
     public Floor create(String name,User createdBy) {
         Floor c = new Floor();
         c.setName(name);
-        c.setNameKey(nameKey(name));
+        //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);

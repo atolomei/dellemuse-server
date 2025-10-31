@@ -66,7 +66,7 @@ public class InstitutionTypeDBService extends DBService<InstitutionType, Long> {
     public InstitutionType create(String name, User createdBy) {
         InstitutionType c = new InstitutionType();
         c.setName(name);
-        c.setNameKey(nameKey(name));
+        //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -89,7 +89,7 @@ public class InstitutionTypeDBService extends DBService<InstitutionType, Long> {
 
         cq.orderBy(cb.asc( cb.lower(root.get("name"))));
 
-        return entityManager.createQuery(cq).getResultList();
+        return getEntityManager().createQuery(cq).getResultList();
     }
 
     @Override

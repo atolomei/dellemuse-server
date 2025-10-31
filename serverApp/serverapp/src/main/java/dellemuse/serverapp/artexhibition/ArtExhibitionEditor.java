@@ -1,8 +1,17 @@
 package dellemuse.serverapp.artexhibition;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,12 +28,15 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.threeten.bp.LocalDateTime;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemsPanel;
 import dellemuse.serverapp.artwork.ArtWorkEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -41,6 +53,7 @@ import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.DTFormatter;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
@@ -133,9 +146,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		super(id, model);
 	}
 
- 
-
-	
+ 	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -145,26 +156,14 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		Form<ArtExhibition> form = new Form<ArtExhibition>("form");
 		add(form);
 		setForm(form);
-	/**
-		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
-			
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (getStates());
-			}
-			
-			@Override
-			protected String getDisplayValue(ObjectState value) {
-				if (value==null)
-					return null;
-				return value.getLabel( getLocale() );
-			}
-		};
-		form.add(objectStateField);
-		**/
+	 
+		if (getModel().getObject().getFromDate()!=null)
+			setFrom(getDateTimeService().format(getModel().getObject().getFromDate(), DTFormatter.day_of_year));
+
 		
+		if (getModel().getObject().getToDate()!=null)
+			setTo(getDateTimeService().format(getModel().getObject().getToDate(), DTFormatter.day_of_year));
+
 		
 		permanentField = new ChoiceField<Boolean>("permanent", new PropertyModel<Boolean>(getModel(), "permanent"), getLabel("duration")) {
 			
@@ -195,9 +194,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		urlField = new TextField<String>("url", new PropertyModel<String>(getModel(), "website"), getLabel("url"));
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		shortField= new TextField<String>("shortname", new PropertyModel<String>(getModel(), "shortname"), getLabel("shortname"));
-		
-		
-		
+		 
 		
 		subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
 		locationField = new TextAreaField<String>("location", new PropertyModel<String>(getModel(), "location"), getLabel("location"), 3);
@@ -213,13 +210,13 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 			}
 
 			public Image getImage() {
-				if (getPhotoModel() == null || getPhotoModel().getObject()==null )
+				if ((getPhotoModel() == null) || (getPhotoModel().getObject()==null) )
 					return null;
 				return ArtExhibitionEditor.this.getThumbnail(getPhotoModel().getObject());
 			}
 
 			public String getFileName() {
-				if (getModel()!=null  || getModel().getObject()==null )
+				if ((getModel()!=null)  && (getModel().getObject()!=null) )
 					return ArtExhibitionEditor.this.getPhotoMeta( getModel().getObject() );
 				return null;
 			}
@@ -229,9 +226,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 			}
 		};
 
-
-	
-		
+ 		
 		form.add(specField);
 		form.add(locationField);
 
@@ -337,6 +332,8 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		// getForm().setFormState(FormState.EDIT);
 		// target.add(getForm());
 	}
+	
+	
 
 	protected void onSave(AjaxRequestTarget target) {
 		logger.debug("onSave");
@@ -344,30 +341,62 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
 		
-		
+		ZoneId zoneId=ZoneId.of( getSiteModel().getObject().getZoneId() );
+		 
+		 
+		if (getFrom()!=null) {
+			LocalDate d_from = getDateTimeService().parseFlexibleDate(getFrom(), Locale.forLanguageTag( getModel().getObject().getLanguage()));
+			LocalTime localTime = LocalTime.MIN; // 00:00:00
+		    java.time.LocalDateTime localDateTime =  java.time.LocalDateTime .of(d_from, localTime);
+		    ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+		    OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
+		    getModel().getObject().setFromDate(offsetDateTime);
+		    setFrom(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
+		}
+
+		if (getTo()!=null) {
+			LocalDate d_to = getDateTimeService().parseFlexibleDate(getTo(), Locale.forLanguageTag( getModel().getObject().getLanguage()));
+			LocalTime localTime = LocalTime.MIN; // 00:00:00
+		    java.time.LocalDateTime localDateTime =  java.time.LocalDateTime .of(d_to, localTime);
+		    ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+		    OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
+		    getModel().getObject().setToDate(offsetDateTime);
+		    setTo(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
+		    
+		 
+		}
+	
 		save(getModelObject());
 		
 		uploadedPhoto = false;
 		
 		getForm().setFormState(FormState.VIEW);
-		logger.debug("done");
+
+		getForm().updateReload();
+		fire (new ObjectUpdateEvent(target));
+		
 		target.add(this);
 	
 	}
 
-	
-	
+ 
+
+
+	List<ToolbarItem> x_list;
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 		
-	List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+	if (x_list!=null)
+		return x_list;
+		
+		x_list = new ArrayList<ToolbarItem>();
 		
 		AjaxButtonToolbarItem<ArtExhibition> create = new AjaxButtonToolbarItem<ArtExhibition>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new MenuAjaxEvent(ServerAppConstant.action_site_edit, target));
+ 				fire(new MenuAjaxEvent(ServerAppConstant.action_exhibition_info_edit, target));
 			}
 			@Override
 			public IModel<String> getButtonLabel() {
@@ -375,11 +404,8 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
-		list.add(create);
-
-		
-		 
-		return list;
+		x_list.add(create);
+		return x_list;
 	}
 
 	
@@ -417,9 +443,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 			
 				try {
 
-					logger.debug("name -> " + upload.getClientFileName());
-					logger.debug("Size -> " + upload.getSize());
-
+				 
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService()
 							.normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-"

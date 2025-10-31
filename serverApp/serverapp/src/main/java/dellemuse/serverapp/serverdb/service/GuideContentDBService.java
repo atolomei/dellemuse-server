@@ -4,16 +4,22 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.FlushModeType;
@@ -30,28 +36,15 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(GuideContentDBService.class.getName());
 
-    public GuideContentDBService(CrudRepository<GuideContent, Long> repository, ServerDBSettings settings) {
+    @JsonIgnore
+	@Autowired
+    final GuideContentRecordDBService guideContentRecordDBService;
+    
+    public GuideContentDBService(CrudRepository<GuideContent, Long> repository, ServerDBSettings settings,GuideContentRecordDBService guideContentRecordDBService) {
         super(repository,  settings);
+        this.guideContentRecordDBService=guideContentRecordDBService;
     }
      
-    @Transactional
-    public boolean existsInGuide(ArtExhibitionGuide guide, ArtExhibitionItem item) {
-    	 CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-         CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
-         Root<GuideContent> root = cq.from(getEntityClass());
-         cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("id"), item.getId() ));
-         return getEntityManager().createQuery(cq).getResultList().size()>0;
-    }
-
-    @Transactional
-    public List<GuideContent> findByArtExhibitionItem(ArtExhibitionGuide guide, ArtExhibitionItem item) {
-    	 CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-         CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
-         Root<GuideContent> root = cq.from(getEntityClass());
-         cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("id"), item.getId() ));
-         return getEntityManager().createQuery(cq).getResultList();
-    }
-
     @Transactional
     public GuideContent create(ArtExhibitionGuide guide, ArtExhibitionItem item, User createdBy) {
         
@@ -71,15 +64,67 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     	c.setMasterLanguage(item.getMasterLanguage());
 
         c.setName(item.getName());
-        c.setNameKey(nameKey(item.getName()));
+        //c.setNameKey(nameKey(item.getName()));
         c.setArtExhibitionGuide(guide);
         c.setArtExhibitionItem(item);
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
          
+        getRepository().save(c);
+        
+    	for ( Language la:getLanguageService().getLanguages() )
+			getGuideContentRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+    	
+       
         return getRepository().save(c);
     }
+    
+    /**
+     * <p>
+     * Annotation Transactional is required to store values into the Database
+     * </p>
+     * @param name
+     * @param createdBy
+     */
+    @Transactional
+    @Override
+    public GuideContent create(String name,User createdBy) {
+        GuideContent c = new GuideContent();
+        c.setName(name);
+        //c.setNameKey(nameKey(name));
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+        getRepository().save(c);
+        
+    	for ( Language la:getLanguageService().getLanguages() )
+			getGuideContentRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+    	
+    	
+        return getRepository().save(c);
+    }
+    
+    @Transactional
+    public boolean existsInGuide(ArtExhibitionGuide guide, ArtExhibitionItem item) {
+    	 CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+         CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
+         Root<GuideContent> root = cq.from(getEntityClass());
+         cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("id"), item.getId() ));
+         return getEntityManager().createQuery(cq).getResultList().size()>0;
+    }
+
+    @Transactional
+    public List<GuideContent> findByArtExhibitionItem(ArtExhibitionGuide guide, ArtExhibitionItem item) {
+    	 CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+         CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
+         Root<GuideContent> root = cq.from(getEntityClass());
+         cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("id"), item.getId() ));
+         return getEntityManager().createQuery(cq).getResultList();
+    }
+
+   
     
     @PostConstruct
     protected void onInitialize() {
@@ -118,24 +163,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		return o;
 	}
 
-    /**
-     * <p>
-     * Annotation Transactional is required to store values into the Database
-     * </p>
-     * @param name
-     * @param createdBy
-     */
-    @Transactional
-    @Override
-    public GuideContent create(String name,User createdBy) {
-        GuideContent c = new GuideContent();
-        c.setName(name);
-        c.setNameKey(nameKey(name));
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
+  
 
     /**
      * @param name
@@ -149,4 +177,8 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     protected Class<GuideContent> getEntityClass() {
         return GuideContent.class;
     }
+
+	public GuideContentRecordDBService getGuideContentRecordDBService() {
+		return guideContentRecordDBService;
+	}
 }

@@ -8,19 +8,25 @@ import java.util.Optional;
 
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.ArtWorkArtist;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -43,10 +49,82 @@ public class PersonDBService extends DBService<Person, Long> {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public PersonDBService(CrudRepository<Person, Long> repository, ServerDBSettings settings) {
+    @JsonIgnore
+	@Autowired
+    final PersonRecordDBService personRecordDBService;
+    
+    public PersonDBService(CrudRepository<Person, Long> repository, ServerDBSettings settings, PersonRecordDBService personRecordDBService) {
         super(repository, settings);
+        this.personRecordDBService=personRecordDBService;
     }
 
+
+    protected PersonRecordDBService getPersonRecordDBService() {
+		return this.personRecordDBService;
+	}
+
+    @Transactional
+    public Person create(String name, String lastname, User createdBy) {
+        Person c = new Person();
+        c.setName(name);
+        //c.setNameKey(nameKey(name));
+        
+        c.setMasterLanguage(getDefaultMasterLanguage());
+        c.setLastname(lastname);
+        c.setLastnameKey(nameKey(lastname));
+        
+        //c.setTitle(name + " " + lastname);
+        
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+    	getRepository().save(c);
+
+		for ( Language la:getLanguageService().getLanguages() )
+			getPersonRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+		
+		
+        return getRepository().save(c);
+    }
+
+    @Transactional
+    public Person create(String name, User createdBy, Optional<String> o_lastname, Optional<String> o_sex,
+                         Optional<String> o_pid, Optional<String> o_address, Optional<String> o_zip,
+                         Optional<String> o_phone, Optional<String> o_email) {
+        Person c = new Person();
+        c.setName(name);
+        //c.setNameKey(nameKey(name));
+
+        if (o_lastname.isPresent()) {
+            c.setLastname(o_lastname.get());
+            c.setLastnameKey(nameKey(o_lastname.get()));
+            //c.setTitle(name + " " + o_lastname.get());
+        }
+        //else {
+        //    c.setTitle(name);
+        //}
+
+        o_sex.ifPresent(c::setSex);
+        o_pid.ifPresent(c::setPhysicalid);
+        o_address.ifPresent(c::setAddress);
+        o_zip.ifPresent(c::setZipcode);
+        o_phone.ifPresent(c::setPhone);
+        o_email.ifPresent(c::setEmail);
+
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+
+    	getRepository().save(c);
+
+		for ( Language la:getLanguageService().getLanguages() )
+			getPersonRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+
+		return getRepository().save(c);
+    }
+    
+    
     
     @Transactional
 	public void reloadIfDetached(Person src) {
@@ -104,53 +182,6 @@ public class PersonDBService extends DBService<Person, Long> {
         return create(name, name, createdBy);
     }
 
-    @Transactional
-    public Person create(String name, String lastname, User createdBy) {
-        Person c = new Person();
-        c.setName(name);
-        c.setNameKey(nameKey(name));
-        
-        c.setLastname(lastname);
-        c.setLastnameKey(nameKey(lastname));
-        
-        //c.setTitle(name + " " + lastname);
-        
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
-
-    @Transactional
-    public Person create(String name, User createdBy, Optional<String> o_lastname, Optional<String> o_sex,
-                         Optional<String> o_pid, Optional<String> o_address, Optional<String> o_zip,
-                         Optional<String> o_phone, Optional<String> o_email) {
-        Person c = new Person();
-        c.setName(name);
-        c.setNameKey(nameKey(name));
-
-        if (o_lastname.isPresent()) {
-            c.setLastname(o_lastname.get());
-            c.setLastnameKey(nameKey(o_lastname.get()));
-            //c.setTitle(name + " " + o_lastname.get());
-        }
-        //else {
-        //    c.setTitle(name);
-        //}
-
-        o_sex.ifPresent(c::setSex);
-        o_pid.ifPresent(c::setPhysicalid);
-        o_address.ifPresent(c::setAddress);
-        o_zip.ifPresent(c::setZipcode);
-        o_phone.ifPresent(c::setPhone);
-        o_email.ifPresent(c::setEmail);
-
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-
-        return getRepository().save(c);
-    }
 
     @Transactional
     public List<ArtWork> getArtWorks(Person person) {

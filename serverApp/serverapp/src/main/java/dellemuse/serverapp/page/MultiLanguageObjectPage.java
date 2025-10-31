@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -40,18 +41,8 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 	private Map<String, ObjectRecordEditor<T, R>> recordEditors = new HashMap<String, ObjectRecordEditor<T, R>>();
 
 	
-	protected Map<String, ObjectRecordEditor<T, R>> getRecordEditors() {
-		return this.recordEditors;
-	}
-
-	
-	
-	
-	
-	protected Class<?> getTranslationClass() {
-		return InstitutionRecord.class;
-	}
-	
+	protected abstract Optional<R> 	loadTranslationRecord(String lang);
+	protected abstract R 			createTranslationRecord(String lang);
 	
 	
 	public MultiLanguageObjectPage() {
@@ -96,13 +87,43 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 				tabs.add(tab);
 			}
 		}
+		
+		
+		NamedTab audit=new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
+			 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getAuditPanel(panelId);
+			}
+		};
+		tabs.add(audit);
+		
+		
+		
+		
+		
+		
 		return tabs;
 	}
 	
+
 	
-	protected abstract Optional<R> 	loadTranslationRecord(String lang);
-	protected abstract R 			createTranslationRecord(String lang);
+
+	protected Map<String, ObjectRecordEditor<T, R>> getRecordEditors() {
+		return this.recordEditors;
+	}
+
+	protected void onEditRecord(AjaxRequestTarget target, String lang) {
+		getRecordEditors().get(lang).edit(target);		
+}
 	
+	
+	
+	protected Class<?> getTranslationClass() {
+		return InstitutionRecord.class;
+	}
 	
 	
 	
@@ -131,12 +152,17 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 		e.setSpecVisible(isSpecVisible());
 		e.setOpensVisible(isOpensVisible());
 		e.setAudioVisible(isAudioVisible());
+		e.setInfoVisible(isInfoVisible());
 		
 		this.recordEditors.put(lang, e);
 		return e;
 	}
 	
 	
+	
+	protected boolean isInfoVisible() {
+		return true;
+	}
 	
 	protected boolean isOpensVisible() {
 		return false;

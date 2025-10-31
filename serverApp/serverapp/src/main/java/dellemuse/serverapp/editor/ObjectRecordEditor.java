@@ -27,8 +27,8 @@ import com.google.cloud.translate.Translation;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.artexhibitionguide.GuideContentEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.guidecontent.GuideContentEditor;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -108,6 +108,9 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
 			}
+			
+			
+			
 		};
 		create.setAlign(Align.TOP_LEFT);
 		list.add(create);
@@ -121,6 +124,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	
 	
 	private void setUpModel() {
+		@SuppressWarnings("unchecked")
 		Optional<R> o_i = (Optional<R>) getDBService(getModelObject().getClass()).findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<R>(o_i.get()));
 		
@@ -159,6 +163,11 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			public void onClick(AjaxRequestTarget target) {
 				ObjectRecordEditor.this.onTranslate(target);
 			}
+			
+			@Override
+			public boolean isVisible() {
+				return getForm().getFormState() == FormState.EDIT;
+			}
 		};
 		
 		form.add(this.translate);
@@ -190,7 +199,8 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	
 		this.specField  	= new TextAreaField<String>				("spec", 		new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 6		);
 
-
+		
+		this.infoField.setVisible( isInfoVisible());
 		this.specField.setVisible( isSpecVisible());
 		this.introField.setVisible( isIntroVisible());
 		this.opensField.setVisible( isOpensVisible());
@@ -237,9 +247,8 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		};
 		
 		
-		audioField.setVisible (isAudioVisible());
+		audioField.setVisible(isAudioVisible());
 		form.add(audioField);
-		
 		
 		
 		
@@ -370,6 +379,12 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		return this.isSpecVisible;
 	}
 
+	protected boolean isInfoVisible() {
+		return this.isInfoVisible;
+	}
+
+	
+	
 	protected boolean isOpensVisible() {
 		return this.isOpensVisible;
 	}
@@ -515,6 +530,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		this.sourceModel = sourceModel;
 	}
 
+ 	boolean isInfoVisible = false;
  	boolean isOpensVisible = false;
  	boolean isSpecVisible = false;
 	boolean isIntroVisible = false;
@@ -525,7 +541,10 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	public void setAudioVisible(boolean introVisible) {
 		this.isAudioVisible=introVisible;
 	}
-
+	
+	public void setInfoVisible(boolean introVisible) {
+		this.isInfoVisible=introVisible;
+	}
 	
 	public void setOpensVisible(boolean introVisible) {
 		this.isOpensVisible=introVisible;

@@ -46,7 +46,7 @@ public class RoomDBService extends DBService<Room, Long> {
     public Room create(String name,User createdBy) {
         Room c = new Room();
         c.setName(name);
-        c.setNameKey(nameKey(name));
+        //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);

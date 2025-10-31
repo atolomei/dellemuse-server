@@ -2,12 +2,10 @@
 body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Arial, sans serif; font-size:15px; }
 
 
-
 .main {min-height: calc(100vh - 117px);}
 
 .dellemuse .thumbnail {max-width: 100%; max-height: 100%; width: 100%; padding: 2px; border: 1px solid #fcfcfd;}
 .dellemuse .imageContainer {position: relative; float: left; width: 100%; background: #eeeeef; padding: 0.5em; min-height: 10em;}
-
 
 
 
@@ -74,7 +72,7 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 .dellemuse .jumbo-sm {max-height:20em;}
 .dellemuse .jumbo-sm img { max-height:110%;} 
 
-.dellemuse .jumbo-md {max-height:32em;}
+.dellemuse .jumbo-md {max-height:45em;}
 .dellemuse .jumbo-md img {max-height:110%;} 
 
 .dellemuse .jumbo-lg {max-height:80em;}
@@ -132,7 +130,11 @@ a.listItemLink {text-decoration: none; color: inherit;}
 
 .dellemuse .breadcrumb  .dropdown-item { text-wrap: auto; }
 
- 
+.dellemuse button.btn-link:hover {background-color:#f4f5f6; cursor:pointer;}
+.dellemuse a.btn-link:hover {text-decoration: underline; background-color:#f4f5f6;}
+.dellemuse a.btn-link  { font-size:1em; } 
+
+
 .dellemuse .btn-lg, 
 .dellemuse .btn-group-lg > .btn {
 	font-size: 0.88rem;
@@ -141,14 +143,15 @@ a.listItemLink {text-decoration: none; color: inherit;}
 	border-radius:8px;
 }
 
+.dellemuse .btn-md {
+	font-size: 0.88rem;
+}
+
+
+
 .dellemuse .menu-item .title {font-weight:bold; text-transform:uppercase; font-size: 0.9em;}
-
-
 .dellemuse .itemMenu {float:right; }
-
 .dellemuse .itemMenu .dropdown i {color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));  font-size:1.15em;}
-
-
 .dellemuse .itemMenu .dropdown-toggle::after {display:none;}
 
  

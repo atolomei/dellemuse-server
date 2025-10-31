@@ -103,10 +103,13 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	
+	/**
 	@Transactional
 	public List<T> getByNameKey(String name) {
 		return createNameKeyQuery(name).getResultList();
 	}
+	**/
 
 	@Transactional
 	public List<T> getByName(String name) {
@@ -126,6 +129,8 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 		return createNameQuery(name, false);
 	}
 
+	
+	/**
 	public TypedQuery<T> createNameKeyQuery(String name) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
@@ -134,6 +139,7 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 
 		return entityManager.createQuery(cq);
 	}
+	**/
 
 	public TypedQuery<T> createNameQuery(String name, boolean isLike) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -159,9 +165,9 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 		return "name";
 	}
 
-	protected String getNameKeyColumn() {
-		return "nameKey";
-	}
+	//protected String getNameKeyColumn() {
+	//	return "nameKey";
+	//}
 
 	public String normalize(String name) {
 		return this.getEntityClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();

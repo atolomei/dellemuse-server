@@ -1,11 +1,13 @@
 package dellemuse.serverapp.page.user;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import dellemuse.model.logging.Logger;
@@ -21,7 +23,9 @@ import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.button.SubmitButton;
+import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.TextField;
+import io.wktui.form.field.ZoneIdField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
@@ -34,6 +38,7 @@ public class UserEditor extends DBModelPanel<User> implements InternalPanel {
 
 	private Form<User> form;
 	private TextField<String> nameField;
+	private ZoneIdField zoneidField;
 	
 	
 	/**
@@ -54,9 +59,11 @@ public class UserEditor extends DBModelPanel<User> implements InternalPanel {
 
 		this.form.setFormState(FormState.VIEW);
 
-		nameField = new TextField<String>("username", 	Model.of(getModel().getObject().getUsername()),		 	getLabel("username"));
-
+		nameField = new TextField<String>("username", 	new PropertyModel<String>(getModel(), "username"),	getLabel("username"));
+		zoneidField = new ZoneIdField("zoneid", 		new PropertyModel<ZoneId>(getModel(), "zoneId"),	getLabel("zoneid"));
+		
 		form.add(nameField);
+		form.add(zoneidField);
 
 	
 		EditButtons<User> buttons = new EditButtons<User>("buttons", this.form, getModel()) {
@@ -127,6 +134,12 @@ public class UserEditor extends DBModelPanel<User> implements InternalPanel {
 
 		this.form.setFormState(FormState.VIEW);
 		target.add(this.form);
+		
+		save(getModel().getObject());
+		
+		
+		
+		
 
 		logger.debug("");
 		logger.debug("onSubmit");
@@ -135,6 +148,8 @@ public class UserEditor extends DBModelPanel<User> implements InternalPanel {
 		logger.debug("");
 
 	}
+
+	
 
 	
 }

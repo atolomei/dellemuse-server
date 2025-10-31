@@ -140,7 +140,7 @@ public class ArtExhibitionSectionRecordDBService extends DBService<ArtExhibition
 		ArtExhibitionSectionRecord c = new ArtExhibitionSectionRecord();
 		
 		c.setName(name);
-		c.setNameKey(nameKey(name));
+		//c.setNameKey(nameKey(name));
 		c.setArtExhibitionSection(artExhibitionSection); 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());

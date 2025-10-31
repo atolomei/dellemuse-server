@@ -65,8 +65,8 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	@Column(name = "name")
 	private String name;
 
-	@Column(name = "nameKey")
-	private String nameKey;
+	//@Column(name = "nameKey")
+	//private String nameKey;
 
 	@Column(name = "created")
 	private OffsetDateTime created;
@@ -89,15 +89,12 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	@Column(name = "language")
 	private  String language;
 
-	
 	@Column(name = "audioAutoGenerate")
 	private  boolean audioAutoGenerate;
-	
 	
 	@Transient
 	private  boolean dependecies = false;
 
-	
 	public DelleMuseObject() {
 	}
 	
@@ -109,7 +106,6 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		this.dependecies=b;
 	}
 	
-
 	@JsonIgnore
 	public String getDisplayname() {
 		return (getTitle() != null) ? getTitle() : getName();
@@ -164,13 +160,13 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		this.name = name;
 	}
 
-	public String getNameKey() {
-		return nameKey;
-	}
+	//public String getNameKey() {
+	//	return nameKey;
+	//}
 
-	public void setNameKey(String nameKey) {
-		this.nameKey = nameKey;
-	}
+	//public void setNameKey(String nameKey) {
+//		this.nameKey = nameKey;
+//	}
 
 	
 	// @Column(name = "title")

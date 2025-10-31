@@ -123,7 +123,7 @@ public class InstitutionNavDropDownMenuToolbarItem extends DropDownMenuToolbarIt
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.artwork_meta, target));
+						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
 					}
 
 					@Override
@@ -163,7 +163,7 @@ public class InstitutionNavDropDownMenuToolbarItem extends DropDownMenuToolbarIt
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.site_audit, target));
+						fire ( new MenuAjaxEvent(ServerAppConstant.object_audit, target));
 					}
 
 					@Override

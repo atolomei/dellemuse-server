@@ -4,8 +4,11 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
@@ -13,8 +16,11 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -27,9 +33,82 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
     @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(ArtExhibitionItemDBService.class.getName());
     
-    public ArtExhibitionItemDBService(CrudRepository<ArtExhibitionItem, Long> repository, ServerDBSettings settings) {
+    
+	@JsonIgnore
+	@Autowired
+    final ArtExhibitionItemRecordDBService artExhibitionItemRecordDBService;
+
+    
+    public ArtExhibitionItemDBService(CrudRepository<ArtExhibitionItem, Long> repository, ServerDBSettings settings,  ArtExhibitionItemRecordDBService artExhibitionItemRecordDBService) {
         super(repository, settings);
+        this.artExhibitionItemRecordDBService=artExhibitionItemRecordDBService;
     }
+    
+    /**
+     * <p>
+     * Annotation Transactional is required to store values into the Database
+     * </p>
+     * 
+     * @param name
+     * @param createdBy
+     */
+    @Transactional
+    @Override
+    public ArtExhibitionItem create(String name, User createdBy) {
+        ArtExhibitionItem c = new ArtExhibitionItem();
+        c.setName(name);
+        //c.setNameKey(nameKey(name));
+		c.setMasterLanguage(getDefaultMasterLanguage());
+
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+
+		getRepository().save(c);
+
+		for (Language la:getLanguageService().getLanguages())
+			getArtExhibitionItemRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+
+
+        return getRepository().save(c);
+    }
+
+    @Transactional
+    public ArtExhibitionItem create(String name, ArtExhibition ex, ArtWork artWork, User createdBy) {
+
+    	ArtExhibitionItem c = new ArtExhibitionItem();
+        
+    	if (!ex.isDependencies())  
+    		ex=getArtExhibitionDBService().findById(ex.getId()).get();
+    
+    	int size = 	ex.getArtExhibitionItems().size();
+
+    	c.setName(name);
+        //c.setNameKey(nameKey(name));
+        
+		c.setMasterLanguage(ex.getMasterLanguage());
+
+        c.setArtWork(artWork);
+        c.setArtExhibition(ex);
+        c.setArtExhibitionOrder(size);
+        
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+		getRepository().save(c);
+
+		for (Language la:getLanguageService().getLanguages())
+			getArtExhibitionItemRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+		
+        return getRepository().save(c);
+    }
+
+
+	protected ArtExhibitionItemRecordDBService getArtExhibitionItemRecordDBService() {
+		return this.artExhibitionItemRecordDBService;
+	}
     
     @Transactional
 	public Optional<ArtExhibitionItem> findWithDeps(Long id) {
@@ -61,53 +140,6 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 		return o;
 	}
 
-
-    /**
-     * <p>
-     * Annotation Transactional is required to store values into the Database
-     * </p>
-     * 
-     * @param name
-     * @param createdBy
-     */
-    @Transactional
-    @Override
-    public ArtExhibitionItem create(String name, User createdBy) {
-        ArtExhibitionItem c = new ArtExhibitionItem();
-        c.setName(name);
-        c.setNameKey(nameKey(name));
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
-
-    @Transactional
-    public ArtExhibitionItem create(String name, ArtExhibition ex, ArtWork artWork, User createdBy) {
-
-    	ArtExhibitionItem c = new ArtExhibitionItem();
-        
-    	if (!ex.isDependencies())  
-    		ex=getArtExhibitionDBService().findById(ex.getId()).get();
-    
-    	int size = 	ex.getArtExhibitionItems().size();
-
-    	c.setName(name);
-        c.setNameKey(nameKey(name));
-        
-		c.setMasterLanguage(ex.getMasterLanguage());
-
-        c.setArtWork(artWork);
-        c.setArtExhibition(ex);
-        c.setArtExhibitionOrder(size);
-        
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        
-        return getRepository().save(c);
-    }
-    
 
 	public Iterable<GuideContent> getGuideContents(ArtExhibitionItem o) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();

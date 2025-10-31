@@ -41,7 +41,7 @@ public class ArtWorkTypeDBService extends DBService<ArtWorkType, Long> {
     public ArtWorkType create(String name, User createdBy) {
         ArtWorkType c = new ArtWorkType();
         c.setName(name);
-        c.setNameKey(nameKey(name));
+        //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -58,7 +58,7 @@ public class ArtWorkTypeDBService extends DBService<ArtWorkType, Long> {
     public ArtWorkType create(ArtWorkTypeModel model, User createdBy) {
         ArtWorkType c = new ArtWorkType();
         c.setName(model.getName());
-        c.setNameKey(nameKey(model.getName()));
+        //c.setNameKey(nameKey(model.getName()));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);

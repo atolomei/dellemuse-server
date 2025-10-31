@@ -84,11 +84,12 @@ public class UserPage extends ObjectPage<User> {
 	static private Logger logger = Logger.getLogger(UserPage.class.getName());
 
 	private UserEditor editor;
+	private List<ToolbarItem> x_list;
+	
 	
 	public UserPage() {
 		super();
 	}		
-	
 	
 	public  UserPage(PageParameters parameters) {
 		 super(parameters);
@@ -101,11 +102,9 @@ public class UserPage extends ObjectPage<User> {
 	public UserPage(IModel<User> model, List<IModel<User>> list) {
 		super( model, list );
 	}
-
 	
 	/**
 	 * 
-	
 	 * Institution
 	 * Site
 	 * Artwork
@@ -124,7 +123,6 @@ public class UserPage extends ObjectPage<User> {
 		super.onInitialize();
 	}
 
-	
 	protected void addListeners() {
 		super.addListeners();
 
@@ -134,18 +132,18 @@ public class UserPage extends ObjectPage<User> {
 			public void onEvent(SimpleAjaxWicketEvent event) {
 				logger.debug(event.toString());
 
-				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+				if (event.getName().equals(ServerAppConstant.action_user_edit_info)) {
 					UserPage.this.onEdit(event.getTarget());
 				}
 			
-				else if (event.getName().equals(ServerAppConstant.site_info)) {
-					UserPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.user_info)) {
+					UserPage.this.togglePanel(ServerAppConstant.user_info, event.getTarget());
 				}
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					UserPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
-				else if (event.getName().equals(ServerAppConstant.site_audit)) {
-					UserPage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+					UserPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}
 			}
 
@@ -179,7 +177,7 @@ public class UserPage extends ObjectPage<User> {
 
 
 	@Override
-	protected void addHeaderPanel() {
+	protected Panel createHeaderPanel() {
 		BreadCrumb<Void> bc = createBreadCrumb();
         bc.addElement(new HREFBCElement( "/user/list", getLabel("users")));
         bc.addElement(new BCElement( new Model<String>( getModel().getObject().getUsername())));
@@ -201,31 +199,26 @@ public class UserPage extends ObjectPage<User> {
 
 		ph.setContext(getLabel("user"));
 
-		
-		add(ph);
+		return(ph);
 	}
-
 
 	@Override
 	protected IRequestablePage getObjectPage(IModel<User> model, List<IModel<User>> list) {
 	 	return new UserPage( model, list );
 	}
-
-
 	 
-
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
-		// TODO Auto-generated method stub
-		
+		this.editor.onEdit(target);
 	}
 
-	 
-	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 		
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		if (x_list==null)
+			return (x_list);
+		
+		x_list = new ArrayList<ToolbarItem>();
 		
 	 	DropDownMenuToolbarItem<User> menu  = new DropDownMenuToolbarItem<User>("item", getModel(), Align.TOP_RIGHT);
 		menu.setLabel(getLabel("menu"));
@@ -260,7 +253,7 @@ public class UserPage extends ObjectPage<User> {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void onClick(AjaxRequestTarget target)  {
-							fire (new MenuAjaxEvent(ServerAppConstant.site_audit, target));
+							fire (new MenuAjaxEvent(ServerAppConstant.object_audit, target));
 						}
 						@Override
 						public IModel<String> getLabel() {
@@ -270,24 +263,22 @@ public class UserPage extends ObjectPage<User> {
 				}
 			});
 				 
-		list.add(menu);
+		x_list.add(menu);
 		
-		return list;
+		return x_list;
 	}
-	
 	
 	/**
 	 * 
 	 * 
 	 * 
 	 */
-	
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 		
-		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
+		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.user_info) {
 		 
 			private static final long serialVersionUID = 1L;
 
@@ -297,16 +288,7 @@ public class UserPage extends ObjectPage<User> {
 			}
 		};
 		tabs.add(tab_1);
-	  
-		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.site_audit) {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return new DummyBlockPanel(panelId,getLabel("audit"));
-			}
-		};
-		tabs.add(tab_2);
-	
+	 
 		return tabs;
 	}
 	

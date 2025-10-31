@@ -25,6 +25,7 @@ import dellemuse.model.util.NumberFormatter;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -513,7 +514,9 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 		save(getModelObject());
 		uploadedPhoto = false;
 		getForm().setFormState(FormState.VIEW);
-		logger.debug("done");
+		getForm().updateReload();
+		fire (new ObjectUpdateEvent(target));
+	
 		target.add(this);
 
 	}

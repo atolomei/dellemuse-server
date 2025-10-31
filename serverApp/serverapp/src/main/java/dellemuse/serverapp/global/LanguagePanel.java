@@ -16,6 +16,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.util.value.IValueMap;
 
+import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -32,6 +34,8 @@ import wktui.base.ModelPanel;
 public class LanguagePanel extends ModelPanel<User> {
 
 	private static final long serialVersionUID = 1L;
+
+	static private Logger logger = Logger.getLogger(LanguagePanel.class.getName());
 
 	private DropDownChoice<Language> selector;
 	private List<Language> languages;
@@ -100,7 +104,12 @@ public class LanguagePanel extends ModelPanel<User> {
 				// IValueMap attributes = tag.getAttributes();
 				// if (autofocus())
 				// attributes.putIfAbsent("autofocus", "");
+				
+				
 				super.onComponentTag(tag);
+			
+				logger.debug("aca");
+					
 			}
 		};
 

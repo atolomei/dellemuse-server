@@ -9,13 +9,10 @@ public class ServerAppConstant {
 	static final public String action_site_edit = "action-edit";
 
 	static final public String site_info = "site-info";
-	static final public String site_audit = "site-audit";
-	static final public String siterecord_info = "siterecord-info";
-	
-
+ 	static final public String siterecord_info = "siterecord-info";
 	
 	
-	
+ 	static final public String action_exhibition_info_edit = "action-exhibition-info-edit";
 	static final public String action_exhibition_items_edit = "action-exhibition-items-edit";
 	static final public String action_exhibition_guide_create = "action-exhibition-guides-create";
 	static final public String action_exhibition_guides_edit = "action-exhibition-guides-edit";
@@ -42,9 +39,9 @@ public class ServerAppConstant {
 	
 	/**   */
 	
-	static final public String object_meta = "object-meta";
-	static final public String object_translation_record_info = "object-translation-record";
-	static final public String object_audit = "object-audit";
+	static final public String object_meta 						= "object-meta";
+	static final public String object_translation_record_info 	= "object-translation-record";
+	static final public String object_audit 					= "object-audit";
 
 	
 	
@@ -56,10 +53,8 @@ public class ServerAppConstant {
 	/** artwork */
 	static final public String artwork_info = "artwork-info";
 	static final public String artworkrecord_info = "artworkrecord-info";
-	static final public String artwork_meta = "artwork-meta";
-	static final public String artwork_audit = "artwork-audit";
-	
-	static final public String action_artwork_edit_info = "artwork_action_edit_info";
+ 
+  	static final public String action_artwork_edit_info = "artwork_action_edit_info";
 	static final public String action_artwork_edit_meta = "artwork_action_edit_meta";
 	
 
@@ -108,7 +103,18 @@ public class ServerAppConstant {
 	static final public String action_person_edit_meta = "person-action-edit-meta";
 	 
 	
+	/** user */
+	static final public String user_info 			= "user-info";
+ 
+	
+	static final public String action_user_edit_info = "user-action-edit-info";
+	static final public String action_user_edit_meta = "user-action-edit-meta";
+	 
+	
 	public static final long DEFAULT_SLEEP_TIME = 1 * 60 * 1000; // 1 minute;
+	
+	
+	static final public String headphoneIcon = "fa-solid fa-headphones";
 	
 	
 }

@@ -4,8 +4,11 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
@@ -13,10 +16,13 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -36,13 +42,67 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ArtExhibitionGuideDBService.class.getName());
 
+	@JsonIgnore
 	@PersistenceContext
 	private EntityManager entityManager;
-
-	public ArtExhibitionGuideDBService(CrudRepository<ArtExhibitionGuide, Long> repository, ServerDBSettings settings) {
+	
+	@JsonIgnore
+	@Autowired
+    final ArtExhibitionGuideRecordDBService artExhibitionGuideRecordDBService;
+    
+	public ArtExhibitionGuideDBService(CrudRepository<ArtExhibitionGuide, Long> repository, ServerDBSettings settings, ArtExhibitionGuideRecordDBService artExhibitionGuideRecordDBService) {
 		super(repository, settings);
+		this.artExhibitionGuideRecordDBService=artExhibitionGuideRecordDBService;
 	}
 
+	
+	@Transactional
+	@Override
+	public ArtExhibitionGuide create(String name, User createdBy) {
+
+		ArtExhibitionGuide c = new ArtExhibitionGuide();
+		c.setName(name);
+		c.setOfficial(true);
+		c.setMasterLanguage(getDefaultMasterLanguage());
+		//c.setNameKey(nameKey(name));
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+        
+		getRepository().save(c);
+
+		for ( Language la:getLanguageService().getLanguages() )
+			getArtExhibitionGuideRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+    	
+        return getRepository().save(c);
+	}
+
+
+	@Transactional
+	public ArtExhibitionGuide create(String name, ArtExhibition ex, User createdBy) {
+		ArtExhibitionGuide c = new ArtExhibitionGuide();
+		c.setName(name);
+		//c.setNameKey(nameKey(name));
+
+		c.setOfficial(true);
+		c.setArtExhibition(ex);
+
+		c.setMasterLanguage(ex.getMasterLanguage());
+
+		
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+		
+		getRepository().save(c);
+
+		for ( Language la:getLanguageService().getLanguages() )
+			getArtExhibitionGuideRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+
+
+		return getRepository().save(c);
+	}
+	
 	@Transactional
     public void removeItem(ArtExhibitionGuide c, GuideContent  item, User removedBy) {
     	
@@ -105,48 +165,21 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		super.register(getEntityClass(), this);
 	}
 
-	@Transactional
-	@Override
-	public ArtExhibitionGuide create(String name, User createdBy) {
 
-		ArtExhibitionGuide c = new ArtExhibitionGuide();
-		c.setName(name);
-		c.setOfficial(true);
-		c.setNameKey(nameKey(name));
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		return getRepository().save(c);
-	}
-
-	@Transactional
-	public ArtExhibitionGuide create(String name, ArtExhibition ex, User createdBy) {
-		ArtExhibitionGuide c = new ArtExhibitionGuide();
-		c.setName(name);
-		c.setNameKey(nameKey(name));
-
-		c.setOfficial(true);
-		c.setArtExhibition(ex);
-
-		c.setMasterLanguage(ex.getMasterLanguage());
-
-		
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-
-		return getRepository().save(c);
-	}
 
 	@Transactional
 	public List<ArtExhibitionGuide> getByName(String name) {
 		return createNameQuery(name).getResultList();
 	}
 
+	
+	/**
 	@Transactional
 	public List<ArtExhibitionGuide> findByNameKey(String nameKey) {
 		return getByNameKey(nameKey);
 	}
+	**/
+	
 
 	@Transactional
 	public List<GuideContent> getGuideContents(ArtExhibitionGuide exhibitionGuide) {
@@ -179,4 +212,10 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 	protected Class<ArtExhibitionGuide> getEntityClass() {
 		return ArtExhibitionGuide.class;
 	}
+
+	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
+		return this.artExhibitionGuideRecordDBService;
+	}
+
 }
+

@@ -18,6 +18,7 @@ import org.apache.wicket.model.util.ListModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -124,14 +125,14 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		form.add(objectStateField);
 		
 		infoField 			= new TextAreaField<String>("info", 	new PropertyModel<String>(getModel(), "info"), 		getLabel("info"), 10);
-		nameField 			= new TextField<String>("name", 	new PropertyModel<String>(getModel(), "name"),		 	getLabel("name"));
-		lastnameField 		= new TextField<String>("lastname",	new PropertyModel<String>(getModel(), "lastname"), 		getLabel("lastname"));
-		nicknameField 		= new TextField<String>("nickname", new PropertyModel<String>(getModel(), "nickname"),	 	getLabel("nickname"));
-		sexField 			= new TextField<String>("sex", 		new PropertyModel<String>(getModel(), "sex"), 			getLabel("sex"));
-		addressField 		= new TextField<String>("address", 	new PropertyModel<String>(getModel(), "address"), 		getLabel("address"));
-		phoneField 			= new TextField<String>("phone", 	new PropertyModel<String>(getModel(), "phone"), 		getLabel("phone"));
-		emailField 			= new TextField<String>("email", 	new PropertyModel<String>(getModel(), "email"), 		getLabel("email"));
-		webpageField        = new TextField<String>("webpage",	new PropertyModel<String>(getModel(), "webpage"), 		getLabel("webpage"));
+		nameField 			= new TextField<String>("name", 		new PropertyModel<String>(getModel(), "name"),		 	getLabel("name"));
+		lastnameField 		= new TextField<String>("lastname",		new PropertyModel<String>(getModel(), "lastname"), 		getLabel("lastname"));
+		nicknameField 		= new TextField<String>("nickname", 	new PropertyModel<String>(getModel(), "nickname"),	 	getLabel("nickname"));
+		sexField 			= new TextField<String>("sex", 			new PropertyModel<String>(getModel(), "sex"), 			getLabel("sex"));
+		addressField 		= new TextField<String>("address", 		new PropertyModel<String>(getModel(), "address"), 		getLabel("address"));
+		phoneField 			= new TextField<String>("phone", 		new PropertyModel<String>(getModel(), "phone"), 		getLabel("phone"));
+		emailField 			= new TextField<String>("email", 		new PropertyModel<String>(getModel(), "email"), 		getLabel("email"));
+		webpageField        = new TextField<String>("webpage",		new PropertyModel<String>(getModel(), "webpage"), 		getLabel("webpage"));
         photoField 			= new FileUploadSimpleField<Void>("photo", getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
@@ -249,7 +250,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new MenuAjaxEvent(ServerAppConstant.action_site_edit, target));
+ 				fire(new MenuAjaxEvent(ServerAppConstant.action_person_edit_info, target));
 			}
 			@Override
 			public IModel<String> getButtonLabel() {
@@ -275,18 +276,18 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 	protected void onSave(AjaxRequestTarget target) {
 
 		target.add(getForm());
-		logger.debug("");
-		logger.debug("onSubmit");
-		logger.debug(getForm().isSubmitted());
-		logger.debug("done");
-		logger.debug("");
-		
+	
 		
 		save(getModelObject());
 		
 		uploadedPhoto = false;
+
 		getForm().setFormState(FormState.VIEW);
-		logger.debug("done");
+	
+		getForm().updateReload();
+
+		fire (new ObjectUpdateEvent(target));
+		
 		target.add(this);
 		
 

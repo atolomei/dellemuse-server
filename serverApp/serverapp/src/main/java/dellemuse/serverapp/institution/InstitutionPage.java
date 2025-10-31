@@ -94,6 +94,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	private Link<Resource> imageLink;
 	private InstitutionMainPanel editor;
 	private ObjectMetaEditor<Institution> metaEditor;
+	private List<ToolbarItem> list;
 
 	 	
 	public InstitutionPage() {
@@ -166,20 +167,15 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 					InstitutionPage.this.togglePanel(event.getName(), event.getTarget());
 				
 				}
-				
-				else if (event.getName().equals(ServerAppConstant.institution_meta)) {
-					InstitutionPage.this.togglePanel(ServerAppConstant.institution_meta, event.getTarget());
-					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
-					// event.getTarget().add(ArtWorkPage.this.getHeader());
-				}
+			 
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					InstitutionPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
 					// event.getTarget().add(ArtWorkPage.this.getHeader());
 				}
 				
-				else if (event.getName().equals(ServerAppConstant.institution_audit)) {
-					InstitutionPage.this.togglePanel(ServerAppConstant.institution_audit, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+					InstitutionPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}
 			
 			
@@ -193,13 +189,16 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			}
 		});
 	}
-
-
+	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
   
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+
+		if (list!=null)
+			return list;
 		
+		list = new ArrayList<ToolbarItem>();
+			
 		DropDownMenuToolbarItem<Institution> menu = new DropDownMenuToolbarItem<Institution>("item", getModel(), Align.TOP_RIGHT);
 		menu.setLabel(Model.of( TextCleaner.truncate ( getModel().getObject().getName(), 24) +" (Inst)" ));
 
@@ -339,6 +338,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			});
 		});
 		
+		/**
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
@@ -358,7 +358,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						fire(new MenuAjaxEvent(ServerAppConstant.institution_audit, target));
+						fire(new MenuAjaxEvent(ServerAppConstant.object_audit, target));
 					}
 
 					@Override
@@ -368,7 +368,8 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 				};
 			}
 		});
-	 
+	 **/
+		
 		list.add(menu);
 	
 		return list;
@@ -390,7 +391,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		};
 		tabs.add(tab_1);
 
-		NamedTab tab_2 = new NamedTab(Model.of("audit"), ServerAppConstant.institution_audit) {
+		NamedTab tab_2 = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -400,7 +401,8 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		};
 		tabs.add(tab_2);
 		
-		setStartTab( ServerAppConstant.institution_info );
+		if (getStartTab()==null)
+			setStartTab( ServerAppConstant.institution_info );
 
 		return tabs;
 	}
@@ -436,8 +438,9 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	}
 	
 	
+
 	@Override
-	protected void addHeaderPanel() {
+	protected Panel createHeaderPanel() {
 		
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/institution/list", getLabel("institutions")));
@@ -479,7 +482,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 		 ph.setContext(getLabel("institution"));
 		 
-		add(ph);
+		return ph;
 
 	}
 

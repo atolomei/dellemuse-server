@@ -114,8 +114,8 @@ public class SiteStatePage extends ObjectPage<Site> {
 					SiteStatePage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
 			
-				else if (event.getName().equals(ServerAppConstant.site_audit)) {
-					SiteStatePage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+					SiteStatePage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}
 			}
 
@@ -160,10 +160,9 @@ public class SiteStatePage extends ObjectPage<Site> {
 
 	
 
- 
-	
+
 	@Override
-	protected void addHeaderPanel() {
+	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
@@ -182,7 +181,7 @@ public class SiteStatePage extends ObjectPage<Site> {
 		if (getModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 
-		add(ph);
+		return(ph);
 	}
 
 	@Override
@@ -261,16 +260,21 @@ public class SiteStatePage extends ObjectPage<Site> {
 		};
 		tabs.add(tab_1);
 		
-		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.site_audit) {
+		NamedTab audit=new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
+			 
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return new DummyBlockPanel(panelId,getLabel("audit"));
+				return getAuditPanel(panelId);
 			}
 		};
-		tabs.add(tab_2);
-	
-		super.setStartTab(ServerAppConstant.object_meta);
+		tabs.add(audit);
+		
+
+		if (getStartTab()==null)
+			super.setStartTab(ServerAppConstant.object_meta);
+		
 		return tabs;
 	}
 

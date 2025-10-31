@@ -19,7 +19,7 @@ import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
  
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
- 
+import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
  
@@ -156,7 +156,8 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	public void onInitialize() {
 		super.onInitialize();
 
-		add(new GlobalTopPanel("top-panel"));
+		
+		add(new GlobalTopPanel("top-panel", new ObjectModel<User>( getSessionUser().get())));
 		add(new GlobalFooterPanel<>("footer-panel"));
 
 		addHeaderPanel();

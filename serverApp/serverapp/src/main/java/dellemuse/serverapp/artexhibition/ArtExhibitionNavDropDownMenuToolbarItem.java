@@ -6,6 +6,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
+import dellemuse.serverapp.editor.ObjectBaseNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -21,7 +22,7 @@ import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
  
 
-public class ArtExhibitionNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<ArtExhibition> {
+public class ArtExhibitionNavDropDownMenuToolbarItem extends ObjectBaseNavDropDownMenuToolbarItem<ArtExhibition> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -122,40 +123,8 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends DropDownMenuToolbar
 		});
 		
 		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<ArtExhibition> getItem(String id) {
-
-				return new AjaxLinkMenuItem<ArtExhibition>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("meta");
-					}
-				};
-			}
-		});
 		
-		
-		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public MenuItemPanel<ArtExhibition> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibition>(id) {
-					private static final long serialVersionUID = 1L;
-				};
-			}
-		});
-		
+	
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
@@ -203,6 +172,18 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends DropDownMenuToolbar
 		});
 
 		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibition>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+	
+		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
 			private static final long serialVersionUID = 1L;
@@ -224,6 +205,52 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends DropDownMenuToolbar
 				};
 			}
 		});
+		
+		addAudit();
+		
+		
+		
+		
+		
+		/**
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibition>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+		
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibition>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick(AjaxRequestTarget target)  {
+						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("meta");
+					}
+				};
+			}
+		});
+		
+		
+	
 
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
@@ -255,7 +282,7 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends DropDownMenuToolbar
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.site_audit, target));
+						fire ( new MenuAjaxEvent(ServerAppConstant.object_audit, target));
 					}
 
 					@Override
@@ -265,7 +292,8 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends DropDownMenuToolbar
 				};
 			}
 		});
-
+*/
+		
   
 		
 	 

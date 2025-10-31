@@ -13,7 +13,8 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.artexhibition.ArtExhibitionItemPage;
+import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
+import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
@@ -63,7 +64,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	private FormState state = FormState.VIEW;
 	
 	private MultipleSelectorPanel<ArtExhibitionItem> multipleSeletor;
-	private WebMarkupContainer addContainer;
+ 
 	private AjaxLink<Void> add;
 	private AjaxLink<Void> close;
 	private WebMarkupContainer addContainerButtons;
@@ -129,12 +130,12 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	}
 	
 
-
+	List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
 
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		return list;
+		
+		return t_list;
 	}
 	
 	
@@ -195,12 +196,8 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	
 	protected void onObjectRemove(IModel<GuideContent> model, AjaxRequestTarget target) {
 		GuideContent item = model.getObject();
-		ArtExhibitionGuide ex= getModel().getObject();
-		
+		// ArtExhibitionGuide ex= getModel().getObject();
 		getGuideContentDBService().delete(item);
-		
-		//super.removeItem(ex, item, getUserDBService().findRoot() );
-		
 		resetList();
 		target.add(this.itemsPanel);
 	}
@@ -209,7 +206,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	protected void onObjectSelect(IModel<ArtExhibitionItem> model, AjaxRequestTarget target) {
 
 		ArtExhibitionItem item = model.getObject();
-		ArtExhibition ex= getArtExhibitionModel().getObject();
+		//ArtExhibition ex= getArtExhibitionModel().getObject();
 
 		super.addItem(getModel().getObject(), item, getUserDBService().findRoot() );
 		resetList();
@@ -264,7 +261,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 					
 					
@@ -431,6 +428,15 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 				ObjectListItemPanel<GuideContent> panel = new ObjectListItemPanel<GuideContent>("row-element", model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
 
+					
+					@Override
+					protected String getTitleIcon() {
+						if (getModel().getObject().getAudio()!=null)
+							return ServerAppConstant.headphoneIcon;
+						else
+							return null;
+					}
+					
 					@Override
 					protected String getImageSrc() {
 						return ArtExhibitionGuideContentsPanel.this.getObjectImageSrc(getModel());

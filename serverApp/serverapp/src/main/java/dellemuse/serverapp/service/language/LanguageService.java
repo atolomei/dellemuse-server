@@ -71,6 +71,28 @@ public class LanguageService extends BaseService {
 	}
 	
 	
+	private Language defaultLanguage;
+	
+	public Language getDefaultLanguage() {
+
+		if (defaultLanguage==null) {
+			synchronized (this) {
+			for (Language l: getLanguages()) {
+				if (l.getLanguageCode().equals( Language.ES)) {
+					defaultLanguage=l;
+					return defaultLanguage;
+				}
+			}
+			
+			if (defaultLanguage==null)
+				defaultLanguage=getLanguages().get(0);
+			}
+		}
+		
+		return defaultLanguage;
+	}
+	
+	
 	public List<Language> getLanguagesSorted(Locale locale) {
 		
 		if (locale==Locale.ENGLISH)

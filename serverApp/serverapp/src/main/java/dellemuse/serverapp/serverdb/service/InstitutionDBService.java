@@ -4,16 +4,22 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
@@ -35,10 +41,76 @@ public class InstitutionDBService extends DBService<Institution, Long> {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public InstitutionDBService(CrudRepository<Institution, Long> repository, ServerDBSettings settings) {
+    @JsonIgnore
+	@Autowired
+    final InstitutionRecordDBService institutionRecordDBService;
+    
+    public InstitutionDBService(CrudRepository<Institution, Long> repository, ServerDBSettings settings,  InstitutionRecordDBService institutionRecordDBService) {
         super(repository, settings);
+        this.institutionRecordDBService = institutionRecordDBService;
+        
     }
 
+    
+    
+    @Transactional
+    @Override
+    public Institution create(String name, User createdBy) {
+        Institution c = new Institution();
+
+        c.setName(name);
+		//c.setNameKey(nameKey(name));
+		//c.setTitle(name);
+		//c.setTitleKey(nameKey(name));
+
+        c.setMasterLanguage(getDefaultMasterLanguage());
+		c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+    	getRepository().save(c);
+
+		for ( Language la:getLanguageService().getLanguages() )
+			getInstitutionRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+		
+        return getRepository().save(c);
+    }
+
+    @Transactional
+    public Institution create(String name, Optional<String> shortName, Optional<String> address, Optional<String> info,
+                              User createdBy) {
+
+        Institution c = new Institution();
+		c.setName(name);
+
+		//c.setNameKey(nameKey(name));
+		//c.setTitle(name);
+		//c.setTitleKey(nameKey(name));
+
+		shortName.ifPresent(c::setShortName);
+        address.ifPresent(c::setAddress);
+        info.ifPresent(c::setInfo); // corregido: antes se usaba setAddress por error
+
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+
+        c.setMasterLanguage(getDefaultMasterLanguage());
+        
+    	getRepository().save(c);
+
+		for ( Language la:getLanguageService().getLanguages() )
+			getInstitutionRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+  
+        return getRepository().save(c);
+    }
+
+    
+    protected InstitutionRecordDBService getInstitutionRecordDBService() {
+		return this.institutionRecordDBService;
+	}
+    
+    
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
@@ -79,47 +151,8 @@ public class InstitutionDBService extends DBService<Institution, Long> {
         return entityManager.createQuery(cq).getResultList();
     }
 
-    
-    @Transactional
-    @Override
-    public Institution create(String name, User createdBy) {
-        Institution c = new Institution();
-
-        c.setName(name);
-		c.setNameKey(nameKey(name));
-
-		//c.setTitle(name);
-		//c.setTitleKey(nameKey(name));
-
-		c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
-
-    @Transactional
-    public Institution create(String name, Optional<String> shortName, Optional<String> address, Optional<String> info,
-                              User createdBy) {
-
-        Institution c = new Institution();
-		c.setName(name);
-		c.setNameKey(nameKey(name));
-
-		//c.setTitle(name);
-		//c.setTitleKey(nameKey(name));
-
-		shortName.ifPresent(c::setShortName);
-        address.ifPresent(c::setAddress);
-        info.ifPresent(c::setInfo); // corregido: antes se usaba setAddress por error
-
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-
-        return getRepository().save(c);
-    }
-
-    @Transactional
+  
+	@Transactional
     public List<Site> getSites(Long institutionId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Site> cq = cb.createQuery(Site.class);

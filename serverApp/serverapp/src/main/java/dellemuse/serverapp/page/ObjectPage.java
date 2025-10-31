@@ -31,8 +31,10 @@ import dellemuse.model.GuideContentModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
@@ -45,11 +47,14 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.odilon.util.Check;
+import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
+import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -76,7 +81,6 @@ import wktui.base.NamedTab;
 public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	private static final long serialVersionUID = 1L;
-	
 	 
 	static private Logger logger = Logger.getLogger(ObjectPage.class.getName());
 
@@ -97,10 +101,14 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	
 	private ObjectMetaEditor<T> metaEditor;
 	
+	private String startingTab = null;
+	private Panel audit;
+	  
 	
+	 
 	protected abstract Optional<T> getObject(Long id);
 	protected abstract IModel<String> getPageTitle();
-	protected abstract void addHeaderPanel();
+	
 	protected abstract IRequestablePage getObjectPage(IModel<T> iModel, List<IModel<T>> list);
 	protected abstract List<INamedTab> getInternalPanels();
 	protected abstract List<ToolbarItem> getToolbarItems();
@@ -108,15 +116,34 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected abstract void onEdit(AjaxRequestTarget target);
 	
 	
+	Panel ph;
+	
+	//protected Panel getHeaderPanel() {
+	//	return ph;
+	//}	
+	
+	//protected void setHeaderPanel(Panel p) {
+	//	this.ph=p;
+	//}
+	
+	
+	protected abstract Panel createHeaderPanel();
+	
+	protected void x_addHeaderPanel() {
+		Panel panel = createHeaderPanel();
+		if (panel==null)
+			ph=new InvisiblePanel("header");
+		else
+			ph=panel;
+		addOrReplace(ph);
+	}
 	
 	
 	public ObjectPage() {
 		super();
 	}		
 	
-
-	
-	public  ObjectPage(PageParameters parameters) {
+	public ObjectPage(PageParameters parameters) {
 		 super(parameters);
 		 stringValue = getPageParameters().get("id");
 	 }
@@ -166,45 +193,14 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	}
 
     
-    
-    private String startingTab = null;
-    
     public void setStartTab(String tabName) {
     	this.startingTab=tabName;
     }
 
-    /**
-    public void setStartTab(String tabName) {
-		int tabOrder=getTab(tabName);
-		this.currentIndex=tabOrder;
-	}
-	**/
-    
-    private int getTab(String name) {
-    	
-    	List<INamedTab> tabs =  getIPanels();
-    	
-    	int current = 0;
-    	int selected = 0;
-    	for (INamedTab tab: tabs) {
-    		
-    		logger.debug("tab->" + tab.getTitle().getObject().toString());
-    		
-    		if (tab.getName().equals(name)) {
-
-    			logger.debug("Selected title -> " + tab.getTitle().getObject().toString());
-    			selected = current;
-	    			break;
-    		}
-    		current++;
-    	}
-
-    	return selected;
+    public String getStartTab() {
+    	return this.startingTab;
     }
-    
-    
-    
-    
+     
     public void togglePanel(String name, AjaxRequestTarget target ) {
     	togglePanel(getTab(name ), target );
     } 	
@@ -264,10 +260,10 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		
 		setCurrent();
 		
-    	add(new GlobalTopPanel("top-panel"));
+		add(new GlobalTopPanel("top-panel", new ObjectModel<User>( getSessionUser().get())));
 		add(new GlobalFooterPanel<>("footer-panel"));
 		
-		addHeaderPanel();
+		x_addHeaderPanel();
 		addNavigator();
 		
 		tabs = getIPanels();
@@ -281,10 +277,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		internalPanelContainer.add(currentPanel);
 		
 		addToolbar();
-
-		
 	}
-
 	
 	protected int getCurrentIndex() {
 		return this.currentIndex;
@@ -293,23 +286,18 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected WebMarkupContainer getCurrentPanel() {
 		return this.currentPanel;
 	}
-	
-	
-	
-	
-	
+ 	
 	protected List<INamedTab> getTabs() {
 		return this.tabs;
 	}
 	
-	protected ObjectMetaEditor<T> getMetaEditor() {return this.metaEditor;}
-
-	
-	
-	
-	protected IModel<String> getEditLabel() {
-		return getLabel("edit");
+	protected ObjectMetaEditor<T> getMetaEditor() {
+		return this.metaEditor;
 	}
+
+	//protected IModel<String> getEditLabel() {
+	//	return getLabel("edit");
+	//}
 	
 	protected void setUpModel() {
 		if (getModel()==null) {
@@ -325,6 +313,20 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		}
 	}
     
+	protected Panel getAuditPanel(String id) {
+		
+		if (this.audit==null) {
+				audit = new  AlertPanel<Void>(id, 
+						AlertPanel.WARNING, 
+						null, 
+						null, 
+						null,
+						getLabel( "not-enabled"));
+						audit.add( new org.apache.wicket.AttributeModifier("style"," float:left; width:100%; margin-bottom:5em;"));		
+ 		}
+		return audit;
+	}
+
 	
 	protected int getCurrent() {
 		return this.current;
@@ -353,32 +355,92 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	protected void addErrorPanels(Exception e) {
 		
-		addOrReplace(new GlobalTopPanel("top-panel"));
+		if (getSessionUser().isPresent())
+			addOrReplace(new GlobalTopPanel("top-panel", new ObjectModel<User>( getSessionUser().get())));
+		else
+			addOrReplace(new GlobalTopPanel("top-panel"));
 		addOrReplace(new InvisiblePanel("page-header"));
 		addOrReplace( new InvisiblePanel("toolbarContainer"));
-		internalPanelContainer = new WebMarkupContainer("internalPanelContainer");
-		add(internalPanelContainer);
-		internalPanelContainer.add(new ErrorPanel("internalPanel", e));
+		this.internalPanelContainer = new WebMarkupContainer("internalPanelContainer");
+		add(this.internalPanelContainer);
+		this.internalPanelContainer.add(new ErrorPanel("internalPanel", e));
 		addOrReplace(new InvisiblePanel("navigatorContainer"));
 		addOrReplace(new GlobalFooterPanel<>("footer-panel"));
-		
 	}
 
 	protected void addListeners() {
 			super.addListeners();
+			
+			
+			add(new io.wktui.event.WicketEventListener<ObjectUpdateEvent>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void onEvent(ObjectUpdateEvent event) {
+					setUpModel();
+					x_addHeaderPanel();
+					event.getTarget().add(ph);
+				}
+				
+				@Override
+				public boolean handle(UIEvent event) {
+					if (event instanceof ObjectUpdateEvent)
+						return true;
+					return false;
+				}
+			});
+			
 	}
 
 
+	
 	protected Panel getMetaEditor(String id) {
-		if (this.metaEditor==null)
+		if (this.metaEditor==null) {
 			metaEditor = new ObjectMetaEditor<T>(id, getModel());
+		
+			metaEditor.setAudioAutoGenerate(ObjectPage.this.isAudioAutoGenerate());
+		}
 		return (metaEditor);
 	}
 	
+	protected boolean isAudioAutoGenerate() {
+		return false;
+	}
+
+
+	protected List<INamedTab> createInternalPanels() {
+		List<INamedTab> tabs = new ArrayList<INamedTab>();
+		NamedTab tab_2=new NamedTab(Model.of("metainfo"), ServerAppConstant.object_meta) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getMetaEditor(panelId);
+			}
+		};
+		tabs.add(tab_2);
+		return tabs;
+	}
 	
 	
+    private int getTab(String name) {
+    	
+    	List<INamedTab> tabs =  getIPanels();
+    	
+    	int current = 0;
+    	int selected = 0;
+    	for (INamedTab tab: tabs) {
+    		logger.debug("tab->" + tab.getTitle().getObject().toString());
+    		if (tab.getName().equals(name)) {
+    			logger.debug("Selected title -> " + tab.getTitle().getObject().toString());
+    			selected = current;
+	    			break;
+    		}
+    		current++;
+    	}
+
+    	return selected;
+    }
     
-	private void addToolbar() {
+ 	private void addToolbar() {
 		
 		WebMarkupContainer wCurrent = getCurrentPanel();
 	
@@ -404,6 +466,8 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			this.toolbarContainer.addOrReplace(new InvisiblePanel("toolbarItems"));
 		}
 	}
+	
+	
 	private void addNavigator() {
 
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
@@ -432,38 +496,14 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			this.navigatorContainer.add(new InvisiblePanel("navigator"));
 		}
 	}
-
-	
-
-	protected List<INamedTab> createInternalPanels() {
-		
-		List<INamedTab> tabs = new ArrayList<INamedTab>();
-		
-		NamedTab tab_2=new NamedTab(Model.of("metainfo"), ServerAppConstant.object_meta) {
-			 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getMetaEditor(panelId);
-			}
-		};
-		tabs.add(tab_2);
-		
-		return tabs;
-	
-		
-	}
-
+ 
 	private List<INamedTab> getIPanels() {
 		if (ipanels==null) {
 			ipanels =getInternalPanels();
 		}
 		return ipanels;
 	}
-
-	
-
+ 
 }
 
 

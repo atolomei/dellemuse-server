@@ -56,6 +56,10 @@ public class Site extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private Institution institution;
 
+	@JsonProperty("zoneId")
+	@Column(name = "zoneid")
+	private String zoneId;
+	
 	@Column(name = "shortName")
 	private String shortName;
 
@@ -229,8 +233,6 @@ public class Site extends MultiLanguageObject {
 		this.shortName = shortName;
 	}
 
-	 
-
 	public String getAddress() {
 		return address;
 	}
@@ -249,6 +251,14 @@ public class Site extends MultiLanguageObject {
 
 	public List<Floor> getFloors() {
 		return floors;
+	}
+
+	public String getZoneId() {
+		return zoneId;
+	}
+
+	public void setZoneId(String zoneid) {
+		this.zoneId = zoneid;
 	}
 
 };

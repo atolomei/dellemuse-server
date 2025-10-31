@@ -36,6 +36,9 @@ import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.ref.RefPersonModel;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
+import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
+import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemsPanel;
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.global.GlobalFooterPanel;
@@ -100,12 +103,13 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 	private ArtExhibitionEditor editor;
 	private ArtExhibitionItemsPanel items;
 	private ArtExhibitionGuidesPanel guides = null;
-	private JumboPageHeaderPanel<ArtExhibition> header;
-
-	//private Map<String, Panel> recordEditors = new HashMap<String, Panel>();
-
+	private ArtExhibitionSectionsPanel sections = null;
 	
-
+	private List<ToolbarItem> list;
+	
+	private JumboPageHeaderPanel<ArtExhibition> header;
+ 
+	
 	protected Optional<ArtExhibitionRecord> loadTranslationRecord(String lang) {
 		return getArtExhibitionRecordDBService().findByArtExhibition(getModel().getObject(), lang);
 	}
@@ -126,42 +130,10 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 	}
 	
 	protected boolean isAudioVisible() {
-		return true;
+		return false;
 	}
 	
-	
-	/**
-	protected Panel getArtExhibitionRecordEditor(String id, String lang) {
-		
-		if (recordEditors.containsKey(lang))
-			return recordEditors.get(lang);
-		
-		
-		ArtExhibitionRecord ar = null;
-		
-		Optional<ArtExhibitionRecord> a = getArtExhibitionRecordDBService().findByArtExhibition(getModel().getObject(), lang);
-		
-		if (a.isEmpty()) {
-			ar = getArtExhibitionRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
-		}
-		else
-			ar=a.get();
-				
-	 	
-		IModel<ArtExhibitionRecord> arm =new ObjectModel<ArtExhibitionRecord>(ar);
-		ObjectRecordEditor<ArtExhibition,ArtExhibitionRecord> e = new ObjectRecordEditor<ArtExhibition, ArtExhibitionRecord>(id, getModel(), arm);
-		
-		recordEditors.put(lang, e);
-		return e;
-		
-		
-	//ArtWorkRecordEditor e = new ArtWorkRecordEditor(id, getModel(), arm);
-		//DummyBlockPanel d=new DummyBlockPanel(id, Model.of(ar.toString()));
-		//recordEditors.put(lang, d);
-		//return d;
-	
-	}
-	*/
+	 
 	
 	public ArtExhibitionPage() {
 		super();
@@ -203,17 +175,27 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 
 				// action
 				
-				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+				if (event.getName().equals(ServerAppConstant.action_exhibition_info_edit)) {
 					ArtExhibitionPage.this.onEdit(event.getTarget());
 				}
 			
+
+				if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+					ArtExhibitionPage.this.getMetaEditor().onEdit(event.getTarget());
+				}
+				
+				
 				if (event.getName().equals(ServerAppConstant.action_exhibition_items_edit)) {
 					ArtExhibitionPage.this.onItemsEdit(event.getTarget()); 
 				}
 				
-				//if (event.getName().equals(ServerAppConstant.action_exhibition_guide_create)) {
-				//	ArtExhibitionPage.this.onGuideCreate(event.getTarget());
-				//}
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
+					ArtExhibitionPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
+				}
+
+				if (event.getName().equals(ServerAppConstant.action_exhibition_guide_create)) {
+					ArtExhibitionPage.this.onGuideCreate(event.getTarget());
+				}
 				
 				
 				// panels --------------------------------------
@@ -236,6 +218,13 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 					event.getTarget().add(ArtExhibitionPage.this.getHeader());
 				}
 				
+				else if (event.getName().equals(ServerAppConstant.exhibition_sections)) {
+					ArtExhibitionPage.this.togglePanel(ServerAppConstant.exhibition_sections, event.getTarget());
+					ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
+					event.getTarget().add(ArtExhibitionPage.this.getHeader());
+				}
+				
+				
 				else if (event.getName().equals(ServerAppConstant.exhibition_guides)) {
 					ArtExhibitionPage.this.togglePanel(ServerAppConstant.exhibition_guides, event.getTarget());
 					ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
@@ -248,8 +237,8 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 					event.getTarget().add(ArtExhibitionPage.this.getHeader());
 				}
 				
-				else if (event.getName().equals(ServerAppConstant.site_audit)) {
-					ArtExhibitionPage.this.togglePanel(ServerAppConstant.site_audit, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+					ArtExhibitionPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 					ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionPage.this.getHeader());
 				}
@@ -282,10 +271,16 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 		});
 	}
 
+ 	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		
+		if (list!=null)
+			return list;
+		
+		list = new ArrayList<ToolbarItem>();
+	
 
 		String name = null;
 		
@@ -297,9 +292,10 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 		list.add(new ArtExhibitionNavDropDownMenuToolbarItem("item", getModel(), 
 				getLabel("art-exhibition", name), Align.TOP_RIGHT));
 		
-		
-		list.add(new SiteNavDropDownMenuToolbarItem("item",
-				getSiteModel(), getLabel ( "site", getSiteModel().getObject().getShortName()), Align.TOP_RIGHT ));
+		// site
+				SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getSiteModel(),  Align.TOP_RIGHT);
+				site.add( new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
+				list.add(site);
 		
 		return list;
 	}
@@ -325,30 +321,7 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 		};
 		tabs.add(tab_1);
 		
-		
-		
-		/**
-		List<Language> list = getLanguageService().getLanguages();
-		
-		for ( Language la:list ) {
-			
-			if (!la.getLanguageCode().equals( getModel().getObject().getMasterLanguage()) ) {
-				
-				NamedTab tab=new NamedTab(Model.of(la.getLanguageCode()), ServerAppConstant.exhibitionrecord_info+"-"+la.getLanguageCode(), la.getLanguageCode()) {
-					 
-					private static final long serialVersionUID = 1L;
-	
-					@Override
-					public WebMarkupContainer getPanel(String panelId) {
-						return getArtExhibitionRecordEditor(panelId, getMoreInfo());
-					}
-				};
-				tabs.add(tab);
-			}
-		}
-		**/
-		
-		
+ 		
 		NamedTab tab_3=new NamedTab(Model.of("items"), ServerAppConstant.exhibition_items) {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -359,7 +332,7 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 		tabs.add(tab_3);
 	
 		
-		NamedTab tab_4=new NamedTab(Model.of("items"), ServerAppConstant.exhibition_guides) {
+		NamedTab tab_4=new NamedTab(Model.of("guides"), ServerAppConstant.exhibition_guides) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -369,37 +342,23 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 		tabs.add(tab_4);
 		
 
-		NamedTab tab_5=new NamedTab(Model.of("items"), ServerAppConstant.exhibition_sections) {
+		NamedTab tab_5=new NamedTab(Model.of("sections"), ServerAppConstant.exhibition_sections) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				//return getArtExhibitionGuidesPanel(panelId);
-				return new DummyBlockPanel(panelId);
+				return getArtExhibitionSectionsPanel(panelId);
 			}
 		};
 		tabs.add(tab_5);
+		 
 		
-		
-		NamedTab tab_2=new NamedTab(Model.of("audit"), ServerAppConstant.site_audit) {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return new DummyBlockPanel(panelId,getLabel("audit"));
-			}
-		};
-		tabs.add(tab_2);
-		
-		
-		setStartTab( ServerAppConstant.exhibition_info );
-		
-		
+		if (getStartTab()==null)
+			setStartTab(ServerAppConstant.exhibition_info );
+ 
 		return tabs;
 	}
 	
-	
 	/**
-	 * 
-	 * 
 	 * @param panelId
 	 * @return
 	 */
@@ -410,7 +369,13 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 		return guides;
 	}
 
-	private ArtExhibitionItemsPanel getArtExhibitionItemsPanel(String id) {
+	protected WebMarkupContainer getArtExhibitionSectionsPanel(String panelId) {
+		if (sections==null)
+			sections = new ArtExhibitionSectionsPanel(panelId, getModel(), getSiteModel());
+		return sections;
+	}
+
+	protected ArtExhibitionItemsPanel getArtExhibitionItemsPanel(String id) {
 		if (items==null)
 			items = new ArtExhibitionItemsPanel(id, getModel(), getSiteModel());
 		return items;
@@ -428,7 +393,8 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 
 	
 	@Override
-	protected void addHeaderPanel() {
+	protected Panel createHeaderPanel() {
+  
 		
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement( new HREFBCElement("/site/list", getLabel("sites")));
@@ -463,7 +429,9 @@ public class ArtExhibitionPage extends  MultiLanguageObjectPage<ArtExhibition, A
 			header.setTagline(Model.of(getModel().getObject().getSubtitle()));
 		
 		header.setBreadCrumb(bc);
-		add(header);
+		return header;
+		
+		
 	}
 
 	@Override

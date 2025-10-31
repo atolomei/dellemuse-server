@@ -118,7 +118,7 @@ public class UserListPage extends ObjectListPage<User> {
 
 						@Override
 						public IModel<String> getLabel() {
-							return getLabel("edit");
+							return getLabel("open");
 						}
 					};
 				}

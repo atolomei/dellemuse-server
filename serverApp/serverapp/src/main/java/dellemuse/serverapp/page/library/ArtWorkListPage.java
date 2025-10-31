@@ -60,6 +60,12 @@ import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 
 /**
+ * - users
+ * - roles
+ * - generacion python
+ * 
+ * - selector escalable obras
+ * - selector escalable artistas
  * 
  */
 
@@ -229,9 +235,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		ArtWork in = getArtWorkDBService().create("new", getUserDBService().findRoot());
 			IModel<ArtWork> m =  new ObjectModel<ArtWork>(in);
 			getList().add(m);
-			
 			ArtWorkPage a=new ArtWorkPage(m, getList());
-			//a.se
 			setResponsePage(a);
 	}
 

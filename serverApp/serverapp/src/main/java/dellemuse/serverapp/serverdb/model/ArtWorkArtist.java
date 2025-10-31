@@ -50,8 +50,8 @@ public class ArtWorkArtist extends  JsonObject implements Identifiable  {
 	@Column(name = "name")
 	private String name;
 
-	@Column(name = "nameKey")
-	private String nameKey;
+	//@Column(name = "nameKey")
+	//private String nameKey;
 
 	@Column(name = "title")
 	private String title;

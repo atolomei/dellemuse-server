@@ -13,6 +13,8 @@ import org.hibernate.Hibernate;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
@@ -37,7 +39,10 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 
 	static private Logger logger = Logger.getLogger(ArtWorkDBService.class.getName());
 
+	@JsonIgnore
 	final ArtWorkRecordDBService artWorkRecordDBService;
+
+	@JsonIgnore
 	final LanguageService languageService;
 	
 	
@@ -46,7 +51,6 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		this.artWorkRecordDBService = artWorkRecordDBService;
 		this.languageService=languageService;
 	}
-
 	
 	/**
 	 * <p>
@@ -60,17 +64,18 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 	public ArtWork create(String name, User createdBy) {
 		ArtWork c = new ArtWork();
 		c.setName(name);
-		c.setNameKey(nameKey(name));
-		
+		//c.setNameKey(nameKey(name));
+		c.setMasterLanguage(getDefaultMasterLanguage());
+
 		c.setCreated(OffsetDateTime.now());
 		c.setUsethumbnail(true);
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		
+		getRepository().save(c);
 		for ( Language la:getLanguageService().getLanguages() ) {
 			getArtWorkRecordDBService().create(c, la.getLanguageCode(),  createdBy);
 		}
-		
 		return getRepository().save(c);
 	}
 
@@ -80,7 +85,7 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		ArtWork c = new ArtWork();
 		
 		c.setName(name);
-		c.setNameKey(nameKey(name));
+		//c.setNameKey(nameKey(name));
 		
 		c.setSite(site);
 		c.setMasterLanguage(site.getMasterLanguage());
@@ -90,9 +95,11 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		c.setLastModifiedUser(createdBy);
 		c.setUsethumbnail(true);
 		
-		for ( Language la:getLanguageService().getLanguages() ) {
+		getRepository().save(c);
+		
+		for (Language la:getLanguageService().getLanguages()) 
 			getArtWorkRecordDBService().create(c, la.getLanguageCode(),  createdBy);
-		}
+		 
 		
 		return getRepository().save(c);
 	}
@@ -100,13 +107,11 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 	
 	@Transactional
 	public ArtWork addQR(ArtWork aw, String bucketName, String objectName, String name, String media,  long size, User createdBy) {
-
 			ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 			Resource res=rdbs.create(bucketName,  objectName, name, media, size, ServerConstant.QR_CODE, createdBy);
 			aw.setQRCode(res);
 			return getRepository().save(aw);
 	}
-
 
 	@Transactional
 	private void deleteResources(Long id) {

@@ -138,7 +138,7 @@ public class ArtWorkRecordDBService extends DBService<ArtWorkRecord, Long> {
 		ArtWorkRecord c = new ArtWorkRecord();
 		
 		c.setName(name);
-		c.setNameKey(nameKey(name));
+		//c.setNameKey(nameKey(name));
 		 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());

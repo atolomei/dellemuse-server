@@ -26,11 +26,11 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.artexhibitionguide.GuideContentPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
+import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
@@ -232,7 +232,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 	
 	@Override
 	protected void onCreate() {
-		GuideContent in = getGuideContentDBService().create("new", getUserDBService().findRoot());
+		GuideContent in = getGuideContentDBService().create("new" , getUserDBService().findRoot());
 			IModel<GuideContent> m =  new ObjectModel<GuideContent>(in);
 			getList().add(m);
  	}

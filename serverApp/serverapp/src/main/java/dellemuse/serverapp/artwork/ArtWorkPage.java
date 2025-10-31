@@ -32,8 +32,10 @@ import dellemuse.model.ref.RefPersonModel;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.artexhibition.ArtExhibitionNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
+import dellemuse.serverapp.artexhibitionsection.ArtExhibitionSectionPage;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.editor.ObjectRecordEditor;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -60,6 +62,7 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.DTFormatter;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.odilon.util.Check;
 import io.wktui.event.MenuAjaxEvent;
@@ -71,15 +74,9 @@ import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
-import io.wktui.nav.listNavigator.ListNavigator;
-import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
-import io.wktui.struct.list.ListPanelMode;
-import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
-import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
 /**
@@ -98,6 +95,7 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 	private IModel<Site> siteModel;
 
 	private ArtWorkMainPanel editor;
+	private List<ToolbarItem> list;
 
 
 	public ArtWorkPage() {
@@ -116,7 +114,32 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 		super( model, list);
 	}
 	
+	
 	@Override
+	public void onInitialize() {
+		super.onInitialize();
+	}
+
+	
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (siteModel != null)
+			siteModel.detach();
+		
+		editor.detach();
+		
+	}
+	
 	protected void onEdit(AjaxRequestTarget target) {
 		editor.onEdit(target);
 	}
@@ -124,7 +147,6 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 	protected void onEditMeta(AjaxRequestTarget target) {
 		getMetaEditor().onEdit(target);
 	}
-	
 	 
 	protected  boolean isSpecVisible() {
 		return true;
@@ -141,9 +163,13 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 		return getArtWorkRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
 	
+	@Override
 	protected void addListeners() {
 		super.addListeners();
-
+ 
+			
+		
+		
 		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -165,9 +191,7 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 				}
 				**/
 				
-				if (event.getName().equals(ServerAppConstant.artwork_audit)) {
-					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_audit, event.getTarget());
-				}
+		 
 				
 				// edit --------------------------------------
 				//
@@ -180,6 +204,11 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					ArtWorkPage.this.onEditMeta(event.getTarget());
 				}
+				
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
+					ArtWorkPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
+				}
+
 	
 				
 				// panels --------------------------------------
@@ -194,19 +223,15 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 					ArtWorkPage.this.togglePanel(event.getName(), event.getTarget());
 				}
-				else if (event.getName().equals(ServerAppConstant.artwork_meta)) {
-					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_meta, event.getTarget());
-					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
-					// event.getTarget().add(ArtWorkPage.this.getHeader());
-				}
+				 
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					ArtWorkPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
 					// event.getTarget().add(ArtWorkPage.this.getHeader());
 				}
 				
-				else if (event.getName().equals(ServerAppConstant.artwork_audit)) {
-					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_audit, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
 					// event.getTarget().add(ArtWorkPage.this.getHeader());
 				}
@@ -252,49 +277,35 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 		return new Model<String> (getModel().getObject().getName());
 	}
 	
+ 
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
-	
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+
+		if (list!=null)
+			return list;
 		
+		list = new ArrayList<ToolbarItem>();
+			
 		String name=getModel().getObject().getName();
 		
 		list.add(new ArtWorkNavDropDownMenuToolbarItem("item", getModel(), getLabel("artwork-menu-title", TextCleaner.truncate(name, 32)), Align.TOP_RIGHT));
-		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 		
-		/**
-		AjaxButtonToolbarItem<Void> edit = new AjaxButtonToolbarItem<Void>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				ArtWorkPage.this.togglePanel(PANEL_EDITOR, target);
-				ArtWorkPage.this.onEdit(target);
-			}
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("edit");
-			}
-		};
-		edit.setAlign(Align.TOP_LEFT);
 		
-		list.add(edit);		
-		
-		**/
-		
+		// site
+		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getSiteModel(),  Align.TOP_RIGHT);
+		site.add( new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
+		list.add(site);
 		
 		return list;
 	
 	}
-	
-	
+ 	
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 		
-		//List<INamedTab> tabs = new ArrayList<INamedTab>();
-		
+	 	
 		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.artwork_info) {
 		 
 			private static final long serialVersionUID = 1L;
@@ -305,38 +316,33 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 			}
 		};
 		tabs.add(tab_1);
-		
-	 
-		NamedTab tab_3=new NamedTab(Model.of("artwork-audit"), ServerAppConstant.artwork_audit) {
-			 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return new DummyBlockPanel(panelId,getLabel("artwork-audit"));
-			}
-		};
-		tabs.add(tab_3);
-
-		setStartTab( ServerAppConstant.artwork_info );
-
-
-		
-		
-		 
-	
+	 	
+		if (getStartTab()==null)
+			setStartTab(ServerAppConstant.artwork_info );
+ 
 		return tabs;
 	}
 
- 	
 	protected Panel getEditor(String id) {
 		if (this.editor==null)
 			editor = new ArtWorkMainPanel(id, getModel());
 		return (editor);
 	}
 	
+	JumboPageHeaderPanel<ArtWork> ph;
+	
+	
 	@Override
-	protected void addHeaderPanel() {
+	protected Panel createHeaderPanel() {
+  
+		
+	
+		ph = new JumboPageHeaderPanel<ArtWork>(
+				"page-header", 
+				getModel(),
+				new Model<String>(getModel().getObject().getDisplayname()));
+
+		ph.setImageLinkCss("jumbo-img jumbo-lg mb-2 mb-lg-0 border bg-body-tertiary");
 		
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
@@ -347,11 +353,6 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 
 		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
 
-		JumboPageHeaderPanel<ArtWork> ph = new JumboPageHeaderPanel<ArtWork>("page-header", getModel(),
-				new Model<String>(getModel().getObject().getDisplayname()));
-
-		ph.setImageLinkCss("jumbo-img jumbo-lg mb-2 mb-lg-0 border bg-body-tertiary");
-		
 		
 		if (getModel().getObject().getArtists()!=null) 
 			ph.setTagline(Model.of(getArtistStr(getModel().getObject())));
@@ -373,7 +374,7 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 		ph.setContext(getLabel("artwork"));
 		
 		ph.setBreadCrumb(bc);
-		add(ph);
+		return ph;
 	}
 
 
@@ -398,31 +399,7 @@ public class ArtWorkPage extends  MultiLanguageObjectPage<ArtWork, ArtWorkRecord
 		}
 	}
 
-	
-	@Override
-	public void onInitialize() {
-		super.onInitialize();
-	}
 
-	
-	public IModel<Site> getSiteModel() {
-		return siteModel;
-	}
-
-	public void setSiteModel(IModel<Site> siteModel) {
-		this.siteModel = siteModel;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-
-		if (siteModel != null)
-			siteModel.detach();
-		
-		editor.detach();
-		
-	}
 	 
 	protected String getImageSrc(IModel<ArtWork> model) {
 

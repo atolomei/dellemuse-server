@@ -50,10 +50,33 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         super(repository, settings);
     }
 
-    @PostConstruct
-    protected void onInitialize() {
-    	super.register(getEntityClass(), this);
+    
+    @Transactional
+    public Resource create(String bucketName, String objectName, String name, String media, long size, String tag, User createdBy) {
+        Resource c = new Resource();
+        c.setBucketName(bucketName);
+        c.setObjectName(objectName);
+        c.setName(name);
+        c.setSize(size);
+        c.setTag(tag);
+        //c.setNameKey(nameKey(name));
+        
+        if (media != null)
+            c.setMedia(media);
+        else 
+        	c.setMedia(getMimeType(name));
+               
+        c.setUsethumbnail(getMimeType(name).toLowerCase().endsWith("png") || getMimeType(name).toLowerCase().endsWith("jpg") );
+        
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+        return getRepository().save(c);
     }
+    
+    
+  
      
 	@Transactional
     public void delete(Resource r) {
@@ -68,7 +91,7 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     	super.delete(id);
     }
    
-	@SuppressWarnings("unused")
+ 
 	@Transactional
        public Optional<Resource> findWithDeps(Long id) {
        
@@ -78,7 +101,14 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
    			return o_i;
    		
    		Resource i = o_i.get();
+   		
    		User user = i.getLastModifiedUser();
+   		
+   		if (user!=null) {
+   			user = getUserDBService().findWithDeps(user.getId()).get();
+   			i.setLastModifiedUser(user);
+   		}
+   		
    		i.setDependencies(true);
    		return o_i;
 
@@ -162,28 +192,7 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, size, null, createdBy);
     }
 
-    @Transactional
-    public Resource create(String bucketName, String objectName, String name, String media, long size, String tag, User createdBy) {
-        Resource c = new Resource();
-        c.setBucketName(bucketName);
-        c.setObjectName(objectName);
-        c.setName(name);
-        c.setSize(size);
-        c.setTag(tag);
-        c.setNameKey(nameKey(name));
-        
-        if (media != null)
-            c.setMedia(media);
-        else 
-        	c.setMedia(getMimeType(name));
-               
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        
-        return getRepository().save(c);
-    }
-    
+   
     /**
      *  getCommandService().run(new ResourceMetadataCommand(resource.getId()));
      * */
@@ -212,6 +221,13 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         this.applicationContext = applicationContext;
     }
 
+    
+    @PostConstruct
+    protected void onInitialize() {
+    	super.register(getEntityClass(), this);
+    }
+    
+    
     @Override
     protected Class<Resource> getEntityClass() {
         return Resource.class;

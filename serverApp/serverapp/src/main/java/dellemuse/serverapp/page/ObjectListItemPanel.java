@@ -15,6 +15,7 @@ import io.wktui.event.UIEvent;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import io.wktui.struct.list.ListPanelWicketEvent;
+import wktui.base.InvisibleIcon;
 import wktui.base.InvisiblePanel;
 import wktui.base.ModelPanel;
 
@@ -30,11 +31,16 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 	private ListPanelMode mode;
 	private boolean imageVisible = true;
 
+	private String titleIcon = null;
+	
 	private WebMarkupContainer imageContainer;
 	private WebMarkupContainer titleTextContainer;
 	private WebMarkupContainer textContainer;
 	private WebMarkupContainer menu = null;
 
+	
+	
+	
 	/**
 	 * 
 	 * @param id
@@ -93,6 +99,7 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 			this.imageLink.addOrReplace(new InvisiblePanel("icon"));
 		}
 
+		
 		if (isImageVisible()) {
 			String imageSrc = getImageSrc();
 
@@ -120,6 +127,16 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 
 	}
 
+	
+	public void setTutleIcon( String titleIcon ) {
+		this.titleIcon=titleIcon;
+	}
+	
+	protected String getTitleIcon() {
+		return this.titleIcon;
+	}
+	
+	
 	protected String getIcon() {
 		return icon;
 	}
@@ -197,6 +214,25 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 		title.setEscapeModelStrings(false);
 		titleLink.add(title);
 
+		
+		//if (getTitleIcon()!=null) {
+				WebMarkupContainer ti=new WebMarkupContainer("titleIcon") {
+					private static final long serialVersionUID = 1L;
+
+					public boolean isVisible() {
+						return  getTitleIcon()!=null;
+					}
+				};
+				
+				ti.add( new org.apache.wicket.AttributeModifier("class", "float-none ps-3 pe-3 " + (getTitleIcon()!=null ? getTitleIcon() :"")));
+				this.titleTextContainer.add(ti);
+				
+		//}
+		//else {
+		//	titleLink.add( new InvisibleIcon("titleIcon"));
+		//}
+		
+		
 		if (getObjectSubtitle() != null) {
 			WebMarkupContainer subtitleContainer = new WebMarkupContainer("subtitle-container");
 			titleTextContainer.addOrReplace(subtitleContainer);

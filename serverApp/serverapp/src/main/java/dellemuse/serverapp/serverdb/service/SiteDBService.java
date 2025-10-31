@@ -7,8 +7,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.FloorModel;
 import dellemuse.model.logging.Logger;
@@ -20,6 +23,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Room;
@@ -27,6 +31,8 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.repository.PersonRepository;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -46,9 +52,14 @@ public class SiteDBService extends DBService<Site, Long> {
 	
 	private final PersonRepository personRepository;
 
-	public SiteDBService(CrudRepository<Site, Long> repository, ServerDBSettings settings, PersonRepository personRepository) {
+	@JsonIgnore
+	@Autowired
+    final SiteRecordDBService siteRecordDBService;
+	
+	public SiteDBService(CrudRepository<Site, Long> repository, ServerDBSettings settings, PersonRepository personRepository, SiteRecordDBService siteRecordDBService) {
 		super(repository, settings);
 		this.personRepository=personRepository;
+		this.siteRecordDBService=siteRecordDBService;
 	}
 
 	@Transactional
@@ -56,15 +67,26 @@ public class SiteDBService extends DBService<Site, Long> {
 	public Site create(String name, User createdBy) {
 		Site c = new Site();
 		c.setName(name);
-		c.setNameKey(nameKey(name));
+		//c.setNameKey(nameKey(name));
 
 		//c.setTitle(name);
 		//c.setTitleKey(nameKey(name));
 
+		c.setMasterLanguage( getDefaultMasterLanguage());
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+		
+		getRepository().save(c);
+
+		for (Language la:getLanguageService().getLanguages())
+			getSiteRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+		
 		return getRepository().save(c);
+	}
+
+	private SiteRecordDBService getSiteRecordDBService() {
+		return this.siteRecordDBService;
 	}
 
 	@Transactional
@@ -78,7 +100,7 @@ public class SiteDBService extends DBService<Site, Long> {
 
 		c.setMasterLanguage(institution.getMasterLanguage());
 		c.setInstitution(institution);
-		c.setNameKey(nameKey(name));
+		//c.setNameKey(nameKey(name));
 		//c.setTitleKey(nameKey(name));
 		
 		c.setCreated(OffsetDateTime.now());
@@ -86,6 +108,11 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setLastModifiedUser(createdBy);
 		shortName.ifPresent(c::setShortName);
 		address.ifPresent(c::setAddress);
+		
+		getRepository().save(c);
+
+		for (Language la:getLanguageService().getLanguages())
+			getSiteRecordDBService().create(c, la.getLanguageCode(),  createdBy);
 		
 		return getRepository().save(c);
 	}
@@ -98,7 +125,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setInstitution(in);
 		
 		c.setName(in.getName());
-		c.setNameKey(nameKey(in.getName()));
+		//c.setNameKey(nameKey(in.getName()));
 
 		c.setShortName(in.getShortName());
 

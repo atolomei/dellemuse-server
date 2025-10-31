@@ -24,6 +24,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -322,12 +323,15 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 		save(getModelObject());
 		
 		uploadedPhoto = false;
+		
 		getForm().setFormState(FormState.VIEW);
-		logger.debug("done");
+		
+
+		getForm().updateReload();
+		fire (new ObjectUpdateEvent(target));
+		
 		target.add(this);
 	
-		// TODO AT
-		// fir e( ne w (target));
  	}
 
 	@Override

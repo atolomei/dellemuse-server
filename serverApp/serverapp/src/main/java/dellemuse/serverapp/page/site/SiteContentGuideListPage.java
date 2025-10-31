@@ -13,9 +13,9 @@ import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.artexhibitionguide.GuideContentPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
+import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.library.SiteListPage;
 import dellemuse.serverapp.page.model.ObjectModel;

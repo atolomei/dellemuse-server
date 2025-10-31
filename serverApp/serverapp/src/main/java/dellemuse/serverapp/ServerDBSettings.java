@@ -3,11 +3,13 @@ package dellemuse.serverapp;
 import java.io.File;
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
+import org.threeten.bp.ZoneId;
 
 //import dellemuse.model.logging.Logger;
 import jakarta.annotation.PostConstruct;
@@ -30,6 +32,8 @@ public class ServerDBSettings {
 
     private static final OffsetDateTime systemStarted = OffsetDateTime.now();
 
+    
+    
     
     /** DELLEMUSE WEBAPP ----------------------------------------------------- */
 
@@ -133,17 +137,35 @@ public class ServerDBSettings {
     
     protected boolean qrcodeQeneration;
 
-
     
     @Value("${google.translate.auth:null}")
     protected String googleTranslateAuth;
+    
+    
+    
+    
+    /**                 ----------------------------------------------------- */
+    @Value("${server.locale:es}")
+    protected String localeStr;
+
+    public Locale getDefaultLocale() {
+    	return Locale.forLanguageTag(localeStr);
+    }
+    
+    /**                 ----------------------------------------------------- */
+    @Value("${server.zoneid:America/Buenos_Aires}")
+    protected String zoneid;
+    
+    public ZoneId getDefaultZoneId() {
+    	return ZoneId.of(zoneid);
+    }
+    
     
     
     /** Google translate ----------------------------------------------------- */
     
     
     public String getGoogleTranslateAuthPath() {
-    	//return "."+File.separator+"config"+File.separator+"googleTranslate.json";	
     	return googleTranslateAuth;
     }
     

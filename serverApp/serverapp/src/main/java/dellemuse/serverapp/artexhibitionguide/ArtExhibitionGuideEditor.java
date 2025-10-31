@@ -8,16 +8,24 @@ import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.threeten.bp.OffsetDateTime;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
+import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
+import dellemuse.serverapp.guidecontent.GuideContentEditor;
 import dellemuse.serverapp.page.InternalPanel;
  
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -25,11 +33,13 @@ import dellemuse.serverapp.page.person.ServerAppConstant;
  
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
- 
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.service.DTFormatter;
+import io.wktui.error.AlertPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
@@ -76,6 +86,12 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 	private IModel<Site> siteModel;
 	private IModel<ArtExhibition> artExhibitionModel;
 
+	private Link<ArtExhibition> openAe;
+	private AjaxLink<ArtExhibition> importAe;
+	
+	
+
+	private String audioMeta;
 	
 	/**
 	 * @param id
@@ -95,32 +111,13 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		Form<ArtExhibitionGuide> form = new Form<ArtExhibitionGuide>("form");
 		add(form);
 		setForm(form);
-		
-/**
-		this.objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
-			
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (getStates());
-			}
-			
-			@Override
-			protected String getDisplayValue(ObjectState value) {
-				if (value==null)
-					return null;
-				return value.getLabel( getLocale() );
-			}
-		};
-		form.add(this.objectStateField);
-	**/
-		
+ 
 		
 		this.nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		this.subtitleField 	= new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
 		this.infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 12);
-		this.photoField 	= new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
+		
+		/**this.photoField 	= new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -144,7 +141,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 				return true;
 			}
 		};
-
+		*/
 		
 		this.audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
@@ -156,10 +153,6 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 
 			public Image getImage() {
 				return null;
-				
-				//if (getPhotoModel() == null || getPhotoModel().getObject()==null )
-				//	return null;
-				//return ArtExhibitionGuideEditor.this.getThumbnail(getPhotoModel().getObject());
 			}
 
 			protected String getAudioSrc() {
@@ -170,23 +163,57 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 			}
 			
 			public String getFileName() {
-				if (getAudioModel()!=null  || getAudioModel().getObject()==null )
-					return ArtExhibitionGuideEditor.this.getAudioMeta( getAudioModel().getObject() );
+				
+				if (getAudioModel()!=null  || getAudioModel().getObject()==null ) {
+					if (audioMeta==null)
+						audioMeta = ArtExhibitionGuideEditor.this.getAudioMeta( getAudioModel().getObject() );
+					return audioMeta;
+				}
 				return null;
 			}
 
 			public boolean isThumbnail() {
 				return true;
 			}
-		};
+			/**
+			protected WebMarkupContainer getFeedbackPanel() {
+			
+				if (getModel()!=null && getModel().getObject()!=null) {
+					if (getModel().getObject().isAudioAutoGenerate()) {
+						AlertPanel<Void> alert = new  AlertPanel<Void>("feedback", 
+								AlertPanel.INFO, 
+								null, 
+								null, 
+								null,
+								getLabel( "generated",  getDateTimeService().format(getModel().getObject().getLastModified(), DTFormatter.Month_Day_Year_hh_mm )));
 
+						alert.add( new org.apache.wicket.AttributeModifier("style"," float:left; width:100%; margin-top:1px;"));		
+						return alert;
+					}
+					else {
+						AlertPanel<Void> alert = new  AlertPanel<Void>("feedback", 
+								AlertPanel.INFO, 
+								null, 
+								null, 
+								null,
+								getLabel( "manually-uploaded",	getModel().getObject().getLastModifiedUser().getName(), 
+																getDateTimeService().format(getModel().getObject().getLastModified(), DTFormatter.Month_Day_Year_hh_mm )));
+								alert.add( new org.apache.wicket.AttributeModifier("style"," float:left; width:100%; margin-top:1px;"));		
+
+						return alert;
+						
+						}
+					}
+					
+					return null;
+				}
+				*/
+		};
+ 	 
  		form.add(nameField);
 		form.add(subtitleField);
-		// form.add(introField);
 		form.add(infoField);
-		form.add(photoField);
 		form.add(audioField);
-		
 		
 		EditButtons<ArtExhibitionGuide> buttons = new EditButtons<ArtExhibitionGuide>("buttons-bottom", getForm(), getModel()) {
 
@@ -248,13 +275,98 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		};
 		getForm().add(b_buttons_top);
 		
+		
+		
+		this.openAe = new Link<ArtExhibition>("openAe", getArtExhibitionModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage( new ArtExhibitionPage(getArtExhibitionModel()));
+			}
+			
+			public boolean isEnabled() {
+				return true;
+			}
+		};
+		
+		Label openArtworkLabel  = new Label("openAeLabel", getLabel("open-artexhibition", getArtExhibitionModel().getObject().getDisplayname()));
+		this.openAe.add(openArtworkLabel);
+		getForm().add(openAe);
+		 
+	
+		
+		this.importAe = new AjaxLink<ArtExhibition>("importAe", getArtExhibitionModel()) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				ArtExhibitionGuideEditor.this.importgetArtExhibitionText(target);
+			}
+			public boolean isVisible() {
+				return getForm().getFormState()==FormState.EDIT;
+			}
+
+		};
+		
+		
+		Label importArtworkLabel  = new Label("importAeLabel", getLabel("import-artexhibition", getArtExhibitionModel().getObject().getDisplayname()));
+		this.importAe.add(importArtworkLabel);
+		getForm().add(this.importAe);
+		
 		//addItemsPanel();
 		
 	}
 
- 	
+  
+
+	protected void importgetArtExhibitionText(AjaxRequestTarget target) {
+	
+		String info = getArtExhibitionModel().getObject().getInfo();
+	
+		boolean reload = false;
+		
+		if (info!=null && getModel().getObject().getInfo()==null) {
+			getModel().getObject().setInfo(info);
+			reload = true;
+		}
+		else if (info==null && getModel().getObject().getInfo()!=null) {
+			getModel().getObject().setInfo(info);
+			reload = true;
+		}
+		else {
+			if (!info.trim().equals(getModel().getObject().getInfo().trim())) {
+				getModel().getObject().setInfo(info);
+				reload = true;
+			}
+		}
+		
+		String subtitle = getArtExhibitionModel().getObject().getSubtitle();
+		
+		if (subtitle!=null && getModel().getObject().getSubtitle()==null) {
+			getModel().getObject().setSubtitle(subtitle);
+			getForm().updateReload();
+		}
+		else if (subtitle==null && getModel().getObject().getSubtitle()!=null) {
+			getModel().getObject().setSubtitle(subtitle);
+			getForm().updateReload();
+		}
+		else {
+			if (!subtitle.trim().equals(getModel().getObject().getSubtitle().trim())) {
+				getModel().getObject().setSubtitle(subtitle);
+				getForm().updateReload();
+			}
+		}
+	
+		if (reload)
+			getForm().updateReload();
+			
+		target.add(getForm());
+		
+	}
+
 	protected void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
+		audioMeta=null;
 		// getForm().setFormState(FormState.VIEW);
 		// target.add(getForm());
 	}
@@ -321,7 +433,6 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		
 		if (artExhibitionModel!=null)
 			artExhibitionModel.detach();
-		
 	}
 
 	protected IModel<Resource> getPhotoModel() {
@@ -357,9 +468,12 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		
 		uploadedPhoto = false;
 		uploadedAudio = false;
-		
+		audioMeta=null;
+
 		getForm().setFormState(FormState.VIEW);
-		logger.debug("done");
+		getForm().updateReload();
+		fire (new ObjectUpdateEvent(target));
+	;
 		target.add(this);
 	
 	}

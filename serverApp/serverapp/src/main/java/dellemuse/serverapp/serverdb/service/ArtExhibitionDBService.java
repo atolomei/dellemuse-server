@@ -6,19 +6,26 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -34,12 +41,69 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
     @SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ArtExhibitionDBService.class.getName());
 
+	@JsonIgnore
+	@Autowired
+    final ArtExhibitionRecordDBService artExhibitionRecordDBService;
+    
+	@JsonIgnore
+	@Autowired
     @PersistenceContext
     private EntityManager entityManager;
 
-    public ArtExhibitionDBService(CrudRepository<ArtExhibition, Long> repository, ServerDBSettings settings) {
+	
+    public ArtExhibitionDBService(CrudRepository<ArtExhibition, Long> repository, ServerDBSettings settings,  ArtExhibitionRecordDBService artExhibitionRecordDBService) {
         super(repository, settings);
+        this.artExhibitionRecordDBService=artExhibitionRecordDBService;
     }
+    
+    
+    /**
+	 * 
+	 * 
+	 */
+    @Transactional
+    @Override
+    public ArtExhibition create(String name, User createdBy) {
+        ArtExhibition c = new ArtExhibition();
+        c.setName(name);
+        //c.setNameKey(nameKey(name));
+		c.setMasterLanguage(getDefaultMasterLanguage());
+
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+    	getRepository().save(c);
+
+    	for (Language la:getLanguageService().getLanguages() )
+			getArtExhibitionRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+	
+    	return getRepository().save(c);
+    }
+    
+    
+    @Transactional
+    public ArtExhibition create(String name, Site site, User createdBy) {
+        ArtExhibition c = new ArtExhibition();
+        c.setName(name);
+        //c.setNameKey(nameKey(name));
+        
+		c.setMasterLanguage(site.getMasterLanguage());
+
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        c.setSite(site);
+        
+        getRepository().save(c);
+    	for ( Language la:getLanguageService().getLanguages() )
+			getArtExhibitionRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+    	
+        return getRepository().save(c);
+    }
+    
+    
+    
     
     @Transactional
 	public Optional<ArtExhibition> findWithDeps(Long id) {
@@ -136,41 +200,50 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
         c.setLastModifiedUser(removedBy);
         getRepository().save(c);
     }
-    
-    @Transactional
-    @Override
-    public ArtExhibition create(String name, User createdBy) {
-        ArtExhibition c = new ArtExhibition();
-        c.setName(name);
-        c.setNameKey(nameKey(name));
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
-    
-    
-    @Transactional
-    public ArtExhibition create(String name, Site site, User createdBy) {
-        ArtExhibition c = new ArtExhibition();
-        c.setName(name);
-        c.setNameKey(nameKey(name));
-        
-		c.setMasterLanguage(site.getMasterLanguage());
+	
+	@Transactional
+	public void removeSection(ArtExhibition ex, ArtExhibitionSection item, User removedBy) {
+		
+    	boolean contains = false;
+    	int index = -1;
 
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        c.setSite(site);
-        
-        return getRepository().save(c);
-    }
+    	List<ArtExhibitionSection> list = getArtExhibitionSections(ex);
+    		
+    	for (ArtExhibitionSection i: list) {
+    		index++;
+    		if (item.getId().equals(i.getId())) {
+    			contains=true;
+    			break;
+    		}
+    	}
+    	
+    	if (!contains)
+    		return;
+    	
+    	list.remove(index);
+    	ex.setArtExhibitionSections(list);
+    	ex.setLastModified(OffsetDateTime.now());
+        ex.setLastModifiedUser(removedBy);
+        getRepository().save(ex);
+		
+	}
+
+	
+	
+    
+    
+    protected ArtExhibitionRecordDBService getArtExhibitionRecordDBService() {
+		return this.artExhibitionRecordDBService;
+	}
+
+	
     
     @Transactional
     public List<ArtExhibition> getByName(String name) {
         return createNameQuery(name).getResultList();
     }
 
+    /**
     @Transactional
     public Optional<ArtExhibition> findByNameKey(String name) {
         CriteriaBuilder cb =  getEntityManager().getCriteriaBuilder();
@@ -181,7 +254,8 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 
         List<ArtExhibition> list = entityManager.createQuery(cq).getResultList();
         return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-    }
+    }**/
+    
 
     @Transactional
     public List<ArtExhibitionGuide> getArtExhibitionGuides(ArtExhibition exhibition) {
@@ -204,6 +278,18 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
         return  getEntityManager().createQuery(cq).getResultList();
     }
 
+    
+    @Transactional
+    public List<ArtExhibitionSection> getArtExhibitionSections(ArtExhibition exhibition) {
+        CriteriaBuilder cb =  getEntityManager().getCriteriaBuilder();
+        CriteriaQuery<ArtExhibitionSection> cq = cb.createQuery(ArtExhibitionSection.class);
+        Root<ArtExhibitionSection> root = cq.from(ArtExhibitionSection.class);
+        cq.select(root).where(cb.equal(root.get("artExhibition").get("id"), exhibition.getId()));
+        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
+        return  getEntityManager().createQuery(cq).getResultList();
+    }
+    
+    
     @Transactional
     public List<ArtExhibition> getArtExhibitions(Site site) {
         CriteriaBuilder cb =  getEntityManager().getCriteriaBuilder();
@@ -219,6 +305,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
     protected Class<ArtExhibition> getEntityClass() {
         return ArtExhibition.class;
     }
+
 	
 }
     

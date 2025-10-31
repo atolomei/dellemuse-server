@@ -15,7 +15,7 @@ import org.apache.wicket.model.Model;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
-import dellemuse.serverapp.artexhibitionguide.GuideContentPage;
+import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
@@ -86,10 +86,17 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			this.list.forEach(t -> t.detach());
 	}
 
+	List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
+
+	
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		
+		if (t_list!=null)
+			return t_list;
+		
+		t_list = new ArrayList<ToolbarItem>();
 
 		AjaxButtonToolbarItem<ArtExhibitionGuide> create = new AjaxButtonToolbarItem<ArtExhibitionGuide>() {
 			private static final long serialVersionUID = 1L;
@@ -105,9 +112,9 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
-		list.add(create);
+		t_list.add(create);
 
-		return list;
+		return t_list;
 	}
 
 	
@@ -182,7 +189,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 					
 					 
@@ -330,6 +337,14 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 				ObjectListItemPanel<ArtExhibitionGuide> panel = new ObjectListItemPanel<ArtExhibitionGuide>("row-element",
 						model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected String getTitleIcon() {
+						if (getModel().getObject().getAudio()!=null)
+							return ServerAppConstant.headphoneIcon;
+						else
+							return null;
+					}
 
 					@Override
 					protected String getImageSrc() {

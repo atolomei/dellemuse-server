@@ -76,6 +76,7 @@ import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
+import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.model.TextCleaner;
@@ -464,10 +465,16 @@ public abstract class BasePage extends WebPage {
 		return new StringResourceModel(key, this);
 	}
 
-	protected IModel<String> getLabel(String key, String shortName) {
-		return new StringResourceModel(key, this).setParameters(new Object[] { shortName });
-	}
+	//protected IModel<String> getLabel(String key, String shortName) {
+	//	return new StringResourceModel(key, this).setParameters(new Object[] { shortName });
+	//}
 
+	protected IModel<String> getLabel(String key, String... parameter) {
+	        StringResourceModel model = new StringResourceModel(key, this, null);
+	        model.setParameters((Object[]) parameter);
+	        return model;
+	    }
+	
 	/** Session User */
 
 	public Optional<User> getSessionUser() {
@@ -582,7 +589,9 @@ public abstract class BasePage extends WebPage {
 
 	
 	 
-	
+	protected  DateTimeService getDateTimeService() {
+		return (DateTimeService) ServiceLocator.getInstance().getBean(DateTimeService.class);
+	}
 	
 	
 	

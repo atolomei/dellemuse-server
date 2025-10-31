@@ -39,7 +39,7 @@ public class ArtExhibitionStatusTypeDBService extends DBService<ArtExhibitionSta
     public ArtExhibitionStatusType create(String name, User createdBy) {
         ArtExhibitionStatusType c = new ArtExhibitionStatusType();
         c.setName(name);
-        c.setNameKey(nameKey(name));
+        //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);

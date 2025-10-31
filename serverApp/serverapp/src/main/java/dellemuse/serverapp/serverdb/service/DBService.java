@@ -21,6 +21,7 @@ import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.SystemService;
+import dellemuse.serverapp.service.language.LanguageService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -51,6 +52,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	
 	private static Map<Class<?>, DBService<?, Long>> map = new HashMap<Class<?>, DBService<?, Long>>();
 
 	public static void register(Class<?> entityClass, DBService<?, Long> dbService) {
@@ -61,13 +63,15 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return map.get(entityClass);
 	}
 
-	public DBService(CrudRepository<T, I> repository, ServerDBSettings settings) {
+	public DBService(CrudRepository<T, I> repository, ServerDBSettings settings ) {
 		super(repository, settings);
 		this.repository = repository;
+		 
 	}
 
 	public abstract T create(String name, User createdBy);
-
+ 
+	
 	
 	@SuppressWarnings("unchecked")
 	@Transactional
@@ -134,12 +138,14 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		logger.debug("evict -> " + o.getDisplayname());
 		getEntityManager().detach(o);
 	}
-	
+
+	/**
 	@Transactional
 	public List<T> getByNameKey(String name) {
 		return createNameKeyQuery(name).getResultList();
 	}
-
+**/
+	
 	@Transactional
 	public List<T> getByName(String name) {
 		return createNameQuery(name, false).getResultList();
@@ -155,6 +161,8 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return createNameQuery(name, false);
 	}
 
+	
+	/**
 	public TypedQuery<T> createNameKeyQuery(String name) {
 		CriteriaBuilder cb =  getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
@@ -163,7 +171,8 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 		return  getEntityManager().createQuery(cq);
 	}
-
+**/
+	
 	public TypedQuery<T> createNameQuery(String name, boolean isLike) {
 		CriteriaBuilder cb =  getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
@@ -196,9 +205,9 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return "name";
 	}
 
-	protected String getNameKeyColumn() {
-		return "nameKey";
-	}
+	//protected String getNameKeyColumn() {
+	//	return "nameKey";
+	//}
 
 	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
 		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
@@ -216,6 +225,15 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
  	
+	protected LanguageService getLanguageService() {
+		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
+	}
+
+	
+	public String getDefaultMasterLanguage() {
+		return getLanguageService().getDefaultLanguage().getLanguageCode();
+	}
+
 	protected String nameKey(String name) {
 		if (name == null)
 			return null;

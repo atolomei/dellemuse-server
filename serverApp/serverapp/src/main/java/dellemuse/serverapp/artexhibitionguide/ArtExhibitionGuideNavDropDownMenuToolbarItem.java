@@ -18,6 +18,7 @@ import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
+import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
@@ -31,15 +32,9 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 
 	
 	
-	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel< ArtExhibitionGuide> model, Align align) {
+	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, Align align) {
 		this(id, model, null, align);
-		
-		if (getModel().getObject()!=null) {
-			if (model.getObject().getName()!=null)
-				setLabel( Model.of(model.getObject().getName()) );
-		else
-			setLabel(Model.of(model.getObject().getDisplayname()) );
-		}		
+		setLabel(getLabel("audio-guide-dropdown",TextCleaner.truncate(getModel().getObject().getName(), 24)));
 	}
 
 	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<String> title, Align align) {
@@ -105,47 +100,6 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 			}
 		}
 		 
-		
-	addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-				 
-				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
-					private static final long serialVersionUID = 1L;
-				};
-			}
-		});
-		
-		 
-
-	
-
-	addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-
-			return new AjaxLinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public void onClick(AjaxRequestTarget target)  {
-					fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
-				}
-
-				@Override
-				public IModel<String> getLabel() {
-					return getLabel("metadata");
-				}
-			};
-		}
-	});
-	
-	
 	
 	
 	
@@ -199,6 +153,12 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 			}
 		});
 		
+		
+	
+			 
+
+		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
@@ -210,7 +170,46 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.artexhibitionguide_audit, target));
+						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("metadata");
+					}
+				};
+			}
+		});
+		
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+				
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+					 
+					return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
+						private static final long serialVersionUID = 1L;
+					};
+				}
+			});
+			
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick(AjaxRequestTarget target)  {
+						fire ( new MenuAjaxEvent(ServerAppConstant.object_audit, target));
 					}
 
 					@Override

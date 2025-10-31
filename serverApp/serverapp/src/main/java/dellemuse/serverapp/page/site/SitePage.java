@@ -48,6 +48,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
@@ -183,7 +184,7 @@ public class SitePage extends BasePage {
 		
 		add(ph);
 
-		add(new GlobalTopPanel("top-panel"));
+		add(new GlobalTopPanel("top-panel", new ObjectModel<User>( getSessionUser().get())));
 		add(new GlobalFooterPanel<>("footer-panel"));
 
 		addExhibitions();

@@ -238,7 +238,9 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 					return getLabel("yes").getObject();
 				return getLabel("no").getObject();
 			}
-			
+			public boolean isVisible() {
+				return ObjectMetaEditor.this.isAudioAutoGenerate();
+			}
 			
 		};
 		form.add(this.audioModeField);
@@ -306,6 +308,17 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 	}
 
 	
+	boolean isAudioAutoGenerate = false;
+	
+	protected boolean isAudioAutoGenerate() {
+		return isAudioAutoGenerate; 
+	}
+	
+	public void setAudioAutoGenerate( boolean b) {
+		this.isAudioAutoGenerate=b;
+	}
+
+
 	protected List<Language> getLanguages() {
 		return getLanguageService().getLanguagesSorted(Locale.ENGLISH);
 	}

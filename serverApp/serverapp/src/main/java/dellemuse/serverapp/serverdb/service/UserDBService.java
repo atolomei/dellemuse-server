@@ -2,14 +2,17 @@ package dellemuse.serverapp.serverdb.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
+import org.threeten.bp.ZoneId;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
@@ -32,6 +35,7 @@ public class UserDBService extends DBService<User, Long> {
 
     private final PersonDBService personDBService;
 
+    @Autowired
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -42,7 +46,6 @@ public class UserDBService extends DBService<User, Long> {
         this.personDBService = personDBService;
     }
 
-    
     @Transactional
     @Override
     public User create(String name, User createdBy) {
@@ -58,19 +61,21 @@ public class UserDBService extends DBService<User, Long> {
     public User create(String name, Person person, User createdBy) {
         User c = new User();
         c.setName(name);
-        c.setNameKey(nameKey(name));
+        //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
+        c.setZoneId( getSettings().getDefaultZoneId() );
 
         getRepository().save(c);
 
         if (person != null) {
             person.setUser(c);
-            personDBService.save(person);
+            getPersonDBService().save(person);
         }
         return c;
     }
+
 
     @Transactional
     @Override
@@ -78,10 +83,19 @@ public class UserDBService extends DBService<User, Long> {
         return createNameQuery(name).getResultList();
     }
     
-    public User getSessionUser() {
-    	return findRoot();
-    }
    
+	@Transactional
+	public Optional<User> findWithDeps(Long id) {
+		Optional<User> o_u = super.findById(id);
+		if (o_u.isEmpty())
+			return  o_u;
+		User user = o_u.get();
+		user.setDependencies(true);
+		return o_u;
+	}
+
+	
+	
     @Transactional
     public User findRoot() {
         CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -101,7 +115,11 @@ public class UserDBService extends DBService<User, Long> {
         }
         throw new RuntimeException("Database does not have user with name=='root'");
     }
-
+    
+    public User getSessionUser() {
+    	return findRoot();
+    }
+ 
     @Override
     protected String getNameColumn() {
         return "name";
@@ -135,6 +153,11 @@ public class UserDBService extends DBService<User, Long> {
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
     }
+
+	
+	public PersonDBService getPersonDBService() {
+		return personDBService;
+	}
    
     
 }

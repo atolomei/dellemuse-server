@@ -15,6 +15,7 @@ import org.apache.wicket.model.util.ListModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -362,7 +363,9 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 			save(getModelObject());
 			uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
-			logger.debug("done");
+			getForm().updateReload();
+			fire (new ObjectUpdateEvent(target));
+		
 			target.add(this);
 
 

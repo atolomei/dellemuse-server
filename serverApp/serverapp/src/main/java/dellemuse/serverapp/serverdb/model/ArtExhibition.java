@@ -71,6 +71,17 @@ public class ArtExhibition extends MultiLanguageObject {
 	@JsonProperty("artExhibitionItems")
 	private List<ArtExhibitionItem> artExhibitionItems;
 
+	
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = ArtExhibitionSection.class)
+	@JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
+	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
+	@OrderBy("lower(name) ASC")
+	@JsonProperty("artExhibitionSections")
+	private List<ArtExhibitionSection> artExhibitionSections;
+	
+	
+	
 	@Column(name = "website")
 	private String website;
 
@@ -125,6 +136,15 @@ public class ArtExhibition extends MultiLanguageObject {
 		this.artExhibitionItems = artExhibitionItems;
 	}
  
+
+	public List<ArtExhibitionSection> getArtExhibitionSections() {
+		return artExhibitionSections;
+	}
+
+	public void setArtExhibitionSections(List<ArtExhibitionSection> artExhibitionSec) {
+		this.artExhibitionSections = artExhibitionSec;
+	}
+	
 
 	public String getLocation() {
 		return location;

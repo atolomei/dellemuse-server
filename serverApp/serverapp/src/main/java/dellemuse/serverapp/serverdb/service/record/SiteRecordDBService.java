@@ -120,14 +120,9 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 	
 		List<SiteRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-		
 	}
 
-	
-
 	/**
-	 * 
-	 * 
 	 * @param name
 	 * @param site
 	 * @param createdBy
@@ -138,7 +133,7 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 		SiteRecord c = new SiteRecord();
 		
 		c.setName(name);
-		c.setNameKey(nameKey(name));
+		//c.setNameKey(nameKey(name));
 		c.setSite(site); 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -148,8 +143,6 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 		return getRepository().save(c);
 	}
 
-	
-	 
 	@Transactional
 	private void deleteResources(Long id) {
 		

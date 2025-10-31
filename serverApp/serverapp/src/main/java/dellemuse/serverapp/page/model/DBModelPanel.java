@@ -20,6 +20,7 @@ import dellemuse.serverapp.command.ResourceMetadataCommand;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -31,6 +32,7 @@ import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionSectionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
@@ -47,6 +49,7 @@ import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
+import dellemuse.serverapp.service.DTFormatter;
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.language.LanguageService;
@@ -111,6 +114,19 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 	}
 	
 	
+	protected String getImageSrc(ArtExhibitionSection ex) {
+		
+		if (ex == null)
+			return null;
+		
+		if (!ex.isDependencies())
+			ex = findArtExhibitionSectionWithDeps(ex.getId()).get();
+			
+		return this.getImageSrc(ex.getPhoto());
+	}
+	
+	
+	
 	protected String getImageSrc(ArtExhibitionGuide g) {
 
 		if (g == null)
@@ -160,19 +176,32 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		getArtExhibitionDBService().save(ex);
 	}
 	
+	public void save(User o) {
+		getUserDBService().save(o);
+	}
+	
+
+	public void removeSection(ArtExhibition ex, ArtExhibitionSection item, User removedBy) {
+		getArtExhibitionDBService().removeSection(ex, item, removedBy);
+	}
+	
 	public void removeItem(ArtExhibition ex, ArtExhibitionItem item, User removedBy) {
 		getArtExhibitionDBService().removeItem(ex, item, removedBy);
 	}
 
+	
+	
+	public void removeItem(ArtExhibition ex, ArtExhibitionSection item, User removedBy) {
+		getArtExhibitionDBService().removeSection(ex, item, removedBy);
+	}
+	
 	public void removeItem(ArtExhibitionGuide ex, GuideContent item, User removedBy) {
 		getArtExhibitionGuideDBService().removeItem(ex, item, removedBy);
 	}
 	
-	
 	public void addItem(ArtExhibition ex, ArtWork item, User addedBy) {
 		getArtExhibitionDBService().addItem(ex, item, addedBy);
 	}
-
 	
 	public void addItem(ArtExhibitionGuide g, ArtExhibitionItem item, User addedBy) {
 		getGuideContentDBService().create(g, item, addedBy);
@@ -196,10 +225,20 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 	}
 	
 	
+
+	public Optional<ArtExhibitionSection> findArtExhibitionSectionWithDeps(Long id) {
+		ArtExhibitionSectionDBService service = (ArtExhibitionSectionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionSectionDBService.class);
+		return service.findWithDeps(id);
+	}
+	
+	
+	
 	public Optional<ArtExhibitionItem> findArtExhibitionItemWithDeps(Long id) {
 		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 		return service.findWithDeps(id);
 	}
+	
+	
 	
 	
 	public Optional<ArtExhibitionGuide> findArtExhibitionGuideWithDeps(Long id) {
@@ -373,6 +412,10 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 
 	protected Iterable<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition o) {
 		return getArtExhibitionDBService().getArtExhibitionItems(o);
+	}
+
+	protected Iterable<ArtExhibitionSection> getArtExhibitionSections(ArtExhibition o) {
+		return getArtExhibitionDBService().getArtExhibitionSections(o);
 	}
 	
 	protected Iterable<ArtExhibitionGuide> getArtExhibitionIGuides(ArtExhibition o) {
@@ -570,20 +613,21 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return e.getInfo();
 	}
 	
+	public String getInfo(ArtExhibitionSection e) {
+		return e.getInfo();
+	}
+	
 	public String getInfo(ArtExhibitionGuide g, boolean useExhibitionIfNull) {
-
 		
 		if (!g.isDependencies())
 			g=this.findArtExhibitionGuideWithDeps(g.getId()).get();
-		
 		
 		List<String> l=new ArrayList<String>();
 		
 		StringBuilder str = new StringBuilder();
 		
-		if (g.getPublisher()!=null) {
+		if (g.getPublisher()!=null)
 			l.add("publisher: " + g.getPublisher().getDisplayName());
-		}
 		
 		if (g.getAudio()!=null)
 			l.add("audio: " + g.getAudio().getDisplayname());
@@ -661,23 +705,28 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return str.toString();
 	}
 
+	
+	protected String getAudioMeta(IModel<Resource> model) {
+		if (model==null || model.getObject()==null)
+			return "";
+		return getAudioMeta( model.getObject());
+	}
+	
 	protected String getAudioMeta(Resource resource) {
 		
 		if (resource == null)
-			return null;
+			return "";
+		
+		if (!resource.isDependencies())
+			resource = getResourceDBService().findWithDeps(resource.getId()).get();
 		
 		StringBuilder str =  new StringBuilder();
-
 		String media = resource.getMedia();
-		
 		str.append(resource.getName().toLowerCase());
-		
-	
 
 		if (media!=null) {
 			if (media.contains("audio")) {
 				//str.append(" - " + media);
-				
 				if (resource.getDurationMilliseconds()>0) {
 					str.append(" - " + NumberFormatter.formatDuration(resource.getDurationMilliseconds()) );
 				}
@@ -687,8 +736,12 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		if (resource.getSize()>0) {
 			str.append(" - " + NumberFormatter.formatFileSize(resource.getSize()) );
 		}
+	
+		str.append("<br/>");
 		
-		
+		str.append( getLabel( "manually-uploaded",	resource.getLastModifiedUser().getName(), 
+ 							getDateTimeService().format(resource.getLastModified(), DTFormatter.Month_Day_Year_hh_mm )).getObject() );
+	 
 		return str.toString();
 	}
 	

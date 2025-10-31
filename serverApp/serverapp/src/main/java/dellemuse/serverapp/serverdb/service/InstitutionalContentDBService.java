@@ -60,7 +60,7 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
     public  InstitutionalContent create(String name,User createdBy) {
         InstitutionalContent c = new  InstitutionalContent();
         c.setName(name);
-        c.setNameKey(nameKey(name));
+        //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);

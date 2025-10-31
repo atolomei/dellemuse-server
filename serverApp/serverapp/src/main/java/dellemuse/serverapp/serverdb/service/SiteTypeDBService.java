@@ -46,7 +46,7 @@ public class SiteTypeDBService extends DBService<SiteType, Long> {
     public SiteType create(String name,User createdBy) {
         SiteType c = new SiteType();
         c.setName(name);
-        c.setNameKey(nameKey(name));
+        //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);

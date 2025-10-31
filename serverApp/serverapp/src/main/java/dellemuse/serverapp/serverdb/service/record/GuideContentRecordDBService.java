@@ -138,7 +138,7 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 		GuideContentRecord c = new GuideContentRecord();
 		
 		c.setName(name);
-		c.setNameKey(nameKey(name));
+		//c.setNameKey(nameKey(name));
 		c.setGuideContent(GuideContent); 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -190,10 +190,10 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 		 
 		Resource photo = aw.getPhoto();
 
-		User u = aw.getLastModifiedUser();
+//		User u = aw.getLastModifiedUser();
 		
-		if (u!=null)
-			u.getDisplayname();
+//		if (u!=null)
+//			u.getDisplayname();
 		
 		if (photo != null)
 			photo.getBucketName();

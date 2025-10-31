@@ -138,7 +138,7 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 		PersonRecord c = new PersonRecord();
 		
 		c.setName(name);
-		c.setNameKey(nameKey(name));
+		//c.setNameKey(nameKey(name));
 		c.setPerson(site); 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
