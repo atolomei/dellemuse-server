@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
@@ -21,32 +22,38 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibitionGuideRecord extends TranslationRecord {
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
-    @JoinColumn(name = "artExhibitionGuide_id", referencedColumnName = "id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
-    @JsonProperty("artExhibitionGuide")
-    private ArtExhibitionGuide artExhibitionGuide;
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
+	@JoinColumn(name = "artExhibitionGuide_id", referencedColumnName = "id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	@JsonProperty("artExhibitionGuide")
+	private ArtExhibitionGuide artExhibitionGuide;
 
-    
-    
-   	public ArtExhibitionGuideRecord() {
-    }
+	public ArtExhibitionGuideRecord() {
+	}
 
-    public ArtExhibitionGuide getArtExhibitionGuide() {
-        return artExhibitionGuide;
-    }
+	public ArtExhibitionGuide getArtExhibitionGuide() {
+		return artExhibitionGuide;
+	}
 
-    public void setArtExhibitionGuide(ArtExhibitionGuide artExhibitionGuide) {
-        this.artExhibitionGuide = artExhibitionGuide;
-    }
+	public void setArtExhibitionGuide(ArtExhibitionGuide artExhibitionGuide) {
+		this.artExhibitionGuide = artExhibitionGuide;
+	}
 
 	@Override
 	public MultiLanguageObject getParentObject() {
-    	if (this.artExhibitionGuide!=null)
-    		return this.artExhibitionGuide;
-    	return null;
-    }
-	
+		if (this.artExhibitionGuide != null)
+			return this.artExhibitionGuide;
+		return null;
+	}
+
+	public boolean isAudioStudioEnabled() {
+		return true;
+	}
+
+	@Override
+	public String getPrefixUrl() {
+		return  PrefixUrl.ArtExhibitionGuide;
+	}
 };

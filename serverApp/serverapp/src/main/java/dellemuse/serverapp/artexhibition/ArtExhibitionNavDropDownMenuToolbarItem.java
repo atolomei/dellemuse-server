@@ -34,12 +34,12 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends ObjectBaseNavDropDo
 		if (getModel()!=null && getModel().getObject()!=null) {
 	
 			if (model.getObject().getShortname()!=null)
-				setLabel( getLabel("art-exhibition", model.getObject().getShortname()) );
+				setTitle( getLabel("art-exhibition", model.getObject().getShortname()) );
 
 			else if (model.getObject().getName()!=null)
 				getLabel("art-exhibition",model.getObject().getName() );
 		else
-			setLabel( Model.of(model.getObject().getDisplayname()) );
+			setTitle( Model.of(model.getObject().getDisplayname()) );
 		}		
 	}
 	

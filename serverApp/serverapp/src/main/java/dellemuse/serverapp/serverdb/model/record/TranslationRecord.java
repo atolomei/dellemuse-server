@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -31,7 +32,7 @@ import jakarta.persistence.OneToOne;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @JsonInclude(Include.NON_NULL)
-public abstract class TranslationRecord extends DelleMuseObject {
+public abstract class TranslationRecord extends DelleMuseObject implements AudioStudioParentObject {
 
 	@Column(name = "subtitle")
 	private String subtitle;
@@ -99,12 +100,14 @@ public abstract class TranslationRecord extends DelleMuseObject {
 	@Column(name = "spec_hash")
 	private int specHash;
 	
-	
 	@Column(name = "opens")
 	private String opens;
 
 	@Column(name = "opens_hash")
 	private int opensHash;
+	
+	@Column(name = "audioAuto")
+	private boolean audioAuto;
 	
 	public abstract MultiLanguageObject getParentObject();
 
@@ -257,26 +260,21 @@ public abstract class TranslationRecord extends DelleMuseObject {
 		return spec;
 	}
 
-
 	public int getSpecHash() {
 		return specHash;
 	}
-
 
 	public void setSpec(String spec) {
 		this.spec = spec;
 	}
 
-
 	public void setSpecHash(int specHash) {
 		this.specHash = specHash;
 	}
 
-
 	public void setOpens(String opens) {
 		this.opens=opens;
 	}
-	
 	
 	public String getOpens() {
 		return opens;
@@ -289,9 +287,17 @@ public abstract class TranslationRecord extends DelleMuseObject {
 	public void setOpensHash(int h) {
 		 opensHash=h;
 	}
-	
-	
-	
+
+	public boolean isAudioAuto() {
+		return audioAuto;
+	}
+
+	public void setAudioAuto(boolean audioAuto) {
+		this.audioAuto = audioAuto;
+	}
+
+
+	public abstract boolean isAudioStudioEnabled();
 	
 }
 

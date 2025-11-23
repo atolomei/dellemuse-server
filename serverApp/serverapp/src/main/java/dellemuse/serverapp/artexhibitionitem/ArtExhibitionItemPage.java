@@ -36,6 +36,8 @@ import dellemuse.serverapp.artexhibition.ArtExhibitionEXTNavDropDownMenuToolbarI
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
 import dellemuse.serverapp.artexhibitionsection.ArtExhibitionSectionPage;
+import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
+import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -260,6 +262,16 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 			}
 		});
 	
+	}
+	
+	protected void onDelete(AjaxRequestTarget target) {
+		getArtExhibitionItemDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectMarkAsDeleteEvent(target));
+	}
+	
+	protected void onRestore(AjaxRequestTarget target) {
+		getArtExhibitionItemDBService().restore( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectRestoreEvent(target));
 	}
 	
 	public ArtExhibitionItemPage() {

@@ -25,6 +25,7 @@ import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -89,6 +90,21 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	public Iterable<ArtWork> getObjects() {
 		return getArtWorks(getSiteModel().getObject());
 	}
+	
+	@Override
+	public Iterable<ArtWork> getObjects(ObjectState os1) {
+		return getArtWorks(getSiteModel().getObject(), os1);
+	}
+
+	
+
+	@Override
+	public Iterable<ArtWork> getObjects(ObjectState os1, ObjectState os2) {
+		return getArtWorks(getSiteModel().getObject(), os1, os2);
+	}
+	
+	
+	
 
 	@Override
 	public IModel<String> getObjectInfo(IModel<ArtWork> model) {
@@ -141,7 +157,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 				};
 			}
@@ -252,7 +268,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	}
 
 	@Override
-	protected List<ToolbarItem> getToolbarItems() {
+	protected List<ToolbarItem> getMainToolbarItems() {
 		
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		
@@ -270,6 +286,12 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		
 		return list;
 	}
+	
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		return null;
+	}
+	
 	
 	@Override
 	protected void addListeners() {
@@ -309,7 +331,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		return ListPanelMode.TITLE;
 	}
 
-	@Override
+	 
 	protected void onCreate() {
 		ArtWork aw = getArtWorkDBService().create("new", getSiteModel().getObject(), getUserDBService().findRoot());
 		IModel<ArtWork> m = new ObjectModel<ArtWork>(aw);
@@ -325,5 +347,6 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		}
 		return null;
 	}
+
 	
 }

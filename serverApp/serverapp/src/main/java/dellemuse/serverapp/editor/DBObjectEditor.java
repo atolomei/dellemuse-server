@@ -3,9 +3,9 @@ package dellemuse.serverapp.editor;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
 
@@ -15,6 +15,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -28,6 +29,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
@@ -52,27 +54,28 @@ import io.wktui.form.field.Field;
  * 
  * id value
  * 
- * 
  * @param <T>
  */
 public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	private static final long serialVersionUID = 1L;
 
-	
-	public List<ObjectState> getStates() {
-		return b_state;
-	}
-	
-	static private final List<ObjectState> b_state = new ArrayList<ObjectState>();
+	static public final List<Boolean> b_list = new ArrayList<Boolean>();
 	static {
-		 b_state.add(ObjectState.DRAFT 		);
-		 b_state.add(ObjectState.EDTIION 	);
-		 b_state.add(ObjectState.PUBLISHED  );
-		 b_state.add(ObjectState.ARCHIVED 	);
-		 b_state.add(ObjectState.APPROVED 	);
+		b_list.add(Boolean.TRUE);
+		b_list.add(Boolean.FALSE);
 	}
-	
+
+	static public final List<ObjectState> b_state = new ArrayList<ObjectState>();
+	static {
+		b_state.add(ObjectState.DRAFT);
+		b_state.add(ObjectState.EDTION);
+		b_state.add(ObjectState.DELETED);
+		b_state.add(ObjectState.PUBLISHED);
+		b_state.add(ObjectState.ARCHIVED);
+		b_state.add(ObjectState.APPROVED);
+	}
+
 	private Form<T> form;
 //	private IModel<T> model;
 	private boolean readonly = false;
@@ -86,6 +89,10 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 	@Override
 	public boolean isReadOnly() {
 		return readonly;
+	}
+
+	public List<ObjectState> getStates() {
+		return b_state;
 	}
 
 	public void cancel(AjaxRequestTarget target) {
@@ -114,6 +121,21 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		 *           field.cancel(); } });
 		 **/
 		target.add(this);
+	}
+
+	public void edit() {
+		getForm().setFormState(FormState.EDIT);
+		getForm().visitChildren(Field.class, new IVisitor<Field<?>, Void>() {
+			@Override
+			public void component(Field<?> field, IVisit<Void> visit) {
+				// if (focus==null) {
+				// target.focusComponent(field.getInput());
+				// focus = field;
+				// }
+				field.editOn();
+
+			}
+		});
 	}
 
 	public void edit(final AjaxRequestTarget target) {
@@ -216,71 +238,55 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		return NumberFormatter.formatFileSize(size);
 	}
 
+	public void save(AudioStudio a) {
+		AudioStudioDBService service = (AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class);
+		service.save(a);
+	}
+
 	public void save(GuideContent a) {
-		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance()
-				.getBean(GuideContentDBService.class);
+		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 		service.save(a);
 	}
 
 	public void save(ArtExhibitionItem a) {
-		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance()
-				.getBean(ArtExhibitionItemDBService.class);
+		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 		service.save(a);
 	}
-	
+
 	public void save(ArtExhibitionItemRecord ir) {
-		ArtExhibitionItemRecordDBService service = (ArtExhibitionItemRecordDBService) ServiceLocator.getInstance()
-				.getBean(ArtExhibitionItemRecordDBService.class);
+		ArtExhibitionItemRecordDBService service = (ArtExhibitionItemRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemRecordDBService.class);
 		service.save(ir);
 	}
-	
+
 	public void save(ArtExhibitionGuide a) {
-		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance()
-				.getBean(ArtExhibitionGuideDBService.class);
+		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 		service.save(a);
 	}
-	
+
 	public void save(ArtExhibition a) {
-		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance()
-				.getBean(ArtExhibitionDBService.class);
+		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 		service.save(a);
 	}
-	
+
 	public void save(Institution inst) {
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
-				.getBean(InstitutionDBService.class);
+		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 		service.save(inst);
 	}
-	
-	public void save(InstitutionRecord ir) {
-		InstitutionRecordDBService service = (InstitutionRecordDBService) ServiceLocator.getInstance()
-				.getBean(InstitutionRecordDBService.class);
-		service.save(ir);
-		
-	}
-	
 
-	
-	
-	
-	
-	
-	
-	
+	public void save(InstitutionRecord ir) {
+		InstitutionRecordDBService service = (InstitutionRecordDBService) ServiceLocator.getInstance().getBean(InstitutionRecordDBService.class);
+		service.save(ir);
+	}
+
 	public void save(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		service.save(site);
 	}
-	
+
 	public void save(SiteRecord ir) {
-		SiteRecordDBService service = (SiteRecordDBService) ServiceLocator.getInstance()
-				.getBean(SiteRecordDBService.class);
+		SiteRecordDBService service = (SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class);
 		service.save(ir);
-		
 	}
-	
-	
-	
 
 	public void save(ArtWork artwork) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
@@ -291,7 +297,7 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		ArtWorkRecordDBService service = (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);
 		service.save(o);
 	}
-	
+
 	public void save(Person person) {
 		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 		service.save(person);
@@ -299,6 +305,32 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	protected String getMimeType(String clientFileName) {
 		return super.getResourceDBService().getMimeType(clientFileName);
+	}
+
+	protected String normalizeFileName(String name) {
+		String str = name.replaceAll("[^\\x00-\\x7F]|[\\s]+", "-").toLowerCase().trim();
+		str = str.replace(".", "");
+		if (str.length() < 100)
+			return str;
+		return str.substring(0, 100);
+	}
+
+	protected IModel<String> getLabel(String key) {
+		return new StringResourceModel(key, this, null);
+	}
+
+	protected String getLabelString(String key) {
+		return getLabel(key).getObject();
+	}
+
+	protected String getLabelString(String key, String... parameter) {
+		return getLabel(key, parameter).getObject();
+	}
+
+	protected IModel<String> getLabel(String key, String... parameter) {
+		StringResourceModel model = new StringResourceModel(key, this, null);
+		model.setParameters((Object[]) parameter);
+		return model;
 	}
 
 }

@@ -29,7 +29,7 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 
 	public ArtExhibitionItemNavDropDownMenuToolbarItem(String id, IModel< ArtExhibitionItem> model, Align align) {
 		this(id, model, null, align);
-		setLabel( getLabel("art-exhibition-item", model.getObject().getDisplayname()) );
+		setTitle( getLabel("art-exhibition-item", model.getObject().getDisplayname()) );
 	}
 	
 	public ArtExhibitionItemNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionItem> model, IModel<String> title, Align align) {

@@ -16,8 +16,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.ArtWorkModel;
@@ -33,10 +31,14 @@ import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
+import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.model.TextCleaner;
@@ -46,6 +48,7 @@ import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanelMode;
 
 /**
@@ -61,10 +64,12 @@ public class SiteListPage extends ObjectListPage<Site> {
 
 	static private Logger logger = Logger.getLogger(SiteListPage.class.getName());
 
-	protected WebMarkupContainer getSubmenu() {
-		return null;
-	}
-
+	
+	private List<ToolbarItem> mainToolbar;
+	private List<ToolbarItem> listToolbar;
+	
+	
+	
 	public SiteListPage() {
 		super();
 		super.setIsExpanded(true);
@@ -75,13 +80,43 @@ public class SiteListPage extends ObjectListPage<Site> {
 		super.setIsExpanded(true);
 	}
 
-
 	@Override
 	public Iterable<Site> getObjects() {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.findAllSorted();
 	}
 
+	
+	@Override
+	public Iterable<Site> getObjects(ObjectState os1) {
+		 return this.getObjects(os1, null);
+	}
+
+	
+	@Override
+	public Iterable<Site> getObjects(ObjectState os1, ObjectState os2) {
+
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+
+		if (os1==null && os2==null)
+			return service.findAllSorted();
+	
+		if (os2==null)
+			return service.findAllSorted(os1);
+
+		if (os1==null)
+			return service.findAllSorted(os2);
+		
+		return service.findAllSorted(os1, os2);
+	}
+
+	
+	
+	
+	
+	
+	
+	
 	@Override
 	public IModel<String> getObjectInfo(IModel<Site> model) {
 		return new Model<String>(TextCleaner.clean(model.getObject().getInfo(), 280));
@@ -105,30 +140,53 @@ public class SiteListPage extends ObjectListPage<Site> {
 	@Override
 	public IModel<String> getListPanelLabel() {
 		return null;
-
 	}
-	
-	
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
 	}
 
-	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 	}
 
-	
 	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		
+		if (listToolbar!=null)
+			return listToolbar;
+		
+		listToolbar = new ArrayList<ToolbarItem>();
+	
+		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel( getLocale() ));
+		ObjectStateListSelector s = new ObjectStateListSelector("item",  selected, Align.TOP_LEFT);
+		
+		listToolbar.add(s);
+		
+		return listToolbar;
+	}
+
+	protected WebMarkupContainer getSubmenu() {
+		return null;
+	}
+
+	
 	protected void onCreate() {
-		Site in = getSiteDBService().create("new", getUserDBService().findRoot());
-		IModel<Site> m = new ObjectModel<Site>(in);
-		getList().add(m);
-		setResponsePage(new SitePage(m, getList()));
+		
+		try {
+			Site in = getSiteDBService().create("new", getUserDBService().findRoot());
+			IModel<Site> m = new ObjectModel<Site>(in);
+			getList().add(m);
+			setResponsePage(new SitePage(m, getList()));
+		} catch (Exception e) {
+			logger.error(e);
+			setResponsePage(new ErrorPage(e));
+
+		}
+
 	}
 
 	protected void addHeaderPanel() {
@@ -141,16 +199,17 @@ public class SiteListPage extends ObjectListPage<Site> {
 	}
 
 	
-	@Override
-	protected List<ToolbarItem> getToolbarItems() {
 	
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+	@Override
+	protected List<ToolbarItem> getMainToolbarItems() {
 
-	 
-		return list;
+		if (mainToolbar!=null)
+			return mainToolbar;
 		
-	}
+		mainToolbar = new ArrayList<ToolbarItem>();
+		return mainToolbar;
 
+	}
 
 	@Override
 	protected ListPanelMode getListPanelMode() {
@@ -166,66 +225,64 @@ public class SiteListPage extends ObjectListPage<Site> {
 		return null;
 	}
 
-	 
-	 @Override
-		protected WebMarkupContainer getObjectMenu(IModel<Site> model) {
-			
-			NavDropDownMenu<Site> menu = new NavDropDownMenu<Site>("menu", model, null);
-			
-			menu.setOutputMarkupId(true);
+	@Override
+	protected WebMarkupContainer getObjectMenu(IModel<Site> model) {
 
-			menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
-			menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+		NavDropDownMenu<Site> menu = new NavDropDownMenu<Site>("menu", model, null);
 
-			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+		menu.setOutputMarkupId(true);
 
-				private static final long serialVersionUID = 1L;
+		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
-				@Override
-				public MenuItemPanel<Site> getItem(String id) {
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
-					return new AjaxLinkMenuItem<Site>(id) {
+			private static final long serialVersionUID = 1L;
 
-						private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
 
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							// refresh(target);
-						}
+				return new AjaxLinkMenuItem<Site>(id) {
 
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("edit");
-						}
-					};
-				}
-			});
+					private static final long serialVersionUID = 1L;
 
-			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
 
-				private static final long serialVersionUID = 1L;
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("open");
+					}
+				};
+			}
+		});
 
-				@Override
-				public MenuItemPanel<Site> getItem(String id) {
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
-					return new AjaxLinkMenuItem<Site>(id) {
+			private static final long serialVersionUID = 1L;
 
-						private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
 
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							// refresh(target);
-						}
+				return new AjaxLinkMenuItem<Site>(id) {
 
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("delete");
-						}
-					};
-				}
-			});
-			return menu;
-		}
-		
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+			}
+		});
+		return menu;
+	}
 
 }

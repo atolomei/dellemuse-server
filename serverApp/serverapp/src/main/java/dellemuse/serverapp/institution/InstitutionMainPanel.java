@@ -24,7 +24,7 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.event.MenuAjaxEvent;
-import io.wktui.event.SimpleAjaxWicketEvent;
+
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -182,8 +182,7 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 		if (getSiteList().size() == 0)
 			site = service.create(getModel().getObject(), getUserDBService().findRoot());
 		else
-			site = service.create(getModel().getObject().getName() + " " + String.valueOf(getSiteList().size()),
-					getUserDBService().findRoot());
+			site = service.create(getModel().getObject().getName() + " " + String.valueOf(getSiteList().size()), getUserDBService().findRoot());
 		IModel<Site> m = new ObjectModel<Site>(site);
 		getSiteList().add(m);
 		setResponsePage(new SitePage(m, getSiteList()));

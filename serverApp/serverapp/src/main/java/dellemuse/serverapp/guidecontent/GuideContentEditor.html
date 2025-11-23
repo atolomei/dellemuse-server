@@ -1,6 +1,17 @@
 
 <wicket:panel>
 
+
+	<!-- div wicket:id="infoContainer" class="row">
+		<div class="mt-2 mb-3 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+				<div wicket:id="info" /> 
+		</div>
+	</div -->
+
+
+	<div wicket:id="simpleAlertRow" /> 
+	
+	
 	<div class="row">
 		<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
 			<h3>
@@ -42,7 +53,14 @@
 					<div class="mb-4" wicket:id="audio"></div>
 					
 					<div class="row">
-							<div class="mt-0  mb-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+							<div class="mt-2  mb-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+								 <a wicket:id="openAudioStudio" class="mt-3 mb-3 pt-2 pb-2 btn-link" href="#"><span wicket:id="openAudioStudioLabel"></span></a>
+							</div>
+					</div>
+					
+					
+					<div class="row">
+							<div class="border-top pt-4 mt-4 mb-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
 								 <a wicket:id="openArtwork" class="mt-3 mb-3 pt-2 pb-2 btn-link" href="#"><span wicket:id="openArtworkLabel"></span></a>
 							</div>
 					</div>

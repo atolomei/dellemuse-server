@@ -22,6 +22,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.PersonPage;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -86,6 +87,22 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 				.getBean(SiteDBService.class);
 		return service.getArtistsBySiteId(getSiteModel().getObject().getId());
 	}
+	
+	
+	@Override
+	public Iterable<Person> getObjects(ObjectState os1) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
+				.getBean(SiteDBService.class);
+		return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1);
+	}
+
+	@Override
+	public Iterable<Person> getObjects(ObjectState os1, ObjectState os2) {
+			SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
+					.getBean(SiteDBService.class);
+			return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1, os2);
+	}
+	
 	
 	@Override
 	public IModel<String> getObjectInfo(IModel<Person> model) {
@@ -169,7 +186,13 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 		return getLabel("artists");
 	}
 
-	protected List<ToolbarItem> getToolbarItems() {
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		return null;
+	}
+	
+	
+	protected List<ToolbarItem> getMainToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		list.add(new SiteNavDropDownMenuToolbarItem(	"item", 
 														getSiteModel(), 
@@ -237,6 +260,8 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 		ph.setBreadCrumb(bc);
 		add(ph);
 	}
+
+	
 	
 }
 

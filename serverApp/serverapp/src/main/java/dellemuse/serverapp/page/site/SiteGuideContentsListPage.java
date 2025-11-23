@@ -14,7 +14,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
 
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
@@ -38,11 +37,14 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
+import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -121,7 +123,7 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 	}
 
 
-	protected List<ToolbarItem> getToolbarItems() {
+	protected List<ToolbarItem> getMainToolbarItems() {
 		
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 
@@ -141,6 +143,11 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 	}
 	
 	
+	protected void onCreate() {
+		throw new RuntimeException("not done");
+		
+	}
+
 	protected void addHeaderPanel() {
 	    BreadCrumb<Void> bc = createBreadCrumb();
 		   
@@ -164,18 +171,44 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 
 	
 	public Iterable<GuideContent> getObjects() {
-		
-		
-		
-		SiteDBService service= (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		Iterable<ArtExhibitionItem> it= service.getSiteArtExhibitionItems(getSiteModel().getObject().getId());
-		it.forEach(i -> logger.debug(i.toString()));
-
-		
 		return service.getSiteGuideContent( getSiteModel().getObject().getId());
 	}
 
+	
+
+	@Override
+	public Iterable<GuideContent> getObjects(ObjectState os1) {
+		 return this.getObjects(os1, null);
+	}
+
+	@Override
+	public Iterable<GuideContent> getObjects(ObjectState os1, ObjectState os2) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		Iterable<ArtExhibitionItem> it= service.getSiteArtExhibitionItems(getSiteModel().getObject().getId());
+		return service.getSiteGuideContent( getSiteModel().getObject().getId());
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public IModel<String> getObjectInfo(IModel<GuideContent> model) {
 		return new Model<String>( model.getObject().getInfo());
 	}
@@ -213,6 +246,12 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 	@Override
 	public IModel<String> getListPanelLabel() {
 		 
+		return null;
+	}
+
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

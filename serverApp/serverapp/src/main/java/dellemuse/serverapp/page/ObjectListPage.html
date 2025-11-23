@@ -2,17 +2,20 @@
 <body>
 	<wicket:extend>
 
-		<section wicket:id="top-panel" />
+		<section wicket:id="top-panel"></section>
 
 		<section class="container-xxl main">
 
-			<div class="mb-1" style="float: left; width: 100%;" wicket:id="page-header"></div>
-
-
-			<div wicket:id="toolbarContainer" class="row">
+			<div class="row">
+				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12"> 
+					<div style="width:100%; float:left;" wicket:id="page-header"></div>
+				</div>
+			</div>
+			
+			<div wicket:id="mainToolbarContainer" class="row">
 				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
 					<div class="mt-1 mb-1 float-start w-100 bg-body-primary">
-						<div class="d-block float-start text-sm-start text-start w-100" wicket:id="toolbarItems" />
+						<div class="d-block float-start text-sm-start text-start w-100" wicket:id="mainToolbar" />
 					</div>
 				</div>
 			</div>
@@ -23,6 +26,16 @@
 				</div>
 			</div>
 
+			<div wicket:id="listToolbarContainer" class="row">
+				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+					<div class="mt-1 mb-1 float-start w-100 bg-body-primary">
+						<div class="d-block float-start text-sm-start text-start w-100" wicket:id="listToolbar" />
+					</div>
+				</div>
+			</div>
+			
+			
+
 			<div class="row">
 				<div class="mb-4 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
 					<div wicket:id="contents"></div>
@@ -30,7 +43,7 @@
 			</div>
 		</section>
 
-		<section style="float: left; width: 100%;" class="hide-sm" wicket:id="footer-panel" />
+		<section style="float: left; width: 100%;" class="hide-sm" wicket:id="footer-panel"></section>
 
 	</wicket:extend>
 </body>

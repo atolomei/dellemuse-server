@@ -22,8 +22,6 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.ArtWorkModel;
@@ -90,88 +88,7 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	static private Logger logger = Logger.getLogger(SiteInfoPage.class.getName());
 
 	private SiteInfoEditor editor;
-
 	private List<ToolbarItem> list;
-
-	
-	@Override
-	protected Optional<SiteRecord> loadTranslationRecord(String lang) {
-		return getSiteRecordDBService().findBySite(getModel().getObject(), lang);
-	}
-	
-	@Override
-	protected SiteRecord createTranslationRecord(String lang) {
-		return getSiteRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
-	}
-	
-	@Override
-	protected boolean isOpensVisible() {
-		return true;
-	}
-	
-	@Override
-	protected void addListeners() {
-		super.addListeners();
-
-		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onEvent(SimpleAjaxWicketEvent event) {
-				
-				logger.debug(event.toString());
-
-				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
-					SiteInfoPage.this.onEdit(event.getTarget());
-				}
-				
-				
-				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
-					SiteInfoPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
-				}
-
-			
-				else if (event.getName().equals(ServerAppConstant.site_info)) {
-					SiteInfoPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.object_meta)) {
-					SiteInfoPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
-				}
-			
-				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
-					SiteInfoPage.this.togglePanel(event.getName(), event.getTarget());
-				}
-			
-				else if (event.getName().equals(ServerAppConstant.object_audit)) {
-					SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-				}
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof MenuAjaxEvent)
-					return true;
-				return false;
-			}
-		});
-
-	
-		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onEvent(SimpleWicketEvent event) {
-				if (event.getName().equals(ServerAppConstant.action_site_home)) {
-					setResponsePage( new SitePage( getModel(), getList()));
-				}
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleWicketEvent)
-					return true;
-				return false;
-			}
-		});
-	}
 	
 	public SiteInfoPage() {
 		super();
@@ -301,4 +218,85 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	}
  
 
+	
+	@Override
+	protected Optional<SiteRecord> loadTranslationRecord(String lang) {
+		return getSiteRecordDBService().findBySite(getModel().getObject(), lang);
+	}
+	
+	@Override
+	protected SiteRecord createTranslationRecord(String lang) {
+		return getSiteRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
+	
+	@Override
+	protected boolean isOpensVisible() {
+		return true;
+	}
+	
+	@Override
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+				
+				logger.debug(event.toString());
+
+				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+					SiteInfoPage.this.onEdit(event.getTarget());
+				}
+				
+				
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
+					SiteInfoPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
+				}
+
+			
+				else if (event.getName().equals(ServerAppConstant.site_info)) {
+					SiteInfoPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
+				}
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					SiteInfoPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+				}
+			
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
+					SiteInfoPage.this.togglePanel(event.getName(), event.getTarget());
+				}
+			
+				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+					SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof MenuAjaxEvent)
+					return true;
+				return false;
+			}
+		});
+
+	
+		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleWicketEvent event) {
+				if (event.getName().equals(ServerAppConstant.action_site_home)) {
+					setResponsePage( new SitePage( getModel(), getList()));
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleWicketEvent)
+					return true;
+				return false;
+			}
+		});
+	}
+
+	
 }

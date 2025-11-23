@@ -53,12 +53,10 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	private WebMarkupContainer frame = new WebMarkupContainer("frame");
 
 	private WebMarkupContainer contextContainer;
-
-	
 	private boolean imageAdded = false;
-
 	private boolean photoVisible = true;
 	
+	private String imgCss = "jumbo-img jumbo-md mb-2 mb-lg-0 border bg-body-tertiary";
 	
 	public JumboPageHeaderPanel(String id) {
 		this(id, null, null);
@@ -73,8 +71,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 		this.title=title; 
 		setOutputMarkupId(true); 
 	}
-
-
+ 
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -87,6 +84,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+
 		Label title = new Label("title", getTitle());
 		
 		frame.add(title);
@@ -100,7 +98,6 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	            WebMarkupContainer taglineContainer =  new WebMarkupContainer("taglineContainer");
 	            taglineContainer.add((new Label("tagline", getTagline())).setEscapeModelStrings(false));
 	            frame.addOrReplace(taglineContainer);
-	            
 	     }
 	     else {
 	       	frame.addOrReplace( new InvisiblePanel("taglineContainer"));
@@ -109,21 +106,16 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	            WebMarkupContainer taglineContainer =  new WebMarkupContainer("contextContainer");
 	            taglineContainer.add((new Label("context", getContext())).setEscapeModelStrings(false));
 	            frame.addOrReplace(taglineContainer);
-	            
 	     }
 	     else {
-	       	frame.addOrReplace( new InvisiblePanel("contextContainer"));
+	       	frame.addOrReplace(new InvisiblePanel("contextContainer"));
 	    }
-		 
-		 
 	}
-
 	
     public void setContext(IModel<String> context) {
 		this.context=context;
 	}
 
-    
     public IModel<String> getContext() {
 		return this.context;
 	}
@@ -142,15 +134,11 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
    
     }
     
-   
-    
-	
     public void setBreadCrumb(Panel bc) {
         if (!bc.getId().equals("breadcrumb"))
             throw new IllegalArgumentException(" id must be breadcrumb -> " + bc.getId());
         frame.addOrReplace(bc);
     }
-	
 	
     public IModel<String> getTagline() {
         return this.tagLine;
@@ -168,12 +156,40 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
     	this.photo=p;
     }
 
+	
+	public void setImageLinkCss(String css) {
+		
+		imgCss = css;
+		
+		if (this.imageLink!=null)
+			this.imageLink.add( new AttributeModifier("class", imgCss));
+	
+	}
 
     protected String getCss() {
     	return ((this.image!=null&&this.image.isVisible())?"mb-0 pb-4 border-bottom":"mb-0 pb-2 border-bottom");
 	}
-
     
+    
+    protected boolean isPhotoVisible() {
+		return photoVisible;
+	}
+
+
+	private IModel<String> getTitle() {
+	    
+    	if (this.title!=null)
+    		return this.title;
+    	
+    	if (getModel()!=null) {
+    		if (getModel().getObject() instanceof DelleMuseObject) {
+    			return new Model<String>( ((DelleMuseObject) getModel().getObject()).getDisplayname() );
+    		}
+    	}
+    	return new Model<String>( getClass().getSimpleName());  
+      
+    }
+	
 	
     private void addImageAndInfo() {
 
@@ -229,40 +245,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 			this.imageLink.addOrReplace(image);
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
-				
-			
-	}
-	
-    
-    
-        
-    
-    protected boolean isPhotoVisible() {
-		return photoVisible;
 	}
 
-	private IModel<String> getTitle() {
-    
-    	if (this.title!=null)
-    		return this.title;
-    	
-    	if (getModel()!=null) {
-    		if (getModel().getObject() instanceof DelleMuseObject) {
-    			return new Model<String>( ((DelleMuseObject) getModel().getObject()).getDisplayname() );
-    		}
-    	}
-    	return new Model<String>( getClass().getSimpleName());  
-      
-    }
-
-	String imgCss = "jumbo-img jumbo-md mb-2 mb-lg-0 border bg-body-tertiary";
 	
-	public void setImageLinkCss(String css) {
-		
-		imgCss = css;
-		
-		if (this.imageLink!=null)
-			this.imageLink.add( new AttributeModifier("class", imgCss));
-	
-	}
 }

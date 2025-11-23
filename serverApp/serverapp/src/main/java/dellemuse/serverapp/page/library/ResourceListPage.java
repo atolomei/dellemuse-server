@@ -16,7 +16,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
 
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
@@ -38,12 +37,15 @@ import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -90,7 +92,12 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 	}
 
 	 
+	 @Override
+		protected List<ToolbarItem> getListToolbarItems() {
+			return null;
+		}
 
+	 
 	@Override
 	public Iterable<Resource> getObjects() {
 		ResourceDBService service = (ResourceDBService) ServiceLocator.getInstance()
@@ -98,6 +105,32 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 		return service.findAllSorted();
 	}
 
+	
+	
+	@Override
+	public Iterable<Resource> getObjects(ObjectState os1) {
+		 return this.getObjects(os1, null);
+	}
+
+	
+	@Override
+	public Iterable<Resource> getObjects(ObjectState os1, ObjectState os2) {
+
+		ResourceDBService service = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+
+		if (os1==null && os2==null)
+			return service.findAllSorted();
+	
+		if (os2==null)
+			return service.findAllSorted(os1);
+
+		if (os1==null)
+			return service.findAllSorted(os2);
+		
+		return service.findAllSorted(os1, os2);
+	}
+	
+	
 	@Override
 	public IModel<String> getObjectInfo(IModel<Resource> model) {
 		return new Model<String>(model.getObject().getInfo());
@@ -156,7 +189,7 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 				};
 			}
@@ -200,7 +233,7 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 		return  ListPanelMode.TITLE;
 	}
    
-	protected List<ToolbarItem> getToolbarItems() {return null;}
+	protected List<ToolbarItem> getMainToolbarItems() {return null;}
 
 	
 	@Override
@@ -208,17 +241,6 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 		return getPresignedThumbnailSmall(model.getObject());
 	}
 	
-	@Override
-	protected void onCreate() {
-		/**
-		ArtWork in = getArtWorkDBService().create("new", getUserDBService().findRoot());
-			IModel<Resource> m =  new ObjectModel<Resource>(in);
-			getList().add(m);
-			
-			ArtWorkPage a=new ArtWorkPage(m, getList());
-			//a.se
-			setResponsePage(a);
-		*/
-	}
+
 
 }

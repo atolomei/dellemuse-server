@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.threeten.bp.ZoneId;
 
@@ -61,12 +62,20 @@ public class UserDBService extends DBService<User, Long> {
     public User create(String name, Person person, User createdBy) {
         User c = new User();
         c.setName(name);
+        
+    	c.setLanguage(getDefaultMasterLanguage());
+		
         //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
         c.setZoneId( getSettings().getDefaultZoneId() );
-
+        
+        String hash = new BCryptPasswordEncoder().encode("dellemuse");
+        c.setPassword(hash);
+        
+        // BCrypt.checkpw(plainPassword, hashedPasswordFromDB);
+        
         getRepository().save(c);
 
         if (person != null) {
@@ -94,7 +103,26 @@ public class UserDBService extends DBService<User, Long> {
 		return o_u;
 	}
 
-	
+	public Optional<User> findByUsername(String username) {
+		
+			CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+	        CriteriaQuery<User> criteria = cb.createQuery(getEntityClass());
+	        Root<User> root = criteria.from(getEntityClass());
+
+	        ParameterExpression<String> nameParam = cb.parameter(String.class);
+	        criteria.select(root).where(cb.equal(root.get(getNameColumn()), nameParam));
+
+	        TypedQuery<User> query = entityManager.createQuery(criteria);
+	        query.setHint("org.hibernate.cacheable", true);
+	        query.setFlushMode(FlushModeType.COMMIT);
+	        query.setParameter(nameParam, username);
+	        List<User> users = query.getResultList();
+	        if (users != null && !users.isEmpty()) {
+	            return Optional.of(users.get(0));
+	        }
+	        return Optional.empty();
+	}
+
 	
     @Transactional
     public User findRoot() {
@@ -158,6 +186,7 @@ public class UserDBService extends DBService<User, Long> {
 	public PersonDBService getPersonDBService() {
 		return personDBService;
 	}
+
    
     
 }

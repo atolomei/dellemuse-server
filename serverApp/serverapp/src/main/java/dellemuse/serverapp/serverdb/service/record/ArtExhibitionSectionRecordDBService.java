@@ -17,6 +17,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Language;
@@ -24,6 +25,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
@@ -125,7 +127,23 @@ public class ArtExhibitionSectionRecordDBService extends DBService<ArtExhibition
 		
 	}
 
+	@Transactional
+	public List<ArtExhibitionSectionRecord> findAllByGuideContent(ArtExhibitionSection  a) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionSectionRecord> cq = cb.createQuery(ArtExhibitionSectionRecord.class);
+		Root<ArtExhibitionSectionRecord> root = cq.from(ArtExhibitionSectionRecord.class);
+		
+	     Predicate p1 = cb.equal(root.get("artExhibitionSection").get("id"), a.getId() );
+	     cq.select(root).where(p1);
 	
+		List<ArtExhibitionSectionRecord> list = this.getEntityManager().createQuery(cq).getResultList();
+
+		if (list==null)
+			return new ArrayList<ArtExhibitionSectionRecord>();
+		
+		return list;
+	}
 
 	/**
 	 * 
@@ -171,7 +189,7 @@ public class ArtExhibitionSectionRecordDBService extends DBService<ArtExhibition
 	@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
-		super.delete(id);
+		super.deleteById(id);
 	}
 
 	@Transactional

@@ -13,13 +13,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -57,13 +59,14 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
     public ArtExhibitionItem create(String name, User createdBy) {
         ArtExhibitionItem c = new ArtExhibitionItem();
         c.setName(name);
-        //c.setNameKey(nameKey(name));
+        
 		c.setMasterLanguage(getDefaultMasterLanguage());
-
+		c.setLanguage(getDefaultMasterLanguage());
+		
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
-        
+        c.setState(ObjectState.EDTION);
 
 		getRepository().save(c);
 
@@ -85,10 +88,9 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
     	int size = 	ex.getArtExhibitionItems().size();
 
     	c.setName(name);
-        //c.setNameKey(nameKey(name));
-        
 		c.setMasterLanguage(ex.getMasterLanguage());
-
+		c.setLanguage(ex.getLanguage());
+		
         c.setArtWork(artWork);
         c.setArtExhibition(ex);
         c.setArtExhibitionOrder(size);
@@ -96,6 +98,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
+        c.setState(ObjectState.EDTION);
         
 		getRepository().save(c);
 
@@ -105,11 +108,43 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
         return getRepository().save(c);
     }
 
-
-	protected ArtExhibitionItemRecordDBService getArtExhibitionItemRecordDBService() {
-		return this.artExhibitionItemRecordDBService;
-	}
     
+    /**
+     * 
+     * 
+     */
+	@Transactional
+	public void markAsDeleted(ArtExhibitionItem c, User deletedBy) {
+
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(deletedBy);
+		c.setState(ObjectState.DELETED);
+		
+		getRepository().save(c);		
+		
+		for (ArtExhibitionItemRecord g : getArtExhibitionItemRecordDBService().findAllByArtExhibitionItem(c)) {
+			getArtExhibitionItemRecordDBService().markAsDeleted(g, deletedBy);
+		}
+	}
+
+	
+	@Transactional
+	public void restore(ArtExhibitionItem c, User restoredBy) {
+
+		OffsetDateTime date = OffsetDateTime.now();
+		c.setLastModified(date);
+		c.setLastModifiedUser(restoredBy);
+		c.setState(ObjectState.EDTION);
+		getRepository().save(c);		
+		
+		
+		for (ArtExhibitionItemRecord g : getArtExhibitionItemRecordDBService().findAllByArtExhibitionItem(c)) {
+			getArtExhibitionItemRecordDBService().restore(g,restoredBy);
+		}
+	}
+
+	
+	
     @Transactional
 	public Optional<ArtExhibitionItem> findWithDeps(Long id) {
 
@@ -150,10 +185,6 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
-    @PostConstruct
-    protected void onInitialize() {
-    	super.register(getEntityClass(), this);
-    }
     
     /**
      * @param name
@@ -167,5 +198,15 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
     protected Class<ArtExhibitionItem> getEntityClass() {
         return ArtExhibitionItem.class;
     }
+    
+	protected ArtExhibitionItemRecordDBService getArtExhibitionItemRecordDBService() {
+		return this.artExhibitionItemRecordDBService;
+	}
+
+    @PostConstruct
+    protected void onInitialize() {
+    	super.register(getEntityClass(), this);
+    }
+
 
 }

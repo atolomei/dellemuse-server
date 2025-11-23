@@ -37,4 +37,5 @@ import dellemuse.serverapp.serverdb.model.User;
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
 
+	
 }

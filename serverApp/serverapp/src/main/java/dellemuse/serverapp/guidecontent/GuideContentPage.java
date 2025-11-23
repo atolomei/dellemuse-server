@@ -1,9 +1,12 @@
 package dellemuse.serverapp.guidecontent;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -18,6 +21,8 @@ import dellemuse.serverapp.artexhibition.ArtExhibitionEXTNavDropDownMenuToolbarI
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideEXTNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.artwork.ArtWorkPage;
+import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
+import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectPage;
@@ -45,14 +50,12 @@ import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import wktui.base.DummyBlockPanel;
+ 
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
 /**
- * 
  * site foto Info - exhibitions
- * 
  */
 
 @MountPath("/guidecontent/${id}")
@@ -69,12 +72,8 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 	private IModel<ArtWork> artWorkModel;
 	private  GuideContentEditor editor;
 	private JumboPageHeaderPanel<GuideContent> header;
-
+	private List<ToolbarItem> list;
 	
-	@Override
-	protected boolean isAudioAutoGenerate() {
-		return true;
-	}
 	
 	public GuideContentPage() {
 		super();
@@ -107,7 +106,11 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		return getGuideContentRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
 
-	
+	@Override
+	protected boolean isAudioAutoGenerate() {
+		return true;
+	}
+
 	protected void setUpModel() {
 		super.setUpModel();
 		
@@ -132,7 +135,7 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		Optional<ArtExhibition> o_a = getArtExhibitionDBService().findWithDeps(a.getId());
 		this.setArtExhibitionModel(new ObjectModel<ArtExhibition>(o_a.get()));
 		
-		Optional<Site> o_s = getSiteDBService().findWithDeps( getArtExhibitionModel().getObject().getSite().getId());
+		Optional<Site> o_s = getSiteDBService().findWithDeps(getArtExhibitionModel().getObject().getSite().getId());
 		setSiteModel(new ObjectModel<Site>(o_s.get()));
 	
 	}
@@ -151,15 +154,29 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 
 				if (event.getName().equals(ServerAppConstant.action_guide_content_edit)) {
 					GuideContentPage.this.onEdit(event.getTarget());
+					return;
 				}
 			
 
+				if (event.getName().equals(ServerAppConstant.action_guide_content_delete)) {
+					GuideContentPage.this.onDelete(event.getTarget());
+					return;
+				}
+
+				if (event.getName().equals(ServerAppConstant.action_guide_content_restore)) {
+					GuideContentPage.this.onRestore(event.getTarget());
+					return;
+				}
+
+				
 				if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					GuideContentPage.this.getMetaEditor().onEdit(event.getTarget());
+					return;
 				}
 				
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
 					GuideContentPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
+					return;
 				}
 
 				/** Panels */
@@ -167,18 +184,21 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 					 GuideContentPage.this.togglePanel(ServerAppConstant.guide_content_info, event.getTarget());
 					 GuideContentPage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(GuideContentPage.this.getHeader());
+					return;
 				}
 				
 				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 					 GuideContentPage.this.togglePanel(event.getName(), event.getTarget());
 					 GuideContentPage.this.getHeader().setPhotoVisible(true);
 					 event.getTarget().add(GuideContentPage.this.getHeader());
+					 return;
 				}
 				
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					 GuideContentPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 					 GuideContentPage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(GuideContentPage.this.getHeader());
+					return;
 				}
 
 				else if (event.getName().equals(ServerAppConstant.object_audit)) {
@@ -214,12 +234,21 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		});
 	}
 	
+	protected void onDelete(AjaxRequestTarget target) {
+		getGuideContentDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectMarkAsDeleteEvent(target));
+	}
+	
+	protected void onRestore(AjaxRequestTarget target) {
+		getGuideContentDBService().restore( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectRestoreEvent(target));
+	}
+	
+	
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
 		editor.onEdit(target);
 	}
-	
-	private List<ToolbarItem> list;
 
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
@@ -230,10 +259,10 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		list = new ArrayList<ToolbarItem>();
 		
 		// audio de obra
-		list.add(new GuideContentNavDropDownMenuToolbarItem(    	"item", 
-																	getModel(), 
-																	getLabel("guide-content-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 24)),
-																	Align.TOP_RIGHT));
+		list.add(new GuideContentNavDropDownMenuToolbarItem( "item", 
+															 getModel(), 
+															 getLabel("guide-content-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 24)),
+															 Align.TOP_RIGHT));
 		
 		// audio guia		
 		
@@ -242,11 +271,13 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		list.add(ag);
 		
 		// exhibicion
+		
 		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new   ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(),  Align.TOP_RIGHT );
 		ae.add( new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-none d-lg-none d-xl-block d-xxl-block text-md-center"));
 		list.add(ae);
 		
 		// site
+		
 		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getSiteModel(),  Align.TOP_RIGHT);
 		site.add( new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-none d-lg-none d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
@@ -273,7 +304,7 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		tabs.add(tab_1);
 		
 	 	if (getStartTab()==null)
-			setStartTab( ServerAppConstant.guide_content_info);
+			setStartTab(ServerAppConstant.guide_content_info);
 
 		return tabs;
 	}

@@ -14,175 +14,221 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.FlushModeType;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.ParameterExpression;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-
 
 @Service
 public class InstitutionDBService extends DBService<Institution, Long> {
 
-    private static final Logger logger = Logger.getLogger(InstitutionDBService.class.getName());
+	private static final Logger logger = Logger.getLogger(InstitutionDBService.class.getName());
 
-    @PersistenceContext
-    private EntityManager entityManager;
+	@PersistenceContext
+	private EntityManager entityManager;
 
-    @JsonIgnore
+	@JsonIgnore
 	@Autowired
-    final InstitutionRecordDBService institutionRecordDBService;
-    
-    public InstitutionDBService(CrudRepository<Institution, Long> repository, ServerDBSettings settings,  InstitutionRecordDBService institutionRecordDBService) {
-        super(repository, settings);
-        this.institutionRecordDBService = institutionRecordDBService;
-        
-    }
+	final InstitutionRecordDBService institutionRecordDBService;
 
-    
-    
-    @Transactional
-    @Override
-    public Institution create(String name, User createdBy) {
-        Institution c = new Institution();
+	public InstitutionDBService(CrudRepository<Institution, Long> repository, ServerDBSettings settings, InstitutionRecordDBService institutionRecordDBService) {
+		super(repository, settings);
+		this.institutionRecordDBService = institutionRecordDBService;
 
-        c.setName(name);
-		//c.setNameKey(nameKey(name));
-		//c.setTitle(name);
-		//c.setTitleKey(nameKey(name));
+	}
 
-        c.setMasterLanguage(getDefaultMasterLanguage());
-		c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        
-    	getRepository().save(c);
+	@Transactional
+	@Override
+	public Institution create(String name, User createdBy) {
+		Institution c = new Institution();
 
-		for ( Language la:getLanguageService().getLanguages() )
-			getInstitutionRecordDBService().create(c, la.getLanguageCode(),  createdBy);
-		
-        return getRepository().save(c);
-    }
-
-    @Transactional
-    public Institution create(String name, Optional<String> shortName, Optional<String> address, Optional<String> info,
-                              User createdBy) {
-
-        Institution c = new Institution();
 		c.setName(name);
 
-		//c.setNameKey(nameKey(name));
-		//c.setTitle(name);
-		//c.setTitleKey(nameKey(name));
+		c.setState(ObjectState.EDTION);
+		c.setMasterLanguage(getDefaultMasterLanguage());
+		c.setLanguage(getDefaultMasterLanguage());
+
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+
+		getRepository().save(c);
+
+		for (Language la : getLanguageService().getLanguages())
+			getInstitutionRecordDBService().create(c, la.getLanguageCode(), createdBy);
+
+		return getRepository().save(c);
+	}
+
+	@Transactional
+	public Institution create(String name, Optional<String> shortName, Optional<String> address, Optional<String> info, User createdBy) {
+
+		Institution c = new Institution();
+		c.setName(name);
+
+		c.setState(ObjectState.EDTION);
+		c.setMasterLanguage(getDefaultMasterLanguage());
+		c.setLanguage(getDefaultMasterLanguage());
 
 		shortName.ifPresent(c::setShortName);
-        address.ifPresent(c::setAddress);
-        info.ifPresent(c::setInfo); // corregido: antes se usaba setAddress por error
+		address.ifPresent(c::setAddress);
+		info.ifPresent(c::setInfo); // corregido: antes se usaba setAddress por error
 
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
 
-        c.setMasterLanguage(getDefaultMasterLanguage());
-        
-    	getRepository().save(c);
+		c.setMasterLanguage(getDefaultMasterLanguage());
 
-		for ( Language la:getLanguageService().getLanguages() )
-			getInstitutionRecordDBService().create(c, la.getLanguageCode(),  createdBy);
-  
-        return getRepository().save(c);
-    }
+		getRepository().save(c);
 
-    
-    protected InstitutionRecordDBService getInstitutionRecordDBService() {
-		return this.institutionRecordDBService;
+		for (Language la : getLanguageService().getLanguages())
+			getInstitutionRecordDBService().create(c, la.getLanguageCode(), createdBy);
+
+		return getRepository().save(c);
 	}
-    
-    
-    @PostConstruct
-    protected void onInitialize() {
-    	super.register(getEntityClass(), this);
-    }
-  
-	@Transactional
-    public Optional<Institution> findWithDeps(Long id) {
-    
-		Optional<Institution> o_i = super.findById(id);
-		
-		if (o_i.isEmpty())
-			return o_i;
-		
-		Institution i = o_i.get();
-		
-		i.setDependencies(true);
-		
-		Resource photo=i.getPhoto();
-		
-		if (photo!=null)
-			photo.getBucketName();
-		
-		Resource logo=i.getLogo();
-		
-		if (logo!=null)
-			logo.getBucketName();
-		
-		return o_i;
-    }
 
 	
-    @Transactional
-    public Iterable<Institution> findAllSorted() {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Institution> cq = cb.createQuery(getEntityClass());
-        Root<Institution> root = cq.from(getEntityClass());
-        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
-        return entityManager.createQuery(cq).getResultList();
-    }
 
-  
 	@Transactional
-    public List<Site> getSites(Long institutionId) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Site> cq = cb.createQuery(Site.class);
-        Root<Site> root = cq.from(Site.class);
-        cq.select(root).where(cb.equal(root.get("institution").get("id"), institutionId));
-        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
+	public void markAsDeleted(Institution c, User deletedBy) {
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(deletedBy);
+		c.setState(ObjectState.DELETED);
+		getRepository().save(c);		
+		
+		//c.getGuideContents().forEach( gc -> {
+		//	getGuideContentDBService().markAsDeleted(gc, deletedBy);
+		//});
+		
+	}
+	
+	@Transactional
+	public void restore(Institution c, User restoredBy) {
 
-        return entityManager.createQuery(cq).getResultList();
-    }
+		OffsetDateTime date = OffsetDateTime.now();
+		c.setLastModified(date);
+		c.setLastModifiedUser(restoredBy);
+		c.setState(ObjectState.EDTION);
+		getRepository().save(c);		
+		
+		//c.getGuideContents().forEach( gc -> {
+		//	if ( !gc.getLastModified().isBefore(date) && gc.getState()==ObjectState.DELETED)
+		//			getGuideContentDBService().restore(gc, restoredBy);
+		//});
+	}
+	
+	
+	@Transactional
+	public Optional<Institution> findWithDeps(Long id) {
 
-    @Transactional
-    public Optional<Institution> findByShortName(String name) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Institution> cq = cb.createQuery(Institution.class);
-        Root<Institution> root = cq.from(Institution.class);
-        cq.select(root).where(cb.equal(root.get("shortName"), name));
-        cq.orderBy(cb.asc(root.get("id")));
+		Optional<Institution> o_i = super.findById(id);
 
-        List<Institution> list = entityManager.createQuery(cq).getResultList();
-        return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-    }
+		if (o_i.isEmpty())
+			return o_i;
 
-    @Transactional
-    public List<Institution> getByName(String name) {
-        return createNameQuery(name).getResultList();
-    }
+		Institution i = o_i.get();
 
-    @Override
-    protected Class<Institution> getEntityClass() {
-        return Institution.class;
-    }
+		i.setDependencies(true);
+
+		Resource photo = i.getPhoto();
+
+		if (photo != null)
+			photo.getBucketName();
+
+		Resource logo = i.getLogo();
+
+		if (logo != null)
+			logo.getBucketName();
+
+		return o_i;
+	}
+
+	@Transactional
+	public Iterable<Institution> findAllSorted() {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Institution> cq = cb.createQuery(getEntityClass());
+		Root<Institution> root = cq.from(getEntityClass());
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+
+	@Transactional
+	public Iterable<Institution> findAllSorted(ObjectState os) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Institution> cq = cb.createQuery(getEntityClass());
+		Root<Institution> root = cq.from(getEntityClass());
+		cq.select(root).where(cb.equal(root.get("state").get("id"), String.valueOf( os.getId() )));
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	@Transactional
+	public Iterable<Institution> findAllSorted(ObjectState os1, ObjectState os2) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Institution> cq = cb.createQuery(getEntityClass());
+		Root<Institution> root = cq.from(getEntityClass());
+		
+		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
+		Predicate p2 = cb.equal(root.get("state").get("id"), String.valueOf( os2.getId() ));
+		Predicate combinedPredicate = cb.and(p1, p2);
+		cq.select(root).where(combinedPredicate);
+
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
+	
+	@Transactional
+	public List<Site> getSites(Long institutionId) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Site> cq = cb.createQuery(Site.class);
+		Root<Site> root = cq.from(Site.class);
+		cq.select(root).where(cb.equal(root.get("institution").get("id"), institutionId));
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	@Transactional
+	public Optional<Institution> findByShortName(String name) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Institution> cq = cb.createQuery(Institution.class);
+		Root<Institution> root = cq.from(Institution.class);
+		cq.select(root).where(cb.equal(root.get("shortName"), name));
+		cq.orderBy(cb.asc(root.get("id")));
+
+		List<Institution> list = entityManager.createQuery(cq).getResultList();
+		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
+	}
+
+	@Transactional
+	public List<Institution> getByName(String name) {
+		return createNameQuery(name).getResultList();
+	}
+
+	@Override
+	protected Class<Institution> getEntityClass() {
+		return Institution.class;
+	}
+
+	protected InstitutionRecordDBService getInstitutionRecordDBService() {
+		return this.institutionRecordDBService;
+	}
+
+	@PostConstruct
+	protected void onInitialize() {
+		super.register(getEntityClass(), this);
+	}
 }
- 

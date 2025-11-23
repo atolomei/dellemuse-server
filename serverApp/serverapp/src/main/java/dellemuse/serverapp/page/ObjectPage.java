@@ -4,78 +4,43 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.maven.model.Site;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
-import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
+import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
-import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
-import dellemuse.serverapp.page.error.ErrorPage;
+import dellemuse.serverapp.guidecontent.GuideContentEditor;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.model.ObjectWithDepModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
-import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.service.PersonDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.odilon.util.Check;
 import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
+import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.UIEvent;
-import io.wktui.model.TextCleaner;
-import io.wktui.nav.breadcrumb.BCElement;
-import io.wktui.nav.breadcrumb.BreadCrumb;
-import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.listNavigator.ListNavigator;
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
-import io.wktui.struct.list.ListPanel;
-import io.wktui.struct.list.ListPanelMode;
-import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
-
 /**
- * 
  * site 
  * foto 
  * Info - exhibitions
- * 
  */
 
 public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
@@ -97,48 +62,22 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private List<INamedTab> ipanels;
 	private List<INamedTab> tabs;
 	private WebMarkupContainer currentPanel;
-
-	
 	private ObjectMetaEditor<T> metaEditor;
 	
 	private String startingTab = null;
 	private Panel audit;
-	  
+	private Panel pageHeader;
 	
-	 
+	
 	protected abstract Optional<T> getObject(Long id);
 	protected abstract IModel<String> getPageTitle();
-	
 	protected abstract IRequestablePage getObjectPage(IModel<T> iModel, List<IModel<T>> list);
 	protected abstract List<INamedTab> getInternalPanels();
 	protected abstract List<ToolbarItem> getToolbarItems();
-
 	protected abstract void onEdit(AjaxRequestTarget target);
-	
-	
-	Panel ph;
-	
-	//protected Panel getHeaderPanel() {
-	//	return ph;
-	//}	
-	
-	//protected void setHeaderPanel(Panel p) {
-	//	this.ph=p;
-	//}
-	
-	
 	protected abstract Panel createHeaderPanel();
 	
-	protected void x_addHeaderPanel() {
-		Panel panel = createHeaderPanel();
-		if (panel==null)
-			ph=new InvisiblePanel("header");
-		else
-			ph=panel;
-		addOrReplace(ph);
-	}
-	
-	
+
 	public ObjectPage() {
 		super();
 	}		
@@ -185,6 +124,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
     	this.addOrReplace(new InvisiblePanel("page-header"));
    }
 
+    @Override
     public void onBeforeRender() {
 		super.onBeforeRender();
 		
@@ -239,7 +179,6 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		try {
 			setUpModel();
 		} catch (Exception e) {
-			
 			logger.error(e);
 			addErrorPanels(e);
 			return;
@@ -294,10 +233,15 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected ObjectMetaEditor<T> getMetaEditor() {
 		return this.metaEditor;
 	}
-
-	//protected IModel<String> getEditLabel() {
-	//	return getLabel("edit");
-	//}
+	
+	protected void x_addHeaderPanel() {
+		Panel panel = createHeaderPanel();
+		if (panel==null)
+			pageHeader=new InvisiblePanel("header");
+		else
+			pageHeader=panel;
+		addOrReplace(pageHeader);
+	}
 	
 	protected void setUpModel() {
 		if (getModel()==null) {
@@ -378,7 +322,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 				public void onEvent(ObjectUpdateEvent event) {
 					setUpModel();
 					x_addHeaderPanel();
-					event.getTarget().add(ph);
+					event.getTarget().add(pageHeader);
 				}
 				
 				@Override
@@ -389,9 +333,44 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 				}
 			});
 			
+			add(new io.wktui.event.WicketEventListener<ObjectRestoreEvent>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void onEvent(ObjectRestoreEvent event) {
+					setUpModel();
+					x_addHeaderPanel();
+					event.getTarget().add(pageHeader);
+					event.getTarget().add(toolbarContainer);
+				}
+				
+				@Override
+				public boolean handle(UIEvent event) {
+					if (event instanceof ObjectRestoreEvent)
+						return true;
+					return false;
+				}
+			});
+
+			
+			
+			add(new io.wktui.event.WicketEventListener<ObjectMarkAsDeleteEvent>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public void onEvent(ObjectMarkAsDeleteEvent event) {
+					setUpModel();
+					x_addHeaderPanel();
+					event.getTarget().add(pageHeader);
+					event.getTarget().add(toolbarContainer);
+				}
+				
+				@Override
+				public boolean handle(UIEvent event) {
+					if (event instanceof ObjectMarkAsDeleteEvent)
+						return true;
+					return false;
+				}
+			});
 	}
-
-
 	
 	protected Panel getMetaEditor(String id) {
 		if (this.metaEditor==null) {
@@ -408,7 +387,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 
 	protected List<INamedTab> createInternalPanels() {
+		
 		List<INamedTab> tabs = new ArrayList<INamedTab>();
+		
 		NamedTab tab_2=new NamedTab(Model.of("metainfo"), ServerAppConstant.object_meta) {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -440,6 +421,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
     	return selected;
     }
     
+  
  	private void addToolbar() {
 		
 		WebMarkupContainer wCurrent = getCurrentPanel();

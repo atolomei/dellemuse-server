@@ -22,8 +22,6 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.ArtWorkModel;

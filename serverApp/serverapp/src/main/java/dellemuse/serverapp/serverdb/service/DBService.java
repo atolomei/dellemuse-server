@@ -18,8 +18,14 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.service.SystemService;
 import dellemuse.serverapp.service.language.LanguageService;
 import jakarta.persistence.EntityManager;
@@ -27,6 +33,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
@@ -103,15 +110,25 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	}
 
 	@Transactional
-	public void delete(I id) {
-		repository.deleteById(id); 
-	}
-
-	@Transactional
 	public void delete(T o) {
 		repository.delete(o); 
 	}
-
+	
+	@Transactional
+	public void markAsDeleted(T c, User deletedBy) {
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(deletedBy);
+		c.setState(ObjectState.DELETED);
+		getRepository().save(c);		
+	}
+	
+	@Transactional
+	public void restore(T c, User restoredBy) {
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(restoredBy);
+		c.setState(ObjectState.EDTION);
+		getRepository().save(c);		
+	}
 	
 	@Transactional
 	public Iterable<T> findAll() {
@@ -124,10 +141,40 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> root = cq.from(getEntityClass());
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
-
 		return getEntityManager().createQuery(cq).getResultList();
 	}
+	
+	@Transactional
+	public Iterable<T> findAllSorted(ObjectState os) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
+		Root<T> root = cq.from(getEntityClass());
 
+		cq.select(root).where(cb.equal(root.get("state").get("id"), String.valueOf( os.getId() )));
+		
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	@Transactional
+	public Iterable<T> findAllSorted(ObjectState os1, ObjectState os2) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
+		
+		Root<T> root = cq.from(getEntityClass());
+		
+		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
+		Predicate p2 = cb.equal(root.get("state").get("id"), String.valueOf( os2.getId() ));
+		
+		Predicate combinedPredicate = cb.or(p1, p2);
+
+		cq.select(root).where(combinedPredicate);
+		
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+ 
 	@Transactional
 	public void flush() {
 		 getEntityManager().flush();
@@ -229,6 +276,35 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
 
+
+	protected ArtExhibitionRecordDBService getArtExhibitionRecordDBService() {
+		return (ArtExhibitionRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionRecordDBService.class);
+	}
+
+	protected ArtExhibitionGuideDBService getArtExhibitionGuideDBService() {
+		return (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
+	}
+
+	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
+		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance()
+				.getBean(ArtExhibitionGuideRecordDBService.class);
+	}
+ 
+	protected GuideContentDBService getGuideContentDBService() {
+		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
+	}
+	
+	protected GuideContentRecordDBService getGuideContentRecordDBService() {
+		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
+	}
+
+	
+	protected AudioStudioDBService getAudioStudioDBService() {
+		return (AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class);
+	}
+
+	
+	
 	
 	public String getDefaultMasterLanguage() {
 		return getLanguageService().getDefaultLanguage().getLanguageCode();

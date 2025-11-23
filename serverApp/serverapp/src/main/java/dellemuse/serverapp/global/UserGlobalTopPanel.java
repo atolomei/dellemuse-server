@@ -127,7 +127,7 @@ public class UserGlobalTopPanel extends ModelPanel<User> {
 						
 						@Override
 						public void onClick() {
-							setResponsePage( new UserPage(UserGlobalTopPanel.this.getModel() ));
+							setResponsePage( new RedirectPage("/logout"));
 						}
 
 						@Override

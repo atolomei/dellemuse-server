@@ -18,8 +18,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.ArtWorkModel;
@@ -30,6 +28,8 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
 import dellemuse.serverapp.artwork.ArtWorkPage;
+import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
+import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
@@ -91,6 +91,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(PersonPage.class.getName());
 
 	private PersonEditor editor;
@@ -100,64 +101,6 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		super();
 	}
 	
-	
-	protected Optional<PersonRecord> loadTranslationRecord(String lang) {
-		return getPersonRecordDBService().findByPerson(getModel().getObject(), lang);
-	}
-	
-	protected PersonRecord createTranslationRecord(String lang) {
-		return getPersonRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
-	}
-
-	protected void addListeners() {
-		super.addListeners();
- 
-		
-	 
-		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(SimpleAjaxWicketEvent event) {
-
-				if (event.getName().equals(ServerAppConstant.action_person_edit_info)) {
-					PersonPage.this.onEdit(event.getTarget());
-				}
-
-				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
-					PersonPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
-				}
-				
-				
-				else if (event.getName().equals(ServerAppConstant.person_info)) {
-					PersonPage.this.togglePanel(ServerAppConstant.person_info, event.getTarget());
-				}
-				
-				else if (event.getName().equals(ServerAppConstant.object_meta)) {
-					PersonPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
-				}
-
-				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
-					PersonPage.this.togglePanel(event.getName(), event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.object_audit)) {
-					PersonPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-				}
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof MenuAjaxEvent)
-					return true;
-				return false;
-			}
-		});
-	}
-
-	
-	
-
-
 	public PersonPage(PageParameters parameters) {
 		super(parameters);
 	}
@@ -170,9 +113,6 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		super(model, list);
 	}
 
-	/**
-	 * Institution Site Artwork Person Exhibition ExhibitionItem GuideContent User
-	 */
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -192,8 +132,6 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	protected IModel<String> getPageTitle() {
 		return new Model<String>(getModel().getObject().getDisplayName());
 	}
-
-
 
 	@Override
 	protected Panel createHeaderPanel() {
@@ -261,7 +199,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		list = new ArrayList<ToolbarItem>();
 			
 		DropDownMenuToolbarItem<Person> menu = new DropDownMenuToolbarItem<Person>("item", getModel(), Align.TOP_RIGHT);
-		menu.setLabel(getLabel("person", getModel().getObject().getDisplayName()));
+		menu.setTitle(getLabel("person", getModel().getObject().getDisplayName()));
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 			private static final long serialVersionUID = 1L;
@@ -286,6 +224,65 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	 
 		list.add(menu);
 		return list;
+	}
+
+	protected Optional<PersonRecord> loadTranslationRecord(String lang) {
+		return getPersonRecordDBService().findByPerson(getModel().getObject(), lang);
+	}
+	
+	protected PersonRecord createTranslationRecord(String lang) {
+		return getPersonRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
+
+	protected void addListeners() {
+		super.addListeners();
+ 
+		
+	 
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+
+				if (event.getName().equals(ServerAppConstant.action_person_edit_info)) {
+					PersonPage.this.onEdit(event.getTarget());
+				}
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
+					PersonPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
+				}
+				else if (event.getName().equals(ServerAppConstant.person_info)) {
+					PersonPage.this.togglePanel(ServerAppConstant.person_info, event.getTarget());
+				}
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					PersonPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+				}
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
+					PersonPage.this.togglePanel(event.getName(), event.getTarget());
+				}
+				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+					PersonPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof MenuAjaxEvent)
+					return true;
+				return false;
+			}
+		});
+	}
+
+		
+	protected void onDelete(AjaxRequestTarget target) {
+		getPersonDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectMarkAsDeleteEvent(target));
+	}
+	
+	protected void onRestore(AjaxRequestTarget target) {
+		getPersonDBService().restore( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectRestoreEvent(target));
 	}
 
 	protected List<INamedTab> getInternalPanels() {

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseUserSerializer;
 import jakarta.persistence.Column;
@@ -88,6 +89,11 @@ public class Person extends MultiLanguageObject {
 
     public Person() {
     }
+    
+	public String getPrefixUrl() {
+		return PrefixUrl.Person;
+	}
+
 
     public String getTitle() {
         if (super.getTitle() != null)

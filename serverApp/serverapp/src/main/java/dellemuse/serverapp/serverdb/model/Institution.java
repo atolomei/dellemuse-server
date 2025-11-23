@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
@@ -23,6 +24,19 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
+
+/**
+ * 
+ * 
+ * ABM 
+ * 
+ *  
+ * State -> "archived"
+ * 
+ * Delete institution -> delete sites
+ * 
+ * 
+ */
 @Entity
 @Table(name = "institution")
 @JsonInclude(Include.NON_NULL)
@@ -96,6 +110,11 @@ public class Institution extends MultiLanguageObject {
 	private Resource map;
 
 	public Institution() {
+	}
+
+
+	public String getPrefixUrl() {
+		return PrefixUrl.Institution;
 	}
 
 	@Override

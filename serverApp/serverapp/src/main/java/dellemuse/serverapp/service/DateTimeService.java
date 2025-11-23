@@ -2,12 +2,14 @@ package dellemuse.serverapp.service;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.IsoFields;
 import java.time.temporal.Temporal;
 import java.util.List;
 import java.util.Locale;
@@ -78,7 +80,11 @@ public class DateTimeService extends BaseService {
     public final static int Full = 0;
     public final static int Month_Day_Year_hh_mm_ss_zzz = 1;
     public final static int Month_Day_Year_hh_mm = 2;
+    
     public final static int Day_of_Year = 3;
+    public final static int Month_Day_Year = 3;
+    
+    
 
     public final static int Month_Day_hr_min = 4;
     public final static int Dateformat_short_this_year = 5;
@@ -279,6 +285,245 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
     }
     
     
+    /**
+     * Default Locale, Time Zone, and css "ago"
+     */
+    public String timeElapsed(OffsetDateTime date) {
+        return timeElapsed(date, null, null);
+    }
+
+    
+    /**
+     * if {@code zid} is null, the JVM Time Zone will be used if {@code  locale} is
+     * null, the JVM default Locale will be used
+     */
+    public String timeElapsed(LocalDateTime date, Locale locale, String css) {
+
+        if (date == null)
+            return "err";
+
+        ZoneId zone = getDefaultZoneId();
+        ZonedDateTime zdate = ZonedDateTime.ofInstant(date.toInstant(OffsetDateTime.now().getOffset()), zone);
+        return timeElapsed(zdate, zone, locale, DATE_COLlOQUIAL_AGO, css);
+    }
+    
+    /**
+     * if {@code zid} is null, the JVM Time Zone will be used if {@code  locale} is
+     * null, the JVM default Locale will be used
+     */
+    public String timeElapsed(OffsetDateTime date, String zid, Locale locale) {
+
+        if (date == null)
+            return "err";
+
+        ZoneId zone = null;
+
+        if (zid == null) {
+            zone = getDefaultZoneId();
+        } else
+            zone = ZoneId.of(zid);
+
+        if (locale == null) {
+            locale = getDefaultLocale();
+        }
+
+        ZonedDateTime zdate = ZonedDateTime.ofInstant(date.toInstant(), zone);
+        return timeElapsed(zdate, zone, locale, DATE_COLlOQUIAL_AGO, "ago");
+    }
+    
+    
+    
+    /**
+    *
+    */
+   public String timeElapsed(ZonedDateTime xdate, ZoneId tmz, Locale locale, int mode, String css_ago) {
+
+       if (xdate == null)
+           return null;
+
+       String label;
+
+       ZonedDateTime today = ZonedDateTime.now(tmz);
+       ZonedDateTime date = xdate.withZoneSameInstant(tmz);
+
+       if (date == null)
+           return null;
+
+       if (locale == null) {
+           locale = getDefaultLocale();
+       }
+
+       if (xdate.isAfter(today))
+           return getDateTimeFormater(locale)[Month_Day_Year].format(date);
+
+       String minute, minutes, hour, hours, prefix, suffix, day, days;
+
+       int lang = locale.getLanguage().equals(Locale.ENGLISH.getLanguage()) ? ENG : SPA;
+
+       if (lang == ENG) {
+           minute = minute_eng;
+           minutes = minutes_eng;
+           hours = hours_eng;
+           hour = hour_eng;
+           day = day_eng;
+           days = days_eng;
+           prefix = prefix_eng;
+           suffix = suffix_eng;
+
+       } else {
+           minute = minute_spa;
+           minutes = minutes_spa;
+           hours = hours_spa;
+           hour = hour_spa;
+           prefix = prefix_spa;
+           suffix = suffix_spa;
+           day = day_spa;
+           days = days_spa;
+       }
+
+       long diff = dateTimeDifference(date, today, ChronoUnit.MILLIS);
+
+       DateTimeFormatter default_formatter = getDateTimeFormater(locale)[Month_Day_Year_hh_mm];
+       DateTimeFormatter hour_of_today_format = getDateTimeFormater(locale)[Hour_of_today_format];
+       DateTimeFormatter am_pm_format = getDateTimeFormater(locale)[Am_pm_format];
+       DateTimeFormatter hour_of_day_this_week_format = getDateTimeFormater(locale)[Hour_of_day_this_week_format];
+       DateTimeFormatter dateformat_short_this_year = getDateTimeFormater(locale)[Dateformat_short_this_year];
+
+       // minutos
+       //
+       // ONLY_AGO: hace nn minutos
+       // DATE_COLLQUIAL_AGO: 12:43 am (hace 3 minutos)
+       // DATE_COLLQUIAL: 12:43 am
+
+       if (diff < MINUTOS) {
+           long minutos = diff / 60000;
+           String xago = prefix + String.valueOf(minutos) + ((minutos == 1) ? " " + minute : " " + minutes) + suffix;
+           if (mode == ONLY_AGO)
+               label = xago;
+           else {
+               if (mode == DATE_COLlOQUIAL_AGO) {
+                   String strzago = (css_ago != null ? "<span class=\"" + css_ago + "\">" : "") + " (" + xago + ")"
+                           + (css_ago != null ? " </span>" : "");
+                   label = hour_of_today_format.format(date) + am_pm_format.format(date).toLowerCase() + strzago;
+               } else {
+                   label = hour_of_today_format.format(date) + am_pm_format.format(date).toLowerCase();
+               }
+           }
+       }
+       // horas
+       //
+       // ONLY_AGO: hace 3 horas
+       // DATE_COLLQUIAL_AGO: 12:43 am (hace 3 horas)
+       //
+       else if (diff < HORAS) {
+           long horas = diff / 3600000;
+           String xago = prefix + String.valueOf(horas) + ((horas == 1) ? " " + hour : " " + hours) + suffix;
+           if (mode == ONLY_AGO)
+               label = xago;
+           else {
+               if (mode == DATE_COLlOQUIAL_AGO) {
+                   String strzago = (css_ago != null ? "<span class=\"" + css_ago + "\">" : "") + " (" + xago + ")"
+                           + (css_ago != null ? " </span>" : "");
+                   label = hour_of_today_format.format(date) + am_pm_format.format(date).toLowerCase() + strzago;
+                   ;
+               } else
+                   label = hour_of_today_format.format(date) + am_pm_format.format(date).toLowerCase();
+           }
+
+       }
+       // ultimos 90 dias
+       // ONLY_AGO: hace 3 dias
+       // DATE_COLLQUIAL_AGO: Nov 12, 12:43 am (hace 3 dias)
+       //
+       else if (diff < DIAS) {
+           long dias = diff / 86400000;
+           String xago = prefix + String.valueOf(dias) + ((dias == 1) ? " " + day : " " + days) + suffix;
+           if (mode == ONLY_AGO)
+               label = xago;
+           else {
+               // Si es la misma semana: Miercoles 3.23 pm
+               //
+               if (isSameWeek(today, date)) {
+                   if (mode == DATE_COLlOQUIAL_AGO) {
+                       String strzago = (css_ago != null ? "<span class=\"" + css_ago + "\">" : "") + " (" + xago + ")"
+                               + (css_ago != null ? " </span>" : "");
+                       label = hour_of_day_this_week_format.format(date) + am_pm_format.format(date).toLowerCase() + strzago;
+                   } else {
+                       label = hour_of_day_this_week_format.format(date) + am_pm_format.format(date).toLowerCase();
+                   }
+               }
+               // Sino Nov 15, 3.23 pm
+               else if (isSameYear(today, date)) {
+                   if (mode == DATE_COLlOQUIAL_AGO) {
+                       String strzago = (css_ago != null ? "<span class=\"" + css_ago + "\">" : "") + " (" + xago + ")"
+                               + (css_ago != null ? " </span>" : "");
+                       label = dateformat_short_this_year.format(date) + am_pm_format.format(date).toLowerCase() + strzago;
+                   } else {
+                       label = dateformat_short_this_year.format(date) + am_pm_format.format(date).toLowerCase();
+                   }
+               } else {
+                   if (mode == DATE_COLlOQUIAL_AGO) {
+                       String strzago = (css_ago != null ? "<span class=\"" + css_ago + "\">" : "") + " (" + xago + ")"
+                               + (css_ago != null ? " </span>" : "");
+                       label = default_formatter.format(date) + am_pm_format.format(date).toLowerCase() + strzago;
+                   } else
+                       label = default_formatter.format(date) + am_pm_format.format(date).toLowerCase();
+               }
+           }
+       }
+
+       //
+       // Más de 90 dias
+       // coloquial va sin ago
+       //
+       else {
+           if (isSameYear(today, date)) {
+               if (mode == ONLY_AGO) {
+                   long dias = diff / 86400000;
+                   label = prefix + String.valueOf(dias) + ((dias == 1) ? " " + day : " " + days) + suffix;
+               } else
+                   label = dateformat_short_this_year.format(date) + am_pm_format.format(date).toLowerCase();
+           } else {
+               if (mode == ONLY_AGO) {
+                   long dias = diff / 86400000;
+                   label = prefix + String.valueOf(dias) + ((dias == 1) ? " " + day : " " + days) + suffix;
+               } else
+                   label = default_formatter.format(date) + am_pm_format.format(date).toLowerCase();
+               ;
+           }
+       }
+       return label;
+   }
+   
+   
+   private DateTimeFormatter[] getDateTimeFormater(Locale locale) {
+       if (locale.getLanguage() == Locale.ENGLISH.getLanguage())
+           return formatter_eng;
+       else
+           return formatter_spa;
+   }
+   
+    
+   /**
+   *
+   */
+  public boolean isSameYear(ZonedDateTime today, ZonedDateTime date) {
+      int today_year = today.getYear();
+      int date_year = date.getYear();
+      return (today_year == date_year);
+  }
+
+  /**
+   *
+   */
+  public boolean isSameWeek(ZonedDateTime today, ZonedDateTime date) {
+      int week = today.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+      int weekYear = today.get(IsoFields.WEEK_BASED_YEAR);
+      int date_week = date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+      int date_weekYear = date.get(IsoFields.WEEK_BASED_YEAR);
+      return week == date_week && weekYear == date_weekYear;
+  }
+  
     /**
      * 
      * @param date

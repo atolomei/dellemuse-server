@@ -16,7 +16,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
 
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
@@ -34,10 +33,12 @@ import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
@@ -89,6 +90,13 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		  
 	 }
 	
+	
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		return null;
+	}
+
+	
 	 protected void addHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
@@ -110,6 +118,33 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		return service.findAllSorted();
 	}
 
+	@Override
+	public Iterable<ArtWork> getObjects(ObjectState os1) {
+		 return this.getObjects(os1, null);
+	}
+
+	
+	@Override
+	public Iterable<ArtWork> getObjects(ObjectState os1, ObjectState os2) {
+
+		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+
+		if (os1==null && os2==null)
+			return service.findAllSorted();
+	
+		if (os2==null)
+			return service.findAllSorted(os1);
+
+		if (os1==null)
+			return service.findAllSorted(os2);
+		
+		return service.findAllSorted(os1, os2);
+	}
+
+	
+	
+	
+	
 	@Override
 	public IModel<String> getObjectInfo(IModel<ArtWork> model) {
 		return new Model<String>(model.getObject().getInfo());
@@ -169,7 +204,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 				};
 			}
@@ -213,7 +248,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		return  ListPanelMode.TITLE;
 	}
    
-	protected List<ToolbarItem> getToolbarItems() {return null;}
+	protected List<ToolbarItem> getMainToolbarItems() {return null;}
 
 	
 	protected  WebMarkupContainer getSubmenu() {
@@ -230,13 +265,22 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		  return null;	
 	}
 	
-	@Override
+	 
 	protected void onCreate() {
+		
+		try {
 		ArtWork in = getArtWorkDBService().create("new", getUserDBService().findRoot());
 			IModel<ArtWork> m =  new ObjectModel<ArtWork>(in);
 			getList().add(m);
 			ArtWorkPage a=new ArtWorkPage(m, getList());
 			setResponsePage(a);
+		} catch (Exception e) {
+			logger.error(e);	
+			setResponsePage(new ErrorPage(e));
+							
+		}
 	}
+
+
 
 }

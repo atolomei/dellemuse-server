@@ -1,11 +1,21 @@
 package dellemuse.serverapp.command;
 
 
+import java.io.File;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import dellemuse.model.JsonObject;
 import dellemuse.model.util.RandomIDGenerator;
+import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.elevenlabs.ClientConstant;
+import dellemuse.serverapp.serverdb.service.ResourceDBService;
+import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.LockService;
 
 public abstract class Command extends JsonObject {
 
@@ -51,6 +61,36 @@ public abstract class Command extends JsonObject {
 			return Duration.between(startTime, endTime);
 		return null;
 	}
+	
+	
+	@JsonIgnore
+	private  LockService lockService;
+
+	
+	public LockService getLockService() {
+		if (lockService==null)
+			this.lockService= (LockService) ServiceLocator.getInstance().getBean(LockService.class);
+		
+		return this.lockService;
+	}
+	
+	
+	 protected String getAudioCacheWorkDir() {
+	        return getHomeDirAbsolutePath() + File.separator + "audiocache" + File.separator + "download";
+	 }
+
+	 protected String getHomeDirAbsolutePath() {
+	        if (isLinux())
+	            return ClientConstant.linux_home;
+	        return ClientConstant.windows_home;
+	  }
+	
+	 protected boolean isLinux() {
+	        if (System.getenv("OS") != null && System.getenv("OS").toLowerCase().contains("windows"))
+	            return false;
+	        return true;
+	    }
+	
 
 	/* seconds */
 	public double estimatedSecsToEnd() {
@@ -87,4 +127,13 @@ public abstract class Command extends JsonObject {
 	public void setOffsetDateTimeEnd(OffsetDateTime endOffseDateTime) {
 		this.endTime = endOffseDateTime;
 	}
+	
+	protected ServerDBSettings getServerDBSettings() {
+		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
+	}
+	
+	protected ResourceDBService getResourceDBService() {
+		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+	}
+	
 }

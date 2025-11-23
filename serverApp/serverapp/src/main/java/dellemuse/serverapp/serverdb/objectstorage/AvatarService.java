@@ -173,7 +173,8 @@ public class AvatarService extends BaseService implements SystemService {
 							                        getMimeType(file.getName()), 
 							                        file.length(),
 							                        ServerConstant.AVATAR,
-							                         getUserDBService().findRoot());
+							                         getUserDBService().findRoot(),
+							                         file.getName());
 										
 										logger.debug("uploaded -> " + file.getName());
 										

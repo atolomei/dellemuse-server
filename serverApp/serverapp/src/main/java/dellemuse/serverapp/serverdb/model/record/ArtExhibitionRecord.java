@@ -65,4 +65,15 @@ public class ArtExhibitionRecord extends TranslationRecord {
 		 return this.artExhibition !=null? this.artExhibition : null;
 	 }
 	
+	@Override
+	public boolean isAudioStudioEnabled() {
+		return false;
+	}
+	
+	@Override
+	public String getPrefixUrl() {
+			throw new RuntimeException("not done");
+	}
+
+	
 };

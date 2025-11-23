@@ -18,11 +18,13 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -122,6 +124,26 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
 	}
 
+	
+	@Transactional
+	public List<SiteRecord> findAllByGuideContent(Site a) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<SiteRecord> cq = cb.createQuery(SiteRecord.class);
+		Root<SiteRecord> root = cq.from(SiteRecord.class);
+		
+	     Predicate p1 = cb.equal(root.get("site").get("id"), a.getId() );
+	     cq.select(root).where(p1);
+	
+		List<SiteRecord> list = this.getEntityManager().createQuery(cq).getResultList();
+
+		if (list==null)
+			return new ArrayList<SiteRecord>();
+		
+		return list;
+	}
+
+	
 	/**
 	 * @param name
 	 * @param site
@@ -162,7 +184,7 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 	@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
-		super.delete(id);
+		super.deleteById(id);
 	}
 
 	@Transactional

@@ -16,110 +16,113 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Resource extends DelleMuseObject {
 
-    @Column(name = "bucketName")
-    private String bucketName;
+	@Column(name = "bucketName")
+	private String bucketName;
 
-    @Column(name = "objectName")
-    private String objectName;
+	@Column(name = "objectName")
+	private String objectName;
 
-    @Column(name = "media")
-    private String media;
+	@Column(name = "fileName")
+	private String fileName;
 
-    @Column(name = "info")
-    private String info;
+	@Column(name = "media")
+	private String media;
 
-    @Column(name = "infoKey")
-    private String infoKey;
-    
-    @Column(name = "usethumbnail")
-    @JsonProperty("usethumbnail")
-    private boolean usethumbnail;
-   
-    @Column(name = "size")
-    @JsonProperty("size")
-    private long size;
+	@Column(name = "info")
+	private String info;
 
-    @Column(name = "width")
-    @JsonProperty("width")
-    private int width;
+	@Column(name = "infoKey")
+	private String infoKey;
 
-    @Column(name = "height")
-    @JsonProperty("height")
-    private int height;
- 
+	@Column(name = "usethumbnail")
+	@JsonProperty("usethumbnail")
+	private boolean usethumbnail;
 
-    @Column(name = "durationMilliseconds")
-    @JsonProperty("durationMilliseconds")
-    private long durationMilliseconds;
- 
-    @Column(name = "tag")
-    private String tag;
-    
-    
-    public Resource() {
-    }
-    
-    @Override
-    public String getDisplayname() {
-        return getName();
-    }
-  
-    public String getBucketName() {
-        return bucketName;
-    }
+	@Column(name = "size")
+	@JsonProperty("size")
+	private long size;
 
-    public void setBucketName(String bucket) {
-        this.bucketName = bucket;
-    }
+	@Column(name = "width")
+	@JsonProperty("width")
+	private int width;
 
-    public String getObjectName() {
-        return objectName;
-    }
+	@Column(name = "height")
+	@JsonProperty("height")
+	private int height;
 
-    public void setObjectName(String objectName) {
-        this.objectName = objectName;
-    }
+	@Column(name = "durationMilliseconds")
+	@JsonProperty("durationMilliseconds")
+	private long durationMilliseconds;
 
-    public String getInfo() {
-        return info;
-    }
+	@Column(name = "tag")
+	private String tag;
 
+	@Column(name = "audit")
+	private String audit;
 
-    public void setInfo(String info) {
-        this.info = info;
-    }
+	public Resource() {
+	}
 
+	@Override
+	public String getDisplayname() {
+		return getName();
+	}
 
+	public String getBucketName() {
+		return bucketName;
+	}
 
-    public String getInfoKey() {
-        return infoKey;
-    }
+	public void setBucketName(String bucket) {
+		this.bucketName = bucket;
+	}
 
+	public String getObjectName() {
+		return objectName;
+	}
 
+	public void setObjectName(String objectName) {
+		this.objectName = objectName;
+	}
 
-    public void setInfoKey(String infoKey) {
-        this.infoKey = infoKey;
-    }
+	public String getInfo() {
+		return info;
+	}
 
-    public long getSize() {
-    	return size;
-    }
-    
-    public void setSize(long size) {
-    	this.size=size;
-    }
-    
+	public void setInfo(String info) {
+		this.info = info;
+	}
 
+	public String getInfoKey() {
+		return infoKey;
+	}
 
-    public String getMedia() {
-        return media;
-    }
+	public void setInfoKey(String infoKey) {
+		this.infoKey = infoKey;
+	}
 
+	public String getFileName() {
+		return fileName;
+	}
 
+	public void setFileName(String f) {
+		this.fileName = f;
+	}
 
-    public void setMedia(String media) {
-        this.media = media;
-    }
+	public long getSize() {
+		return size;
+	}
+
+	public void setSize(long size) {
+		this.size = size;
+	}
+
+	public String getMedia() {
+		return media;
+	}
+
+	public void setMedia(String media) {
+		this.media = media;
+	}
 
 	public boolean isUsethumbnail() {
 		return usethumbnail;
@@ -161,5 +164,12 @@ public class Resource extends DelleMuseObject {
 		this.tag = tag;
 	}
 
+	public String getAudit() {
+		return audit;
+	}
+
+	public void setAudit(String audit) {
+		this.audit = audit;
+	}
 
 };

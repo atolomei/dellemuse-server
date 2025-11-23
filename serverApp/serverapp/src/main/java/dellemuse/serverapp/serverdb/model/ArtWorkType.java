@@ -18,15 +18,6 @@ public class ArtWorkType extends DelleMuseObject {
     public ArtWorkType() {
     }
 
-    /**
-    @Override
-    public  ArtWorkTypeModel model() {
-        try {
-            return ( ArtWorkTypeModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),  ArtWorkTypeModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    **/
+    
 
 }

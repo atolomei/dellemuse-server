@@ -177,7 +177,7 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
              }
      
              if (thumbnail==null)
-                 throw new RuntimeException ("thumbnail is null");
+                 throw new RuntimeException ("thumbnail is null | " + sourceFile.getAbsolutePath() );
              
              /** save into object storage  */
              

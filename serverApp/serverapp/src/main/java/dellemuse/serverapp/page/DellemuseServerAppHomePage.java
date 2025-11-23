@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -25,57 +24,53 @@ import io.wktui.model.TextCleaner;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 
+//@AuthorizeInstantiation("USER")
 @WicketHomePage
-@MountPath("home")
+@MountPath("/home")
 public class DellemuseServerAppHomePage extends BasePage {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private IModel<User> model;
-    private ListPanel<Site> panel;
+	private IModel<User> model;
+	private ListPanel<Site> panel;
 	private List<IModel<Site>> list;
 
-    
-    @SuppressWarnings("unused")
-    static private Logger logger = Logger.getLogger(DellemuseServerAppHomePage.class.getName());
-    
-    
-    public DellemuseServerAppHomePage(PageParameters parameters) {
-        super(parameters);
-    }
+	@SuppressWarnings("unused")
+	static private Logger logger = Logger.getLogger(DellemuseServerAppHomePage.class.getName());
 
-    public DellemuseServerAppHomePage() {
-        super();
-    }
-    
-    
-    @Override
-    public void onDetach() {
-    	super.onDetach();
-    	
-    	if (list!=null)
-    		list.forEach(i-> i.detach());
-    	
-    	if (model!=null)
-    		model.detach();
-    }
-    
+	public DellemuseServerAppHomePage(PageParameters parameters) {
+		super(parameters);
+	}
 
-    @Override
-    public void onInitialize() {
-        super.onInitialize();
+	public DellemuseServerAppHomePage() {
+		super();
+	}
 
-        Optional<User> o = super.getSessionUser();
-        
-        setModel(new ObjectModel<User>(o.get()));
-          
-        addSites();
-          
-        add( new GlobalTopPanel("top-panel", getModel()));
-        add( new GlobalFooterPanel<Void>("footer-panel"));
-        
-       
-    }
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (list != null)
+			list.forEach(i -> i.detach());
+
+		if (model != null)
+			model.detach();
+	}
+
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
+
+		Optional<User> o = super.getSessionUser();
+
+		setModel(new ObjectModel<User>(o.get()));
+
+		addSites();
+
+		add(new GlobalTopPanel("top-panel", getModel()));
+		add(new GlobalFooterPanel<Void>("footer-panel"));
+
+	}
 
 	public IModel<User> getModel() {
 		return model;
@@ -85,9 +80,8 @@ public class DellemuseServerAppHomePage extends BasePage {
 		this.model = model;
 	}
 
-	
 	protected void onClick(IModel<Site> model) {
-		setResponsePage( new SitePage( model, getList()));
+		setResponsePage(new SitePage(model, getList()));
 	}
 
 	protected String getObjectImageSrc(IModel<Site> model) {
@@ -101,7 +95,7 @@ public class DellemuseServerAppHomePage extends BasePage {
 	protected IModel<String> getObjectSubtitle(IModel<Site> model) {
 		return new Model<String>(model.getObject().getSubtitle());
 	}
-	 
+
 	protected IModel<String> getObjectTitle(IModel<Site> model) {
 		return new Model<String>(model.getObject().getDisplayname());
 	}
@@ -109,19 +103,18 @@ public class DellemuseServerAppHomePage extends BasePage {
 	protected IModel<String> getObjectInfo(IModel<Site> model) {
 		return new Model<String>(TextCleaner.clean(model.getObject().getInfo(), 280));
 	}
-	
-	 
+
 	private void loadList() {
-		list=new ArrayList<IModel<Site>>();
-		super.getSites().forEach( i -> list.add( new ObjectModel<Site>(i)));
- 	}
-	
+		list = new ArrayList<IModel<Site>>();
+		super.getSites().forEach(i -> list.add(new ObjectModel<Site>(i)));
+	}
+
 	private List<IModel<Site>> getList() {
 		return list;
 	}
-	
+
 	private void addSites() {
-	
+
 		loadList();
 
 		this.panel = new ListPanel<>("siteList", getList()) {
@@ -185,9 +178,9 @@ public class DellemuseServerAppHomePage extends BasePage {
 				return list;
 			}
 		};
-		
+
 		this.panel.setHasExpander(false);
-	
+
 		add(this.panel);
 	}
 

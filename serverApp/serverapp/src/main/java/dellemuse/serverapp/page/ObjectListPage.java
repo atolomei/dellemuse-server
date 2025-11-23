@@ -2,31 +2,40 @@ package dellemuse.serverapp.page;
 
 import java.util.ArrayList;
 import java.util.List;
- 
+
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
- 
+
 import org.apache.wicket.request.mapper.parameter.PageParameters;
- 
+
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
- 
+import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
+import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
 import dellemuse.serverapp.page.model.ObjectModel;
- 
+
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import io.wktui.error.ErrorPanel;
+import io.wktui.event.MenuAjaxEvent;
+import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.UIEvent;
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
- 
+
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.InvisiblePanel;
- 
+
 /**
  * 
  * site foto Info - exhibitions "ps-0 pe-0 pt-0 pb-0 float-start w-100 toolbar"
@@ -46,18 +55,22 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	private Link<T> create;
 	private Label createLabel;
 	private WebMarkupContainer createContainer;
-	private WebMarkupContainer toolbarContainer;
-	private WebMarkupContainer toolbar;
+	private WebMarkupContainer mainToolbarContainer;
+	private WebMarkupContainer mainToolbar;
 
-	 
+	private WebMarkupContainer listToolbarContainer;
+	private WebMarkupContainer listToolbar;
 
 	private boolean b_expand = false;
 
 	protected abstract void addHeaderPanel();
 
 	public abstract Iterable<T> getObjects();
-
-	 
+	public abstract Iterable<T> getObjects(ObjectState os1);
+	public abstract Iterable<T> getObjects(ObjectState os1, ObjectState os2);
+	
+	
+	
 	protected abstract IModel<String> getObjectInfo(IModel<T> model);
 
 	protected abstract IModel<String> getObjectTitle(IModel<T> model);
@@ -68,7 +81,14 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 	protected abstract IModel<String> getListPanelLabel();
 
-	protected abstract List<ToolbarItem> getToolbarItems();
+	protected abstract List<ToolbarItem> getMainToolbarItems();
+
+	protected abstract List<ToolbarItem> getListToolbarItems();
+	
+	//protected abstract void setListState(ObjectStateSelectEvent event);
+
+	
+	
 
 	protected WebMarkupContainer getObjectMenu(IModel<T> model) {
 		return null;
@@ -98,11 +118,17 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		this.addOrReplace(new InvisiblePanel("page-header"));
 	}
 
-	public void onBeforeRender() {
-		super.onBeforeRender();
+	 
 
-		if (get("page-header") == null)
-			this.addDefaultPageHeaderPanel();
+	
+	private ObjectStateEnumSelector oses;
+	
+	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
+		this.oses=o;
+	}
+	
+	public ObjectStateEnumSelector getObjectStateEnumSelector() {
+		return this.oses;
 	}
 
 	@Override
@@ -129,6 +155,30 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		return getTitleLabel() != null;
 	}
 
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<ObjectStateSelectEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(ObjectStateSelectEvent event) {
+				loadList();
+				event.getTarget().add(ObjectListPage.this);
+				
+			}
+			
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectStateSelectEvent)
+					return true;
+				return false;
+			}
+		});
+		
+	}
+	
+	
 	protected Panel getObjectListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
 
 		return new ObjectListItemExpandedPanel<T>("expanded-panel", model, mode) {
@@ -156,113 +206,144 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	public void onInitialize() {
 		super.onInitialize();
 
-		
-		add(new GlobalTopPanel("top-panel", new ObjectModel<User>( getSessionUser().get())));
-		add(new GlobalFooterPanel<>("footer-panel"));
+		try {
+			add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
+			add(new GlobalFooterPanel<>("footer-panel"));
 
-		addHeaderPanel();
-		addToolbar();
-
-		this.titleContainer = new WebMarkupContainer("titleContainer") {
-			private static final long serialVersionUID = 1L;
-
-			public boolean isVisible() {
-				return isTitle();
-			}
-		};
-		add(this.titleContainer);
-
-		if (isTitle()) {
-			Label title = new Label("title", getTitleLabel());
-			this.titleContainer.add(title);
-		} else {
-			this.titleContainer.add(new InvisiblePanel("title"));
-
+		} catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new ErrorPanel("top-panel", e));
+			addOrReplace(new InvisiblePanel("footer-panel"));
 		}
 
-		loadList();
+		try {
 
-		this.panel = new ListPanel<>("contents", getList()) {
+			// addDefaultPageHeaderPanel();
+			addHeaderPanel();
+			addMainToolbar();
+			addListToolbar();
 
-			private static final long serialVersionUID = 1L;
+		} catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new ErrorPanel("page-header", e));
+			addOrReplace(new InvisiblePanel("mainToolbarContainer"));
+			addOrReplace(new InvisiblePanel("listToolbarContainer"));
+		}
 
-			@Override
-			protected Panel getListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
-				return ObjectListPage.this.getObjectListItemExpandedPanel(model, mode);
-			}
+		try {
 
-			@Override
-			protected Panel getListItemPanel(IModel<T> model, ListPanelMode mode) {
+			this.titleContainer = new WebMarkupContainer("titleContainer") {
+				private static final long serialVersionUID = 1L;
 
-				ObjectListItemPanel<T> panel = new ObjectListItemPanel<>("row-element", model, mode) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					protected WebMarkupContainer getObjectMenu() {
-						return ObjectListPage.this.getObjectMenu(getModel());
-					}
-
-					@Override
-					public void onClick() {
-						ObjectListPage.this.onClick(getModel());
-					}
-
-					protected IModel<String> getInfo() {
-						return ObjectListPage.this.getObjectInfo(getModel());
-					}
-
-					protected IModel<String> getObjectTitle() {
-						return ObjectListPage.this.getObjectTitle(getModel());
-					}
-
-					protected IModel<String> getObjectSubtitle() {
-						if (getMode() == ListPanelMode.TITLE)
-							return null;
-						return ObjectListPage.this.getObjectSubtitle(getModel());
-					}
-
-					@Override
-					protected String getImageSrc() {
-						return ObjectListPage.this.getObjectImageSrc(getModel());
-					}
-
-				};
-				return panel;
-			}
-
-			protected void onClick(IModel<T> model) {
-				ObjectListPage.this.onClick(model);
+				public boolean isVisible() {
+					return isTitle();
+				}
+			};
+			add(this.titleContainer);
+			if (isTitle()) {
+				Label title = new Label("title", getTitleLabel());
+				this.titleContainer.add(title);
+			} else {
+				this.titleContainer.add(new InvisiblePanel("title"));
 
 			}
+		} catch (Exception e) {
+			logger.error(e);
+			this.titleContainer = new ErrorPanel("titleContainer", e);
+			this.titleContainer.add(new InvisiblePanel("title"));
+			addOrReplace(this.titleContainer);
+		}
 
-			@Override
-			public IModel<String> getItemLabel(IModel<T> model) {
-				return new Model<String>(model.getObject().getDisplayname());
-			}
+		try {
 
-			@Override
-			protected List<IModel<T>> filter(List<IModel<T>> initialList, String filter) {
+			loadList();
 
-				List<IModel<T>> list = new ArrayList<IModel<T>>();
-				final String str = filter.trim().toLowerCase();
-				initialList.forEach(s -> {
-					if (s.getObject().getDisplayname().toLowerCase().contains(str)) {
-						list.add(s);
-					}
-				});
-				return list;
-			}
-		};
+			this.panel = new ListPanel<>("contents", getList()) {
 
-		this.panel.setHasExpander(this.isIsExpanded());
-		this.panel.setSettings(isSettings());
-		this.panel.setTitle(getListPanelLabel());
-		this.panel.setListPanelMode(getListPanelMode());
-		add(this.panel);
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected Panel getListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
+					return ObjectListPage.this.getObjectListItemExpandedPanel(model, mode);
+				}
+
+				@Override
+				protected Panel getListItemPanel(IModel<T> model, ListPanelMode mode) {
+
+					ObjectListItemPanel<T> panel = new ObjectListItemPanel<>("row-element", model, mode) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						protected WebMarkupContainer getObjectMenu() {
+							return ObjectListPage.this.getObjectMenu(getModel());
+						}
+
+						@Override
+						public void onClick() {
+							ObjectListPage.this.onClick(getModel());
+						}
+
+						protected IModel<String> getInfo() {
+							return ObjectListPage.this.getObjectInfo(getModel());
+						}
+
+						protected IModel<String> getObjectTitle() {
+							return ObjectListPage.this.getObjectTitle(getModel());
+						}
+
+						protected IModel<String> getObjectSubtitle() {
+							if (getMode() == ListPanelMode.TITLE)
+								return null;
+							return ObjectListPage.this.getObjectSubtitle(getModel());
+						}
+
+						@Override
+						protected String getImageSrc() {
+							return ObjectListPage.this.getObjectImageSrc(getModel());
+						}
+
+					};
+					return panel;
+				}
+
+				protected void onClick(IModel<T> model) {
+					ObjectListPage.this.onClick(model);
+
+				}
+
+				@Override
+				public IModel<String> getItemLabel(IModel<T> model) {
+					return new Model<String>(model.getObject().getDisplayname());
+				}
+
+				@Override
+				protected List<IModel<T>> filter(List<IModel<T>> initialList, String filter) {
+
+					List<IModel<T>> list = new ArrayList<IModel<T>>();
+					final String str = filter.trim().toLowerCase();
+					initialList.forEach(s -> {
+						if (s.getObject().getDisplayname().toLowerCase().contains(str)) {
+							list.add(s);
+						}
+					});
+					return list;
+				}
+			};
+
+			this.panel.setHasExpander(this.isIsExpanded());
+			this.panel.setSettings(isSettings());
+			this.panel.setTitle(getListPanelLabel());
+			this.panel.setListPanelMode(getListPanelMode());
+		
+			add(this.panel);
+		
+		} catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new ErrorPanel("contents", e));
+		}
 	}
 
-	 
 	protected boolean isSettings() {
 		return true;
 	}
@@ -271,42 +352,73 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		return ListPanelMode.TITLE;
 	}
 
-	 
-
 	protected IModel<String> getTitleLabel() {
 		return null;
 	}
-
-	protected void onCreate() {
-		logger.debug("on create");
-	}
+ 
 
 	protected void loadList() {
+	
 		this.list = new ArrayList<IModel<T>>();
-		getObjects().forEach(s -> this.list.add(new ObjectModel<T>(s)));
+		
+		if (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.EDTIION_PUBLISHED)
+			getObjects( ObjectState.EDTION,  ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
 
+		else if (this.getObjectStateEnumSelector()==null)
+			getObjects().forEach(s -> this.list.add(new ObjectModel<T>(s)));
+
+		else if  (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.ALL)
+			getObjects().forEach(s -> this.list.add(new ObjectModel<T>(s)));
+
+		else if  (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.DELETED)
+			getObjects( ObjectState.DELETED ).forEach(s -> this.list.add(new ObjectModel<T>(s)));
 	}
 
-	private void addToolbar() {
+	private void addMainToolbar() {
 
-		this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
+		this.mainToolbarContainer = new WebMarkupContainer("mainToolbarContainer") {
 			private static final long serialVersionUID = 1L;
 
 			public boolean isVisible() {
-				return getToolbarItems() != null && getToolbarItems().size() > 0;
+				return getMainToolbarItems() != null && getMainToolbarItems().size() > 0;
 			}
 		};
-		add(this.toolbarContainer);
 
-		List<ToolbarItem> list = getToolbarItems();
+		add(this.mainToolbarContainer);
+
+		List<ToolbarItem> list = getMainToolbarItems();
 
 		if (list != null && list.size() > 0) {
-			Toolbar toolbarItems = new Toolbar("toolbarItems");
+			Toolbar toolbarItems = new Toolbar("mainToolbar");
 			list.forEach(t -> toolbarItems.addItem(t));
-			this.toolbarContainer.add(toolbarItems);
+			this.mainToolbarContainer.add(toolbarItems);
 		} else {
-			this.toolbarContainer.add(new InvisiblePanel("toolbarItems"));
+			this.mainToolbarContainer.add(new InvisiblePanel("mainToolbar"));
 		}
 	}
 
+	private void addListToolbar() {
+
+		this.listToolbarContainer = new WebMarkupContainer("listToolbarContainer") {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isVisible() {
+				return getMainToolbarItems() != null && getMainToolbarItems().size() > 0;
+			}
+		};
+
+		add(this.listToolbarContainer);
+
+		List<ToolbarItem> list = getListToolbarItems();
+
+		if (list != null && list.size() > 0) {
+			Toolbar toolbarItems = new Toolbar("listToolbar");
+			list.forEach(t -> toolbarItems.addItem(t));
+			this.listToolbarContainer.add(toolbarItems);
+		} else {
+			this.listToolbarContainer.add(new InvisiblePanel("listToolbar"));
+		}
+	}
+
+	
 }

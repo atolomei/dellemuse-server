@@ -19,6 +19,7 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -42,6 +43,26 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 	public GuideContentRecordDBService(CrudRepository<GuideContentRecord, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
+	
+	
+	@Transactional
+	public void markAsDeleted(GuideContentRecord c, User deletedBy) {
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(deletedBy);
+		c.setState(ObjectState.DELETED);
+		getRepository().save(c);		
+	}
+	
+	@Transactional
+	public void restore(GuideContentRecord c, User by) {
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(by);
+		c.setState(ObjectState.EDTION);
+		getRepository().save(c);		
+	}
+	
+	
+	
 	
 	/**
 	 * <p>
@@ -99,7 +120,6 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 
 	/**
 	 * 
-	 * 
 	 * @param a
 	 * @param lang
 	 * @return
@@ -123,6 +143,32 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 		
 	}
 
+
+	/**
+	 * 
+	 * @param a
+	 * @param lang
+	 * @return
+	 */
+	@Transactional
+	public List<GuideContentRecord> findAllByGuideContent(GuideContent a) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContentRecord> cq = cb.createQuery(GuideContentRecord.class);
+		Root<GuideContentRecord> root = cq.from(GuideContentRecord.class);
+		
+	     Predicate p1 = cb.equal(root.get("guideContent").get("id"), a.getId() );
+	     cq.select(root).where(p1);
+	
+		List<GuideContentRecord> list = this.getEntityManager().createQuery(cq).getResultList();
+
+		if (list==null)
+			return new ArrayList<GuideContentRecord>();
+		
+		return list;
+	}
+
+	
 	
 
 	/**
@@ -169,7 +215,7 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 	@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
-		super.delete(id);
+		super.deleteById(id);
 	}
 
 	@Transactional

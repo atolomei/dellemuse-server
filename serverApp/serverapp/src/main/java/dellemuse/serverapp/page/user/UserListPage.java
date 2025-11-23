@@ -15,8 +15,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.GuideContentModel;
@@ -29,9 +27,11 @@ import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
@@ -51,125 +51,134 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 
-
 /**
- * site 
- * foto 
- * Info - exhibitions
+ * site foto Info - exhibitions
  */
 
 @MountPath("/user/list")
 public class UserListPage extends ObjectListPage<User> {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	static private Logger logger = Logger.getLogger(UserListPage.class.getName());
 
-	 
-
-	
 	protected IModel<String> getTitleLabel() {
 		return null;
 	}
-	  
-	public  UserListPage() {
+
+	public UserListPage() {
 		super();
-		 setIsExpanded(true);
-		 
-	}		
-	
-	public  UserListPage(PageParameters parameters) {
-		 super(parameters);
-		 setIsExpanded(true);	  
+		setIsExpanded(true);
+
 	}
-	
-	@Override
+
+	public UserListPage(PageParameters parameters) {
+		super(parameters);
+		setIsExpanded(true);
+	}
+
 	protected void onCreate() {
+
+		try {
 			User in = getUserDBService().create("new", getUserDBService().findRoot());
-			IModel<User> m =  new ObjectModel<User>(in);
+			IModel<User> m = new ObjectModel<User>(in);
 			getList().add(m);
-			//setResponsePage( new UserPage(m,getList()));
-	}
-	 @Override
-		protected WebMarkupContainer getObjectMenu(IModel<User> model) {
-			
-			NavDropDownMenu<User> menu = new NavDropDownMenu<User>("menu", model, null);
-			
-			menu.setOutputMarkupId(true);
+			// setResponsePage( new UserPage(m,getList()));
+		} catch (Exception e) {
+			logger.error(e);
+			setResponsePage(new ErrorPage(e));
 
-			menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
-			menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
-
-			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public MenuItemPanel<User> getItem(String id) {
-
-					return new AjaxLinkMenuItem<User>(id) {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							// refresh(target);
-						}
-
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("open");
-						}
-					};
-				}
-			});
-
-			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public MenuItemPanel<User> getItem(String id) {
-
-					return new AjaxLinkMenuItem<User>(id) {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							// refresh(target);
-						}
-
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("delete");
-						}
-					};
-				}
-			});
-			return menu;
 		}
-	 
+	}
+
+	@Override
+	protected WebMarkupContainer getObjectMenu(IModel<User> model) {
+
+		NavDropDownMenu<User> menu = new NavDropDownMenu<User>("menu", model, null);
+
+		menu.setOutputMarkupId(true);
+
+		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new AjaxLinkMenuItem<User>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("open");
+					}
+				};
+			}
+		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new AjaxLinkMenuItem<User>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						// refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+			}
+		});
+		return menu;
+	}
+
 	@Override
 	protected void addHeaderPanel() {
-		 BreadCrumb<Void> bc = createBreadCrumb();
-	        bc.addElement(new BCElement( getLabel("users")));
-	        
-	    	JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("users"));
-			ph.setBreadCrumb(bc);
-			add(ph);
+		BreadCrumb<Void> bc = createBreadCrumb();
+		bc.addElement(new BCElement(getLabel("users")));
+
+		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("users"));
+		ph.setBreadCrumb(bc);
+		add(ph);
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 	}
-    
-	
-	
+
 	@Override
 	public Iterable<User> getObjects() {
 		return super.getUsers();
+	}
+
+	@Override
+	public Iterable<User> getObjects(ObjectState os1) {
+		return this.getObjects(os1, null);
+	}
+
+	@Override
+	public Iterable<User> getObjects(ObjectState os1, ObjectState os2) {
+		return super.getUsers(os1, os2);
 	}
 
 	@Override
@@ -186,23 +195,24 @@ public class UserListPage extends ObjectListPage<User> {
 	public void onClick(IModel<User> model) {
 		setResponsePage(new UserPage(model, getList()));
 	}
-	
+
 	@Override
-	protected List<ToolbarItem> getToolbarItems() {
-	
+	protected List<ToolbarItem> getMainToolbarItems() {
+
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 
 		ButtonCreateToolbarItem<User> create = new ButtonCreateToolbarItem<>("item") {
 			private static final long serialVersionUID = 1L;
+
 			protected void onClick() {
 				UserListPage.this.onCreate();
 			}
 		};
-		
+
 		list.add(create);
-		
+
 		return list;
-		
+
 	}
 
 	@Override
@@ -219,16 +229,20 @@ public class UserListPage extends ObjectListPage<User> {
 	public IModel<String> getPageTitle() {
 		return null;
 	}
-	
-	
+
 	@Override
 	protected String getObjectImageSrc(IModel<User> model) {
-	//	if (model.getObject().getPhoto() != null) {
-	//		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-	//		return getPresignedThumbnailSmall(photo);
-	//	}
+		// if (model.getObject().getPhoto() != null) {
+		// Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+		// return getPresignedThumbnailSmall(photo);
+		// }
 		return null;
 	}
-	
+
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

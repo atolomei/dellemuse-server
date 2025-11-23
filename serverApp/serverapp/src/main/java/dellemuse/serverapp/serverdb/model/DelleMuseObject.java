@@ -47,15 +47,17 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 
 	@JsonIgnore
 	static final private JsonFactory factory = new JsonFactory();
-	
+
 	@JsonIgnore
 	static private Logger logger = Logger.getLogger(DelleMuseObject.class.getName());
 
 	@JsonIgnore
 	static final DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss XXX");
 
-	protected DateTimeFormatter getDateTimeFormatter() { return df;}
-	
+	protected DateTimeFormatter getDateTimeFormatter() {
+		return df;
+	}
+
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_gen")
@@ -64,9 +66,6 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 
 	@Column(name = "name")
 	private String name;
-
-	//@Column(name = "nameKey")
-	//private String nameKey;
 
 	@Column(name = "created")
 	private OffsetDateTime created;
@@ -87,25 +86,25 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	private ObjectState state;
 
 	@Column(name = "language")
-	private  String language;
+	private String language;
 
-	@Column(name = "audioAutoGenerate")
-	private  boolean audioAutoGenerate;
-	
+	@Column(name = "audioautogenerate")
+	private boolean audioAutoGenerate;
+
 	@Transient
-	private  boolean dependecies = false;
+	private boolean dependecies = false;
 
 	public DelleMuseObject() {
 	}
-	
+
 	public boolean isDependencies() {
 		return dependecies;
 	}
-	
-	public void setDependencies( boolean b) {
-		this.dependecies=b;
+
+	public void setDependencies(boolean b) {
+		this.dependecies = b;
 	}
-	
+
 	@JsonIgnore
 	public String getDisplayname() {
 		return (getTitle() != null) ? getTitle() : getName();
@@ -118,15 +117,14 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
+
 	public ObjectState getState() {
 		return this.state;
 	}
-	
-	public void setObjectState( ObjectState state) {
-		this.state=state;
+
+	public void setObjectState(ObjectState state) {
+		this.state = state;
 	}
-	
 
 	public OffsetDateTime getCreated() {
 		return created;
@@ -160,74 +158,40 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		this.name = name;
 	}
 
-	//public String getNameKey() {
-	//	return nameKey;
-	//}
-
-	//public void setNameKey(String nameKey) {
-//		this.nameKey = nameKey;
-//	}
-
-	
-	// @Column(name = "title")
-	// private String title;
-
-	// @Column(name = "titleKey")
-	// private String titleKey;
-	
-	//public void setTitle(String title) {
-	//	this.title = title;
-	//}
-
-	//public String getTitleKey() {
-	//	return titleKey;
-	//}
-
-	//public void setTitleKey(String titleKey) {
-	//	this.titleKey = titleKey;
-	//}
-
 	public String getTitle() {
-		//if (title != null)
-		//	return title;
 		return getName();
 	}
-	
+
 	public String getLanguage() {
 		return this.language;
 	}
-	
-	public void setLanguage( String lang) {
-		 language=lang;
+
+	public void setLanguage(String lang) {
+		language = lang;
 	}
-	
 
 	@Override
 	@JsonIgnore
 	public ObjectMapper getObjectMapper() {
 		return hb6mapper;
 	}
-	
-	
+
 	protected String baseJSON() {
 		StringBuilder str = new StringBuilder();
-		
+
 		str.append(getClass().getSimpleName());
-		
-		str.append("\"id\": "+ getId().toString());
-		
-		if (name!=null)
-			str.append(", \"name\": \""+ getName().toString()+"\"");
-		
-		//if (title!=null)
-		//	str.append(", \"title\": \""+ getName().toString()+"\"");
-		
-		if (lastModified!=null)
-			str.append(", \"lastModified\": \""+ getDateTimeFormatter().format(getLastModified()));
+
+		str.append("\"id\": " + getId().toString());
+
+		if (name != null)
+			str.append(", \"name\": \"" + getName().toString() + "\"");
+
+	 	if (lastModified != null)
+			str.append(", \"lastModified\": \"" + getDateTimeFormatter().format(getLastModified()));
 
 		return str.toString();
 	}
-	
+
 	@Override
 	public String toString() {
 
@@ -236,36 +200,30 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		str.append(" { ");
 		str.append(baseJSON());
 		str.append(" } ");
-		
+
 		return str.toString();
-		
 
 		/**
-		StringWriter stringWriter = new StringWriter();
+		 * StringWriter stringWriter = new StringWriter();
+		 * 
+		 * try (JsonGenerator generator = factory.createGenerator(stringWriter)) {
+		 * generator.writeStartObject(); generator.writeNumberField("id", getId());
+		 * generator.writeStringField("name", getName());
+		 * generator.writeStringField("title", getTitle()); if (this.getLastModified()
+		 * != null) generator.writeStringField("lastModified",
+		 * df.format(this.getLastModified())); generator.writeEndObject();
+		 * 
+		 * stringWriter.flush(); String jsonString = stringWriter.toString();
+		 * 
+		 * logger.debug(jsonString);
+		 * 
+		 * return jsonString;
+		 * 
+		 * } catch (Exception e) { logger.error(e); return " { \"error\": \"" +
+		 * e.getClass().getName() + (e.getMessage() != null ? (" | " +
+		 * e.getMessage().replace("\"", "'" + "\"")) : "") + " }"; }
+		 **/
 
-		try (JsonGenerator generator = factory.createGenerator(stringWriter)) {
-			generator.writeStartObject();
-			generator.writeNumberField("id", getId());
-			generator.writeStringField("name", getName());
-			generator.writeStringField("title", getTitle());
-			if (this.getLastModified() != null)
-				generator.writeStringField("lastModified", df.format(this.getLastModified()));
-			generator.writeEndObject();
-			
-			stringWriter.flush();
-			String jsonString = stringWriter.toString();
-
-			logger.debug(jsonString);
-			
-			return jsonString;
-
-		} catch (Exception e) {
-			logger.error(e);
-			return " { \"error\": \"" + e.getClass().getName()
-					+ (e.getMessage() != null ? (" | " + e.getMessage().replace("\"", "'" + "\"")) : "") + " }";
-		}
-		**/
-		
 	}
 
 	@Override
@@ -277,8 +235,7 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		} catch (Exception e) {
 
 			logger.error("Serialization does not work if this entity is detached (JPA FetchType.LAZY relationships)");
-			return " { \"error\": \"" + e.getClass().getName()
-					+ (e.getMessage() != null ? (" | " + e.getMessage().replace("\"", "'" + "\"")) : "") + " }";
+			return " { \"error\": \"" + e.getClass().getName() + (e.getMessage() != null ? (" | " + e.getMessage().replace("\"", "'" + "\"")) : "") + " }";
 		}
 	}
 

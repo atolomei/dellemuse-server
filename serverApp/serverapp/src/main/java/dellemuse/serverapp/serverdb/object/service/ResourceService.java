@@ -52,7 +52,7 @@ public class ResourceService extends BaseObjectService {
     
     @Override
     public  Resource getObject() {
-        return (Resource) getObject();
+        return (Resource) super.getObject();
     }
 
     

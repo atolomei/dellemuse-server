@@ -16,8 +16,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.ArtWorkModel;
@@ -34,11 +32,13 @@ import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
@@ -73,41 +73,68 @@ import io.wktui.struct.list.ListPanelMode;
 public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	static private Logger logger = Logger.getLogger(GuideContentListPage.class.getName());
 
 	public GuideContentListPage() {
 		super();
-		 
-	}		
-	
-	
+
+	}
 
 	public GuideContentListPage(PageParameters parameters) {
-		 super(parameters);
-		 
-	 }
-	
-	 protected void addHeaderPanel() {
+		super(parameters);
+
+	}
+
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		return null;
+	}
+
+	protected void addHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new BCElement(getLabel("guide-contents")));
 		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("guide-contents"));
 		ph.setBreadCrumb(bc);
-		
-		 ph.setContext(getLabel("guide-contents"));
-		
+
+		ph.setContext(getLabel("guide-contents"));
+
 		add(ph);
 	}
 
-	 
-
 	@Override
 	public Iterable<GuideContent> getObjects() {
-		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance()
-				.getBean(GuideContentDBService.class);
+		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 		return service.findAllSorted();
 	}
+	
+	
+	@Override
+	public Iterable<GuideContent> getObjects(ObjectState os1) {
+		 return this.getObjects(os1, null);
+	}
+
+	
+	@Override
+	public Iterable<GuideContent> getObjects(ObjectState os1, ObjectState os2) {
+
+		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
+
+		if (os1==null && os2==null)
+			return service.findAllSorted();
+	
+		if (os2==null)
+			return service.findAllSorted(os1);
+
+		if (os1==null)
+			return service.findAllSorted(os2);
+		
+		return service.findAllSorted(os1, os2);
+	}
+
+	
+	
 
 	@Override
 	public IModel<String> getObjectInfo(IModel<GuideContent> model) {
@@ -123,6 +150,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 	public void onClick(IModel<GuideContent> model) {
 		setResponsePage(new GuideContentPage(model, getList()));
 	}
+
 	@Override
 	public IModel<String> getPageTitle() {
 		return getLabel("guide-content");
@@ -132,13 +160,12 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 	public IModel<String> getListPanelLabel() {
 		return null;
 	}
-	
-	
+
 	@Override
 	protected WebMarkupContainer getObjectMenu(IModel<GuideContent> model) {
-		
+
 		NavDropDownMenu<GuideContent> menu = new NavDropDownMenu<GuideContent>("menu", model, null);
-		
+
 		menu.setOutputMarkupId(true);
 
 		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
@@ -162,7 +189,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 				};
 			}
@@ -193,23 +220,21 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 		});
 		return menu;
 	}
-	
+
 	@Override
-	protected List<ToolbarItem> getToolbarItems() {
+	protected List<ToolbarItem> getMainToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
+
 			protected void onClick() {
 				GuideContentListPage.this.onCreate();
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
 
-		
-		
 		return list;
 	}
-
 
 	@Override
 	public void onDetach() {
@@ -218,33 +243,38 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 	@Override
 	protected ListPanelMode getListPanelMode() {
-		return  ListPanelMode.TITLE;
+		return ListPanelMode.TITLE;
 	}
-   
+
 	@Override
 	protected String getObjectImageSrc(IModel<GuideContent> model) {
-		 if (model.getObject().getPhoto()!=null) {
-		 		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-		 	    return getPresignedThumbnailSmall(photo);
-		     }
-		  return null;	
+		if (model.getObject().getPhoto() != null) {
+			Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+			return getPresignedThumbnailSmall(photo);
+		}
+		return null;
 	}
-	
-	@Override
+
 	protected void onCreate() {
-		GuideContent in = getGuideContentDBService().create("new" , getUserDBService().findRoot());
-			IModel<GuideContent> m =  new ObjectModel<GuideContent>(in);
+
+		try {
+			GuideContent in = getGuideContentDBService().create("new", getUserDBService().findRoot());
+			IModel<GuideContent> m = new ObjectModel<GuideContent>(in);
 			getList().add(m);
- 	}
-	
+
+		} catch (Exception e) {
+			logger.error(e);
+			setResponsePage(new ErrorPage(e));
+
+		}
+	}
+
 	protected IModel<String> getTitleLabel() {
 		return getLabel("guide-contents");
 	}
 
-	protected  WebMarkupContainer getSubmenu() {
+	protected WebMarkupContainer getSubmenu() {
 		return null;
 	}
-
-	
 
 }

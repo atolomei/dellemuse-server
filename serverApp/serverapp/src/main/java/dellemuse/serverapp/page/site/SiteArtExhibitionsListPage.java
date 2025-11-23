@@ -15,7 +15,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
 
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
@@ -34,15 +33,18 @@ import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -107,6 +109,11 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		return getLabel("exhibitions");
 	}
 	
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		return null;
+	}
+
 	
 	@Override
 	public void onInitialize() {
@@ -190,7 +197,7 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 				};
 			}
@@ -235,12 +242,27 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		
 	public Iterable<ArtExhibition> getObjects() {
 		return super.getSiteArtExhibitions(getSiteModel().getObject());
-		
-		//SiteDBService service= (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		//return service.getArtExhibitions(getSiteModel().getObject().getId());
-
 	}
 
+	@Override
+	public Iterable<ArtExhibition> getObjects(ObjectState os1) {
+		return super.getSiteArtExhibitions(getSiteModel().getObject(), os1);
+	}
+
+	
+	@Override
+	public Iterable<ArtExhibition> getObjects(ObjectState os1, ObjectState os2) {
+		return super.getSiteArtExhibitions(getSiteModel().getObject(), os1, os2);
+	}
+	
+
+	
+	
+	
+	
+	
+	
+	
 	
 	public IModel<String> getObjectInfo(IModel<ArtExhibition> model) {
 		return new Model<String>( model.getObject().getIntro());
@@ -279,24 +301,22 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 	}
 
 	
-	@Override
+	 
 	protected void onCreate() {
 		try {
-		ArtExhibition in = getArtExhibitionDBService().create("new", getSiteModel().getObject(), getUserDBService().findRoot());
-		IModel<ArtExhibition> m =  new ObjectModel<ArtExhibition>(in);
-		getList().add(m);
-		ArtExhibitionPage a=new ArtExhibitionPage(m, getList());
-		setResponsePage(a);
+			ArtExhibition in = getArtExhibitionDBService().create("new", getSiteModel().getObject(), getUserDBService().findRoot());
+			IModel<ArtExhibition> m =  new ObjectModel<ArtExhibition>(in);
+			getList().add(m);
+			ArtExhibitionPage a=new ArtExhibitionPage(m, getList());
+			setResponsePage(a);
 		} catch (Exception e) {
 			logger.error(e);
-			//setResponsePage(new ErrorPage(e));
-			
+			setResponsePage(new ErrorPage(e));
 		}
 	}
 
 	
-	
-	protected List<ToolbarItem> getToolbarItems() {
+	protected List<ToolbarItem> getMainToolbarItems() {
 		
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		

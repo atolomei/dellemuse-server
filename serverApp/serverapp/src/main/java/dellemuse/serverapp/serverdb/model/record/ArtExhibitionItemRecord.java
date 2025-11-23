@@ -7,11 +7,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
-import jakarta.persistence.Column;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -30,7 +29,7 @@ public class ArtExhibitionItemRecord extends TranslationRecord {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	@JsonProperty("artExhibitionItem")
 	private ArtExhibitionItem artExhibitionItem;
- 
+
 	public ArtExhibitionItemRecord() {
 	}
 
@@ -41,9 +40,20 @@ public class ArtExhibitionItemRecord extends TranslationRecord {
 	public void setArtExhibitionItem(ArtExhibitionItem artExhibitionItem) {
 		this.artExhibitionItem = artExhibitionItem;
 	}
-	 
+
 	@Override
 	public MultiLanguageObject getParentObject() {
-		 return this.artExhibitionItem!=null? this.artExhibitionItem: null;
-	 }
+		return this.artExhibitionItem != null ? this.artExhibitionItem : null;
+	}
+
+	@Override
+	public boolean isAudioStudioEnabled() {
+		return false;
+	}
+
+	@Override
+	public String getPrefixUrl() {
+			throw new RuntimeException("not done");
+	}
+
 };

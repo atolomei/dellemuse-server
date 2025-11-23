@@ -6,7 +6,6 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
-  
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -34,7 +33,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
-
 @Service
 public class ResourceDBService extends DBService<Resource, Long> implements ApplicationContextAware {
   
@@ -52,14 +50,17 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
 
     
     @Transactional
-    public Resource create(String bucketName, String objectName, String name, String media, long size, String tag, User createdBy) {
+    public Resource create(String bucketName, String objectName, String name, String media, long size, String tag, User createdBy, String fileName) {
         Resource c = new Resource();
         c.setBucketName(bucketName);
         c.setObjectName(objectName);
         c.setName(name);
+        c.setFileName(fileName);
         c.setSize(size);
         c.setTag(tag);
-        //c.setNameKey(nameKey(name));
+        
+     //   c.setLanguage(getDefaultMasterLanguage());
+ 
         
         if (media != null)
             c.setMedia(media);
@@ -75,10 +76,7 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         return getRepository().save(c);
     }
     
-    
-  
-     
-	@Transactional
+  	@Transactional
     public void delete(Resource r) {
     	r.setLastModifiedUser(null);
     	super.delete(r);
@@ -88,11 +86,10 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     public void delete(Long id) {
 		Resource r = findWithDeps( id ).get();
 		r.setLastModifiedUser(null);
-    	super.delete(id);
+		super.deleteById(id);
     }
    
- 
-	@Transactional
+ 	@Transactional
        public Optional<Resource> findWithDeps(Long id) {
        
    		Optional<Resource> o_i = super.findById(id);
@@ -184,12 +181,12 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     @Override
     @Transactional
     public Resource create(String objectName, User createdBy) {
-        return create(ServerConstant.MEDIA_BUCKET, objectName, objectName, null, 0, null, createdBy);
+        return create(ServerConstant.MEDIA_BUCKET, objectName, objectName, null, 0, null, createdBy, objectName);
     }
 
     @Transactional
     public Resource create(String objectName, String name, long size, User createdBy) {
-        return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, size, null, createdBy);
+        return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, size, null, createdBy, name);
     }
 
    

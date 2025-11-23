@@ -123,6 +123,25 @@ public class InstitutionRecordDBService extends DBService<InstitutionRecord, Lon
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
 		
 	}
+	
+	
+	@Transactional
+	public List<InstitutionRecord> findAllByGuideContent(Institution  a) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<InstitutionRecord> cq = cb.createQuery(InstitutionRecord.class);
+		Root<InstitutionRecord> root = cq.from(InstitutionRecord.class);
+		
+	     Predicate p1 = cb.equal(root.get("institution").get("id"), a.getId() );
+	     cq.select(root).where(p1);
+	
+		List<InstitutionRecord> list = this.getEntityManager().createQuery(cq).getResultList();
+
+		if (list==null)
+			return new ArrayList<InstitutionRecord>();
+		
+		return list;
+	}
 
 	@Transactional
 	private void deleteResources(Long id) {
@@ -143,7 +162,7 @@ public class InstitutionRecordDBService extends DBService<InstitutionRecord, Lon
 	@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
-		super.delete(id);
+		super.deleteById(id);
 	}
 
 	@Transactional

@@ -3,11 +3,15 @@ package dellemuse.serverapp;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,8 +20,13 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.command.CommandService;
 import dellemuse.serverapp.command.EmtyQRCodesCommand;
 import dellemuse.serverapp.command.ResourceMetadataCommand;
+import dellemuse.serverapp.command.SetDefaultPasswordCommand;
+import dellemuse.serverapp.elevenlabs.TestElevenLabsCommand;
 import dellemuse.serverapp.security.google.GoogleAuth;
+import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.repository.UserRepository;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
+import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
 
@@ -82,10 +91,28 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 		
 		//GoogleAuth g = new GoogleAuth();
 		//g.execute();
-		
-		
-				
-		
+	}
+	
+	@Bean
+	CommandLineRunner init(UserDBService userService, PasswordEncoder encoder) {
+	   
+		return args -> {
+			/**
+			CommandService service = (CommandService) ServiceLocator.getInstance().getBean(CommandService.class);
+			ResourceDBService r_service = (ResourceDBService) ServiceLocator.getInstance().getBean( ResourceDBService.class);
+
+			
+			r_service.findAll().forEach( r -> 
+			
+			{	logger.debug(r.getName());
+			
+				if (r.getMedia()!=null && r.getMedia().contains("audio"))
+					service.run(new ResourceMetadataCommand(r.getId()));
+			}
+					);
+			*/
+			
+		};
 	}
 	
 	public ApplicationContext getAppContext() {

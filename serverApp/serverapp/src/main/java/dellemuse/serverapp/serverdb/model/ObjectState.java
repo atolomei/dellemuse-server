@@ -6,7 +6,7 @@ import java.util.ResourceBundle;
 public enum ObjectState {
 	
 	DRAFT (1, "draft"),
-	EDTIION(2, "edition"),
+	EDTION(2, "edition"),
 	APPROVED(3, "approved"),
 	PUBLISHED(4, "published"),
 	ARCHIVED(5, "archived"),
@@ -36,6 +36,8 @@ public enum ObjectState {
 		ResourceBundle res = ResourceBundle.getBundle(ObjectState.this.getClass().getName(), locale);
 		return res.getString(this.label);
 	}
+	
+	
 	
 
 	

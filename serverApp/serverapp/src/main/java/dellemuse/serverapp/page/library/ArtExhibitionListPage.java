@@ -14,10 +14,14 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
+import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -48,7 +52,10 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 		 super(parameters);
 	 }
 
-	 
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		return null;
+	}
 
 	@Override
 	public Iterable<ArtExhibition> getObjects() {
@@ -57,6 +64,32 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 		return service.findAllSorted();
 	}
 
+	
+	@Override
+	public Iterable<ArtExhibition> getObjects(ObjectState os1) {
+		 return this.getObjects(os1, null);
+	}
+
+	
+	@Override
+	public Iterable<ArtExhibition> getObjects(ObjectState os1, ObjectState os2) {
+
+		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
+
+		if (os1==null && os2==null)
+			return service.findAllSorted();
+	
+		if (os2==null)
+			return service.findAllSorted(os1);
+
+		if (os1==null)
+			return service.findAllSorted(os2);
+		
+		return service.findAllSorted(os1, os2);
+	}
+
+	
+	
 	@Override
 	public IModel<String> getObjectInfo(IModel<ArtExhibition> model) {
 		return new Model<String>(model.getObject().getInfo());
@@ -102,7 +135,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 	}
 	
 	@Override
-	protected List<ToolbarItem> getToolbarItems() {
+	protected List<ToolbarItem> getMainToolbarItems() {
 		return null;
 	}
 
@@ -146,7 +179,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 				};
 			}
@@ -188,12 +221,18 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 		return null;
 	}
 	
-	@Override
+	 
 	protected void onCreate() {
+		try {
 			ArtExhibition in = getArtExhibitionDBService().create("new", getUserDBService().findRoot());
 			IModel<ArtExhibition> m =  new ObjectModel<ArtExhibition>(in);
 			getList().add(m);
 			setResponsePage(new ArtExhibitionPage(m, getList()));
+		} catch (Exception e) {
+			logger.error(e);	
+			setResponsePage(new ErrorPage(e));
+							
+		}
 	}
 
 }

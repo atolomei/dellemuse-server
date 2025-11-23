@@ -18,55 +18,31 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.artwork.ArtWorkEditor;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
+ 
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.institution.InstitutionPage;
-import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
+ 
 import dellemuse.serverapp.page.ObjectPage;
-import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.PersonPage;
+ 
 import dellemuse.serverapp.page.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.model.Site;
+ 
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
+ 
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.UIEvent;
-import io.wktui.model.TextCleaner;
+ 
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
-import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
+ 
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
-import wktui.base.DummyBlockPanel;
+ 
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
@@ -84,7 +60,7 @@ public class UserPage extends ObjectPage<User> {
 	static private Logger logger = Logger.getLogger(UserPage.class.getName());
 
 	private UserEditor editor;
-	private List<ToolbarItem> x_list;
+	private List<ToolbarItem> x_list = null;
 	
 	
 	public UserPage() {
@@ -103,6 +79,27 @@ public class UserPage extends ObjectPage<User> {
 		super( model, list );
 	}
 	
+	
+	@Override
+	protected List<INamedTab> createInternalPanels() {
+		
+		List<INamedTab> list = super.createInternalPanels();
+		
+		NamedTab audit=new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
+			 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getAuditPanel(panelId);
+			}
+		};
+		
+		list.add(audit);
+		
+		return list;
+	}
+		
 	/**
 	 * 
 	 * Institution
@@ -130,12 +127,12 @@ public class UserPage extends ObjectPage<User> {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
+
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.action_user_edit_info)) {
 					UserPage.this.onEdit(event.getTarget());
 				}
-			
 				else if (event.getName().equals(ServerAppConstant.user_info)) {
 					UserPage.this.togglePanel(ServerAppConstant.user_info, event.getTarget());
 				}
@@ -157,16 +154,14 @@ public class UserPage extends ObjectPage<User> {
 	}
 	
 	
-	
 	@Override
 	protected Optional<User> getObject(Long id) {
 		return getUser( id );
 	}
 
 	protected Panel getEditor(String id) {
-
 		if (editor==null)
-			editor = new UserEditor(id, getModel());
+			editor=new UserEditor(id, getModel());
 		return (editor);
 	}
 
@@ -184,7 +179,6 @@ public class UserPage extends ObjectPage<User> {
       	JumboPageHeaderPanel<User> ph = new JumboPageHeaderPanel<User>("page-header", getModel(), 
     			new Model<String>(getModel().getObject().getDisplayname() ));
 		ph.setBreadCrumb(bc);
-		
 		
 		if (getList()!=null && getList().size()>0) {
 			Navigator<User> nav = new Navigator<User>("navigator", getCurrent(), getList()) {
@@ -221,7 +215,7 @@ public class UserPage extends ObjectPage<User> {
 		x_list = new ArrayList<ToolbarItem>();
 		
 	 	DropDownMenuToolbarItem<User> menu  = new DropDownMenuToolbarItem<User>("item", getModel(), Align.TOP_RIGHT);
-		menu.setLabel(getLabel("menu"));
+		menu.setTitle(getLabel("menu"));
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 				private static final long serialVersionUID = 1L;
@@ -231,7 +225,7 @@ public class UserPage extends ObjectPage<User> {
 						private static final long serialVersionUID = 1L;
 						@Override
 						public void onClick(AjaxRequestTarget target)  {
-							fire (new MenuAjaxEvent(ServerAppConstant.site_info, target));
+							fire (new MenuAjaxEvent(ServerAppConstant.user_info, target));
 						}
 						@Override
 						public IModel<String> getLabel() {
@@ -241,7 +235,6 @@ public class UserPage extends ObjectPage<User> {
 				}
 			});
 				 
-
 		 
 		 menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 
@@ -279,9 +272,7 @@ public class UserPage extends ObjectPage<User> {
 		List<INamedTab> tabs = super.createInternalPanels();
 		
 		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.user_info) {
-		 
-			private static final long serialVersionUID = 1L;
-
+		 	private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
 				return getEditor(panelId);
@@ -289,9 +280,10 @@ public class UserPage extends ObjectPage<User> {
 		};
 		tabs.add(tab_1);
 	 
+		if (getStartTab()==null)
+				setStartTab(ServerAppConstant.user_info);
+
 		return tabs;
 	}
-	
-	
 	
 }

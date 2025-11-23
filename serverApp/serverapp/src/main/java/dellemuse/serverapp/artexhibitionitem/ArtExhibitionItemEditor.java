@@ -39,12 +39,8 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(ArtExhibitionItemEditor.class.getName());
-
-	private ChoiceField<ObjectState> objectStateField;
 	
 	private TextField<String> nameField;
-	
- 	
 	private TextField<String> orderField;
 	private TextField<String> readCodeField;
 	private TextField<String> qrCodeField;

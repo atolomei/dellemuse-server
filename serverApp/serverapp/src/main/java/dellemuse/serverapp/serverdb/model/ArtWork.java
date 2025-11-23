@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.jpa.events.ArtWorkEventListener;
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseSetPersonSerializer;
@@ -74,6 +75,11 @@ public class ArtWork extends MultiLanguageObject {
 	public ArtWork() {
 	}
 
+	public String getPrefixUrl() {
+		return PrefixUrl.ArtWork;
+	}
+	
+	
 	public void setUrl( String url ) {
 		this.url=url;
 	}

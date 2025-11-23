@@ -29,7 +29,7 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 
 	public SiteInfoNavDropDownMenuToolbarItem(String id, IModel<Site> model, Align align) {
 		this(id, model, null, align);
-		setLabel(getLabel("site-information", TextCleaner.truncate(getModel().getObject().getDisplayname(), 24)));
+		setTitle(getLabel("site-information", TextCleaner.truncate(getModel().getObject().getDisplayname(), 24)));
 	}
 
 	public SiteInfoNavDropDownMenuToolbarItem(String id, IModel<Site> model, IModel<String> title, Align align) {

@@ -2,72 +2,35 @@ package dellemuse.serverapp.page.library;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.institution.InstitutionPage;
-import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.PersonListPage;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
+import io.wktui.error.ErrorPanel;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
-import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
-import io.wktui.struct.list.ListPanelMode;
-
-/**
- * 
- * 
- * Site Information Exhibitions Artworks Exhibitions
- * 
- * 
- */
 
 @MountPath("/institution/list")
 public class InstitutionsListPage extends ObjectListPage<Institution> {
@@ -76,52 +39,85 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 
 	static private Logger logger = Logger.getLogger(InstitutionsListPage.class.getName());
 
-	
-	
+	private List<ToolbarItem> mainToolbar;
+	private List<ToolbarItem> listToolbar;
+
 	public InstitutionsListPage() {
 		super();
-		super.setIsExpanded(true); 
+		super.setIsExpanded(true);
 	}
 
-	
 	public InstitutionsListPage(PageParameters parameters) {
 		super(parameters);
 		super.setIsExpanded(true);
-	 
 	}
- 
+
+	public void onInitialize() {
+		super.onInitialize();
+
+	}
+
+	public void onBeforeRender() {
+		super.onBeforeRender();
+
+	}
 
 	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+
+		if (listToolbar != null)
+			return listToolbar;
+
+		listToolbar = new ArrayList<ToolbarItem>();
+
+		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+
+		listToolbar.add(s);
+
+		return listToolbar;
+	}
+
 	protected void onCreate() {
+
+		try {
 			Institution in = getInstitutionDBService().create("new", getUserDBService().findRoot());
-			setResponsePage( new InstitutionPage(new ObjectModel<Institution>(in),  getList()));
+			setResponsePage(new InstitutionPage(new ObjectModel<Institution>(in), getList()));
+
+		} catch (Exception e) {
+			logger.error(e);
+			setResponsePage(new ErrorPage(e));
+
+		}
 	}
 
-	
 	@Override
-	protected List<ToolbarItem> getToolbarItems() {
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+	protected List<ToolbarItem> getMainToolbarItems() {
+
+		if (mainToolbar != null)
+			return mainToolbar;
+
+		mainToolbar = new ArrayList<ToolbarItem>();
+
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
+
 			protected void onClick() {
 				InstitutionsListPage.this.onCreate();
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
-		list.add(create);
-		
-		
-		return list;
+		mainToolbar.add(create);
+
+		return mainToolbar;
 	}
 
-	
 	@Override
 	protected WebMarkupContainer getObjectMenu(IModel<Institution> model) {
-		
-		NavDropDownMenu<Institution> menu = new NavDropDownMenu<Institution>("menu", model, null);
-		
-		menu.setOutputMarkupId(true);
 
+		NavDropDownMenu<Institution> menu = new NavDropDownMenu<Institution>("menu", model, null);
+
+		menu.setOutputMarkupId(true);
 		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
@@ -143,7 +139,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 				};
 			}
@@ -175,22 +171,41 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		return menu;
 	}
 	
-	 protected void addHeaderPanel() {
 
-		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(new BCElement(getLabel("institutions")));
-		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("institutions"));
-		ph.setBreadCrumb(bc);
-		add(ph);
+	@Override
+	public Iterable<Institution> getObjects(ObjectState os1) {
+		return getObjects(os1, null);
+	}	
+
+	@Override
+	public Iterable<Institution> getObjects(ObjectState os1, ObjectState os2) {
+
+		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
+
+		if (os1==null && os2==null)
+			return service.findAllSorted();
+	
+		if (os2==null)
+			return service.findAllSorted(os1);
+
+		if (os1==null)
+			return service.findAllSorted(os2);
+		
+		return service.findAllSorted(os1, os2);
 	}
-
-
 
 	@Override
 	public Iterable<Institution> getObjects() {
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
-				.getBean(InstitutionDBService.class);
+		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
+		ObjectStateEnumSelector os = getObjectStateEnumSelector();
 		return service.findAllSorted();
+		
+		
+		
+		
+		
+		
+	
 	}
 
 	@Override
@@ -207,6 +222,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	public void onClick(IModel<Institution> model) {
 		setResponsePage(new InstitutionPage(model, getList()));
 	}
+
 	@Override
 	public IModel<String> getPageTitle() {
 		return getLabel("institutions");
@@ -222,20 +238,27 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		super.onDetach();
 	}
 
-	protected void onCreate(AjaxRequestTarget target) {
-	
-	
-		target.add(null);
-	
+	@Override
+	protected String getObjectImageSrc(IModel<Institution> model) {
+		if (model.getObject().getPhoto() != null) {
+			Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+			return getPresignedThumbnailSmall(photo);
+		}
+		return null;
 	}
 
 	@Override
-	protected String getObjectImageSrc(IModel<Institution> model) {
-		 if ( model.getObject().getPhoto()!=null) {
-		 		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-		 	    return getPresignedThumbnailSmall(photo);
-		     }
-		  return null;	
+	protected void addHeaderPanel() {
+		try {
+			BreadCrumb<Void> bc = createBreadCrumb();
+			bc.addElement(new BCElement(getLabel("institutions")));
+			JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("institutions"));
+			ph.setBreadCrumb(bc);
+			add(ph);
+		} catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new ErrorPanel("page-header", e));
+		}
 	}
-	
+
 }

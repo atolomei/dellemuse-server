@@ -5,14 +5,13 @@ import org.apache.wicket.model.IModel;
 
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
- 
+
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
- 
 
 public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> extends DropDownMenuToolbarItem<T> {
 
@@ -21,31 +20,26 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 	public ObjectBaseNavDropDownMenuToolbarItem(String id, IModel<T> model, Align align) {
 		this(id, model, null, align);
 	}
-	
+
 	public ObjectBaseNavDropDownMenuToolbarItem(String id, IModel<T> model, IModel<String> title, Align align) {
 		super(id, model, title, align);
 	}
 
-
 	protected void addAudit() {
-	 	 
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<T>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public MenuItemPanel<T> getItem(String id) {
-				 
+
 				return new io.wktui.nav.menu.SeparatorMenuItem<T>(id) {
 					private static final long serialVersionUID = 1L;
-	 			};
+				};
 			}
 		});
-		
-		 
-		
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<T>() {
 
 			private static final long serialVersionUID = 1L;
@@ -55,9 +49,10 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 
 				return new AjaxLinkMenuItem<T>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_meta, target));
 					}
 
 					@Override
@@ -68,23 +63,19 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 			}
 		});
 
-		
-		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<T>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public MenuItemPanel<T> getItem(String id) {
-				 
+
 				return new io.wktui.nav.menu.SeparatorMenuItem<T>(id) {
 					private static final long serialVersionUID = 1L;
-	 			};
+				};
 			}
 		});
-		
-		
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<T>() {
 
 			private static final long serialVersionUID = 1L;
@@ -94,9 +85,10 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 
 				return new AjaxLinkMenuItem<T>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.object_audit, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_audit, target));
 					}
 
 					@Override
@@ -106,27 +98,15 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 				};
 			}
 		});
-		
-		
+
 	}
-	
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-	 
-		
-		
-		
-	
-		 
-		
-		
-		
-		
+
 	}
-	
-	
+
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}

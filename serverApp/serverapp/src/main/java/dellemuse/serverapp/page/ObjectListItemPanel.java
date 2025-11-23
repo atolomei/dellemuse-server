@@ -15,7 +15,7 @@ import io.wktui.event.UIEvent;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import io.wktui.struct.list.ListPanelWicketEvent;
-import wktui.base.InvisibleIcon;
+ 
 import wktui.base.InvisiblePanel;
 import wktui.base.ModelPanel;
 
@@ -25,7 +25,6 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 
 	private IModel<String> subtitle;
 	private String icon;
-	private IModel<String> iconCss;
 	private Link<T> imageLink;
 	private Image image;
 	private ListPanelMode mode;
@@ -38,11 +37,7 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 	private WebMarkupContainer textContainer;
 	private WebMarkupContainer menu = null;
 
-	
-	
-	
 	/**
-	 * 
 	 * @param id
 	 * @param model
 	 * @param mode

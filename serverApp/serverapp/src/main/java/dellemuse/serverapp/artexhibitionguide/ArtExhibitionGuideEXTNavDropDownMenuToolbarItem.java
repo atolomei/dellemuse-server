@@ -35,7 +35,7 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 	
 	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, Align align) {
 		this(id, model, null, align);
-		setLabel(getLabel("audio-guide-dropdown",TextCleaner.truncate(getModel().getObject().getName(), 24)));
+		setTitle(getLabel("audio-guide-dropdown",TextCleaner.truncate(getModel().getObject().getName(), 24)));
 	}
 
 	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<String> title, Align align) {

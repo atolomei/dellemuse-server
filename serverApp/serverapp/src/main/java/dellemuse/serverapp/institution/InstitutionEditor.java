@@ -1,55 +1,33 @@
 package dellemuse.serverapp.institution;
 
-import java.io.File;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
-import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
-import org.aspectj.util.FileUtil;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.NumberFormatter;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
-import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Institution;
-import dellemuse.serverapp.serverdb.model.Language;
-import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
-import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
-import io.wktui.form.field.NumberField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
-import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
-import io.wktui.nav.toolbar.ToolbarItem;
-import io.wktui.nav.toolbar.ToolbarItem.Align;
 
 public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
@@ -58,15 +36,11 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 	static private Logger logger = Logger.getLogger(InstitutionEditor.class.getName());
 
 	private Form<Institution> form;
-	
 
-	private ChoiceField<ObjectState> objectStateField;
-	private ChoiceField<Language> languageField;
-
-	
+	//private ChoiceField<ObjectState> objectStateField;
+	//private ChoiceField<Language> languageField;
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
-
 	private TextField<String> shortNameField;
 	private TextAreaField<String> addressField;
 	private TextField<String> websiteField;
@@ -76,10 +50,8 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 	private TextField<String> instagramField;
 	private TextField<String> whatsappField;
 	private TextAreaField<String> infoField;
-	
 	private FileUploadSimpleField<Resource> photoField;
 	private FileUploadSimpleField<Resource> logoField;
-	
 	private IModel<Resource> photoModel;
 	private IModel<Resource> logoModel;
 
@@ -368,12 +340,17 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 							+ String.valueOf(getResourceDBService().newId());
 
 					try (InputStream is = upload.getInputStream()) {
-						getResourceDBService().upload(bucketName, objectName, upload.getInputStream(),
+						
+						getResourceDBService().upload(
+								bucketName, 
+								objectName, 
+								upload.getInputStream(), 
 								upload.getClientFileName());
+						
 						User user = getUserDBService().findRoot();
 
 						Resource resource = getResourceDBService().create(bucketName, objectName,
-								upload.getClientFileName(), upload.getClientFileName(), upload.getSize(), null, user);
+								upload.getClientFileName(), getResourceDBService().getMimeType(upload.getClientFileName()), upload.getSize(), null, user, upload.getClientFileName());
 						
 						setPhotoModel(new ObjectModel<Resource>(resource));
 
@@ -415,15 +392,17 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 							+ String.valueOf(getResourceDBService().newId());
 
 					try (InputStream is = upload.getInputStream()) {
-						getResourceDBService().upload(bucketName, objectName, upload.getInputStream(),
+
+						getResourceDBService().upload(bucketName, 
+								objectName, upload.getInputStream(),
 								upload.getClientFileName());
 						User user = getUserDBService().findRoot();
 
 						Resource resource = getResourceDBService().create(bucketName, 
 								objectName,
 								upload.getClientFileName(), 
-								getMimeType( upload.getClientFileName()), 
-								upload.getSize(), null, user);
+								getResourceDBService().getMimeType(upload.getClientFileName()), 
+								upload.getSize(), null, user, upload.getClientFileName());
 						
 						setLogoModel(new ObjectModel<Resource>(resource));
 

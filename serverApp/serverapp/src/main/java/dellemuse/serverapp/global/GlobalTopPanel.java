@@ -4,13 +4,9 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.serverdb.model.User;
-import io.wktui.nav.menu.LinkMenuItem;
-import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavBar;
-import io.wktui.nav.menu.NavDropDownMenu;
 import wktui.base.InvisiblePanel;
 import wktui.base.LabelLinkPanel;
 import wktui.base.ModelPanel;
@@ -25,7 +21,7 @@ public class GlobalTopPanel extends ModelPanel<User> {
 	private String srcUrl;
 	
 	private Panel userGlobalTopPanel;
-	private Panel languagePanel;
+	//private Panel languagePanel;
 	
 	
 	public GlobalTopPanel(String id) {
@@ -115,8 +111,8 @@ public class GlobalTopPanel extends ModelPanel<User> {
         add(this.userGlobalTopPanel);
         
         
-        this.languagePanel = new LanguagePanel("languagePanel");
-        add(this.languagePanel);
+        //this.languagePanel = new LanguagePanel("languagePanel");
+        //add(this.languagePanel);
    }
 	
 /**

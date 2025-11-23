@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
@@ -20,9 +21,12 @@ import jakarta.persistence.Table;
 
 /**
  * 
- * Indexes are -> lower( title )
  * 
- */
+ *
+ *  
+ *  
+ *  
+ **/
 @Entity
 @Table(name = "siteRecord")
 @JsonInclude(Include.NON_NULL)
@@ -48,7 +52,6 @@ public class SiteRecord extends TranslationRecord {
 	@Column(name = "opens_hash")
 	private int opensHash;
 	
-
 	@Column(name = "address")
 	private String address;
 	
@@ -58,6 +61,11 @@ public class SiteRecord extends TranslationRecord {
 	public SiteRecord() {
 	}
 
+	@Override
+	public String getPrefixUrl() {
+		return PrefixUrl.Site;
+	}
+	
 	@Override
 	public String getDisplayname() {
 		return getName();
@@ -85,6 +93,11 @@ public class SiteRecord extends TranslationRecord {
 
 	public void setSite(Site site) {
 		this.site = site;
+	}
+	
+	@Override
+	public boolean isAudioStudioEnabled() {
+		return false;
 	}
 
 	@Override
@@ -123,6 +136,4 @@ public class SiteRecord extends TranslationRecord {
 	public void setAddressHash(int addressHash) {
 		this.addressHash = addressHash;
 	}
-
-
 };

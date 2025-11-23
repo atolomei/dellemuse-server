@@ -2,9 +2,6 @@ package dellemuse.serverapp.artexhibition;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
  
@@ -13,9 +10,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
-import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
@@ -24,16 +19,10 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.event.MenuAjaxEvent;
-import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.FormState;
-import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
@@ -52,10 +41,9 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 	private List<IModel<ArtExhibitionGuide>> list;
 	private FormState state = FormState.VIEW;
-	
-	
 	private WebMarkupContainer itemsContainer;
 	private ListPanel<ArtExhibitionGuide> panel;
+	private List<ToolbarItem> t_list;
 
 
 	/**
@@ -85,13 +73,9 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		if (this.list != null)
 			this.list.forEach(t -> t.detach());
 	}
-
-	List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
-
 	
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
-
 		
 		if (t_list!=null)
 			return t_list;
@@ -117,8 +101,6 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		return t_list;
 	}
 
-	
-	
 	public FormState getState() {
 		return this.state;
 	}
@@ -126,17 +108,11 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	public void setState(FormState state) {
 		this.state=state;
 	}
-	
-	protected void onCancel(AjaxRequestTarget target) {
-		setState(FormState.VIEW);
-		target.add(this);
-	}
 
 	public void onEdit(AjaxRequestTarget target) {
 		setState(FormState.EDIT);
 		target.add(this);
 	}
-	
 	
 	public void onGuideCreate(AjaxRequestTarget target) {
 		
@@ -152,10 +128,12 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		resetItems();
 		target.add(this.itemsContainer);
 	}
-	
-	
-	
-	
+
+	protected void onCancel(AjaxRequestTarget target) {
+		setState(FormState.VIEW);
+		target.add(this);
+	}
+
 	protected WebMarkupContainer getMenu(IModel<ArtExhibitionGuide> model) {
 		NavDropDownMenu<ArtExhibitionGuide> menu = new NavDropDownMenu<ArtExhibitionGuide>("menu", model, null) {
 			private static final long serialVersionUID = 1L;
@@ -191,8 +169,6 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 					public IModel<String> getLabel() {
 						return getLabel("open");
 					}
-					
-					 
 				};
 			}
 		});

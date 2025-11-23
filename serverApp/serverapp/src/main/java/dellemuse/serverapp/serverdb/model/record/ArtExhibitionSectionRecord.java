@@ -50,10 +50,19 @@ public class ArtExhibitionSectionRecord extends TranslationRecord {
 	}
 
 	 
-	 
+	@Override
+	public boolean isAudioStudioEnabled() {
+		return false;
+	}
+	
 	@Override
 	public MultiLanguageObject getParentObject() {
 		 return this.artExhibitionSection !=null? this.artExhibitionSection : null;
 	 }
+
+	@Override
+	public String getPrefixUrl() {
+			throw new RuntimeException("not done");
+	}
 
 };

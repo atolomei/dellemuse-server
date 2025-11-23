@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
@@ -27,6 +28,12 @@ import jakarta.persistence.Table;
 /**
  * 
  * Indexes are -> lower( title )
+ * 
+ * 
+ * delete site 
+ * 
+ * artworks must be empty
+ * 
  * 
  */
 @Entity
@@ -120,6 +127,10 @@ public class Site extends MultiLanguageObject {
  	
 	
 	public Site() {
+	}
+
+	public String getPrefixUrl() {
+		return PrefixUrl.Site;
 	}
 
 	@Override

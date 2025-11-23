@@ -52,4 +52,15 @@ public class ArtWorkRecord extends TranslationRecord {
 		 return this.artwork !=null? this.artwork : null;
 	 }
 	
+	@Override
+	public boolean isAudioStudioEnabled() {
+		return false;
+	}
+	
+	@Override
+	public String getPrefixUrl() {
+			throw new RuntimeException("not done");
+	}
+
+	
 };

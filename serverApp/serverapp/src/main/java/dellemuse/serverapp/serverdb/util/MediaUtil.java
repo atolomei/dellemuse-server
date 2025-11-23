@@ -8,8 +8,13 @@ import javax.sound.sampled.AudioSystem;
 
 import org.springframework.http.MediaType;
 
+import dellemuse.serverapp.ServerConstant;
 import wktui.base.Logger;
 
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+ 
 public class MediaUtil {
 
 	static private Logger logger = Logger.getLogger(MediaUtil.class.getName());
@@ -101,8 +106,19 @@ public class MediaUtil {
     }
 
     
+    static public int getAudioDurationInSeconds(File file) {
+        try {
+            AudioFile audioFile = AudioFileIO.read(file);
+            AudioHeader header = audioFile.getAudioHeader();
+            return header.getTrackLength(); // duration in seconds
+        } catch (Exception e) {
+            logger.error(e, file.getAbsolutePath(), ServerConstant.NOT_THROWN);
+            return -1;
+        }
+    }
+    
+    
     static public long getAudioDurationMilliseconds(File file) {
-    	
     	
         try {
             AudioFileFormat baseFileFormat = AudioSystem.getAudioFileFormat(file);
@@ -115,18 +131,13 @@ public class MediaUtil {
             
             if (durationMicroseconds != null) {
                 long durationMillis = durationMicroseconds / 1000;
-                
                 return durationMillis;
-                //long totalSeconds = durationMillis / 1000;
-                //long minutes = totalSeconds / 60;
-                //long seconds = totalSeconds % 60;
-                //System.out.println("MP3 duration: " + minutes + " minutes, " + seconds + " seconds");
             } else {
-                logger.error("Could not retrieve duration for the MP3 file.");
+                logger.error("error -> " + file.getName(), ServerConstant.NOT_THROWN);
             }
         }
         catch (Exception e) {
-            logger.error(e);
+            logger.error(e, file.getAbsolutePath(), ServerConstant.NOT_THROWN);
         }
         return -1;
     }

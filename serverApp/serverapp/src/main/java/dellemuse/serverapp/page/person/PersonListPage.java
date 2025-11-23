@@ -15,7 +15,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
 
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
@@ -29,15 +28,18 @@ import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SiteArtExhibitionsListPage;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
+import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.model.TextCleaner;
@@ -82,12 +84,24 @@ public class PersonListPage extends ObjectListPage<Person> {
 	}
 	 	
 	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		return null;
+	}
+
+	
 	protected void onCreate() {
+		try {
 			Person in = getPersonDBService().create("new", getUserDBService().findRoot());
 			IModel<Person> m =  new ObjectModel<Person>(in);
 			getList().add(m);
 			setResponsePage(new PersonPage(m, getList()));
+		} catch (Exception e) {
+			logger.error(e);	
+			setResponsePage(new ErrorPage(e));
+							
+		}
 	}
+	
 	@Override
 	protected WebMarkupContainer getObjectMenu(IModel<Person> model) {
 		
@@ -116,7 +130,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("edit");
+						return getLabel("open");
 					}
 				};
 			}
@@ -166,6 +180,41 @@ public class PersonListPage extends ObjectListPage<Person> {
 		return super.getPersons();
 	}
 
+	
+
+	@Override
+	public Iterable<Person> getObjects(ObjectState os1) {
+		 return this.getObjects(os1, null);
+	}
+
+	
+	@Override
+	public Iterable<Person> getObjects(ObjectState os1, ObjectState os2) {
+
+		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
+
+		if (os1==null && os2==null)
+			return service.findAllSorted();
+	
+		if (os2==null)
+			return service.findAllSorted(os1);
+
+		if (os1==null)
+			return service.findAllSorted(os2);
+		
+		return service.findAllSorted(os1, os2);
+	}
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	@Override
 	public IModel<String> getObjectInfo(IModel<Person> model) {
 		return new Model<String>(model.getObject().getInfo());
@@ -215,7 +264,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 	}
 
 	@Override
-	protected List<ToolbarItem> getToolbarItems() {
+	protected List<ToolbarItem> getMainToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>() {
 			private static final long serialVersionUID = 1L;

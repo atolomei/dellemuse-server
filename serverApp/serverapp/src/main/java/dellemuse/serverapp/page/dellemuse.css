@@ -9,85 +9,63 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 
 
 
+
 <!-- 
 
 
 
  -->
 
-
 .mode-title {padding:0;}
 
-.dellemuse .list-group-item a.title-link    {text-decoration: none; color: inherit; }
-.dellemuse .mode-title .list-group-item .expanded   {  padding-bottom:0.75em; }
-.dellemuse .mode-title .list-group-item .expanded a.title-link {font-weight:bold; font-size:1.15em;   }
+.dellemuse .list-group-item a.title-link    					{text-decoration: none; color: inherit; }
+.dellemuse .mode-title .list-group-item .expanded   			{padding-bottom:0.75em; }
+.dellemuse .mode-title .list-group-item .expanded a.title-link 	{font-weight:bold; font-size:1.15em;   }
+.dellemuse .list-group-item .subtitle 							{color: inherit; font-size: 1em; font-weight: normal; padding: 0; margin-top: 0.2em;}
 
-
-.dellemuse .list-group-item .subtitle 		{color: inherit; font-size: 1em; font-weight: normal; padding: 0; margin-top: 0.2em;}
-
-
-.dellemuse .mode-title-image .list-group-item a.title-link {font-size:1.15em; font-weight: bold;}
-.dellemuse .mode-title .list-group-item a.title-link  	{text-decoration: none; color: inherit; font-size: 1em; font-weight: normal; padding: 0;}
-.dellemuse .mode-title .list-group-item .subtitle 		{color: inherit; font-size: 1em; font-weight: normal; padding: 0; margin-top: 0.2em;}
-
+.dellemuse .mode-title-image .list-group-item a.title-link 		{font-size:1.15em; font-weight: bold;}
+.dellemuse .mode-title .list-group-item a.title-link  			{text-decoration: none; color: inherit; font-size: 1em; font-weight: normal; padding: 0;}
+.dellemuse .mode-title .list-group-item .subtitle 				{color: inherit; font-size: 1em; font-weight: normal; padding: 0; margin-top: 0.2em;}
 
 .dellemuse .dropdown-menu {min-width: 20rem;}
 .dellemuse .dropdown-menu .dropdown-item {float:left; width:100%; font-size: 0.9em;}
  
 .dellemuse .form-control {font-size:15px;}
-.dellemuse .form-control:disabled {background-color: transparent;}
-
+.dellemuse .form-control:disabled {background-color: transparent; font-style:italic;}
 
 .dellemuse .alert-info .iconClose {color:blue; font-size:14px; padding: 0 10px;}
 .dellemuse .alert-danger .iconClose {color:#d01a1f; font-size:14px; padding: 0 10px;}
-
-
  
 .dellemuse .navigator a { text-decoration:none;   padding: 0.1em 0.2em; }
 .dellemuse .navigator a:hover {cursor:pointer;}
 
 .dellemuse  .hastoolbar .list-group-item:first-child { border-top-left-radius:0; border-top-right-radius:0;}
-
 .dellemuse .border-bottom-flat {border-bottom-right-radius: 0; border-bottom-left-radius: 0; border-bottom: none; width: 100%;  margin-bottom: -1px;}
-
 .dellemuse .list-group .list-group-item .btn-sm {font-size: 0.9em; padding: 0.08em 0.5em;}
 
+.dellemuse .toolbar  		{font-size: 0.95em; padding-bottom:0.2em; padding-top:0.2em;}
+.dellemuse .toolbar .btn	{font-size: inherit;}
+.dellemuse .btn-link 		{color: var(--bs-link-color);}
 
-
-
-
-
-  
-
-.dellemuse .toolbar  {font-size: 0.95em; padding-bottom:0.2em; padding-top:0.2em;}
-.dellemuse .toolbar .btn {font-size: inherit;}
-
-.dellemuse .btn-link {color: var(--bs-link-color);}
-
-.dellemuse .jumbo-img {position: relative; float: left;  width: 100%; padding: 0;  overflow:hidden;}
-.dellemuse .jumbo-img img {width:auto; padding:0; border:none;} 
+.dellemuse .jumbo-img 							{position: relative; float: left;  width: 100%; padding: 0;  overflow:hidden;}
+.dellemuse .jumbo-img img 						{width:auto; padding:0; border:none;} 
 .dellemuse .imgReduced .jumbo-img img.thumbnail {max-height: 26em; width: auto; padding: 2px; border: 1px solid #fcfcfd;}
-
 
 .dellemuse .jumbo-sm {max-height:20em;}
 .dellemuse .jumbo-sm img { max-height:110%;} 
 
-.dellemuse .jumbo-md {max-height:45em;}
-.dellemuse .jumbo-md img {max-height:110%;} 
+.dellemuse .jumbo-md {max-height:30em;}
+.dellemuse .jumbo-md img {max-height:30em;} 
 
 .dellemuse .jumbo-lg {max-height:80em;}
 .dellemuse .jumbo-lg img {max-height:100%;}
 
 
 <!--
- 
-
 
  -->
 
-
 .banner {background:#cccccc; color:white; height:200px;}
-
 .border {border: var(--bs-list-group-border-width) solid var(--bs-list-group-border-color); border-radius: var(--bs-border-radius);}
 .separator {border-top: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;}
 .dropdown-item a {color: var(--bs-navbar-active-color); text-decoration:none;}
@@ -95,9 +73,9 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 
 .dellemuse-color {color:#dd4508;}
 
-.icon-expander {width:2em; float:left;}
+.icon-expander 	{width:2em; float:left;}
 .icon-collapsed {width:1em; float:left;}
-.icon-expanded {width:1em; float:left;}
+.icon-expanded 	{width:1em; float:left;}
 
 .breadcrumb-item.active a,
 a.listItemLink {text-decoration: none; color: inherit;}
@@ -106,21 +84,18 @@ a.listItemLink {text-decoration: none; color: inherit;}
 .dellemuse .h1 {font-weight: bold;}
  
 .dellemuse h2, 
-.dellemuse .h2 {fonst-size: 1.85em;font-weight: bold;}
+.dellemuse .h2 {font-size: 1.85em;font-weight: bold;}
  
 .dellemuse h3, 
-.dellemuse .h3 {fosnt-size: 1.45em;font-weight: bold;}
+.dellemuse .h3 {font-size: 1.45em;font-weight: bold;}
  
 
 .dellemuse h4, 
-.dellemuse .h4 {fonst-size: 1.1em;font-weight: bold;}
+.dellemuse .h4 {font-size: 1.1em;font-weight: bold;}
 
 .dellemuse .text p:last-child { margin-bottom:0;}
- 
 .dellemuse .text-to-read {line-height: 1.7em; font-size:1.1em;}
- 
 .dellemuse .list-group-item p {margin:0em;}
-
  
 .dellemuse .breadcrumb .dropdown-menu.show {
   	width: 100%;
@@ -130,31 +105,28 @@ a.listItemLink {text-decoration: none; color: inherit;}
 
 .dellemuse .breadcrumb  .dropdown-item { text-wrap: auto; }
 
-.dellemuse button.btn-link:hover {background-color:#f4f5f6; cursor:pointer;}
-.dellemuse a.btn-link:hover {text-decoration: underline; background-color:#f4f5f6;}
-.dellemuse a.btn-link  { font-size:1em; } 
-
+.dellemuse button.btn-link:hover 	{background-color:#f4f5f6; cursor:pointer;}
+.dellemuse a.btn-link:hover 		{text-decoration: underline; background-color:#f4f5f6;}
+.dellemuse a.btn-link  				{font-size:1em;} 
 
 .dellemuse .btn-lg, 
-.dellemuse .btn-group-lg > .btn {
-	font-size: 0.88rem;
-	padding-left: 3em;
-	padding-right: 3em;
-	border-radius:8px;
-}
+.dellemuse .btn-group-lg > .btn {font-size: 0.88rem; padding-left: 3em; padding-right: 3em;	border-radius:8px;}
 
-.dellemuse .btn-md {
-	font-size: 0.88rem;
-}
+.dellemuse .btn-md {font-size: 0.88rem;}
 
-
-
-.dellemuse .menu-item .title {font-weight:bold; text-transform:uppercase; font-size: 0.9em;}
-.dellemuse .itemMenu {float:right; }
-.dellemuse .itemMenu .dropdown i {color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));  font-size:1.15em;}
+.dellemuse .menu-item .title 		{font-weight:bold; text-transform:uppercase; font-size: 0.9em;}
+.dellemuse .itemMenu 				{float:right; }
+.dellemuse .itemMenu .dropdown i 	{color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));  font-size:1.15em;}
 .dellemuse .itemMenu .dropdown-toggle::after {display:none;}
 
- 
+.static-text {min-height: 1.5em; font-style: italic;}
+
+.pill-selected {border:none;}
+.pill {border-radius: 6px; }
+
+.pill .title {font-weight:bold; line-height: 1.5em; font-size:1.15em;}
+.pill .text  {line-height: 1.5em;}
+
 .turismo-top {
     display: none;
     padding: 12px 15px 12px 15px;
@@ -168,7 +140,6 @@ a.listItemLink {text-decoration: none; color: inherit;}
     bottom: 20px;
     right: 20px;
 }
-	
     
     
 

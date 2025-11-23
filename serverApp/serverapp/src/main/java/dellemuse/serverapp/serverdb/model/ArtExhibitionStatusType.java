@@ -17,14 +17,5 @@ public class ArtExhibitionStatusType extends DelleMuseObject {
     public ArtExhibitionStatusType() {
     }
 
-    /**
-    @Override
-    public ArtExhibitionStatusTypeModel model() {
-        try {
-            return (ArtExhibitionStatusTypeModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this), ArtExhibitionStatusTypeModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    **/
+   
 }

@@ -218,6 +218,16 @@ public class ObjectStorageService extends BaseService implements SystemService {
 				this.client.createBucket(ServerConstant.THUMBNAIL_BUCKET);
 			}
 
+			if (!this.client.existsBucket(ServerConstant.AUDIO_SPEECH_BUCKET)) {
+				startupLogger.debug("Creating bucket -> " + ServerConstant.AUDIO_SPEECH_BUCKET);
+				this.client.createBucket(ServerConstant.AUDIO_SPEECH_BUCKET);
+			}
+			
+			if (!this.client.existsBucket(ServerConstant.AUDIO_SPEECHMUSIC_BUCKET)) {
+				startupLogger.debug("Creating bucket -> " + ServerConstant.AUDIO_SPEECHMUSIC_BUCKET);
+				this.client.createBucket(ServerConstant.AUDIO_SPEECHMUSIC_BUCKET);
+			}
+			
 		} catch (ODClientException e) {
 			throw new InternalCriticalException(e);
 		}

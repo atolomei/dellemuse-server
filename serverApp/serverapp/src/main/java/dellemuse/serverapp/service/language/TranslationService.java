@@ -29,28 +29,38 @@ import jakarta.annotation.PostConstruct;
 public class TranslationService extends BaseService {
 
 	private static Logger logger = Logger.getLogger(TranslationService.class.getName());
+ 
+	static private Logger startupLogger = Logger.getLogger("StartupLogger");
+	
+	@JsonIgnore
+	private Translate translate;
 
-	 @JsonIgnore
-	 @Autowired
-	 private final LockService lockService;
-
+	@JsonIgnore
+	private AtomicBoolean serviceEnabled = new AtomicBoolean(false);
+		
 	private final OffsetDateTime created = OffsetDateTime.now();
 
-  
+	@JsonIgnore
+	@Autowired
+	private final LockService lockService;
 
+	/**
+	 * 
+	 * 
+	 * @param settings
+	 * @param lockService
+	 */
 	public TranslationService(ServerDBSettings settings, LockService lockService) {
 		super(settings);
 		this.lockService=lockService;
 	}
 
-	
 	public boolean translateSite(Site src, SiteRecord dest) {
 		
 		if (src==null || dest==null  ) {
 			logger.error("null values not valid");
 			return false;
 		}
-		
 		
 		if (!isServiceEnabled()) {
 			logger.error("Translation Service is not enabled | can not translate -> " + src.getDisplayname() +" to " + dest.getLanguage());
@@ -66,8 +76,7 @@ public class TranslationService extends BaseService {
 			String info=src.getInfo();
 			String intro = src.getIntro();
 			String spec = src.getSpec();
-			
-			
+	 		
 			String address = src.getAddress();
 			String opens = src.getOpens();	
 			//String abstract = src.getAbstract();
@@ -208,11 +217,12 @@ public class TranslationService extends BaseService {
 	}
 
 	
-	
-	
-	
-	
-	
+ 	/**
+ 	 * 
+ 	 * @param src
+ 	 * @param dest
+ 	 * @return
+ 	 */
 	public boolean translate(MultiLanguageObject src, TranslationRecord dest) {
 		
 		if (src==null || dest==null  ) {
@@ -237,15 +247,10 @@ public class TranslationService extends BaseService {
 			String spec = src.getSpec();	
 			String opens = src.getOpens();
 			
-			//
-			// hashcode name
-			// if hashcode name == saved hashcode name -> no llama a google
-			//
-			boolean translated = false;
+		 	boolean translated = false;
 			
 			if (requiresTranslation(name, dest.getName(), dest.getNameHash())) {
 						
-				
 				if (name==null) {
 					dest.setName(null);
 					dest.setNameHash(0);
@@ -284,9 +289,6 @@ public class TranslationService extends BaseService {
 
 				
 				String subtitle_trad = translation.getTranslatedText();
-				
-				
-				//subtitle_trad = subtitle_trad.replace("&#39;", "'");
 				int subtitle_hash = hash(subtitle);
 				
 				dest.setSubtitle(subtitle_trad);
@@ -380,46 +382,36 @@ public class TranslationService extends BaseService {
 			}
 			
 			return translated;
-		
+		}
+		catch (Exception e) {
+			
+			logger.error(e);
+			
+			throw(e);
+			
+			
 		} finally {
 			getLockService().getObjectLock(src.getId()).writeLock().unlock();
 		}
 	}
-	
-
-
+ 
 	public OffsetDateTime getOffsetDateTimeCreated() {
 		return this.created;
 	}
-
-	
-
-
-
+ 	
 	@PostConstruct
 	protected void onInit() {
 		try {
-			
 			initializeTranslateClient();
-			
 			setStatus(ServiceStatus.RUNNING);
 		} catch (Exception e) {
 			setStatus(ServiceStatus.STOPPED);
 		}
 	}
 	
-	
-	Translate translate;
-	static private Logger startupLogger = Logger.getLogger("StartupLogger");
-	
-	
-	AtomicBoolean serviceEnabled = new AtomicBoolean(false);
-	
-	
 	public boolean isServiceEnabled() {
 		return this.serviceEnabled.get();
 	}
-	
 	
 	private void initializeTranslateClient() {
 	       
@@ -428,11 +420,7 @@ public class TranslationService extends BaseService {
 	            try {
 	            	
 	            	String filePath = getSettings().getGoogleTranslateAuthPath();
-	            			
-	            	//GoogleCredentials credentials = GoogleCredentials.fromStream(
-	                //  new FileInputStream("src/main/resources/YOUR_SERVICEACCOUNT_JSON.json")
-	                //);
-
+	           
   	            	GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(filePath));
 
 	                this.translate = TranslateOptions.newBuilder()
@@ -441,7 +429,8 @@ public class TranslationService extends BaseService {
 	                  .getService();
 	                
 	               	serviceEnabled.set(true);
-	                startupLogger.info("Google Translate client initialized.");
+	               	
+	               	startupLogger.info("Google Translate client initialized.");
 	                
 	            } catch (Exception e) {
 	            	
@@ -479,10 +468,8 @@ public class TranslationService extends BaseService {
 		return str.trim().toLowerCase().hashCode();
 	}
 
-	
 	private LockService getLockService() {
 		return this.lockService;
 	}
-	 
 
 }

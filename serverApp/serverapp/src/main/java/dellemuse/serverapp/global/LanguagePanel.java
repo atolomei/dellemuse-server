@@ -108,7 +108,7 @@ public class LanguagePanel extends ModelPanel<User> {
 				
 				super.onComponentTag(tag);
 			
-				logger.debug("aca");
+				//logger.debug("aca");
 					
 			}
 		};

@@ -70,6 +70,8 @@ public class PersonDBService extends DBService<Person, Long> {
         //c.setNameKey(nameKey(name));
         
         c.setMasterLanguage(getDefaultMasterLanguage());
+        c.setLanguage(getDefaultMasterLanguage());
+        
         c.setLastname(lastname);
         c.setLastnameKey(nameKey(lastname));
         
@@ -116,7 +118,10 @@ public class PersonDBService extends DBService<Person, Long> {
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
 
-    	getRepository().save(c);
+        c.setMasterLanguage(getDefaultMasterLanguage());
+        c.setLanguage(getDefaultMasterLanguage());
+ 
+        getRepository().save(c);
 
 		for ( Language la:getLanguageService().getLanguages() )
 			getPersonRecordDBService().create(c, la.getLanguageCode(),  createdBy);

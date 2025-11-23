@@ -18,11 +18,13 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -123,7 +125,23 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 		
 	}
 
+	@Transactional
+	public List<PersonRecord> findAllByGuideContent(Person  a) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<PersonRecord> cq = cb.createQuery(PersonRecord.class);
+		Root<PersonRecord> root = cq.from(PersonRecord.class);
+		
+	     Predicate p1 = cb.equal(root.get("person").get("id"), a.getId() );
+	     cq.select(root).where(p1);
 	
+		List<PersonRecord> list = this.getEntityManager().createQuery(cq).getResultList();
+
+		if (list==null)
+			return new ArrayList<PersonRecord>();
+		
+		return list;
+	}	
 
 	/**
 	 * 
@@ -169,7 +187,7 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 	@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
-		super.delete(id);
+		super.deleteById(id);
 	}
 
 	@Transactional

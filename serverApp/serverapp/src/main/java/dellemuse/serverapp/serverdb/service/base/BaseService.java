@@ -16,20 +16,15 @@ package dellemuse.serverapp.serverdb.service.base;
  * limitations under the License.
  */
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dellemuse.model.JsonObject;
 import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.ServiceStatus;
-
 
 
 /**
@@ -47,7 +42,6 @@ public abstract class BaseService extends  JsonObject {
     @JsonIgnore
     private ServiceStatus status;
 
-
     public BaseService(ServerDBSettings settings) {
         this.status = ServiceStatus.STOPPED;        
         this.settings=settings;
@@ -64,6 +58,5 @@ public abstract class BaseService extends  JsonObject {
     public ServiceStatus getStatus() {
         return this.status;
     }
-
 
 }

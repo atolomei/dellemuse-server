@@ -13,41 +13,46 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
  
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideEditor;
 import dellemuse.serverapp.artwork.ArtWorkPage;
+import dellemuse.serverapp.audiostudio.AudioStudioPage;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
+import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
+import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.service.DTFormatter;
 import io.wktui.error.AlertPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.UIEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
-import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import wktui.base.InvisiblePanel;
 
 /**
  * 
@@ -59,10 +64,6 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(GuideContentEditor.class.getName());
-
-	 
-
-	private ChoiceField<ObjectState> objectStateField;
 	
 	private TextField<String> nameField;
 	private TextField<String> shortField;
@@ -73,14 +74,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 	private TextAreaField<String> infoField;
 	private TextAreaField<String> introField;
 	
-	//private FileUploadSimpleField<Resource> photoField;
 	private FileUploadSimpleField<Resource> audioField;
-	
-	private TextField<String> mapField;
-	private TextField<String> fromField;
-	private TextField<String> toField;
-	private ChoiceField<Person> artistField;
-	private ChoiceField<Boolean> c_useThumbnailField;
 	
 	private IModel<Resource> photoModel;
 	private IModel<Resource> audioModel;
@@ -98,66 +92,142 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 	
 	private String audioMeta;
 
+	//private WebMarkupContainer infoContainer;
+	private AlertPanel<Void> info;
+	private Link<GuideContent> openAudioStudio;
+	
+	private boolean alertInfo = false;
+	
+
 	/**
 	 * @param id
 	 * @param model
 	 */
-	public GuideContentEditor(String id, 	IModel<GuideContent> model, 
-											IModel<ArtExhibitionGuide> artExhibitionGuideModel, 
-											IModel<ArtExhibition> artExhibitionModel, 
-											IModel<Site> siteModel) {
+	public GuideContentEditor(String id, IModel<GuideContent> model, 
+										 IModel<ArtExhibitionGuide> artExhibitionGuideModel, 
+										 IModel<ArtExhibition> artExhibitionModel, 
+										 IModel<Site> siteModel) {
 		super(id, model);
+	
 		this.artExhibitionGuideModel=artExhibitionGuideModel;
 		this.artExhibitionModel=artExhibitionModel;
 		this.siteModel=siteModel;
 	}
 	
+	@Override
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+				reloadModel();
+				alertInfo=true;
+				event.getTarget().add(GuideContentEditor.this);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectMarkAsDeleteEvent)
+					return true;
+				return false;
+			}
+		});
 	
 	
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+				reloadModel();
+				alertInfo=true;
+				event.getTarget().add(GuideContentEditor.this);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectRestoreEvent)
+					return true;
+				return false;
+			}
+		});
+	}
+	
+	@Override
+	public  void onBeforeRender() {
+		super.onBeforeRender();
+		/**
+		if (getModel().getObject().getState()==ObjectState.DELETED) {
+			String s=getLabel("audio-guide-info").getObject();
+			this.info=new AlertPanel<Void>("info", AlertPanel.WARNING,   getLabel("object-deleted", s));
+			infoContainer.addOrReplace(info);
+			this.alertInfo=true;
+			getForm().setEnabled(false);
+		}
+		else {
+			infoContainer.addOrReplace(new InvisiblePanel("info"));
+			this.alertInfo=false;
+		}	
+		**/
+	}
+	
+	
+	private void addAlert() {
+		SimpleAlertRow<Void> alert = new SimpleAlertRow<Void>("simpleAlertRow") {
+			private static final long serialVersionUID = 1L;
+			
+			public boolean isVisible() {
+				return GuideContentEditor.this.isAlertInfo();
+			}
+			
+			protected IModel<String> getText() {
+				String s=GuideContentEditor.this.getLabel("audio-guide-info").getObject();
+				return  GuideContentEditor.this.getLabel("object-deleted", s);
+			}
+			
+			protected int getAlertType() {
+				return AlertPanel.WARNING;
+			}
+		};
+		add(alert);
+		
+		this.alertInfo=getModel().getObject().getState()==ObjectState.DELETED;
+		
+	}
+	/**
+	 * 
+	 * 
+	 */
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		setUpModel();
-
-		Form<GuideContent> form = new Form<GuideContent>("form");
-		add(form);
-		setForm(form);
- 
-		
-		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
-	 	infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("audio-info"), 12);
-	
-	 	
-	 	/**
-	 	photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
-
+		addAlert();
+				
+		/**
+		this.infoContainer = new WebMarkupContainer("infoContainer") {
 			private static final long serialVersionUID = 1L;
-
-			protected boolean processFileUploads(List<FileUpload> uploads) {
-				return GuideContentEditor.this.processPhotoUpload(uploads);
-			}
-
-			public Image getImage() {
-				if (getPhotoModel() == null || getPhotoModel().getObject()==null )
-					return null;
-				return GuideContentEditor.this.getThumbnail(getPhotoModel().getObject());
-			}
-
-			public String getFileName() {
-				if (getModel()!=null  || getModel().getObject()==null )
-					return GuideContentEditor.this.getPhotoMeta( getModel().getObject() );
-				return null;
-			}
-
-			public boolean isThumbnail() {
-				return true;
+			public boolean isVisible() {
+				return isAlertInfo();
 			}
 		};
-       **/
 		
-		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
+		this.infoContainer.setOutputMarkupId(true);
+		add(this.infoContainer);
+		**/
+		
+		
+		Form<GuideContent> form = new Form<GuideContent>("form");
+	
+		add(form);
+		setForm(form);
+ 			
+		nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		subtitleField 	= new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
+	 	infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("audio-info"), 12);
+		audioField 		= new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -218,15 +288,12 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 					return null;
 				}
 			*/
-			
-		
 		};
 
 		form.add(nameField);
 		form.add(subtitleField);
 		form.add(infoField);
 		form.add(audioField);
-		//form.add(objectStateField);
 		
 		EditButtons<GuideContent> buttons = new EditButtons<GuideContent>("buttons-bottom", getForm(), getModel()) {
 
@@ -301,9 +368,6 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		Label openArtworkLabel  = new Label("openArtworkLabel", getLabel("open-artwork", getArtWorkModel().getObject().getDisplayname()));
 		this.openArtwork.add(openArtworkLabel);
 		getForm().add(openArtwork);
-		 
-	
-		
 		
 		this.importArtwork = new AjaxLink<ArtWork>("importArtwork", getArtWorkModel()) {
 			private static final long serialVersionUID = 1L;
@@ -319,14 +383,34 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		};
 		
 		
+		this.openAudioStudio = new Link<GuideContent>("openAudioStudio", getModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate( getModel().getObject(), getSessionUser());
+				if (oa.isPresent())
+					setResponsePage(new AudioStudioPage( new ObjectModel<AudioStudio>( oa.get())));
+				else
+					setResponsePage(new ErrorPage(Model.of("no audio studio")));
+			}
+			
+			public boolean isEnabled() {
+				return true;
+			}
+		};
+		
+		Label openLabel  = new Label("openAudioStudioLabel", getLabel("open-audio-studio", getModel().getObject().getDisplayname()));
+		this.openAudioStudio.add(openLabel);
+		getForm().add(openAudioStudio);
+		
+		
 		Label importArtworkLabel  = new Label("importArtworkLabel", getLabel("import-artwork", getArtWorkModel().getObject().getDisplayname()));
 		this.importArtwork.add(importArtworkLabel);
 		getForm().add(this.importArtwork);
-				
 	}
 
-	
-	
+ 
 	protected void importArtWorkText(AjaxRequestTarget target) {
 		
 		String info = getArtWorkModel().getObject().getInfo();
@@ -354,10 +438,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		return this.artWorkModel;
 	}
 	
-	
-	
-	
-	protected void onCancel(AjaxRequestTarget target) {
+ 	protected void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
 		// getForm().setFormState(FormState.VIEW);
 		// target.add(getForm());
@@ -392,21 +473,118 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		
 	List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		
-		AjaxButtonToolbarItem<ArtExhibition> create = new AjaxButtonToolbarItem<ArtExhibition>() {
+		AjaxButtonToolbarItem<GuideContent> create = new AjaxButtonToolbarItem<GuideContent>() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
+			public boolean isVisible() {
+				return (GuideContentEditor.this.getModel().getObject().getState()!=ObjectState.DELETED);
+			}
+
+			
+			@Override
+			public boolean isEnabled() {
+				return (GuideContentEditor.this.getModel().getObject().getState()!=ObjectState.DELETED);
+			}
+		
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
  				fire(new MenuAjaxEvent(ServerAppConstant.action_guide_content_edit, target));
 			}
 			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("edit");
+			public IModel<String> getButtonTitle() {
+				return GuideContentEditor.this.getLabel("edit");
 			}
+			
+			public String getIconCss() {
+				return "fa-regular fa-pen-to-square";
+			}
+			
 		};
+		
 		create.setAlign(Align.TOP_LEFT);
 		list.add(create);
 
+
+		AjaxButtonToolbarItem<GuideContent> delete = new AjaxButtonToolbarItem<GuideContent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return (GuideContentEditor.this.getModel().getObject().getState()!=ObjectState.DELETED);
+			}
+			
+			@Override
+			protected void onCick(AjaxRequestTarget target) {
+ 				 fire(new MenuAjaxEvent(ServerAppConstant.action_guide_content_delete, target));
+			}
+			
+			@Override
+			public IModel<String> getButtonLabel() {
+				return null;
+			}
+			
+			@Override
+			public IModel<String> getButtonTitle() {
+				return GuideContentEditor.this.getLabel("delete");
+			}
+		
+			
+			@Override
+			public String getIconCss() {
+				return "fa-regular fa-trash";
+			}
+			
+			
+			
+			protected String getButtonCss() {
+				return "btn btn-sm btn-outline-primary mt-1 ms-1";
+			}
+			
+		};
+		delete.setAlign(Align.TOP_LEFT);
+		list.add(delete);
+		
+		
+		AjaxButtonToolbarItem<GuideContent> restore = new AjaxButtonToolbarItem<GuideContent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return (GuideContentEditor.this.getModel().getObject().getState()==ObjectState.DELETED);
+			}
+			
+			@Override
+			protected void onCick(AjaxRequestTarget target) {
+				fire(new MenuAjaxEvent(ServerAppConstant.action_guide_content_restore, target));
+			}
+			
+			@Override
+			public IModel<String> getButtonLabel() {
+				return GuideContentEditor.this.getLabel("restore");
+			}
+			
+			@Override
+			public IModel<String> getButtonTitle() {
+				return GuideContentEditor.this.getLabel("restore");
+			}
+			
+			@Override
+			public String getIconCss() {
+				return "fa-solid fa-check";
+			}
+			
+			protected String getButtonCss() {
+				return "btn btn-sm btn-outline-primary mt-1 ms-1";
+			}
+			
+		};
+		restore.setAlign(Align.TOP_LEFT);
+		list.add(restore);
+		
+		
+
+		
 		return list;
 	}
 
@@ -568,6 +746,12 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		this.artExhibitionModel = siteModel;
 	}
 	
+	
+	public void reloadModel() {
+		setUpModel();
+	}
+	
+	
 	private void setUpModel() {
 
 		Optional<GuideContent> o_i = getGuideContentDBService().findWithDeps(getModel().getObject().getId());
@@ -581,9 +765,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 				Optional<ArtWork> o_aw = getArtWorkDBService().findWithDeps(o_ai.get().getArtwork().getId());
 				setArtWorkModel(o_aw.get());
 			}
-			
 		}
-			
 			
 		if (getModel().getObject().getPhoto() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
@@ -611,6 +793,14 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 
 	protected void setArtWorkModel(ArtWork artWork) {
 			this.artWorkModel=new ObjectModel<ArtWork>(artWork);
+	}
+
+	public boolean isAlertInfo() {
+		return alertInfo;
+	}
+
+	public void setAlertInfo(boolean alertInfo) {
+		this.alertInfo = alertInfo;
 	}
 	
 	

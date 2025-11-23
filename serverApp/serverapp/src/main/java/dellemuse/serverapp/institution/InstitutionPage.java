@@ -26,8 +26,10 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.artwork.ArtWorkRecordEditor;
+import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.editor.ObjectRecordEditor;
+import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -190,6 +192,17 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		});
 	}
 	
+	protected void onDelete(AjaxRequestTarget target) {
+		getInstitutionDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectMarkAsDeleteEvent(target));
+	}
+	
+	protected void onRestore(AjaxRequestTarget target) {
+		getInstitutionDBService().restore( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectRestoreEvent(target));
+	}
+
+	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
   
@@ -200,7 +213,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		list = new ArrayList<ToolbarItem>();
 			
 		DropDownMenuToolbarItem<Institution> menu = new DropDownMenuToolbarItem<Institution>("item", getModel(), Align.TOP_RIGHT);
-		menu.setLabel(Model.of( TextCleaner.truncate ( getModel().getObject().getName(), 24) +" (Inst)" ));
+		menu.setTitle(Model.of( TextCleaner.truncate ( getModel().getObject().getName(), 24) +" (Inst)" ));
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;

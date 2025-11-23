@@ -31,9 +31,9 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 
 		if (getModel() != null && getModel().getObject() != null) {
 			if (model.getObject().getShortName() != null)
-				setLabel(getLabel("site-header", model.getObject().getShortName()));
+				setTitle(getLabel("site-header", model.getObject().getShortName()));
 			else
-				setLabel(getLabel("site-header", model.getObject().getDisplayname()));
+				setTitle(getLabel("site-header", model.getObject().getDisplayname()));
 		}
 	}
 

@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.ArtExhibitionGuideModel;
+import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
@@ -28,84 +30,85 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "artExhibitionGuide")
 @JsonInclude(Include.NON_NULL)
-public class ArtExhibitionGuide extends MultiLanguageObject {
+public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStudioParentObject {
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
-    @JoinColumn(name = "artExhibition_id", referencedColumnName = "id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
-    @JsonProperty("artExhibition")
-    private ArtExhibition artExhibition;
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibition.class)
+	@JoinColumn(name = "artExhibition_id", referencedColumnName = "id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	@JsonProperty("artExhibition")
+	private ArtExhibition artExhibition;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
-    @JoinColumn(name = "publisher_id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("publisher")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
-    private Person publisher;
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
+	@JoinColumn(name = "publisher_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("publisher")
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	private Person publisher;
 
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = GuideContent.class, cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = true)
-    @JsonSerialize(using = DelleMuseListIdNameSerializer.class)
-    @OrderBy("lower(name) ASC")
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("contents")
-    private List<GuideContent> contents;
+	@OneToMany(fetch = FetchType.LAZY, targetEntity = GuideContent.class, cascade = CascadeType.REMOVE)
+	@JoinColumn(name = "artExhibitionGuide_id", nullable = true, insertable = true)
+	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
+	@OrderBy("lower(name) ASC")
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("contents")
+	private List<GuideContent> contents;
 
-    @Column(name = "artExhibitionGuideOrder")
-    private int artExhibitionGuideOrder;
+	@Column(name = "artExhibitionGuideOrder")
+	private int artExhibitionGuideOrder;
 
-    @Column(name = "official")
-    private boolean official;
- 
-     
+	@Column(name = "official")
+	private boolean official;
 
-    public ArtExhibitionGuide() {
-    }
+	public ArtExhibitionGuide() {
+	}
 
-    public ArtExhibition getArtExhibition() {
-        return artExhibition;
-    }
+	
+	public String getPrefixUrl() {
+		return PrefixUrl.ArtExhibitionGuide;
+	}
 
-    public void setArtExhibition(ArtExhibition artExhibition) {
-        this.artExhibition = artExhibition;
-    }
+	public ArtExhibition getArtExhibition() {
+		return artExhibition;
+	}
 
-    public Person getPublisher() {
-        return publisher;
-    }
+	public void setArtExhibition(ArtExhibition artExhibition) {
+		this.artExhibition = artExhibition;
+	}
 
-    public void setPublisher(Person publisher) {
-        this.publisher = publisher;
-    }
+	public Person getPublisher() {
+		return publisher;
+	}
 
-    public List<GuideContent> getGuideContents() {
-        return contents;
-    }
+	public void setPublisher(Person publisher) {
+		this.publisher = publisher;
+	}
 
-    public void setContents(List<GuideContent> contents) {
-        this.contents = contents;
-    }
+	public List<GuideContent> getGuideContents() {
+		return contents;
+	}
 
-    public boolean isOfficial() {
-        return official;
-    }
+	public void setContents(List<GuideContent> contents) {
+		this.contents = contents;
+	}
 
-    public void setOfficial(boolean official) {
-        this.official = official;
-    }
- 
+	public boolean isOfficial() {
+		return official;
+	}
 
-    public int getArtExhibitionGuideOrder() {
-        return artExhibitionGuideOrder;
-    }
+	public void setOfficial(boolean official) {
+		this.official = official;
+	}
 
-    public void setArtExhibitionGuideOrder(int artExhibitionGuideOrder) {
-        this.artExhibitionGuideOrder = artExhibitionGuideOrder;
-    }
+	public int getArtExhibitionGuideOrder() {
+		return artExhibitionGuideOrder;
+	}
 
-    
+	public void setArtExhibitionGuideOrder(int artExhibitionGuideOrder) {
+		this.artExhibitionGuideOrder = artExhibitionGuideOrder;
+	}
+
 };

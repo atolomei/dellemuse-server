@@ -34,12 +34,7 @@ import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.service.DBService;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import io.wktui.event.SimpleAjaxWicketEvent;
+  
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
@@ -55,15 +50,8 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 
 	static private Logger logger = Logger.getLogger(ArtWorkEditor.class.getName());
 
-	static private final List<Boolean> b_list = new ArrayList<Boolean>();
-	static {
-		
-		 b_list.add(Boolean.TRUE );
-		 b_list.add(Boolean.FALSE);
-	}
 
 	private TextField<String> 				urlField;
-	//private ChoiceField<ObjectState> 		objectStateField;
 	private TextField<String> 				nameField;
 	private TextAreaField<String> 			infoField;
 	private TextAreaField<String> 			specField;
@@ -119,26 +107,6 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 		add(form);
 		setForm(form);
 
-		/**
-	 	objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
-			
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (getStates());
-			}
-			
-			@Override
-			protected String getDisplayValue(ObjectState value) {
-				if (value==null)
-					return null;
-				return value.getLabel(getLocale());
-			}
-		};
-		form.add(objectStateField);
-		**/
-		
 		this.urlField   = new TextField<String>					("url", new PropertyModel<String>(getModel(), "url"), getLabel("url")			);
 		this.specField  = new TextAreaField<String>				("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8		);
 		this.nameField  = new TextField<String>					("name", new PropertyModel<String>(getModel(), "name"), getLabel("name")		);
@@ -172,7 +140,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 			}
 		};
 
-		c_useThumbnailField = new ChoiceField<Boolean>("usethumbnail", new PropertyModel<Boolean>(getModel(), "usethumbnail"), getLabel("usethumbnail")) {
+		/**c_useThumbnailField = new ChoiceField<Boolean>("usethumbnail", new PropertyModel<Boolean>(getModel(), "usethumbnail"), getLabel("usethumbnail")) {
 			
 			private static final long serialVersionUID = 1L;
 			
@@ -190,6 +158,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 				return getLabel("no").getObject();
 			}
 		};
+**/
 		
 		c_numberField = new NumberField<Integer>("year", new PropertyModel<Integer>(getModel(), "year"), getLabel("year"));
 	 	artistField = new ChoiceField<Long>("artist", new PropertyModel<Long>( this, "mainArtist"), getLabel("artist")) {
@@ -223,7 +192,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 		form.add(nameField);
 		form.add(infoField);
 		form.add(photoField);
-		form.add(c_useThumbnailField);
+		//form.add(c_useThumbnailField);
 		form.add(artistField);
 		form.add(c_numberField);
 

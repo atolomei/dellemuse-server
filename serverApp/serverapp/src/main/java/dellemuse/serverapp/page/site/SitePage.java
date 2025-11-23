@@ -4,59 +4,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.Url;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.UrlResourceReference;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
-import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.odilon.util.Check;
-import io.wktui.error.ErrorPanel;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -102,6 +78,9 @@ public class SitePage extends BasePage {
 
  	private List<IModel<ArtExhibition>> listPermanent;
 	private List<IModel<ArtExhibition>> listTemporary;
+	private List<IModel<ArtExhibition>> listTemporaryPast;
+	private List<IModel<ArtExhibition>> listTemporaryComing;
+	
 	
 	private List<IModel<Site>> siteList;
 	private int current = 0;
@@ -112,10 +91,6 @@ public class SitePage extends BasePage {
 
 	private ObjectMetaEditor<Site> metaEditor;
 
-
-
-	
-	
 	public SitePage() {
 		super();
 	}
@@ -520,6 +495,197 @@ public class SitePage extends BasePage {
 			panel.setHasExpander(true);
 			panel.setSettings(true);
 		}
+		
+		
+		{
+			ListPanel<ArtExhibition> panel = new ListPanel<>("exhibitionsTemporaryPast", getArtExhibitionsTemporaryPast()) {
+				private static final long serialVersionUID = 1L;
+
+				protected List<IModel<ArtExhibition>> filter(List<IModel<ArtExhibition>> initialList, String filter) {
+					List<IModel<ArtExhibition>> list = new ArrayList<IModel<ArtExhibition>>();
+					final String str = filter.trim().toLowerCase();
+					initialList.forEach(s -> {
+						if (s.getObject().getDisplayname().toLowerCase().contains(str)) {
+							list.add(s);
+						}
+					});
+					return list;
+				}
+				 @Override
+		         protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
+		            	logger.debug("expand");
+		            	return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
+		            		
+							private static final long serialVersionUID = 1L;
+		            		
+		            		@Override
+		            		protected IModel<String> getObjectSubtitle() {
+								if (getMode()==ListPanelMode.TITLE )
+									return null;
+								   return Model.of( getModel().getObject().getSubtitle() );
+		                   }
+
+		            		@Override
+							protected String getImageSrc() {
+								if (getModel().getObject().getPhoto() != null) {
+									Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+									return getPresignedThumbnailSmall(photo);
+								}
+								return null;
+							}
+
+							@Override
+							public void onClick() {
+								setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+							}
+
+							protected IModel<String> getInfo() {
+								String str = TextCleaner.clean(getModel().getObject().getIntro());
+								return new Model<String>(str);
+							}
+							
+		            	};
+		            }
+
+				@Override
+				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
+					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element",
+							model, getListPanelMode()) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						protected String getImageSrc() {
+							if (getModel().getObject().getPhoto() != null) {
+								Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+								return getPresignedThumbnailSmall(photo);
+							}
+							return null;
+						}
+
+						@Override
+						public void onClick() {
+							setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+						}
+
+						protected IModel<String> getInfo() {
+							String str = TextCleaner.clean(getModel().getObject().getIntro());
+							return new Model<String>(str);
+						}
+					};
+					return panel;
+				}
+			};
+			add(panel);
+			
+			//panel.setTitle(getLabel("exhibitions-temporary"));
+
+	        panel.setListPanelMode(ListPanelMode.TITLE);
+			panel.setLiveSearch(false);
+			panel.setHasExpander(true);
+			panel.setSettings(true);
+		}
+		
+		
+		
+		
+		
+		
+		
+		{
+			ListPanel<ArtExhibition> panel = new ListPanel<>("exhibitionsTemporaryComing", getArtExhibitionsTemporaryComing()) {
+				private static final long serialVersionUID = 1L;
+
+				protected List<IModel<ArtExhibition>> filter(List<IModel<ArtExhibition>> initialList, String filter) {
+					List<IModel<ArtExhibition>> list = new ArrayList<IModel<ArtExhibition>>();
+					final String str = filter.trim().toLowerCase();
+					initialList.forEach(s -> {
+						if (s.getObject().getDisplayname().toLowerCase().contains(str)) {
+							list.add(s);
+						}
+					});
+					return list;
+				}
+				 @Override
+		         protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
+		            	logger.debug("expand");
+		            	return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
+		            		
+							private static final long serialVersionUID = 1L;
+		            		
+		            		@Override
+		            		protected IModel<String> getObjectSubtitle() {
+								if (getMode()==ListPanelMode.TITLE )
+									return null;
+								   return Model.of( getModel().getObject().getSubtitle() );
+		                   }
+
+		            		@Override
+							protected String getImageSrc() {
+								if (getModel().getObject().getPhoto() != null) {
+									Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+									return getPresignedThumbnailSmall(photo);
+								}
+								return null;
+							}
+
+							@Override
+							public void onClick() {
+								setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+							}
+
+							protected IModel<String> getInfo() {
+								String str = TextCleaner.clean(getModel().getObject().getIntro());
+								return new Model<String>(str);
+							}
+							
+		            	};
+		            }
+
+				@Override
+				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
+					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element",
+							model, getListPanelMode()) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						protected String getImageSrc() {
+							if (getModel().getObject().getPhoto() != null) {
+								Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+								return getPresignedThumbnailSmall(photo);
+							}
+							return null;
+						}
+
+						@Override
+						public void onClick() {
+							setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+						}
+
+						protected IModel<String> getInfo() {
+							String str = TextCleaner.clean(getModel().getObject().getIntro());
+							return new Model<String>(str);
+						}
+					};
+					return panel;
+				}
+			};
+			add(panel);
+		
+	        panel.setListPanelMode(ListPanelMode.TITLE);
+			panel.setLiveSearch(false);
+			panel.setHasExpander(true);
+			panel.setSettings(true);
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 
 	protected void onCreateExhibition() {
@@ -540,6 +706,12 @@ public class SitePage extends BasePage {
 		if (listTemporary != null)
 			listTemporary.forEach(i -> i.detach());
 
+		if (listTemporaryPast != null)
+			listTemporaryPast.forEach(i -> i.detach());
+
+		if (listTemporaryComing != null)
+			listTemporaryComing.forEach(i -> i.detach());
+		
 		if (this.siteList!=null)
 			this.siteList.forEach(e-> e.detach());
 	}
@@ -560,6 +732,8 @@ public class SitePage extends BasePage {
 		this.siteList = siteList;
 	}
 
+	
+	boolean listsLoaded = false;
 	private void loadLists() {
 		try {
 
@@ -567,15 +741,29 @@ public class SitePage extends BasePage {
 
 			listPermanent = new ArrayList<IModel<ArtExhibition>>();
 			listTemporary = new ArrayList<IModel<ArtExhibition>>();
+			listTemporaryPast = new ArrayList<IModel<ArtExhibition>>();
+			listTemporaryComing = new ArrayList<IModel<ArtExhibition>>();
 
+			
 			List<ArtExhibition> la = db.getArtExhibitions(getSiteModel().getObject());
 
 			for (ArtExhibition a : la) {
 				if (a.isPermanent())
 					listPermanent.add(new ObjectModel<ArtExhibition>(a));
-				else
-					listTemporary.add(new ObjectModel<ArtExhibition>(a));
+				else {
+			
+					if (a.isOpen()) 
+						listTemporary.add(new ObjectModel<ArtExhibition>(a));
+					else if (a.isTerminated())
+						listTemporaryPast.add(new ObjectModel<ArtExhibition>(a));
+					else if (a.isComing())
+						listTemporaryComing.add(new ObjectModel<ArtExhibition>(a));
+						
+				}
 			}
+			
+			listsLoaded = true;
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -583,19 +771,35 @@ public class SitePage extends BasePage {
 	}
 
 	private List<IModel<ArtExhibition>> getArtExhibitionsPermanent() {
-		if (listPermanent == null || listTemporary == null) {
+		if (!listsLoaded) {
 			loadLists();
 		}
 		return listPermanent;
 	}
 
 	private List<IModel<ArtExhibition>> getArtExhibitionsTemporary() {
-		if (listPermanent == null || listTemporary == null) {
+		if (!listsLoaded) {
 			loadLists();
 		}
 		return listTemporary;
 	}
 
+	private List<IModel<ArtExhibition>> getArtExhibitionsTemporaryPast() {
+		if (!listsLoaded) {
+			loadLists();
+		}
+		return listTemporaryPast;
+	}
+	
+	private List<IModel<ArtExhibition>> getArtExhibitionsTemporaryComing() {
+		if (!listsLoaded) {
+			loadLists();
+		}
+		return listTemporaryComing;
+	}
+
+	
+	
 
 	private void setCurrent() {
 		

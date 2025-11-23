@@ -32,10 +32,7 @@ public class ServerAppConstant {
 	
 	
 	
-	
-	
-
-	
+		
 	
 	/**   */
 	
@@ -66,22 +63,21 @@ public class ServerAppConstant {
 	
 	
 	/** art exhibition guide */	
-	static final public String artexhibitionguide_info 			= "artexhibition-guide_action_edit_info";
-	static final public String artexhibitionguiderecord_info 	= "artexhibition-guide-record";
-	static final public String artexhibitionguide_contents 		= "artexhibition-guide-contents";
-	static final public String artexhibitionguide_audit			= "artexhibition-guide-audit";
-
-	
+	static final public String artexhibitionguide_info 				= "artexhibition-guide_action_edit_info";
+	static final public String artexhibitionguiderecord_info 		= "artexhibition-guide-record";
+	static final public String artexhibitionguide_contents 			= "artexhibition-guide-contents";
+	static final public String artexhibitionguide_audit				= "artexhibition-guide-audit";
+	static final public String action_artexhibitionguide_delete 	= "action-artexhibitionguide-delete";
+	static final public String action_artexhibitionguide_restore 	= "action-artexhibitionguide-restore";
 	
 	
 	
 	/** guide content */	
-	static final public String action_guide_edit_info = "guide_action_edit_info";
-	static final public String action_guide_content_edit = "action-guide-content-edit";
-	static final public String guide_content_info = "guide-content-info";
-
-
-	
+	static final public String action_guide_edit_info	 	= "guide_action_edit_info";
+	static final public String action_guide_content_edit 	= "action-guide-content-edit";
+	static final public String action_guide_content_delete 	= "action-guide-content-delete";
+	static final public String action_guide_content_restore = "action-guide-content-restore";
+	static final public String guide_content_info 			= "guide-content-info";
 	
 	/** institution */
 	static final public String institution_info = "institution-info";

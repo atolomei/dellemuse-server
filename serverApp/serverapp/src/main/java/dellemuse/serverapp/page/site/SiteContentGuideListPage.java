@@ -21,6 +21,7 @@ import dellemuse.serverapp.page.library.SiteListPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -109,6 +110,26 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 	}
 	
 	@Override
+	public Iterable<GuideContent> getObjects(ObjectState os1) {
+		return super.getGuideContents(getSiteModel().getObject(), os1);
+	}
+
+
+
+	@Override
+	public Iterable<GuideContent> getObjects(ObjectState os1, ObjectState os2) {
+		return super.getGuideContents(getSiteModel().getObject(), os1, os2);
+	}
+	
+ 
+	
+	
+	
+	
+	
+	
+	
+	@Override
 	public IModel<String> getObjectInfo(IModel<GuideContent> model) {
 		String str = TextCleaner.clean(model.getObject().getInfo(), 280);
 		return new Model<String>(str);
@@ -175,7 +196,7 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 		return  ListPanelMode.TITLE;
 	}
 
-	@Override
+	 
 	protected void onCreate() {
 //		GuideContent g = getSiteDBService().createG .create("new", getSiteModel().getObject(), getUserDBService().findRoot());
 //		IModel<GuideContent> m =  new ObjectModel<GuideContent>(aw);
@@ -192,7 +213,7 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
         return null;
 	}
 	
-	protected List<ToolbarItem> getToolbarItems() {
+	protected List<ToolbarItem> getMainToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Model.of(getSiteModel().getObject().getShortName()), Align.TOP_RIGHT ) );
 	
@@ -209,6 +230,14 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 		return list;
 	}
 	
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+		return null;
+	}
+
+
+
+
 	 
 }
 

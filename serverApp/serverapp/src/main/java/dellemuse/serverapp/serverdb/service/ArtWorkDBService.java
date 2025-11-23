@@ -20,6 +20,7 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -28,7 +29,7 @@ import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
 import dellemuse.serverapp.service.language.LanguageService;
 import jakarta.annotation.PostConstruct;
- 
+
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -44,14 +45,13 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 
 	@JsonIgnore
 	final LanguageService languageService;
-	
-	
+
 	public ArtWorkDBService(CrudRepository<ArtWork, Long> repository, ServerDBSettings settings, LanguageService languageService, ArtWorkRecordDBService artWorkRecordDBService) {
 		super(repository, settings);
 		this.artWorkRecordDBService = artWorkRecordDBService;
-		this.languageService=languageService;
+		this.languageService = languageService;
 	}
-	
+
 	/**
 	 * <p>
 	 * Annotation Transactional is required to store values into the Database
@@ -64,84 +64,84 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 	public ArtWork create(String name, User createdBy) {
 		ArtWork c = new ArtWork();
 		c.setName(name);
-		//c.setNameKey(nameKey(name));
-		c.setMasterLanguage(getDefaultMasterLanguage());
 
+		c.setMasterLanguage(getDefaultMasterLanguage());
+		c.setLanguage(getDefaultMasterLanguage());
+
+		
+		// c.setUsethumbnail(true);
 		c.setCreated(OffsetDateTime.now());
-		c.setUsethumbnail(true);
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		
+		c.setState(ObjectState.EDTION);
+
 		getRepository().save(c);
-		for ( Language la:getLanguageService().getLanguages() ) {
-			getArtWorkRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+		for (Language la : getLanguageService().getLanguages()) {
+			getArtWorkRecordDBService().create(c, la.getLanguageCode(), createdBy);
 		}
 		return getRepository().save(c);
 	}
 
- 
 	@Transactional
 	public ArtWork create(String name, Site site, User createdBy) {
 		ArtWork c = new ArtWork();
-		
+
 		c.setName(name);
-		//c.setNameKey(nameKey(name));
-		
+		// c.setNameKey(nameKey(name));
+
 		c.setSite(site);
 		c.setMasterLanguage(site.getMasterLanguage());
+		c.setLanguage(site.getLanguage());
 		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		c.setUsethumbnail(true);
-		
+		// c.setUsethumbnail(true);
+
 		getRepository().save(c);
-		
-		for (Language la:getLanguageService().getLanguages()) 
-			getArtWorkRecordDBService().create(c, la.getLanguageCode(),  createdBy);
-		 
-		
+
+		for (Language la : getLanguageService().getLanguages())
+			getArtWorkRecordDBService().create(c, la.getLanguageCode(), createdBy);
+
 		return getRepository().save(c);
 	}
 
-	
 	@Transactional
-	public ArtWork addQR(ArtWork aw, String bucketName, String objectName, String name, String media,  long size, User createdBy) {
-			ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
-			Resource res=rdbs.create(bucketName,  objectName, name, media, size, ServerConstant.QR_CODE, createdBy);
-			aw.setQRCode(res);
-			return getRepository().save(aw);
+	public ArtWork addQR(ArtWork aw, String bucketName, String objectName, String name, String media, long size, User createdBy) {
+		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE, createdBy, name);
+		aw.setQRCode(res);
+		return getRepository().save(aw);
 	}
 
 	@Transactional
 	private void deleteResources(Long id) {
-		
+
 		Optional<ArtWork> o_aw = super.findWithDeps(id);
 
 		if (o_aw.isEmpty())
 			return;
-		
-		ArtWork a=o_aw.get();
-		
+
+		ArtWork a = o_aw.get();
+
 		getResourceDBService().delete(a.getPhoto());
 		getResourceDBService().delete(a.getAudio());
 		getResourceDBService().delete(a.getVideo());
 		getResourceDBService().delete(a.getQRCode());
-		
+
 	}
-	 
+
 	@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
-		super.delete(id);
+		super.deleteById(id);
 	}
 
 	@Transactional
 	public void delete(ArtWork o) {
-		this.delete(o.getId()); 
+		this.delete(o.getId());
 	}
-	
-	
+
 	@SuppressWarnings("unused")
 	@Transactional
 	public Optional<ArtWork> findWithDeps(Long id) {
@@ -149,53 +149,51 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		Optional<ArtWork> o_aw = super.findById(id);
 
 		if (o_aw.isEmpty())
-			return  o_aw;
-		
+			return o_aw;
+
 		ArtWork aw = o_aw.get();
-		
+
 		aw.getSite().getDisplayname();
-		
-		for ( Person p: aw.getArtists()) {
+
+		for (Person p : aw.getArtists()) {
 			p.getDisplayName();
 		}
 
 		Resource photo = aw.getPhoto();
 
 		User u = aw.getLastModifiedUser();
-		
-		if (u!=null)
+
+		if (u != null)
 			u.getDisplayname();
-		
+
 		if (photo != null)
 			photo.getBucketName();
 
 		Resource qrcode = aw.getQRCode();
 
-		
 		if (qrcode != null) {
 			User qu = qrcode.getLastModifiedUser();
 			qrcode.getBucketName();
 		}
-		
-		for( Person p: aw.getArtists()) {
+
+		for (Person p : aw.getArtists()) {
 			Long p_id = p.getId();
 		}
-		
+
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
-	
-    @Transactional
-    @Override
-    public Iterable<ArtWork> findAllSorted() {
-        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<ArtWork> cq = cb.createQuery(getEntityClass());
-        Root<ArtWork> root = cq.from(getEntityClass());
-        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
-        return getEntityManager().createQuery(cq).getResultList();
-    }
-    
+
+	@Transactional
+	@Override
+	public Iterable<ArtWork> findAllSorted() {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtWork> cq = cb.createQuery(getEntityClass());
+		Root<ArtWork> root = cq.from(getEntityClass());
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
 
 	public boolean isDetached(ArtWork entity) {
 		return !getEntityManager().contains(entity);
@@ -205,25 +203,6 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		return this.languageService;
 	}
 
-	/**
-	@Transactional
-	public ArtWork lazyLoad(ArtWork s) {
-		ArtWork src = findById(s.getId()).get();
-
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		Site site = service.findById(src.getSite().getId()).get();
-		src.setSite(site);
-
-		PersonDBService p_service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
-		Set<Person> list = new HashSet<Person>();
-		for (Person person : src.getArtists()) {
-			list.add(p_service.findById(person.getId()).get());
-		}
-		src.setArtists(list);
-		return src;
-	}
-	 **/
-	
 	@Transactional
 	public void reloadIfDetached(ArtWork src) {
 		if (!getEntityManager().contains(src)) {
@@ -263,18 +242,14 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 	protected Class<ArtWork> getEntityClass() {
 		return ArtWork.class;
 	}
-	
+
 	public ArtWorkRecordDBService getArtWorkRecordDBService() {
 		return this.artWorkRecordDBService;
 	}
 
-	
 	@PostConstruct
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
-
-	 
-
 
 }

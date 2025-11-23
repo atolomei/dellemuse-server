@@ -17,12 +17,15 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -54,28 +57,34 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 	@Transactional
 	@Override
 	public ArtExhibitionItemRecord create(String name, User createdBy) {
-		
-		//ArtExhibitionItemRecord c = new ArtExhibitionItemRecord();
-		//c.setName(name);
-		
-		/**
-		c.setLanguage(Language.EN);
-		
-		c.setNameKey(nameKey(name));
-		c.setCreated(OffsetDateTime.now());
-		c.setUsethumbnail(true);
-	
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		
-		logger.debug("Creating ArtExhibitionItemRecord -> " + c.getName()+" | " + c.getLanguage());
-
-		
-		return getRepository().save(c);
-	*/
-		
 		throw new RuntimeException("can not call create without language");
 	}
+	
+
+	/**
+	 * 
+	 * 
+	 * @param name
+	 * @param ArtExhibitionItem
+	 * @param createdBy
+	 * @return
+	 */
+	@Transactional
+	public ArtExhibitionItemRecord create(String name, ArtExhibitionItem i, User createdBy) {
+		ArtExhibitionItemRecord c = new ArtExhibitionItemRecord();
+		
+		c.setName(name);
+		c.setArtExhibitionItem(i); 
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+
+		c.setLanguage(i.getLanguage());
+		c.setState(ObjectState.EDTION);
+		
+		return getRepository().save(c);
+	}
+	
 	
 	@Transactional
 	public ArtExhibitionItemRecord create(ArtExhibitionItem a, String lang, User createdBy) {
@@ -84,21 +93,27 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 
 		c.setArtExhibitionItem(a);
 		c.setName(a.getName());
-		//c.setUsethumbnail(c.isUsethumbnail());
 		c.setLanguage(lang);
 		
+		c.setState(ObjectState.EDTION);
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		
-		logger.debug("Creating ArtExhibitionItemRecord -> " + c.getName()+" | " + c.getLanguage());
-
-		
+ 	
 		return getRepository().save(c);
 	}
 
+	@Transactional
+	public void markAsDeleted(ArtExhibitionItemRecord  c, User deletedBy) {
+		super.markAsDeleted(c, deletedBy);
+	}
+	
+	@Transactional
+	public void restore(ArtExhibitionItemRecord  c, User deletedBy) {
+		super.restore(c, deletedBy);
+	}
+
 	/**
-	 * 
 	 * 
 	 * @param a
 	 * @param lang
@@ -123,53 +138,30 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		
 	}
 
-	
-
-	/**
-	 * 
-	 * 
-	 * @param name
-	 * @param ArtExhibitionItem
-	 * @param createdBy
-	 * @return
-	 */
 	@Transactional
-	public ArtExhibitionItemRecord create(String name, ArtExhibitionItem ArtExhibitionItem, User createdBy) {
-		ArtExhibitionItemRecord c = new ArtExhibitionItemRecord();
+	public List<ArtExhibitionItemRecord> findAllByArtExhibitionItem(ArtExhibitionItem  a) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionItemRecord> cq = cb.createQuery(ArtExhibitionItemRecord.class);
+		Root<ArtExhibitionItemRecord> root = cq.from(ArtExhibitionItemRecord.class);
 		
-		c.setName(name);
-		//c.setNameKey(nameKey(name));
-		c.setArtExhibitionItem(ArtExhibitionItem); 
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		c.setUsethumbnail(true);
+	     Predicate p1 = cb.equal(root.get("artExhibitionItem").get("id"), a.getId() );
+	     cq.select(root).where(p1);
+	
+		List<ArtExhibitionItemRecord> list = this.getEntityManager().createQuery(cq).getResultList();
+
+		if (list==null)
+			return new ArrayList<ArtExhibitionItemRecord>();
 		
-		return getRepository().save(c);
+		return list;
 	}
 
-	
-	 
-	@Transactional
-	private void deleteResources(Long id) {
-		
-		Optional<ArtExhibitionItemRecord> o_aw = super.findWithDeps(id);
 
-		if (o_aw.isEmpty())
-			return;
-		
-		ArtExhibitionItemRecord a=o_aw.get();
-		
-		getResourceDBService().delete(a.getPhoto());
-		getResourceDBService().delete(a.getAudio());
-		getResourceDBService().delete(a.getVideo());
-		
-	}
 	 
 	@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
-		super.delete(id);
+		super.deleteById(id);
 	}
 
 	@Transactional
@@ -190,11 +182,6 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		 
 		Resource photo = aw.getPhoto();
 
-	//	User u = aw.getLastModifiedUser();
-		
-	//	if (u!=null)
-	//		u.getDisplayname();
-		
 		if (photo != null)
 			photo.getBucketName();
 		
@@ -212,8 +199,7 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
         cq.orderBy(cb.asc( cb.lower(root.get("name"))));
         return getEntityManager().createQuery(cq).getResultList();
     }
-    
-
+   
 	public boolean isDetached(ArtExhibitionItemRecord entity) {
 		return !getEntityManager().contains(entity);
 	}
@@ -240,7 +226,22 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		super.register(getEntityClass(), this);
 	}
 
-	 
+	
+	
+	
+	@Transactional
+	private void deleteResources(Long id) {
+		
+		Optional<ArtExhibitionItemRecord> o_aw = super.findWithDeps(id);
 
-
+		if (o_aw.isEmpty())
+			return;
+		
+		ArtExhibitionItemRecord a=o_aw.get();
+		
+		getResourceDBService().delete(a.getPhoto());
+		getResourceDBService().delete(a.getAudio());
+		getResourceDBService().delete(a.getVideo());
+		
+	}
 }

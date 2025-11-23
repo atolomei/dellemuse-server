@@ -55,9 +55,6 @@ public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSectio
         this.artExhibitionSectionRecordDBService=artExhibitionSectionRecordDBService;
     }
     
-	protected ArtExhibitionSectionRecordDBService getArtExhibitionSectionRecordDBService() {
-		return this.artExhibitionSectionRecordDBService;
-	}
 
     @Transactional
 	public Optional<ArtExhibitionSection> findWithDeps(Long id) {
@@ -124,6 +121,8 @@ public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSectio
         c.setName(name);
         //c.setNameKey(nameKey(name));
         c.setMasterLanguage(getDefaultMasterLanguage());
+		c.setLanguage(getDefaultMasterLanguage());
+		
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -138,6 +137,7 @@ public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSectio
         //c.setNameKey(nameKey(name));
         
 		c.setMasterLanguage(site.getMasterLanguage());
+		c.setLanguage(site.getLanguage());
 
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
@@ -170,7 +170,10 @@ public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSectio
     protected Class<ArtExhibitionSection> getEntityClass() {
         return ArtExhibitionSection.class;
     }
-	
+	protected ArtExhibitionSectionRecordDBService getArtExhibitionSectionRecordDBService() {
+		return this.artExhibitionSectionRecordDBService;
+	}
+
 }
     
     

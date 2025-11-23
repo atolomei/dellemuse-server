@@ -16,6 +16,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -92,6 +93,17 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 	public Iterable<T> findAll() {
 		return repository.findAll();
 	}
+	
+	@Transactional
+	public void delete(T c) {
+		repository.delete(c);
+	}
+		
+	@Transactional
+	public void deleteById(I id) {
+		repository.deleteById(id);
+	}
+	
 
 	@Transactional
 	public Iterable<T> findAllSorted() {

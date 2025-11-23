@@ -49,10 +49,15 @@ public class LockService extends BaseService {
     @JsonIgnore
     private ConcurrentMap<Long, ReentrantReadWriteLock> objectLocks = new ConcurrentHashMap<>(1000);
 
-   
+    @JsonIgnore
+    private ConcurrentMap<String, ReentrantReadWriteLock> fileLocks = new ConcurrentHashMap<>(1000);
+    
+    
     @JsonIgnore
     private Timer cleaner;
 
+    @JsonIgnore
+    private Timer fileCleaner;
 	 
     @JsonIgnore
 	private final OffsetDateTime created = OffsetDateTime.now();
@@ -65,6 +70,10 @@ public class LockService extends BaseService {
 	}
  
 
+    public ReadWriteLock getFileLock(String path) {
+        return getFileLocks().computeIfAbsent(path, key -> new ReentrantReadWriteLock());
+    }
+    
     public ReadWriteLock getObjectLock(Long id) {
         return getObjectLocks().computeIfAbsent(id, key -> new ReentrantReadWriteLock());
     }
@@ -93,7 +102,14 @@ public class LockService extends BaseService {
 	        this.objectLocks = objectLocks;
 	    }
 
+	    public ConcurrentMap<String, ReentrantReadWriteLock> getFileLocks() {
+	        return fileLocks;
+	    }
 
+	    public void setFileLocks(ConcurrentMap<String, ReentrantReadWriteLock> objectLocks) {
+	        this.fileLocks = objectLocks;
+	    }
+	    
 	    @PostConstruct
 	    protected synchronized void onInitialize() {
 
@@ -145,8 +161,59 @@ public class LockService extends BaseService {
 	        Thread thread = new Thread(cleaner);
 	        thread.setDaemon(true);
 	        thread.setName(
-	                LockService.class.getSimpleName() + "Cleaner-" + Double.valueOf(Math.abs(Math.random() * 1000000)).intValue());
+	                LockService.class.getSimpleName() + "Object Cleaner-" + Double.valueOf(Math.abs(Math.random() * 1000000)).intValue());
 	        thread.start();
+	        
+	        
+	        
+	        this.fileCleaner = new Timer() {
+
+	            @Override
+	            public long getSleepTimeMillis() {
+	                return Math.round(minTimeToSleepMillisec
+	                        + deltaTimeToSleep / (1.0 + ((getObjectLocks().size()) / deltaTimeToSleep)));
+	            }
+
+	            @Override
+	            public void onTimeUp() {
+
+	                if (exit())
+	                    return;
+
+	                if (getFileLocks().size() > 0) {
+	                    long maxToPurge = Math.round(getRatePerMillisec() * maxTimeToSleepMillisec)
+	                            + (long) (getRatePerMillisec() * 1000.0);
+	                    List<String> list = new ArrayList<String>();
+	                    try {
+	                        int counter = 0;
+	                        for (Entry<String, ReentrantReadWriteLock> entry : getFileLocks().entrySet()) {
+	                            if (entry.getValue().writeLock().tryLock()) {
+	                                list.add(entry.getKey());
+	                                counter++;
+	                                if (counter >= maxToPurge) {
+	                                    break;
+	                                }
+	                            }
+	                        }
+	                        list.forEach(item -> {
+	                            ReentrantReadWriteLock lock = getFileLocks().get(item);
+	                            getFileLocks().remove(item);
+	                            lock.writeLock().unlock();
+	                        });
+	                        list.forEach(item -> getFileLocks().remove(item));
+
+	                    } finally {
+	                    }
+	                }
+	            }
+	        };
+
+	        Thread f_thread = new Thread(fileCleaner);
+	        f_thread.setDaemon(true);
+	        f_thread.setName(
+	                LockService.class.getSimpleName() + "File Cleaner-" + Double.valueOf(Math.abs(Math.random() * 1000000)).intValue());
+	        f_thread.start();
+	        
 	        setStatus(ServiceStatus.RUNNING);
 	        startuplogger.debug("Started -> " + LockService.class.getSimpleName());
 	    }

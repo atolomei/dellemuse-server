@@ -2,12 +2,15 @@ package dellemuse.serverapp.page;
 
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -39,7 +42,6 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.ref.RefPersonModel;
 import dellemuse.model.ref.RefResourceModel;
 import dellemuse.model.util.ThumbnailSize;
- 
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
@@ -49,6 +51,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -60,6 +63,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionSectionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
@@ -79,9 +83,11 @@ import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.language.LanguageService;
+import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import wktui.base.UIEventListener;
 import wktui.bootstrap.Bootstrap;
 
 public abstract class BasePage extends WebPage {
@@ -111,9 +117,9 @@ public abstract class BasePage extends WebPage {
 	// return new JavaScriptResourceReference(BasePage.class,"popper.min.js");
 	// }
 
-	public static JavaScriptResourceReference getJavaScriptKbeeResourceReference() {
-		return new JavaScriptResourceReference(BasePage.class, "kbee.js");
-	}
+	//public static JavaScriptResourceReference getJavaScriptKbeeResourceReference() {
+	//	return new JavaScriptResourceReference(BasePage.class, "kbee.js");
+	//}
 
 	static {
 		// xfavicon =
@@ -132,7 +138,7 @@ public abstract class BasePage extends WebPage {
 
 	// private static final ResourceReference POPPER_JS =
 	// BasePage.getJavaScriptPopperResourceReference();
-	private static final ResourceReference KBEE_JS = BasePage.getJavaScriptKbeeResourceReference();
+	//private static final ResourceReference KBEE_JS = BasePage.getJavaScriptKbeeResourceReference();
 
 	// private static final ResourceReference AW = new
 	// CssResourceReference(BasePage.class, "./all.min.css");
@@ -164,6 +170,18 @@ public abstract class BasePage extends WebPage {
 	// Map<Long, IModel<ArtExhibitionItemModel>> cacheArtExhibitionItem = new
 	// HashMap<Long, IModel<ArtExhibitionItemModel>>();
 
+	/**
+	 * 
+	 * 
+	 * 	
+	   
+	    HiddenField<String> csrfToken = new HiddenField<>("csrf", Model.of(csrfTokenValue));
+		form.add(csrfToken);
+
+
+	 * 
+	 * 
+	 */
 	public BasePage() {
 		super();
 	}
@@ -207,9 +225,6 @@ public abstract class BasePage extends WebPage {
 	public void onInitialize() {
 		super.onInitialize();
 		
-		
-		
-
 		addListeners();
 		
 		// cacheArtExhibitionItem = new HashMap<Long, IModel<ArtExhibitionItemModel>>();
@@ -355,7 +370,9 @@ public abstract class BasePage extends WebPage {
 
 		// response.render(JavaScriptHeaderItem.forUrl("popper.min.js"));
 		// response.render(JavaScriptHeaderItem.forReference(POPPER_JS));
-		response.render(JavaScriptHeaderItem.forReference(KBEE_JS));
+		
+		
+		// response.render(JavaScriptHeaderItem.forReference(KBEE_JS));
 
 		response.render(JavaScriptHeaderItem
 				.forReference(getApplication().getJavaScriptLibrarySettings().getJQueryReference()));
@@ -512,9 +529,9 @@ public abstract class BasePage extends WebPage {
 		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
 	}
 	
-	
-	
-
+	protected AudioStudioDBService getAudioStudioDBService() {
+		return (AudioStudioDBService) ServiceLocator.getInstance().getBean( AudioStudioDBService.class);
+	}
 	
 	
 	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
@@ -526,7 +543,7 @@ public abstract class BasePage extends WebPage {
 	}
 
 	
-	
+
 	
 	
 	protected ArtWorkDBService getArtWorkDBService() 				{return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);}
@@ -665,6 +682,16 @@ public abstract class BasePage extends WebPage {
 		return service.getArtExhibitions(site.getId());
 	}
 
+	public Iterable<ArtExhibition> getSiteArtExhibitions( Site site, ObjectState os1 ) {
+		SiteDBService service= (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return service.getArtExhibitions(site.getId(), os1);
+	}
+
+	public Iterable<ArtExhibition> getSiteArtExhibitions( Site site, ObjectState os1, ObjectState os2 ) {
+		SiteDBService service= (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return service.getArtExhibitions(site.getId(), os1, os2);
+	}
+	
 	
 	
 	
@@ -673,16 +700,61 @@ public abstract class BasePage extends WebPage {
 		return service.getSiteArtWorks(site);
 	}
 
+
+	public Iterable<ArtWork> getArtWorks(Site site, ObjectState os1) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return service.getSiteArtWorks(site, os1);
+	}
+	
+	public Iterable<ArtWork> getArtWorks(Site site, ObjectState os1, ObjectState os2) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return service.getSiteArtWorks(site, os1, os2);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	public Iterable<User> getUsers() {
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 		return service.findAllSorted();
 	}
+	
+	
+	public Iterable<User> getUsers(ObjectState os1, ObjectState os2) {
+		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
+		return service.findAllSorted(os1, os2);
+	}
+	
 	
 	public Iterable<GuideContent> getGuideContents(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
 			.getBean(SiteDBService.class);
 		return service.getSiteGuideContent(site.getId());
 	}
+	
+	
+	public Iterable<GuideContent> getGuideContents(Site site, ObjectState os1) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
+				.getBean(SiteDBService.class);
+			return service.getSiteGuideContent(site.getId(), os1);
+		
+	}
+
+	public Iterable<GuideContent> getGuideContents(Site site, ObjectState os1, ObjectState os2) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
+				.getBean(SiteDBService.class);
+			return service.getSiteGuideContent(site.getId(), os1, os2);
+	}
+	
+	
+	
+	
+	
 	
 	public Optional<Site> getSite(Long id) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
@@ -777,7 +849,6 @@ public abstract class BasePage extends WebPage {
 				return url;
 			} else {
 				mark("PresignedUrl - " + photo.getDisplayname());
-
 				ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance()
 						.getBean(ObjectStorageService.class);
 				return service.getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
@@ -792,4 +863,58 @@ public abstract class BasePage extends WebPage {
 		return getArtExhibitionDBService().create("new", site,   getUserDBService().findRoot());
 	}
 
+	 @SuppressWarnings("unchecked")
+	 public void fireScanAll(UIEvent event) {
+	        for (UIEventListener<UIEvent> listener :  getBehaviors(UIEventListener.class)) {
+	            if (listener.handle(event)) {
+	                listener.onEvent(event);
+	            }
+	        }
+	        fire(event, getPage().iterator(), false);
+	    }
+	 
+	
+	 @SuppressWarnings("unchecked")
+	    public void fire(UIEvent event) {
+	        boolean handled = false;
+	        for (UIEventListener<UIEvent> listener : getPage().getBehaviors(UIEventListener.class)) {
+	            if (listener.handle(event)) {
+	                listener.onEvent(event);
+	                handled = true;
+	                break;
+	            }
+	        }
+	        if (!handled)
+	            fire(event, getPage().iterator());
+	    }
+	 
+	 public boolean fire(UIEvent event, Iterator<Component> components) {
+	        return fire(event, components, true);
+	    }
+
+	    @SuppressWarnings("unchecked")
+	    public boolean fire(UIEvent event, Iterator<Component> components, boolean stop_first_hit) {
+	        boolean handled = false;
+	        while (components.hasNext()) {
+	            Component component = components.next();
+	            for (UIEventListener<UIEvent> listener : component.getBehaviors(UIEventListener.class)) {
+	                if (listener.handle(event)) {
+	                    listener.onEvent(event);
+	                    if (stop_first_hit) {
+	                        handled = true;
+	                        break;
+	                    }
+	                }
+	            }
+	            if (!handled) {
+	                if (component instanceof MarkupContainer) {
+	                    handled = fire(event, ((MarkupContainer) component).iterator(), stop_first_hit);
+	                }
+	            } else {
+	                break;
+	            }
+	        }
+	        return handled;
+	    }
+	    
 }

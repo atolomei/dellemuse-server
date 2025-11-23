@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -83,6 +84,11 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	public ArtExhibitionItem() {
 	}
  
+
+	public String getPrefixUrl() {
+		return PrefixUrl.ArtExhibitionItem;
+	}
+	
 	public ArtWork getArtWork() {
 		return artwork;
 	}

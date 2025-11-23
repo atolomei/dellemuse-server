@@ -3,7 +3,7 @@ package dellemuse.serverapp.serverdb.model;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import org.apache.wicket.Component;
+ 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
@@ -39,6 +40,11 @@ public class ArtExhibitionSection extends MultiLanguageObject {
 	public ArtExhibitionSection() {
 	}
  
+	public String getPrefixUrl() {
+		return PrefixUrl.ArtExhibitionSection;
+	}
+	
+	
 	public ArtExhibition getArtExhibition() {
 		return artExhibition;
 	}

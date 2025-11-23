@@ -142,7 +142,34 @@ public class ServerDBSettings {
     protected String googleTranslateAuth;
     
     
+    /**                 ----------------------------------------------------- */
     
+    @Value("${elevenlabs.api.key:sk_1d73569ea735c3013edd9bb49a6a652839942590f45944d7}")
+    protected String elevenLabsAPIKey;
+
+    
+    @Value("${elevenlabs.api.host:api.elevenlabs.io}")
+    private String elevenLabsAPIHost;
+
+    @Value("${elevenlabs.api.text.to.speech.version:v1}")
+    private String textToSpeechVersion;
+
+    @Value("${elevenlabs.api.text.to.speech.servicename:text-to-speech}")
+    private String textToSpeechServiceName;
+
+    public String getTextToSpeechServiceName() {
+    	return this.textToSpeechServiceName;
+    }
+    
+    
+	public String getElevenLabsAPIHost() {
+	 	return elevenLabsAPIHost;
+	}
+    
+    
+    @Value("${audio.cache.dir:audioCache}")
+    private String audioDir;
+
     
     /**                 ----------------------------------------------------- */
     @Value("${server.locale:es}")
@@ -165,9 +192,7 @@ public class ServerDBSettings {
     /** Google translate ----------------------------------------------------- */
     
     
-    public String getGoogleTranslateAuthPath() {
-    	return googleTranslateAuth;
-    }
+    
     
     
     public ServerDBSettings() {
@@ -201,7 +226,11 @@ public class ServerDBSettings {
     public int getPort() {
         return port;
     }
-
+    
+    public String getGoogleTranslateAuthPath() {
+    	return googleTranslateAuth;
+    }
+    
     public String getAccessKey() {
         return accessKey;
     }
@@ -209,7 +238,6 @@ public class ServerDBSettings {
     public String getSecretKey() {
         return secretKey;
     }
-    
     
     @PostConstruct
     protected void onInitialize() {
@@ -234,10 +262,33 @@ public class ServerDBSettings {
     
     }
 
+    public String getAudioDownloadCacheDir() {
+		return audioDir + File.separator + "download";
+	}
+    
+    
     
     private void checkDirs() {
 
-        try {
+    	
+    	 try {
+             File dir = new File (audioDir);
+             if ((!dir.exists()) || (!dir.isDirectory()))
+                 FileUtils.forceMkdir(dir);
+         } catch (IOException e) {
+             throw new RuntimeException(e);
+         }
+    	 
+    	 try {
+             File dir = new File (audioDir, "download");
+             if ((!dir.exists()) || (!dir.isDirectory()))
+                 FileUtils.forceMkdir(dir);
+         } catch (IOException e) {
+             throw new RuntimeException(e);
+         }
+
+    	 
+    	 try {
             File wDir = new File (workDir);
             if ((!wDir.exists()) || (!wDir.isDirectory()))
                 FileUtils.forceMkdir(wDir);
@@ -362,6 +413,25 @@ public class ServerDBSettings {
 		 
 		return qrurl;
 	}
+
+	public String getElevenLabsAPIKey() {
+		return elevenLabsAPIKey;
+	}
+
+	public String getAudioDir() {
+		return audioDir;
+	}
+
+	public String getTextToSpeechVersion() {
+		return textToSpeechVersion;
+	}
+
+	public int getAudioMaxCharsPerRequest() {
+		return 4096;
+	}
+
+
+	
 
 
 }

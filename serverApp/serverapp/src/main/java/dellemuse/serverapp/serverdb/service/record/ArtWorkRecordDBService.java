@@ -17,12 +17,14 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -123,11 +125,27 @@ public class ArtWorkRecordDBService extends DBService<ArtWorkRecord, Long> {
 		
 	}
 
-	
+	@Transactional
+	public List<ArtWorkRecord> findAllByGuideContent(ArtWork  a) {
 
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtWorkRecord> cq = cb.createQuery(ArtWorkRecord.class);
+		Root<ArtWorkRecord> root = cq.from(ArtWorkRecord.class);
+		
+	     Predicate p1 = cb.equal(root.get("artWork").get("id"), a.getId() );
+	     cq.select(root).where(p1);
+	
+		List<ArtWorkRecord> list = this.getEntityManager().createQuery(cq).getResultList();
+
+		if (list==null)
+			return new ArrayList<ArtWorkRecord>();
+		
+		return list;
+	}
+
+	
+	
 	/**
-	 * 
-	 * 
 	 * @param name
 	 * @param site
 	 * @param createdBy
@@ -169,7 +187,7 @@ public class ArtWorkRecordDBService extends DBService<ArtWorkRecord, Long> {
 	@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
-		super.delete(id);
+		super.deleteById(id);
 	}
 
 	@Transactional

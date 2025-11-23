@@ -15,11 +15,15 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
+import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
@@ -55,7 +59,6 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		this.artExhibitionGuideRecordDBService=artExhibitionGuideRecordDBService;
 	}
 
-	
 	@Transactional
 	@Override
 	public ArtExhibitionGuide create(String name, User createdBy) {
@@ -63,8 +66,11 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		ArtExhibitionGuide c = new ArtExhibitionGuide();
 		c.setName(name);
 		c.setOfficial(true);
-		c.setMasterLanguage(getDefaultMasterLanguage());
-		//c.setNameKey(nameKey(name));
+
+		c.setState(ObjectState.EDTION);
+		c.setLanguage(getDefaultMasterLanguage());
+        c.setMasterLanguage(getDefaultMasterLanguage());
+
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
@@ -82,13 +88,14 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 	public ArtExhibitionGuide create(String name, ArtExhibition ex, User createdBy) {
 		ArtExhibitionGuide c = new ArtExhibitionGuide();
 		c.setName(name);
-		//c.setNameKey(nameKey(name));
+	 
 
 		c.setOfficial(true);
 		c.setArtExhibition(ex);
 
+		c.setState(ex.getState());
 		c.setMasterLanguage(ex.getMasterLanguage());
-
+		c.setLanguage(ex.getLanguage());
 		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -102,6 +109,66 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 
 		return getRepository().save(c);
 	}
+	
+	
+
+	/**
+	 * 
+	 * ArtExhibitionGuide (1)
+	 * AudioStudio (1)
+	 * ArtExhibitionGuideRecord (n)
+	 * GuideContent (n)
+	 * 
+	 */
+	@Transactional
+	public void markAsDeleted(ArtExhibitionGuide c, User deletedBy) {
+		
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(deletedBy);
+		c.setState(ObjectState.DELETED);
+		getRepository().save(c);		
+		
+		Optional<AudioStudio> o = getAudioStudioDBService().findByArtExhibitionGuide(c);
+		
+		if (o.isPresent()) 
+			getAudioStudioDBService().markAsDeleted(o.get(), deletedBy);
+		
+		for (ArtExhibitionGuideRecord g: getArtExhibitionGuideRecordDBService(). findAllByArtExhibitionGuide(c)) {
+			getArtExhibitionGuideRecordDBService().markAsDeleted(g, deletedBy);		
+		}
+		
+
+		/** GuideContent (n) */
+		
+		c.getGuideContents().forEach( gc -> {
+			getGuideContentDBService().markAsDeleted(gc, deletedBy);
+		});
+	}
+
+	@Transactional
+	public void restore(ArtExhibitionGuide c, User restoredBy) {
+
+		OffsetDateTime date = OffsetDateTime.now();
+		c.setLastModified(date);
+		c.setLastModifiedUser(restoredBy);
+		c.setState(ObjectState.EDTION);
+		getRepository().save(c);		
+		
+		Optional<AudioStudio> o = getAudioStudioDBService().findByArtExhibitionGuide(c);
+
+		if (o.isPresent()) 
+			getAudioStudioDBService().restore(o.get(), restoredBy);
+
+		for (ArtExhibitionGuideRecord g: getArtExhibitionGuideRecordDBService(). findAllByArtExhibitionGuide(c)) {
+			getArtExhibitionGuideRecordDBService().restore(g, restoredBy);		
+		}
+	
+		c.getGuideContents().forEach( gc -> {
+			if ( !gc.getLastModified().isBefore(date) && gc.getState()==ObjectState.DELETED)
+					getGuideContentDBService().restore(gc, restoredBy);
+		});
+	}
+	
 	
 	@Transactional
     public void removeItem(ArtExhibitionGuide c, GuideContent  item, User removedBy) {
@@ -173,14 +240,6 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 	}
 
 	
-	/**
-	@Transactional
-	public List<ArtExhibitionGuide> findByNameKey(String nameKey) {
-		return getByNameKey(nameKey);
-	}
-	**/
-	
-
 	@Transactional
 	public List<GuideContent> getGuideContents(ArtExhibitionGuide exhibitionGuide) {
 		return getArtExhibitionGuideContents(exhibitionGuide.getId());
@@ -201,7 +260,6 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(GuideContent.class);
 		Root<GuideContent> root = cq.from(GuideContent.class);
-
 		cq.select(root).where(cb.equal(root.get("publisher").get("id"), person.getId()));
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 
