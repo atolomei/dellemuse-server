@@ -75,7 +75,7 @@ public class ArtExhibitionRecordDBService extends DBService<ArtExhibitionRecord,
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 
 		return getRepository().save(c);
 	}
@@ -100,17 +100,7 @@ public class ArtExhibitionRecordDBService extends DBService<ArtExhibitionRecord,
 	 *                c.setLastModifiedUser(createdBy); return
 	 *                getRepository().save(c); }
 	 */
-
-	
-	
-		
-	
-	
-	
-	
-	
-	
-	
+ 
 	
 	
 	/**

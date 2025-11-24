@@ -57,7 +57,7 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 	public void restore(GuideContentRecord c, User by) {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(by);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);		
 	}
 	
@@ -168,9 +168,7 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 		return list;
 	}
 
-	
-	
-
+ 
 	/**
 	 * 
 	 * 
@@ -194,9 +192,7 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 		return getRepository().save(c);
 	}
 
-	
-	 
-	@Transactional
+ 	@Transactional
 	private void deleteResources(Long id) {
 		
 		Optional<GuideContentRecord> o_aw = super.findWithDeps(id);

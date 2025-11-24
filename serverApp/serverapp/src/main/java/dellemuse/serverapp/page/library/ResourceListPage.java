@@ -59,6 +59,7 @@ import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 
@@ -92,11 +93,23 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 	}
 
 	 
-	 @Override
+	 private List<ToolbarItem> listToolbar;
+		
+		@Override
 		protected List<ToolbarItem> getListToolbarItems() {
-			return null;
-		}
 
+			if (listToolbar != null)
+				return listToolbar;
+
+			listToolbar = new ArrayList<ToolbarItem>();
+
+			IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+			ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+
+			listToolbar.add(s);
+
+			return listToolbar;
+		}
 	 
 	@Override
 	public Iterable<Resource> getObjects() {
@@ -138,6 +151,10 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<Resource> model) {
+		
+		if (model.getObject().getState()==ObjectState.DELETED) 
+			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
+
 		return new Model<String>(model.getObject().getDisplayname());
 	}
 

@@ -72,7 +72,7 @@ public class ArtExhibitionGuideRecordDBService extends DBService<ArtExhibitionGu
 		c.setUsethumbnail(c.isUsethumbnail());
 
 		c.setLanguage(lang);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -98,7 +98,7 @@ public class ArtExhibitionGuideRecordDBService extends DBService<ArtExhibitionGu
 	public void restore(ArtExhibitionGuideRecord  c, User by) {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(by);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);		
 		
 		Optional<AudioStudio> o = getAudioStudioDBService().findByArtExhibitionGuideRecord(c);

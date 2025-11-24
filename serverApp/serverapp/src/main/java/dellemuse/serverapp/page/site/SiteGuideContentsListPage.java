@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.component.IRequestablePage;
@@ -15,76 +12,43 @@ import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
-import dellemuse.serverapp.page.library.SiteListPage;
+import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
+import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
-import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
-import dellemuse.serverapp.serverdb.service.PersonDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
-import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
-import io.wktui.struct.list.ListPanelMode;
+
 
 /**
  * 
  * 
  * 
  */
-
 @MountPath("/site/contents/${id}")
 public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(SiteGuideContentsListPage.class.getName());
-
 	 
 	private StringValue stringValue;
 	private IModel<Site> siteModel;
+	private List<ToolbarItem> listToolbar;
 
-	//@Override
-	//protected WebMarkupContainer getSubmenu() {
-	//	return new SiteNavDropDownMenuToolbarItem("submenu", getSiteModel(), Model.of(getSiteModel().getObject().getShortName()));
-	//}
-	
-	protected IModel<String> getTitleLabel() {
-		return getLabel("guide-contents");
-	}
-	
 	public SiteGuideContentsListPage() {
 		super();
 	}
@@ -115,14 +79,96 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 		if (getSiteModel() == null) {
 			throw new RuntimeException("no site");
 		}
-
-		
 		super.onInitialize();
-
-		 
 	}
 
 
+	public IRequestablePage getObjectPage(IModel<GuideContent> model) {
+			return null;
+	}
+	
+	public Iterable<GuideContent> getObjects() {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		Iterable<ArtExhibitionItem> it= service.getSiteArtExhibitionItems(getSiteModel().getObject().getId());
+		return service.getSiteGuideContent( getSiteModel().getObject().getId());
+	}
+
+	@Override
+	public Iterable<GuideContent> getObjects(ObjectState os1) {
+		 return this.getObjects(os1, null);
+	}
+
+	@Override
+	public Iterable<GuideContent> getObjects(ObjectState os1, ObjectState os2) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		Iterable<ArtExhibitionItem> it= service.getSiteArtExhibitionItems(getSiteModel().getObject().getId());
+		return service.getSiteGuideContent( getSiteModel().getObject().getId());
+	}
+	
+
+	 
+	public IModel<String> getObjectInfo(IModel<GuideContent> model) {
+		return new Model<String>( model.getObject().getInfo());
+	}
+
+	public IModel<String> getObjectTitle(IModel<GuideContent> model) {
+		
+		if (model.getObject().getState()==ObjectState.DELETED) 
+			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
+
+		return new Model<String>( model.getObject().getDisplayname() );
+	}
+
+	public void onClick(IModel<GuideContent> model) {
+		
+	}
+
+	public IModel<String> getPageTitle() {
+		return new Model<String>(getSiteModel().getObject().getDisplayname());
+	}
+	 
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (siteModel != null)
+			siteModel.detach();
+ 	}
+
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
+
+	@Override
+	public IModel<String> getListPanelLabel() {
+		return null;
+	}
+
+	
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+
+		if (listToolbar != null)
+			return listToolbar;
+
+		listToolbar = new ArrayList<ToolbarItem>();
+
+		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+
+		listToolbar.add(s);
+
+		return listToolbar;
+	}
+	
+	protected IModel<String> getTitleLabel() {
+		return getLabel("guide-contents");
+	}
+	
 	protected List<ToolbarItem> getMainToolbarItems() {
 		
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
@@ -136,7 +182,6 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 	
 		create.setAlign(Align.TOP_LEFT);
 		list.add(create);
-	
 		
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(),   Align.TOP_RIGHT ));
 		return list;
@@ -164,95 +209,5 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 		add(ph);
 
 	}
-
-	public IRequestablePage getObjectPage(IModel<GuideContent> model) {
-			return null;
-	}
-
-	
-	public Iterable<GuideContent> getObjects() {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		Iterable<ArtExhibitionItem> it= service.getSiteArtExhibitionItems(getSiteModel().getObject().getId());
-		return service.getSiteGuideContent( getSiteModel().getObject().getId());
-	}
-
-	
-
-	@Override
-	public Iterable<GuideContent> getObjects(ObjectState os1) {
-		 return this.getObjects(os1, null);
-	}
-
-	@Override
-	public Iterable<GuideContent> getObjects(ObjectState os1, ObjectState os2) {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		Iterable<ArtExhibitionItem> it= service.getSiteArtExhibitionItems(getSiteModel().getObject().getId());
-		return service.getSiteGuideContent( getSiteModel().getObject().getId());
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	public IModel<String> getObjectInfo(IModel<GuideContent> model) {
-		return new Model<String>( model.getObject().getInfo());
-	}
-
-	public IModel<String> getObjectTitle(IModel<GuideContent> model) {
-		return new Model<String>( model.getObject().getDisplayname() );
-	}
-
-	public void onClick(IModel<GuideContent> model) {
-		
-	}
-
-	public IModel<String> getPageTitle() {
-		return new Model<String>(getSiteModel().getObject().getDisplayname());
-	}
-	 
-	@Override
-	public void onDetach() {
-		super.onDetach();
-
-		if (siteModel != null)
-			siteModel.detach();
  
-
-	}
-
-	public IModel<Site> getSiteModel() {
-		return siteModel;
-	}
-
-	public void setSiteModel(IModel<Site> siteModel) {
-		this.siteModel = siteModel;
-	}
-
-	@Override
-	public IModel<String> getListPanelLabel() {
-		 
-		return null;
-	}
-
-	@Override
-	protected List<ToolbarItem> getListToolbarItems() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

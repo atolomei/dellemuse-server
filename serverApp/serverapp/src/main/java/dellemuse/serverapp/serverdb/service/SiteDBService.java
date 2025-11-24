@@ -61,35 +61,34 @@ public class SiteDBService extends DBService<Site, Long> {
 		this.siteRecordDBService = siteRecordDBService;
 	}
 
-	
-	   
-		@Transactional
-		public void markAsDeleted(Site c, User deletedBy) {
-			c.setLastModified(OffsetDateTime.now());
-			c.setLastModifiedUser(deletedBy);
-			c.setState(ObjectState.DELETED);
-			getRepository().save(c);		
-			
-			//c.getGuideContents().forEach( gc -> {
-			//	getGuideContentDBService().markAsDeleted(gc, deletedBy);
-			//});
-		}
-		
-		@Transactional
-		public void restore(Site c, User restoredBy) {
+	@Transactional
+	public void markAsDeleted(Site c, User deletedBy) {
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(deletedBy);
+		c.setState(ObjectState.DELETED);
+		getRepository().save(c);
 
-			OffsetDateTime date = OffsetDateTime.now();
-			c.setLastModified(date);
-			c.setLastModifiedUser(restoredBy);
-			c.setState(ObjectState.EDTION);
-			getRepository().save(c);		
-			
-			//c.getGuideContents().forEach( gc -> {
-			//	if ( !gc.getLastModified().isBefore(date) && gc.getState()==ObjectState.DELETED)
-			//			getGuideContentDBService().restore(gc, restoredBy);
-			//});
-		}
-		
+		// c.getGuideContents().forEach( gc -> {
+		// getGuideContentDBService().markAsDeleted(gc, deletedBy);
+		// });
+	}
+
+	@Transactional
+	public void restore(Site c, User restoredBy) {
+
+		OffsetDateTime date = OffsetDateTime.now();
+		c.setLastModified(date);
+		c.setLastModifiedUser(restoredBy);
+		c.setState(ObjectState.EDITION);
+		getRepository().save(c);
+
+		// c.getGuideContents().forEach( gc -> {
+		// if ( !gc.getLastModified().isBefore(date) &&
+		// gc.getState()==ObjectState.DELETED)
+		// getGuideContentDBService().restore(gc, restoredBy);
+		// });
+	}
+
 	@Transactional
 	@Override
 	public Site create(String name, User createdBy) {
@@ -98,11 +97,11 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setName(name);
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
-	
+
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 
 		getRepository().save(c);
 
@@ -122,7 +121,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setInstitution(institution);
 		c.setCreated(OffsetDateTime.now());
 
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 
@@ -248,6 +247,11 @@ public class SiteDBService extends DBService<Site, Long> {
 	}
 
 	@Transactional
+	public Iterable<ArtExhibition> getArtExhibitions(Site site, ObjectState os1, ObjectState os2) {
+		return getArtExhibitions(site.getId(), os1, os2);
+	}
+
+	@Transactional
 	public List<ArtExhibition> getArtExhibitions(Long siteId) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibition> cq = cb.createQuery(ArtExhibition.class);
@@ -257,57 +261,43 @@ public class SiteDBService extends DBService<Site, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	
-
+	@Transactional
 	public Iterable<ArtExhibition> getArtExhibitions(Long siteId, ObjectState os1) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibition> cq = cb.createQuery(ArtExhibition.class);
 		Root<ArtExhibition> root = cq.from(ArtExhibition.class);
 
-		
-		//cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
-		
-		Predicate p0 = cb.equal(root.get("site").get("id"), String.valueOf( siteId ));
-		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
+		Predicate p0 = cb.equal(root.get("site").get("id"), String.valueOf(siteId));
+		Predicate p1 = cb.equal(root.get("state"), os1);
+
 		Predicate combinedPredicate = cb.and(p0, p1);
 
 		cq.select(root).where(combinedPredicate);
-		
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	@Transactional
 	public Iterable<ArtExhibition> getArtExhibitions(Long siteId, ObjectState os1, ObjectState os2) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibition> cq = cb.createQuery(ArtExhibition.class);
 		Root<ArtExhibition> root = cq.from(ArtExhibition.class);
 
-		//cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
-		
-		Predicate p0 = cb.equal(root.get("site").get("id"), String.valueOf( siteId ));
-		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
-		Predicate p2 = cb.equal(root.get("state").get("id"), String.valueOf( os2.getId() ));
-		
-		Predicate statePredicate = cb.or(p1, p2);
-		Predicate combinedPredicate = cb.and(p0, statePredicate);
+		Predicate p0 = cb.equal(root.get("site").get("id"), String.valueOf(siteId));
 
-		cq.select(root).where(combinedPredicate);
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		Predicate p2 = cb.equal(root.get("state"), os2);
 
-		
-		
-		
-		
-		
-		
+		Predicate combinedPredicate = cb.or(p1, p2);
+		Predicate finalredicate = cb.and(p0, combinedPredicate);
+
+		cq.select(root).where(finalredicate);
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
-		
-		
+
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	
-	
-	
 	@Transactional
 	public List<ArtExhibitionItem> getSiteArtExhibitionItems(Long siteId) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -376,59 +366,43 @@ public class SiteDBService extends DBService<Site, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-
 	@Transactional
-	public List<GuideContent> getSiteGuideContent(Long siteId, ObjectState os1 ) {
+	public List<GuideContent> getSiteGuideContent(Long siteId, ObjectState os1) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(GuideContent.class);
 		Root<GuideContent> root = cq.from(GuideContent.class);
-		
-		//cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), siteId));
-		
 
 		Predicate p0 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), siteId);
-		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
-		 
-		Predicate finalPredicate = cb.and( p0, p1);
-	
-		cq.select(root).where( finalPredicate );
-		
+		Predicate p1 = cb.equal(root.get("state"), os1);
+
+		Predicate finalPredicate = cb.and(p0, p1);
+
+		cq.select(root).where(finalPredicate);
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	
 	@Transactional
 	public List<GuideContent> getSiteGuideContent(Long siteId, ObjectState os1, ObjectState os2) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(GuideContent.class);
 		Root<GuideContent> root = cq.from(GuideContent.class);
-		
-		//cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), siteId));
-		
 
 		Predicate p0 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), siteId);
-		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
-		Predicate p2 = cb.equal(root.get("state").get("id"), String.valueOf( os2.getId() ));
-		
+
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		Predicate p2 = cb.equal(root.get("state"), os2);
+
 		Predicate statePredicate = cb.or(p1, p2);
-		Predicate finalPredicate = cb.and( p0, statePredicate);
-		
-		cq.select(root).where( finalPredicate );
-		
+		Predicate finalPredicate = cb.and(p0, statePredicate);
+
+		cq.select(root).where(finalPredicate);
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	@Transactional
 	public List<Floor> getFloors(Long siteId) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -468,32 +442,23 @@ public class SiteDBService extends DBService<Site, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	
-	
 	public Iterable<ArtWork> getSiteArtWorks(Site site, ObjectState os1) {
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtWork> cq = cb.createQuery(ArtWork.class);
 		Root<ArtWork> root = cq.from(ArtWork.class);
 
-		//cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
+		Predicate p0 = cb.equal(root.get("site").get("id"), String.valueOf(site.getId()));
+		Predicate p1 = cb.equal(root.get("state"), os1);
 
-		Predicate p0 = cb.equal(root.get("site").get("id"), String.valueOf( site.getId() ));
-		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
-		
 		Predicate combinedPredicate = cb.and(p0, p1);
-		
+
 		cq.select(root).where(combinedPredicate);
-		
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 
 		return getEntityManager().createQuery(cq).getResultList();
-		
-		
-
 	}
-
-
 
 	public Iterable<ArtWork> getSiteArtWorks(Site site, ObjectState os1, ObjectState os2) {
 
@@ -501,31 +466,21 @@ public class SiteDBService extends DBService<Site, Long> {
 		CriteriaQuery<ArtWork> cq = cb.createQuery(ArtWork.class);
 		Root<ArtWork> root = cq.from(ArtWork.class);
 
-		//cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
+		Predicate p0 = cb.equal(root.get("site").get("id"), String.valueOf(site.getId()));
 
-		Predicate p0 = cb.equal(root.get("site").get("id"), String.valueOf( site.getId() ));
-		
-		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
-		Predicate p2 = cb.equal(root.get("state").get("id"), String.valueOf( os2.getId() ));
-		
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		Predicate p2 = cb.equal(root.get("state"), os2);
+
 		Predicate statePredicate = cb.or(p1, p2);
 		Predicate combinedPredicate = cb.and(p0, statePredicate);
-		
+
 		cq.select(root).where(combinedPredicate);
-		
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 
 		return getEntityManager().createQuery(cq).getResultList();
-
-		
 	}
-	
-	 
-	
-	
-	
-	
-	
+
 	@PostConstruct
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
@@ -544,24 +499,16 @@ public class SiteDBService extends DBService<Site, Long> {
 		return this.siteRecordDBService;
 	}
 
-
-// TODO
+	// TODO
 	public Iterable<Person> getArtistsBySiteId(Long id, ObjectState os1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-
 
 	// TODO
 	public Iterable<Person> getArtistsBySiteId(Long id, ObjectState os1, ObjectState os2) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-
-
-	
-
 
 }

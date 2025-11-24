@@ -24,6 +24,7 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -124,6 +125,10 @@ public class SiteListPage extends ObjectListPage<Site> {
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<Site> model) {
+		
+		if (model.getObject().getState()==ObjectState.DELETED) 
+			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
+
 		return new Model<String>(model.getObject().getDisplayname());
 	}
 

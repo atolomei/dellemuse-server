@@ -11,6 +11,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.ObjectListPage;
@@ -197,15 +198,8 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	@Override
 	public Iterable<Institution> getObjects() {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
-		ObjectStateEnumSelector os = getObjectStateEnumSelector();
+		//ObjectStateEnumSelector os = getObjectStateEnumSelector();
 		return service.findAllSorted();
-		
-		
-		
-		
-		
-		
-	
 	}
 
 	@Override
@@ -215,6 +209,10 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<Institution> model) {
+		
+		if (model.getObject().getState()==ObjectState.DELETED) 
+			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
+	
 		return new Model<String>(model.getObject().getDisplayname());
 	}
 

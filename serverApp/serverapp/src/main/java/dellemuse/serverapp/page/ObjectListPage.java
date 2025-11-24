@@ -26,8 +26,6 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.error.ErrorPanel;
-import io.wktui.event.MenuAjaxEvent;
-import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.UIEvent;
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -52,9 +50,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	private WebMarkupContainer titleContainer;
 	private Label title;
 
-	private Link<T> create;
-	private Label createLabel;
-	private WebMarkupContainer createContainer;
+	 
 	private WebMarkupContainer mainToolbarContainer;
 	private WebMarkupContainer mainToolbar;
 
@@ -86,21 +82,6 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	protected abstract List<ToolbarItem> getListToolbarItems();
 	
 	//protected abstract void setListState(ObjectStateSelectEvent event);
-
-	
-	
-
-	protected WebMarkupContainer getObjectMenu(IModel<T> model) {
-		return null;
-	}
-
-	public IModel<String> getObjectSubtitle(IModel<T> model) {
-		return null;
-	}
-
-	protected String getObjectImageSrc(IModel<T> model) {
-		return null;
-	}
 
 	public ObjectListPage() {
 		super();
@@ -163,8 +144,17 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 			@Override
 			public void onEvent(ObjectStateSelectEvent event) {
+		
+				
+				setObjectStateEnumSelector( event.getObjectStateEnumSelector());
+				
+				logger.debug(event.toString());
+
 				loadList();
-				event.getTarget().add(ObjectListPage.this);
+				
+				event.getTarget().add(ObjectListPage.this.panel);
+				event.getTarget().add(ObjectListPage.this.listToolbarContainer);
+					
 				
 			}
 			
@@ -258,10 +248,20 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 			loadList();
 
-			this.panel = new ListPanel<>("contents", getList()) {
+			this.panel = new ListPanel<>("contents" ) {
 
 				private static final long serialVersionUID = 1L;
 
+				@Override
+				public List<IModel<T>> getItems() {
+					return ObjectListPage.this.getList();
+				}
+				
+				@Override
+				public Integer getTotalItems() {
+					return Integer.valueOf(ObjectListPage.this.getList().size());
+				}
+			
 				@Override
 				protected Panel getListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
 					return ObjectListPage.this.getObjectListItemExpandedPanel(model, mode);
@@ -357,13 +357,36 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	}
  
 
+	
+	
+
+	protected WebMarkupContainer getObjectMenu(IModel<T> model) {
+		return null;
+	}
+
+	public IModel<String> getObjectSubtitle(IModel<T> model) {
+		return null;
+	}
+
+	protected String getObjectImageSrc(IModel<T> model) {
+		return null;
+	}
+
+	
 	protected void loadList() {
 	
 		this.list = new ArrayList<IModel<T>>();
 		
 		if (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.EDTIION_PUBLISHED)
-			getObjects( ObjectState.EDTION,  ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
+			getObjects( ObjectState.EDITION,  ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
 
+		if (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.PUBLISHED)
+			getObjects( ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
+		
+		if (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.EDITION)
+			getObjects( ObjectState.EDITION).forEach(s -> this.list.add(new ObjectModel<T>(s)));
+		
+		
 		else if (this.getObjectStateEnumSelector()==null)
 			getObjects().forEach(s -> this.list.add(new ObjectModel<T>(s)));
 
@@ -372,6 +395,9 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 		else if  (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.DELETED)
 			getObjects( ObjectState.DELETED ).forEach(s -> this.list.add(new ObjectModel<T>(s)));
+		
+		
+		this.list.forEach( c -> logger.debug(c.toString()));
 	}
 
 	private void addMainToolbar() {
@@ -407,6 +433,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			}
 		};
 
+		this.listToolbarContainer.setOutputMarkupId(true);
 		add(this.listToolbarContainer);
 
 		List<ToolbarItem> list = getListToolbarItems();

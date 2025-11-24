@@ -69,7 +69,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
 		
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		
 		getRepository().save(c);
 
@@ -98,7 +98,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		c.setMasterLanguage(item.getMasterLanguage());
 		c.setLanguage(item.getLanguage());
 		
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		
 		c.setName(item.getName());
 		c.setArtExhibitionGuide(guide);
@@ -123,9 +123,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		getRepository().save(c);
 	}
 	
-	
 	/**
-	 * 
 	 * guideContent (1)
 	 * guideContentRecord (n)
 	 * AudioStudio (1)
@@ -147,8 +145,6 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		Optional<AudioStudio> o = getAudioStudioDBService().findByGuideContent(c);
 		if (o.isPresent()) 
 			getAudioStudioDBService().markAsDeleted(o.get(), deletedBy);
-		 
-		
 	}
 	
 	/**
@@ -162,7 +158,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 	public void restore(GuideContent c, User restoredBy) {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(restoredBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);		
 		
 		for (GuideContentRecord g: getGuideContentRecordDBService(). findAllByGuideContent(c)) {
@@ -175,9 +171,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		}
 	}
 
-
-	
-	@Transactional
+ 	@Transactional
 	public boolean existsInGuide(ArtExhibitionGuide guide, ArtExhibitionItem item) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());

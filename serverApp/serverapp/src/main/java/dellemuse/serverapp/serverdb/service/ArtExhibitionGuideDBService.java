@@ -67,7 +67,7 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		c.setName(name);
 		c.setOfficial(true);
 
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		c.setLanguage(getDefaultMasterLanguage());
         c.setMasterLanguage(getDefaultMasterLanguage());
 
@@ -151,7 +151,7 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		OffsetDateTime date = OffsetDateTime.now();
 		c.setLastModified(date);
 		c.setLastModifiedUser(restoredBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);		
 		
 		Optional<AudioStudio> o = getAudioStudioDBService().findByArtExhibitionGuide(c);

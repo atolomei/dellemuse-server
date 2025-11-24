@@ -26,6 +26,8 @@ import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseUserSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -83,6 +85,7 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	private User lastModifiedUser;
 
 	@Column(name = "state")
+	@Enumerated(EnumType.ORDINAL)
 	private ObjectState state;
 
 	@Column(name = "language")

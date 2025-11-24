@@ -72,7 +72,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
@@ -90,7 +90,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		ArtExhibition c = new ArtExhibition();
 		c.setName(name);
 
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 
 		c.setMasterLanguage(site.getMasterLanguage());
 		c.setLanguage(site.getLanguage());
@@ -135,7 +135,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		OffsetDateTime date = OffsetDateTime.now();
 		c.setLastModified(date);
 		c.setLastModifiedUser(restoredBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);
 
 		for (ArtExhibitionRecord g : getArtExhibitionRecordDBService().findAllByGuideContent(c)) {

@@ -167,10 +167,7 @@ public class PersonDBService extends DBService<Person, Long> {
 		return o_aw;
 	}
 	
-    @PostConstruct
-    protected void onInitialize() {
-    	super.register(getEntityClass(), this);
-    }
+   
     
     @Transactional
     public Iterable<Person> findAllSorted() {
@@ -236,7 +233,6 @@ public class PersonDBService extends DBService<Person, Long> {
         cq.select(root).where(cb.and(predicates.toArray(new Predicate[0])));
         List<Person> list = entityManager.createQuery(cq).getResultList();
         return list.stream().findFirst();
-
     }
 
     @Transactional
@@ -256,6 +252,11 @@ public class PersonDBService extends DBService<Person, Long> {
     @Override
     protected Class<Person> getEntityClass() {
         return Person.class;
+    }
+    
+    @PostConstruct
+    protected void onInitialize() {
+    	super.register(getEntityClass(), this);
     }
 }
                 

@@ -21,4 +21,9 @@ public class ServerConstant {
     
     static public final String SEPARATOR = "---------------------------------";
     static public final String NOT_THROWN = " not thrown";
+
+
+
+    static public final String  DELETED_ICON = " <i class=\" small text-danger ml-1 fa-solid fa-ban\"></i> ";
+
 }

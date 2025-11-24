@@ -13,10 +13,13 @@ import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
+import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.library.SiteListPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -137,6 +140,10 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<GuideContent> model) {
+		
+		if (model.getObject().getState()==ObjectState.DELETED) 
+			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
+
 		return new Model<String>(model.getObject().getDisplayname());
 	}
 
@@ -230,13 +237,23 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 		return list;
 	}
 	
+private List<ToolbarItem> listToolbar;
+	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
-		return null;
+
+		if (listToolbar != null)
+			return listToolbar;
+
+		listToolbar = new ArrayList<ToolbarItem>();
+
+		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+
+		listToolbar.add(s);
+
+		return listToolbar;
 	}
-
-
-
 
 	 
 }

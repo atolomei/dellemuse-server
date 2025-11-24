@@ -29,9 +29,7 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
         super(repository,   settings);
     }
 
-    
-
-	@Transactional
+ 	@Transactional
 	public Optional<InstitutionalContent> findWithDeps(Long id) {
 
 		Optional< InstitutionalContent> o = super.findById(id);
@@ -39,9 +37,7 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
 		if (o.isEmpty())
 			return o;
 
-		 InstitutionalContent a = o.get();
-
-
+		InstitutionalContent a = o.get();
 		a.setDependencies(true);
 
 		return o;
@@ -60,7 +56,7 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
     public  InstitutionalContent create(String name,User createdBy) {
         InstitutionalContent c = new  InstitutionalContent();
         c.setName(name);
-        //c.setNameKey(nameKey(name));
+         
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);

@@ -18,16 +18,33 @@ public class ObjectStateListSelector extends DropDownMenuToolbarItem<Void> {
 
 	private static final long serialVersionUID = 1L;
 
+	IModel<String> title;
+	
 	public ObjectStateListSelector(String id, IModel<String> title, Align align) {
 		super(id, align);
 		setTitle(title);
 	}
 
+	@Override
+	public IModel<String> getTitle() {
+		return this.title;
+		
+	}
+	
+	@Override
+	public void setTitle(IModel<String> label) {
+		this.title=label;
+	}
+	
 	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+
 		
+		
+		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Void>() {
 
 			private static final long serialVersionUID = 1L;
@@ -41,17 +58,22 @@ public class ObjectStateListSelector extends DropDownMenuToolbarItem<Void> {
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						 ObjectStateListSelector.this.setTitle(Model.of(ObjectStateEnumSelector.EDITION.getLabel( getLocale() )));
-							fire(new ObjectStateSelectEvent(ObjectStateEnumSelector.PUBLISHED, target));
+						 ObjectStateListSelector.this.setTitle(Model.of(ObjectStateEnumSelector.EDTIION_PUBLISHED.getLabel( getLocale() )));
+						 ObjectStateListSelector.this.addTitlePanel();
+						fire(new ObjectStateSelectEvent(ObjectStateEnumSelector.EDTIION_PUBLISHED, target));
+
 					}
+
 					@Override
 					public IModel<String> getLabel() {
-						return Model.of(ObjectStateEnumSelector.EDITION.getLabel(  getLocale() ));
-
+						return Model.of(ObjectStateEnumSelector.EDTIION_PUBLISHED.getLabel(  getLocale() ));
 					}
 				};
 			}
 		});
+		
+		
+		
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Void>() {
 
@@ -67,6 +89,7 @@ public class ObjectStateListSelector extends DropDownMenuToolbarItem<Void> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						 ObjectStateListSelector.this.setTitle(Model.of(ObjectStateEnumSelector.PUBLISHED.getLabel( getLocale() )));
+						 ObjectStateListSelector.this.addTitlePanel();
 						fire(new ObjectStateSelectEvent(ObjectStateEnumSelector.PUBLISHED, target));
 
 					}
@@ -79,6 +102,8 @@ public class ObjectStateListSelector extends DropDownMenuToolbarItem<Void> {
 				};
 			}
 		});
+		
+		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Void>() {
 
 			private static final long serialVersionUID = 1L;
@@ -92,29 +117,22 @@ public class ObjectStateListSelector extends DropDownMenuToolbarItem<Void> {
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						 ObjectStateListSelector.this.setTitle(Model.of(ObjectStateEnumSelector.EDTIION_PUBLISHED.getLabel( getLocale() )));
-						fire(new ObjectStateSelectEvent(ObjectStateEnumSelector.EDTIION_PUBLISHED, target));
-
+						 ObjectStateListSelector.this.setTitle(Model.of(ObjectStateEnumSelector.EDITION.getLabel( getLocale() )));
+						 ObjectStateListSelector.this.addTitlePanel();
+						 fire(new ObjectStateSelectEvent(ObjectStateEnumSelector.EDITION, target));
 					}
-
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("active");
+						return Model.of(ObjectStateEnumSelector.EDITION.getLabel(  getLocale() ));
+
 					}
 				};
 			}
 		});
 		
 		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<Void>() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public MenuItemPanel<Void> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<Void>(id);
-			}
-		});
-	
-	
+		
+	 
 		
 	
 		
@@ -143,6 +161,7 @@ public class ObjectStateListSelector extends DropDownMenuToolbarItem<Void> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						 ObjectStateListSelector.this.setTitle(Model.of(ObjectStateEnumSelector.DELETED.getLabel( getLocale() )));
+						 ObjectStateListSelector.this.addTitlePanel();
 						fire(new ObjectStateSelectEvent( ObjectStateEnumSelector.DELETED, target));
 					}
 
@@ -179,6 +198,7 @@ public class ObjectStateListSelector extends DropDownMenuToolbarItem<Void> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						 ObjectStateListSelector.this.setTitle(Model.of(ObjectStateEnumSelector.ALL.getLabel( getLocale() )));
+						 ObjectStateListSelector.this.addTitlePanel();
 							fire(new ObjectStateSelectEvent( ObjectStateEnumSelector.ALL, target));
 
 					}

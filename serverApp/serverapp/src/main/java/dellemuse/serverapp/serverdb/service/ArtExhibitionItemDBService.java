@@ -66,7 +66,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
-        c.setState(ObjectState.EDTION);
+        c.setState(ObjectState.EDITION);
 
 		getRepository().save(c);
 
@@ -98,7 +98,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
-        c.setState(ObjectState.EDTION);
+        c.setState(ObjectState.EDITION);
         
 		getRepository().save(c);
 
@@ -134,7 +134,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 		OffsetDateTime date = OffsetDateTime.now();
 		c.setLastModified(date);
 		c.setLastModifiedUser(restoredBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);		
 		
 		
@@ -143,9 +143,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 		}
 	}
 
-	
-	
-    @Transactional
+	@Transactional
 	public Optional<ArtExhibitionItem> findWithDeps(Long id) {
 
 		Optional<ArtExhibitionItem> o = super.findById(id);
@@ -175,7 +173,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 		return o;
 	}
 
-
+	@Transactional
 	public Iterable<GuideContent> getGuideContents(ArtExhibitionItem o) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(GuideContent.class);
@@ -190,6 +188,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
      * @param name
      * @return
      */
+	@Transactional
     public List<ArtExhibitionItem> getByName(String name) {
         return createNameQuery(name).getResultList();
     }

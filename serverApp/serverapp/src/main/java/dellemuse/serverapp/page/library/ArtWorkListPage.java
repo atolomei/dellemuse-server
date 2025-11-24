@@ -25,6 +25,7 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
@@ -57,6 +58,7 @@ import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 
@@ -87,15 +89,26 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 	
 	public  ArtWorkListPage(PageParameters parameters) {
 		 super(parameters);
-		  
-	 }
+	}
+
 	
+	private List<ToolbarItem> listToolbar;
 	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
-		return null;
-	}
 
+		if (listToolbar != null)
+			return listToolbar;
+
+		listToolbar = new ArrayList<ToolbarItem>();
+
+		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+
+		listToolbar.add(s);
+
+		return listToolbar;
+	}
 	
 	 protected void addHeaderPanel() {
 
@@ -152,6 +165,10 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<ArtWork> model) {
+
+		if (model.getObject().getState()==ObjectState.DELETED) 
+			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
+
 		return new Model<String>(model.getObject().getDisplayname());
 	}
 

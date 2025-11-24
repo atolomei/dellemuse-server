@@ -18,6 +18,10 @@ public class ObjectStateSelectEvent extends SimpleAjaxWicketEvent {
 	
 	ObjectStateEnumSelector es;
 	
+	public ObjectStateEnumSelector getObjectStateEnumSelector() {
+		return es;
+	}
+	
 	public ObjectStateSelectEvent(AjaxRequestTarget target) {
 		super(null, target, null);
 	}

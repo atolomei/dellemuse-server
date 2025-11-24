@@ -21,6 +21,7 @@ import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.GuideContentModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -29,6 +30,8 @@ import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
+import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
+import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SiteArtExhibitionsListPage;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
@@ -83,9 +86,22 @@ public class PersonListPage extends ObjectListPage<Person> {
 		 setIsExpanded(true);
 	}
 	 	
+private List<ToolbarItem> listToolbar;
+	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
-		return null;
+
+		if (listToolbar != null)
+			return listToolbar;
+
+		listToolbar = new ArrayList<ToolbarItem>();
+
+		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+
+		listToolbar.add(s);
+
+		return listToolbar;
 	}
 
 	
@@ -222,6 +238,9 @@ public class PersonListPage extends ObjectListPage<Person> {
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<Person> model) {
+		if (model.getObject().getState()==ObjectState.DELETED) 
+			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
+
 		return new Model<String>(model.getObject().getLastFirstname());
 	}
 

@@ -394,8 +394,7 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 
 		List<AudioStudio> list = this.getEntityManager().createQuery(cq).getResultList();
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
- 		
-	}
+ 	}
 	
  	@Transactional
 	private void deleteResources(Long id) {
@@ -409,7 +408,6 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 		
 		getResourceDBService().delete(a.getAudioSpeech());
 		getResourceDBService().delete(a.getAudioSpeechMusic());
-		
 	}
 	 
 	@Transactional
@@ -453,9 +451,7 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 	 	Resource s_audio = aw.getAudioSpeechMusic();
 		if (s_audio != null)
 			s_audio.getBucketName();
-		
-	
-		
+	 	
 		GuideContent gc = aw.getGuideContent();
 		ArtExhibitionGuide ae = aw.getArtExhibitionGuide();
 		GuideContentRecord gc_r = aw.getGuideContentRecord();
@@ -497,11 +493,7 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 		return Optional.empty();
 	}
 	
-	
-	
-	
-		
-    @Transactional
+	@Transactional
     @Override
     public Iterable<AudioStudio> findAllSorted() {
         CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -538,10 +530,5 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
-
-
-
-	
-
 
 }

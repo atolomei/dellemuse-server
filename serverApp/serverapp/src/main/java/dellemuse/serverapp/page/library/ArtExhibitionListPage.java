@@ -1,5 +1,6 @@
 package dellemuse.serverapp.page.library;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -29,6 +30,7 @@ import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ToolbarItem;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanelMode;
 
 /**
@@ -52,9 +54,22 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 		 super(parameters);
 	 }
 
+private List<ToolbarItem> listToolbar;
+	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
-		return null;
+
+		if (listToolbar != null)
+			return listToolbar;
+
+		listToolbar = new ArrayList<ToolbarItem>();
+
+		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+
+		listToolbar.add(s);
+
+		return listToolbar;
 	}
 
 	@Override

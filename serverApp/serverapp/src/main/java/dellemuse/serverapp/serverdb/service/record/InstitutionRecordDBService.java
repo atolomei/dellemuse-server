@@ -56,26 +56,6 @@ public class InstitutionRecordDBService extends DBService<InstitutionRecord, Lon
 	@Transactional
 	@Override
 	public InstitutionRecord create(String name, User createdBy) {
-		
-		//ArtWorkRecord c = new ArtWorkRecord();
-		//c.setName(name);
-		
-		/**
-		c.setLanguage(Language.EN);
-		
-		c.setNameKey(nameKey(name));
-		c.setCreated(OffsetDateTime.now());
-		c.setUsethumbnail(true);
-	
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		
-		logger.debug("Creating ArtWorkRecord -> " + c.getName()+" | " + c.getLanguage());
-
-		
-		return getRepository().save(c);
-	*/
-		
 		throw new RuntimeException("can not call create without language");
 	}
 	
@@ -93,7 +73,6 @@ public class InstitutionRecordDBService extends DBService<InstitutionRecord, Lon
 		c.setLastModifiedUser(createdBy);
 		
 		logger.debug("Creating ArtWorkRecord -> " + c.getName()+" | " + c.getLanguage());
-
 		
 		return getRepository().save(c);
 	}
@@ -123,7 +102,6 @@ public class InstitutionRecordDBService extends DBService<InstitutionRecord, Lon
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
 		
 	}
-	
 	
 	@Transactional
 	public List<InstitutionRecord> findAllByGuideContent(Institution  a) {
@@ -194,36 +172,6 @@ public class InstitutionRecordDBService extends DBService<InstitutionRecord, Lon
 
 		return o_aw;
 	}
-	
-	
-	/**
-    @Transactional
-    @Override
-    public Iterable<ArtWorkRecord> findAllSorted() {
-        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<ArtWorkRecord> cq = cb.createQuery(getEntityClass());
-        Root<ArtWorkRecord> root = cq.from(getEntityClass());
-        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
-        return getEntityManager().createQuery(cq).getResultList();
-    }
-    
-
-	public boolean isDetached(ArtWorkRecord entity) {
-		return !getEntityManager().contains(entity);
-	}
-	
-	@Transactional
-	public void reloadIfDetached(ArtWorkRecord src) {
-		if (!getEntityManager().contains(src)) {
-			src = findById(src.getId()).get();
-		}
-	}
-
-	@Transactional
-	public List<ArtWorkRecord> getByName(String name) {
-		return createNameQuery(name).getResultList();
-	}
-*/
 	
 	@Override
 	protected Class<InstitutionRecord> getEntityClass() {

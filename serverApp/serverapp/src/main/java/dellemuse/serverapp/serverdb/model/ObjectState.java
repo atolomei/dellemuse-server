@@ -5,12 +5,12 @@ import java.util.ResourceBundle;
 
 public enum ObjectState {
 	
-	DRAFT (1, "draft"),
-	EDTION(2, "edition"),
-	APPROVED(3, "approved"),
-	PUBLISHED(4, "published"),
-	ARCHIVED(5, "archived"),
-	DELETED(6, "deleted");
+	DRAFT (0, "draft"),
+	EDITION(1, "edition"),
+	APPROVED(2, "approved"),
+	PUBLISHED(3, "published"),
+	ARCHIVED(4, "archived"),
+	DELETED(5, "deleted");	
 	
 	private final String label;
 	private final int id;

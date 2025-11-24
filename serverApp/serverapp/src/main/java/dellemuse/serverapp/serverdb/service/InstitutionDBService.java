@@ -1,5 +1,7 @@
 package dellemuse.serverapp.serverdb.service;
 
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +55,7 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 
 		c.setName(name);
 
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
 
@@ -75,7 +77,7 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		Institution c = new Institution();
 		c.setName(name);
 
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
 
@@ -118,7 +120,7 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		OffsetDateTime date = OffsetDateTime.now();
 		c.setLastModified(date);
 		c.setLastModifiedUser(restoredBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);		
 		
 		//c.getGuideContents().forEach( gc -> {
@@ -168,8 +170,13 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Institution> cq = cb.createQuery(getEntityClass());
 		Root<Institution> root = cq.from(getEntityClass());
-		cq.select(root).where(cb.equal(root.get("state").get("id"), String.valueOf( os.getId() )));
+		
+		cq.select(root).where(cb.equal(root.get("state"), os));
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		
+		getEntityManager().createQuery(cq).getResultList().forEach( c -> logger.debug( c.getName()));
+		
+		
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
@@ -179,16 +186,14 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		CriteriaQuery<Institution> cq = cb.createQuery(getEntityClass());
 		Root<Institution> root = cq.from(getEntityClass());
 		
-		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
-		Predicate p2 = cb.equal(root.get("state").get("id"), String.valueOf( os2.getId() ));
-		Predicate combinedPredicate = cb.and(p1, p2);
+		Predicate p1 = cb.equal(root.get("state"), os1 );
+		Predicate p2 = cb.equal(root.get("state"), os2 );
+		Predicate combinedPredicate = cb.or(p1, p2);
 		cq.select(root).where(combinedPredicate);
 
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
-	
 	
 	@Transactional
 	public List<Site> getSites(Long institutionId) {

@@ -7,8 +7,8 @@ public enum ObjectStateEnumSelector {
 	
 	ALL (1, "all"),
 	EDITION(2, "edition"),
-	EDTIION_PUBLISHED(3, "edition"),
-	PUBLISHED(4, "active"),
+	EDTIION_PUBLISHED(3, "edition_published"),
+	PUBLISHED(4, "published"),
 	ARCHIVED(5, "archived"),
 	DELETED(6, "deleted");
 	

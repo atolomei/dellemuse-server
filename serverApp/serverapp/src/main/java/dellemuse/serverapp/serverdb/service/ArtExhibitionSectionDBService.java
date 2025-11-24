@@ -110,11 +110,7 @@ public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSectio
 		
 	}
     
-	
-	
-	
-	
-    @Transactional
+	@Transactional
     @Override
     public ArtExhibitionSection create(String name, User createdBy) {
         ArtExhibitionSection c = new ArtExhibitionSection();

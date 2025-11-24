@@ -27,6 +27,7 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -64,7 +65,7 @@ public class SitePage extends BasePage {
 
 	private StringValue stringValue;
 	private IModel<Site> siteModel;
-	
+
 	private Link<Site> linkInfo;
 	private Link<Site> linkInst;
 
@@ -72,16 +73,15 @@ public class SitePage extends BasePage {
 	private Link<Site> linkArtists;
 
 	private Link<Site> linkFloors;
-	//private Link<Site> linkContents;
+	// private Link<Site> linkContents;
 
 	private Link<Site> linkExhibitions;
 
- 	private List<IModel<ArtExhibition>> listPermanent;
+	private List<IModel<ArtExhibition>> listPermanent;
 	private List<IModel<ArtExhibition>> listTemporary;
 	private List<IModel<ArtExhibition>> listTemporaryPast;
 	private List<IModel<ArtExhibition>> listTemporaryComing;
-	
-	
+
 	private List<IModel<Site>> siteList;
 	private int current = 0;
 	private WebMarkupContainer navigatorContainer;
@@ -102,16 +102,17 @@ public class SitePage extends BasePage {
 
 	public SitePage(IModel<Site> model) {
 		this(model, null);
-		
+
 	}
-	public SitePage(IModel<Site> model,  List<IModel<Site>> list) {
+
+	public SitePage(IModel<Site> model, List<IModel<Site>> list) {
 		Check.requireNonNullArgument(model, "model is null");
-		Check.requireTrue(model.getObject()!=null, "modelOjbect is null");
-		setSiteModel( model );
+		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
+		setSiteModel(model);
 		getPageParameters().add("id", model.getObject().getId().toString());
 		this.setSiteList(list);
 	}
-	
+
 	/**
 	 * Institution Site Artwork Person Exhibition ExhibitionItem GuideContent User
 	 */
@@ -121,81 +122,81 @@ public class SitePage extends BasePage {
 		super.onInitialize();
 
 		setUpModel();
-		
+
 		if (getSiteModel() == null) {
 			setResponsePage(new ErrorPage(exceptionError));
 			return;
 		}
-	
+
 		setCurrent();
-	
+
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
 		bc.addElement(new BCElement(new Model<String>(getSiteModel().getObject().getDisplayname())));
-		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(),
-				new Model<String>(getSiteModel().getObject().getDisplayname()));
+		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), new Model<String>(getSiteModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
-		
-		
-		 ph.setContext(getLabel("site"));
-		 
-		if (getSiteModel().getObject().getSubtitle()!=null)
-			ph.setTagline( Model.of( getSiteModel().getObject().getSubtitle()));
-		
-		if (getSiteModel().getObject().getPhoto()!=null)
-			ph.setPhotoModel(new ObjectModel<Resource>( getSiteModel().getObject().getPhoto()));
-	
-	 	
-		if (getSiteList()!=null && getSiteList().size()>0) {
+
+		ph.setContext(getLabel("site"));
+
+		if (getSiteModel().getObject().getSubtitle() != null)
+			ph.setTagline(Model.of(getSiteModel().getObject().getSubtitle()));
+
+		if (getSiteModel().getObject().getPhoto() != null)
+			ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));
+
+		if (getSiteList() != null && getSiteList().size() > 0) {
 			Navigator<Site> nav = new Navigator<Site>("navigator", getCurrent(), getSiteList()) {
 				private static final long serialVersionUID = 1L;
+
 				@Override
 				public void navigate(int current) {
-					setResponsePage( new SitePage( getList().get(current), getList() ));
+					setResponsePage(new SitePage(getList().get(current), getList()));
 				}
 			};
 			bc.setNavigator(nav);
 		}
-		
+
 		add(ph);
 
-		add(new GlobalTopPanel("top-panel", new ObjectModel<User>( getSessionUser().get())));
+		add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
 		add(new GlobalFooterPanel<>("footer-panel"));
 
 		addExhibitions();
 
 		linkInfo = new Link<Site>("info", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() {
 				setResponsePage(new SiteInfoPage(getSiteModel()));
 			}
 		};
-		
+
 		add(linkInfo);
 		linkInst = new Link<Site>("institution", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() {
-				setResponsePage(new InstitutionPage(
-						getInstitutionModel() ));
-				
+				setResponsePage(new InstitutionPage(getInstitutionModel()));
+
 			}
 		};
 		add(linkInst);
-		
 
 		linkArtWork = new Link<Site>("artwork", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() {
 				setResponsePage(new SiteArtWorkListPage(getSiteModel()));
 			}
 		};
 		add(linkArtWork);
-		
+
 		linkArtists = new Link<Site>("artists", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() {
 				setResponsePage(new SiteArtistsListPage(getSiteModel()));
@@ -205,38 +206,36 @@ public class SitePage extends BasePage {
 
 		linkFloors = new Link<Site>("floors", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() {
 				setResponsePage(new SiteFloorsPage(getSiteModel()));
 			}
 		};
 		add(linkFloors);
-		
+
 		/**
-		linkContents = new Link<Site>("contents", getSiteModel()) {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onClick() {
-				setResponsePage(new SiteGuideContentsListPage(getSiteModel()));
-			}
-		};
-		add(linkContents);
-		**/
-		
+		 * linkContents = new Link<Site>("contents", getSiteModel()) { private static
+		 * final long serialVersionUID = 1L;
+		 * 
+		 * @Override public void onClick() { setResponsePage(new
+		 *           SiteGuideContentsListPage(getSiteModel())); } }; add(linkContents);
+		 **/
+
 		linkExhibitions = new Link<Site>("exhibitions", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() {
 				setResponsePage(new SiteArtExhibitionsListPage(getSiteModel()));
 			}
 		};
 		add(linkExhibitions);
-		
-		
+
 		addNavigator();
-		//addImageAndInfo();
+		// addImageAndInfo();
 		addToolbar();
-		 
+
 	}
 
 	protected IModel<Institution> getInstitutionModel() {
@@ -246,24 +245,22 @@ public class SitePage extends BasePage {
 	protected int getCurrent() {
 		return this.current;
 	}
-	
+
 	protected Panel getMetaEditor(String id) {
-		if (this.metaEditor==null)
+		if (this.metaEditor == null)
 			metaEditor = new ObjectMetaEditor<Site>(id, getSiteModel());
 		return (metaEditor);
-	} 
-	
-	
+	}
+
 	private void addNavigator() {
-	
+
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
 		add(this.navigatorContainer);
-		
-		this.navigatorContainer.setVisible(getSiteList()!=null && getSiteList().size()>0);
+
+		this.navigatorContainer.setVisible(getSiteList() != null && getSiteList().size() > 0);
 
 		if (getSiteList() != null) {
-			ListNavigator<Site> nav = new ListNavigator<Site>("navigator", getCurrent(),
-					getSiteList()) {
+			ListNavigator<Site> nav = new ListNavigator<Site>("navigator", getCurrent(), getSiteList()) {
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -281,20 +278,16 @@ public class SitePage extends BasePage {
 			this.navigatorContainer.add(new InvisiblePanel("navigator"));
 		}
 	}
-	
-	 
-	
-	
+
 	private void addExhibitions() {
 
-		
 		this.exToolbarContainer = new WebMarkupContainer("exToolbarContainer");
 		this.exToolbarContainer.setOutputMarkupId(true);
 		add(this.exToolbarContainer);
-		
+
 		Toolbar toolbarItems = new Toolbar("toolbarItems");
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		
+
 		ButtonToolbarItem<Site> create = new LinkButtonToolbarItem<Site>(getSiteModel(), getLabel("create")) {
 			/**
 			 * 
@@ -303,19 +296,16 @@ public class SitePage extends BasePage {
 
 			@Override
 			protected void onClick() {
-				
+
 				SitePage.this.onCreateExhibition();
-				 
+
 			}
 		};
 		list.add(create);
-		
-		 
+
 		list.forEach(t -> toolbarItems.addItem(t));
 		this.exToolbarContainer.addOrReplace(toolbarItems);
-		
-		
-		
+
 		{
 			ListPanel<ArtExhibition> panel = new ListPanel<>("exhibitionsPermanent", getArtExhibitionsPermanent()) {
 				private static final long serialVersionUID = 1L;
@@ -331,47 +321,45 @@ public class SitePage extends BasePage {
 					return list;
 				}
 
-				
-				 @Override
-		         protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
-		            	logger.debug("expand");
-		            	return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
-		            		
-							private static final long serialVersionUID = 1L;
-		            		
-		            		@Override
-		            		protected IModel<String> getObjectSubtitle() {
-								if (getMode()==ListPanelMode.TITLE)
-									return null;
-								   return Model.of( getModel().getObject().getSubtitle() );
-		                   }
+				@Override
+				protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
+					logger.debug("expand");
+					return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
 
-		            		@Override
-							protected String getImageSrc() {
-								if (getModel().getObject().getPhoto() != null) {
-									Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-									return getPresignedThumbnailSmall(photo);
-								}
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						protected IModel<String> getObjectSubtitle() {
+							if (getMode() == ListPanelMode.TITLE)
 								return null;
-							}
+							return Model.of(getModel().getObject().getSubtitle());
+						}
 
-							@Override
-							public void onClick() {
-								setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+						@Override
+						protected String getImageSrc() {
+							if (getModel().getObject().getPhoto() != null) {
+								Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+								return getPresignedThumbnailSmall(photo);
 							}
+							return null;
+						}
 
-							protected IModel<String> getInfo() {
-								String str = TextCleaner.clean(getModel().getObject().getIntro());
-								return new Model<String>(str);
-							}
-							
-		            	};
-		            }
+						@Override
+						public void onClick() {
+							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+						}
 
-				 @Override
+						protected IModel<String> getInfo() {
+							String str = TextCleaner.clean(getModel().getObject().getIntro());
+							return new Model<String>(str);
+						}
+
+					};
+				}
+
+				@Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
-					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element",
-							model, getListPanelMode()) {
+					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
 						@Override
@@ -385,7 +373,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
 						}
 
 						protected IModel<String> getInfo() {
@@ -396,15 +384,14 @@ public class SitePage extends BasePage {
 					return panel;
 				}
 			};
-			 
-			
+
 			panel.setHasExpander(true);
 			add(panel);
-			
-			//panel.setTitle(getLabel("exhibitions-permanent"));
-	        panel.setListPanelMode(ListPanelMode.TITLE);
+
+			// panel.setTitle(getLabel("exhibitions-permanent"));
+			panel.setListPanelMode(ListPanelMode.TITLE);
 			panel.setLiveSearch(false);
-	        panel.setSettings(true);
+			panel.setSettings(true);
 
 		}
 
@@ -422,46 +409,46 @@ public class SitePage extends BasePage {
 					});
 					return list;
 				}
-				 @Override
-		         protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
-		            	logger.debug("expand");
-		            	return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
-		            		
-							private static final long serialVersionUID = 1L;
-		            		
-		            		@Override
-		            		protected IModel<String> getObjectSubtitle() {
-								if (getMode()==ListPanelMode.TITLE )
-									return null;
-								   return Model.of( getModel().getObject().getSubtitle() );
-		                   }
 
-		            		@Override
-							protected String getImageSrc() {
-								if (getModel().getObject().getPhoto() != null) {
-									Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-									return getPresignedThumbnailSmall(photo);
-								}
+				@Override
+				protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
+					logger.debug("expand");
+					return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						protected IModel<String> getObjectSubtitle() {
+							if (getMode() == ListPanelMode.TITLE)
 								return null;
-							}
+							return Model.of(getModel().getObject().getSubtitle());
+						}
 
-							@Override
-							public void onClick() {
-								setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+						@Override
+						protected String getImageSrc() {
+							if (getModel().getObject().getPhoto() != null) {
+								Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+								return getPresignedThumbnailSmall(photo);
 							}
+							return null;
+						}
 
-							protected IModel<String> getInfo() {
-								String str = TextCleaner.clean(getModel().getObject().getIntro());
-								return new Model<String>(str);
-							}
-							
-		            	};
-		            }
+						@Override
+						public void onClick() {
+							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+						}
+
+						protected IModel<String> getInfo() {
+							String str = TextCleaner.clean(getModel().getObject().getIntro());
+							return new Model<String>(str);
+						}
+
+					};
+				}
 
 				@Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
-					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element",
-							model, getListPanelMode()) {
+					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
 						@Override
@@ -475,7 +462,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
 						}
 
 						protected IModel<String> getInfo() {
@@ -487,16 +474,15 @@ public class SitePage extends BasePage {
 				}
 			};
 			add(panel);
-			
-			//panel.setTitle(getLabel("exhibitions-temporary"));
 
-	        panel.setListPanelMode(ListPanelMode.TITLE);
+			// panel.setTitle(getLabel("exhibitions-temporary"));
+
+			panel.setListPanelMode(ListPanelMode.TITLE);
 			panel.setLiveSearch(false);
 			panel.setHasExpander(true);
 			panel.setSettings(true);
 		}
-		
-		
+
 		{
 			ListPanel<ArtExhibition> panel = new ListPanel<>("exhibitionsTemporaryPast", getArtExhibitionsTemporaryPast()) {
 				private static final long serialVersionUID = 1L;
@@ -511,46 +497,46 @@ public class SitePage extends BasePage {
 					});
 					return list;
 				}
-				 @Override
-		         protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
-		            	logger.debug("expand");
-		            	return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
-		            		
-							private static final long serialVersionUID = 1L;
-		            		
-		            		@Override
-		            		protected IModel<String> getObjectSubtitle() {
-								if (getMode()==ListPanelMode.TITLE )
-									return null;
-								   return Model.of( getModel().getObject().getSubtitle() );
-		                   }
 
-		            		@Override
-							protected String getImageSrc() {
-								if (getModel().getObject().getPhoto() != null) {
-									Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-									return getPresignedThumbnailSmall(photo);
-								}
+				@Override
+				protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
+					logger.debug("expand");
+					return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						protected IModel<String> getObjectSubtitle() {
+							if (getMode() == ListPanelMode.TITLE)
 								return null;
-							}
+							return Model.of(getModel().getObject().getSubtitle());
+						}
 
-							@Override
-							public void onClick() {
-								setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+						@Override
+						protected String getImageSrc() {
+							if (getModel().getObject().getPhoto() != null) {
+								Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+								return getPresignedThumbnailSmall(photo);
 							}
+							return null;
+						}
 
-							protected IModel<String> getInfo() {
-								String str = TextCleaner.clean(getModel().getObject().getIntro());
-								return new Model<String>(str);
-							}
-							
-		            	};
-		            }
+						@Override
+						public void onClick() {
+							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+						}
+
+						protected IModel<String> getInfo() {
+							String str = TextCleaner.clean(getModel().getObject().getIntro());
+							return new Model<String>(str);
+						}
+
+					};
+				}
 
 				@Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
-					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element",
-							model, getListPanelMode()) {
+					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
 						@Override
@@ -564,7 +550,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
 						}
 
 						protected IModel<String> getInfo() {
@@ -576,21 +562,15 @@ public class SitePage extends BasePage {
 				}
 			};
 			add(panel);
-			
-			//panel.setTitle(getLabel("exhibitions-temporary"));
 
-	        panel.setListPanelMode(ListPanelMode.TITLE);
+			// panel.setTitle(getLabel("exhibitions-temporary"));
+
+			panel.setListPanelMode(ListPanelMode.TITLE);
 			panel.setLiveSearch(false);
 			panel.setHasExpander(true);
 			panel.setSettings(true);
 		}
-		
-		
-		
-		
-		
-		
-		
+
 		{
 			ListPanel<ArtExhibition> panel = new ListPanel<>("exhibitionsTemporaryComing", getArtExhibitionsTemporaryComing()) {
 				private static final long serialVersionUID = 1L;
@@ -605,46 +585,46 @@ public class SitePage extends BasePage {
 					});
 					return list;
 				}
-				 @Override
-		         protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
-		            	logger.debug("expand");
-		            	return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
-		            		
-							private static final long serialVersionUID = 1L;
-		            		
-		            		@Override
-		            		protected IModel<String> getObjectSubtitle() {
-								if (getMode()==ListPanelMode.TITLE )
-									return null;
-								   return Model.of( getModel().getObject().getSubtitle() );
-		                   }
 
-		            		@Override
-							protected String getImageSrc() {
-								if (getModel().getObject().getPhoto() != null) {
-									Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-									return getPresignedThumbnailSmall(photo);
-								}
+				@Override
+				protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
+					logger.debug("expand");
+					return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						protected IModel<String> getObjectSubtitle() {
+							if (getMode() == ListPanelMode.TITLE)
 								return null;
-							}
+							return Model.of(getModel().getObject().getSubtitle());
+						}
 
-							@Override
-							public void onClick() {
-								setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+						@Override
+						protected String getImageSrc() {
+							if (getModel().getObject().getPhoto() != null) {
+								Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+								return getPresignedThumbnailSmall(photo);
 							}
+							return null;
+						}
 
-							protected IModel<String> getInfo() {
-								String str = TextCleaner.clean(getModel().getObject().getIntro());
-								return new Model<String>(str);
-							}
-							
-		            	};
-		            }
+						@Override
+						public void onClick() {
+							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+						}
+
+						protected IModel<String> getInfo() {
+							String str = TextCleaner.clean(getModel().getObject().getIntro());
+							return new Model<String>(str);
+						}
+
+					};
+				}
 
 				@Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
-					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element",
-							model, getListPanelMode()) {
+					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
 						@Override
@@ -658,7 +638,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage( new ArtExhibitionPage(getModel(), getList())); 
+							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
 						}
 
 						protected IModel<String> getInfo() {
@@ -670,27 +650,18 @@ public class SitePage extends BasePage {
 				}
 			};
 			add(panel);
-		
-	        panel.setListPanelMode(ListPanelMode.TITLE);
+
+			panel.setListPanelMode(ListPanelMode.TITLE);
 			panel.setLiveSearch(false);
 			panel.setHasExpander(true);
 			panel.setSettings(true);
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
 	}
 
 	protected void onCreateExhibition() {
-			ArtExhibition ae = createExhibition(getSiteModel().getObject());
-			setResponsePage( new ArtExhibitionPage( new ObjectModel<ArtExhibition>(ae)));
+		ArtExhibition ae = createExhibition(getSiteModel().getObject());
+		setResponsePage(new ArtExhibitionPage(new ObjectModel<ArtExhibition>(ae)));
 	}
 
 	@Override
@@ -711,9 +682,9 @@ public class SitePage extends BasePage {
 
 		if (listTemporaryComing != null)
 			listTemporaryComing.forEach(i -> i.detach());
-		
-		if (this.siteList!=null)
-			this.siteList.forEach(e-> e.detach());
+
+		if (this.siteList != null)
+			this.siteList.forEach(e -> e.detach());
 	}
 
 	public IModel<Site> getSiteModel() {
@@ -723,7 +694,7 @@ public class SitePage extends BasePage {
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
-	
+
 	public List<IModel<Site>> getSiteList() {
 		return siteList;
 	}
@@ -732,8 +703,8 @@ public class SitePage extends BasePage {
 		this.siteList = siteList;
 	}
 
-	
 	boolean listsLoaded = false;
+
 	private void loadLists() {
 		try {
 
@@ -744,26 +715,23 @@ public class SitePage extends BasePage {
 			listTemporaryPast = new ArrayList<IModel<ArtExhibition>>();
 			listTemporaryComing = new ArrayList<IModel<ArtExhibition>>();
 
-			
-			List<ArtExhibition> la = db.getArtExhibitions(getSiteModel().getObject());
+			Iterable<ArtExhibition> la = db.getArtExhibitions(getSiteModel().getObject(), ObjectState.EDITION, ObjectState.PUBLISHED);
 
 			for (ArtExhibition a : la) {
 				if (a.isPermanent())
 					listPermanent.add(new ObjectModel<ArtExhibition>(a));
 				else {
-			
-					if (a.isOpen()) 
+					if (a.isOpen())
 						listTemporary.add(new ObjectModel<ArtExhibition>(a));
 					else if (a.isTerminated())
 						listTemporaryPast.add(new ObjectModel<ArtExhibition>(a));
 					else if (a.isComing())
 						listTemporaryComing.add(new ObjectModel<ArtExhibition>(a));
-						
 				}
 			}
-			
+
 			listsLoaded = true;
-			
+
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -790,7 +758,7 @@ public class SitePage extends BasePage {
 		}
 		return listTemporaryPast;
 	}
-	
+
 	private List<IModel<ArtExhibition>> getArtExhibitionsTemporaryComing() {
 		if (!listsLoaded) {
 			loadLists();
@@ -798,20 +766,17 @@ public class SitePage extends BasePage {
 		return listTemporaryComing;
 	}
 
-	
-	
-
 	private void setCurrent() {
-		
-		if (this.siteList==null)
+
+		if (this.siteList == null)
 			return;
-		
-		if (getSiteModel()==null)
+
+		if (getSiteModel() == null)
 			return;
-		
+
 		int n = 0;
 		for (IModel<Site> m : this.siteList) {
-			if ( getSiteModel().getObject().getId().equals(m.getObject().getId())) {
+			if (getSiteModel().getObject().getId().equals(m.getObject().getId())) {
 				current = n;
 				break;
 			}
@@ -829,8 +794,7 @@ public class SitePage extends BasePage {
 						setSiteModel(new ObjectModel<Site>(o_site.get()));
 					}
 				}
-			}
-			else {
+			} else {
 				if (!getSiteModel().getObject().isDependencies()) {
 					Optional<Site> o_site = findByIdWithDeps(Long.valueOf(getSiteModel().getObject().getId()));
 					if (o_site.isPresent()) {
@@ -838,26 +802,21 @@ public class SitePage extends BasePage {
 					}
 				}
 			}
-		} catch (Exception  e) {
+		} catch (Exception e) {
 			logger.error(e);
 			exceptionError = e;
 		}
 	}
-	
 
 	private void addToolbar() {
-		
+
 		Toolbar toolbarItems = new Toolbar("toolbarItems");
-	
-		
+
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		list.add(new SiteNavDropDownMenuToolbarItem(	"item", 
-														getSiteModel(), 
-													  Align.TOP_RIGHT));
-	
-		list.forEach( t-> toolbarItems.addItem(t));
-		add( toolbarItems );
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
+
+		list.forEach(t -> toolbarItems.addItem(t));
+		add(toolbarItems);
 	}
-	
 
 }

@@ -68,12 +68,12 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	static public final List<ObjectState> b_state = new ArrayList<ObjectState>();
 	static {
-		b_state.add(ObjectState.DRAFT);
-		b_state.add(ObjectState.EDTION);
+		//b_state.add(ObjectState.DRAFT);
+		b_state.add(ObjectState.EDITION);
 		b_state.add(ObjectState.DELETED);
 		b_state.add(ObjectState.PUBLISHED);
-		b_state.add(ObjectState.ARCHIVED);
-		b_state.add(ObjectState.APPROVED);
+		//b_state.add(ObjectState.ARCHIVED);
+		//b_state.add(ObjectState.APPROVED);
 	}
 
 	private Form<T> form;

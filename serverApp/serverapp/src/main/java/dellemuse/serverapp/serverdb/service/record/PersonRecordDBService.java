@@ -20,6 +20,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -56,26 +57,6 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 	@Transactional
 	@Override
 	public PersonRecord create(String name, User createdBy) {
-		
-		//PersonRecord c = new PersonRecord();
-		//c.setName(name);
-		
-		/**
-		c.setLanguage(Language.EN);
-		
-		c.setNameKey(nameKey(name));
-		c.setCreated(OffsetDateTime.now());
-		c.setUsethumbnail(true);
-	
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		
-		logger.debug("Creating PersonRecord -> " + c.getName()+" | " + c.getLanguage());
-
-		
-		return getRepository().save(c);
-	*/
-		
 		throw new RuntimeException("can not call create without language");
 	}
 	
@@ -89,12 +70,10 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 		c.setUsethumbnail(c.isUsethumbnail());
 		c.setLanguage(lang);
 		
+		c.setObjectState(ObjectState.EDITION);
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		
-		logger.debug("Creating PersonRecord -> " + c.getName()+" | " + c.getLanguage());
-
 		
 		return getRepository().save(c);
 	}

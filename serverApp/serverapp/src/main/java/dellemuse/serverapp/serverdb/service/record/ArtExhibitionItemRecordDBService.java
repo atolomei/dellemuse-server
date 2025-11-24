@@ -62,8 +62,6 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 	
 
 	/**
-	 * 
-	 * 
 	 * @param name
 	 * @param ArtExhibitionItem
 	 * @param createdBy
@@ -80,11 +78,10 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		c.setLastModifiedUser(createdBy);
 
 		c.setLanguage(i.getLanguage());
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		
 		return getRepository().save(c);
 	}
-	
 	
 	@Transactional
 	public ArtExhibitionItemRecord create(ArtExhibitionItem a, String lang, User createdBy) {
@@ -95,7 +92,7 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		c.setName(a.getName());
 		c.setLanguage(lang);
 		
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
@@ -155,9 +152,7 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		
 		return list;
 	}
-
-
-	 
+  
 	@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
@@ -169,8 +164,7 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		this.delete(o.getId()); 
 	}
 	
-	
-	@Transactional
+  	@Transactional
 	public Optional<ArtExhibitionItemRecord> findWithDeps(Long id) {
 
 		Optional<ArtExhibitionItemRecord> o_aw = super.findById(id);
@@ -226,10 +220,7 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		super.register(getEntityClass(), this);
 	}
 
-	
-	
-	
-	@Transactional
+ 	@Transactional
 	private void deleteResources(Long id) {
 		
 		Optional<ArtExhibitionItemRecord> o_aw = super.findWithDeps(id);

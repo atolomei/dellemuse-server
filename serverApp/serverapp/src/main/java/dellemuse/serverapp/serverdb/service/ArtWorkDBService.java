@@ -73,7 +73,7 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 
 		getRepository().save(c);
 		for (Language la : getLanguageService().getLanguages()) {

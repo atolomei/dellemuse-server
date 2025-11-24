@@ -86,7 +86,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		entity.setLastModified(OffsetDateTime.now());
 		return repository.save((S) entity);
 	}
-
+	
 	
 	@Transactional
 	public <S extends T> S save(S entity) {
@@ -126,7 +126,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	public void restore(T c, User restoredBy) {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(restoredBy);
-		c.setState(ObjectState.EDTION);
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);		
 	}
 	
@@ -149,8 +149,8 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> root = cq.from(getEntityClass());
-
-		cq.select(root).where(cb.equal(root.get("state").get("id"), String.valueOf( os.getId() )));
+		
+		cq.select(root).where(cb.equal(root.get("state"), os));
 		
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
@@ -163,9 +163,9 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		
 		Root<T> root = cq.from(getEntityClass());
 		
-		Predicate p1 = cb.equal(root.get("state").get("id"), String.valueOf( os1.getId() ));
-		Predicate p2 = cb.equal(root.get("state").get("id"), String.valueOf( os2.getId() ));
-		
+		Predicate p1 = cb.equal(root.get("state"), os1 );
+		Predicate p2 = cb.equal(root.get("state"), os2 );
+	
 		Predicate combinedPredicate = cb.or(p1, p2);
 
 		cq.select(root).where(combinedPredicate);
