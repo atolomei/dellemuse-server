@@ -28,6 +28,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
 import dellemuse.serverapp.artwork.ArtWorkPage;
+import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
@@ -128,6 +129,12 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		return getPerson(id);
 	}
 
+	
+	@Override
+	protected Panel getAuditPanel(String id) {
+		return new AuditPanel<Person>(id, getModel());
+	}
+	
 	@Override
 	protected IModel<String> getPageTitle() {
 		return new Model<String>(getModel().getObject().getDisplayName());

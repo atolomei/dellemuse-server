@@ -18,6 +18,8 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -25,9 +27,11 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
+import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
  
@@ -38,7 +42,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class PersonRecordDBService extends DBService<PersonRecord, Long> {
+public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 
 	static private Logger logger = Logger.getLogger(PersonRecordDBService.class.getName());
 
@@ -46,19 +50,32 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 		super(repository, settings);
 	}
 	
+	 
 	/**
-	 * <p>
-	 * Annotation Transactional is required to store values into the Database
-	 * </p>
+	 * 
 	 * 
 	 * @param name
+	 * @param site
 	 * @param createdBy
+	 * @return
 	 */
 	@Transactional
-	@Override
-	public PersonRecord create(String name, User createdBy) {
-		throw new RuntimeException("can not call create without language");
+	public PersonRecord create(String name, Person site, User createdBy) {
+		PersonRecord c = new PersonRecord();
+		
+		c.setName(name);
+		 
+		c.setPerson(site); 
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+	 	c.setObjectState(ObjectState.EDITION);
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		
+		return c;
 	}
+
 	
 	@Transactional
 	public PersonRecord create(Person a, String lang, User createdBy) {
@@ -67,7 +84,7 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 
 		c.setPerson(a);
 		c.setName(a.getName());
-		c.setUsethumbnail(c.isUsethumbnail());
+		 
 		c.setLanguage(lang);
 		
 		c.setObjectState(ObjectState.EDITION);
@@ -75,11 +92,20 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		
-		return getRepository().save(c);
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		
+		return c;
 	}
 
+	
+	@Transactional
+	public void restore(PersonRecord c, User by) {
+		 super.restore(c, by);
+	}
+	
+	
 	/**
-	 * 
 	 * 
 	 * @param a
 	 * @param lang
@@ -122,31 +148,8 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 		return list;
 	}	
 
-	/**
-	 * 
-	 * 
-	 * @param name
-	 * @param site
-	 * @param createdBy
-	 * @return
-	 */
-	@Transactional
-	public PersonRecord create(String name, Person site, User createdBy) {
-		PersonRecord c = new PersonRecord();
-		
-		c.setName(name);
-		//c.setNameKey(nameKey(name));
-		c.setPerson(site); 
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		//c.setUsethumbnail(true);
-		
-		return getRepository().save(c);
-	}
-
-	
 	 
+	/**
 	@Transactional
 	private void deleteResources(Long id) {
 		
@@ -162,17 +165,7 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 		getResourceDBService().delete(a.getVideo());
 		
 	}
-	 
-	@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-
-	@Transactional
-	public void delete(PersonRecord o) {
-		this.delete(o.getId()); 
-	}
+**/
 	
 	
 	@Transactional
@@ -236,8 +229,6 @@ public class PersonRecordDBService extends DBService<PersonRecord, Long> {
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
-
-	 
 
 
 }

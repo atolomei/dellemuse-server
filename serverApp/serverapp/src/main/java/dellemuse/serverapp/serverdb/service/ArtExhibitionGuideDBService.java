@@ -12,15 +12,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
@@ -37,6 +41,7 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.ParameterExpression;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
@@ -58,41 +63,20 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		super(repository, settings);
 		this.artExhibitionGuideRecordDBService=artExhibitionGuideRecordDBService;
 	}
-
-	@Transactional
-	@Override
-	public ArtExhibitionGuide create(String name, User createdBy) {
-
-		ArtExhibitionGuide c = new ArtExhibitionGuide();
-		c.setName(name);
-		c.setOfficial(true);
-
-		c.setState(ObjectState.EDITION);
-		c.setLanguage(getDefaultMasterLanguage());
-        c.setMasterLanguage(getDefaultMasterLanguage());
-
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-        
-		getRepository().save(c);
-
-		for ( Language la:getLanguageService().getLanguages() )
-			getArtExhibitionGuideRecordDBService().create(c, la.getLanguageCode(),  createdBy);
-    	
-        return getRepository().save(c);
-	}
-
-
+	 
 	@Transactional
 	public ArtExhibitionGuide create(String name, ArtExhibition ex, User createdBy) {
+
 		ArtExhibitionGuide c = new ArtExhibitionGuide();
 		c.setName(name);
 	 
-
 		c.setOfficial(true);
 		c.setArtExhibition(ex);
-
+		
+		if (!ex.isDependencies())
+				ex=getArtExhibitionDBService().findWithDeps( ex.getId()).get();
+		c.setAudioId(newAudioId(ex.getSite()));
+		
 		c.setState(ex.getState());
 		c.setMasterLanguage(ex.getMasterLanguage());
 		c.setLanguage(ex.getLanguage());
@@ -100,14 +84,16 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		
+
 		getRepository().save(c);
+
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 
 		for ( Language la:getLanguageService().getLanguages() )
 			getArtExhibitionGuideRecordDBService().create(c, la.getLanguageCode(),  createdBy);
 
 
-		return getRepository().save(c);
+		return c;
 	}
 	
 	
@@ -126,6 +112,8 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
 		getRepository().save(c);		
 		
 		Optional<AudioStudio> o = getAudioStudioDBService().findByArtExhibitionGuide(c);
@@ -143,6 +131,7 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		c.getGuideContents().forEach( gc -> {
 			getGuideContentDBService().markAsDeleted(gc, deletedBy);
 		});
+		
 	}
 
 	@Transactional
@@ -152,7 +141,10 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		c.setLastModified(date);
 		c.setLastModifiedUser(restoredBy);
 		c.setState(ObjectState.EDITION);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy,  AuditAction.UPDATE, AuditKey.RESTORE));	
 		getRepository().save(c);		
+		
 		
 		Optional<AudioStudio> o = getAudioStudioDBService().findByArtExhibitionGuide(c);
 
@@ -195,8 +187,17 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
         c.setLastModifiedUser(removedBy);
         
         getRepository().save(c);
-    }
+    	getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, removedBy,  AuditAction.UPDATE, AuditKey.RESTORE));	
+		
 	
+	}
+	 @Transactional
+	 public Long newAudioId(Site site) {
+		String seqName = site.getAudioIdSequencerName();
+	    return ((Number) getEntityManager().createNativeQuery("SELECT nextval('"+ seqName +"')").getSingleResult()).longValue();
+	 }
+
+
 	@Transactional
 	public Optional<ArtExhibitionGuide> findWithDeps(Long id) {
 
@@ -227,13 +228,14 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		return o;
 	}
 
-	@PostConstruct
-	protected void onInitialize() {
-		super.register(getEntityClass(), this);
-	}
+	
 
 
-
+	@Override
+	public String getObjectClassName() {
+		 return ArtExhibitionGuide.class.getSimpleName().toLowerCase();
+	} 
+	
 	@Transactional
 	public List<ArtExhibitionGuide> getByName(String name) {
 		return createNameQuery(name).getResultList();
@@ -255,6 +257,67 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	
+	@Transactional
+	public List<GuideContent> getArtExhibitionGuideContents(ArtExhibitionGuide guide, ObjectState o1) {
+		return  getArtExhibitionGuideContents(guide.getId(), o1);
+	}
+	
+
+	@Transactional
+	public List<GuideContent> getArtExhibitionGuideContents(ArtExhibitionGuide guide, ObjectState o1, ObjectState o2) {
+		return  getArtExhibitionGuideContents(guide.getId(), o1, o2);
+	}
+	
+	
+	@Transactional
+	public List<GuideContent> getArtExhibitionGuideContents(Long guideId, ObjectState o1) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContent> cq = cb.createQuery(GuideContent.class);
+		Root<GuideContent> root = cq.from(GuideContent.class);
+		
+		//cq.select(root).where(cb.equal(root.get("artExhibitionGuide").get("id"), guideId));
+		
+
+		Predicate p0 = cb.equal(root.get("artExhibitionGuide").get("id"), String.valueOf(guideId));
+		Predicate p1 = cb.equal(root.get("state"), o1);
+
+		Predicate combinedPredicate = cb.and(p0, p1);
+
+		cq.select(root).where(combinedPredicate);
+		
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	@Transactional
+	public List<GuideContent> getArtExhibitionGuideContents(Long guideId, ObjectState o1, ObjectState o2) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContent> cq = cb.createQuery(GuideContent.class);
+		
+		Root<GuideContent> root = cq.from(GuideContent.class);
+		
+		cq.select(root).where(cb.equal(root.get("artExhibitionGuide").get("id"), guideId));
+		
+	//	Predicate p0 = cb.equal(root.get("site").get("id"), String.valueOf(siteId));
+
+
+		Predicate p0 = cb.equal(root.get("artExhibitionGuide").get("id"), String.valueOf(guideId));
+	
+		Predicate p1 = cb.equal(root.get("state"), o1);
+		Predicate p2 = cb.equal(root.get("state"), o2);
+
+		
+		Predicate combinedPredicate = cb.or(p1, p2);
+		Predicate finalredicate = cb.and(p0, combinedPredicate);
+
+		cq.select(root).where(finalredicate);
+		
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
 	@Transactional
 	public List<GuideContent> getArtExhibitionGuidePublishedBy(Person person) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -271,6 +334,12 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		return ArtExhibitionGuide.class;
 	}
 
+	@PostConstruct
+	protected void onInitialize() {
+		super.register(getEntityClass(), this);
+	}
+	
+	
 	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
 		return this.artExhibitionGuideRecordDBService;
 	}

@@ -23,6 +23,7 @@ import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
+import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
  
 
@@ -45,6 +46,25 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 	public void onInitialize() {
 		super.onInitialize();
 		
+		
+
+		 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+					return new TitleMenuItem<ArtExhibitionGuide>(id) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("artexhibitionguide-info");
+						}
+					};
+				}
+			});
+		 
+		 
+		 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
@@ -61,15 +81,13 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("artexhibitionguide-info");
+						return getLabel("artexhibitionguide-record", getModel().getObject().getMasterLanguage());
 					}
 				};
 			}
 		});
 		
-		
- 
-		
+			
 		for (Language la: getLanguageService().getLanguages()) {
 			
 			final String langCode = la.getLanguageCode();
@@ -99,9 +117,6 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 				});
 			}
 		}
-		 
-	
-	
 	
 	
 	addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {

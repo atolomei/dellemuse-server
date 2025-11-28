@@ -58,6 +58,7 @@ import io.wktui.form.button.EditButtons;
  
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
+import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -80,7 +81,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 	static private Logger logger = Logger.getLogger(ArtExhibitionGuideEditor.class.getName());
 
 	 
-	
+	private StaticTextField<String> audioIdField;
 	private TextField<String> nameField;
 	private TextField<String> subtitleField;
 	private TextAreaField<String> infoField;
@@ -193,6 +194,11 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 				*/
 		};
  	 
+		
+		audioIdField = new StaticTextField<String>("audioid", new PropertyModel<String>(getModel(), "audioId"), getLabel("audioid"));
+	
+		form.add(audioIdField);
+		
  		form.add(nameField);
 		form.add(subtitleField);
 		form.add(infoField);

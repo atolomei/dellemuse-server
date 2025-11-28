@@ -17,6 +17,7 @@ import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -106,7 +107,7 @@ public class DellemuseServerAppHomePage extends BasePage {
 
 	private void loadList() {
 		list = new ArrayList<IModel<Site>>();
-		super.getSites().forEach(i -> list.add(new ObjectModel<Site>(i)));
+		super.getSites(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(i -> list.add(new ObjectModel<Site>(i)));
 	}
 
 	private List<IModel<Site>> getList() {
@@ -124,7 +125,7 @@ public class DellemuseServerAppHomePage extends BasePage {
 			@Override
 			protected Panel getListItemPanel(IModel<Site> model, ListPanelMode mode) {
 
-				ObjectListItemPanel<Site> panel = new ObjectListItemPanel<>("row-element", model, mode) {
+				DelleMuseObjectListItemPanel<Site> panel = new DelleMuseObjectListItemPanel<>("row-element", model, mode) {
 
 					private static final long serialVersionUID = 1L;
 

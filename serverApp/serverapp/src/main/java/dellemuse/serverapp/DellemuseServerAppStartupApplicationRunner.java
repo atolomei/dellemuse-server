@@ -3,7 +3,6 @@ package dellemuse.serverapp;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -17,17 +16,25 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.command.CommandService;
-import dellemuse.serverapp.command.EmtyQRCodesCommand;
-import dellemuse.serverapp.command.ResourceMetadataCommand;
-import dellemuse.serverapp.command.SetDefaultPasswordCommand;
-import dellemuse.serverapp.elevenlabs.TestElevenLabsCommand;
-import dellemuse.serverapp.security.google.GoogleAuth;
-import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.repository.UserRepository;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
+import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
+import dellemuse.serverapp.serverdb.service.GuideContentDBService;
+import dellemuse.serverapp.serverdb.service.InstitutionDBService;
+import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
+import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
 
 
 @Component
@@ -97,6 +104,43 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 	CommandLineRunner init(UserDBService userService, PasswordEncoder encoder) {
 	   
 		return args -> {
+			/**
+			((InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class)).initAudit();
+			
+			((SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class)).initAudit();
+			((SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class)).initAudit();
+
+			
+			((ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class)).initAudit();
+			((ArtExhibitionRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionRecordDBService.class)).initAudit();
+			
+			((ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class)).initAudit();
+			((ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class)).initAudit();
+
+			((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class)).initAudit();
+
+			((PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class)).initAudit();
+			((PersonRecordDBService) ServiceLocator.getInstance().getBean(PersonRecordDBService.class)).initAudit();
+
+			((ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class)).initAudit();
+			 
+
+			((ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class)).initAudit();
+			((ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class)).initAudit();
+
+			
+			((ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class)).initAudit();
+			((ArtExhibitionItemRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemRecordDBService.class)).initAudit();
+			
+			
+			((GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class)).initAudit();
+			((GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class)).initAudit();
+			
+			((AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class)).initAudit();
+			**/
+
+			//SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+			//service.findAll().forEach( s -> service.createSequence(s));
 			/**
 			CommandService service = (CommandService) ServiceLocator.getInstance().getBean(CommandService.class);
 			ResourceDBService r_service = (ResourceDBService) ServiceLocator.getInstance().getBean( ResourceDBService.class);

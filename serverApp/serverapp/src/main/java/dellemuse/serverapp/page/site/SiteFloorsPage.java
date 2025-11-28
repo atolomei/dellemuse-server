@@ -32,6 +32,7 @@ import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.ref.RefPersonModel;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -112,7 +113,10 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 		super.onDetach();
 	}
  
-
+	@Override
+	protected Panel getAuditPanel(String id) {
+		return new AuditPanel<Site>(id, getModel());
+	}
 
 	protected Panel getEditor(String id) {
 		if (this.editor == null)

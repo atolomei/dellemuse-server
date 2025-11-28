@@ -199,6 +199,11 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 	}
 
 	
+	@Override
+	protected boolean isLanguage() {
+		return false;
+	}
+	
 	protected void onDelete(AjaxRequestTarget target) {
 		getArtExhibitionDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
 		fireScanAll(new ObjectMarkAsDeleteEvent(target));
@@ -267,7 +272,7 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 
 		List<INamedTab> tabs = super.createInternalPanels();
 
-		logger.debug("getInternalPanels");
+		 
 
 		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.exhibition_info) {
 			private static final long serialVersionUID = 1L;

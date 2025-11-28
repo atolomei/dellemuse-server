@@ -12,10 +12,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -55,7 +58,6 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
      * @param createdBy
      */
     @Transactional
-    @Override
     public ArtExhibitionItem create(String name, User createdBy) {
         ArtExhibitionItem c = new ArtExhibitionItem();
         c.setName(name);
@@ -68,13 +70,15 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
         c.setLastModifiedUser(createdBy);
         c.setState(ObjectState.EDITION);
 
+    	getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+    	
 		getRepository().save(c);
 
 		for (Language la:getLanguageService().getLanguages())
 			getArtExhibitionItemRecordDBService().create(c, la.getLanguageCode(),  createdBy);
 
 
-        return getRepository().save(c);
+        return c;
     }
 
     @Transactional
@@ -101,11 +105,12 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
         c.setState(ObjectState.EDITION);
         
 		getRepository().save(c);
-
+    	getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+    	
 		for (Language la:getLanguageService().getLanguages())
 			getArtExhibitionItemRecordDBService().create(c, la.getLanguageCode(),  createdBy);
 		
-        return getRepository().save(c);
+        return c;
     }
 
     
@@ -121,6 +126,7 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 		c.setState(ObjectState.DELETED);
 		
 		getRepository().save(c);		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
 		
 		for (ArtExhibitionItemRecord g : getArtExhibitionItemRecordDBService().findAllByArtExhibitionItem(c)) {
 			getArtExhibitionItemRecordDBService().markAsDeleted(g, deletedBy);
@@ -136,13 +142,21 @@ public class ArtExhibitionItemDBService extends DBService<ArtExhibitionItem, Lon
 		c.setLastModifiedUser(restoredBy);
 		c.setState(ObjectState.EDITION);
 		getRepository().save(c);		
-		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy,  AuditAction.UPDATE, AuditKey.RESTORE));
+			
 		
 		for (ArtExhibitionItemRecord g : getArtExhibitionItemRecordDBService().findAllByArtExhibitionItem(c)) {
 			getArtExhibitionItemRecordDBService().restore(g,restoredBy);
 		}
 	}
 
+	
+	@Override
+	public String getObjectClassName() {
+		 return ArtExhibitionItem.class.getSimpleName().toLowerCase();
+	} 
+
+	
 	@Transactional
 	public Optional<ArtExhibitionItem> findWithDeps(Long id) {
 

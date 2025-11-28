@@ -19,13 +19,13 @@ import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
- 
+import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
  
 import dellemuse.serverapp.page.ObjectPage;
  
 import dellemuse.serverapp.page.person.ServerAppConstant;
- 
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
  
 import io.wktui.event.MenuAjaxEvent;
@@ -204,6 +204,10 @@ public class UserPage extends ObjectPage<User> {
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
+	}
+	@Override
+	protected Panel getAuditPanel(String id) {
+		return new AuditPanel<User>(id, getModel());
 	}
 
 	@Override

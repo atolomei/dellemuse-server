@@ -118,6 +118,10 @@ public class AudioStudio extends DelleMuseObject {
 	@Column(name = "audio_speech_music_hash")
 	private int audioSpeechMusicHash;
 
+	
+	/** ---------------------------- **/
+	
+	
 	public AudioStudio() {
 	}
 

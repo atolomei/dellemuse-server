@@ -19,6 +19,8 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -27,6 +29,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
+import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
  
@@ -37,7 +40,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ArtWorkRecordDBService extends DBService<ArtWorkRecord, Long> {
+public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long> {
 
 	static private Logger logger = Logger.getLogger(ArtWorkRecordDBService.class.getName());
 
@@ -45,39 +48,28 @@ public class ArtWorkRecordDBService extends DBService<ArtWorkRecord, Long> {
 		super(repository, settings);
 	}
 	
+	
 	/**
-	 * <p>
-	 * Annotation Transactional is required to store values into the Database
-	 * </p>
-	 * 
 	 * @param name
+	 * @param site
 	 * @param createdBy
+	 * @return
 	 */
 	@Transactional
-	@Override
-	public ArtWorkRecord create(String name, User createdBy) {
+	public ArtWorkRecord create(String name, Site site, User createdBy) {
+		ArtWorkRecord c = new ArtWorkRecord();
 		
-		//ArtWorkRecord c = new ArtWorkRecord();
-		//c.setName(name);
-		
-		/**
-		c.setLanguage(Language.EN);
-		
-		c.setNameKey(nameKey(name));
-		c.setCreated(OffsetDateTime.now());
-		c.setUsethumbnail(true);
-	
+		c.setName(name);
+	 	c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+				
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		
-		logger.debug("Creating ArtWorkRecord -> " + c.getName()+" | " + c.getLanguage());
-
-		
-		return getRepository().save(c);
-	*/
-		
-		throw new RuntimeException("can not call create without language");
+		return c;
 	}
+
 	
 	@Transactional
 	public ArtWorkRecord create(ArtWork a, String lang, User createdBy) {
@@ -86,17 +78,17 @@ public class ArtWorkRecordDBService extends DBService<ArtWorkRecord, Long> {
 
 		c.setArtwork(a);
 		c.setName(a.getName());
-		c.setUsethumbnail(c.isUsethumbnail());
+	 
 		c.setLanguage(lang);
 		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+	 
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		
-		logger.debug("Creating ArtWorkRecord -> " + c.getName()+" | " + c.getLanguage());
-
-		
-		return getRepository().save(c);
+		return c;
 	}
 
 	/**
@@ -143,30 +135,6 @@ public class ArtWorkRecordDBService extends DBService<ArtWorkRecord, Long> {
 		return list;
 	}
 
-	
-	
-	/**
-	 * @param name
-	 * @param site
-	 * @param createdBy
-	 * @return
-	 */
-	@Transactional
-	public ArtWorkRecord create(String name, Site site, User createdBy) {
-		ArtWorkRecord c = new ArtWorkRecord();
-		
-		c.setName(name);
-		//c.setNameKey(nameKey(name));
-		 
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		c.setUsethumbnail(true);
-		
-		return getRepository().save(c);
-	}
-
-	
 	 
 	@Transactional
 	private void deleteResources(Long id) {
@@ -183,18 +151,9 @@ public class ArtWorkRecordDBService extends DBService<ArtWorkRecord, Long> {
 		getResourceDBService().delete(a.getVideo());
 		
 	}
-	 
-	@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-
-	@Transactional
-	public void delete(ArtWorkRecord o) {
-		this.delete(o.getId()); 
-	}
 	
+	
+	 
 	
 	@Transactional
 	public Optional<ArtWorkRecord> findWithDeps(Long id) {

@@ -77,18 +77,16 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 	static private Logger logger = Logger.getLogger(GuideContentListPage.class.getName());
 
+	private List<ToolbarItem> listToolbar;
+
 	public GuideContentListPage() {
 		super();
-
 	}
 
 	public GuideContentListPage(PageParameters parameters) {
 		super(parameters);
-
 	}
 
-private List<ToolbarItem> listToolbar;
-	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -104,6 +102,7 @@ private List<ToolbarItem> listToolbar;
 
 		return listToolbar;
 	}
+
 	protected void addHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
@@ -121,33 +120,28 @@ private List<ToolbarItem> listToolbar;
 		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 		return service.findAllSorted();
 	}
-	
-	
+
 	@Override
 	public Iterable<GuideContent> getObjects(ObjectState os1) {
-		 return this.getObjects(os1, null);
+		return this.getObjects(os1, null);
 	}
 
-	
 	@Override
 	public Iterable<GuideContent> getObjects(ObjectState os1, ObjectState os2) {
 
 		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 
-		if (os1==null && os2==null)
+		if (os1 == null && os2 == null)
 			return service.findAllSorted();
-	
-		if (os2==null)
+
+		if (os2 == null)
 			return service.findAllSorted(os1);
 
-		if (os1==null)
+		if (os1 == null)
 			return service.findAllSorted(os2);
-		
+
 		return service.findAllSorted(os1, os2);
 	}
-
-	
-	
 
 	@Override
 	public IModel<String> getObjectInfo(IModel<GuideContent> model) {
@@ -156,8 +150,8 @@ private List<ToolbarItem> listToolbar;
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<GuideContent> model) {
-		
-		if (model.getObject().getState()==ObjectState.DELETED) 
+
+		if (model.getObject().getState() == ObjectState.DELETED)
 			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
 
 		return new Model<String>(model.getObject().getDisplayname());
@@ -240,7 +234,9 @@ private List<ToolbarItem> listToolbar;
 
 	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
+		
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
 
@@ -273,11 +269,10 @@ private List<ToolbarItem> listToolbar;
 	}
 
 	protected void onCreate() {
-
 		try {
-			GuideContent in = getGuideContentDBService().create("new", getUserDBService().findRoot());
-			IModel<GuideContent> m = new ObjectModel<GuideContent>(in);
-			getList().add(m);
+			//GuideContent in = getGuideContentDBService().create("new", getUserDBService().findRoot());
+			//IModel<GuideContent> m = new ObjectModel<GuideContent>(in);
+			//getList().add(m);
 
 		} catch (Exception e) {
 			logger.error(e);
@@ -285,7 +280,7 @@ private List<ToolbarItem> listToolbar;
 
 		}
 	}
-
+	
 	protected IModel<String> getTitleLabel() {
 		return getLabel("guide-contents");
 	}

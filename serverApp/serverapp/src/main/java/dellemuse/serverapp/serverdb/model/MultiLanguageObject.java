@@ -1,6 +1,7 @@
 package dellemuse.serverapp.serverdb.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -113,6 +114,18 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 		return this.masterLanguage;
 	}
 
+	public void setML(Language la) {
+		this.setMasterLanguage(la.getLanguageCode());
+	}
+
+	
+	@JsonIgnore
+	public Language getML() {
+		 return Language.of(getMasterLanguage());
+	}
+
+
+	
 	public void setMasterLanguage(String m) {
 		this.masterLanguage = m;
 	}
@@ -172,15 +185,7 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 	public void setSpeechAudio(Resource audio) {
 		this.speechaudio = audio;
 	}
-
-	//public boolean isUsethumbnail() {
-	//	return usethumbnail;
-	//}
-
-	//public void setUsethumbnail(boolean usethumbnail) {
-	//	this.usethumbnail = usethumbnail;
-	//}
-
+ 
 	public String getSpec() {
 		return spec;
 	}

@@ -21,6 +21,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
 
 public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site> {
@@ -47,6 +48,21 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 		super.onInitialize();
  
 		
+		 addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+				return new TitleMenuItem<Site>(id) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("information");
+					}
+				};
+			}
+		});
+		
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
@@ -65,7 +81,7 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("information");
+						return getLabel("site-info-record", getModel().getObject().getMasterLanguage());
 					}
 				};
 			}

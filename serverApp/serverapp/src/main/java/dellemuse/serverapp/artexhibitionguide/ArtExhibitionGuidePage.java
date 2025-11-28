@@ -121,6 +121,11 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		return true;
 	}
 
+	@Override
+	protected boolean isLanguage() {
+		return false;
+	}
+	
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
 		getRecordEditors().get(lang).edit(target);
 	}

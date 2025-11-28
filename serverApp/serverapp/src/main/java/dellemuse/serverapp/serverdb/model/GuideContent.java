@@ -13,8 +13,11 @@ import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 /**
@@ -54,6 +57,16 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	@Column(name = "guideOrder")
 	private int guideOrder;
 
+	/** 
+	 * 
+	 	CREATE SEQUENCE if not exists audio_id START 1; 
+	 	alter table artexhibitionguide add column audio_id bigint;
+		alter table guidecontent add column audio_id bigint;
+	
+	 * */
+	@Column(name = "audio_id")
+	private Long audioId;
+	
 	public GuideContent() {
 	}
 
@@ -83,6 +96,14 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 
 	public void setGuideOrder(int guideOrder) {
 		this.guideOrder = guideOrder;
+	}
+
+	public Long getAudioId() {
+		return audioId;
+	}
+
+	public void setAudioId(Long audioId) {
+		this.audioId = audioId;
 	}
 
 };

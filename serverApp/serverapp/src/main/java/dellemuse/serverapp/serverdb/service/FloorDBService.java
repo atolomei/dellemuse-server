@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.AudioStudio;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -34,22 +37,25 @@ public class FloorDBService extends DBService<Floor, Long> {
      * @param createdBy
      */
     @Transactional
-    @Override
+ 
     public Floor create(String name,User createdBy) {
         Floor c = new Floor();
         c.setName(name);
-        //c.setNameKey(nameKey(name));
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
+      
+        getRepository().save(c);
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		
+        return c;
     }
 
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
     }
+   
     /**
      * @param name
      * @return
@@ -62,4 +68,11 @@ public class FloorDBService extends DBService<Floor, Long> {
     protected Class<Floor> getEntityClass() {
         return Floor.class;
     }
+    
+	@Override
+	public String getObjectClassName() {
+		 return Floor.class.getSimpleName().toLowerCase();
+	} 
+
+	
 }

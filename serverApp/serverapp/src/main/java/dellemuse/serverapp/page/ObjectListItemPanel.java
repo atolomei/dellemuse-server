@@ -19,7 +19,7 @@ import io.wktui.struct.list.ListPanelWicketEvent;
 import wktui.base.InvisiblePanel;
 import wktui.base.ModelPanel;
 
-public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T> {
+public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -58,8 +58,11 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 
 			@Override
 			public void onEvent(ListPanelWicketEvent<T> event) {
-				if (event.getModel().getObject().getId()
-						.equals(ObjectListItemPanel.this.getModel().getObject().getId())) {
+
+					
+				if (isEqual(event.getModel().getObject(), ObjectListItemPanel.this.getModel().getObject())) {
+				//if (event.getModel().getObject().getId()
+				//		.equals(ObjectListItemPanel.this.getModel().getObject().getId())) {
 					if (event.getName().equals(ListPanel.ITEM_EXPAND)) {
 						ObjectListItemPanel.this.titleTextContainer.add(
 								new AttributeModifier("class", getCss() + (event.isExpanded() ? " expanded " : "")));
@@ -70,16 +73,22 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 
 			@Override
 			public boolean handle(UIEvent event) {
+				
 				if (event instanceof ListPanelWicketEvent) {
 					ListPanelWicketEvent<?> e = (ListPanelWicketEvent<?>) event;
-					DelleMuseObject o = (DelleMuseObject) e.getModel().getObject();
-					if (o.getId().equals(ObjectListItemPanel.this.getModel().getObject().getId()))
+			 		if (isEqual((T) e.getModel().getObject(), ObjectListItemPanel.this.getModel().getObject()))
 						return true;
+					
+					//DelleMuseObject o = (DelleMuseObject) e.getModel().getObject();
+					//if (isEqual(event.getModel().getObject(), ObjectListItemPanel.this.getModel().getObject())
+					//	return true;
 				}
 				return false;
 			}
 		});
 	}
+
+	protected abstract boolean isEqual(T o1, T o2);
 
 	@Override
 	public void onBeforeRender() {
@@ -244,18 +253,15 @@ public class ObjectListItemPanel<T extends DelleMuseObject> extends ModelPanel<T
 
 	}
 
-	protected IModel<String> getObjectTitle() {
-		return new Model<String>(getModel().getObject().getDisplayname());
-	}
+	protected abstract IModel<String> getObjectTitle();
 
+	
 	protected WebMarkupContainer getObjectMenu() {
 		return null;
 	}
 
-	protected IModel<String> getInfo() {
-		return new Model<String>(getModel().getObject().toJSON());
-	}
-
+	protected abstract IModel<String> getInfo();
+	
 	protected IModel<String> getObjectSubtitle() {
 		return subtitle;
 	}

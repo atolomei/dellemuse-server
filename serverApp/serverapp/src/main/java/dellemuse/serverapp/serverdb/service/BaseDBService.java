@@ -15,6 +15,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -72,7 +74,7 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 		this.repository = repository;
 	}
 
-	public abstract T create(String name, User createdBy);
+	//public abstract T create(String name, User createdBy);
 
 	@Transactional
 	public <S extends T> S save(S entity) {
@@ -103,7 +105,6 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 	public void deleteById(I id) {
 		repository.deleteById(id);
 	}
-	
 
 	@Transactional
 	public Iterable<T> findAllSorted() {
@@ -115,14 +116,6 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	
-	/**
-	@Transactional
-	public List<T> getByNameKey(String name) {
-		return createNameKeyQuery(name).getResultList();
-	}
-	**/
-
 	@Transactional
 	public List<T> getByName(String name) {
 		return createNameQuery(name, false).getResultList();
@@ -133,42 +126,30 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 		return createNameQuery(name, true).getResultList();
 	}
 
-	public CrudRepository<T, I> getRepository() {
-		return repository;
-	}
 
 	public TypedQuery<T> createNameQuery(String name) {
 		return createNameQuery(name, false);
 	}
-
 	
-	/**
-	public TypedQuery<T> createNameKeyQuery(String name) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
-		Root<T> root = cq.from(getEntityClass());
-		cq.select(root).where(cb.equal(root.get(getNameKeyColumn()), name));
-
-		return entityManager.createQuery(cq);
-	}
-	**/
-
 	public TypedQuery<T> createNameQuery(String name, boolean isLike) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> root = cq.from(getEntityClass());
 
-		if (isLike) {
+		if (isLike)
 			cq.select(root).where(cb.like(cb.lower(root.get(getNameColumn())), "%" + name.toLowerCase() + "%"));
-		} else {
+		 else 
 			cq.select(root).where(cb.equal(cb.lower(root.get(getNameColumn())), name.toLowerCase()));
-		}
-
-		return entityManager.createQuery(cq);
+		
+		return getEntityManager().createQuery(cq);
 	}
 
 	public EntityManager getEntityManager() {
 		return entityManager;
+	}
+
+	public CrudRepository<T, I> getRepository() {
+		return repository;
 	}
 
 	protected abstract Class<T> getEntityClass();
@@ -176,10 +157,6 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 	protected String getNameColumn() {
 		return "name";
 	}
-
-	//protected String getNameKeyColumn() {
-	//	return "nameKey";
-	//}
 
 	public String normalize(String name) {
 		return this.getEntityClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();

@@ -12,24 +12,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.audit.AuditKey;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.FlushModeType;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
@@ -48,37 +47,6 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		this.guideContentRecordDBService = guideContentRecordDBService;
 	}
 
-	/**
-	 * <p>
-	 * Annotation Transactional is required to store values into the Database
-	 * </p>
-	 * 
-	 * @param name
-	 * @param createdBy
-	 */
-	@Transactional
-	@Override
-	public GuideContent create(String name, User createdBy) {
-		GuideContent c = new GuideContent();
-		c.setName(name);
-		 
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-
-		c.setMasterLanguage(getDefaultMasterLanguage());
-		c.setLanguage(getDefaultMasterLanguage());
-		
-		c.setState(ObjectState.EDITION);
-		
-		getRepository().save(c);
-
-		for (Language la : getLanguageService().getLanguages())
-			getGuideContentRecordDBService().create(c, la.getLanguageCode(), createdBy);
-
-		return getRepository().save(c);
-	}
-	
 	@Transactional
 	public GuideContent create(ArtExhibitionGuide guide, ArtExhibitionItem item, User createdBy) {
 
@@ -97,9 +65,19 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 
 		c.setMasterLanguage(item.getMasterLanguage());
 		c.setLanguage(item.getLanguage());
-		
+
 		c.setState(ObjectState.EDITION);
-		
+
+		if (!guide.isDependencies())
+			guide = getArtExhibitionGuideDBService().findWithDeps(guide.getId()).get();
+
+		ArtExhibition aex = guide.getArtExhibition();
+
+		if (!aex.isDependencies())
+			aex = getArtExhibitionDBService().findWithDeps(aex.getId()).get();
+
+		Site site = aex.getSite();
+		c.setAudioId(newAudioId(site));
 		c.setName(item.getName());
 		c.setArtExhibitionGuide(guide);
 		c.setArtExhibitionItem(item);
@@ -108,70 +86,72 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		c.setLastModifiedUser(createdBy);
 
 		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
 		for (Language la : getLanguageService().getLanguages())
 			getGuideContentRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
-		return getRepository().save(c);
+		return c;
 	}
+
 	
 	@Transactional
 	public void delete(GuideContent c, User deletedBy) {
+
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
+
 		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE));
 	}
-	
+
 	/**
-	 * guideContent (1)
-	 * guideContentRecord (n)
-	 * AudioStudio (1)
+	 * guideContent (1) guideContentRecord (n) AudioStudio (1)
 	 * 
 	 */
 	@Transactional
 	public void markAsDeleted(GuideContent c, User deletedBy) {
-		
+
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
-		
-		getRepository().save(c);		
-	
-		for (GuideContentRecord g: getGuideContentRecordDBService(). findAllByGuideContent(c)) {
-			getGuideContentRecordDBService().markAsDeleted(g, deletedBy);		
+
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
+
+		for (GuideContentRecord g: getGuideContentRecordDBService().findAllByGuideContent(c)) {
+			getGuideContentRecordDBService().markAsDeleted(g, deletedBy);
 		}
-		
+
 		Optional<AudioStudio> o = getAudioStudioDBService().findByGuideContent(c);
-		if (o.isPresent()) 
+		if (o.isPresent())
 			getAudioStudioDBService().markAsDeleted(o.get(), deletedBy);
 	}
-	
+
 	/**
-	 * 
-	 * guideContent (1)
-	 * guideContentRecord (n)
-	 * AudioStudio (1)
-	 * 
+	 * guideContent (1) guideContentRecord (n) AudioStudio (1)
 	 */
 	@Transactional
 	public void restore(GuideContent c, User restoredBy) {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(restoredBy);
 		c.setState(ObjectState.EDITION);
-		getRepository().save(c);		
-		
-		for (GuideContentRecord g: getGuideContentRecordDBService(). findAllByGuideContent(c)) {
-			getGuideContentRecordDBService().restore(g, restoredBy);		
+
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE));
+
+		for (GuideContentRecord g : getGuideContentRecordDBService().findAllByGuideContent(c)) {
+			getGuideContentRecordDBService().restore(g, restoredBy);
 		}
-		
+
 		Optional<AudioStudio> o = getAudioStudioDBService().findByGuideContent(c);
 		if (o.isPresent()) {
 			getAudioStudioDBService().restore(o.get(), restoredBy);
 		}
 	}
 
- 	@Transactional
+	@Transactional
 	public boolean existsInGuide(ArtExhibitionGuide guide, ArtExhibitionItem item) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
@@ -189,11 +169,14 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	@PostConstruct
-	protected void onInitialize() {
-		super.register(getEntityClass(), this);
+	
+	@Transactional
+	public Long newAudioId(Site site) {
+		String seqName = site.getAudioIdSequencerName();
+		return ((Number) getEntityManager().createNativeQuery("SELECT nextval('" + seqName + "')").getSingleResult()).longValue();
 	}
-
+	
+	
 	@Transactional
 	public void delete(GuideContent c) {
 		this.getRepository().delete(c);
@@ -243,7 +226,15 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		return guideContentRecordDBService;
 	}
 
+	@Override
+	public String getObjectClassName() {
+		return GuideContentRecord.class.getSimpleName().toLowerCase();
+	}
 	
+	@PostConstruct
+	protected void onInitialize() {
+		super.register(getEntityClass(), this);
+	}
 
-	
+
 }

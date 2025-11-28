@@ -13,13 +13,14 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
-
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import wktui.base.INamedTab;
@@ -89,6 +90,7 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 			}
 		}
 
+		/**
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
 			private static final long serialVersionUID = 1L;
@@ -99,10 +101,19 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 			}
 		};
 		tabs.add(audit);
-
+		**/
+		
 		return tabs;
 	}
 
+	
+	@Override
+	protected Panel getAuditPanel(String id) {
+		return new AuditPanel<T>(id, getModel());
+	}
+
+	
+	
 	protected Map<String, ObjectRecordEditor<T, R>> getRecordEditors() {
 		return this.recordEditors;
 	}

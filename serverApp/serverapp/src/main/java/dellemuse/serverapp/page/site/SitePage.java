@@ -15,16 +15,19 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
+import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -34,6 +37,9 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.odilon.util.Check;
+import io.wktui.event.MenuAjaxEvent;
+import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -252,6 +258,33 @@ public class SitePage extends BasePage {
 		return (metaEditor);
 	}
 
+	
+	protected void addListeners() {
+		super.addListeners();
+	
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+
+				if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+					SitePage.this.metaEditor.onEdit(event.getTarget());
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof MenuAjaxEvent)
+					return true;
+				return false;
+			}
+		});
+
+	}
+	
+	
+	
 	private void addNavigator() {
 
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
@@ -359,7 +392,7 @@ public class SitePage extends BasePage {
 
 				@Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
-					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
+					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
 						@Override
@@ -448,7 +481,7 @@ public class SitePage extends BasePage {
 
 				@Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
-					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
+					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
 						@Override
@@ -536,7 +569,7 @@ public class SitePage extends BasePage {
 
 				@Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
-					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
+					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
 						@Override
@@ -624,7 +657,7 @@ public class SitePage extends BasePage {
 
 				@Override
 				protected Panel getListItemPanel(IModel<ArtExhibition> model) {
-					ObjectListItemPanel<ArtExhibition> panel = new ObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
+					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
 						@Override

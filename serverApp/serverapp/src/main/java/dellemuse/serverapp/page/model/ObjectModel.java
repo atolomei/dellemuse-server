@@ -12,7 +12,7 @@ import org.springframework.util.Assert;
 
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.service.DBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+ 
 
 public class ObjectModel<T extends DelleMuseObject> implements IModel<T> {
 

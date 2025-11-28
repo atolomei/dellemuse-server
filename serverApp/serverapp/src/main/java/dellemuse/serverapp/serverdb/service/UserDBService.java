@@ -8,17 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.threeten.bp.ZoneId;
-
+ 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.FlushModeType;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -48,7 +46,6 @@ public class UserDBService extends DBService<User, Long> {
     }
 
     @Transactional
-    @Override
     public User create(String name, User createdBy) {
         return create(name, null, createdBy);
     }
@@ -64,20 +61,19 @@ public class UserDBService extends DBService<User, Long> {
         c.setName(name);
         
     	c.setLanguage(getDefaultMasterLanguage());
-		
-        //c.setNameKey(nameKey(name));
-        c.setCreated(OffsetDateTime.now());
+	
+    	c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
         c.setZoneId( getSettings().getDefaultZoneId() );
         
         String hash = new BCryptPasswordEncoder().encode("dellemuse");
         c.setPassword(hash);
-        
         // BCrypt.checkpw(plainPassword, hashedPasswordFromDB);
-        
+       
         getRepository().save(c);
-
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+        
         if (person != null) {
             person.setUser(c);
             getPersonDBService().save(person);
@@ -148,6 +144,10 @@ public class UserDBService extends DBService<User, Long> {
     	return findRoot();
     }
  
+	public PersonDBService getPersonDBService() {
+		return personDBService;
+	}
+
     @Override
     protected String getNameColumn() {
         return "name";
@@ -158,35 +158,14 @@ public class UserDBService extends DBService<User, Long> {
         return User.class;
     }
     
-   
-/**
-    	try {
-			if (SecurityContextHolder.getContext().getAuthentication()==null) 
-				return null;
-			
-			Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-			String username;
-			
-			user = getSecurityDao().findUserByName(username);
-			return user;
-		} 
-		catch (Exception e) {
-			logger.error(e, "inside getSessionUser(). returns null");
-			return null;
-		}
-	}
-   **/ 
-    
+    @Override
+   	public String getObjectClassName() {
+   		 return  User.class.getSimpleName().toLowerCase();
+   	} 
+
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
     }
-
-	
-	public PersonDBService getPersonDBService() {
-		return personDBService;
-	}
-
-   
     
 }

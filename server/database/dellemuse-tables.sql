@@ -32,6 +32,7 @@ CREATE SEQUENCE if not exists objectstorage_id 	START 100;
 CREATE SEQUENCE if not exists sequence_id 		START 100;
 CREATE SEQUENCE if not exists sequence_user_id 	START 100;
 CREATE SEQUENCE if not exists readcode_id 		START 1000;
+CREATE SEQUENCE if not exists audit_id 			START 100;
 
 
 -- ------------------------------------------------------------------------------------------------------------------------------

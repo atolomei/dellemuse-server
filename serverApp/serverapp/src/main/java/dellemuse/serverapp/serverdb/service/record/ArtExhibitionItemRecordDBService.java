@@ -19,6 +19,8 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -28,6 +30,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
+import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
  
@@ -38,7 +41,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionItemRecord, Long> {
+public class ArtExhibitionItemRecordDBService extends RecordDBService<ArtExhibitionItemRecord, Long> {
 
 	static private Logger logger = Logger.getLogger(ArtExhibitionItemRecordDBService.class.getName());
 
@@ -46,20 +49,7 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		super(repository, settings);
 	}
 	
-	/**
-	 * <p>
-	 * Annotation Transactional is required to store values into the Database
-	 * </p>
-	 * 
-	 * @param name
-	 * @param createdBy
-	 */
-	@Transactional
-	@Override
-	public ArtExhibitionItemRecord create(String name, User createdBy) {
-		throw new RuntimeException("can not call create without language");
-	}
-	
+ 
 
 	/**
 	 * @param name
@@ -80,7 +70,10 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		c.setLanguage(i.getLanguage());
 		c.setState(ObjectState.EDITION);
 		
-		return getRepository().save(c);
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		
+		return c;
 	}
 	
 	@Transactional
@@ -96,13 +89,19 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
- 	
-		return getRepository().save(c);
+		
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		
+		return c;
 	}
 
 	@Transactional
 	public void markAsDeleted(ArtExhibitionItemRecord  c, User deletedBy) {
 		super.markAsDeleted(c, deletedBy);
+		
+		
+		
 	}
 	
 	@Transactional
@@ -110,6 +109,8 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		super.restore(c, deletedBy);
 	}
 
+	 
+	
 	/**
 	 * 
 	 * @param a
@@ -153,16 +154,7 @@ public class ArtExhibitionItemRecordDBService extends DBService<ArtExhibitionIte
 		return list;
 	}
   
-	@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-
-	@Transactional
-	public void delete(ArtExhibitionItemRecord o) {
-		this.delete(o.getId()); 
-	}
+	
 	
   	@Transactional
 	public Optional<ArtExhibitionItemRecord> findWithDeps(Long id) {

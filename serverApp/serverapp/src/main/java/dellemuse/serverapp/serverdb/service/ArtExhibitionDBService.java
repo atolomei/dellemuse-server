@@ -14,12 +14,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -59,12 +62,10 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		this.artExhibitionRecordDBService = artExhibitionRecordDBService;
 	}
 
-
 	/**
 	 * 
 	 */
 	@Transactional
-	@Override
 	public ArtExhibition create(String name, User createdBy) {
 		ArtExhibition c = new ArtExhibition();
 		c.setName(name);
@@ -73,16 +74,16 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		c.setState(ObjectState.EDITION);
-
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
 
 		getRepository().save(c);
-
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+		
 		for (Language la : getLanguageService().getLanguages())
 			getArtExhibitionRecordDBService().create(c, la.getLanguageCode(), createdBy);
-
-		return getRepository().save(c);
+		
+		return c;
 	}
 
 	@Transactional
@@ -90,21 +91,22 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		ArtExhibition c = new ArtExhibition();
 		c.setName(name);
 
-		c.setState(ObjectState.EDITION);
-
 		c.setMasterLanguage(site.getMasterLanguage());
 		c.setLanguage(site.getLanguage());
 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+		c.setState(ObjectState.EDITION);
 		c.setSite(site);
 
 		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+			
 		for (Language la : getLanguageService().getLanguages())
 			getArtExhibitionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
-		return getRepository().save(c);
+		return c;
 	}
 
 	/**
@@ -115,11 +117,14 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 	 */
 	@Transactional
 	public void markAsDeleted(ArtExhibition c, User deletedBy) {
+		
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
+		
 		getRepository().save(c);
-
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
+		
 		for (ArtExhibitionRecord g : getArtExhibitionRecordDBService().findAllByGuideContent(c)) {
 			getArtExhibitionRecordDBService().markAsDeleted(g, deletedBy);
 		}
@@ -127,8 +132,10 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		c.getArtExhibitionItems().forEach(gc -> {
 			getArtExhibitionItemDBService().markAsDeleted(gc, deletedBy);
 		});
+		
+		
 	}
-
+ 	
 	@Transactional
 	public void restore(ArtExhibition c, User restoredBy) {
 
@@ -136,8 +143,10 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		c.setLastModified(date);
 		c.setLastModifiedUser(restoredBy);
 		c.setState(ObjectState.EDITION);
+		
 		getRepository().save(c);
-
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy,  AuditAction.UPDATE, AuditKey.RESTORE));
+		
 		for (ArtExhibitionRecord g : getArtExhibitionRecordDBService().findAllByGuideContent(c)) {
 			getArtExhibitionRecordDBService().restore(g, restoredBy);
 		}
@@ -146,6 +155,12 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 			getArtExhibitionItemDBService().restore(gc, restoredBy);
 		});
 	}
+
+	@Override
+	public String getObjectClassName() {
+		 return ArtExhibition.class.getSimpleName().toLowerCase();
+	}
+	
 
 	@Transactional
 	public Optional<ArtExhibition> findWithDeps(Long id) {
@@ -178,11 +193,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 
 		return o;
 	}
-
-	@PostConstruct
-	protected void onInitialize() {
-		super.register(getEntityClass(), this);
-	}
+	
 
 	@Transactional
 	public void addItem(ArtExhibition exhibition, ArtWork artwork, User addedBy) {
@@ -205,9 +216,10 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 
 		list.add(item);
 		exhibition.setArtExhibitionItems(list);
-
 		exhibition.setLastModified(OffsetDateTime.now());
 		exhibition.setLastModifiedUser(addedBy);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(exhibition, addedBy, AuditAction.UPDATE, AuditKey.ADD_ITEM));
 		getRepository().save(exhibition);
 	}
 
@@ -234,7 +246,10 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		c.setArtExhibitionItems(list);
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(removedBy);
+
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, removedBy, AuditAction.UPDATE));
 		getRepository().save(c);
+
 	}
 
 	@Transactional
@@ -260,6 +275,8 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		ex.setArtExhibitionSections(list);
 		ex.setLastModified(OffsetDateTime.now());
 		ex.setLastModifiedUser(removedBy);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(ex, removedBy, AuditAction.UPDATE));
 		getRepository().save(ex);
  	}
  
@@ -319,4 +336,8 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		return this.artExhibitionRecordDBService;
 	}
 
+	@PostConstruct
+	protected void onInitialize() {
+		super.register(getEntityClass(), this);
+	}
 }

@@ -16,20 +16,25 @@ import org.springframework.stereotype.Service;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.SiteType;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
+import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
 
@@ -40,7 +45,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ArtExhibitionGuideRecordDBService extends DBService<ArtExhibitionGuideRecord, Long> {
+public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibitionGuideRecord, Long> {
 
 	static private Logger logger = Logger.getLogger(ArtExhibitionGuideRecordDBService.class.getName());
 
@@ -49,19 +54,29 @@ public class ArtExhibitionGuideRecordDBService extends DBService<ArtExhibitionGu
 	}
 
 	/**
-	 * <p>
-	 * Annotation Transactional is required to store values into the Database
-	 * </p>
+	 * 
 	 * 
 	 * @param name
+	 * @param ArtExhibitionGuide
 	 * @param createdBy
+	 * @return
 	 */
 	@Transactional
-	@Override
-	public ArtExhibitionGuideRecord create(String name, User createdBy) {
-		throw new RuntimeException("can not call create without language");
-	}
+	public ArtExhibitionGuideRecord create(String name, ArtExhibitionGuide ArtExhibitionGuide, User createdBy) {
+		ArtExhibitionGuideRecord c = new ArtExhibitionGuideRecord();
 
+		c.setName(name);
+		c.setArtExhibitionGuide(ArtExhibitionGuide);
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.UPDATE));
+
+		return c;
+	}
+	
 	@Transactional
 	public ArtExhibitionGuideRecord create(ArtExhibitionGuide a, String lang, User createdBy) {
 
@@ -69,7 +84,7 @@ public class ArtExhibitionGuideRecordDBService extends DBService<ArtExhibitionGu
 
 		c.setArtExhibitionGuide(a);
 		c.setName(a.getName());
-		c.setUsethumbnail(c.isUsethumbnail());
+	 
 
 		c.setLanguage(lang);
 		c.setState(ObjectState.EDITION);
@@ -78,34 +93,42 @@ public class ArtExhibitionGuideRecordDBService extends DBService<ArtExhibitionGu
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 
-		return getRepository().save(c);
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+		
+		return c;
 	}
 
 	@Transactional
-	public void markAsDeleted(ArtExhibitionGuideRecord  c, User deletedBy) {
+	public void markAsDeleted(ArtExhibitionGuideRecord c, User deletedBy) {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
-		getRepository().save(c);		
-		
+
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
+
 		Optional<AudioStudio> o = getAudioStudioDBService().findByArtExhibitionGuideRecord(c);
-		if (o.isPresent()) 
+		if (o.isPresent())
 			getAudioStudioDBService().markAsDeleted(o.get(), deletedBy);
-		
+
 	}
-	
+
 	@Transactional
-	public void restore(ArtExhibitionGuideRecord  c, User by) {
+	public void restore(ArtExhibitionGuideRecord c, User by) {
+
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(by);
 		c.setState(ObjectState.EDITION);
-		getRepository().save(c);		
-		
+
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, by, AuditAction.UPDATE,  AuditKey.RESTORE));
+
 		Optional<AudioStudio> o = getAudioStudioDBService().findByArtExhibitionGuideRecord(c);
-		if (o.isPresent()) 
+		if (o.isPresent())
 			getAudioStudioDBService().restore(o.get(), by);
 	}
-	
+
 	/**
 	 * 
 	 * 
@@ -137,38 +160,19 @@ public class ArtExhibitionGuideRecordDBService extends DBService<ArtExhibitionGu
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionGuideRecord> cq = cb.createQuery(ArtExhibitionGuideRecord.class);
 		Root<ArtExhibitionGuideRecord> root = cq.from(ArtExhibitionGuideRecord.class);
-		
-	     Predicate p1 = cb.equal(root.get("artExhibitionGuide").get("id"), a.getId() );
-	     cq.select(root).where(p1);
-	
+
+		Predicate p1 = cb.equal(root.get("artExhibitionGuide").get("id"), a.getId());
+		cq.select(root).where(p1);
+
 		List<ArtExhibitionGuideRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 
-		if (list==null)
+		if (list == null)
 			return new ArrayList<ArtExhibitionGuideRecord>();
-		
+
 		return list;
 	}
+
 	
-	/**
-	 * 
-	 * 
-	 * @param name
-	 * @param ArtExhibitionGuide
-	 * @param createdBy
-	 * @return
-	 */
-	@Transactional
-	public ArtExhibitionGuideRecord create(String name, ArtExhibitionGuide ArtExhibitionGuide, User createdBy) {
-		ArtExhibitionGuideRecord c = new ArtExhibitionGuideRecord();
-
-		c.setName(name);
-		c.setArtExhibitionGuide(ArtExhibitionGuide);
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-
-		return getRepository().save(c);
-	}
 
 	@Transactional
 	private void deleteResources(Long id) {
@@ -186,17 +190,7 @@ public class ArtExhibitionGuideRecordDBService extends DBService<ArtExhibitionGu
 
 	}
 
-	@Transactional
-	@Override
-	public void deleteById(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-
-	@Transactional
-	public void delete(ArtExhibitionGuideRecord o) {
-		this.deleteById(o.getId());
-	}
+	
 
 	@Transactional
 	public Optional<ArtExhibitionGuideRecord> findWithDeps(Long id) {
@@ -249,6 +243,11 @@ public class ArtExhibitionGuideRecordDBService extends DBService<ArtExhibitionGu
 	@Override
 	protected Class<ArtExhibitionGuideRecord> getEntityClass() {
 		return ArtExhibitionGuideRecord.class;
+	}
+
+	@Override
+	public String getObjectClassName() {
+		return ArtExhibitionGuideRecord.class.getSimpleName().toLowerCase();
 	}
 
 	@PostConstruct

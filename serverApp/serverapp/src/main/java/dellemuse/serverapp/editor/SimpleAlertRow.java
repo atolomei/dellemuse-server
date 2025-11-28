@@ -14,7 +14,7 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 	private static final long serialVersionUID = 1L;
 	
 	private WebMarkupContainer infoContainer;
-	AlertPanel<Void> info;
+	private AlertPanel<Void> info;
 		
 	public SimpleAlertRow(String id) {
 		super(id, null);
@@ -51,11 +51,7 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 	protected int getAlertType() {
 		return AlertPanel.WARNING;
 	}
-
-	//protected boolean isAlertInfo() {
-	//	return false;
-	//}
-
+ 
 	protected IModel<String> getText() {
 		return null;
 	}

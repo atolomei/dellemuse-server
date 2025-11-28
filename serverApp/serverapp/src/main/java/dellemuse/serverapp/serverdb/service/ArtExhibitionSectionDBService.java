@@ -19,6 +19,8 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -39,24 +41,65 @@ import jakarta.transaction.Transactional;
 @Service
 public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSection, Long> {
 
-    @SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ArtExhibitionSectionDBService.class.getName());
-    
-    @JsonIgnore
+
+	@JsonIgnore
 	@PersistenceContext
-    private EntityManager entityManager;
+	private EntityManager entityManager;
 
 	@JsonIgnore
 	@Autowired
-    final ArtExhibitionSectionRecordDBService artExhibitionSectionRecordDBService;
-	
-    public ArtExhibitionSectionDBService(CrudRepository<ArtExhibitionSection, Long> repository, ServerDBSettings settings, ArtExhibitionSectionRecordDBService artExhibitionSectionRecordDBService) {
-        super(repository, settings);
-        this.artExhibitionSectionRecordDBService=artExhibitionSectionRecordDBService;
-    }
-    
+	final ArtExhibitionSectionRecordDBService artExhibitionSectionRecordDBService;
 
-    @Transactional
+	public ArtExhibitionSectionDBService(CrudRepository<ArtExhibitionSection, Long> repository, ServerDBSettings settings, ArtExhibitionSectionRecordDBService artExhibitionSectionRecordDBService) {
+		super(repository, settings);
+		this.artExhibitionSectionRecordDBService = artExhibitionSectionRecordDBService;
+	}
+
+	
+	@Transactional
+	public ArtExhibitionSection create(String name, User createdBy) {
+		ArtExhibitionSection c = new ArtExhibitionSection();
+		c.setName(name);
+
+		c.setMasterLanguage(getDefaultMasterLanguage());
+		c.setLanguage(getDefaultMasterLanguage());
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+
+		return c;
+	}
+
+	@Transactional
+	public ArtExhibitionSection create(String name, Site site, User createdBy) {
+		ArtExhibitionSection c = new ArtExhibitionSection();
+
+		c.setName(name);
+		c.setMasterLanguage(site.getMasterLanguage());
+		c.setLanguage(site.getLanguage());
+
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+
+		return c;
+	}
+
+	
+	
+	
+	
+	
+	
+	@Transactional
 	public Optional<ArtExhibitionSection> findWithDeps(Long id) {
 
 		Optional<ArtExhibitionSection> o = super.findById(id);
@@ -65,7 +108,7 @@ public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSectio
 			return o;
 
 		ArtExhibitionSection a = o.get();
-		
+
 		Resource photo = a.getPhoto();
 
 		if (photo != null)
@@ -75,18 +118,9 @@ public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSectio
 
 		return o;
 	}
-    
-    @PostConstruct
-    protected void onInitialize() {
-    	super.register(getEntityClass(), this);
-    }
-    
-     
-    
- 
-    /**
-	 * 
-	 * 
+
+
+	/**
 	 * @param a
 	 * @param lang
 	 * @return
@@ -97,84 +131,41 @@ public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSectio
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionSectionRecord> cq = cb.createQuery(ArtExhibitionSectionRecord.class);
 		Root<ArtExhibitionSectionRecord> root = cq.from(ArtExhibitionSectionRecord.class);
-		
-	     Predicate p1 = cb.equal(root.get("artExhibitionSection").get("id"), a.getId() );
-	     Predicate p2 = cb.equal(root.get("language"), lang );
 
-	     Predicate combinedPredicate = cb.and(p1, p2);
-	     
-	     cq.select(root).where(combinedPredicate);
-	
+		Predicate p1 = cb.equal(root.get("artExhibitionSection").get("id"), a.getId());
+		Predicate p2 = cb.equal(root.get("language"), lang);
+
+		Predicate combinedPredicate = cb.and(p1, p2);
+
+		cq.select(root).where(combinedPredicate);
+
 		List<ArtExhibitionSectionRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-		
+
 	}
-    
+
+	
 	@Transactional
-    @Override
-    public ArtExhibitionSection create(String name, User createdBy) {
-        ArtExhibitionSection c = new ArtExhibitionSection();
-        c.setName(name);
-        //c.setNameKey(nameKey(name));
-        c.setMasterLanguage(getDefaultMasterLanguage());
-		c.setLanguage(getDefaultMasterLanguage());
-		
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
-    
-    
-    @Transactional
-    public ArtExhibitionSection create(String name, Site site, User createdBy) {
-        ArtExhibitionSection c = new ArtExhibitionSection();
-        c.setName(name);
-        //c.setNameKey(nameKey(name));
-        
-		c.setMasterLanguage(site.getMasterLanguage());
-		c.setLanguage(site.getLanguage());
+	public List<ArtExhibitionSection> getByName(String name) {
+		return createNameQuery(name).getResultList();
+	}
 
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-         
-        
-        return getRepository().save(c);
-    }
-    
-    @Transactional
-    public List<ArtExhibitionSection> getByName(String name) {
-        return createNameQuery(name).getResultList();
-    }
+	@Override
+	public String getObjectClassName() {
+		return ArtExhibitionSection.class.getSimpleName().toLowerCase();
+	}
 
-    /**
-    @Transactional
-    public Optional<ArtExhibitionSection> findByNameKey(String name) {
-        CriteriaBuilder cb =  getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<ArtExhibitionSection> cq = cb.createQuery(ArtExhibitionSection.class);
-        Root<ArtExhibitionSection> root = cq.from(ArtExhibitionSection.class);
-        cq.select(root).where(cb.equal(root.get("nameKey"), name));
-        cq.orderBy(cb.asc(root.get("id")));
+	@Override
+	protected Class<ArtExhibitionSection> getEntityClass() {
+		return ArtExhibitionSection.class;
+	}
 
-        List<ArtExhibitionSection> list = entityManager.createQuery(cq).getResultList();
-        return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-    }
- **/
-    
-    @Override
-    protected Class<ArtExhibitionSection> getEntityClass() {
-        return ArtExhibitionSection.class;
-    }
 	protected ArtExhibitionSectionRecordDBService getArtExhibitionSectionRecordDBService() {
 		return this.artExhibitionSectionRecordDBService;
 	}
+	@PostConstruct
+	protected void onInitialize() {
+		super.register(getEntityClass(), this);
+	}
 
 }
-    
-    
-    
-    
-    
-    
-     

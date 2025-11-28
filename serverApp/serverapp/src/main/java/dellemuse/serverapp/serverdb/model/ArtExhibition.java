@@ -47,107 +47,48 @@ public class ArtExhibition extends MultiLanguageObject {
 	@Column(name = "permanent")
 	private boolean permanent;
 
- 	@Column(name = "fromDate")
+	@Column(name = "fromDate")
 	private OffsetDateTime fromDate;
 
 	@Column(name = "toDate")
 	private OffsetDateTime toDate;
-  
-	
 
-	/**
-	 * @return
-	 */
-	public boolean isComing() {
-
-		if (fromDate==null && toDate==null)
-			return false;
-
-		if (fromDate==null)
-			return false;
-
-		OffsetDateTime now = OffsetDateTime.now();
-
-		if (toDate==null)
-			return fromDate.isAfter(now);
-		
-		return fromDate.isAfter(now) && toDate.isAfter(now);
-	}
-
-	/**
-	 * @return
-	 */
-	public boolean isOpen() {
-
-		if (toDate==null)
-			return true;
-	
-		OffsetDateTime now = OffsetDateTime.now();
-		
-		if (fromDate==null)
-			return toDate.isBefore(now);
-		
-		return fromDate.isBefore(now) && toDate.isAfter(now);
-	}
-	
-
-	/**
-	 * @return
-	 */
-	public boolean isTerminated() {
-
-		if (toDate==null)
-			return false;
-	
-		OffsetDateTime now = OffsetDateTime.now();
-		
-		if (fromDate==null)
-			return toDate.isBefore(now);
-		
-		return toDate.isBefore(now);
-	}
-
-	
-	
-	
-	@Column(name = "shortname")
+ 	@Column(name = "shortname")
 	private String shortname;
-	
+
 	@Column(name = "shortnameKey")
 	private String shortnamekey;
-	
+
 	@Column(name = "location")
 	private String location;
-	
+
 	@Column(name = "mapurl")
 	private String map;
-	
+
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = ArtExhibitionItem.class)
 	@JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
 	@OrderBy("lower(name) ASC")
 	@JsonProperty("artExhibitionItems")
 	private List<ArtExhibitionItem> artExhibitionItems;
- 
+
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = ArtExhibitionSection.class)
 	@JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
 	@OrderBy("lower(name) ASC")
 	@JsonProperty("artExhibitionSections")
 	private List<ArtExhibitionSection> artExhibitionSections;
-	
+
 	@Column(name = "website")
 	private String website;
 
-	
 	public ArtExhibition() {
 	}
-
 
 	public String getPrefixUrl() {
 		return PrefixUrl.ArtExhibition;
 	}
-	
+
 	public ArtExhibitionStatusType getArtExhibitionStatusType() {
 		return artExhibitionStatusType;
 	}
@@ -187,7 +128,7 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setToDate(OffsetDateTime toDate) {
 		this.toDate = toDate;
 	}
- 
+
 	public List<ArtExhibitionItem> getArtExhibitionItems() {
 		return artExhibitionItems;
 	}
@@ -195,7 +136,6 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setArtExhibitionItems(List<ArtExhibitionItem> artExhibitionItems) {
 		this.artExhibitionItems = artExhibitionItems;
 	}
- 
 
 	public List<ArtExhibitionSection> getArtExhibitionSections() {
 		return artExhibitionSections;
@@ -204,7 +144,6 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setArtExhibitionSections(List<ArtExhibitionSection> artExhibitionSec) {
 		this.artExhibitionSections = artExhibitionSec;
 	}
-	
 
 	public String getLocation() {
 		return location;
@@ -229,7 +168,6 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setMap(String map) {
 		this.map = map;
 	}
- 
 
 	public String getShortname() {
 		return shortname;
@@ -246,8 +184,57 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setShortnamekey(String shortnamekey) {
 		this.shortnamekey = shortnamekey;
 	}
-
-
 	
+	
+	/**
+	 * @return
+	 */
+	public boolean isComing() {
+
+		if (fromDate == null && toDate == null)
+			return false;
+
+		if (fromDate == null)
+			return false;
+
+		OffsetDateTime now = OffsetDateTime.now();
+
+		if (toDate == null)
+			return fromDate.isAfter(now);
+
+		return fromDate.isAfter(now) && toDate.isAfter(now);
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean isOpen() {
+
+		if (toDate == null)
+			return true;
+
+		OffsetDateTime now = OffsetDateTime.now();
+
+		if (fromDate == null)
+			return toDate.isBefore(now);
+
+		return fromDate.isBefore(now) && toDate.isAfter(now);
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean isTerminated() {
+
+		if (toDate == null)
+			return false;
+
+		OffsetDateTime now = OffsetDateTime.now();
+
+		if (fromDate == null)
+			return toDate.isBefore(now);
+
+		return toDate.isBefore(now);
+	}
 
 };

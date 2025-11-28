@@ -44,40 +44,35 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanelMode;
 
 /**
- * Site Information
- * Exhibitions
- * Artworks
- * Exhibitions
+ * Site Information Exhibitions Artworks Exhibitions
  */
 @MountPath("/site/artists/${id}")
 public class SiteArtistsListPage extends ObjectListPage<Person> {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	static private Logger logger = Logger.getLogger(SiteArtistsListPage.class.getName());
 
 	private StringValue stringValue;
 
 	private IModel<Site> siteModel;
-	
-	
 
 	public SiteArtistsListPage() {
 		super();
 		setIsExpanded(true);
-		 
-	}		
-	
-	public  SiteArtistsListPage(PageParameters parameters) {
-	 super(parameters);
-	 	stringValue = getPageParameters().get("id");
+
+	}
+
+	public SiteArtistsListPage(PageParameters parameters) {
+		super(parameters);
+		stringValue = getPageParameters().get("id");
 		setIsExpanded(true);
-  	}
-	 	
+	}
+
 	public SiteArtistsListPage(IModel<Site> siteModel) {
 		super();
 		Check.requireNonNullArgument(siteModel, "siteModel is null");
-		 
+
 		setSiteModel(siteModel);
 		getPageParameters().add("id", siteModel.getObject().getId().toString());
 		setIsExpanded(true);
@@ -86,27 +81,22 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 
 	@Override
 	public Iterable<Person> getObjects() {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
-				.getBean(SiteDBService.class);
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getArtistsBySiteId(getSiteModel().getObject().getId());
 	}
-	
-	
+
 	@Override
 	public Iterable<Person> getObjects(ObjectState os1) {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
-				.getBean(SiteDBService.class);
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1);
 	}
 
 	@Override
 	public Iterable<Person> getObjects(ObjectState os1, ObjectState os2) {
-			SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
-					.getBean(SiteDBService.class);
-			return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1, os2);
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1, os2);
 	}
-	
-	
+
 	@Override
 	public IModel<String> getObjectInfo(IModel<Person> model) {
 		String str = TextCleaner.clean(model.getObject().getInfo(), 280);
@@ -115,7 +105,7 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<Person> model) {
-		if (model.getObject().getState()==ObjectState.DELETED) 
+		if (model.getObject().getState() == ObjectState.DELETED)
 			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
 
 		return new Model<String>(model.getObject().getLastFirstname());
@@ -123,8 +113,9 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 
 	@Override
 	public void onClick(IModel<Person> model) {
-		 setResponsePage(new PersonPage(model, getList()));
+		setResponsePage(new PersonPage(model, getList()));
 	}
+
 	@Override
 	public IModel<String> getPageTitle() {
 		return getLabel("artists");
@@ -134,27 +125,27 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 	public IModel<String> getListPanelLabel() {
 		return null;
 	}
- 	
+
 	public void onConfigure() {
 		super.onConfigure();
 		logger.debug("on configure");
 	}
- 
+
 	@Override
 	public void onInitialize() {
-	
-		if (getSiteModel()==null) {
-			if (stringValue!=null) {
-				Optional<Site> o_site= getSite(Long.valueOf(stringValue.toLong()));
+
+		if (getSiteModel() == null) {
+			if (stringValue != null) {
+				Optional<Site> o_site = getSite(Long.valueOf(stringValue.toLong()));
 				if (o_site.isPresent()) {
 					setSiteModel(new ObjectModel<Site>(o_site.get()));
 				}
 			}
 		}
-		if (getSiteModel()==null) {
+		if (getSiteModel() == null) {
 			throw new RuntimeException("no site");
 		}
-		
+
 		if (!getSiteModel().getObject().isDependencies()) {
 			Optional<Site> o_site = findByIdWithDeps(Long.valueOf(getSiteModel().getObject().getId()));
 			if (o_site.isPresent()) {
@@ -163,13 +154,13 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 		}
 		super.onInitialize();
 	}
-    
+
 	@Override
 	public void onDetach() {
-	    super.onDetach();
-	    
-	    if (siteModel!=null)
-	    	siteModel.detach();
+		super.onDetach();
+
+		if (siteModel != null)
+			siteModel.detach();
 	}
 
 	public IModel<Site> getSiteModel() {
@@ -179,21 +170,21 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
-	
+
 	protected boolean isSettings() {
 		return true;
 	}
-	
+
 	protected ListPanelMode getListPanelMode() {
-		return  ListPanelMode.TITLE;
+		return ListPanelMode.TITLE;
 	}
-	
+
 	protected IModel<String> getTitleLabel() {
 		return getLabel("artists");
 	}
 
-private List<ToolbarItem> listToolbar;
-	
+	private List<ToolbarItem> listToolbar;
+
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -209,41 +200,41 @@ private List<ToolbarItem> listToolbar;
 
 		return listToolbar;
 	}
-	
+
 	protected List<ToolbarItem> getMainToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		list.add(new SiteNavDropDownMenuToolbarItem(	"item", 
-														getSiteModel(), 
-													  Align.TOP_RIGHT));
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 		return list;
 	}
 
-	
-	protected List<ToolbarItem> getToolbarItemsLeft() {return null;}
- 
+	protected List<ToolbarItem> getToolbarItemsLeft() {
+		return null;
+	}
+
 	protected Panel getObjectListItemExpandedPanel(IModel<Person> model, ListPanelMode mode) {
 		ArtistArtWorksPanel panel = new ArtistArtWorksPanel("expanded-panel", model);
 		return panel;
-	 }
-	
+	}
+
 	@Override
 	protected String getObjectImageSrc(IModel<Person> model) {
-		if (model!=null && model.getObject().getPhoto()!=null) {
-    		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-    	    return getPresignedThumbnailSmall(photo);
-        }
-        return null;
+		if (model != null && model.getObject().getPhoto() != null) {
+			Resource photo = getResource(model.getObject().getPhoto().getId()).get();
+			return getPresignedThumbnailSmall(photo);
+		}
+		return null;
 	}
-	
+
 	protected void addListeners() {
 		super.addListeners();
-	
+
 		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
 				if (event.getName().equals(ServerAppConstant.action_site_home)) {
-					setResponsePage( new SitePage( getSiteModel(), null));
+					setResponsePage(new SitePage(getSiteModel(), null));
 				}
 			}
 
@@ -257,34 +248,24 @@ private List<ToolbarItem> listToolbar;
 	}
 
 	protected void addHeaderPanel() {
-		 
-	    BreadCrumb<Void> bc = createBreadCrumb();
-	    bc.addElement(new HREFBCElement( "/site/list", getLabel("sites")));
-        bc.addElement(new HREFBCElement( "/site/"+ getSiteModel().getObject().getId().toString(), 
-        			  new Model<String>( getSiteModel().getObject().getDisplayname())) );
-        
-        bc.addElement(new BCElement(getLabel("artists")));
+
+		BreadCrumb<Void> bc = createBreadCrumb();
+		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
+		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(), new Model<String>(getSiteModel().getObject().getDisplayname())));
+
+		bc.addElement(new BCElement(getLabel("artists")));
 		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, new Model<String>(getSiteModel().getObject().getDisplayname()));
-		
+
 		ph.setContext(getLabel("site"));
 
-		if (getSiteModel().getObject().getSubtitle()!=null)
-			ph.setTagline( Model.of( getSiteModel().getObject().getSubtitle()));
- 
-		
-		 if (getSiteModel().getObject().getPhoto() != null)
-				ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));
+		if (getSiteModel().getObject().getSubtitle() != null)
+			ph.setTagline(Model.of(getSiteModel().getObject().getSubtitle()));
+
+		if (getSiteModel().getObject().getPhoto() != null)
+			ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));
 
 		ph.setBreadCrumb(bc);
 		add(ph);
 	}
 
-	
-	
 }
-
-
-
-
-
- 

@@ -73,6 +73,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 	private static final long serialVersionUID = 1L;
 	
 	static private Logger logger = Logger.getLogger(PersonListPage.class.getName());
+	private List<ToolbarItem> listToolbar;
 
 	
 	public  PersonListPage() {
@@ -86,7 +87,6 @@ public class PersonListPage extends ObjectListPage<Person> {
 		 setIsExpanded(true);
 	}
 	 	
-private List<ToolbarItem> listToolbar;
 	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
@@ -220,16 +220,7 @@ private List<ToolbarItem> listToolbar;
 		
 		return service.findAllSorted(os1, os2);
 	}
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
+	 
 	
 	@Override
 	public IModel<String> getObjectInfo(IModel<Person> model) {

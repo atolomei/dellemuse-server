@@ -46,12 +46,12 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	private WebMarkupContainer step1;
 	private WebMarkupContainer step1mp3;
 
-	private AjaxLink<Void> generate;
+ 
 
-	private Double similarity = 1.0;
-	private Double stability = 1.0;
-	private Double speed = 1.0;
-	private Double audioStyle = 1.0;
+	private Double similarity = 0.53;
+	private Double stability = 0.82;
+	private Double speed = 0.97;
+	private Double audioStyle = 0.01;
 
 	private boolean uploadedStep1 = false;
 
@@ -67,11 +67,30 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	private void setup() {
 
+		
+		Map<String, String> map = getModel().getObject().getSettings();
+		
+		if (map!=null) {
+			
+			if (map.containsKey("speed")) 
+				speed=Double.valueOf(map.get("speed"));
+		
+			if (map.containsKey("stability")) 
+				stability =Double.valueOf(map.get("stability"));
+		
+			if (map.containsKey("similarity")) 
+				similarity =Double.valueOf(map.get("similarity"));
+
+			if (map.containsKey("audioStyle")) 
+				audioStyle =Double.valueOf(map.get("audioStyle"));
+		}
+		
 		step1 = new WebMarkupContainer("step1");
 
 		step1.setOutputMarkupId(true);
 		add(step1);
-
+		
+	
 		form = new Form<AudioStudio>("form");
 		setForm(form);
 
@@ -105,7 +124,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 				}
 
 				else if (requiresGenerationAudioSpeech()) {
-
 					step1AudioSpeech();
 					addStep1MP3();
 					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.SUCCESS, getLabel("audio-speech-generated-ok"));
@@ -126,14 +144,11 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 				if (getParentObjectState()== ObjectState.DELETED)
 					return false;
-				
-				//if (getAudioSpeechModel() == null)
-				//	return false;
-
-				//if (getAudioSpeechModel().getObject() != null)
-				//	return true;
-
-				return true;
+			 
+				 if (requiresGenerationAudioSpeech())
+					 return true;
+				 
+				return false;
 			}
 			
 			public IModel<String> getLabel() {
@@ -157,53 +172,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		};
 		
 		form.add(sm);
-		
-		
-		
-		/**
-		this.generate = new AjaxLink<Void>("generate") {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public boolean isEnabled() {
-				return true;
-			}
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-
-				getForm().updateModel();
-
-				logger.debug( getSpeed() );
-				
-				
-				
-				
-				if (Step1AudioStudioEditor.this.getModel().getObject().getInfo() != null && Step1AudioStudioEditor.this.getModel().getObject().getInfo().length() == 0) {
-					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.DANGER, getLabel("step1.no-text"));
-					getForm().addOrReplace(alert);
-				}
-
-				else if (requiresGenerationAudioSpeech()) {
-
-					step1AudioSpeech();
-					addStep1MP3();
-					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.SUCCESS, getLabel("audio-speech-generated-ok"));
-					getForm().addOrReplace(alert);
-					uploadedStep1 = true;
-
-				} else {
-					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.WARNING, getLabel("alredy-generated"));
-					getForm().addOrReplace(alert);
-					uploadedStep1 = true;
-				}
-				target.add(getForm());
-			}
-		};
-
-		form.add(generate);
-*/
 		
 		AjaxLink<Void> nextStep2 = new AjaxLink<Void>("next") {
 			private static final long serialVersionUID = 1L;
@@ -229,12 +197,30 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 		form.add(nextStep2);
 		form.addOrReplace(new InvisiblePanel("error"));
-		form.addOrReplace(new InvisiblePanel("info"));
-
+		
+		
+		addInfo();
+		
 		addStep1MP3();
 		edit();
 	}
 
+	
+	private void addInfo() {
+		
+
+		if (getAudioSpeechModel() != null && getAudioSpeechModel().getObject() != null) {
+			if (!requiresGenerationAudioSpeech() ) {
+				AlertPanel<Void> alert = new AlertPanel<Void>("info", AlertPanel.INFO, getLabel("alredy-generated"));
+				getForm().addOrReplace(alert);
+				return;
+			}
+		}
+		
+		getForm().addOrReplace(new InvisiblePanel("info"));
+
+		
+	}
 	
 
 	private void step1AudioSpeech() {
@@ -331,7 +317,8 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		logger.debug(getHashAudioSpeech());
 		logger.debug(getModel().getObject().getAudioSpeechHash());
 		
-		return getHashAudioSpeech() != getModel().getObject().getAudioSpeechHash();
+
+		return (getHashAudioSpeech() != getModel().getObject().getAudioSpeechHash());
 	}
 
 	private int getHashAudioSpeech() {

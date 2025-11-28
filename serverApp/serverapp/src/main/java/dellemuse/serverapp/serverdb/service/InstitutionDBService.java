@@ -14,7 +14,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.audit.AuditKey;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
+
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -45,29 +49,27 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 	public InstitutionDBService(CrudRepository<Institution, Long> repository, ServerDBSettings settings, InstitutionRecordDBService institutionRecordDBService) {
 		super(repository, settings);
 		this.institutionRecordDBService = institutionRecordDBService;
-
 	}
-
+ 
 	@Transactional
-	@Override
 	public Institution create(String name, User createdBy) {
 		Institution c = new Institution();
 
 		c.setName(name);
-
 		c.setState(ObjectState.EDITION);
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
-
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 
 		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
 		for (Language la : getLanguageService().getLanguages())
 			getInstitutionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.UPDATE));
 		return getRepository().save(c);
 	}
 
@@ -92,42 +94,39 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		c.setMasterLanguage(getDefaultMasterLanguage());
 
 		getRepository().save(c);
-
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+		
 		for (Language la : getLanguageService().getLanguages())
 			getInstitutionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
-		return getRepository().save(c);
+		return c;
 	}
-
-	
 
 	@Transactional
 	public void markAsDeleted(Institution c, User deletedBy) {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
-		getRepository().save(c);		
-		
-		//c.getGuideContents().forEach( gc -> {
-		//	getGuideContentDBService().markAsDeleted(gc, deletedBy);
-		//});
-		
+
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
+		getRepository().save(c);
 	}
-	
+
 	@Transactional
 	public void restore(Institution c, User restoredBy) {
-
 		OffsetDateTime date = OffsetDateTime.now();
 		c.setLastModified(date);
 		c.setLastModifiedUser(restoredBy);
 		c.setState(ObjectState.EDITION);
-		getRepository().save(c);		
-		
-		//c.getGuideContents().forEach( gc -> {
-		//	if ( !gc.getLastModified().isBefore(date) && gc.getState()==ObjectState.DELETED)
-		//			getGuideContentDBService().restore(gc, restoredBy);
-		//});
+
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE, AuditKey.RESTORE));
+		getRepository().save(c);
 	}
+
+
+	
+	
+	
 	
 	
 	@Transactional
@@ -164,37 +163,34 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-
 	@Transactional
 	public Iterable<Institution> findAllSorted(ObjectState os) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Institution> cq = cb.createQuery(getEntityClass());
 		Root<Institution> root = cq.from(getEntityClass());
-		
+
 		cq.select(root).where(cb.equal(root.get("state"), os));
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
-		
-		getEntityManager().createQuery(cq).getResultList().forEach( c -> logger.debug( c.getName()));
-		
-		
+
+		getEntityManager().createQuery(cq).getResultList().forEach(c -> logger.debug(c.getName()));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	@Transactional
 	public Iterable<Institution> findAllSorted(ObjectState os1, ObjectState os2) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Institution> cq = cb.createQuery(getEntityClass());
 		Root<Institution> root = cq.from(getEntityClass());
-		
-		Predicate p1 = cb.equal(root.get("state"), os1 );
-		Predicate p2 = cb.equal(root.get("state"), os2 );
+
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		Predicate p2 = cb.equal(root.get("state"), os2);
 		Predicate combinedPredicate = cb.or(p1, p2);
 		cq.select(root).where(combinedPredicate);
 
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	@Transactional
 	public List<Site> getSites(Long institutionId) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -226,6 +222,11 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 	@Override
 	protected Class<Institution> getEntityClass() {
 		return Institution.class;
+	}
+
+	@Override
+	public String getObjectClassName() {
+		return Institution.class.getSimpleName().toLowerCase();
 	}
 
 	protected InstitutionRecordDBService getInstitutionRecordDBService() {

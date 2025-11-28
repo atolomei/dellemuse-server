@@ -9,10 +9,13 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.InstitutionalContent;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManagerFactory;
@@ -28,6 +31,32 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
     public InstitutionalContentDBService(CrudRepository< InstitutionalContent, Long> repository,   ServerDBSettings settings) {
         super(repository,   settings);
     }
+    
+    
+    /**
+     * <p>
+     * Annotation Transactional is required to store values into the Database
+     * </p>
+     * 
+     * @param name
+     * @param createdBy
+     */
+    @Transactional
+   
+    public  InstitutionalContent create(String name,User createdBy) {
+        InstitutionalContent c = new  InstitutionalContent();
+        c.setName(name);
+         
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+        getRepository().save(c);
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+
+        return c;
+    }
+    
 
  	@Transactional
 	public Optional<InstitutionalContent> findWithDeps(Long id) {
@@ -43,32 +72,13 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
 		return o;
 	}
 
-    /**
-     * <p>
-     * Annotation Transactional is required to store values into the Database
-     * </p>
-     * 
-     * @param name
-     * @param createdBy
-     */
-    @Transactional
-    @Override
-    public  InstitutionalContent create(String name,User createdBy) {
-        InstitutionalContent c = new  InstitutionalContent();
-        c.setName(name);
-         
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
-    }
-
+    
     
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
     }
+   
     /**
      * @param name
      * @return
@@ -81,4 +91,10 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
     protected Class< InstitutionalContent> getEntityClass() {
         return  InstitutionalContent.class;
     }
+    
+    @Override
+	public String getObjectClassName() {
+		 return  InstitutionalContent.class.getSimpleName().toLowerCase();
+	} 
+
 }

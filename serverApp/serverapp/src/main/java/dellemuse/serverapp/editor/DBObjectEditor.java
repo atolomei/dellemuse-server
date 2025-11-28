@@ -16,11 +16,13 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
+import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
@@ -30,6 +32,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
+import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
@@ -268,9 +271,9 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		service.save(a);
 	}
 
-	public void save(Institution inst) {
+	public void save(Institution inst, User user) {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
-		service.save(inst);
+		service.save(inst, user);
 	}
 
 	public void save(InstitutionRecord ir) {
@@ -278,11 +281,17 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		service.save(ir);
 	}
 
-	public void save(Site site) {
+	/**public void save(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		service.save(site);
-	}
+	}**/
 
+	public void save(Site site, User user, List<String> updatedParts) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		service.save(site, user, updatedParts);
+	}
+	
+	
 	public void save(SiteRecord ir) {
 		SiteRecordDBService service = (SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class);
 		service.save(ir);
@@ -302,6 +311,9 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 		service.save(person);
 	}
+	
+
+	/** ------------------------ **/
 
 	protected String getMimeType(String clientFileName) {
 		return super.getResourceDBService().getMimeType(clientFileName);

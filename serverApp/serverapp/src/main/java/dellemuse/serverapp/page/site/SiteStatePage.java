@@ -30,6 +30,7 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -112,7 +113,7 @@ public class SiteStatePage extends ObjectPage<Site> {
 					SiteStatePage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
 			
-				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					SiteStatePage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}
 			}
@@ -241,13 +242,18 @@ public class SiteStatePage extends ObjectPage<Site> {
 		return list;
 	}
 	
-
+	@Override
+	protected Panel getAuditPanel(String id) {
+		return new AuditPanel<Site>(id, getModel());
+	}
+	
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 		
-		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
+		/**
+		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.object_meta) {
 		 
 			private static final long serialVersionUID = 1L;
 
@@ -269,7 +275,8 @@ public class SiteStatePage extends ObjectPage<Site> {
 		};
 		tabs.add(audit);
 		
-
+	**/
+	
 		if (getStartTab()==null)
 			super.setStartTab(ServerAppConstant.object_meta);
 		

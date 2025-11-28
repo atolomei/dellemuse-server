@@ -35,6 +35,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
@@ -104,6 +105,12 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 	
 	protected GuideContentRecord createTranslationRecord(String lang) {
 		return getGuideContentRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
+
+	
+	@Override
+	protected boolean isLanguage() {
+		return false;
 	}
 
 	@Override

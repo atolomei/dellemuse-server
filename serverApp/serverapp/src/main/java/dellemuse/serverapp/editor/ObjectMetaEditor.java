@@ -20,6 +20,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.TranslateMode;
 import dellemuse.serverapp.serverdb.service.DBService;
+import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
@@ -43,8 +44,12 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 	private ChoiceField<Language> masterLanguageField;
 	private ChoiceField<TranslateMode> translateMode;
 
+	private boolean isAudioAutoGenerate = false;
+	private boolean isLanguage = false;
+	
 	private Language masterLanguage;
-
+	private List<ToolbarItem> list;
+	
 	/**
 	 * @param id
 	 * @param model
@@ -53,10 +58,16 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		super(id, model);
 	}
 
+	
+
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		
+		if (list!=null)
+			return list;
+		
+		list = new ArrayList<ToolbarItem>();
 
 		AjaxButtonToolbarItem<T> create = new AjaxButtonToolbarItem<T>() {
 			private static final long serialVersionUID = 1L;
@@ -80,28 +91,6 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		return getSessionUser().getLocale();
 	}
 
-	private void setUpModel() {
-
-		// Class<? extends DelleMuseObject> clazz = getModel().getObject().getClass();
-
-		// Long id=getModel().getObject().getId();
-
-		// Optional<?> o_i = getDBService(clazz).findWithDeps(id);
-
-		// if (o_i.isPresent())
-		// setModel(new ObjectModel<DelleMuseObject>( (DelleMuseObject) o_i.get()));
-		//
-		if (getModel().getObject() instanceof MultiLanguageObject) {
-			String s = ((MultiLanguageObject) getModel().getObject()).getMasterLanguage();
-			if (s != null) {
-				masterLanguage = getLanguageService().getLanguage(s);
-			}
-		}
-
-		// masterLanguage = ((MultiLanguageObject)
-		// getModel().getObject()).getMasterLanguage();
-
-	}
 
 	@Override
 	public void onInitialize() {
@@ -109,6 +98,9 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 		setUpModel();
 
+		try {
+			
+		
 		Form<T> form = new Form<T>("form");
 		add(form);
 		setForm(form);
@@ -120,7 +112,8 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 				private static final long serialVersionUID = 1L;
 
 				public boolean isVisible() {
-					return ObjectMetaEditor.this.getModel().getObject() instanceof MultiLanguageObject;
+					return ObjectMetaEditor.this.isLanguage();
+					
 				}
 
 				@Override
@@ -143,7 +136,8 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 				private static final long serialVersionUID = 1L;
 
 				public boolean isVisible() {
-					return ObjectMetaEditor.this.getModel().getObject() instanceof MultiLanguageObject;
+					return false;
+					//return ObjectMetaEditor.this.getModel().getObject() instanceof MultiLanguageObject;
 				}
 
 				@Override
@@ -264,11 +258,28 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			}
 
 		};
+		
 		getForm().add(b_buttons_top);
+		
+		} catch (Exception e) {
+			logger.error(e);
+			add( new ErrorPanel("form", e));
+		}
 	}
 
-	boolean isAudioAutoGenerate = false;
+	
 
+	protected boolean isLanguage() {
+		return isLanguage;
+		
+//		return ObjectMetaEditor.this.getModel().getObject() instanceof MultiLanguageObject;
+	}
+
+	public void setLanguage(boolean b) {
+		this.isLanguage = b;
+	}
+
+	
 	protected boolean isAudioAutoGenerate() {
 		return isAudioAutoGenerate;
 	}
@@ -320,14 +331,9 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		// fir e( ne w (target));
 	}
 
-	public void save(T modelObject) {
-		getDBService(modelObject.getClass()).saveViaBaseClass((DelleMuseObject) modelObject);
-	}
+	
 
-	@Override
-	public void onDetach() {
-		super.onDetach();
-	}
+	 
 
 	protected void onSubmit() {
 		logger.debug("");
@@ -335,9 +341,6 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		logger.debug("");
 	}
 
-	private DBService<?, Long> getDBService(Class<? extends DelleMuseObject> clazz) {
-		return DBService.getDBService(clazz);
-	}
 
 	public Language getMasterLanguage() {
 		return masterLanguage;
@@ -347,4 +350,20 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		this.masterLanguage = masterLanguage;
 	}
 
+	private void setUpModel() {
+		if (getModel().getObject() instanceof MultiLanguageObject) {
+			String s = ((MultiLanguageObject) getModel().getObject()).getMasterLanguage();
+			if (s != null) {
+				masterLanguage = getLanguageService().getLanguage(s);
+			}
+		}
+	}
+	
+	public void save(T modelObject) {
+		DBService.getDBService(modelObject.getClass()).saveViaBaseClass((DelleMuseObject) modelObject, getSessionUser());
+	}
+	
+	//private DBService<?, Long> getDBService(Class<? extends DelleMuseObject> clazz) {
+	//	return DBService.getDBService(clazz);
+	//}
 }

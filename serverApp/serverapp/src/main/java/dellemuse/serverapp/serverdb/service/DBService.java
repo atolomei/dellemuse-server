@@ -17,6 +17,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.audit.AuditKey;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -59,7 +62,6 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	@PersistenceContext
 	private EntityManager entityManager;
 
-	
 	private static Map<Class<?>, DBService<?, Long>> map = new HashMap<Class<?>, DBService<?, Long>>();
 
 	public static void register(Class<?> entityClass, DBService<?, Long> dbService) {
@@ -70,33 +72,86 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return map.get(entityClass);
 	}
 
-	public DBService(CrudRepository<T, I> repository, ServerDBSettings settings ) {
+	/**
+	 * @param repository
+	 * @param settings
+	 */
+ 	public DBService(CrudRepository<T, I> repository, ServerDBSettings settings ) {
 		super(repository, settings);
 		this.repository = repository;
-		 
 	}
-
-	public abstract T create(String name, User createdBy);
  
-	
-	
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public <S extends T> S saveViaBaseClass(DelleMuseObject entity) {
+	public <S extends T> S saveViaBaseClass(DelleMuseObject entity, User user) {
 		entity.setLastModified(OffsetDateTime.now());
-		return repository.save((S) entity);
+	
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(entity, user, AuditAction.UPDATE));
+		return getRepository().save((S) entity);
+	}
+	
+	@Transactional
+	public <S extends T> S save(S entity, String auditMsg, User user) {
+		
+		OffsetDateTime now = OffsetDateTime.now();
+		entity.setLastModified(now);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(entity, user, AuditAction.UPDATE, auditMsg));
+		return getRepository().save(entity);
+	}
+	
+	@Transactional
+	public <S extends T> S save(S entity, User user) {
+		
+		OffsetDateTime now = OffsetDateTime.now();
+		entity.setLastModified(now);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(entity, user, AuditAction.UPDATE));
+		return getRepository().save(entity);
 	}
 	
 	
 	@Transactional
-	public <S extends T> S save(S entity) {
-		entity.setLastModified(OffsetDateTime.now());
-		return repository.save(entity);
+	public void delete(T c, User user) {
+	
+		logger.debug("deleting -> " + c.getDisplayname() );
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, user, AuditAction.DELETE));
+		getRepository().delete(c);
+	}
+
+	@Transactional
+	public void markAsDeleted(T c, User deletedBy) {
+		
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(deletedBy);
+		c.setState(ObjectState.DELETED);
+
+		getRepository().save(c);	
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
+			
+	}
+	
+	@Transactional
+	public void restore(T c, User restoredBy) {
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(restoredBy);
+		c.setState(ObjectState.EDITION);
+
+		getRepository().save(c);		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy,  AuditAction.UPDATE, AuditKey.RESTORE));
+	}
+	
+	
+	
+	
+	
+	@Transactional
+	public Iterable<T> findAll() {
+		return getRepository().findAll();
 	}
 
 	@Transactional
 	public Optional<T> findById(I id) {
-		return repository.findById(id);
+		return getRepository().findById(id);
 	}
 
 	public Optional<T> findWithDeps(I id) {
@@ -106,35 +161,10 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 	@Transactional
 	public boolean existsById(I id) {
-		return repository.existsById(id);
-	}
-
-	@Transactional
-	public void delete(T o) {
-		repository.delete(o); 
+		return getRepository().existsById(id);
 	}
 	
-	@Transactional
-	public void markAsDeleted(T c, User deletedBy) {
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(deletedBy);
-		c.setState(ObjectState.DELETED);
-		getRepository().save(c);		
-	}
 	
-	@Transactional
-	public void restore(T c, User restoredBy) {
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(restoredBy);
-		c.setState(ObjectState.EDITION);
-		getRepository().save(c);		
-	}
-	
-	@Transactional
-	public Iterable<T> findAll() {
-		return repository.findAll();
-	}
-
 	@Transactional
 	public Iterable<T> findAllSorted() {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -149,9 +179,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> root = cq.from(getEntityClass());
-		
 		cq.select(root).where(cb.equal(root.get("state"), os));
-		
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
@@ -160,21 +188,15 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	public Iterable<T> findAllSorted(ObjectState os1, ObjectState os2) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
-		
 		Root<T> root = cq.from(getEntityClass());
-		
 		Predicate p1 = cb.equal(root.get("state"), os1 );
 		Predicate p2 = cb.equal(root.get("state"), os2 );
-	
 		Predicate combinedPredicate = cb.or(p1, p2);
-
 		cq.select(root).where(combinedPredicate);
-		
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
- 
 	@Transactional
 	public void flush() {
 		 getEntityManager().flush();
@@ -186,14 +208,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		getEntityManager().detach(o);
 	}
 
-	/**
-	@Transactional
-	public List<T> getByNameKey(String name) {
-		return createNameKeyQuery(name).getResultList();
-	}
-**/
-	
-	@Transactional
+ 	@Transactional
 	public List<T> getByName(String name) {
 		return createNameQuery(name, false).getResultList();
 	}
@@ -203,36 +218,34 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return createNameQuery(name, true).getResultList();
 	}
 
-	
 	public TypedQuery<T> createNameQuery(String name) {
 		return createNameQuery(name, false);
 	}
 
-	
-	/**
-	public TypedQuery<T> createNameKeyQuery(String name) {
-		CriteriaBuilder cb =  getEntityManager().getCriteriaBuilder();
-		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
-		Root<T> root = cq.from(getEntityClass());
-		cq.select(root).where(cb.equal(root.get(getNameKeyColumn()), name));
-
-		return  getEntityManager().createQuery(cq);
-	}
-**/
-	
 	public TypedQuery<T> createNameQuery(String name, boolean isLike) {
 		CriteriaBuilder cb =  getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> root = cq.from(getEntityClass());
-
 		if (isLike) {
 			cq.select(root).where(cb.like(cb.lower(root.get(getNameColumn())), "%" + name.toLowerCase() + "%"));
 		} else {
 			cq.select(root).where(cb.equal(cb.lower(root.get(getNameColumn())), name.toLowerCase()));
 		}
-
 		return  getEntityManager().createQuery(cq);
 	}
+	
+	
+	@Transactional
+	public void initAudit() {
+		this.findAll().forEach( i -> {
+			List<DelleMuseAudit> list = getDelleMuseAuditDBService().getAudit(i.getId(), i.getObjectClassName());
+			if (list==null || list.isEmpty()) {
+				logger.debug( "Adding Audit to -> " + i.getName());
+				getDelleMuseAuditDBService().save(DelleMuseAudit.of(i, getUserDBService().findRoot(), AuditAction.CREATE));
+			}
+		});
+	}
+	
 	
 	public String normalize(String name) {
 		return this.getEntityClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();
@@ -248,13 +261,14 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 	protected abstract Class<T> getEntityClass();
 
+	
+	public String getObjectClassName() {
+		return this.getEntityClass().getSimpleName().toLowerCase();
+	}
+	
 	protected String getNameColumn() {
 		return "name";
 	}
-
-	//protected String getNameKeyColumn() {
-	//	return "nameKey";
-	//}
 
 	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
 		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
@@ -275,7 +289,6 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
-
 
 	protected ArtExhibitionRecordDBService getArtExhibitionRecordDBService() {
 		return (ArtExhibitionRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionRecordDBService.class);
@@ -298,15 +311,15 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
 	}
 
-	
 	protected AudioStudioDBService getAudioStudioDBService() {
 		return (AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class);
 	}
-
 	
+	protected DelleMuseAuditDBService getDelleMuseAuditDBService() {
+		return (DelleMuseAuditDBService) ServiceLocator.getInstance().getBean(DelleMuseAuditDBService.class);
+	}
 	
-	
-	public String getDefaultMasterLanguage() {
+	protected String getDefaultMasterLanguage() {
 		return getLanguageService().getDefaultLanguage().getLanguageCode();
 	}
 
@@ -316,8 +329,4 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return name.toLowerCase().replaceAll("[^a-z0-9]+", "-") // Replace non-ASCII alphanumerics with hyphen
 				.replaceAll("(^-+|-+$)", ""); // Trim leading/trailing hyphens
 	}
-
-
-	
-
 }

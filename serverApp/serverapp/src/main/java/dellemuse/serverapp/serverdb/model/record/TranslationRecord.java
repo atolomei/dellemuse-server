@@ -78,9 +78,9 @@ public abstract class TranslationRecord extends DelleMuseObject implements Audio
 	 * generated is not correct, for those images we dont use thumbnail
 	 * 
 	 */
-	@Column(name = "usethumbnail")
-	@JsonProperty("usethumbnail")
-	private boolean usethumbnail;
+	//@Column(name = "usethumbnail")
+	//@JsonProperty("usethumbnail")
+	//private boolean usethumbnail;
 	
 	@Column(name = "subtitle_hash")
 	private int subtitleHash;
@@ -192,9 +192,9 @@ public abstract class TranslationRecord extends DelleMuseObject implements Audio
 		return audio;
 	}
 
-	public boolean isUsethumbnail() {
-		return usethumbnail;
-	}
+	//public boolean isUsethumbnail() {
+	//	return usethumbnail;
+	//}
 
 	public void setIntro(String intro) {
 		this.intro = intro;
@@ -212,9 +212,9 @@ public abstract class TranslationRecord extends DelleMuseObject implements Audio
 		this.audio = audio;
 	}
 
-	public void setUsethumbnail(boolean usethumbnail) {
-		this.usethumbnail = usethumbnail;
-	}
+	//public void setUsethumbnail(boolean usethumbnail) {
+	//	this.usethumbnail = usethumbnail;
+	//}
 
 	@Override
 	protected String baseJSON() {

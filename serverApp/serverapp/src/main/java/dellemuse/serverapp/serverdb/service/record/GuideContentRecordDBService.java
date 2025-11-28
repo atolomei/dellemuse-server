@@ -18,6 +18,8 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -26,6 +28,7 @@ import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
+import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
  
@@ -36,7 +39,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class GuideContentRecordDBService extends DBService<GuideContentRecord, Long> {
+public class GuideContentRecordDBService extends RecordDBService<GuideContentRecord, Long> {
 
 	static private Logger logger = Logger.getLogger(GuideContentRecordDBService.class.getName());
 
@@ -45,58 +48,32 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 	}
 	
 	
-	@Transactional
-	public void markAsDeleted(GuideContentRecord c, User deletedBy) {
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(deletedBy);
-		c.setState(ObjectState.DELETED);
-		getRepository().save(c);		
-	}
-	
-	@Transactional
-	public void restore(GuideContentRecord c, User by) {
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(by);
-		c.setState(ObjectState.EDITION);
-		getRepository().save(c);		
-	}
-	
-	
-	
-	
 	/**
-	 * <p>
-	 * Annotation Transactional is required to store values into the Database
-	 * </p>
+	 * 
 	 * 
 	 * @param name
+	 * @param GuideContent
 	 * @param createdBy
+	 * @return
 	 */
 	@Transactional
-	@Override
-	public GuideContentRecord create(String name, User createdBy) {
+	public GuideContentRecord create(String name, GuideContent GuideContent, User createdBy) {
+		GuideContentRecord c = new GuideContentRecord();
 		
-		//GuideContentRecord c = new GuideContentRecord();
-		//c.setName(name);
-		
-		/**
-		c.setLanguage(Language.EN);
-		
-		c.setNameKey(nameKey(name));
+		c.setName(name);
+		 
+		c.setGuideContent(GuideContent); 
 		c.setCreated(OffsetDateTime.now());
-		c.setUsethumbnail(true);
-	
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+		 
 		
-		logger.debug("Creating GuideContentRecord -> " + c.getName()+" | " + c.getLanguage());
-
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		
-		return getRepository().save(c);
-	*/
-		
-		throw new RuntimeException("can not call create without language");
+		return c;
 	}
+	
 	
 	@Transactional
 	public GuideContentRecord create(GuideContent a, String lang, User createdBy) {
@@ -105,19 +82,47 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 
 		c.setGuideContent(a);
 		c.setName(a.getName());
-		c.setUsethumbnail(c.isUsethumbnail());
+		 
 		c.setLanguage(lang);
 		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		
-		logger.debug("Creating GuideContentRecord -> " + c.getName()+" | " + c.getLanguage());
-
+	 	getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		
-		return getRepository().save(c);
+		return c;
+	}
+	
+	
+	/**
+	@Transactional
+	public void delete(Long id) {
+		deleteResources(id);
+		super.deleteById(id);
 	}
 
+	@Transactional
+	public void delete(GuideContentRecord o) {
+		this.delete(o.getId()); 
+	}
+	**/
+	
+	
+	
+ 	@Transactional
+	public void markAsDeleted(GuideContentRecord c, User deletedBy) {
+ 		super.markAsDeleted(c, deletedBy);
+ 	
+ 	}
+	
+	@Transactional
+	public void restore(GuideContentRecord c, User by) {
+		 super.restore(c, by);
+	}
+	 
+	
 	/**
 	 * 
 	 * @param a
@@ -169,29 +174,7 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 	}
 
  
-	/**
-	 * 
-	 * 
-	 * @param name
-	 * @param GuideContent
-	 * @param createdBy
-	 * @return
-	 */
-	@Transactional
-	public GuideContentRecord create(String name, GuideContent GuideContent, User createdBy) {
-		GuideContentRecord c = new GuideContentRecord();
-		
-		c.setName(name);
-		//c.setNameKey(nameKey(name));
-		c.setGuideContent(GuideContent); 
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		c.setUsethumbnail(true);
-		
-		return getRepository().save(c);
-	}
-
+	
  	@Transactional
 	private void deleteResources(Long id) {
 		
@@ -208,16 +191,6 @@ public class GuideContentRecordDBService extends DBService<GuideContentRecord, L
 		
 	}
 	 
-	@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-
-	@Transactional
-	public void delete(GuideContentRecord o) {
-		this.delete(o.getId()); 
-	}
 	
 	
 	@Transactional

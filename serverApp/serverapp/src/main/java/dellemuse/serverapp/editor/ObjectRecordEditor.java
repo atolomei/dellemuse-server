@@ -85,8 +85,11 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+
 		setUpModel();
+		
 		loadForm();
+		
 		getForm().addOrReplace(new InvisiblePanel("error"));
 	}
 
@@ -202,7 +205,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	}
 
 	public void save(R modelObject) {
-		getDBService(modelObject.getClass()).saveViaBaseClass((DelleMuseObject) modelObject);
+		getDBService(modelObject.getClass()).saveViaBaseClass((DelleMuseObject) modelObject, getSessionUser());
 	}
 
 	protected boolean isAudioStudioEnabled(R o) {

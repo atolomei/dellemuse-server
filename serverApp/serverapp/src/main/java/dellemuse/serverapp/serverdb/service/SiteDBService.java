@@ -15,9 +15,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Check;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -26,6 +29,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Room;
+import dellemuse.serverapp.serverdb.model.RoomType;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.repository.PersonRepository;
@@ -61,37 +65,11 @@ public class SiteDBService extends DBService<Site, Long> {
 		this.siteRecordDBService = siteRecordDBService;
 	}
 
+	
+	
 	@Transactional
-	public void markAsDeleted(Site c, User deletedBy) {
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(deletedBy);
-		c.setState(ObjectState.DELETED);
-		getRepository().save(c);
+ 	public Site create(String name, User createdBy) {
 
-		// c.getGuideContents().forEach( gc -> {
-		// getGuideContentDBService().markAsDeleted(gc, deletedBy);
-		// });
-	}
-
-	@Transactional
-	public void restore(Site c, User restoredBy) {
-
-		OffsetDateTime date = OffsetDateTime.now();
-		c.setLastModified(date);
-		c.setLastModifiedUser(restoredBy);
-		c.setState(ObjectState.EDITION);
-		getRepository().save(c);
-
-		// c.getGuideContents().forEach( gc -> {
-		// if ( !gc.getLastModified().isBefore(date) &&
-		// gc.getState()==ObjectState.DELETED)
-		// getGuideContentDBService().restore(gc, restoredBy);
-		// });
-	}
-
-	@Transactional
-	@Override
-	public Site create(String name, User createdBy) {
 		Site c = new Site();
 
 		c.setName(name);
@@ -104,13 +82,27 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setState(ObjectState.EDITION);
 
 		getRepository().save(c);
-
-		for (Language la : getLanguageService().getLanguages())
+		createSequence(c);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		
+		for (Language la: getLanguageService().getLanguages())
 			getSiteRecordDBService().create(c, la.getLanguageCode(), createdBy);
-
-		return getRepository().save(c);
+		
+		return c;
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * @param institution
+	 * @param shortName
+	 * @param address
+	 * @param info
+	 * @param createdBy
+	 * @return
+	 */
+		
 	@Transactional
 	public Site create(String name, Institution institution, Optional<String> shortName, Optional<String> address, Optional<String> info, User createdBy) {
 
@@ -127,13 +119,17 @@ public class SiteDBService extends DBService<Site, Long> {
 
 		shortName.ifPresent(c::setShortName);
 		address.ifPresent(c::setAddress);
-
+		
 		getRepository().save(c);
+		createSequence(c);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(institution, createdBy,  AuditAction.UPDATE, AuditKey.ADD_SITE));
 
 		for (Language la : getLanguageService().getLanguages())
 			getSiteRecordDBService().create(c, la.getLanguageCode(), createdBy);
-
-		return getRepository().save(c);
+	
+		return c;
 	}
 
 	@Transactional
@@ -152,6 +148,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setState(in.getState());
 
 		c.setCreated(OffsetDateTime.now());
+		c.setState(ObjectState.EDITION);
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 
@@ -168,10 +165,48 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setWhatsapp(in.getWhatsapp());
 
 		c.setInfo(in.getInfo());
+		
+		getRepository().save(c);
+		createSequence(c);
 
-		return getRepository().save(c);
+		for (Language la : getLanguageService().getLanguages())
+			getSiteRecordDBService().create(c, la.getLanguageCode(), createdBy);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(in, createdBy,  AuditAction.UPDATE, AuditKey.ADD_SITE));
+		
+		return c;
+	}
+	
+	
+	@Transactional
+	public void markAsDeleted(Site c, User deletedBy) {
+		super.markAsDeleted(c, deletedBy);
 	}
 
+	@Transactional
+	public void restore(Site c, User restoredBy) {
+		super.restore(c, restoredBy);
+		 
+		// c.getGuideContents().forEach( gc -> {
+		// if ( !gc.getLastModified().isBefore(date) &&
+		// gc.getState()==ObjectState.DELETED)
+		// getGuideContentDBService().restore(gc, restoredBy);
+		// });
+	}
+
+	@Transactional
+	public void save(Site site, User user, List<String> updatedParts ) {
+		super.save(site);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(site, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+	
+	@Transactional
+	public void createSequence(Site site) {
+	     getEntityManager().createNativeQuery("CREATE SEQUENCE IF NOT EXISTS " + site.getAudioIdSequencerName() + " START 1 INCREMENT BY 1")
+	      .executeUpdate();
+	}
+	
 	@Transactional
 	public Iterable<Site> findAllSorted() {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -499,16 +534,21 @@ public class SiteDBService extends DBService<Site, Long> {
 		return this.siteRecordDBService;
 	}
 
+    @Override
+	public String getObjectClassName() {
+		 return  Site.class.getSimpleName().toLowerCase();
+	} 
+
 	// TODO
 	public Iterable<Person> getArtistsBySiteId(Long id, ObjectState os1) {
-		// TODO Auto-generated method stub
-		return null;
+	throw new RuntimeException("not done");
 	}
 
 	// TODO
 	public Iterable<Person> getArtistsBySiteId(Long id, ObjectState os1, ObjectState os2) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("not done");
 	}
+
+	
 
 }

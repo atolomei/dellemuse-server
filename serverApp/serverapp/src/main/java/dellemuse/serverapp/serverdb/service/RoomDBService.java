@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Room;
@@ -42,17 +44,22 @@ public class RoomDBService extends DBService<Room, Long> {
      * @param createdBy
      */
     @Transactional
-    @Override
+   
     public Room create(String name,User createdBy) {
         Room c = new Room();
         c.setName(name);
-        //c.setNameKey(nameKey(name));
+        
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
+        
+        getRepository().save(c);
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+	
+        return c;
     }
 
+    
     @Transactional
 	public Optional<Room> findWithDeps(Long id) {
 
@@ -87,4 +94,10 @@ public class RoomDBService extends DBService<Room, Long> {
     protected Class<Room> getEntityClass() {
         return Room.class;
     }
+    
+    @Override
+	public String getObjectClassName() {
+		 return  Room.class.getSimpleName().toLowerCase();
+	} 
+
 }

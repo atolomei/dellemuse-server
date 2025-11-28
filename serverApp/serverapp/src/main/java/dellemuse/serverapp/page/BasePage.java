@@ -671,6 +671,12 @@ public abstract class BasePage extends WebPage {
 		return service.findAllSorted();
 	}
 
+	public Iterable<Site> getSites(ObjectState o1,  ObjectState o2) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return service.findAllSorted(o1, o2);
+	}
+	
+	
 	public Iterable<Site> getSites(Institution in) {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
 				.getBean(InstitutionDBService.class);

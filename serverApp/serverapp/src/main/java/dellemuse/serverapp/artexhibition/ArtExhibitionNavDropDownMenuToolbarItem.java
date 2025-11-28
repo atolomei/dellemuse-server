@@ -19,6 +19,7 @@ import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
  
 
@@ -57,6 +58,22 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends ObjectBaseNavDropDo
 	public void onInitialize() {
 		super.onInitialize();
 		
+		
+		 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public MenuItemPanel<ArtExhibition> getItem(String id) {
+					return new TitleMenuItem<ArtExhibition>(id) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("information");
+						}
+					};
+				}
+			});
+		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
 			private static final long serialVersionUID = 1L;
@@ -73,7 +90,7 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends ObjectBaseNavDropDo
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("information");
+						return getLabel("information-record", getModel().getObject().getMasterLanguage());
 					}
 				};
 			}

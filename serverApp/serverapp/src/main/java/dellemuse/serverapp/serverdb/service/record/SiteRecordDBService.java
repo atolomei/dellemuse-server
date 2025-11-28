@@ -18,6 +18,8 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -27,6 +29,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
+import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
  
@@ -37,7 +40,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class SiteRecordDBService extends DBService<SiteRecord, Long> {
+public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 
 	static private Logger logger = Logger.getLogger(SiteRecordDBService.class.getName());
 
@@ -45,39 +48,7 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 		super(repository, settings);
 	}
 	
-	/**
-	 * <p>
-	 * Annotation Transactional is required to store values into the Database
-	 * </p>
-	 * 
-	 * @param name
-	 * @param createdBy
-	 */
-	@Transactional
-	@Override
-	public SiteRecord create(String name, User createdBy) {
-		
-		//SiteRecord c = new SiteRecord();
-		//c.setName(name);
-		
-		/**
-		c.setLanguage(Language.EN);
-		
-		c.setNameKey(nameKey(name));
-		c.setCreated(OffsetDateTime.now());
-		c.setUsethumbnail(true);
-	
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		
-		logger.debug("Creating SiteRecord -> " + c.getName()+" | " + c.getLanguage());
-
-		
-		return getRepository().save(c);
-	*/
-		
-		throw new RuntimeException("can not call create without language");
-	}
+	 
 	
 	@Transactional
 	public SiteRecord create(Site a, String lang, User createdBy) {
@@ -86,17 +57,37 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 
 		c.setSite(a);
 		c.setName(a.getName());
-		//c.setUsethumbnail(c.isUsethumbnail());
 		c.setLanguage(lang);
-		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		
-		logger.debug("Creating SiteRecord -> " + c.getName()+" | " + c.getLanguage());
-
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		
-		return getRepository().save(c);
+		return c;
+	}
+
+	/**
+	 * @param name
+	 * @param site
+	 * @param createdBy
+	 * @return
+	 */
+	@Transactional
+	public SiteRecord create(String name, Site site, User createdBy) {
+		SiteRecord c = new SiteRecord();
+		
+		c.setName(name);
+		c.setSite(site); 
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+		
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		
+		return c;
 	}
 
 	/**
@@ -144,26 +135,6 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 	}
 
 	
-	/**
-	 * @param name
-	 * @param site
-	 * @param createdBy
-	 * @return
-	 */
-	@Transactional
-	public SiteRecord create(String name, Site site, User createdBy) {
-		SiteRecord c = new SiteRecord();
-		
-		c.setName(name);
-		//c.setNameKey(nameKey(name));
-		c.setSite(site); 
-		c.setCreated(OffsetDateTime.now());
-		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
-		//c.setUsethumbnail(true);
-		
-		return getRepository().save(c);
-	}
 
 	@Transactional
 	private void deleteResources(Long id) {
@@ -181,7 +152,7 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 		
 	}
 	 
-	@Transactional
+	/**@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
 		super.deleteById(id);
@@ -191,7 +162,7 @@ public class SiteRecordDBService extends DBService<SiteRecord, Long> {
 	public void delete(SiteRecord o) {
 		this.delete(o.getId()); 
 	}
-	
+	**/
 	
 	@Transactional
 	public Optional<SiteRecord> findWithDeps(Long id) {

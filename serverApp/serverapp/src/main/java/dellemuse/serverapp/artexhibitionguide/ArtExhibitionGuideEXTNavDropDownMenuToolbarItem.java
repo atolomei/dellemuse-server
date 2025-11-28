@@ -24,6 +24,7 @@ import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
+import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
  
 
@@ -46,6 +47,27 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 	public void onInitialize() {
 		super.onInitialize();
 		
+		
+
+		 
+		 
+	
+		 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+					return new TitleMenuItem<ArtExhibitionGuide>(id) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("artexhibitionguide-info");
+						}
+					};
+				}
+			});
+		 
+		 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
@@ -64,12 +86,11 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("artexhibitionguide-info");
+						return getLabel("artexhibitionguide-info", getModel().getObject().getMasterLanguage());
 					}
 				};
 			}
 		});
-		
 		
  
 		

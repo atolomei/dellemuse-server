@@ -12,6 +12,7 @@ import org.apache.wicket.model.Model;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
@@ -90,7 +91,7 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 			@Override
 			protected Panel getListItemPanel(IModel<Site> model, ListPanelMode mode) {
 
-				ObjectListItemPanel<Site> panel = new ObjectListItemPanel<>("row-element", model, mode) {
+				DelleMuseObjectListItemPanel<Site> panel = new DelleMuseObjectListItemPanel<>("row-element", model, mode) {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -177,12 +178,16 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 	}
 
 	protected void addSite() {
+		
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		Site site;
+		
 		if (getSiteList().size() == 0)
 			site = service.create(getModel().getObject(), getUserDBService().findRoot());
 		else
 			site = service.create(getModel().getObject().getName() + " " + String.valueOf(getSiteList().size()), getUserDBService().findRoot());
+		
+		
 		IModel<Site> m = new ObjectModel<Site>(site);
 		getSiteList().add(m);
 		setResponsePage(new SitePage(m, getSiteList()));

@@ -8,6 +8,7 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
@@ -20,6 +21,7 @@ import io.wktui.event.SimpleWicketEvent;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
  
 
@@ -45,7 +47,23 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
+	
+		 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionItem>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public MenuItemPanel<ArtExhibitionItem> getItem(String id) {
+					return new TitleMenuItem<ArtExhibitionItem>(id) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("information");
+						}
+					};
+				}
+			});
+		 
+		 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionItem>() {
 
 			private static final long serialVersionUID = 1L;
@@ -62,7 +80,7 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("information");
+						return getLabel("exhibitionitem-record", getModel().getObject().getMasterLanguage());
 					}
 				};
 			}

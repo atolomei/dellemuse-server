@@ -26,6 +26,7 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.artwork.ArtWorkRecordEditor;
+import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.editor.ObjectRecordEditor;
@@ -117,6 +118,11 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 	}
 
+	@Override
+	protected boolean isLanguage() {
+		return false;
+	}
+	
 	protected Optional<InstitutionRecord> loadTranslationRecord(String lang) {
 		return getInstitutionRecordDBService().findByInstitution(getModel().getObject(), lang);
 	}
@@ -351,7 +357,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			});
 		});
 		
-		/**
+		 
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
@@ -381,7 +387,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 				};
 			}
 		});
-	 **/
+	 
 		
 		list.add(menu);
 	
@@ -404,22 +410,30 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		};
 		tabs.add(tab_1);
 
+		/**
 		NamedTab tab_2 = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return new DummyBlockPanel(panelId, getLabel("audit"));
+				return new AuditPanel<Institution>(panelId, getModel());
 			}
 		};
 		tabs.add(tab_2);
+		**/
+		
 		
 		if (getStartTab()==null)
 			setStartTab( ServerAppConstant.institution_info );
 
 		return tabs;
 	}
-
+	
+	@Override
+	protected Panel getAuditPanel(String id) {
+		return new AuditPanel<Institution>(id, getModel());
+	}
+	
 	
 	protected IModel<String> getMainTitle() {
 			return new Model<String>(getModel().getObject().getDisplayname());

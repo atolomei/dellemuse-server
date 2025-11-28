@@ -18,6 +18,8 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.ArtWorkArtist;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -67,27 +69,25 @@ public class PersonDBService extends DBService<Person, Long> {
     public Person create(String name, String lastname, User createdBy) {
         Person c = new Person();
         c.setName(name);
-        //c.setNameKey(nameKey(name));
+        
         
         c.setMasterLanguage(getDefaultMasterLanguage());
         c.setLanguage(getDefaultMasterLanguage());
         
         c.setLastname(lastname);
         c.setLastnameKey(nameKey(lastname));
-        
-        //c.setTitle(name + " " + lastname);
-        
+         
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
         
-    	getRepository().save(c);
+ 		getRepository().save(c);
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 
 		for ( Language la:getLanguageService().getLanguages() )
 			getPersonRecordDBService().create(c, la.getLanguageCode(),  createdBy);
 		
-		
-        return getRepository().save(c);
+        return c;
     }
 
     @Transactional
@@ -96,16 +96,11 @@ public class PersonDBService extends DBService<Person, Long> {
                          Optional<String> o_phone, Optional<String> o_email) {
         Person c = new Person();
         c.setName(name);
-        //c.setNameKey(nameKey(name));
-
+        
         if (o_lastname.isPresent()) {
             c.setLastname(o_lastname.get());
             c.setLastnameKey(nameKey(o_lastname.get()));
-            //c.setTitle(name + " " + o_lastname.get());
         }
-        //else {
-        //    c.setTitle(name);
-        //}
 
         o_sex.ifPresent(c::setSex);
         o_pid.ifPresent(c::setPhysicalid);
@@ -122,13 +117,13 @@ public class PersonDBService extends DBService<Person, Long> {
         c.setLanguage(getDefaultMasterLanguage());
  
         getRepository().save(c);
-
-		for ( Language la:getLanguageService().getLanguages() )
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+    	
+       for ( Language la:getLanguageService().getLanguages() )
 			getPersonRecordDBService().create(c, la.getLanguageCode(),  createdBy);
 
-		return getRepository().save(c);
+		return c;
     }
-    
     
     
     @Transactional
@@ -136,11 +131,8 @@ public class PersonDBService extends DBService<Person, Long> {
 
 		if (!getEntityManager().contains(src)) {
 			src = findById(src.getId()).get();
-			//@SuppressWarnings("unused")
-			//Institution i = src.getInstitution();
 		}
 	}
-    
 
 	@Transactional
 	public Optional<Person> findWithDeps(Long id) {
@@ -179,7 +171,7 @@ public class PersonDBService extends DBService<Person, Long> {
         return getEntityManager().createQuery(cq).getResultList();
     }
     
-    @Override
+    
     public Person create(String name, User createdBy) {
         return create(name, name, createdBy);
     }
@@ -254,6 +246,12 @@ public class PersonDBService extends DBService<Person, Long> {
         return Person.class;
     }
     
+    @Override
+	public String getObjectClassName() {
+		 return  Person.class.getSimpleName().toLowerCase();
+	} 
+
+
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);

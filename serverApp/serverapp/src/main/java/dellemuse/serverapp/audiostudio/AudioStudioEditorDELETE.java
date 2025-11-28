@@ -41,11 +41,11 @@ import wktui.base.InvisiblePanel;
  *
  * 
  */
-public class AudioStudioEditor extends DBObjectEditor<AudioStudio> {
+public class AudioStudioEditorDELETE extends DBObjectEditor<AudioStudio> {
 
 	private static final long serialVersionUID = 1L;
 
-	static private Logger logger = Logger.getLogger(AudioStudioEditor.class.getName());
+	static private Logger logger = Logger.getLogger(AudioStudioEditorDELETE.class.getName());
 
 	 
 	private IModel<AudioStudioParentObject> parentObjectModel;
@@ -122,7 +122,7 @@ public class AudioStudioEditor extends DBObjectEditor<AudioStudio> {
 	 * @param id
 	 * @param model
 	 */
-	public AudioStudioEditor(String id, IModel<AudioStudio> model, String parentObjejctUrl) {
+	public AudioStudioEditorDELETE(String id, IModel<AudioStudio> model, String parentObjejctUrl) {
 		super(id, model);
 		this.parentObjectUrl = parentObjejctUrl;
 	}
@@ -136,11 +136,7 @@ public class AudioStudioEditor extends DBObjectEditor<AudioStudio> {
 
 		setUpModel();
 
-		
-		
-		
-		
-		
+	 
 		generalInit();
 
 		step1();
@@ -208,13 +204,13 @@ public class AudioStudioEditor extends DBObjectEditor<AudioStudio> {
 				if (uploadedStep1 == true)
 					return true;
 
-				if (AudioStudioEditor.this.getAudioSpeechModel()!=null && AudioStudioEditor.this.getAudioSpeechModel().getObject() != null)
+				if (AudioStudioEditorDELETE.this.getAudioSpeechModel()!=null && AudioStudioEditorDELETE.this.getAudioSpeechModel().getObject() != null)
 					return true;
 
 				if (uploadedStep2 == true)
 					return true;
 
-				if (AudioStudioEditor.this.getAudioSpeechMusicModel()!=null && AudioStudioEditor.this.getAudioSpeechMusicModel().getObject() != null)
+				if (AudioStudioEditorDELETE.this.getAudioSpeechMusicModel()!=null && AudioStudioEditorDELETE.this.getAudioSpeechMusicModel().getObject() != null)
 					return true;
 
 				return false;
@@ -256,19 +252,19 @@ public class AudioStudioEditor extends DBObjectEditor<AudioStudio> {
 
 				getForm().updateModel();
 				
-				AudioStudioEditor.this.getModel().getObject().setMusicUrl("https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
+				AudioStudioEditorDELETE.this.getModel().getObject().setMusicUrl("https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
 				
 				
 				
-				if (AudioStudioEditor.this.getModel().getObject().getAudioSpeech()!=null) {
-					Long voiceResourceId = AudioStudioEditor.this.getModel().getObject().getAudioSpeech().getId();
-					String musicUrl 	 = AudioStudioEditor.this.getModel().getObject().getMusicUrl();
+				if (AudioStudioEditorDELETE.this.getModel().getObject().getAudioSpeech()!=null) {
+					Long voiceResourceId = AudioStudioEditorDELETE.this.getModel().getObject().getAudioSpeech().getId();
+					String musicUrl 	 = AudioStudioEditorDELETE.this.getModel().getObject().getMusicUrl();
 					
 					musicUrl= "https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3";
 	
-					Integer introDurationSec=AudioStudioEditor.this.getIntroDurationSec();
-					Integer fadeDurationSec=AudioStudioEditor.this.getFadeDurationSec();
-					Integer voiceOverlapDurationSec=AudioStudioEditor.this.getVoiceOverlapDurationSec();
+					Integer introDurationSec=AudioStudioEditorDELETE.this.getIntroDurationSec();
+					Integer fadeDurationSec=AudioStudioEditorDELETE.this.getFadeDurationSec();
+					Integer voiceOverlapDurationSec=AudioStudioEditorDELETE.this.getVoiceOverlapDurationSec();
 	
 					IntegrateMusicCommand c = new IntegrateMusicCommand( voiceResourceId, musicUrl,  introDurationSec, fadeDurationSec, voiceOverlapDurationSec);
 	
@@ -341,7 +337,7 @@ public class AudioStudioEditor extends DBObjectEditor<AudioStudio> {
 
 			@Override
 			public void onSubmit(AjaxRequestTarget target) {
-				AudioStudioEditor.this.onSave(target);
+				AudioStudioEditorDELETE.this.onSave(target);
 			}
 
 			@Override
@@ -356,18 +352,18 @@ public class AudioStudioEditor extends DBObjectEditor<AudioStudio> {
 				if (uploadedStep1 || uploadedStep2)
 					return true;
 
-				if (AudioStudioEditor.this.getModel().getObject().getAudioSpeech() != null) {
+				if (AudioStudioEditorDELETE.this.getModel().getObject().getAudioSpeech() != null) {
 					return true;
 				}
 
-				if (AudioStudioEditor.this.getModel().getObject().getAudioSpeechMusic() != null)
+				if (AudioStudioEditorDELETE.this.getModel().getObject().getAudioSpeechMusic() != null)
 					return true;
 
 				return false;
 			}
 			
 			public IModel<String> getLabel() {
-				return AudioStudioEditor.this.getLabel("integrate", parentName);
+				return AudioStudioEditorDELETE.this.getLabel("integrate", parentName);
 			}
 
 			@Override
@@ -507,8 +503,8 @@ public class AudioStudioEditor extends DBObjectEditor<AudioStudio> {
 
 				getForm().updateModel();
 
-				if (AudioStudioEditor.this.getModel().getObject().getInfo()!=null &&
-					AudioStudioEditor.this.getModel().getObject().getInfo().length()==0)
+				if (AudioStudioEditorDELETE.this.getModel().getObject().getInfo()!=null &&
+					AudioStudioEditorDELETE.this.getModel().getObject().getInfo().length()==0)
 				{
 					AlertPanel<Void> alert = new AlertPanel<Void>("step1Error", AlertPanel.WARNING, getLabel("step1.no-text"));
 					step1.addOrReplace(alert);
@@ -541,10 +537,10 @@ public class AudioStudioEditor extends DBObjectEditor<AudioStudio> {
 			@Override
 			public boolean isEnabled() {
 
-				if (AudioStudioEditor.this.getAudioSpeechModel()==null)
+				if (AudioStudioEditorDELETE.this.getAudioSpeechModel()==null)
 					return false;
 				
-				if (AudioStudioEditor.this.getAudioSpeechModel().getObject() != null)
+				if (AudioStudioEditorDELETE.this.getAudioSpeechModel().getObject() != null)
 					return true;
 
 				return false;

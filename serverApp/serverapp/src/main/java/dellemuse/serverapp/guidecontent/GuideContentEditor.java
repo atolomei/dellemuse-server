@@ -47,6 +47,7 @@ import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.field.FileUploadSimpleField;
+import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -73,7 +74,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 	private TextAreaField<String> locationField;
 	private TextAreaField<String> infoField;
 	private TextAreaField<String> introField;
-	
+	private StaticTextField<String> audioIdField;
 	private FileUploadSimpleField<Resource> audioField;
 	
 	private IModel<Resource> photoModel;
@@ -206,20 +207,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		setUpModel();
 		addAlert();
 				
-		/**
-		this.infoContainer = new WebMarkupContainer("infoContainer") {
-			private static final long serialVersionUID = 1L;
-			public boolean isVisible() {
-				return isAlertInfo();
-			}
-		};
-		
-		this.infoContainer.setOutputMarkupId(true);
-		add(this.infoContainer);
-		**/
-		
-		
-		Form<GuideContent> form = new Form<GuideContent>("form");
+	 	Form<GuideContent> form = new Form<GuideContent>("form");
 	
 		add(form);
 		setForm(form);
@@ -294,6 +282,11 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		form.add(subtitleField);
 		form.add(infoField);
 		form.add(audioField);
+		
+		
+		audioIdField = new StaticTextField<String>("audioid", new PropertyModel<String>(getModel(), "audioId"), getLabel("audioid"));
+	
+		form.add(audioIdField);
 		
 		EditButtons<GuideContent> buttons = new EditButtons<GuideContent>("buttons-bottom", getForm(), getModel()) {
 

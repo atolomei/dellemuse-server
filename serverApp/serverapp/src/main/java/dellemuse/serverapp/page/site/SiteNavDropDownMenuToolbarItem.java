@@ -110,8 +110,6 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 
-	 
-
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
@@ -333,7 +331,8 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 
-		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+	
+		/**addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -354,7 +353,8 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 					}
 				};
 			}
-		});
+		});**/
+		
 	}
 
 	protected IModel<Institution> getInstitutionModel() {

@@ -11,6 +11,7 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
+import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
@@ -310,7 +311,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			@Override
 			protected Panel getListItemPanel(IModel<ArtExhibitionGuide> model) {
 				
-				ObjectListItemPanel<ArtExhibitionGuide> panel = new ObjectListItemPanel<ArtExhibitionGuide>("row-element",
+				DelleMuseObjectListItemPanel<ArtExhibitionGuide> panel = new DelleMuseObjectListItemPanel<ArtExhibitionGuide>("row-element",
 						model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
 

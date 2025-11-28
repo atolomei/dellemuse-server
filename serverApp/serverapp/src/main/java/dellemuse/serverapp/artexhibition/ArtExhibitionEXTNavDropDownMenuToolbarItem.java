@@ -10,7 +10,7 @@ import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
- 
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
@@ -20,6 +20,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
  
 
@@ -51,6 +52,23 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 	public void onInitialize() {
 		super.onInitialize();
 		
+		
+		
+		 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public MenuItemPanel<ArtExhibition> getItem(String id) {
+					return new TitleMenuItem<ArtExhibition>(id) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("exhibition-info");
+						}
+					};
+				}
+			});
+		 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
 			private static final long serialVersionUID = 1L;
@@ -69,7 +87,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("exhibition-info");
+						return getLabel("exhibition-record", getModel().getObject().getMasterLanguage());
 					}
 				};
 			}

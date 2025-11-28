@@ -19,7 +19,9 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.FSUtil;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
-
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.object.service.ResourceService;
@@ -50,17 +52,26 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
 
     
     @Transactional
+    public Resource create(String objectName, User createdBy) {
+        return create(ServerConstant.MEDIA_BUCKET, objectName, objectName, null, 0, null, createdBy, objectName);
+    }
+
+    @Transactional
+    public Resource create(String objectName, String name, long size, User createdBy) {
+        return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, size, null, createdBy, name);
+    }
+    
+    @Transactional
     public Resource create(String bucketName, String objectName, String name, String media, long size, String tag, User createdBy, String fileName) {
-        Resource c = new Resource();
-        c.setBucketName(bucketName);
+      
+    	Resource c = new Resource();
+        
+    	c.setBucketName(bucketName);
         c.setObjectName(objectName);
         c.setName(name);
         c.setFileName(fileName);
         c.setSize(size);
         c.setTag(tag);
-        
-     //   c.setLanguage(getDefaultMasterLanguage());
- 
         
         if (media != null)
             c.setMedia(media);
@@ -73,10 +84,13 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
         
-        return getRepository().save(c);
+        getRepository().save(c);
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		
+        return c;
     }
     
-  	@Transactional
+  	/**@Transactional
     public void delete(Resource r) {
     	r.setLastModifiedUser(null);
     	super.delete(r);
@@ -88,7 +102,8 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
 		r.setLastModifiedUser(null);
 		super.deleteById(id);
     }
-   
+   **/
+    
  	@Transactional
        public Optional<Resource> findWithDeps(Long id) {
        
@@ -178,16 +193,8 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
 		return getEntityManager().createQuery(cq).getResultList();
 	}
     
-    @Override
-    @Transactional
-    public Resource create(String objectName, User createdBy) {
-        return create(ServerConstant.MEDIA_BUCKET, objectName, objectName, null, 0, null, createdBy, objectName);
-    }
-
-    @Transactional
-    public Resource create(String objectName, String name, long size, User createdBy) {
-        return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, size, null, createdBy, name);
-    }
+    
+   
 
    
     /**
@@ -224,7 +231,11 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     	super.register(getEntityClass(), this);
     }
     
-    
+    @Override
+	public String getObjectClassName() {
+		 return  Resource.class.getSimpleName().toLowerCase();
+	} 
+
     @Override
     protected Class<Resource> getEntityClass() {
         return Resource.class;

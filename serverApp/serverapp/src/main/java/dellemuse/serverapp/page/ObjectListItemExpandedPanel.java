@@ -27,7 +27,7 @@ import wktui.base.InvisiblePanel;
 import wktui.base.LabelPanel;
 import wktui.base.ModelPanel;
 
-public class ObjectListItemExpandedPanel<T extends DelleMuseObject> extends ModelPanel<T> {
+public abstract class ObjectListItemExpandedPanel<T> extends ModelPanel<T> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -48,28 +48,19 @@ public class ObjectListItemExpandedPanel<T extends DelleMuseObject> extends Mode
 	public ObjectListItemExpandedPanel(String id, IModel<T> model, ListPanelMode mode) {
 		super(id, model);
 		this.mode=mode;
-		//this.imageVisible = (mode==ListPanelMode.TITLE_TEXT_IMAGE);
-		
 	}
 
-	
-	 
-
-	
-	
-
-	 
-
+ 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		this.imageContainer = new WebMarkupContainer("imageContainer");
 		add(this.imageContainer);
-		
-		
+	
 		this.titleTextContainer = new WebMarkupContainer("titleTextContainer");
 		add(this.titleTextContainer);
+		
 		this.titleTextContainer.add(new org.apache.wicket.AttributeModifier("class", isImageVisible() ? 
 									"mt-2 col-xxl-12  col-xl-12  col-lg-12  col-md-12  col-sm-12 text-lg-start text-md-start text-xs-center" : 
 					  			   	"mt-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-lg-start text-md-start text-xs-center"));
@@ -89,24 +80,7 @@ public class ObjectListItemExpandedPanel<T extends DelleMuseObject> extends Mode
 
 		this.imageContainer.add(imageLink);
 
-		//Link<T> titleLink = new Link<>("title-link", getModel()) {
-		//	private static final long serialVersionUID = 1L;
-//
-//			@Override
-//			public void onClick() {
-//				ObjectListItemExpandedPanel.this.onClick();
-//			}
-//		};	
-		
-//		if (getTitleLinkCss()!=null)
-//			titleLink.add( new org.apache.wicket.AttributeModifier( "class",getTitleLinkCss()));
-//		this.titleTextContainer.add(titleLink);
-
-		//Label title = new Label("title", getObjectTitle() );
-		//title.setEscapeModelStrings(false);
-		//titleLink.add(title);
-		
-		if (getObjectSubtitle() != null) {
+ 		if (getObjectSubtitle() != null) {
 			WebMarkupContainer subtitleContainer = new WebMarkupContainer("subtitle-container");
 			titleTextContainer.addOrReplace(subtitleContainer);
 			Label subtitleLabel = new Label("subtitle", getObjectSubtitle());
@@ -167,13 +141,11 @@ public class ObjectListItemExpandedPanel<T extends DelleMuseObject> extends Mode
 	}
 
 
-	//protected IModel<String> getObjectTitle() {
-	//	return new Model<String> (getModel().getObject().getDisplayname() );
-	//}
-
-	protected IModel<String> getInfo() {
-		return new Model<String>( getModel().getObject().getDisplayname());
-	}
+	protected abstract IModel<String> getInfo();
+	
+	//{
+//		return new Model<String>(getModel().getObject().getDisplayname());
+//	}
 
 	protected IModel<String> getObjectSubtitle() {
 		return subtitle;

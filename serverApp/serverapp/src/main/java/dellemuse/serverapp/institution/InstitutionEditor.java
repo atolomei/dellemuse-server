@@ -37,9 +37,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 	private Form<Institution> form;
 
-	//private ChoiceField<ObjectState> objectStateField;
-	//private ChoiceField<Language> languageField;
-	private TextField<String> nameField;
+ 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
 	private TextField<String> shortNameField;
 	private TextAreaField<String> addressField;
@@ -426,14 +424,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 	}
 
 	
-
-	/**
-	public Resource getPhoto() {
-		if (getPhotoModel()==null)
-			return null;
-		return getPhotoModel().getObject();
-	}
-**/
+ 
 	
 	protected IModel<Resource> getPhotoModel() {
 		return this.photoModel;
@@ -490,7 +481,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 		logger.debug("updated parts:");
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
-		save(getModelObject());
+		save(getModelObject(), getSessionUser());
 		uploadedPhoto = false;
 		getForm().setFormState(FormState.VIEW);
 		getForm().updateReload();

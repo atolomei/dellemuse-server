@@ -2,6 +2,7 @@ package dellemuse.serverapp.page.site;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
@@ -15,11 +16,13 @@ import org.apache.wicket.model.util.ListModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -47,7 +50,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
     // ChoiceField<Institution>  institutionField;
 
 
-	//private ChoiceField<ObjectState> objectStateField;
+	private ChoiceField<Language> masterLanguageField;
 	
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
@@ -109,11 +112,9 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
         getSiteDBService().reloadIfDetached(site);
         getModel().setObject(site);
         
-        // logger.debug(site.toString());
-    
-        List<Institution> list = new ArrayList<Institution>();
+         List<Institution> list = new ArrayList<Institution>();
         getInstitutions().forEach(x -> list.add(x));
-        
+     
         //  StreamSupport.stream(getInstitutions().spliterator(), false).collect(Collectors.toList());
         /**
          * 
@@ -137,33 +138,10 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
         **/
         //institutionField.setChoices(new ListModel<Institution>( StreamSupport.stream(getInstitutions().spliterator(), false).collect(Collectors.toList()) ));
         
-        /**
-        objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
-		
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (getStates());
-			}
-			
-			@Override
-			protected String getDisplayValue(ObjectState value) {
-				if (value==null)
-					return null;
-				return value.getLabel(getLocale());
-			}
-			
-			@Override
-			protected String getIdValue(ObjectState value) {
-				return String.valueOf(value.getId());
-			}
-		};
-		form.add(objectStateField);
-		**/
+       
         
 		
-        nameField 			= new TextField<String>("name", 		new PropertyModel<String>(getModel(), "name") , getLabel("name"));
+        nameField 			= new TextField<String>("name", 		new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 	 	subtitleField		= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
         shortNameField  	= new TextField<String>("shortName", 	new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
         infoField  			= new TextAreaField<String>("info", 	new PropertyModel<String>(getModel(), "info"), getLabel("info"), 8);
@@ -225,7 +203,26 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 			}
 		};
 	 
-		form.add( nameField );
+		
+		this.masterLanguageField = new ChoiceField<Language>("masterlanguage", new PropertyModel<Language>(getModel(), "ML"), getLabel("masterlanguage")) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Language>> getChoices() {
+				return new ListModel<Language>(getLanguages());
+			}
+
+			@Override
+			protected String getDisplayValue(Language value) {
+				if (value == null)
+					return null;
+				return value.getLabel(getUserLocale());
+			}
+		};
+
+		form.add(masterLanguageField);
+ 		form.add( nameField );
 		form.add( subtitleField );
         form.add( shortNameField ); 
         form.add( infoField ); 
@@ -302,6 +299,10 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 	}
 	
 	
+	protected List<Language> getLanguages() {
+		return getLanguageService().getLanguagesSorted(Locale.ENGLISH);
+	}
+	
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 		
@@ -324,7 +325,9 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 		return list;
 	}
 
-	
+	protected Locale getUserLocale() {
+		return getSessionUser().getLocale();
+	}
 	
 	@Override
 	public void onDetach() {
@@ -360,7 +363,12 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 			logger.debug("updated parts:");
 			getUpdatedParts().forEach(s -> logger.debug(s));
 			logger.debug("saving...");
-			save(getModelObject());
+
+			
+			getModelObject().setLanguage(PARENT_PATH);
+			
+			
+			save(getModelObject(), getSessionUser(), getUpdatedParts());
 			uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
@@ -371,6 +379,8 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 	}
 	
+	
+
 	protected IModel<Resource> getPhotoModel() {
 		return this.photoModel;
 	}

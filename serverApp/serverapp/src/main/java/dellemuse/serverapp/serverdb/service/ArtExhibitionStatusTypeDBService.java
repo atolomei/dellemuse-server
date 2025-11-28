@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionStatusType;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
@@ -35,22 +38,24 @@ public class ArtExhibitionStatusTypeDBService extends DBService<ArtExhibitionSta
      * @param createdBy
      */
     @Transactional
-    @Override
+     
     public ArtExhibitionStatusType create(String name, User createdBy) {
         ArtExhibitionStatusType c = new ArtExhibitionStatusType();
         c.setName(name);
-        //c.setNameKey(nameKey(name));
+        
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
+ 
+        getRepository().save(c);
+        
+    	getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+    	return c;
+    	
     }
 
-    @PostConstruct
-    protected void onInitialize() {
-    	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
-    }
+  
+    
     /**
      * @param name
      * @return
@@ -63,4 +68,14 @@ public class ArtExhibitionStatusTypeDBService extends DBService<ArtExhibitionSta
     protected Class<ArtExhibitionStatusType> getEntityClass() {
         return ArtExhibitionStatusType.class;
     }
+    
+	@Override
+	public String getObjectClassName() {
+		 return ArtExhibitionStatusType.class.getSimpleName().toLowerCase();
+	} 
+
+	  @PostConstruct
+	    protected void onInitialize() {
+	    	super.register(getEntityClass(), this);
+	    }
 }

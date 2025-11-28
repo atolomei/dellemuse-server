@@ -20,7 +20,6 @@ public class ResourceIdDBService extends BaseDBService<ResourceId, Long> {
         super(repository,   settings);
     }
 
-    @Override
     @Transactional
     public ResourceId create(String name, User createdBy) {
         ResourceId c =new ResourceId();
@@ -30,7 +29,6 @@ public class ResourceIdDBService extends BaseDBService<ResourceId, Long> {
     @PostConstruct
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
-    	//ServiceLocator.getInstance().register(getEntityClass(), this);
     }
     
     @Override

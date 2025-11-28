@@ -50,7 +50,6 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	private WebMarkupContainer titleContainer;
 	private Label title;
 
-	 
 	private WebMarkupContainer mainToolbarContainer;
 	private WebMarkupContainer mainToolbar;
 
@@ -58,15 +57,18 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	private WebMarkupContainer listToolbar;
 
 	private boolean b_expand = false;
+	private ObjectStateEnumSelector oses;
+
+	
 
 	protected abstract void addHeaderPanel();
 
 	public abstract Iterable<T> getObjects();
+
 	public abstract Iterable<T> getObjects(ObjectState os1);
+
 	public abstract Iterable<T> getObjects(ObjectState os1, ObjectState os2);
-	
-	
-	
+
 	protected abstract IModel<String> getObjectInfo(IModel<T> model);
 
 	protected abstract IModel<String> getObjectTitle(IModel<T> model);
@@ -80,8 +82,8 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	protected abstract List<ToolbarItem> getMainToolbarItems();
 
 	protected abstract List<ToolbarItem> getListToolbarItems();
-	
-	//protected abstract void setListState(ObjectStateSelectEvent event);
+
+	// protected abstract void setListState(ObjectStateSelectEvent event);
 
 	public ObjectListPage() {
 		super();
@@ -99,15 +101,11 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		this.addOrReplace(new InvisiblePanel("page-header"));
 	}
 
-	 
 
-	
-	private ObjectStateEnumSelector oses;
-	
 	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
-		this.oses=o;
+		this.oses = o;
 	}
-	
+
 	public ObjectStateEnumSelector getObjectStateEnumSelector() {
 		return this.oses;
 	}
@@ -144,20 +142,18 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 			@Override
 			public void onEvent(ObjectStateSelectEvent event) {
-		
-				
-				setObjectStateEnumSelector( event.getObjectStateEnumSelector());
-				
+
+				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
+
 				logger.debug(event.toString());
 
 				loadList();
-				
+
 				event.getTarget().add(ObjectListPage.this.panel);
 				event.getTarget().add(ObjectListPage.this.listToolbarContainer);
-					
-				
+
 			}
-			
+
 			@Override
 			public boolean handle(UIEvent event) {
 				if (event instanceof ObjectStateSelectEvent)
@@ -165,10 +161,9 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 				return false;
 			}
 		});
-		
+
 	}
-	
-	
+
 	protected Panel getObjectListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
 
 		return new ObjectListItemExpandedPanel<T>("expanded-panel", model, mode) {
@@ -248,7 +243,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 			loadList();
 
-			this.panel = new ListPanel<>("contents" ) {
+			this.panel = new ListPanel<>("contents") {
 
 				private static final long serialVersionUID = 1L;
 
@@ -256,12 +251,12 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 				public List<IModel<T>> getItems() {
 					return ObjectListPage.this.getList();
 				}
-				
+
 				@Override
 				public Integer getTotalItems() {
 					return Integer.valueOf(ObjectListPage.this.getList().size());
 				}
-			
+
 				@Override
 				protected Panel getListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
 					return ObjectListPage.this.getObjectListItemExpandedPanel(model, mode);
@@ -270,7 +265,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 				@Override
 				protected Panel getListItemPanel(IModel<T> model, ListPanelMode mode) {
 
-					ObjectListItemPanel<T> panel = new ObjectListItemPanel<>("row-element", model, mode) {
+					DelleMuseObjectListItemPanel<T> panel = new DelleMuseObjectListItemPanel<>("row-element", model, mode) {
 
 						private static final long serialVersionUID = 1L;
 
@@ -335,9 +330,9 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			this.panel.setSettings(isSettings());
 			this.panel.setTitle(getListPanelLabel());
 			this.panel.setListPanelMode(getListPanelMode());
-		
+
 			add(this.panel);
-		
+
 		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("contents", e));
@@ -355,10 +350,6 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	protected IModel<String> getTitleLabel() {
 		return null;
 	}
- 
-
-	
-	
 
 	protected WebMarkupContainer getObjectMenu(IModel<T> model) {
 		return null;
@@ -372,32 +363,29 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		return null;
 	}
 
-	
 	protected void loadList() {
-	
+
 		this.list = new ArrayList<IModel<T>>();
-		
-		if (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.EDTIION_PUBLISHED)
-			getObjects( ObjectState.EDITION,  ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
 
-		if (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.PUBLISHED)
-			getObjects( ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
-		
-		if (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.EDITION)
-			getObjects( ObjectState.EDITION).forEach(s -> this.list.add(new ObjectModel<T>(s)));
-		
-		
-		else if (this.getObjectStateEnumSelector()==null)
+		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDTIION_PUBLISHED)
+			getObjects(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
+
+		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
+			getObjects(ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
+
+		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
+			getObjects(ObjectState.EDITION).forEach(s -> this.list.add(new ObjectModel<T>(s)));
+
+		else if (this.getObjectStateEnumSelector() == null)
 			getObjects().forEach(s -> this.list.add(new ObjectModel<T>(s)));
 
-		else if  (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.ALL)
+		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.ALL)
 			getObjects().forEach(s -> this.list.add(new ObjectModel<T>(s)));
 
-		else if  (this.getObjectStateEnumSelector()==ObjectStateEnumSelector.DELETED)
-			getObjects( ObjectState.DELETED ).forEach(s -> this.list.add(new ObjectModel<T>(s)));
-		
-		
-		this.list.forEach( c -> logger.debug(c.toString()));
+		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
+			getObjects(ObjectState.DELETED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
+
+		this.list.forEach(c -> logger.debug(c.toString()));
 	}
 
 	private void addMainToolbar() {
@@ -447,5 +435,4 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		}
 	}
 
-	
 }

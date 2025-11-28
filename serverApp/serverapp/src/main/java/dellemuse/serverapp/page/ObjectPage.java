@@ -24,6 +24,7 @@ import dellemuse.serverapp.guidecontent.GuideContentEditor;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.User;
 import io.odilon.util.Check;
 import io.wktui.error.AlertPanel;
@@ -48,7 +49,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private static final long serialVersionUID = 1L;
 	 
 	static private Logger logger = Logger.getLogger(ObjectPage.class.getName());
-
+ 
 	private StringValue stringValue;
 	private IModel<T> model;
 
@@ -376,16 +377,28 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		if (this.metaEditor==null) {
 			metaEditor = new ObjectMetaEditor<T>(id, getModel());
 		
+			metaEditor.setLanguage( ObjectPage.this.isLanguage());
 			metaEditor.setAudioAutoGenerate(ObjectPage.this.isAudioAutoGenerate());
 		}
+		
 		return (metaEditor);
 	}
 	
+	
+	protected boolean isLanguage() {
+		return getModel().getObject() instanceof MultiLanguageObject;
+	}
+	
+
+
+	
+
 	protected boolean isAudioAutoGenerate() {
 		return false;
 	}
 
-
+	
+	
 	protected List<INamedTab> createInternalPanels() {
 		
 		List<INamedTab> tabs = new ArrayList<INamedTab>();
@@ -398,6 +411,20 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			}
 		};
 		tabs.add(tab_2);
+		
+		
+		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getAuditPanel(panelId);
+			}
+		};
+		tabs.add(audit);
+		
+		
 		return tabs;
 	}
 	

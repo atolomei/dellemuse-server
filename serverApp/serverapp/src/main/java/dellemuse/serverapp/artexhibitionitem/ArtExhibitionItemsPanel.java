@@ -13,6 +13,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
@@ -389,7 +390,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 
 			@Override
 			protected Panel getListItemPanel(IModel<ArtExhibitionItem> model) {
-				ObjectListItemPanel<ArtExhibitionItem> panel = new ObjectListItemPanel<ArtExhibitionItem>("row-element",
+				DelleMuseObjectListItemPanel<ArtExhibitionItem> panel = new DelleMuseObjectListItemPanel<ArtExhibitionItem>("row-element",
 						model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
 

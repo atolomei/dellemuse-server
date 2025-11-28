@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Room;
 import dellemuse.serverapp.serverdb.model.RoomType;
@@ -41,15 +43,19 @@ public class RoomTypeDBService extends DBService<RoomType, Long> {
      * @param createdBy
      */
     @Transactional
-    @Override
+     
     public RoomType create(String name,User createdBy) {
         RoomType c = new RoomType();
         c.setName(name);
-        //c.setNameKey(nameKey(name));
+        
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
+        
+        getRepository().save(c);
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+	
+        return c;
     }
 
     /**
@@ -64,4 +70,10 @@ public class RoomTypeDBService extends DBService<RoomType, Long> {
     protected Class<RoomType> getEntityClass() {
         return RoomType.class;
     }
+    
+    @Override
+	public String getObjectClassName() {
+		 return  RoomType.class.getSimpleName().toLowerCase();
+	} 
+
 }

@@ -41,6 +41,7 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Site extends MultiLanguageObject {
 
+
 	// List
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
 	@JoinColumn(name = "siteType_id", nullable = true)
@@ -129,10 +130,9 @@ public class Site extends MultiLanguageObject {
 	public Site() {
 	}
 
-	public String getPrefixUrl() {
-		return PrefixUrl.Site;
-	}
 
+	
+	
 	@Override
 	public String getDisplayname() {
 		return getName();
@@ -271,5 +271,14 @@ public class Site extends MultiLanguageObject {
 	public void setZoneId(String zoneid) {
 		this.zoneId = zoneid;
 	}
+	public final String getPrefixUrl() {
+		return PrefixUrl.Site;
+	}
 
+	
+	public final String getAudioIdSequencerName() {
+		return "audio_id_"+ getId().toString() + "_seq";
+	}
+
+	
 };

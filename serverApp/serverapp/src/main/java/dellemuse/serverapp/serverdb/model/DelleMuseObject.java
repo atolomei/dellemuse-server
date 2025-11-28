@@ -39,6 +39,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Transient;
 
+/**
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @JsonInclude(Include.NON_NULL)
@@ -99,7 +110,11 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 
 	public DelleMuseObject() {
 	}
-
+	
+	public String getObjectClassName() {
+		return this.getClass().getSimpleName().toLowerCase();
+	}
+	
 	public boolean isDependencies() {
 		return dependecies;
 	}

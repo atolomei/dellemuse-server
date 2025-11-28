@@ -18,8 +18,12 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -27,6 +31,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
+import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
  
@@ -37,7 +42,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class InstitutionRecordDBService extends DBService<InstitutionRecord, Long> {
+public class InstitutionRecordDBService extends RecordDBService<InstitutionRecord, Long> {
 
 	static private Logger logger = Logger.getLogger(InstitutionRecordDBService.class.getName());
 
@@ -45,20 +50,7 @@ public class InstitutionRecordDBService extends DBService<InstitutionRecord, Lon
 		super(repository, settings);
 	}
 	
-	/**
-	 * <p>
-	 * Annotation Transactional is required to store values into the Database
-	 * </p>
-	 * 
-	 * @param name
-	 * @param createdBy
-	 */
-	@Transactional
-	@Override
-	public InstitutionRecord create(String name, User createdBy) {
-		throw new RuntimeException("can not call create without language");
-	}
-	
+	 
 	@Transactional
 	public InstitutionRecord create(Institution a, String lang, User createdBy) {
 
@@ -72,13 +64,28 @@ public class InstitutionRecordDBService extends DBService<InstitutionRecord, Lon
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		
-		logger.debug("Creating ArtWorkRecord -> " + c.getName()+" | " + c.getLanguage());
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		
-		return getRepository().save(c);
+		return c;
 	}
 
+	/**@Transactional
+	public void delete(Long id) {
+		deleteResources(id);
+		super.deleteById(id);
+	}
+	public void delete(InstitutionRecord c, User deletedBy) {
+			c.setLastModified(OffsetDateTime.now());
+			c.setLastModifiedUser(deletedBy);
+			c.setState(ObjectState.DELETED);
+
+			getRepository().save(c);
+			getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE));
+	}*/
+	
+	
 	/**
-	 * 
 	 * 
 	 * @param a
 	 * @param lang
@@ -134,18 +141,6 @@ public class InstitutionRecordDBService extends DBService<InstitutionRecord, Lon
 		getResourceDBService().delete(a.getPhoto());
 		getResourceDBService().delete(a.getAudio());
 		getResourceDBService().delete(a.getVideo());
-		
-	}
-	 
-	@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-
-	@Transactional
-	public void delete(InstitutionRecord o) {
-		this.delete(o.getId()); 
 	}
 	
  	@Transactional

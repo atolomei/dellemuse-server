@@ -18,7 +18,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionStatusType;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -67,19 +70,20 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
-
-		
-		// c.setUsethumbnail(true);
+	 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		c.setState(ObjectState.EDITION);
 
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		getRepository().save(c);
+		
 		for (Language la : getLanguageService().getLanguages()) {
 			getArtWorkRecordDBService().create(c, la.getLanguageCode(), createdBy);
 		}
-		return getRepository().save(c);
+		return c;
 	}
 
 	@Transactional
@@ -87,8 +91,7 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		ArtWork c = new ArtWork();
 
 		c.setName(name);
-		// c.setNameKey(nameKey(name));
-
+		 
 		c.setSite(site);
 		c.setMasterLanguage(site.getMasterLanguage());
 		c.setLanguage(site.getLanguage());
@@ -96,14 +99,15 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		// c.setUsethumbnail(true);
+		 
 
 		getRepository().save(c);
-
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+		
 		for (Language la : getLanguageService().getLanguages())
 			getArtWorkRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
-		return getRepository().save(c);
+		return c;
 	}
 
 	@Transactional
@@ -131,16 +135,14 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 
 	}
 
-	@Transactional
+	/**@Transactional
 	public void delete(Long id) {
 		deleteResources(id);
 		super.deleteById(id);
 	}
+	**/
 
-	@Transactional
-	public void delete(ArtWork o) {
-		this.delete(o.getId());
-	}
+ 
 
 	@SuppressWarnings("unused")
 	@Transactional
@@ -246,6 +248,11 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 	public ArtWorkRecordDBService getArtWorkRecordDBService() {
 		return this.artWorkRecordDBService;
 	}
+
+	@Override
+	public String getObjectClassName() {
+		 return ArtWork.class.getSimpleName().toLowerCase();
+	} 
 
 	@PostConstruct
 	protected void onInitialize() {

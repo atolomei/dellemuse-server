@@ -116,7 +116,7 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 			@Override
 			protected Panel getListItemPanel(IModel<T> model, ListPanelMode mode) {
 
-				ObjectListItemPanel<T> panel = new ObjectListItemPanel<T>("row-element", model, mode) {
+				DelleMuseObjectListItemPanel<T> panel = new DelleMuseObjectListItemPanel<T>("row-element", model, mode) {
 
 					private static final long serialVersionUID = 1L;
 

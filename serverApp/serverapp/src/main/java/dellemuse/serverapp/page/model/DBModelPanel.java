@@ -21,8 +21,10 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -37,6 +39,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionSectionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
+import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
@@ -52,7 +55,7 @@ import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
-import dellemuse.serverapp.service.DTFormatter;
+ 
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.language.LanguageService;
@@ -223,6 +226,33 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return getArtExhibitionItemDBService().getGuideContents(o);
 	}
 
+	
+	/**
+	public Iterable<T> getObjects(Class<T> clazz) {
+		 return this.getObjects(clazz, null, null);
+	}
+	
+	public Iterable<T> getObjects(Class<T> clazz, ObjectState os1) {
+		 return this.getObjects(clazz, os1, null);
+	}
+
+	public Iterable<T> getObjects(Class<T> clazz,  ObjectState os1, ObjectState os2) {
+
+		DBService<?,Long> service = (DBService<?,Long>) DBService.getDBService(clazz);
+		
+		if (os1==null && os2==null)
+			return service.findAllSorted();
+	
+		if (os2==null)
+			return service.findAllSorted(os1);
+
+		if (os1==null)
+			return service.findAllSorted(os2);
+		
+		return service.findAllSorted(os1, os2);
+	}
+	**/
+	
 	/**
 	 * 
 	 * @param resource

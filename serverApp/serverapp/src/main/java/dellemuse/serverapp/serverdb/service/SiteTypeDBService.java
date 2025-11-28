@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Room;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -42,15 +44,19 @@ public class SiteTypeDBService extends DBService<SiteType, Long> {
      * @param createdBy
      */
     @Transactional
-    @Override
+   
     public SiteType create(String name,User createdBy) {
         SiteType c = new SiteType();
         c.setName(name);
-        //c.setNameKey(nameKey(name));
+       
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
-        return getRepository().save(c);
+        
+        getRepository().save(c);
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+ 
+        return c;
     }
 
     /**
@@ -65,4 +71,9 @@ public class SiteTypeDBService extends DBService<SiteType, Long> {
     protected Class<SiteType> getEntityClass() {
         return SiteType.class;
     }
+    
+    @Override
+   	public String getObjectClassName() {
+   		 return  SiteType.class.getSimpleName().toLowerCase();
+   	} 
 }
