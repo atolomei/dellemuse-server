@@ -42,8 +42,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
-import io.wktui.event.SimpleAjaxWicketEvent;
+ 
 import io.wktui.event.UIEvent;
 import io.wktui.form.FormState;
 import io.wktui.model.TextCleaner;
@@ -101,8 +100,10 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		super.onInitialize();
 
 		setUpModel();
-		addItems();
+
 		addListToolbar();
+		addItems();
+		
 		addSelector();
 
 	}
@@ -225,8 +226,8 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		if (os2==null)
 			return service.getArtExhibitionGuideContents(guide, os1);
 		if (os1==null)
-			return service.getGuideContents(guide);
-		return service.getGuideContents(guide);
+			return service.getArtExhibitionGuideContents(guide, os2);
+		return service.getArtExhibitionGuideContents(guide, os1, os2);
 	}
 	
 	protected Panel getObjectListItemExpandedPanel(IModel<GuideContent> model, ListPanelMode mode) {
@@ -382,8 +383,9 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	private List<IModel<GuideContent>> getItems() {
 
 		if (this.list == null) {
-			this.list = new ArrayList<IModel<GuideContent>>();
-			super.getGuideContents(getModel().getObject()).forEach(item -> this.list.add(new ObjectModel<GuideContent>(item)));
+			//this.list = new ArrayList<IModel<GuideContent>>();
+			//super.getGuideContents(getModel().getObject()).forEach(item -> this.list.add(new ObjectModel<GuideContent>(item)));
+			 loadList();
 		}
 		return this.list;
 	}
@@ -554,6 +556,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 							return null;
 					}
 
+					@Override
 					protected IModel<String> getObjectTitle() {
 						return ArtExhibitionGuideContentsPanel.this.getObjectTitle(getModel());
 					}

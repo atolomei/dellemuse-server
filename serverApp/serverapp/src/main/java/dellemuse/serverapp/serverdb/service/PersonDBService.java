@@ -22,6 +22,7 @@ import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -77,6 +78,8 @@ public class PersonDBService extends DBService<Person, Long> {
         c.setLastname(lastname);
         c.setLastnameKey(nameKey(lastname));
          
+        c.setObjectState(ObjectState.EDITION);
+        
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
@@ -109,6 +112,8 @@ public class PersonDBService extends DBService<Person, Long> {
         o_phone.ifPresent(c::setPhone);
         o_email.ifPresent(c::setEmail);
 
+        c.setObjectState(ObjectState.EDITION);
+        
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);

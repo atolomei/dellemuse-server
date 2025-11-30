@@ -25,6 +25,13 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 		super(id, model);
 	}
 
+	public SimpleAlertRow(String id, Exception e) {
+		super(id, null);
+		text=Model.of( e.getClass().getSimpleName() + " | " + e.getMessage());
+		this.alertType=AlertPanel.DANGER;
+	}
+	
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -48,12 +55,21 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 		}	
 	}
 
-	protected int getAlertType() {
-		return AlertPanel.WARNING;
+	
+	public void setAlertType( int t) {
+		this.alertType=t;
+	}
+	
+	public int getAlertType() {
+		return alertType;
 	}
  
+	
+	int alertType= AlertPanel.WARNING;
+	Model<String>text;
+	
 	protected IModel<String> getText() {
-		return null;
+		return text;
 	}
 	
 

@@ -14,7 +14,7 @@ import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
-import dellemuse.serverapp.page.ObjectListItemPanel;
+
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -45,7 +45,6 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	private WebMarkupContainer itemsContainer;
 	private ListPanel<ArtExhibitionGuide> panel;
 	private List<ToolbarItem> t_list;
-
 
 	/**
 	 * @param id
@@ -174,7 +173,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			}
 		});
 
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+	/**	menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -194,45 +193,17 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 					public IModel<String> getLabel() {
 						return getLabel("delete");
 					}
-
-					 
-					
-					 
 				};
 			}
 		});
+		*/
 		return menu;
 	}
 
-	private List<IModel<ArtExhibitionGuide>> getItems() {
-
-		if (this.list == null) {
-			this.list = new ArrayList<IModel<ArtExhibitionGuide>>();
-			getArtExhibitionIGuides(getModel().getObject()).forEach(item -> this.list.add(new ObjectModel<>(item)));
-		}
-		return this.list;
-	}
-
-	private void resetItems() {
-		this.list=null;
-	}
+	
 	
 	
 	protected IModel<String> getObjectInfo(IModel<ArtExhibitionGuide> model) {
-		
-		/**
-		 * 
-		 * published by
-		 * how many contents ?
-		 * is official
-		 * audio 
-		 * 
-		 *  
-		 * 
-		 * 
-		 */
-		
-		
 		
 		return Model.of(getInfo(model.getObject(), false ));
 	}
@@ -246,9 +217,6 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		return null;
 	}
 	
-	
-
-
 	protected Panel getObjectListItemExpandedPanel(IModel<ArtExhibitionGuide> model, ListPanelMode mode) {
 
 		model.setObject( super.findArtExhibitionGuideWithDeps(model.getObject().getId()).get() );
@@ -356,7 +324,19 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		panel.setHasExpander(true);
 
 	}
+	
+	private List<IModel<ArtExhibitionGuide>> getItems() {
 
+		if (this.list == null) {
+			this.list = new ArrayList<IModel<ArtExhibitionGuide>>();
+			getArtExhibitionIGuides(getModel().getObject()).forEach(item -> this.list.add(new ObjectModel<>(item)));
+		}
+		return this.list;
+	}
+
+	private void resetItems() {
+		this.list=null;
+	}
 	
 
 }

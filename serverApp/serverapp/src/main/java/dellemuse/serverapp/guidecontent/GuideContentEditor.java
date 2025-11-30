@@ -187,7 +187,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 				return  GuideContentEditor.this.getLabel("object-deleted", s);
 			}
 			
-			protected int getAlertType() {
+			public int getAlertType() {
 				return AlertPanel.WARNING;
 			}
 		};

@@ -213,12 +213,15 @@ public class UserPage extends ObjectPage<User> {
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 		
-		if (x_list==null)
+		if (x_list!=null)
 			return (x_list);
 		
 		x_list = new ArrayList<ToolbarItem>();
 		
-	 	DropDownMenuToolbarItem<User> menu  = new DropDownMenuToolbarItem<User>("item", getModel(), Align.TOP_RIGHT);
+		
+		UserNavDropDownMenuToolbarItem menu  = new UserNavDropDownMenuToolbarItem("item", getModel(),getLabel("menu"), Align.TOP_RIGHT);
+
+		/**
 		menu.setTitle(getLabel("menu"));
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
@@ -260,6 +263,8 @@ public class UserPage extends ObjectPage<User> {
 				}
 			});
 				 
+		 */
+		
 		x_list.add(menu);
 		
 		return x_list;

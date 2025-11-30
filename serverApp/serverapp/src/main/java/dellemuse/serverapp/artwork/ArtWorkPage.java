@@ -36,36 +36,18 @@ import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
-import dellemuse.serverapp.editor.ObjectUpdateEvent;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
-import dellemuse.serverapp.page.ObjectPage;
-import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.PersonPage;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
-import dellemuse.serverapp.page.user.UserEditor;
-import dellemuse.serverapp.page.user.UserPage;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Institution;
-import dellemuse.serverapp.serverdb.model.Language;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
-import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.DTFormatter;
 import dellemuse.serverapp.service.ResourceThumbnailService;
-import io.odilon.util.Check;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -327,6 +309,11 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 	}
 
 	
+	
+	@Override
+	protected boolean isLanguage() {
+		return false;
+	}
 
 	@Override
 	protected Panel createHeaderPanel() {

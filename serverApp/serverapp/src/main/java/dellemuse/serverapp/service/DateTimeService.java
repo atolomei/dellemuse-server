@@ -691,6 +691,7 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
 	    }
     	
     	
+    	//logger.debug(locale.getDisplayLanguage());
     		
     	String trimmed = input.trim().replaceAll("\\s+", " ").toLowerCase().replace(" of ", " ");
 	        
@@ -769,6 +770,13 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
    			DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH),
 	        DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH),
 	        DateTimeFormatter.ofPattern("MMMM d yyyy", Locale.ENGLISH)
+	        
+	        
+	        
+	        
+	        
+	        
+	        
     		
     		
     		

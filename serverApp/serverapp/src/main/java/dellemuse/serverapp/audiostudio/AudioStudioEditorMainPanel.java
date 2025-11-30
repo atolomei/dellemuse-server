@@ -104,7 +104,7 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 				return  AudioStudioEditorMainPanel.this.getLabel("object-deleted");
 			}
 			
-			protected int getAlertType() {
+			public int getAlertType() {
 				return AlertPanel.WARNING;
 			}
 		};

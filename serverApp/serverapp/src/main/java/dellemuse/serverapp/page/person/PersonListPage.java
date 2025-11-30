@@ -55,7 +55,7 @@ import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
+ 
 import io.wktui.struct.list.ListPanelMode;
 
 
@@ -290,6 +290,12 @@ public class PersonListPage extends ObjectListPage<Person> {
 	}
 
 	protected  WebMarkupContainer getSubmenu() {
+		return null;
+	}
+
+	@Override
+	protected String getObjectTitleIcon(IModel<Person> model) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

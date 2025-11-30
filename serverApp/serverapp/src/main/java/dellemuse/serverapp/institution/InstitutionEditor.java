@@ -96,6 +96,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 		add(this.form);
 		setForm(this.form);
+		
 		/**
 		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 			
@@ -114,9 +115,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 			}
 		};
 		form.add(objectStateField);
-**/
-		
-		
+		 **/
 		
 	 	nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 	 	subtitleField	= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
@@ -129,6 +128,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 		instagramField 	= new TextField<String>("instagram", new PropertyModel<String>(getModel(), "instagram"), getLabel("instagram"));
 		whatsappField 	= new TextField<String>("whatsapp", new PropertyModel<String>(getModel(), "whatsapp"), getLabel("whatsapp"));
 		infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
+		
 		photoField 		= new FileUploadSimpleField<Resource>("photo", getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
@@ -151,7 +151,6 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 				return true;
 			}
 		};
-
 
 		logoField = new FileUploadSimpleField<Resource>("logo", getLabel("logo")) {
 
@@ -239,17 +238,12 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 			protected String getCancelClass() {
 				return "ps-0 btn btn-sm btn-link";
 			}
-
 		};
 
 		getForm().add(b_buttons_top);
 		getForm().add(b_buttons);
-		
 	}
 
-	 
-
-	
 	protected Image getLogoThumbnail() {
 
 		if (getLogoModel() == null)
@@ -288,11 +282,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 				: "");
 	}
 	
-	
- 
-
 	/**
-	 * 
 	 * @return
 	 */
 	protected Image getPhotoThumbnail() {
@@ -422,9 +412,6 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 		return uploadedLogo;
 	}
-
-	
- 
 	
 	protected IModel<Resource> getPhotoModel() {
 		return this.photoModel;
@@ -457,7 +444,6 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 		updateModel();
 
-
 		target.add(this);
 
 		logger.debug(getModelObject().toString());
@@ -467,12 +453,10 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 		// if (!getUpdatedParts().isEmpty()) {
 		//
 		// }
-
 		// getModelObject();
 	}
 
 	/**
-	 * 
 	 * @param target
 	 */
 	protected void onSave(AjaxRequestTarget target) {

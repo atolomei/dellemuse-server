@@ -33,12 +33,13 @@ import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
+import io.odilon.util.Check;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
@@ -67,6 +68,10 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 	 */
 	@Transactional
 	public ArtExhibition create(String name, User createdBy) {
+		
+		Check.requireNonNullArgument(createdBy, "createdBy is null");
+		Check.requireNonNullArgument(name, "name is null");
+		
 		ArtExhibition c = new ArtExhibition();
 		c.setName(name);
 
@@ -88,9 +93,18 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 
 	@Transactional
 	public ArtExhibition create(String name, Site site, User createdBy) {
+
+		Check.requireNonNullArgument(createdBy, "createdBy is null");
+		Check.requireNonNullArgument(name, "name is null");
+		Check.requireNonNullArgument(site, "site is null");
+
+		Check.requireTrue(site.getState()!=null, "site state is null");
+		Check.requireTrue(site.getLanguage()!=null, "site language is null");
+		Check.requireTrue(site.getMasterLanguage()!=null, "site Master language is null");
+
 		ArtExhibition c = new ArtExhibition();
 		c.setName(name);
-
+			
 		c.setMasterLanguage(site.getMasterLanguage());
 		c.setLanguage(site.getLanguage());
 
@@ -103,7 +117,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 			
-		for (Language la : getLanguageService().getLanguages())
+		for (Language la: getLanguageService().getLanguages())
 			getArtExhibitionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
 		return c;
@@ -285,6 +299,32 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		return createNameQuery(name).getResultList();
 	}
 
+	
+	@Transactional
+	public Boolean isArtExhibitionGuides(ArtExhibition exhibition) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(ArtExhibitionGuide.class);
+		
+		Root<ArtExhibitionGuide> root = cq.from(ArtExhibitionGuide.class);
+		
+		//	cq.select(root).where(cb.equal(root.get("artExhibition").get("id"), exhibition.getId()));
+
+		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
+		Predicate p1 = cb.equal(root.get("state"), ObjectState.EDITION);
+		Predicate p2 = cb.equal(root.get("state"), ObjectState.PUBLISHED);
+		Predicate statePredicate = cb.or(p1, p2);
+		Predicate combinedPredicate = cb.and(p0, statePredicate);
+		cq.select(root).where(combinedPredicate);
+
+		
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		List<ArtExhibitionGuide> list = getEntityManager().createQuery(cq).getResultList();
+	
+		return (list!=null && list.size()>0);
+	
+	}
+
+	
 	@Transactional
 	public List<ArtExhibitionGuide> getArtExhibitionGuides(ArtExhibition exhibition) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -306,6 +346,51 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+
+	@Transactional
+	public List<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition exhibition, ObjectState os1) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionItem> cq = cb.createQuery(ArtExhibitionItem.class);
+		Root<ArtExhibitionItem> root = cq.from(ArtExhibitionItem.class);
+	
+		// cq.select(root).where(cb.equal(root.get("artExhibition").get("id"), exhibition.getId()));
+		
+		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
+		Predicate p1 = cb.equal(root.get("state"), os1);
+			 
+		Predicate finalredicate = cb.and(p0, p1);
+		cq.select(root).where(finalredicate);
+		
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+
+	@Transactional
+	public List<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition exhibition, ObjectState os1, ObjectState os2) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionItem> cq = cb.createQuery(ArtExhibitionItem.class);
+		Root<ArtExhibitionItem> root = cq.from(ArtExhibitionItem.class);
+	
+		//cq.select(root).where(cb.equal(root.get("artExhibition").get("id"), exhibition.getId()));
+		
+		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		Predicate p2 = cb.equal(root.get("state"), os2);
+
+		Predicate combinedPredicate = cb.or(p1, p2);
+		Predicate finalredicate = cb.and(p0, combinedPredicate);
+		cq.select(root).where(finalredicate);
+		
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	
+	
+	
+	
+	
 	@Transactional
 	public List<ArtExhibitionSection> getArtExhibitionSections(ArtExhibition exhibition) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();

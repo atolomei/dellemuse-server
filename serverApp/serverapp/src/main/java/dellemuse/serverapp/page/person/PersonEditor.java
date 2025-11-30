@@ -112,7 +112,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 			protected String getDisplayValue(ObjectState value) {
 				if (value==null)
 					return null;
-				return value.getLabel();
+				return value.getLabel(getSessionUser().getLocale());
 			}
 
 			@Override

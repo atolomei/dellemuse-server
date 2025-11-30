@@ -267,4 +267,10 @@ public class UserListPage extends ObjectListPage<User> {
 
 		return listToolbar;
 	}
+
+	@Override
+	protected String getObjectTitleIcon(IModel<User> model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

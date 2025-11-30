@@ -69,10 +69,13 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 	public abstract Iterable<T> getObjects(ObjectState os1, ObjectState os2);
 
+
 	protected abstract IModel<String> getObjectInfo(IModel<T> model);
-
 	protected abstract IModel<String> getObjectTitle(IModel<T> model);
-
+	protected abstract String getObjectTitleIcon(IModel<T> model);
+	
+	
+	
 	protected abstract void onClick(IModel<T> model);
 
 	protected abstract IModel<String> getPageTitle();
@@ -83,8 +86,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 	protected abstract List<ToolbarItem> getListToolbarItems();
 
-	// protected abstract void setListState(ObjectStateSelectEvent event);
-
+	
 	public ObjectListPage() {
 		super();
 	}
@@ -283,10 +285,16 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 							return ObjectListPage.this.getObjectInfo(getModel());
 						}
 
+						@Override
 						protected IModel<String> getObjectTitle() {
 							return ObjectListPage.this.getObjectTitle(getModel());
 						}
 
+						@Override
+						protected String getTitleIcon() {
+							return ObjectListPage.this.getObjectTitleIcon(getModel());
+						}
+						
 						protected IModel<String> getObjectSubtitle() {
 							if (getMode() == ListPanelMode.TITLE)
 								return null;

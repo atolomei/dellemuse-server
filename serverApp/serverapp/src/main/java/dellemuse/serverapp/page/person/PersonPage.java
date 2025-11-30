@@ -18,48 +18,15 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
-import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
-import dellemuse.serverapp.editor.ObjectUpdateEvent;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.guidecontent.GuideContentPage;
-import dellemuse.serverapp.institution.InstitutionPage;
-import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
-import dellemuse.serverapp.page.ObjectPage;
-import dellemuse.serverapp.page.error.ErrorPage;
-import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
-import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
-import io.odilon.util.Check;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.UIEvent;
@@ -71,6 +38,7 @@ import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.listNavigator.ListNavigator;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.SeparatorMenuItem;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
@@ -203,6 +171,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		if (list!=null)
 			return list;
 		
+		 
 		list = new ArrayList<ToolbarItem>();
 			
 		DropDownMenuToolbarItem<Person> menu = new DropDownMenuToolbarItem<Person>("item", getModel(), Align.TOP_RIGHT);
@@ -228,9 +197,77 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 				};
 			}
 		});
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+				return new SeparatorMenuItem<Person>(id, getModel());
+			}
+		});
+		
+ 		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Person>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick(AjaxRequestTarget target)  {
+						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+					}
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("meta");
+					}
+				};
+			}
+		});		
+		
+	 
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+				return new SeparatorMenuItem<Person>(id, getModel());
+			}
+		});
+
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+				return new AjaxLinkMenuItem<Person>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_audit, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("audit");
+					}
+				};
+			}
+		});
+	 
+		
 	 
 		list.add(menu);
+		
 		return list;
+		
+		
 	}
 
 	protected Optional<PersonRecord> loadTranslationRecord(String lang) {

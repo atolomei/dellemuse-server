@@ -112,7 +112,6 @@ public class ObjectStateListSelector extends DropDownMenuToolbarItem<Void> {
 					@Override
 					public IModel<String> getLabel() {
 						return Model.of(ObjectStateEnumSelector.EDITION.getLabel(getLocale()));
-
 					}
 				};
 			}
@@ -178,18 +177,14 @@ public class ObjectStateListSelector extends DropDownMenuToolbarItem<Void> {
 						ObjectStateListSelector.this.setTitle(Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale())));
 						ObjectStateListSelector.this.addTitlePanel();
 						fire(new ObjectStateSelectEvent(ObjectStateEnumSelector.ALL, target));
-
 					}
 
 					@Override
 					public IModel<String> getLabel() {
 						return Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
-
 					}
 				};
 			}
 		});
-
 	}
-
 }

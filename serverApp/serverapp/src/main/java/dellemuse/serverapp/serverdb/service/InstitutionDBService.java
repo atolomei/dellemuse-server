@@ -57,8 +57,11 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 
 		c.setName(name);
 		c.setState(ObjectState.EDITION);
-		c.setMasterLanguage(getDefaultMasterLanguage());
-		c.setLanguage(getDefaultMasterLanguage());
+		
+		c.setMasterLanguage(getSettings().getDefaultMasterLanguage());
+		c.setLanguage(getSettings().getDefaultMasterLanguage());
+
+		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);

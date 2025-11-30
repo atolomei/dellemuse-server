@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.component.IRequestablePage;
@@ -15,24 +13,10 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
-import dellemuse.serverapp.artwork.ArtWorkPage;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
@@ -40,23 +24,13 @@ import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
+ 
 import io.odilon.util.Check;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
-import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
@@ -66,17 +40,11 @@ import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
-import io.wktui.struct.list.ListPanelMode;
 
 /**
  * 
- * 
  * Site Information Exhibitions Artworks Exhibitions
- * 
- * 
  */
-
 @MountPath("/site/exhibitions/${id}")
 public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
@@ -85,19 +53,17 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 	static private Logger logger = Logger.getLogger(SiteArtExhibitionsListPage.class.getName());
 
 	private StringValue stringValue;
-
-	IModel<Site> siteModel;
+	private IModel<Site> siteModel;
+	private List<ToolbarItem> listToolbar;
 	
 	public SiteArtExhibitionsListPage() {
 		super();
-		 
 	}
 
 	public SiteArtExhibitionsListPage(PageParameters parameters) {
 		super(parameters);
 		setIsExpanded(true);
-		stringValue = getPageParameters().get("id");
-		 
+		this.stringValue = getPageParameters().get("id");
 	}
 
 	public SiteArtExhibitionsListPage(IModel<Site> siteModel) {
@@ -111,8 +77,6 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 	protected IModel<String> getTitleLabel() {
 		return getLabel("exhibitions");
 	}
-	
-private List<ToolbarItem> listToolbar;
 	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
@@ -155,11 +119,7 @@ private List<ToolbarItem> listToolbar;
 		}
 		
 		super.onInitialize();
-
 	}
-
- 
-
  
  @Override
 	protected void addHeaderPanel() {
@@ -185,8 +145,8 @@ private List<ToolbarItem> listToolbar;
 	}
 
  
- @Override
-	protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
+@Override
+protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 		
 		NavDropDownMenu<ArtExhibition> menu = new NavDropDownMenu<ArtExhibition>("menu", model, null);
 		
@@ -219,6 +179,7 @@ private List<ToolbarItem> listToolbar;
 			}
 		});
 
+		/**
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
 			private static final long serialVersionUID = 1L;
@@ -242,20 +203,16 @@ private List<ToolbarItem> listToolbar;
 				};
 			}
 		});
+		*/
+		
 		return menu;
 	}
 	
- 
 	public IRequestablePage getObjectPage(IModel<ArtExhibition> model) {
 			return new ArtExhibitionPage(model);
 	}
 
-	
-	//protected IModel<String> getTitleLabel() {
-	//	return getLabel("artexhibitions");
-	//}
-
-		
+	@Override
 	public Iterable<ArtExhibition> getObjects() {
 		return super.getSiteArtExhibitions(getSiteModel().getObject());
 	}
@@ -264,45 +221,42 @@ private List<ToolbarItem> listToolbar;
 	public Iterable<ArtExhibition> getObjects(ObjectState os1) {
 		return super.getSiteArtExhibitions(getSiteModel().getObject(), os1);
 	}
-
 	
 	@Override
 	public Iterable<ArtExhibition> getObjects(ObjectState os1, ObjectState os2) {
 		return super.getSiteArtExhibitions(getSiteModel().getObject(), os1, os2);
 	}
 	
-
-	
-	
-	
-	
-	
-	
-	
-	
+	@Override
 	public IModel<String> getObjectInfo(IModel<ArtExhibition> model) {
 		return new Model<String>( model.getObject().getIntro());
 	}
 
+	@Override
+	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
+		if ( getArtExhibitionDBService().isArtExhibitionGuides(model.getObject()) )
+			return ServerAppConstant.headphoneIcon;
+		else
+			return null;
+	}
+	
+	@Override
 	public IModel<String> getObjectTitle(IModel<ArtExhibition> model) {
 		if (model.getObject().getState()==ObjectState.DELETED) 
 			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-
 		return new Model<String>( model.getObject().getDisplayname() );
 	}
 
+	@Override
 	public void onClick(IModel<ArtExhibition> model) {
 		setResponsePage(new ArtExhibitionPage(model));
 	}
 
+	@Override
 	public IModel<String> getPageTitle() {
 		return new Model<String> ( getSiteModel().getObject().getDisplayname());
 	}
 	
-	//public IModel<String> getListPanelLabel() {
-	//	return getLabel("artexhibitions");
-	//}
-
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -318,8 +272,6 @@ private List<ToolbarItem> listToolbar;
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
-
-	
 	 
 	protected void onCreate() {
 		try {

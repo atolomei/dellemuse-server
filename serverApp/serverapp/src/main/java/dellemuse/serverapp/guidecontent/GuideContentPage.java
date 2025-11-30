@@ -28,6 +28,7 @@ import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.page.site.SiteInfoPage;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -107,7 +108,6 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		return getGuideContentRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
 
-	
 	@Override
 	protected boolean isLanguage() {
 		return false;
@@ -144,9 +144,9 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		
 		Optional<Site> o_s = getSiteDBService().findWithDeps(getArtExhibitionModel().getObject().getSite().getId());
 		setSiteModel(new ObjectModel<Site>(o_s.get()));
-	
 	}
 
+	@Override
 	protected void addListeners() {
 		super.addListeners();
 
@@ -227,7 +227,8 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
-				if (event.getName().equals(ServerAppConstant.guide_content_info)) {
+			
+				if (event.getName().equals(ServerAppConstant.action_site_home)) {
 					setResponsePage( new SitePage( getSiteModel()));
 				}
 			}
@@ -241,29 +242,18 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		});
 	}
 	
-	protected void onDelete(AjaxRequestTarget target) {
-		getGuideContentDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
-		fireScanAll(new ObjectMarkAsDeleteEvent(target));
-	}
-	
-	protected void onRestore(AjaxRequestTarget target) {
-		getGuideContentDBService().restore( getModel().getObject(), getSessionUser().get() );
-		fireScanAll(new ObjectRestoreEvent(target));
-	}
-	
-	
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
-		editor.onEdit(target);
+		this.editor.onEdit(target);
 	}
 
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 		
-		if (list!=null)
-			return list;
+		if (this.list!=null)
+			return this.list;
 		
-		list = new ArrayList<ToolbarItem>();
+		this.list = new ArrayList<ToolbarItem>();
 		
 		// audio de obra
 		list.add(new GuideContentNavDropDownMenuToolbarItem( "item", 
@@ -289,10 +279,8 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		site.add( new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-none d-lg-none d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
-		
-		return list;
+		return this.list;
 	}
-
 
 	@Override
 	protected List<INamedTab> getInternalPanels() {
@@ -325,8 +313,6 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 	protected IModel<String> getPageTitle() {
 		return new Model<String> (getModel().getObject().getName());
 	}
-
-
 
 	@Override
 	protected Panel createHeaderPanel() {
@@ -388,14 +374,17 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 	 	return new GuideContentPage( model, list );
 	}
  	 
+	protected void onDelete(AjaxRequestTarget target) {
+		getGuideContentDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectMarkAsDeleteEvent(target));
+	}
 	
-	@Override
-	public void onInitialize() {
-		super.onInitialize();
-  	}
+	protected void onRestore(AjaxRequestTarget target) {
+		getGuideContentDBService().restore( getModel().getObject(), getSessionUser().get() );
+		fireScanAll(new ObjectRestoreEvent(target));
+	}
 
- 	
-	public IModel<Site> getSiteModel() {
+ 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
 
@@ -421,47 +410,7 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 		
 		if (artWorkModel!=null)
 			artWorkModel.detach();
-		
 	}
-	
-	/**
-	private String getInfoGral() {
-		return TextCleaner.clean(getModel().getObject().getSpec() + " <br/>" + " id: "
-				+ getModel().getObject().getId().toString());
-	}
-
-	private boolean isInfoGral() {
-		return  getModel() != null && 
-				getModel().getObject() != null && 
-				getModel().getObject().getId() != null || 
-				getModel().getObject().getSpec() != null;
-	}
- */
-	
-	/**
-	protected String getImageSrc(IModel<GuideContent> model) {
-
-		try {
-			if (getModel().getObject().getPhoto() == null)
-				return null;
-			ResourceThumbnailService ths = (ResourceThumbnailService) ServiceLocator.getInstance()
-					.getBean(ResourceThumbnailService.class);
-			return ths.getPresignedThumbnailUrl(getModel().getObject().getPhoto(), ThumbnailSize.MEDIUM);
-
-		} catch (Exception e) {
-			logger.error(e);
-			return null;
-		}
-	}
-**/
-	
-	
-	
-	protected boolean isAudioVisible() {
-		return true;
-	}
-
-	
 	
 	public IModel<ArtExhibitionGuide> getArtExhibitionGuideModel() {
 		return artExhibitionGuideModel;
@@ -493,6 +442,10 @@ public class GuideContentPage extends  MultiLanguageObjectPage<GuideContent, Gui
 
 	public void setArtWorkModel(IModel<ArtWork> artWorkModel) {
 		this.artWorkModel = artWorkModel;
+	}
+	
+	protected boolean isAudioVisible() {
+		return true;
 	}
 
 	private JumboPageHeaderPanel<?> getHeader() {

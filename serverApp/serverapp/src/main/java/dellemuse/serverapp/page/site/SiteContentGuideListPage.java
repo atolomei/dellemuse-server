@@ -255,6 +255,14 @@ private List<ToolbarItem> listToolbar;
 		return listToolbar;
 	}
 
+
+
+	@Override
+	protected String getObjectTitleIcon(IModel<GuideContent> model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	 
 }
 

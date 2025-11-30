@@ -289,4 +289,10 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 		return null;
 	}
 
+	@Override
+	protected String getObjectTitleIcon(IModel<GuideContent> model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

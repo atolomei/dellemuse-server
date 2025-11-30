@@ -33,10 +33,10 @@ import org.threeten.bp.LocalDateTime;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemsPanel;
 import dellemuse.serverapp.artwork.ArtWorkEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
+import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -69,6 +69,7 @@ import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import jakarta.transaction.Transactional;
+import wktui.base.InvisiblePanel;
 import wktui.base.ModelPanel;
 
 /**
@@ -136,7 +137,10 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 
 		setUpModel();
 
+		add(new InvisiblePanel("error"));
+		
 		Form<ArtExhibition> form = new Form<ArtExhibition>("form");
+		
 		add(form);
 		setForm(form);
 
@@ -168,8 +172,21 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		specField = new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 4);
 		opensField = new TextAreaField<String>("opens", new PropertyModel<String>(getModel(), "opens"), getLabel("opens"), 4);
 		mapField = new TextField<String>("map", new PropertyModel<String>(getModel(), "map"), getLabel("map"));
-		fromField = new TextField<String>("from", new PropertyModel<String>(this, "from"), getLabel("from"));
-		toField = new TextField<String>("to", new PropertyModel<String>(this, "to"), getLabel("to"));
+		
+		
+		fromField = new TextField<String>("from", new PropertyModel<String>(this, "from"), getLabel("from")) {
+			public boolean isEnabled() {
+				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
+			}
+		};
+		
+		toField = new TextField<String>("to", new PropertyModel<String>(this, "to"), getLabel("to")) {
+			public boolean isEnabled() {
+				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
+			}
+		};
+		
+		
 		urlField = new TextField<String>("url", new PropertyModel<String>(getModel(), "website"), getLabel("url"));
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		shortField = new TextField<String>("shortname", new PropertyModel<String>(getModel(), "shortname"), getLabel("shortname"));
@@ -310,39 +327,59 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
 
+		
+		if (getSiteModel().getObject().getZoneId()==null)
+			throw new IllegalArgumentException("zone id is null");
+		
+		
+		if (getSiteModel().getObject().getLanguage()==null)
+			throw new IllegalArgumentException("Language is null");
+
+		
 		ZoneId zoneId = ZoneId.of(getSiteModel().getObject().getZoneId());
 
-		if (getFrom() != null) {
-			LocalDate d_from = getDateTimeService().parseFlexibleDate(getFrom(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
-			LocalTime localTime = LocalTime.MIN; // 00:00:00
-			java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(d_from, localTime);
-			ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
-			OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
-			getModel().getObject().setFromDate(offsetDateTime);
-			setFrom(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
+		try {
+			
+			if (getFrom() != null) {
+				
+				String la=getModel().getObject().getLanguage();
+				logger.debug(la);
+				
+				LocalDate d_from = getDateTimeService().parseFlexibleDate(getFrom(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
+				LocalTime localTime = LocalTime.MIN; // 00:00:00
+				java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(d_from, localTime);
+				ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+				OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
+				getModel().getObject().setFromDate(offsetDateTime);
+				setFrom(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
+			}
+	
+			if (getTo() != null) {
+				LocalDate d_to = getDateTimeService().parseFlexibleDate(getTo(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
+				LocalTime localTime = LocalTime.MIN; // 00:00:00
+				java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(d_to, localTime);
+				ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+				OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
+				getModel().getObject().setToDate(offsetDateTime);
+				setTo(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
+			}
+
+			save(getModelObject());
+	
+			this.uploadedPhoto = false;
+
+			getForm().setFormState(FormState.VIEW);
+
+			getForm().updateReload();
+			
+			fire(new ObjectUpdateEvent(target));
+			
+		} catch (Exception e) {
+			addOrReplace( new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
 		}
-
-		if (getTo() != null) {
-			LocalDate d_to = getDateTimeService().parseFlexibleDate(getTo(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
-			LocalTime localTime = LocalTime.MIN; // 00:00:00
-			java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(d_to, localTime);
-			ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
-			OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
-			getModel().getObject().setToDate(offsetDateTime);
-			setTo(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
-
-		}
-
-		save(getModelObject());
-
-		this.uploadedPhoto = false;
-
-		getForm().setFormState(FormState.VIEW);
-
-		getForm().updateReload();
-		fire(new ObjectUpdateEvent(target));
-
-		target.add(this);
+	
+			target.add(this);
 
 	}
 

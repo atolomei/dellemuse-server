@@ -16,6 +16,7 @@ import jakarta.annotation.PostConstruct;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.serverdb.ServerDBConstant;
+import dellemuse.serverapp.serverdb.model.Language;
 
 /**
  * <p>
@@ -61,14 +62,11 @@ public class ServerDBSettings {
     @Value("${server.qr:https://dellemuse.app/qrcode/artwork/}")
     protected String qrurl;
     
-    
-    /** **/
+    /** --------------------------------------  **/
     
     @Value("${dispatcher.poolsize:10}")
     protected int poolsize;
 
-    
-    
     /** ObjectStorage **/
     
     @Value("${objectstorage.accessKey:odilon}")
@@ -98,7 +96,6 @@ public class ServerDBSettings {
 
     protected boolean isPresignedSSL; 
     
-    
     /** Database */
     
     @Value("${driverClassName:org.postgresql.Driver}")
@@ -116,7 +113,6 @@ public class ServerDBSettings {
     @Value("${app.name:dellemuseServer}")
     @NonNull
     protected String appName;
-
     
     /** Work */
     
@@ -125,25 +121,20 @@ public class ServerDBSettings {
 
     @Value("${avatar.dir:avatar}")
     protected String avatarDir;
-    
-  
+   
     @Value("${work.dir:work}")
     protected String workDir;
 
-    
     @Value("${qrcode.generation:true}")
     protected String qrcodeQenerationStr;
 
-    
     protected boolean qrcodeQeneration;
 
-    
     @Value("${google.translate.auth:null}")
     protected String googleTranslateAuth;
-    
-    
-    /**                 ----------------------------------------------------- */
-    
+
+    /** --------------------------------------  **/
+ 
     @Value("${elevenlabs.api.key:sk_1d73569ea735c3013edd9bb49a6a652839942590f45944d7}")
     protected String elevenLabsAPIKey;
 
@@ -166,33 +157,22 @@ public class ServerDBSettings {
 	 	return elevenLabsAPIHost;
 	}
     
-    
     @Value("${audio.cache.dir:audioCache}")
     private String audioDir;
-
     
-    /**                 ----------------------------------------------------- */
+    /** --------------------------------------  **/
+    
     @Value("${server.locale:es}")
     protected String localeStr;
 
-    public Locale getDefaultLocale() {
-    	return Locale.forLanguageTag(localeStr);
-    }
     
-    /**                 ----------------------------------------------------- */
+    /** --------------------------------------  **/
     @Value("${server.zoneid:America/Buenos_Aires}")
     protected String zoneid;
     
-    public ZoneId getDefaultZoneId() {
-    	return ZoneId.of(zoneid);
-    }
-    
-    
-    
-    /** Google translate ----------------------------------------------------- */
-    
-    
-    
+    /** --------------------------------------  **/
+    @Value("${server.language:es}")
+    protected String defaultLanguage;
     
     
     public ServerDBSettings() {
@@ -259,70 +239,11 @@ public class ServerDBSettings {
         	qrcodeQeneration = true;
         else
         	qrcodeQeneration = qrcodeQenerationStr.toLowerCase().trim().equals("true");
-    
     }
 
     public String getAudioDownloadCacheDir() {
 		return audioDir + File.separator + "download";
 	}
-    
-    
-    
-    private void checkDirs() {
-
-    	
-    	 try {
-             File dir = new File (audioDir);
-             if ((!dir.exists()) || (!dir.isDirectory()))
-                 FileUtils.forceMkdir(dir);
-         } catch (IOException e) {
-             throw new RuntimeException(e);
-         }
-    	 
-    	 try {
-             File dir = new File (audioDir, "download");
-             if ((!dir.exists()) || (!dir.isDirectory()))
-                 FileUtils.forceMkdir(dir);
-         } catch (IOException e) {
-             throw new RuntimeException(e);
-         }
-
-    	 
-    	 try {
-            File wDir = new File (workDir);
-            if ((!wDir.exists()) || (!wDir.isDirectory()))
-                FileUtils.forceMkdir(wDir);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        
-        try {
-            File thDir = new File (workDir, ServerConstant.THUMBNAIL_BUCKET);
-            if ((!thDir.exists()) || (!thDir.isDirectory()))
-                FileUtils.forceMkdir(thDir);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-     
-        try {
-            File thDir = new File (workDir, "objectStorage");
-            if ((!thDir.exists()) || (!thDir.isDirectory()))
-                FileUtils.forceMkdir(thDir);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        
-
-        try {
-            File avDir = new File (avatarDir);
-            if ((!avDir.exists()) || (!avDir.isDirectory()))
-                FileUtils.forceMkdir(avDir);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        
-    }
-
     
     public int getMaxTrafficTokens() {
         return maxTrafficTokens;
@@ -363,7 +284,6 @@ public class ServerDBSettings {
     public int getObjectStoragePort() {
            return objectStoragePort;
     }
-
 
     public String getAppName() {
         return appName;
@@ -410,7 +330,6 @@ public class ServerDBSettings {
 	}
 
 	public String getQRServer() {
-		 
 		return qrurl;
 	}
 
@@ -430,9 +349,67 @@ public class ServerDBSettings {
 		return 4096;
 	}
 
-
+	public String getDefaultMasterLanguage() {
+		return Language.of(Language.ES).getLanguageCode();
+	}
 	
+    public Locale getDefaultLocale() {
+    	return Locale.forLanguageTag(localeStr);
+    }
 
+    public ZoneId getDefaultZoneId() {
+    	return ZoneId.of(zoneid);
+    }
+    
+	private void checkDirs() {
+	    	
+	    	 try {
+	             File dir = new File (this.audioDir);
+	             if ((!dir.exists()) || (!dir.isDirectory()))
+	                 FileUtils.forceMkdir(dir);
+	         } catch (IOException e) {
+	             throw new RuntimeException(e);
+	         }
+	    	 
+	    	 try {
+	             File dir = new File (this.audioDir, "download");
+	             if ((!dir.exists()) || (!dir.isDirectory()))
+	                 FileUtils.forceMkdir(dir);
+	         } catch (IOException e) {
+	             throw new RuntimeException(e);
+	         }
 
+	    	 try {
+	            File wDir = new File (this.workDir);
+	            if ((!wDir.exists()) || (!wDir.isDirectory()))
+	                FileUtils.forceMkdir(wDir);
+	        } catch (IOException e) {
+	            throw new RuntimeException(e);
+	        }
+	        
+	        try {
+	            File thDir = new File (this.workDir, ServerConstant.THUMBNAIL_BUCKET);
+	            if ((!thDir.exists()) || (!thDir.isDirectory()))
+	                FileUtils.forceMkdir(thDir);
+	        } catch (IOException e) {
+	            throw new RuntimeException(e);
+	        }
+	     
+	        try {
+	            File thDir = new File (this.workDir, "objectStorage");
+	            if ((!thDir.exists()) || (!thDir.isDirectory()))
+	                FileUtils.forceMkdir(thDir);
+	        } catch (IOException e) {
+	            throw new RuntimeException(e);
+	        }
+	        
+	        try {
+	            File avDir = new File (this.avatarDir);
+	            if ((!avDir.exists()) || (!avDir.isDirectory()))
+	                FileUtils.forceMkdir(avDir);
+	        } catch (IOException e) {
+	            throw new RuntimeException(e);
+	        }
+	    }
 }
 

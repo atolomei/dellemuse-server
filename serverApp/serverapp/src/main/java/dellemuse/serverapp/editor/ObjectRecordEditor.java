@@ -103,7 +103,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			@Override
 			public boolean isVisible() {
-				return isAudioStudio();
+				return isMultiLanguageObject();
 			}
 			
 			@Override
@@ -128,6 +128,11 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 				(getSourceModel().getObject() instanceof ArtExhibitionGuide));
 	}
 
+	protected boolean isMultiLanguageObject() {
+		return  (getSourceModel().getObject() instanceof MultiLanguageObject);
+	}
+
+	
 	
 	public Optional<Person> getPerson(Long value) {
 		return super.getPerson(value);
@@ -327,8 +332,9 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	private void setUpModel() {
 		@SuppressWarnings("unchecked")
 		Optional<R> o_i = (Optional<R>) getDBService(getModelObject().getClass()).findWithDeps(getModel().getObject().getId());
+	
 		setModel(new ObjectModel<R>(o_i.get()));
-
+		
 		if (getModel().getObject().getAudio() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
 			setAudioModel(new ObjectModel<Resource>(o_r.get()));
@@ -386,6 +392,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		form.add(specField);
 		form.add(opensField);
 
+	/**
 		audioAutoField = new ChoiceField<Boolean>("audioAuto", new PropertyModel<Boolean>(getModel(), "audioAuto"), getLabel("audioAuto")) {
 
 			private static final long serialVersionUID = 1L;
@@ -408,7 +415,8 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		audioAutoField.setVisible(isAudioVisible());
 
 		form.add(audioAutoField);
-
+**/
+		
 		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;

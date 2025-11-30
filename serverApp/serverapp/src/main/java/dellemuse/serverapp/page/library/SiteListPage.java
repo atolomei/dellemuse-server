@@ -290,4 +290,10 @@ public class SiteListPage extends ObjectListPage<Site> {
 		return menu;
 	}
 
+	@Override
+	protected String getObjectTitleIcon(IModel<Site> model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

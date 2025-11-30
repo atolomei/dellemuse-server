@@ -15,6 +15,8 @@ import dellemuse.serverapp.serverdb.service.base.BaseService;
 @Service
 public class LanguageService extends BaseService {
     
+	private Language defaultLanguage;
+	
 	private final List<Language> languages;
 	
 	private final List<Language> languages_eng;
@@ -64,21 +66,34 @@ public class LanguageService extends BaseService {
 				return o1.getLabel(Locale.forLanguageTag(Language.PT)).compareToIgnoreCase(o2.getLabel(Locale.forLanguageTag(Language.PT)));
 			}
 		});
-    }
+		
+		
+		String s=getSettings().getDefaultMasterLanguage();
+		for (Language l: getLanguages()) {
+			if (l.getLanguageCode().equals(s)) {
+				defaultLanguage=l;
+				break;
+			}
+		}
+		
+		if (defaultLanguage==null) {
+			defaultLanguage=getLanguages().get(0);
+		}
+	}
 
 	public List<Language> getLanguages() {
 		return languages;
 	}
 	
 	
-	private Language defaultLanguage;
 	
 	public Language getDefaultLanguage() {
-
+/**
 		if (defaultLanguage==null) {
 			synchronized (this) {
+			String s=getSettings().getDefaultMasterLanguage();
 			for (Language l: getLanguages()) {
-				if (l.getLanguageCode().equals( Language.ES)) {
+				if (l.getLanguageCode().equals(s)) {
 					defaultLanguage=l;
 					return defaultLanguage;
 				}
@@ -88,7 +103,7 @@ public class LanguageService extends BaseService {
 				defaultLanguage=getLanguages().get(0);
 			}
 		}
-		
+	**/	
 		return defaultLanguage;
 	}
 	

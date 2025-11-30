@@ -699,7 +699,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 				return  ArtExhibitionGuideEditor.this.getLabel("object-deleted", s);
 			}
 			
-			protected int getAlertType() {
+			public int getAlertType() {
 				return AlertPanel.WARNING;
 			}
 		};

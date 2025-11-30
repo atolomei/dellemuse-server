@@ -268,4 +268,10 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 		add(ph);
 	}
 
+	@Override
+	protected String getObjectTitleIcon(IModel<Person> model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

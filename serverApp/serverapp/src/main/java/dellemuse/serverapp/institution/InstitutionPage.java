@@ -46,6 +46,7 @@ import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -221,6 +222,28 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		DropDownMenuToolbarItem<Institution> menu = new DropDownMenuToolbarItem<Institution>("item", getModel(), Align.TOP_RIGHT);
 		menu.setTitle(Model.of( TextCleaner.truncate ( getModel().getObject().getName(), 24) +" (Inst)" ));
 
+		
+		
+		
+		 
+		 menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public MenuItemPanel<Institution> getItem(String id) {
+					return new TitleMenuItem<Institution>(id) {
+				
+						private static final long serialVersionUID = 1L;
+				
+						@Override
+						public IModel<String> getLabel() {
+							return getLabel("information");
+						}
+					};
+				}
+			});
+		
+		
+		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
 

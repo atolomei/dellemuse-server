@@ -1,45 +1,23 @@
 package dellemuse.serverapp.guidecontent;
 
-import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 
-import dellemuse.serverapp.page.error.ErrorPage;
-import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
-import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
-import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
-import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
-import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
- 
 
 public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<GuideContent> {
 
 	private static final long serialVersionUID = 1L;
-
-	
-	/**
-	public GuideContentNavDropDownMenuToolbarItem(String id, IModel< ArtExhibitionGuide> model, Align align) {
-		this(id, model, null, align);
-		 
-	}
-	**/
 
 	public GuideContentNavDropDownMenuToolbarItem(String id, IModel<GuideContent> model, IModel<String> title, Align align) {
 		super(id, model, title, align);
@@ -48,27 +26,26 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
-		 
-		 addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public MenuItemPanel<GuideContent> getItem(String id) {
-					return new TitleMenuItem<GuideContent>(id) {
-				
-						private static final long serialVersionUID = 1L;
-				
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("information");
-						}
-					};
-				}
-			});
-		
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
-			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<GuideContent> getItem(String id) {
+				return new TitleMenuItem<GuideContent>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("information");
+					}
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -76,9 +53,10 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 				return new AjaxLinkMenuItem<GuideContent>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.guide_content_info, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.guide_content_info, target));
 					}
 
 					@Override
@@ -88,28 +66,28 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 				};
 			}
 		});
-		
-				
+
 		for (Language la: getLanguageService().getLanguages()) {
-			
+
 			final String langCode = la.getLanguageCode();
-			
+
 			if (!langCode.equals(getModel().getObject().getMasterLanguage())) {
-				
+
 				addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
-	
+
 					private static final long serialVersionUID = 1L;
-	
+
 					@Override
-					public MenuItemPanel< GuideContent> getItem(String id) {
-	
+					public MenuItemPanel<GuideContent> getItem(String id) {
+
 						return new AjaxLinkMenuItem<GuideContent>(id, getModel()) {
 							private static final long serialVersionUID = 1L;
+
 							@Override
-							public void onClick(AjaxRequestTarget target)  {
-								fire ( new MenuAjaxEvent(ServerAppConstant.object_translation_record_info+"-"+langCode, target));
+							public void onClick(AjaxRequestTarget target) {
+								fire(new MenuAjaxEvent(ServerAppConstant.object_translation_record_info + "-" + langCode, target));
 							}
-	
+
 							@Override
 							public IModel<String> getLabel() {
 								return getLabel("guide-content-record", langCode);
@@ -118,24 +96,20 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 					}
 				});
 			}
-			
+
 		}
-		
-		
-	 	
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<GuideContent> getItem(String id) {
 				return new io.wktui.nav.menu.SeparatorMenuItem<GuideContent>(id);
 			}
 		});
 
-		
-	  
-
 		addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -143,9 +117,10 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 				return new AjaxLinkMenuItem<GuideContent>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_meta, target));
 					}
 
 					@Override
@@ -155,24 +130,18 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 				};
 			}
 		});
-		
-		
-		
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<GuideContent> getItem(String id) {
 				return new io.wktui.nav.menu.SeparatorMenuItem<GuideContent>(id);
 			}
 		});
 
- 
-		
-		
-
 		addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -180,9 +149,10 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 				return new AjaxLinkMenuItem<GuideContent>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.object_audit, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_audit, target));
 					}
 
 					@Override
@@ -192,33 +162,8 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 				};
 			}
 		});
-		/**
-		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<GuideContent> getItem(String id) {
-
-				return new LinkMenuItem<GuideContent>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-					@Override
-					public void onClick()  {
-						//setResponsePage(new ArtExhibitionGuidePage(GuideContentNavDropDownMenuToolbarItem.this.getModel()));					
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("audit");
-					}
-				};
-			}
-		});
-		
-		*/
 	}
-	
+
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}

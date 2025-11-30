@@ -209,5 +209,11 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 		add(ph);
 
 	}
+
+	@Override
+	protected String getObjectTitleIcon(IModel<GuideContent> model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
  
 }

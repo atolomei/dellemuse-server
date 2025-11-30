@@ -63,8 +63,10 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	private StringValue stringValue;
 
 	private IModel<Site> siteModel;
+	
+	private List<ToolbarItem> listToolbar;
+	
 
-	protected List<ToolbarItem> getToolbarItemsLeft() {return null;}
 	
 	public SiteArtWorkListPage() {
 		super();
@@ -137,6 +139,10 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		setResponsePage(new ArtWorkPage(model, getList()));
 	}
 
+	protected List<ToolbarItem> getToolbarItemsLeft() {return null;}
+	
+	
+	
 	@Override
 	protected WebMarkupContainer getObjectMenu(IModel<ArtWork> model) {
 		
@@ -294,8 +300,10 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		
 		return list;
 	}
-private List<ToolbarItem> listToolbar;
+
 	
+
+
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -365,6 +373,12 @@ private List<ToolbarItem> listToolbar;
 			Resource photo = getResource(model.getObject().getPhoto().getId()).get();
 			return getPresignedThumbnailSmall(photo);
 		}
+		return null;
+	}
+
+	@Override
+	protected String getObjectTitleIcon(IModel<ArtWork> model) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

@@ -219,7 +219,7 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 	}
 
 	public Iterable<ArtWork> getSiteArtWorks(Site site) {
-		return getSiteDBService().getSiteArtWorks(site);
+		return getSiteDBService().getSiteArtWorks(site, ObjectState.EDITION, ObjectState.APPROVED);
 	}
 
 	public Iterable<GuideContent> getGuideContens(ArtExhibitionItem o) {

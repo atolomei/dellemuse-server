@@ -298,6 +298,12 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		}
 	}
 
+	@Override
+	protected String getObjectTitleIcon(IModel<ArtWork> model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 
 
 }

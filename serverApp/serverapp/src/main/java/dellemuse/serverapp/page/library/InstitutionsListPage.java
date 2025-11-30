@@ -259,4 +259,10 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		}
 	}
 
+	@Override
+	protected String getObjectTitleIcon(IModel<Institution> model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

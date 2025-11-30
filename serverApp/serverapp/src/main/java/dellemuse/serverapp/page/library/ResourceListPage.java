@@ -257,6 +257,12 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 	protected String getObjectImageSrc(IModel<Resource> model) {
 		return getPresignedThumbnailSmall(model.getObject());
 	}
+
+	@Override
+	protected String getObjectTitleIcon(IModel<Resource> model) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 
 

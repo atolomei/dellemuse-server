@@ -134,6 +134,11 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 		str.append(" - ");
 		str.append(  o.getAction().getLabel() );
 
+		if ( m.getObject().getDescription()!=null) {
+			
+			str.append(" - ");
+			str.append( m.getObject().getDescription());
+		}
 		
 		return Model.of( str.toString() );
 		

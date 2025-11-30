@@ -25,6 +25,7 @@ import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
+import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -312,6 +313,11 @@ public class SitePage extends BasePage {
 		}
 	}
 
+	/*¨*
+	 * 
+	 * 
+	 * 
+	 */
 	private void addExhibitions() {
 
 		this.exToolbarContainer = new WebMarkupContainer("exToolbarContainer");
@@ -408,7 +414,10 @@ public class SitePage extends BasePage {
 						public void onClick() {
 							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
 						}
-
+						@Override
+						protected String getTitleIcon() {
+							return SitePage.this.getObjectTitleIcon(getModel());
+						}
 						protected IModel<String> getInfo() {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
@@ -442,6 +451,10 @@ public class SitePage extends BasePage {
 					});
 					return list;
 				}
+				
+			 
+
+				
 
 				@Override
 				protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
@@ -475,6 +488,8 @@ public class SitePage extends BasePage {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
 						}
+						
+						
 
 					};
 				}
@@ -498,10 +513,18 @@ public class SitePage extends BasePage {
 							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
 						}
 
+						@Override
 						protected IModel<String> getInfo() {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
 						}
+						@Override
+						protected String getTitleIcon() {
+							return SitePage.this.getObjectTitleIcon(getModel());
+						}
+
+						
+						
 					};
 					return panel;
 				}
@@ -586,6 +609,11 @@ public class SitePage extends BasePage {
 							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
 						}
 
+						@Override
+						protected String getTitleIcon() {
+							return SitePage.this.getObjectTitleIcon(getModel());
+						}
+						
 						protected IModel<String> getInfo() {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
@@ -647,6 +675,8 @@ public class SitePage extends BasePage {
 							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
 						}
 
+						 
+						
 						protected IModel<String> getInfo() {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
@@ -670,6 +700,11 @@ public class SitePage extends BasePage {
 						}
 
 						@Override
+						protected String getTitleIcon() {
+							return SitePage.this.getObjectTitleIcon(getModel());
+						}
+						
+						@Override
 						public void onClick() {
 							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
 						}
@@ -690,6 +725,13 @@ public class SitePage extends BasePage {
 			panel.setSettings(true);
 		}
 
+	}
+
+	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
+		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject())) {
+			return ServerAppConstant.headphoneIcon;
+		}
+		return null;
 	}
 
 	protected void onCreateExhibition() {

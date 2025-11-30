@@ -12,11 +12,13 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -71,7 +73,8 @@ private List<ToolbarItem> listToolbar;
 
 		return listToolbar;
 	}
-
+	
+	 
 	@Override
 	public Iterable<ArtExhibition> getObjects() {
 		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance()
@@ -248,6 +251,14 @@ private List<ToolbarItem> listToolbar;
 			setResponsePage(new ErrorPage(e));
 							
 		}
+	}
+
+	@Override
+	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
+		if ( getArtExhibitionDBService().isArtExhibitionGuides(model.getObject()) )
+			return ServerAppConstant.headphoneIcon;
+		else
+			return null;
 	}
 
 }
