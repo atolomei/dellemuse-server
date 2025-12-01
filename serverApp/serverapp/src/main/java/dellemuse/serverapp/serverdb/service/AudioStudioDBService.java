@@ -13,7 +13,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Check;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
-
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 
 import dellemuse.serverapp.serverdb.model.AudioStudio;
@@ -155,6 +155,14 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 		return c;
 	}
 
+	@Transactional
+	public void save(AudioStudio o, User user, String msg) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, msg));
+	}
+	
+	
+	
 	@Transactional
 	public Optional<AudioStudio> findOrCreate(ArtExhibitionGuide o, User createdBy) {
 
@@ -298,13 +306,13 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 			u.getDisplayname();
 
 		Resource audio = aw.getAudioSpeech();
-		if (audio != null)
-			audio.getBucketName();
-
+		if (audio != null) 
+			aw.setAudioSpeech(getResourceDBService().findById(audio.getId()).get());
+			
 		Resource s_audio = aw.getAudioSpeechMusic();
-		if (s_audio != null)
-			s_audio.getBucketName();
-
+		if (s_audio != null) 
+			aw.setAudioSpeechMusic(getResourceDBService().findById(s_audio.getId()).get());
+		
 		GuideContent gc = aw.getGuideContent();
 		ArtExhibitionGuide ae = aw.getArtExhibitionGuide();
 		GuideContentRecord gc_r = aw.getGuideContentRecord();
@@ -397,5 +405,6 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 		getResourceDBService().delete(a.getAudioSpeech());
 		getResourceDBService().delete(a.getAudioSpeechMusic());
 	}
+
 
 }

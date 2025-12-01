@@ -14,11 +14,11 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
-
+ 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.audiostudio.AudioStudioPage;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -29,6 +29,7 @@ import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
 import io.wktui.error.ErrorPanel;
@@ -89,8 +90,6 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		setUpModel();
 		
 		loadForm();
-		
-		getForm().addOrReplace(new InvisiblePanel("error"));
 	}
 
 	@Override
@@ -157,7 +156,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
 
-		save(getModelObject());
+		save(getModelObject(), getSessionUser(), getUpdatedParts());
 
 		getForm().setFormState(FormState.VIEW);
 		getForm().addOrReplace(new InvisiblePanel("error"));
@@ -209,8 +208,8 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		this.isSpecVisible = introVisible;
 	}
 
-	public void save(R modelObject) {
-		getDBService(modelObject.getClass()).saveViaBaseClass((DelleMuseObject) modelObject, getSessionUser());
+	public void save(R modelObject, User user, String auditMsg) {
+		getDBService(modelObject.getClass()).saveViaBaseClass((DelleMuseObject) modelObject, user, auditMsg);
 	}
 
 	protected boolean isAudioStudioEnabled(R o) {
@@ -300,11 +299,13 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 				logger.debug(getModelObject().getIntro());
 				logger.debug(getModelObject().getInfo());
 
-				save(getModelObject());
+				save(getModelObject(), getSessionUser(), AuditKey.TRANSLATE);
 				loadForm();
 
 			} else {
+				
 				logger.debug(getModel().getObject().getLastModified().toString());
+
 				String date = getDateTimeService().format(getModel().getObject().getLastModified());
 				io.wktui.error.AlertPanel<R> alert = new io.wktui.error.AlertPanel<R>("alert", io.wktui.error.AlertPanel.INFO, null, getModel(), null, getLabel("translated-on", date));
 				getForm().addOrReplace(alert);
@@ -330,6 +331,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	}
 
 	private void setUpModel() {
+		
 		@SuppressWarnings("unchecked")
 		Optional<R> o_i = (Optional<R>) getDBService(getModelObject().getClass()).findWithDeps(getModel().getObject().getId());
 	
@@ -533,6 +535,11 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			}
 		};
 
+		
 		getForm().add(b_buttons_top);
+
+		getForm().addOrReplace(new InvisiblePanel("error"));
+
+		
 	}
 }

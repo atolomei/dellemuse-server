@@ -97,8 +97,6 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		return getPerson(id);
 	}
 
-	
-	@Override
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Person>(id, getModel());
 	}

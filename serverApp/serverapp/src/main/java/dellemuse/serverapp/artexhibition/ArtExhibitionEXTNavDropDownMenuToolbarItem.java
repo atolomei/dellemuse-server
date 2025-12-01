@@ -74,7 +74,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public MenuItemPanel< ArtExhibition> getItem(String id) {
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
 
 				return new LinkMenuItem<ArtExhibition>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
@@ -277,7 +277,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			}
 		});
 		
-		
+	 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
 			private static final long serialVersionUID = 1L;
@@ -301,8 +301,43 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 				};
 			}
 		});
+		 
+		for (Language la : getLanguageService().getLanguages()) {
+
+			final String a_langCode = la.getLanguageCode();
+
+			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {
+				
+				addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public MenuItemPanel< ArtExhibition> getItem(String id) {
+
+						return new  LinkMenuItem<ArtExhibition>(id, getModel()) {
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void onClick() {
+								ArtExhibitionPage page = new ArtExhibitionPage(getModel());
+								page.setStartTab(ServerAppConstant.object_audit+"-"+a_langCode);
+								setResponsePage(page);
+						}
+
+							@Override
+							public IModel<String> getLabel() {
+								return getLabel("audit-lang", a_langCode);
+							}
+						};
+					}
+				});
+			}
+		}
+		
  	}
  	
+	
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}

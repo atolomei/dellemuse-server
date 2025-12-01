@@ -203,10 +203,21 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
-				else if (event.getName().equals(ServerAppConstant.object_audit)) {
-					ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+				
+				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
+					
+					if (event.getMoreInfo()!=null) {
+						ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.object_audit+"-"+event.getMoreInfo(), event.getTarget());
+						//ArtExhibitionItemPage.this.getHeader().setPhotoVisible(true);
+					}
+					else {
+						ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+						//ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
+					}
 				}
-			
+				//else if (event.getName().equals(ServerAppConstant.object_audit)) {
+				//	ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+				//}
 			
 				//else if (event.getName().equals(ServerAppConstant.audit)) {
 				//	ArtExhibitionItemPage.this.togglePanel(ServerAppConstant.audit, event.getTarget());

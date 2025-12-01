@@ -252,9 +252,8 @@ public class AudioStudioEditorDELETE extends DBObjectEditor<AudioStudio> {
 
 				getForm().updateModel();
 				
-				AudioStudioEditorDELETE.this.getModel().getObject().setMusicUrl("https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
-				
-				
+				AudioStudioEditorDELETE.this.getModel().getObject().setMusicUrl(
+						"https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
 				
 				if (AudioStudioEditorDELETE.this.getModel().getObject().getAudioSpeech()!=null) {
 					Long voiceResourceId = AudioStudioEditorDELETE.this.getModel().getObject().getAudioSpeech().getId();
@@ -276,7 +275,7 @@ public class AudioStudioEditorDELETE extends DBObjectEditor<AudioStudio> {
 						
 						File file = new File(c.getoutputFilePath());
 						step2Upload(file);
-						 addStep2MP3();
+						addStep2MP3();
 					
 						//save(AudioStudioEditor.this.getModel().getObject());
 						
@@ -753,9 +752,7 @@ public class AudioStudioEditorDELETE extends DBObjectEditor<AudioStudio> {
 			po.setAudio(getModelObject().getAudioSpeech());
 
 	
-		if (saveRequired) {	
-			save(po);
-		}
+		 
 		
 		this.infoChanged   = false;
 		this.uploadedStep1 = false;

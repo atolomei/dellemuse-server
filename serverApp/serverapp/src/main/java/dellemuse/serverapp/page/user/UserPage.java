@@ -59,6 +59,7 @@ public class UserPage extends ObjectPage<User> {
 	
 	static private Logger logger = Logger.getLogger(UserPage.class.getName());
 
+	private UserPasswordEditor passwordEditor;
 	private UserEditor editor;
 	private List<ToolbarItem> x_list = null;
 	
@@ -96,6 +97,8 @@ public class UserPage extends ObjectPage<User> {
 		};
 		
 		list.add(audit);
+		
+		
 		
 		return list;
 	}
@@ -164,7 +167,14 @@ public class UserPage extends ObjectPage<User> {
 			editor=new UserEditor(id, getModel());
 		return (editor);
 	}
+	protected Panel getPasswordEditor(String id) {
+		if (passwordEditor==null)
+			passwordEditor=new UserPasswordEditor(id, getModel());
+		return (passwordEditor);
+	}
 
+	
+	
 	@Override
 	protected IModel<String> getPageTitle() {
 		return new Model<String> (getModel().getObject().getName());
@@ -205,7 +215,7 @@ public class UserPage extends ObjectPage<User> {
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}
-	@Override
+ 
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<User>(id, getModel());
 	}
@@ -219,7 +229,7 @@ public class UserPage extends ObjectPage<User> {
 		x_list = new ArrayList<ToolbarItem>();
 		
 		
-		UserNavDropDownMenuToolbarItem menu  = new UserNavDropDownMenuToolbarItem("item", getModel(),getLabel("menu"), Align.TOP_RIGHT);
+		UserNavDropDownMenuToolbarItem menu  = new UserNavDropDownMenuToolbarItem("item", getModel(),getLabel("user"), Align.TOP_RIGHT);
 
 		/**
 		menu.setTitle(getLabel("menu"));
@@ -289,6 +299,15 @@ public class UserPage extends ObjectPage<User> {
 		};
 		tabs.add(tab_1);
 	 
+		NamedTab tab_2=new NamedTab(Model.of("password"), ServerAppConstant.user_password) {
+		 	private static final long serialVersionUID = 1L;
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getPasswordEditor(panelId);
+			}
+		};
+		tabs.add(tab_2);
+		
 		if (getStartTab()==null)
 				setStartTab(ServerAppConstant.user_info);
 

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionStatusType;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
@@ -80,9 +81,9 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		getRepository().save(c);
 		
-		for (Language la : getLanguageService().getLanguages()) {
+		for (Language la : getLanguageService().getLanguages()) 
 			getArtWorkRecordDBService().create(c, la.getLanguageCode(), createdBy);
-		}
+		 
 		return c;
 	}
 
@@ -110,6 +111,14 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 		return c;
 	}
 
+	
+	 @Transactional	
+	public void save(ArtWork o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+	
+	
 	@Transactional
 	public ArtWork addQR(ArtWork aw, String bucketName, String objectName, String name, String media, long size, User createdBy) {
 		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);

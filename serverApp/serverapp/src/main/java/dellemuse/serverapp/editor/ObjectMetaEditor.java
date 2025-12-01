@@ -11,6 +11,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
@@ -19,6 +20,7 @@ import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.TranslateMode;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.DBService;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
@@ -321,7 +323,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		if ((getModel().getObject() instanceof MultiLanguageObject) && getMasterLanguage() != null) {
 			((MultiLanguageObject) getModel().getObject()).setMasterLanguage(getMasterLanguage().getLanguageCode());
 		}
-		save(getModelObject());
+		save(getModelObject(), getSessionUser(), AuditKey.TRANSLATE);
 
 		getForm().setFormState(FormState.VIEW);
 		logger.debug("done");
@@ -359,8 +361,8 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		}
 	}
 	
-	public void save(T modelObject) {
-		DBService.getDBService(modelObject.getClass()).saveViaBaseClass((DelleMuseObject) modelObject, getSessionUser());
+	public void save(T modelObject, User user, String msg) {
+		DBService.getDBService(modelObject.getClass()).saveViaBaseClass((DelleMuseObject) modelObject, user, msg);
 	}
 	
 	//private DBService<?, Long> getDBService(Class<? extends DelleMuseObject> clazz) {

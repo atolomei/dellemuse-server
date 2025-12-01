@@ -11,6 +11,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -234,6 +235,52 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 				};
 			}
 		});
+		
+		
+		
+		for (Language la : getLanguageService().getLanguages()) {
+
+			final String a_langCode = la.getLanguageCode();
+
+			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {
+				
+				addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+
+						return new AjaxLinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void onClick(AjaxRequestTarget target) {
+								fire(new MenuAjaxEvent(ServerAppConstant.object_audit+"-"+a_langCode, target, a_langCode));
+							}
+
+							@Override
+							public IModel<String> getLabel() {
+								return getLabel("audit-lang", a_langCode);
+							}
+						};
+					}
+				});
+			}
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 
 	protected LanguageService getLanguageService() {

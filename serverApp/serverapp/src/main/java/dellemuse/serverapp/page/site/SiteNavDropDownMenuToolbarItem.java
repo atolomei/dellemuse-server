@@ -313,47 +313,8 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 		
 		
 		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Site> getItem(String id) {
-
-				return new io.wktui.nav.menu.SeparatorMenuItem<Site>(id) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public boolean isVisible() {
-						return true;
-					}
-				};
-			}
-		});
-
-	
-		/**addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Site> getItem(String id) {
-
-				return new AjaxLinkMenuItem<Site>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						fire(new MenuAjaxEvent(ServerAppConstant.object_audit, target));
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("audit");
-					}
-				};
-			}
-		});**/
+		
+ 
 		
 	}
 

@@ -49,6 +49,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -88,8 +89,6 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 	static private Logger logger = Logger.getLogger(ArtExhibitionEditor.class.getName());
 
 	private ArtExhibitionItemsPanel itemsPanel;
-
-	 
 
 	private TextAreaField<String> opensField;
 
@@ -175,12 +174,16 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		
 		
 		fromField = new TextField<String>("from", new PropertyModel<String>(this, "from"), getLabel("from")) {
+			private static final long serialVersionUID = 1L;
+
 			public boolean isEnabled() {
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
 		};
 		
 		toField = new TextField<String>("to", new PropertyModel<String>(this, "to"), getLabel("to")) {
+			private static final long serialVersionUID = 1L;
+
 			public boolean isEnabled() {
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
@@ -324,6 +327,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 	protected void onSave(AjaxRequestTarget target) {
 		logger.debug("onSave");
 		logger.debug("updated parts:");
+		
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
 
@@ -364,7 +368,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 				setTo(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
 			}
 
-			save(getModelObject());
+			save(getModelObject(), getSessionUser(), getUpdatedParts());
 	
 			this.uploadedPhoto = false;
 
@@ -382,6 +386,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 			target.add(this);
 
 	}
+
 
 	@Override
 	public List<ToolbarItem> getToolbarItems() {

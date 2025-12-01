@@ -132,7 +132,10 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
     }
 
     public String normalizeFileName(String name) {
+
         String str = name.replaceAll("[^\\x00-\\x7F]|[\\s]+", "-").toLowerCase().trim();
+        str=str.replace(",", "");
+        
         if (str.length() < 100)
             return str;
         return str.substring(0, 100);

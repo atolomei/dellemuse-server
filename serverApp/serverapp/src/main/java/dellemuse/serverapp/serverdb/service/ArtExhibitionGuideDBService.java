@@ -96,6 +96,19 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		return c;
 	}
 	
+	@Transactional
+	public void save(ArtExhibitionGuide o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	
+		Optional<AudioStudio> oa = getAudioStudioDBService().findByArtExhibitionGuide(o);
+		
+		if (oa.isPresent()) {
+			oa.get().setName(o.getName());
+			oa.get().setInfo(o.getInfo());
+			getAudioStudioDBService().save(oa.get());
+		}
+	}
 	
 
 	/**

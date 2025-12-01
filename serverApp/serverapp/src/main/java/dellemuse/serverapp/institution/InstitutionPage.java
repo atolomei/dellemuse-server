@@ -452,16 +452,13 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		return tabs;
 	}
 	
-	@Override
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Institution>(id, getModel());
 	}
 	
-	
 	protected IModel<String> getMainTitle() {
 			return new Model<String>(getModel().getObject().getDisplayname());
 	}
-
 	
 	protected IModel<String> getMainSubtitle() {
 

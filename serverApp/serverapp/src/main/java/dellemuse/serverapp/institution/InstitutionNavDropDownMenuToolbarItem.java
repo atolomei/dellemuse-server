@@ -12,6 +12,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
@@ -195,6 +196,43 @@ public class InstitutionNavDropDownMenuToolbarItem extends DropDownMenuToolbarIt
 				};
 			}
 		});
+	
+	
+		for (Language la : getLanguageService().getLanguages()) {
+
+			final String a_langCode = la.getLanguageCode();
+
+			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {
+				
+				addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public MenuItemPanel<Institution> getItem(String id) {
+
+						return new AjaxLinkMenuItem<Institution>(id, getModel()) {
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void onClick(AjaxRequestTarget target) {
+								fire(new MenuAjaxEvent(ServerAppConstant.object_audit+"-"+a_langCode, target, a_langCode));
+							}
+
+							@Override
+							public IModel<String> getLabel() {
+								return getLabel("audit-lang", a_langCode);
+							}
+						};
+					}
+				});
+			}
+		}
+	
+	
+	
+	
+	
 	}
 	
 	 

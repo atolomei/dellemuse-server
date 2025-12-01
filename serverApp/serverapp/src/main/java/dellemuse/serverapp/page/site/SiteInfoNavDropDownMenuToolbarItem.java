@@ -81,7 +81,8 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("site-info-record", getModel().getObject().getMasterLanguage());
+						return getLabel("information");
+						//			return getLabel("site-info-record", getModel().getObject().getMasterLanguage());
 					}
 				};
 			}
@@ -141,6 +142,7 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 			}
 		});
 
+		 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -163,6 +165,41 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 				};
 			}
 		});
+	 	
+		
+		for (Language la : getLanguageService().getLanguages()) {
+
+			final String a_langCode = la.getLanguageCode();
+
+			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {
+				
+				addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public MenuItemPanel<Site> getItem(String id) {
+
+						return new AjaxLinkMenuItem<Site>(id, getModel()) {
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public void onClick(AjaxRequestTarget target) {
+								fire(new MenuAjaxEvent(ServerAppConstant.object_audit+"-"+a_langCode, target, a_langCode));
+							}
+
+							@Override
+							public IModel<String> getLabel() {
+								return getLabel("audit-lang", a_langCode);
+							}
+						};
+					}
+				});
+			}
+		}
+		 
+		
+	 	
 		
 		
 	}

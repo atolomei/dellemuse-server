@@ -45,6 +45,11 @@ public class InfoAudioStudioEditor extends BaseAudioStudioEditor {
 	
 	private void setup() {
 
+		//AudioStudioParentObject po = getAudioStudioDBService().findParentObjectWithDeps(getModelObject()).get();
+		
+		getModel().getObject().setName(super.getParentName());
+		getModel().getObject().setInfo(super.getParentInfo());
+		
 		form = new Form<AudioStudio>("form");
 
 		add(form);

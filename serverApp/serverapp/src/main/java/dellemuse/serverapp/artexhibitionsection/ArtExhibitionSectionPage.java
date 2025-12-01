@@ -169,6 +169,7 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					ArtExhibitionSectionPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+					
 				} else if (event.getName().equals(ServerAppConstant.object_audit)) {
 					ArtExhibitionSectionPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}

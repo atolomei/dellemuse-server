@@ -81,12 +81,14 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		this.repository = repository;
 	}
  
+ 	
+ 	
 	@SuppressWarnings("unchecked")
 	@Transactional
-	public <S extends T> S saveViaBaseClass(DelleMuseObject entity, User user) {
+	public <S extends T> S saveViaBaseClass(DelleMuseObject entity, User user, String auditMsg) {
 		entity.setLastModified(OffsetDateTime.now());
 	
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(entity, user, AuditAction.UPDATE));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(entity, user, AuditAction.UPDATE, auditMsg));
 		return getRepository().save((S) entity);
 	}
 	
@@ -99,6 +101,14 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(entity, user, AuditAction.UPDATE, auditMsg));
 		return getRepository().save(entity);
 	}
+	
+	
+	 @Transactional	
+	public <S extends T> void save(S o, User user, List<String> updatedParts) {
+		super.save(o);
+			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+		}
+	 
 	
 	@Transactional
 	public <S extends T> S save(S entity, User user) {

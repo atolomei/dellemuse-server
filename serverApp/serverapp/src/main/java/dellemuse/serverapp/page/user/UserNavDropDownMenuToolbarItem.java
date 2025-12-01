@@ -28,19 +28,10 @@ import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
- 
 
 public class UserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<User> {
 
 	private static final long serialVersionUID = 1L;
-
-	
-	/**
-	public GuideContentNavDropDownMenuToolbarItem(String id, IModel< ArtExhibitionGuide> model, Align align) {
-		this(id, model, null, align);
-		 
-	}
-	**/
 
 	public UserNavDropDownMenuToolbarItem(String id, IModel<User> model, IModel<String> title, Align align) {
 		super(id, model, title, align);
@@ -49,45 +40,9 @@ public class UserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<User
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
-	 
-			
-	 	
-
-			addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-				
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public MenuItemPanel<User> getItem(String id) {
-
-					return new AjaxLinkMenuItem<User>(id, getModel()) {
-						private static final long serialVersionUID = 1L;
-						@Override
-						public void onClick(AjaxRequestTarget target)  {
-							fire ( new MenuAjaxEvent(ServerAppConstant.action_user_edit_info, target));
-						}
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("information");
-						}
-					};
-				}
-			});
-		 
-		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public MenuItemPanel<User> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<User>(id);
-			}
-		});
-
-		
-	  
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -95,9 +50,65 @@ public class UserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<User
 
 				return new AjaxLinkMenuItem<User>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.user_info, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("information");
+					}
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new AjaxLinkMenuItem<User>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.user_password, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("password");
+					}
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<User>(id);
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new AjaxLinkMenuItem<User>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_meta, target));
 					}
 
 					@Override
@@ -107,24 +118,18 @@ public class UserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<User
 				};
 			}
 		});
-		
-		
-		
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<User> getItem(String id) {
 				return new io.wktui.nav.menu.SeparatorMenuItem<User>(id);
 			}
 		});
 
- 
-		
-		
-
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -132,9 +137,10 @@ public class UserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<User
 
 				return new AjaxLinkMenuItem<User>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.object_audit, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_audit, target));
 					}
 
 					@Override
@@ -144,9 +150,9 @@ public class UserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<User
 				};
 			}
 		});
-		 
+
 	}
-	
+
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}

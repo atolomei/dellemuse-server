@@ -277,8 +277,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 		target.add(getForm());
 	
-		
-		save(getModelObject());
+		save(getModelObject(), getSessionUser(), getUpdatedParts());	save(getModelObject());
 		
 		uploadedPhoto = false;
 

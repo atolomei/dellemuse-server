@@ -11,6 +11,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -30,7 +31,7 @@ import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 
-public class UserEditor extends DBModelPanel<User> implements InternalPanel {
+public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -129,7 +130,7 @@ public class UserEditor extends DBModelPanel<User> implements InternalPanel {
 	protected void onSave(AjaxRequestTarget target) {
 		this.form.setFormState(FormState.VIEW);
 		target.add(this.form);
-		save(getModel().getObject());
+		save(getModelObject(), getSessionUser(), getUpdatedParts());
 		
 	}
 

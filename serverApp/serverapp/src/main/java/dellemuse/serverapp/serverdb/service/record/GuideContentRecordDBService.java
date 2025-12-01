@@ -18,6 +18,7 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
@@ -95,6 +96,21 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 		return c;
 	}
 	
+	
+	@Transactional
+	public void save(GuideContentRecord o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+		
+
+		Optional<AudioStudio> oa = getAudioStudioDBService().findByGuideContentRecord(o);
+		
+		if (oa.isPresent()) {
+			oa.get().setName(o.getName());
+			oa.get().setInfo(o.getInfo());
+			getAudioStudioDBService().save(oa.get());
+		}
+	}
 	
 	/**
 	@Transactional

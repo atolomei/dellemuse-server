@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -104,6 +105,14 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 
 		return c;
 	}
+	
+	
+	 @Transactional	
+	public void save(Institution o, User user, List<String> updatedParts) {
+			super.save(o);
+			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+		}
+		
 
 	@Transactional
 	public void markAsDeleted(Institution c, User deletedBy) {

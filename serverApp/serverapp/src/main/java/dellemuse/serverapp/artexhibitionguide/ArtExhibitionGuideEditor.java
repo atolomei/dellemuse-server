@@ -560,7 +560,7 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 		logger.debug("saving...");
 		
 		
-		save(getModelObject());
+		save(getModelObject(), getSessionUser(), getUpdatedParts());
 		
 		uploadedPhoto = false;
 		uploadedAudio = false;

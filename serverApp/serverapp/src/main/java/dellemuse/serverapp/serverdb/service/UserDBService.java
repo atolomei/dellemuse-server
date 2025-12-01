@@ -13,6 +13,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.User;
 import jakarta.annotation.PostConstruct;
@@ -82,6 +83,14 @@ public class UserDBService extends DBService<User, Long> {
     }
 
 
+	@Transactional	
+	public void save(User o, User user, List<String> updatedParts) {
+			super.save(o);
+			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+
+    
+    
     @Transactional
     @Override
     public List<User> getByName(String name) {

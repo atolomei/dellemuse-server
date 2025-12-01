@@ -22,6 +22,7 @@ import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.model.ObjectWithDepModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.page.site.SiteInfoPage;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -162,12 +163,23 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 					ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionPage.this.getHeader());
 				}
+				
+				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
+					if (event.getMoreInfo()!=null) {
+						ArtExhibitionPage.this.togglePanel(ServerAppConstant.object_audit+"-"+event.getMoreInfo(), event.getTarget());
+						//SiteInfoPage.this.getHeader().setPhotoVisible(true);
+					}
+					else {
+						ArtExhibitionPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+						//SiteInfoPage.this.getHeader().setPhotoVisible(true);
+					}
+				}
 
-				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+				/**else if (event.getName().equals(ServerAppConstant.object_audit)) {
 					ArtExhibitionPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 					ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionPage.this.getHeader());
-				}
+				}**/
 			}
 
 			@Override

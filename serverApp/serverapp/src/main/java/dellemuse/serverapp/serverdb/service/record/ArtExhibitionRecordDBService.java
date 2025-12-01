@@ -19,6 +19,7 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -73,6 +74,23 @@ public class ArtExhibitionRecordDBService extends RecordDBService<ArtExhibitionR
 	}
 
  
+	/**
+	@Transactional
+	public void save(ArtExhibitionRecord o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+		
+
+		Optional<AudioStudio> oa = getAudioStudioDBService().findByArtExhibitionRecord(o);
+		
+		if (oa.isPresent()) {
+			oa.get().setName(o.getName());
+			oa.get().setInfo(o.getInfo());
+			getAudioStudioDBService().save(oa.get());
+		}
+	}
+	**/
+	
 	/**
 	 * 
 	 * 

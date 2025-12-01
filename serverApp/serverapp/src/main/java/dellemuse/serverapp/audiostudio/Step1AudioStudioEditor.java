@@ -19,6 +19,7 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.elevenlabs.LanguageCode;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
@@ -30,6 +31,13 @@ import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.NumberField;
 import wktui.base.InvisiblePanel;
 
+
+/**
+ * 
+ * 
+ * https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
+ * 
+ */
 public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	private static final long serialVersionUID = 1L;
@@ -46,11 +54,9 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	private WebMarkupContainer step1;
 	private WebMarkupContainer step1mp3;
 
- 
-
 	private Double similarity = 0.53;
 	private Double stability = 0.82;
-	private Double speed = 0.97;
+	private Double speed = 0.9;
 	private Double audioStyle = 0.01;
 
 	private boolean uploadedStep1 = false;
@@ -106,8 +112,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		form.add(stabilityField);
 		form.add(styleField);
 
-		
-		
 		SubmitButton<AudioStudio> sm = new SubmitButton<AudioStudio>("generate", getModel(), getForm()) {
 			private static final long serialVersionUID = 1L;
 
@@ -116,8 +120,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 				getForm().updateModel();
 
-				logger.debug( getSpeed() );
-				
 				if (Step1AudioStudioEditor.this.getModel().getObject().getInfo() != null && Step1AudioStudioEditor.this.getModel().getObject().getInfo().length() == 0) {
 					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.DANGER, getLabel("step1.no-text"));
 					getForm().addOrReplace(alert);
@@ -207,8 +209,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	
 	private void addInfo() {
-		
-
+	
 		if (getAudioSpeechModel() != null && getAudioSpeechModel().getObject() != null) {
 			if (!requiresGenerationAudioSpeech() ) {
 				AlertPanel<Void> alert = new AlertPanel<Void>("info", AlertPanel.INFO, getLabel("alredy-generated"));
@@ -225,15 +226,19 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	private void step1AudioSpeech() {
 
-		if (getModel().getObject().getInfo() == null)
-			return;
+		//if (getModel().getObject().getInfo() == null)
+		//	return;
 
-		if (getModel().getObject().getInfo().length() == 0)
-			return;
+		//if (getModel().getObject().getInfo().length() == 0)
+		//	return;
+
+		
+		getModel().getObject().setName(getParentName());
+		getModel().getObject().setInfo(getParentInfo());
+		
 
 		getForm().updateModel();
 		String text = getModel().getObject().getInfo();
-		
 		
 		String language = getModel().getObject().getLanguage();
 		String fileName = normalizeFileName(getParentName()) + "-" + getParentId().toString() + ".mp3";
@@ -257,8 +262,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 		if (ofile.isPresent()) {
 			step1AudioSpeechUpload(ofile.get());
-			logger.debug(language);
-			logger.debug(fileName);
 		}
 	}
 
@@ -280,6 +283,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 				getModel().getObject().setAudioSpeech(resource);
 				getModel().getObject().setAudioSpeechHash(getHashAudioSpeech());
+				
 				logger.debug(("saving AudioStudio -> " + getModel().getObject().getName()));
 
 				Map<String, String> map = getModel().getObject().getSettings();
@@ -296,8 +300,11 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 					map.put("similarity", getSimilarity().toString());
 
 				getModel().getObject().setSettings(map);
-				getAudioStudioDBService().save(getModel().getObject());
+
+				getAudioStudioDBService().save(getModel().getObject(), getSessionUser(), AuditKey.GENERATE_VOICE);
+		
 			}
+			
 
 			uploadedStep1 = true;
 			logger.debug("saved Audio Studio ok -> " + getModel().getObject().toString());
@@ -326,7 +333,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		StringBuilder str = new StringBuilder();
 		
 		logger.debug(getModel().getObject().getInfo());
-			
 			
 		if (getModel().getObject().getInfo() != null)
 			str.append(getModel().getObject().getInfo().toLowerCase().trim());

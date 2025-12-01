@@ -465,7 +465,11 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 		logger.debug("updated parts:");
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
-		save(getModelObject(), getSessionUser());
+		
+		
+		save(getModelObject(), getSessionUser(), getUpdatedParts());
+		
+		
 		uploadedPhoto = false;
 		getForm().setFormState(FormState.VIEW);
 		getForm().updateReload();

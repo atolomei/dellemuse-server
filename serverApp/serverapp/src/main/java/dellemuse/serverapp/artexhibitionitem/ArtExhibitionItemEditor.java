@@ -18,6 +18,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.event.MenuAjaxEvent;
 
 import io.wktui.form.Form;
@@ -254,7 +255,7 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
 		
-		save(getModelObject());
+		save(getModelObject(), getSessionUser(), getUpdatedParts());
 		
 		getForm().setFormState(FormState.VIEW);
 		getForm().updateReload();
@@ -262,6 +263,8 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 	
 		target.add(this);
 	}
+
+	
 
 	private void setUpModel() {
 

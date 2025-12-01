@@ -239,6 +239,11 @@ public class ServerDBSettings {
         	qrcodeQeneration = true;
         else
         	qrcodeQeneration = qrcodeQenerationStr.toLowerCase().trim().equals("true");
+        
+        if (googleTranslateAuth!=null && !googleTranslateAuth.equals("null"))
+        	googleTranslateAuth=googleTranslateAuth.trim();
+        else
+        	googleTranslateAuth=null;
     }
 
     public String getAudioDownloadCacheDir() {

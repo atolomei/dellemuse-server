@@ -30,6 +30,7 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
 import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
@@ -266,9 +267,20 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 					SiteInfoPage.this.togglePanel(event.getName(), event.getTarget());
 				}
 			
-				else if (event.getName().equals(ServerAppConstant.object_audit)) {
-					SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
+					if (event.getMoreInfo()!=null) {
+						SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit+"-"+event.getMoreInfo(), event.getTarget());
+						//SiteInfoPage.this.getHeader().setPhotoVisible(true);
+					}
+					else {
+						SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+						//SiteInfoPage.this.getHeader().setPhotoVisible(true);
+					}
 				}
+				
+				//else if (event.getName().equals(ServerAppConstant.object_audit)) {
+				//	SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+				//}
 			}
 
 			@Override

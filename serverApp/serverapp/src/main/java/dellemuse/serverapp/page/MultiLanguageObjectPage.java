@@ -39,6 +39,10 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 
 	private Map<String, ObjectRecordEditor<T, R>> recordEditors = new HashMap<String, ObjectRecordEditor<T, R>>();
 
+	
+	private Map<String, AuditPanel<R>> auditPanels = new HashMap<String, AuditPanel<R>>();
+
+	
 	protected abstract Optional<R> loadTranslationRecord(String lang);
 
 	protected abstract R createTranslationRecord(String lang);
@@ -90,6 +94,40 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 			}
 		}
 
+		
+		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getAuditPanel(panelId);
+			}
+		};
+		tabs.add(audit);
+		
+		
+		for (Language la : list) {
+
+			if (!la.getLanguageCode().equals(getModel().getObject().getMasterLanguage())) {
+
+				NamedTab tab = new NamedTab(Model.of(la.getLanguageCode()),
+						ServerAppConstant.object_audit + "-" + la.getLanguageCode(),
+						la.getLanguageCode()) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public WebMarkupContainer getPanel(String panelId) {
+						return getAuditPanel(panelId, getMoreInfo());
+					}
+				};
+				tabs.add(tab);
+			}
+		}
+		
+		
+		
 		/**
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
@@ -107,10 +145,34 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 	}
 
 	
-	@Override
+	
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<T>(id, getModel());
 	}
+
+	protected Panel getAuditPanel(String id, String lang) {
+
+		if (this.auditPanels.containsKey(lang))
+			return this.auditPanels.get(lang);
+		
+		R ar = null;
+
+		Optional<R> a = loadTranslationRecord(lang);
+
+		if (a.isEmpty()) {
+			ar = createTranslationRecord(lang);
+		} else
+			ar = a.get();
+
+		IModel<R> translationRecordModel = new ObjectModel<R>(ar);
+		AuditPanel<R> e = new AuditPanel<R>(id, translationRecordModel);
+
+		e.setTitle( getLabel("audit-lang", lang));
+		
+		this.auditPanels.put(lang, e);
+		return e;
+	}
+	
 
 	
 	
@@ -126,6 +188,7 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 		return InstitutionRecord.class;
 	}
 
+	
 	protected Panel getTranslateRecordEditor(String id, String lang) {
 
 		if (this.recordEditors.containsKey(lang))

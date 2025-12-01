@@ -283,10 +283,15 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		this.parentId = po.getId();
 		this.parentInfo = po.getInfo();
 		this.parentState=po.getState();
-				
+		
+		
+		// getModel().getObject().setName(parentName);
+		// getModel().getObject().setInfo(parentInfo);
+		
 		setState(AudioStudioState.AUDIO_VOICE);
 	}
 
+	
 	public AudioStudio getModelObject() {
 		return getModel().getObject();
 	}

@@ -19,6 +19,7 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -45,8 +46,6 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 
 	private WebMarkupContainer step2;
 	private WebMarkupContainer step2mp3;
-
-	private AjaxLink<Void> generate;
 
 	private Integer introDurationSec = Integer.valueOf(20);
 	private Integer fadeDurationSec = Integer.valueOf(12);
@@ -152,6 +151,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 					
 					Long voiceResourceId = Step2AudioStudioEditor.this.getModel().getObject().getAudioSpeech().getId();
 					// musicUrl = "https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3";
+					
 					Integer introDurationSec = Step2AudioStudioEditor.this.getIntroDurationSec();
 					Integer fadeDurationSec = Step2AudioStudioEditor.this.getFadeDurationSec();
 					Integer voiceOverlapDurationSec = Step2AudioStudioEditor.this.getVoiceOverlapDurationSec();
@@ -396,9 +396,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 					map.put("voiceOverlapDurationSec", getVoiceOverlapDurationSec().toString());
 
 				getModel().getObject().setSettings(map);
-
-				getAudioStudioDBService().save(getModel().getObject());
-
+				getAudioStudioDBService().save(getModel().getObject(), getSessionUser(), AuditKey.ADD_MUSIC);
 			}
 
 			uploadedStep2 = true;

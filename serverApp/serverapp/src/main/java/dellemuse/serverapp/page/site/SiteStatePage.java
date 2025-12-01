@@ -242,7 +242,7 @@ public class SiteStatePage extends ObjectPage<Site> {
 		return list;
 	}
 	
-	@Override
+	 
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Site>(id, getModel());
 	}
@@ -263,7 +263,7 @@ public class SiteStatePage extends ObjectPage<Site> {
 			}
 		};
 		tabs.add(tab_1);
-		
+	*/	
 		NamedTab audit=new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 			 
 			private static final long serialVersionUID = 1L;
@@ -275,8 +275,7 @@ public class SiteStatePage extends ObjectPage<Site> {
 		};
 		tabs.add(audit);
 		
-	**/
-	
+		
 		if (getStartTab()==null)
 			super.setStartTab(ServerAppConstant.object_meta);
 		

@@ -3,6 +3,7 @@ package dellemuse.serverapp.audiostudio;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.compress.utils.FileNameUtils;
@@ -12,17 +13,21 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.media.audio.Audio;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
+import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
 import io.wktui.form.button.SubmitButton;
@@ -50,6 +55,9 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+		
+		//setUpModel();
+		
 		setup();
 	}
 
@@ -68,6 +76,7 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 
 	 
 		SubmitButton<AudioStudio> sm = new SubmitButton<AudioStudio>("integrate", getModel(), getForm()) {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -144,12 +153,13 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
 
-		save(getModelObject());
+		// save(getModelObject());
 		
 		boolean saveRequired = false;
 		
 		AudioStudioParentObject po = getAudioStudioDBService().findParentObjectWithDeps(getModelObject()).get();
 		
+		/**
 		if (getModelObject().getInfo()!=null) {
 			
 			if (po.getInfo()==null)
@@ -164,25 +174,48 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 			po.setInfo(getModelObject().getInfo());
 		
 		}
+		*/
+		
+		saveRequired=false;
+		
+		if (!getModelObject().isDependencies()) {
+			getModel().setObject( getAudioStudioDBService().findWithDeps( getModelObject().getId()).get());
+		}
+		
 		
 		if (getModelObject().getAudioSpeechMusic()!=null) {
+			
 			saveRequired=true;
+			
+			//logger.debug(getModelObject().getAudioSpeechMusic().getName().toString());
+			logger.debug( getModelObject().getAudioSpeechMusic().getId() );
+
 			po.setAudio(getModelObject().getAudioSpeechMusic());
 		}
-		else if (getModelObject().getAudioSpeech()!=null)
+		else if (getModelObject().getAudioSpeech()!=null) {
 			saveRequired=true;
+			
+			logger.debug( getModelObject().getAudioSpeech().getId() );
 			po.setAudio(getModelObject().getAudioSpeech());
-
-	
-		if (saveRequired) {	
-			save(po);
 		}
 		
-		this.infoChanged   = false;
-		 
+		if (saveRequired) {	
+	
+			logger.debug(po.getAudio().getId());
+
+			save(po, getSessionUser(),  List.of(AuditKey.INTEGRATE_AUDIO));
+		
+			SimpleAlertRow<Void> p = new SimpleAlertRow<Void>("info");
+			p.setAlertType(AlertPanel.INFO);
+			p.setText( Model.of("successfully integrated"));
+			p.setVisible(true);
+			getForm().addOrReplace(p);
+		
+		}
 		
 		getForm().updateReload();
 
+		
 		fire(new ObjectUpdateEvent(target));
 		target.add(this);
 	}

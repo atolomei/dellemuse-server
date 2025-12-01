@@ -94,6 +94,21 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		return c;
 	}
 
+	@Transactional
+	public void save(GuideContent o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+		
+
+		Optional<AudioStudio> oa = getAudioStudioDBService().findByGuideContent(o);
+		
+		if (oa.isPresent()) {
+			oa.get().setName(o.getName());
+			oa.get().setInfo(o.getInfo());
+			getAudioStudioDBService().save(oa.get());
+		}
+	}
+	
 	
 	@Transactional
 	public void delete(GuideContent c, User deletedBy) {
@@ -235,6 +250,8 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
+
+	
 
 
 }

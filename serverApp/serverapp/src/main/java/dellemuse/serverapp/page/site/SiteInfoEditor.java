@@ -375,11 +375,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 			fire (new ObjectUpdateEvent(target));
 		
 			target.add(this);
-
-
 	}
-	
-	
 
 	protected IModel<Resource> getPhotoModel() {
 		return this.photoModel;

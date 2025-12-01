@@ -123,6 +123,13 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		return c;
 	}
 
+	@Transactional	
+	public void save(ArtExhibition o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+
+	
 	/**
 	 * 
 	 *  ArtExhibition (1)
@@ -425,4 +432,5 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
+
 }

@@ -37,6 +37,7 @@ import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
+import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
@@ -266,25 +267,65 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		service.save(a);
 	}
 
-	public void save(ArtExhibition a) {
+	public void save(ArtExhibition a,  User user) {
 		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
-		service.save(a);
+		service.save(a, user);
+	}
+	
+	
+
+	public void save(ArtWork modelObject, User user, List<String> updatedParts) {
+		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+		service.save(modelObject, user, updatedParts);
 	}
 
-	public void save(Institution inst, User user) {
+	
+	public void save(ArtExhibitionItem modelObject, User user, List<String> updatedParts) {
+		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
+		service.save(modelObject, user, updatedParts);
+	}
+
+	public void save(ArtExhibition modelObject, User user, List<String> updatedParts) {
+		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
+		service.save(modelObject, user, updatedParts);
+	}
+	
+	public void save(ArtExhibitionGuide modelObject, User user, List<String> updatedParts) {
+		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
+		service.save(modelObject, user, updatedParts);
+	}
+
+	
+	public void save( GuideContent modelObject, User user, List<String> updatedParts) {
+		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
+		service.save(modelObject, user, updatedParts);
+	}
+	
+	
+	public void save(Institution inst, User user,  List<String> updatedParts) {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
-		service.save(inst, user);
+		service.save(inst, user, updatedParts);
 	}
 
+	
+	public void save(Person person, User user,  List<String> updatedParts) {
+		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
+		service.save(person, user, updatedParts);
+	}
+	
+	
+	public void save(User u, User user,  List<String> updatedParts) {
+		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
+		service.save(u, user, updatedParts);
+	}
+	
+	
 	public void save(InstitutionRecord ir) {
 		InstitutionRecordDBService service = (InstitutionRecordDBService) ServiceLocator.getInstance().getBean(InstitutionRecordDBService.class);
 		service.save(ir);
 	}
 
-	/**public void save(Site site) {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		service.save(site);
-	}**/
+	 
 
 	public void save(Site site, User user, List<String> updatedParts) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
@@ -307,10 +348,6 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		service.save(o);
 	}
 
-	public void save(Person person) {
-		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
-		service.save(person);
-	}
 	
 
 	/** ------------------------ **/

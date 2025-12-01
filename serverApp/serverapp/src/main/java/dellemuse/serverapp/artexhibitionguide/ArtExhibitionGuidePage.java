@@ -183,9 +183,16 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 					ArtExhibitionGuidePage.this.togglePanel(event.getName(), event.getTarget());
 				}
 
-				else if (event.getName().equals(ServerAppConstant.object_audit)) {
-					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
+				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
+					if (event.getMoreInfo()!=null) {
+						ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_audit+"-"+event.getMoreInfo(), event.getTarget());
+						ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
+					}
+					else {
+						ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+						ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
+					}
+					
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
 				}
 			}

@@ -100,6 +100,22 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 	}
 
 	@Transactional
+	public void save(ArtExhibitionGuideRecord o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+		
+
+		Optional<AudioStudio> oa = getAudioStudioDBService().findByArtExhibitionGuideRecord(o);
+		
+		if (oa.isPresent()) {
+			oa.get().setName(o.getName());
+			oa.get().setInfo(o.getInfo());
+			getAudioStudioDBService().save(oa.get());
+		}
+	}
+	
+	
+	@Transactional
 	public void markAsDeleted(ArtExhibitionGuideRecord c, User deletedBy) {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);

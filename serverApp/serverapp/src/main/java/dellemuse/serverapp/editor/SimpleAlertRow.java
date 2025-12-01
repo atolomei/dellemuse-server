@@ -15,7 +15,10 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 	
 	private WebMarkupContainer infoContainer;
 	private AlertPanel<Void> info;
-		
+	private int alertType = AlertPanel.WARNING;
+	private IModel<String> text;
+	
+	
 	public SimpleAlertRow(String id) {
 		super(id, null);
 	}
@@ -63,14 +66,12 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 	public int getAlertType() {
 		return alertType;
 	}
- 
-	
-	int alertType= AlertPanel.WARNING;
-	Model<String>text;
-	
-	protected IModel<String> getText() {
+ 	protected IModel<String> getText() {
 		return text;
 	}
-	
+	public void setText(IModel<String>  t) {
+		this.text=t;
+	}
 
+	
 }

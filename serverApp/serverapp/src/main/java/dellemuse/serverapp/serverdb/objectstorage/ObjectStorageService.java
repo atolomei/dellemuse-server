@@ -133,6 +133,10 @@ public class ObjectStorageService extends BaseService implements SystemService {
 		this.accessKey = getSettings().getObjectStorageAccessKey();
 		this.secretKey = getSettings().getObjectStorageSecretKey();
 
+		
+		startupLogger.info( ServerConstant.SEPARATOR);
+		startupLogger.info("Starting connection to Odilon Object Storage");
+		
 		connect();
 
 		this.timerConnect = new TimerThread() {
@@ -177,8 +181,10 @@ public class ObjectStorageService extends BaseService implements SystemService {
 
 		startupLogger.info(
 				"Connected to Odilon server -> " + this.client.getSchemaAndHost() + ":" + String.valueOf(this.port));
+	
 		startupLogger.debug(this.toString());
 		startupLogger.debug("Startup -> " + this.getClass().getSimpleName());
+	
 	}
 
 	protected String getEndPoint() {

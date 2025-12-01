@@ -113,7 +113,6 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 		super.onDetach();
 	}
  
-	@Override
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Site>(id, getModel());
 	}

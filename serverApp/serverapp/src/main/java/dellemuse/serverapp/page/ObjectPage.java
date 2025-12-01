@@ -69,7 +69,6 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private Panel audit;
 	private Panel pageHeader;
 	
-	
 	protected abstract Optional<T> getObject(Long id);
 	protected abstract IModel<String> getPageTitle();
 	protected abstract IRequestablePage getObjectPage(IModel<T> iModel, List<IModel<T>> list);
@@ -258,7 +257,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		}
 	}
     
-	protected Panel getAuditPanel(String id) {
+
+		
+	protected Panel getAudssitPanel(String id) {
 		
 		if (this.audit==null) {
 				audit = new  AlertPanel<Void>(id, 
@@ -412,7 +413,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		};
 		tabs.add(tab_2);
 		
-		
+		/**
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
 			private static final long serialVersionUID = 1L;
@@ -423,7 +424,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			}
 		};
 		tabs.add(audit);
-		
+		**/
 		
 		return tabs;
 	}

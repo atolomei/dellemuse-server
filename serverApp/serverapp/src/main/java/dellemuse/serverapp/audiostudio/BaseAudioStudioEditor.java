@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 
@@ -16,8 +15,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
-import io.wktui.form.Form;
- 
+
 /**
  *
  * 
@@ -28,7 +26,6 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 
 	static private Logger logger = Logger.getLogger(BaseAudioStudioEditor.class.getName());
 
-	//private IModel<AudioStudioParentObject> parentObjectModel;
 	private IModel<Resource> parentAudioModel;
 	private IModel<Resource> audioSpeechModel;
 	private IModel<Resource> audioSpeechMusicModel;
@@ -38,29 +35,24 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 	private IModel<String> parentType;
 	private Long parentId;
 	private ObjectState parentState;
-	
+
 	public BaseAudioStudioEditor(String id, IModel<AudioStudio> model) {
 		super(id, model);
 	}
-	
-	 
 
 	public void onDetach() {
 		super.onDetach();
-		
-		//if (this.parentObjectModel!=null)
-		//	this.parentObjectModel.detach();
-		
-		if (this.parentAudioModel!=null)
+
+		if (this.parentAudioModel != null)
 			this.parentAudioModel.detach();
-		
-		if (this.audioSpeechModel!=null)
+
+		if (this.audioSpeechModel != null)
 			this.audioSpeechModel.detach();
 
-		if (this.audioSpeechMusicModel!=null)
+		if (this.audioSpeechMusicModel != null)
 			this.audioSpeechMusicModel.detach();
 	}
-	
+
 	/** 
 	 * 
 	 */
@@ -69,16 +61,12 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 		super.onInitialize();
 		setUpModel();
 	}
-	
+
 	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
 		// getForm().setFormState(FormState.EDIT);
 		// target.add(getForm());
 	}
-
-	//public IModel<AudioStudioParentObject> getParentObjectModel() {
-	//	return parentObjectModel;
-	//}
 
 	public IModel<Resource> getParentAudioModel() {
 		return parentAudioModel;
@@ -92,11 +80,6 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 		return audioSpeechMusicModel;
 	}
 
-
-	//public void setParentObjectModel(IModel<AudioStudioParentObject> parentObjectModel) {
-	//	this.parentObjectModel = parentObjectModel;
-	//}
-
 	public void setParentAudioModel(IModel<Resource> parentAudioModel) {
 		this.parentAudioModel = parentAudioModel;
 	}
@@ -108,7 +91,6 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 	public void setAudioSpeechMusicModel(IModel<Resource> audioSpeechMusicModel) {
 		this.audioSpeechMusicModel = audioSpeechMusicModel;
 	}
-
 
 	public String getParentName() {
 		return parentName;
@@ -141,12 +123,11 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 	public void setParentId(Long parentId) {
 		this.parentId = parentId;
 	}
-	
-	
+
 	protected ObjectState getParentObjectState() {
 		return this.parentState;
 	}
-	
+
 	protected void setUpModel() {
 
 		Optional<AudioStudio> o_a = getAudioStudioDBService().findWithDeps(getModel().getObject().getId());
@@ -163,26 +144,23 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 		}
 
 		AudioStudioParentObject po = getAudioStudioDBService().findParentObjectWithDeps(getModelObject()).get();
-	
-		
-		if (po.getAudio()!=null) {
+
+		if (po.getAudio() != null) 
 			parentAudioModel = new ObjectModel<Resource>(po.getAudio());
-		}
-		
+	
 		parentName = po.getName();
 		parentType = getLabel(po.getClass().getSimpleName().toLowerCase());
 		parentId = po.getId();
 		parentInfo = po.getInfo();
 		parentState = po.getState();
-		
 
-		if (parentInfo!=null && getModel().getObject().getInfo()!=null) {
+		if (parentInfo != null && getModel().getObject().getInfo() != null) {
 			if (!parentInfo.equals(getModel().getObject().getInfo())) {
 				getModel().getObject().setInfo(parentInfo);
 				save(getModel().getObject());
 			}
 		}
-		
+
 	}
 
 }

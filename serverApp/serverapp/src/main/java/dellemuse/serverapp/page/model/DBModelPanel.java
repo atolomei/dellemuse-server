@@ -97,25 +97,24 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		getUserDBService().save(o);
 	}
 	
-	public void save(AudioStudioParentObject po) {
+	public void save(AudioStudioParentObject po, User user, List<String> msg) {
 	
 		if (po instanceof GuideContent) {
-			save((GuideContent) po);
+			getGuideContentDBService().save((GuideContent) po, user, msg);
 		}
 		
 		else if (po instanceof ArtExhibitionGuide) {
-			save((ArtExhibitionGuide) po);
+			getArtExhibitionGuideDBService().save((ArtExhibitionGuide) po, user, msg);
 		}
 		
 		else if (po instanceof TranslationRecord) {
 			
 			if (po instanceof GuideContentRecord)
-			save((GuideContentRecord) po);
+				getGuideContentRecordDBService().save((GuideContentRecord) po, user, msg);
 		
-			else if (po instanceof TranslationRecord) {
-				if (po instanceof ArtExhibitionGuideRecord)
-				save((ArtExhibitionGuideRecord) po);
-			}
+			else if (po instanceof ArtExhibitionGuideRecord)
+				getArtExhibitionGuideRecordDBService().save((ArtExhibitionGuideRecord) po, user, msg);
+			
 		}
 	}
 

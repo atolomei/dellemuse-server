@@ -177,7 +177,7 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord>  {
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
 	
-		save(getModelObject());
+		save(getModelObject(), getSessionUser(), getUpdatedParts());
 	 
 		getForm().setFormState(FormState.VIEW);
 		logger.debug("done");

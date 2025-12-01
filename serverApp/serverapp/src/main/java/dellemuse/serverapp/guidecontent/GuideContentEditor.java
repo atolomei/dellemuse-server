@@ -449,7 +449,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
 		
-		save(getModelObject());
+		save(getModelObject(), getSessionUser(), getUpdatedParts());
 		
 		uploadedPhoto = false;
 		

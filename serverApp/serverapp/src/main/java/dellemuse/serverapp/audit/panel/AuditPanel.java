@@ -12,17 +12,11 @@ import org.apache.wicket.model.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.artexhibition.ArtExhibitionGuidesPanel;
-import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideContentsPanel;
-import dellemuse.serverapp.guidecontent.GuideContentPage;
+
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
-import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
-import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.service.DelleMuseAuditDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.DateTimeService;
@@ -39,11 +33,21 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 
 	private ListPanel<DelleMuseAudit> itemsPanel;
 	private List<IModel<DelleMuseAudit>> items;
-	 
+	private IModel<String> title;
+	
+	
 	public AuditPanel(String id, IModel<T> model) {
 		super(id, model);
 	}
+	
+	public IModel<String> getTitle() {
+		return this.title;
+	}
 
+	public void setTitle(IModel<String> t) {
+		this.title=t;
+	}
+	
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -56,9 +60,10 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 	public void onInitialize() {
 		super.onInitialize();
 		
-		Label title = new Label( "title", getLabel("audit-title", getModel().getObject().getName()));
-		add(title);
-		
+		if (getTitle()==null)
+			setTitle( getLabel("audit-title", getModel().getObject().getName()) );
+			
+		add(new Label( "title", getTitle() ));
 		addItems();
 	}
 

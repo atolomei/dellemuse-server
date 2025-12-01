@@ -99,6 +99,7 @@ public class AudioStudioPage extends BasePage {
 				add(new GlobalFooterPanel<Void>("footer-panel"));
 	
 		} catch (Exception e) {
+			logger.error(e);
 			addOrReplace( new ErrorPanel("top-panel", e));
 			addOrReplace( new ErrorPanel("footer-panel", e));
 		}
@@ -184,13 +185,13 @@ public class AudioStudioPage extends BasePage {
 			
 			if (ap instanceof TranslationRecord) {
 				
-				mlo_parentObjectName = 	((TranslationRecord) ap).getParentObject().getName();
-				mlo_parentObjectId   = 	((TranslationRecord) ap).getParentObject().getId();
-				mlo_parentObjectPrefix = ((TranslationRecord) ap).getParentObject().getPrefixUrl();
+				mlo_parentObjectName = 	ap.getName();
+				mlo_parentObjectId   = ap.getId();
+				mlo_parentObjectPrefix = ap.getPrefixUrl();
 			}
 			else {
-				mlo_parentObjectName =parentObjectName;
-				mlo_parentObjectId   = 	parentObjectId;
+				mlo_parentObjectName =   parentObjectName;
+				mlo_parentObjectId   = 	 parentObjectId;
 				mlo_parentObjectPrefix = parentObjectPrefix;
 			}
 			

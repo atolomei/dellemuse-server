@@ -289,7 +289,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 			getModel().getObject().setArtists(set);
 		}
 		
-		save(getModelObject());
+		save(getModelObject(), getSessionUser(), getUpdatedParts());
 		
 		uploadedPhoto = false;
 		

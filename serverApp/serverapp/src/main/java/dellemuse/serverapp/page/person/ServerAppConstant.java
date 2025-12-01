@@ -101,6 +101,7 @@ public class ServerAppConstant {
 	
 	/** user */
 	static final public String user_info 			= "user-info";
+	static final public String user_password		= "user-password";
  
 	
 	static final public String action_user_edit_info = "user-action-edit-info";

@@ -183,9 +183,13 @@ public class IntegrateMusicCommand extends Command {
 			int fadeStartSec = introDurationSec - fadeDurationSec; // start fade s before voice
 
 			/**
-			 * FFmpeg command explanation: // 1. Take first input [0:a] (music) // 2. Apply
-			 * fade-out effect (starting fadeStartSec, lasting fadeDurationSec) // 3. Delay
-			 * the voice [1:a] so it starts after introDurationSec // 4. Mix both audio
+			 * FFmpeg command explanation: 
+			 * // 1. Take first input [0:a] (music) 
+			 * // 2. Apply
+			 * fade-out effect (starting fadeStartSec, lasting fadeDurationSec)
+			 *  // 3. Delay
+			 * the voice [1:a] so it starts after introDurationSec 
+			 * // 4. Mix both audio
 			 * streams
 			 *
 			 * 
@@ -208,7 +212,7 @@ public class IntegrateMusicCommand extends Command {
 					"-filter_complex " + 
 					"\"[0:a]afade=t=out:st=%d:d=%d[aud1];" + 
 					"[1:a]adelay=%d|%d[aud2];" + 
-					"[aud1][aud2]amix=inputs=2:duration=longest[aout]\" " + 
+					"[aud1][aud2]amix=inputs=2:duration=shortest[aout]\" " + 
 					"-map \"[aout]\" -y \"%s\"",
 					 musicFile, 
 					downloadDir + File.separator + voiceFileName, 
