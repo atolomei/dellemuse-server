@@ -218,6 +218,20 @@ public class PersonDBService extends DBService<Person, Long> {
     }
 
     @Transactional
+	public Optional<Person> getByUser(User u) {
+    	CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+        CriteriaQuery<Person> cq = cb.createQuery(Person.class);
+        Root<Person> root = cq.from(Person.class);
+        cq.select(root).where(
+                cb.equal(root.get("user").get("id"), u.getId().toString())
+        );
+        List<Person> list = getEntityManager().createQuery(cq).getResultList();
+        return list.stream().findFirst();
+	}
+	
+	
+	
+    @Transactional
     public Optional<Person> findByName(String name, Optional<String> lastName) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Person> cq = cb.createQuery(Person.class);
@@ -261,6 +275,8 @@ public class PersonDBService extends DBService<Person, Long> {
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
     }
+
+
 }
                 
         

@@ -37,7 +37,6 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(InstitutionMainPanel.class.getName());
 
 	private InstitutionEditor editor;
@@ -187,10 +186,8 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 		else
 			site = service.create(getModel().getObject().getName() + " " + String.valueOf(getSiteList().size()), getUserDBService().findRoot());
 		
-		
 		IModel<Site> m = new ObjectModel<Site>(site);
 		getSiteList().add(m);
 		setResponsePage(new SitePage(m, getSiteList()));
 	}
-
 }

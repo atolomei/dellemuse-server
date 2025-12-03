@@ -3,7 +3,6 @@ package dellemuse.serverapp.artexhibition;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -14,13 +13,11 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideContentsPanel;
 import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
-import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
@@ -31,13 +28,10 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
-import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
-import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.event.UIEvent;
 import io.wktui.form.FormState;
@@ -66,7 +60,6 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	private FormState state = FormState.VIEW;
 	
 	private MultipleSelectorPanel<ArtWork> multipleSeletor;
-	//private WebMarkupContainer addContainer;
 	private AjaxLink<Void> add;
 	private AjaxLink<Void> close;
 	private WebMarkupContainer addContainerButtons;
@@ -80,99 +73,6 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	private ObjectStateEnumSelector oses;
 	
 	 
-	protected List<ToolbarItem> getListToolbarItems() {
-
-		if (listToolbar != null)
-			return listToolbar;
-
-		listToolbar = new ArrayList<ToolbarItem>();
-
-		IModel<String> selected = Model.of( getObjectStateEnumSelector().getLabel(getLocale()));
-		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-		
-		listToolbar.add(s);
-		return listToolbar;
-	}
-
-	
-	private void addListToolbar() {
-
-		this.listToolbarContainer = new WebMarkupContainer("listToolbarContainer") {
-			private static final long serialVersionUID = 1L;
-		};
-
-		this.listToolbarContainer.setOutputMarkupId(true);
-		add(this.listToolbarContainer);
-
-		List<ToolbarItem> list = getListToolbarItems();
-
-		if (list != null && list.size() > 0) {
-			Toolbar toolbarItems = new Toolbar("listToolbar");
-			list.forEach(t -> toolbarItems.addItem(t));
-			this.listToolbarContainer.add(toolbarItems);
-		} else {
-			this.listToolbarContainer.add(new InvisiblePanel("listToolbar"));
-		}
-	}
-
-
-	
-	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
-		this.oses = o;
-	}
-
-	public ObjectStateEnumSelector getObjectStateEnumSelector() {
-		return this.oses;
-	}
-
-	protected void addListeners() {
-		super.addListeners();
-
-		add(new io.wktui.event.WicketEventListener<ObjectStateSelectEvent>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(ObjectStateSelectEvent event) {
-				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
-				loadList();
-				event.getTarget().add( ArtExhibitionItemsPanel.this.itemsPanel);
-				event.getTarget().add( ArtExhibitionItemsPanel.this.listToolbarContainer);
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof ObjectStateSelectEvent)
-					return true;
-				return false;
-			}
-		});
-
-	}
-	
-	protected synchronized void loadList() {
-
-		this.list = new ArrayList<IModel<ArtExhibitionItem>>();
-
-		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDTIION_PUBLISHED)
-			getObjects(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
-
-		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
-			getObjects(ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
-
-		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
-			getObjects(ObjectState.EDITION).forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
-
-		else if (this.getObjectStateEnumSelector() == null)
-			getObjects().forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
-
-		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.ALL)
-			getObjects().forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
-
-		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
-			getObjects(ObjectState.DELETED).forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
-
-		this.list.forEach(c -> logger.debug(c.toString()));
-	}
 	
 	
 	/**
@@ -249,11 +149,82 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		return super.getImageSrc(model.getObject());
 	}
 	
+	protected IModel<String> getObjectTitle(IModel<ArtExhibitionItem> model) {
+		StringBuilder str = new StringBuilder();
+		str.append(model.getObject().getDisplayname());
+
+		if (model.getObject().getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+
+		return Model.of(str.toString());
+	}
+
+	
+	
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 		return t_list;
 	}
 	
+
+
+	
+	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
+		this.oses = o;
+	}
+
+	public ObjectStateEnumSelector getObjectStateEnumSelector() {
+		return this.oses;
+	}
+
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<ObjectStateSelectEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(ObjectStateSelectEvent event) {
+				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
+				loadList();
+				event.getTarget().add( ArtExhibitionItemsPanel.this.itemsPanel);
+				event.getTarget().add( ArtExhibitionItemsPanel.this.listToolbarContainer);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectStateSelectEvent)
+					return true;
+				return false;
+			}
+		});
+
+	}
+	
+	protected synchronized void loadList() {
+
+		this.list = new ArrayList<IModel<ArtExhibitionItem>>();
+
+		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDTIION_PUBLISHED)
+			getObjects(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
+
+		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
+			getObjects(ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
+
+		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
+			getObjects(ObjectState.EDITION).forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
+
+		else if (this.getObjectStateEnumSelector() == null)
+			getObjects().forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
+
+		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.ALL)
+			getObjects().forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
+
+		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
+			getObjects(ObjectState.DELETED).forEach(s -> this.list.add(new ObjectModel<ArtExhibitionItem>(s)));
+
+		this.list.forEach(c -> logger.debug(c.toString()));
+	}
 	
 	
 	protected Panel getObjectListItemExpandedPanel(IModel<ArtExhibitionItem> model, ListPanelMode mode) {
@@ -391,10 +362,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	private List<IModel<ArtExhibitionItem>> getItems() {
 		if (this.list == null) {
 			loadList();
-			
-			//this.list = new ArrayList<IModel<ArtExhibitionItem>>();
-			//getArtExhibitionItems(getModel().getObject()).forEach(item -> this.list.add(new ObjectModel<>(item)));
-		}
+	 	}
 		return this.list;
 	}
 	
@@ -494,7 +462,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	}
 	
 	
-	private void addItems() {
+	protected void addItems() {
 
 		this.itemsPanel = new ListPanel<ArtExhibitionItem>("items") {
 
@@ -502,6 +470,8 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 
 			protected List<IModel<ArtExhibitionItem>> filter(List<IModel<ArtExhibitionItem>> initialList,
 					String filter) {
+				return iFilter(initialList, filter);
+				/**
 				List<IModel<ArtExhibitionItem>> list = new ArrayList<IModel<ArtExhibitionItem>>();
 				final String str = filter.trim().toLowerCase();
 				initialList.forEach(s -> {
@@ -509,7 +479,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 						list.add(s);
 					}
 				});
-				return list;
+				return list;**/
 			}
 			
 			@Override
@@ -567,6 +537,12 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 			public List<IModel<ArtExhibitionItem>> getItems()  {
 				return  ArtExhibitionItemsPanel.this.getItems();
 			}
+		
+			//@Override
+			//protected void setItems(List<IModel<ArtExhibitionItem>> list) {
+			//	ArtExhibitionItemsPanel.this.setList(list);
+			//}
+		
 		};
 		add(itemsPanel);
 
@@ -578,6 +554,9 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	}
 	
 	
+	protected void setList(List<IModel<ArtExhibitionItem>> list) {
+		this.list=list;
+	}
 	
 	public Iterable<ArtExhibitionItem> getObjects() {
 		 return this.getObjects(null, null);
@@ -623,14 +602,40 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		target.add(this);
 	}
 	
-	public IModel<String> getObjectTitle(IModel<ArtExhibitionItem> model) {
-		StringBuilder str = new StringBuilder();
-		str.append(model.getObject().getDisplayname());
+	
+	protected List<ToolbarItem> getListToolbarItems() {
 
-		if (model.getObject().getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+		if (listToolbar != null)
+			return listToolbar;
 
-		return Model.of(str.toString());
+		listToolbar = new ArrayList<ToolbarItem>();
+
+		IModel<String> selected = Model.of( getObjectStateEnumSelector().getLabel(getLocale()));
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+		
+		listToolbar.add(s);
+		return listToolbar;
+	}
+
+	
+	private void addListToolbar() {
+
+		this.listToolbarContainer = new WebMarkupContainer("listToolbarContainer") {
+			private static final long serialVersionUID = 1L;
+		};
+
+		this.listToolbarContainer.setOutputMarkupId(true);
+		add(this.listToolbarContainer);
+
+		List<ToolbarItem> list = getListToolbarItems();
+
+		if (list != null && list.size() > 0) {
+			Toolbar toolbarItems = new Toolbar("listToolbar");
+			list.forEach(t -> toolbarItems.addItem(t));
+			this.listToolbarContainer.add(toolbarItems);
+		} else {
+			this.listToolbarContainer.add(new InvisiblePanel("listToolbar"));
+		}
 	}
 
 

@@ -22,7 +22,6 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionModel;
 import dellemuse.model.ArtWorkModel;
@@ -90,7 +89,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 	static private Logger logger = Logger.getLogger(SiteFloorsPage.class.getName());
 
 	private Panel editor;
-	 
+
 	public SiteFloorsPage() {
 		super();
 	}
@@ -102,59 +101,55 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 	public SiteFloorsPage(IModel<Site> model) {
 		super(model);
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-  	}
+	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
 	}
- 
+
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Site>(id, getModel());
 	}
 
 	protected Panel getEditor(String id) {
 		if (this.editor == null)
-		//	this.editor = new SiteEditor("editor", getModel());
-			this.editor=new ErrorPanel(id, Model.of("not done"));
-			return this.editor;
+			// this.editor = new SiteEditor("editor", getModel());
+			this.editor = new ErrorPanel(id, Model.of("not done"));
+		return this.editor;
 	}
-	
+
 	@Override
 	protected IRequestablePage getObjectPage(IModel<Site> iModel, List<IModel<Site>> list2) {
 		return new SitePage(iModel, list2);
 	}
-	
 
 	@Override
 	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(	new HREFBCElement("/site/list", getLabel("sites")));
-		bc.addElement(	new HREFBCElement("/site/" + getModel().getObject().getId().toString(),
-						new Model<String>(getModel().getObject().getDisplayname())));
+		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
+		bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), new Model<String>(getModel().getObject().getDisplayname())));
 
 		bc.addElement(new BCElement(new Model<String>("floors")));
-		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(),
-				new Model<String>(getModel().getObject().getDisplayname()));
+		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
-		
+
 		ph.setContext(getLabel("site"));
-		
-		if (getModel().getObject().getSubtitle()!=null)
-			ph.setTagline( Model.of( getModel().getObject().getSubtitle()));
+
+		if (getModel().getObject().getSubtitle() != null)
+			ph.setTagline(Model.of(getModel().getObject().getSubtitle()));
 
 		if (getModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 
-		
-		return(ph);
+		return (ph);
 	}
-	
+
 	@Override
 	protected Optional<Site> getObject(Long id) {
 		return getSite(id);
@@ -164,16 +159,13 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 	protected IModel<String> getPageTitle() {
 		return getLabel("floors");
 	}
-	
-	
-  
 
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
 		logger.error("not done");
-		//editor.onEdit(target);
+		// editor.onEdit(target);
 	}
-	
+
 	@Override
 	protected void setUpModel() {
 		super.setUpModel();
@@ -183,31 +175,30 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 			setModel(new ObjectModel<Site>(o_i.get()));
 		}
 	}
-	
-	
+
 	protected void addListeners() {
 		super.addListeners();
 
 		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
-				
+
 				logger.debug(event.toString());
 
-				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
 					SiteFloorsPage.this.onEdit(event.getTarget());
 				}
-			
-				else if (event.getName().equals(ServerAppConstant.site_info)) {
-					SiteFloorsPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
+
+				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
+					SiteFloorsPage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
 				}
-			
 
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					SiteFloorsPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
-				
+
 				else if (event.getName().equals(ServerAppConstant.object_audit)) {
 					SiteFloorsPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}
@@ -221,13 +212,13 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 			}
 		});
 
-	
 		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
-				if (event.getName().equals(ServerAppConstant.action_site_home)) {
-					setResponsePage(new SitePage( getModel(), getList()));
+				if (event.getName().equals(ServerAppConstant.site_action_home)) {
+					setResponsePage(new SitePage(getModel(), getList()));
 				}
 			}
 
@@ -241,24 +232,22 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 	}
 
 	protected List<ToolbarItem> getToolbarItems() {
-		
+
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		
-		String name = getModel().getObject().getShortName() !=null ? getModel().getObject().getShortName() : getModel().getObject().getName();
-		list.add(new SiteNavDropDownMenuToolbarItem("item", getModel(), Model.of(name), Align.TOP_RIGHT ));
-	
+
+		String name = getModel().getObject().getShortName() != null ? getModel().getObject().getShortName() : getModel().getObject().getName();
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getModel(), Model.of(name), Align.TOP_RIGHT));
+
 		return list;
 	}
-	
-	
 
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
-		
-		NamedTab tab_1=new NamedTab(Model.of("editor"), "editor") {
-		 
+
+		NamedTab tab_1 = new NamedTab(Model.of("editor"), "editor") {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -267,9 +256,9 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 			}
 		};
 		tabs.add(tab_1);
-		
-		NamedTab audit=new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
-			 
+
+		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -278,12 +267,8 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 			}
 		};
 		tabs.add(audit);
-		
 
-	
 		return tabs;
 	}
 
-
-	
 }

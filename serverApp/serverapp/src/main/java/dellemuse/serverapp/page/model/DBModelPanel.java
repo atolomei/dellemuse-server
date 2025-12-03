@@ -23,6 +23,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Identifiable;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -55,7 +56,7 @@ import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
- 
+
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.language.LanguageService;
@@ -71,7 +72,18 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		super(id, model);
 	}
 
-	/** Save  --------------------------------------------------------- */
+	protected <S extends Identifiable> List<IModel<S>> iFilter(List<IModel<S>> initialList, String filter) {
+		List<IModel<S>> list = new ArrayList<IModel<S>>();
+		final String str = filter.trim().toLowerCase();
+		initialList.forEach(s -> {
+			if (s.getObject().getName().toLowerCase().contains(str)) {
+				list.add(s);
+			}
+		});
+		return list;
+	}
+
+	/** Save --------------------------------------------------------- */
 
 	public void save(ArtExhibition ex) {
 		getArtExhibitionDBService().save(ex);
@@ -89,32 +101,31 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		getArtExhibitionGuideRecordDBService().save(ex);
 	}
 
-	public void save(GuideContent  ex) {
+	public void save(GuideContent ex) {
 		getGuideContentDBService().save(ex);
 	}
-	
+
 	public void save(User o) {
 		getUserDBService().save(o);
 	}
-	
+
 	public void save(AudioStudioParentObject po, User user, List<String> msg) {
-	
+
 		if (po instanceof GuideContent) {
 			getGuideContentDBService().save((GuideContent) po, user, msg);
 		}
-		
+
 		else if (po instanceof ArtExhibitionGuide) {
 			getArtExhibitionGuideDBService().save((ArtExhibitionGuide) po, user, msg);
 		}
-		
+
 		else if (po instanceof TranslationRecord) {
-			
+
 			if (po instanceof GuideContentRecord)
 				getGuideContentRecordDBService().save((GuideContentRecord) po, user, msg);
-		
+
 			else if (po instanceof ArtExhibitionGuideRecord)
 				getArtExhibitionGuideRecordDBService().save((ArtExhibitionGuideRecord) po, user, msg);
-			
 		}
 	}
 
@@ -148,7 +159,7 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
 
-	/** Deps  --------------------------------------------------------- */
+	/** Deps --------------------------------------------------------- */
 
 	public Optional<ArtWork> findArtWorkWithDeps(Long id) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
@@ -213,6 +224,10 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return getArtExhibitionGuideDBService().getGuideContents(o);
 	}
 
+	public Iterable<GuideContent> getSiteGuideContents(Site s) {
+		return getGuideContentDBService().getBySite(s);
+	}
+
 	public Iterable<ArtWork> getArtWorks(Person person) {
 		return getSiteDBService().findDistinctArtWorkByPersonId(person.getId());
 	}
@@ -225,33 +240,28 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return getArtExhibitionItemDBService().getGuideContents(o);
 	}
 
-	
 	/**
-	public Iterable<T> getObjects(Class<T> clazz) {
-		 return this.getObjects(clazz, null, null);
-	}
-	
-	public Iterable<T> getObjects(Class<T> clazz, ObjectState os1) {
-		 return this.getObjects(clazz, os1, null);
-	}
+	 * public Iterable<T> getObjects(Class<T> clazz) { return this.getObjects(clazz,
+	 * null, null); }
+	 * 
+	 * public Iterable<T> getObjects(Class<T> clazz, ObjectState os1) { return
+	 * this.getObjects(clazz, os1, null); }
+	 * 
+	 * public Iterable<T> getObjects(Class<T> clazz, ObjectState os1, ObjectState
+	 * os2) {
+	 * 
+	 * DBService<?,Long> service = (DBService<?,Long>)
+	 * DBService.getDBService(clazz);
+	 * 
+	 * if (os1==null && os2==null) return service.findAllSorted();
+	 * 
+	 * if (os2==null) return service.findAllSorted(os1);
+	 * 
+	 * if (os1==null) return service.findAllSorted(os2);
+	 * 
+	 * return service.findAllSorted(os1, os2); }
+	 **/
 
-	public Iterable<T> getObjects(Class<T> clazz,  ObjectState os1, ObjectState os2) {
-
-		DBService<?,Long> service = (DBService<?,Long>) DBService.getDBService(clazz);
-		
-		if (os1==null && os2==null)
-			return service.findAllSorted();
-	
-		if (os2==null)
-			return service.findAllSorted(os1);
-
-		if (os1==null)
-			return service.findAllSorted(os2);
-		
-		return service.findAllSorted(os1, os2);
-	}
-	**/
-	
 	/**
 	 * 
 	 * @param resource
@@ -359,7 +369,7 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		try (InputStream is = inputStream) {
 			getResourceDBService().upload(bucketName, objectName, is, fileName);
 			User user = getUserDBService().findRoot();
-			Resource resource = getResourceDBService().create(bucketName, objectName, fileName, getResourceDBService().getMimeType(fileName), size, null, user,  fileName);
+			Resource resource = getResourceDBService().create(bucketName, objectName, fileName, getResourceDBService().getMimeType(fileName), size, null, user, fileName);
 			// getCommandService().run(new ResourceMetadataCommand(resource.getId()));
 			return resource;
 		} catch (IOException e) {
@@ -763,11 +773,12 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		}
 
 		str.append("<br/>");
-		//str.append(getLabel("manually-uploaded", resource.getLastModifiedUser().getName(), getDateTimeService().format(resource.getLastModified(), DTFormatter.Month_Day_Year_hh_mm)).getObject());
-		str.append(getLabel("manually-uploaded", resource.getLastModifiedUser().getName(), 
-				getDateTimeService().timeElapsed(resource.getLastModified())).getObject());
+		// str.append(getLabel("manually-uploaded",
+		// resource.getLastModifiedUser().getName(),
+		// getDateTimeService().format(resource.getLastModified(),
+		// DTFormatter.Month_Day_Year_hh_mm)).getObject());
+		str.append(getLabel("manually-uploaded", resource.getLastModifiedUser().getName(), getDateTimeService().timeElapsed(resource.getLastModified())).getObject());
 
-		
 		return str.toString();
 	}
 }

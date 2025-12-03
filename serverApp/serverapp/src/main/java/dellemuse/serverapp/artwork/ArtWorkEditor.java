@@ -25,6 +25,7 @@ import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
+import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -34,7 +35,7 @@ import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
-  
+
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
@@ -43,27 +44,27 @@ import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.NumberField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
+import wktui.base.InvisiblePanel;
 
-public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
+public class ArtWorkEditor extends DBObjectEditor<ArtWork> {
 
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(ArtWorkEditor.class.getName());
 
-
-	private TextField<String> 				urlField;
-	private TextField<String> 				nameField;
-	private TextAreaField<String> 			infoField;
-	private TextAreaField<String> 			specField;
+	private TextField<String> urlField;
+	private TextField<String> nameField;
+	private TextAreaField<String> infoField;
+	private TextAreaField<String> specField;
 	private FileUploadSimpleField<Resource> photoField;
-	private ChoiceField<Long> 				artistField;
-	private ChoiceField<Boolean> 			c_useThumbnailField;
-	private NumberField<Integer> 			c_numberField;
-	private IModel<Resource> 				photoModel;
+	private ChoiceField<Long> artistField;
+
+	private NumberField<Integer> c_numberField;
+	private IModel<Resource> photoModel;
 
 	private boolean uploadedPhoto = false;
 	private List<Long> mainArtists;
-	
+
 	/**
 	 * @param id
 	 * @param model
@@ -71,47 +72,47 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 	public ArtWorkEditor(String id, IModel<ArtWork> model) {
 		super(id, model);
 	}
- 
- 	/**
+
+	/**
 	 * 
 	 * @param id
 	 */
 	public void setMainArtist(Long id) {
 		mainArtists.add(id);
-		//Set<Person> set = new HashSet<>();
-		//set.add(p);
-		//getModel().getObject().setArtists(set);
+		// Set<Person> set = new HashSet<>();
+		// set.add(p);
+		// getModel().getObject().setArtists(set);
 	}
 
-	
-	
 	public Long getMainArtist() {
-		if (mainArtists!=null && mainArtists.size()>0)
+		if (mainArtists != null && mainArtists.size() > 0)
 			return mainArtists.get(0);
 		return null;
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		setUpModel();
-		
+
+		add(new InvisiblePanel("error"));
+
 		mainArtists = new ArrayList<Long>();
-		
-		if (getModel().getObject().getArtists()!=null && getModel().getObject().getArtists().size()>0) {
-			setMainArtist( getModel().getObject().getArtists().iterator().next().getId() );
+
+		if (getModel().getObject().getArtists() != null && getModel().getObject().getArtists().size() > 0) {
+			setMainArtist(getModel().getObject().getArtists().iterator().next().getId());
 		}
 
 		Form<ArtWork> form = new Form<ArtWork>("form");
 		add(form);
 		setForm(form);
 
-		this.urlField   = new TextField<String>					("url", new PropertyModel<String>(getModel(), "url"), getLabel("url")			);
-		this.specField  = new TextAreaField<String>				("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8		);
-		this.nameField  = new TextField<String>					("name", new PropertyModel<String>(getModel(), "name"), getLabel("name")		);
-		this.infoField  = new TextAreaField<String>				("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20	);
-		this.photoField = new FileUploadSimpleField<Resource>	("photo", getPhotoModel(), getLabel("photo")) {
+		this.urlField = new TextField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"));
+		this.specField = new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8);
+		this.nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		this.infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20);
+		this.photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -120,18 +121,18 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 			}
 
 			public Image getImage() {
-				
-				if (getModel()==null)
+
+				if (getModel() == null)
 					return null;
-				
+
 				if (getPhotoModel() == null)
 					return null;
 				return ArtWorkEditor.this.getThumbnail(getModel().getObject());
 			}
 
 			public String getFileName() {
-				if (getModel()!=null)
-					return ArtWorkEditor.this.getPhotoMeta( getModel().getObject() );
+				if (getModel() != null)
+					return ArtWorkEditor.this.getPhotoMeta(getModel().getObject());
 				return null;
 			}
 
@@ -140,49 +141,45 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 			}
 		};
 
-		/**c_useThumbnailField = new ChoiceField<Boolean>("usethumbnail", new PropertyModel<Boolean>(getModel(), "usethumbnail"), getLabel("usethumbnail")) {
-			
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public IModel<List<Boolean>> getChoices() {
-				return new ListModel<Boolean> (b_list);
-			}
-			
-			@Override
-			protected String getDisplayValue(Boolean value) {
-				if (value==null)
-					return null;
-				if (value.booleanValue())
-					return getLabel("yes").getObject();
-				return getLabel("no").getObject();
-			}
-		};
-**/
-		
+		/**
+		 * c_useThumbnailField = new ChoiceField<Boolean>("usethumbnail", new
+		 * PropertyModel<Boolean>(getModel(), "usethumbnail"), getLabel("usethumbnail"))
+		 * {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public IModel<List<Boolean>> getChoices() { return new
+		 *           ListModel<Boolean> (b_list); }
+		 * 
+		 * @Override protected String getDisplayValue(Boolean value) { if (value==null)
+		 *           return null; if (value.booleanValue()) return
+		 *           getLabel("yes").getObject(); return getLabel("no").getObject(); }
+		 *           };
+		 **/
+
 		c_numberField = new NumberField<Integer>("year", new PropertyModel<Integer>(getModel(), "year"), getLabel("year"));
-	 	artistField = new ChoiceField<Long>("artist", new PropertyModel<Long>( this, "mainArtist"), getLabel("artist")) {
-			
+		artistField = new ChoiceField<Long>("artist", new PropertyModel<Long>(this, "mainArtist"), getLabel("artist")) {
+
 			private static final long serialVersionUID = 1L;
-			
+
 			@Override
 			public IModel<List<Long>> getChoices() {
 				List<Long> list = new ArrayList<Long>();
-				StreamSupport.stream(getPersons().spliterator(), false).collect(Collectors.toList()).forEach( i -> list.add(i.getId()));
-				return new ListModel<Long>(list); 
+				StreamSupport.stream(getPersons().spliterator(), false).collect(Collectors.toList()).forEach(i -> list.add(i.getId()));
+				return new ListModel<Long>(list);
 			}
-			
+
 			@Override
 			protected String getDisplayValue(Long value) {
 
-				if (value==null)
+				if (value == null)
 					return null;
-				
+
 				Optional<Person> o = getPerson(value);
-				
+
 				if (o.isPresent())
 					return getPerson(value).get().getLastFirstname();
-			
+
 				return "";
 			}
 		};
@@ -192,7 +189,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 		form.add(nameField);
 		form.add(infoField);
 		form.add(photoField);
-		//form.add(c_useThumbnailField);
+
 		form.add(artistField);
 		form.add(c_numberField);
 
@@ -221,7 +218,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 			}
 		};
 		form.add(buttons);
- 
+
 		EditButtons<ArtWork> b_buttons_top = new EditButtons<ArtWork>("buttons-top", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -242,11 +239,11 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 			public boolean isVisible() {
 				return getForm().getFormState() == FormState.EDIT;
 			}
-			
+
 			protected String getSaveClass() {
 				return "ps-0 btn btn-sm btn-link";
 			}
-			
+
 			protected String getCancelClass() {
 				return "ps-0 btn btn-sm btn-link";
 			}
@@ -261,47 +258,39 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 
 	public void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
-		// getForm().setFormState(FormState.VIEW);
-		// target.add(getForm());
 	}
 
 	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
-		// getForm().setFormState(FormState.EDIT);
-		// target.add(getForm());
 	}
 
 	public void onSave(AjaxRequestTarget target) {
-		logger.debug("onSave");
-		logger.debug("updated parts:");
-		getUpdatedParts().forEach(s -> logger.debug(s));
-		logger.debug("saving...");
-		
 
-		//Long id=artistField.getModel().getObject();
+		try {
 
-		if (this.getMainArtist()!=null) {
-			
-			Long id = this.getMainArtist();
-			Person person = getPerson(id).get();
-			Set<Person> set = new HashSet<Person>();
-			set.add(person);
-			getModel().getObject().setArtists(set);
+			getUpdatedParts().forEach(s -> logger.debug(s));
+
+			if (this.getMainArtist() != null) {
+				Long id = this.getMainArtist();
+				Person person = getPerson(id).get();
+				Set<Person> set = new HashSet<Person>();
+				set.add(person);
+				getModel().getObject().setArtists(set);
+			}
+
+			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			uploadedPhoto = false;
+			getForm().setFormState(FormState.VIEW);
+			getForm().updateReload();
+			fire(new ObjectUpdateEvent(target));
+
+		} catch (Exception e) {
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
 		}
-		
-		save(getModelObject(), getSessionUser(), getUpdatedParts());
-		
-		uploadedPhoto = false;
-		
-		getForm().setFormState(FormState.VIEW);
-		
-
-		getForm().updateReload();
-		fire (new ObjectUpdateEvent(target));
-		
 		target.add(this);
-	
- 	}
+
+	}
 
 	@Override
 	public void onDetach() {
@@ -319,7 +308,6 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 		this.photoModel = model;
 	}
 
-	
 	protected void onSubmit() {
 		logger.debug("");
 		logger.debug("onSubmit");
@@ -334,19 +322,16 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 		if (uploads != null && !uploads.isEmpty()) {
 
 			for (FileUpload upload : uploads) {
-			
+
 				try {
 
 					logger.debug("name -> " + upload.getClientFileName());
 					logger.debug("Size -> " + upload.getSize());
 
 					String bucketName = ServerConstant.MEDIA_BUCKET;
-					String objectName = getResourceDBService()
-							.normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-"
-							+ String.valueOf(getResourceDBService().newId());
+					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName,
-							upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
 
 					setPhotoModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setPhoto(resource);
@@ -365,7 +350,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork>  {
 
 		return uploadedPhoto;
 	}
-	
+
 	private void setUpModel() {
 
 		Optional<ArtWork> o_i = getArtWorkDBService().findWithDeps(getModel().getObject().getId());

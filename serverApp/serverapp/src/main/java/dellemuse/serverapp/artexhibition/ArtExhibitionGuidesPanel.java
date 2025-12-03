@@ -14,12 +14,15 @@ import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
-
+import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.event.MenuAjaxEvent;
@@ -252,6 +255,11 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 				return  ArtExhibitionGuidesPanel.this.getItems();
 			}
 			
+			//@Override
+			//protected void setItems(List<IModel<ArtExhibitionGuide>> list) {
+			//	ArtExhibitionGuidesPanel.this.setList(list);
+			//}
+			
 			@Override
 			public Integer getTotalItems()  {
 				return  Integer.valueOf(ArtExhibitionGuidesPanel.this.getItems().size() );
@@ -260,6 +268,8 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			@Override
 			protected List<IModel<ArtExhibitionGuide>> filter(List<IModel<ArtExhibitionGuide>> initialList,
 					String filter) {
+				return iFilter(initialList, filter);
+/**
 				List<IModel<ArtExhibitionGuide>> list = new ArrayList<IModel<ArtExhibitionGuide>>();
 				final String str = filter.trim().toLowerCase();
 				initialList.forEach(s -> {
@@ -267,7 +277,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 						list.add(s);
 					}
 				});
-				return list;
+				return list;*/
 			}
 
 
@@ -298,7 +308,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 					@Override
 					public void onClick() {
-						setResponsePage(new ArtExhibitionGuidePage(getModel(), getList()));
+						setResponsePage(new ArtExhibitionGuidePage(getModel(), getWorkingItems()));
 					}
 
 					@Override
@@ -325,13 +335,17 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 	}
 	
-	private List<IModel<ArtExhibitionGuide>> getItems() {
-
+	
+	protected List<IModel<ArtExhibitionGuide>> getItems() {
 		if (this.list == null) {
 			this.list = new ArrayList<IModel<ArtExhibitionGuide>>();
 			getArtExhibitionIGuides(getModel().getObject()).forEach(item -> this.list.add(new ObjectModel<>(item)));
 		}
 		return this.list;
+	}
+
+	protected void setList(List<IModel<ArtExhibitionGuide>> list) {
+		this.list=list;
 	}
 
 	private void resetItems() {

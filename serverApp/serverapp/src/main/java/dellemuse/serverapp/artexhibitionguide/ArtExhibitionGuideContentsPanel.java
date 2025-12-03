@@ -42,7 +42,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
- 
+
 import io.wktui.event.UIEvent;
 import io.wktui.form.FormState;
 import io.wktui.model.TextCleaner;
@@ -67,9 +67,8 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	private List<IModel<ArtExhibitionItem>> aList;
 	private IModel<Site> siteModel;
 	private IModel<ArtExhibition> artExhibitionModel;
-	
+
 	private ObjectStateEnumSelector oses;
-	
 
 	private FormState state = FormState.VIEW;
 
@@ -103,12 +102,10 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 		addListToolbar();
 		addItems();
-		
+
 		addSelector();
 
 	}
-
-	
 
 	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
 		this.oses = o;
@@ -118,7 +115,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		return this.oses;
 	}
 
-	
 	protected void loadList() {
 
 		this.list = new ArrayList<IModel<GuideContent>>();
@@ -143,8 +139,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 		this.list.forEach(c -> logger.debug(c.toString()));
 	}
-	
-	
+
 	protected void addListeners() {
 		super.addListeners();
 
@@ -155,8 +150,8 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			public void onEvent(ObjectStateSelectEvent event) {
 				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
 				loadList();
-				event.getTarget().add( ArtExhibitionGuideContentsPanel.this.itemsPanel);
-				event.getTarget().add( ArtExhibitionGuideContentsPanel.this.listToolbarContainer);
+				event.getTarget().add(ArtExhibitionGuideContentsPanel.this.itemsPanel);
+				event.getTarget().add(ArtExhibitionGuideContentsPanel.this.listToolbarContainer);
 			}
 
 			@Override
@@ -209,27 +204,26 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		return Model.of(str.toString());
 	}
 
-	
 	public Iterable<GuideContent> getObjects() {
-		 return this.getObjects(null, null);
+		return this.getObjects(null, null);
 	}
-	
+
 	public Iterable<GuideContent> getObjects(ObjectState os1) {
-		 return this.getObjects(os1, null);
+		return this.getObjects(os1, null);
 	}
 
 	public Iterable<GuideContent> getObjects(ObjectState os1, ObjectState os2) {
 		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 		ArtExhibitionGuide guide = getModel().getObject();
-		if (os1==null && os2==null)
+		if (os1 == null && os2 == null)
 			return service.getGuideContents(guide);
-		if (os2==null)
+		if (os2 == null)
 			return service.getArtExhibitionGuideContents(guide, os1);
-		if (os1==null)
+		if (os1 == null)
 			return service.getArtExhibitionGuideContents(guide, os2);
 		return service.getArtExhibitionGuideContents(guide, os1, os2);
 	}
-	
+
 	protected Panel getObjectListItemExpandedPanel(IModel<GuideContent> model, ListPanelMode mode) {
 
 		GuideContent gc = super.findGuideContentWithDeps(model.getObject().getId()).get();
@@ -283,7 +277,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	protected void resetList() {
 		this.list = null;
 	}
-	
 
 	protected IModel<String> getObjectInfo(IModel<GuideContent> model) {
 		if (!model.getObject().isDependencies()) {
@@ -301,8 +294,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	protected String getObjectImageSrc(IModel<GuideContent> model) {
 		return super.getImageSrc(model.getObject());
 	}
-
-	
 
 	protected List<IModel<ArtExhibitionItem>> getArtExhibitionItems() {
 
@@ -383,16 +374,13 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	private List<IModel<GuideContent>> getItems() {
 
 		if (this.list == null) {
-			//this.list = new ArrayList<IModel<GuideContent>>();
-			//super.getGuideContents(getModel().getObject()).forEach(item -> this.list.add(new ObjectModel<GuideContent>(item)));
-			 loadList();
+			// this.list = new ArrayList<IModel<GuideContent>>();
+			// super.getGuideContents(getModel().getObject()).forEach(item ->
+			// this.list.add(new ObjectModel<GuideContent>(item)));
+			loadList();
 		}
 		return this.list;
 	}
-
-	
-
-	
 
 	private void addListToolbar() {
 
@@ -525,15 +513,15 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected List<IModel<GuideContent>> filter(List<IModel<GuideContent>> initialList, String filter) {
-				List<IModel<GuideContent>> list = new ArrayList<IModel<GuideContent>>();
-				final String str = filter.trim().toLowerCase();
-				initialList.forEach(s -> {
-					if (s.getObject().getDisplayname().toLowerCase().contains(str)) {
-						list.add(s);
-					}
-				});
-				return list;
+				return iFilter(initialList, filter);
+				/**
+				 * List<IModel<GuideContent>> list = new ArrayList<IModel<GuideContent>>();
+				 * final String str = filter.trim().toLowerCase(); initialList.forEach(s -> { if
+				 * (s.getObject().getDisplayname().toLowerCase().contains(str)) { list.add(s); }
+				 * }); return list;
+				 */
 			}
 
 			@Override
@@ -594,6 +582,12 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			public List<IModel<GuideContent>> getItems() {
 				return ArtExhibitionGuideContentsPanel.this.getItems();
 			}
+
+			//@Override
+			//protected void setItems(List<IModel<GuideContent>> list) {
+			//	ArtExhibitionGuideContentsPanel.this.setList(list);
+			//}
+
 		};
 		add(itemsPanel);
 
@@ -602,6 +596,10 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		itemsPanel.setLiveSearch(false);
 		itemsPanel.setSettings(true);
 		itemsPanel.setHasExpander(true);
+	}
+
+	protected void setList(List<IModel<GuideContent>> list) {
+		this.list = list;
 	}
 
 	public FormState getState() {

@@ -13,10 +13,14 @@ import org.wicketstuff.annotation.mount.MountPath;
 import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.artexhibition.ArtExhibitionGuidesPanel;
+import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideContentsPanel;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -118,10 +122,20 @@ public class DellemuseServerAppHomePage extends BasePage {
 
 		loadList();
 
-		this.panel = new ListPanel<>("siteList", getList()) {
+		this.panel = new ListPanel<>("siteList") {
 
 			private static final long serialVersionUID = 1L;
 
+			//@Override
+			//protected void setItems(List<IModel<Site>> list) {
+			//	DellemuseServerAppHomePage.this.setList(list);
+			//}
+			
+			@Override
+			public List<IModel<Site>> getItems()  {
+				return  DellemuseServerAppHomePage.this.getList();
+			}
+			
 			@Override
 			protected Panel getListItemPanel(IModel<Site> model, ListPanelMode mode) {
 
@@ -181,8 +195,12 @@ public class DellemuseServerAppHomePage extends BasePage {
 		};
 
 		this.panel.setHasExpander(false);
-
 		add(this.panel);
 	}
 
+	
+	protected void setList(List<IModel<Site>> list) {
+		this.list =list;
+		
+	}
 }

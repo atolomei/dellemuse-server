@@ -207,6 +207,8 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		setUpModel();
 		addAlert();
 				
+		add(new InvisiblePanel("error"));
+
 	 	Form<GuideContent> form = new Form<GuideContent>("form");
 	
 		add(form);
@@ -444,6 +446,8 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 	}
 
 	protected void onSave(AjaxRequestTarget target) {
+		
+		try {
 		logger.debug("onSave");
 		logger.debug("updated parts:");
 		getUpdatedParts().forEach(s -> logger.debug(s));
@@ -458,6 +462,12 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 		getForm().updateReload();
 		fire (new ObjectUpdateEvent(target));
 		
+		} catch (Exception e) {
+
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
+
+		}
 		target.add(this);
 	}
 

@@ -42,8 +42,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 	}
 
 	public Optional<Institution> getInstitution(Long id) {
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
-				.getBean(InstitutionDBService.class);
+		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 		return service.findById(id);
 	}
 
@@ -63,7 +62,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 
 					@Override
 					public void onClick() {
-						fire(new SimpleWicketEvent(ServerAppConstant.action_site_home));
+						fire(new SimpleWicketEvent(ServerAppConstant.site_action_home));
 					}
 
 					@Override
@@ -109,7 +108,6 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				};
 			}
 		});
-
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
@@ -273,7 +271,28 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 
-		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new LinkMenuItem<Site>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						setResponsePage(new SiteSearcherPage(getModel()));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("search-audio-guide");
+					}
+				};
+			}
+		});
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
@@ -310,12 +329,6 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				};
 			}
 		});
-		
-		
-		
-		
- 
-		
 	}
 
 	protected IModel<Institution> getInstitutionModel() {

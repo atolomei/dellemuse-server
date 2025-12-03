@@ -76,7 +76,7 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						fire(new MenuAjaxEvent(ServerAppConstant.site_info, target));
+						fire(new MenuAjaxEvent(ServerAppConstant.site_page_info, target));
 					}
 
 					@Override

@@ -90,7 +90,7 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 	private SiteInfoEditor editor;
 	private List<ToolbarItem> list;
-	
+
 	public SiteInfoPage() {
 		super();
 	}
@@ -113,24 +113,21 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return getLabel("info");
 	}
 
-
 	@Override
 	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-		bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(),
-				new Model<String>(getModel().getObject().getDisplayname())));
+		bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), new Model<String>(getModel().getObject().getDisplayname())));
 		bc.addElement(new BCElement(getLabel("general-info")));
-		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(),
-				new Model<String>(getModel().getObject().getDisplayname()));
+		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
 
 		ph.setContext(getLabel("site"));
 
-		if (getModel().getObject().getSubtitle()!=null)
-			ph.setTagline( Model.of( getModel().getObject().getSubtitle()));
-		
+		if (getModel().getObject().getSubtitle() != null)
+			ph.setTagline(Model.of(getModel().getObject().getSubtitle()));
+
 		if (getModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 
@@ -148,32 +145,30 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return this.editor;
 	}
 
- 
 	protected List<ToolbarItem> getToolbarItems() {
 
-		if (list!=null)
+		if (list != null)
 			return list;
-		
+
 		list = new ArrayList<ToolbarItem>();
-		
-		list.add( new SiteInfoNavDropDownMenuToolbarItem("item", getModel(),  Align.TOP_RIGHT ));
-		
+
+		list.add(new SiteInfoNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT));
+
 		// site
-		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getModel(),  Align.TOP_RIGHT);
-		site.add( new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
+		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT);
+		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
 		return list;
 	}
-	
 
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
-		
-		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.site_info) {
-		 
+
+		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.site_page_info) {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -182,14 +177,13 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			}
 		};
 		tabs.add(tab_1);
-		 
-		if (getStartTab()==null)
-			super.setStartTab(ServerAppConstant.site_info);
-		
+
+		if (getStartTab() == null)
+			super.setStartTab(ServerAppConstant.site_page_info);
+
 		return tabs;
 	}
 
-	
 	@Override
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
@@ -217,70 +211,66 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	public void onDetach() {
 		super.onDetach();
 	}
- 
 
-	
 	@Override
 	protected Optional<SiteRecord> loadTranslationRecord(String lang) {
 		return getSiteRecordDBService().findBySite(getModel().getObject(), lang);
 	}
-	
+
 	@Override
 	protected SiteRecord createTranslationRecord(String lang) {
 		return getSiteRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
-	
+
 	@Override
 	protected boolean isOpensVisible() {
 		return true;
 	}
-	
+
 	@Override
 	protected void addListeners() {
 		super.addListeners();
 
 		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
-				
+
 				logger.debug(event.toString());
 
-				if (event.getName().equals(ServerAppConstant.action_site_edit)) {
+				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
 					SiteInfoPage.this.onEdit(event.getTarget());
 				}
-				
-				
+
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
 					SiteInfoPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
 				}
 
-			
-				else if (event.getName().equals(ServerAppConstant.site_info)) {
-					SiteInfoPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
+					SiteInfoPage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
+				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					SiteInfoPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
-			
+
 				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 					SiteInfoPage.this.togglePanel(event.getName(), event.getTarget());
 				}
-			
+
 				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
-					if (event.getMoreInfo()!=null) {
-						SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit+"-"+event.getMoreInfo(), event.getTarget());
-						//SiteInfoPage.this.getHeader().setPhotoVisible(true);
-					}
-					else {
+					if (event.getMoreInfo() != null) {
+						SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit + "-" + event.getMoreInfo(), event.getTarget());
+						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
+					} else {
 						SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-						//SiteInfoPage.this.getHeader().setPhotoVisible(true);
+						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
 					}
 				}
-				
-				//else if (event.getName().equals(ServerAppConstant.object_audit)) {
-				//	SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-				//}
+
+				// else if (event.getName().equals(ServerAppConstant.object_audit)) {
+				// SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit,
+				// event.getTarget());
+				// }
 			}
 
 			@Override
@@ -291,13 +281,13 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			}
 		});
 
-	
 		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
-				if (event.getName().equals(ServerAppConstant.action_site_home)) {
-					setResponsePage( new SitePage( getModel(), getList()));
+				if (event.getName().equals(ServerAppConstant.site_action_home)) {
+					setResponsePage(new SitePage(getModel(), getList()));
 				}
 			}
 
@@ -310,5 +300,4 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		});
 	}
 
-	
 }

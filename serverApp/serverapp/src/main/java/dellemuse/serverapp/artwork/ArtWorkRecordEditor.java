@@ -1,12 +1,9 @@
 package dellemuse.serverapp.artwork;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
@@ -15,6 +12,7 @@ import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -24,8 +22,9 @@ import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
+import wktui.base.InvisiblePanel;
 
-public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord>  {
+public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -33,67 +32,56 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord>  {
 
 	static private final List<Boolean> b_list = new ArrayList<Boolean>();
 	static {
-		
-		 b_list.add(Boolean.TRUE );
-		 b_list.add(Boolean.FALSE);
+
+		b_list.add(Boolean.TRUE);
+		b_list.add(Boolean.FALSE);
 	}
 
-	private TextField<String> 				nameField;
-	private TextAreaField<String> 			infoField;
-	private TextAreaField<String> 			specField;
+	private TextField<String> nameField;
+	private TextAreaField<String> infoField;
+	private TextAreaField<String> specField;
+	private IModel<ArtWork> artWorkModel;
 
-	IModel<ArtWork> artWorkModel;
-	
-	
 	/**
 	 * @param id
 	 * @param model
 	 */
 	public ArtWorkRecordEditor(String id, IModel<ArtWork> artWorkModel, IModel<ArtWorkRecord> model) {
 		super(id, model);
-		this.artWorkModel=artWorkModel;
+		this.artWorkModel = artWorkModel;
 	}
 
-	
 	public IModel<ArtWork> getArtWorkModel() {
 		return this.artWorkModel;
 	}
-	
-	
-	private void setUpModel() {
-		Optional<ArtWorkRecord> o_i = getArtWorkRecordDBService().findWithDeps(getModel().getObject().getId());
-		setModel(new ObjectModel<ArtWorkRecord>(o_i.get()));
-		
-		Optional<ArtWork> o_a = getArtWorkDBService().findWithDeps(getModel().getObject().getArtwork().getId());
-		setArtWorkModel(new ObjectModel<ArtWork>(o_a.get()));
-	}
-	
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		setUpModel();
-		
-		 if (getModel().getObject().getName()==null)
-			 getModel().getObject().setName( getArtWorkModel().getObject().getName());
-		 
-		 Form<ArtWorkRecord> form = new Form<ArtWorkRecord>("form");
-			add(form);
-			setForm(form);
-			
+
+		add(new InvisiblePanel("error"));
+
+		if (getModel().getObject().getName() == null)
+			getModel().getObject().setName(getArtWorkModel().getObject().getName());
+
+		Form<ArtWorkRecord> form = new Form<ArtWorkRecord>("form");
+		add(form);
+		setForm(form);
+
 		Label artWorkRecordInfo = new Label("artWorkRecordInfo", getLabel("artwork-record-info", getModel().getObject().getLanguage()));
-		
+
 		form.add(artWorkRecordInfo);
-		
-	 	this.specField  = new TextAreaField<String>				("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8		);
-		this.nameField  = new TextField<String>					("name", new PropertyModel<String>(getModel(), "name"), getLabel("name")		);
-		this.infoField  = new TextAreaField<String>				("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20	);
-	
+
+		this.specField = new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8);
+		this.nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		this.infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20);
+
 		form.add(nameField);
 		form.add(specField);
 		form.add(infoField);
-		
+
 		EditButtons<ArtWorkRecord> buttons = new EditButtons<ArtWorkRecord>("buttons-bottom", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -120,8 +108,6 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord>  {
 		};
 		form.add(buttons);
 
-		 
-	
 		EditButtons<ArtWorkRecord> b_buttons_top = new EditButtons<ArtWorkRecord>("buttons-top", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -142,11 +128,11 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord>  {
 			public boolean isVisible() {
 				return getForm().getFormState() == FormState.EDIT;
 			}
-			
+
 			protected String getSaveClass() {
 				return "ps-0 btn btn-sm btn-link";
 			}
-			
+
 			protected String getCancelClass() {
 				return "ps-0 btn btn-sm btn-link";
 			}
@@ -161,53 +147,50 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord>  {
 
 	public void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
-		// getForm().setFormState(FormState.VIEW);
-		// target.add(getForm());
+
 	}
 
 	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
-		// getForm().setFormState(FormState.EDIT);
-		// target.add(getForm());
 	}
 
 	public void onSave(AjaxRequestTarget target) {
-		logger.debug("onSave");
-		logger.debug("updated parts:");
-		getUpdatedParts().forEach(s -> logger.debug(s));
-		logger.debug("saving...");
-	
-		save(getModelObject(), getSessionUser(), getUpdatedParts());
-	 
-		getForm().setFormState(FormState.VIEW);
-		logger.debug("done");
+		try {
+			getUpdatedParts().forEach(s -> logger.debug(s));
+			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			getForm().setFormState(FormState.VIEW);
+		} catch (Exception e) {
+
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
+		}
 		target.add(this);
-	
-		// ---
-		// TODO AT
-		// fir e( ne w (target));
-		// --
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
 
-		if (this.artWorkModel!=null)
+		if (this.artWorkModel != null)
 			this.artWorkModel.detach();
-	
 	}
- 
+
 	protected void onSubmit() {
 		logger.debug("");
 		logger.debug("onSubmit");
 		logger.debug("");
 	}
 
- 	private void setArtWorkModel(ObjectModel<ArtWork> m) {
-		this.artWorkModel=m;
+	private void setArtWorkModel(ObjectModel<ArtWork> m) {
+		this.artWorkModel = m;
 	}
 
- 
+	private void setUpModel() {
+		Optional<ArtWorkRecord> o_i = getArtWorkRecordDBService().findWithDeps(getModel().getObject().getId());
+		setModel(new ObjectModel<ArtWorkRecord>(o_i.get()));
+
+		Optional<ArtWork> o_a = getArtWorkDBService().findWithDeps(getModel().getObject().getArtwork().getId());
+		setArtWorkModel(new ObjectModel<ArtWork>(o_a.get()));
+	}
 
 }

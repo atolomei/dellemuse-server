@@ -24,6 +24,7 @@ import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -104,7 +105,7 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 		return this.state;
 	}
 	
-	public void setState( FormState state) {
+	public void setState(FormState state) {
 		this.state=state;
 	}
 	
@@ -117,8 +118,6 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 		setState(FormState.EDIT);
 		target.add(this);
 	}
-
-
 	
 	protected IModel<String> getObjectInfo(IModel<ArtExhibitionSection> model) {
 		if (!model.getObject().isDependencies())
@@ -253,15 +252,6 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 
 	
 	
-	private List<IModel<ArtExhibitionSection>> getItems() {
-
-		if (this.list == null) {
-			this.list = new ArrayList<IModel<ArtExhibitionSection>>();
-			getArtExhibitionSections(getModel().getObject()).forEach(item -> this.list.add(new ObjectModel<>(item)));
-		}
-		return this.list;
-	}
-	
 	 /**
 	private void addSelector() {
 		
@@ -365,6 +355,12 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 			public List<IModel<ArtExhibitionSection>> getItems()  {
 				return  ArtExhibitionSectionsPanel.this.getItems();
 			}
+			
+			//@Override
+			//protected void setItems(List<IModel<ArtExhibitionSection>> list) {
+			//	ArtExhibitionSectionsPanel.this.setItems(list);
+			//}
+			
 		};
 		add(sectionsPanel);
 
@@ -374,6 +370,18 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 		sectionsPanel.setHasExpander(true);
 	}
 	
+	private void setItems(List<IModel<ArtExhibitionSection>> list) {
+		 this.list = list;
+	}
+
+	private List<IModel<ArtExhibitionSection>> getItems() {
+		if (this.list == null) {
+			this.list = new ArrayList<IModel<ArtExhibitionSection>>();
+			getArtExhibitionSections(getModel().getObject()).forEach(item -> this.list.add(new ObjectModel<>(item)));
+		}
+		return this.list;
+	}
+
 	
 	
 	

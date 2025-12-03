@@ -23,13 +23,18 @@ import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
  
 import dellemuse.serverapp.page.ObjectPage;
- 
+import dellemuse.serverapp.page.error.ErrorPage;
+import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.person.PersonPage;
 import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.page.site.SitePage;
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
  
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
  
 import io.wktui.nav.breadcrumb.BCElement;
@@ -133,12 +138,16 @@ public class UserPage extends ObjectPage<User> {
 
 				logger.debug(event.toString());
 
-				if (event.getName().equals(ServerAppConstant.action_user_edit_info)) {
+				if (event.getName().equals(ServerAppConstant.user_action_edit_info)) {
 					UserPage.this.onEdit(event.getTarget());
 				}
-				else if (event.getName().equals(ServerAppConstant.user_info)) {
-					UserPage.this.togglePanel(ServerAppConstant.user_info, event.getTarget());
+				else if (event.getName().equals(ServerAppConstant.user_panel_info)) {
+					UserPage.this.togglePanel(ServerAppConstant.user_panel_info, event.getTarget());
 				}
+				else if (event.getName().equals(ServerAppConstant.user_panel_password)) {
+					UserPage.this.togglePanel(ServerAppConstant.user_panel_password, event.getTarget());
+				}
+				
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					UserPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
@@ -154,6 +163,37 @@ public class UserPage extends ObjectPage<User> {
 				return false;
 			}
 		});
+		
+		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(SimpleWicketEvent event) {
+				if (event.getName().equals(ServerAppConstant.user_panel_person)) {
+					Optional<Person> p=getPersonDBService().getByUser( UserPage.this.getModel().getObject() );
+					if (p.isPresent()) {
+						setResponsePage(new PersonPage(new ObjectModel<Person> ( p.get() )));
+					}
+					else
+						setResponsePage( new ErrorPage(Model.of("not found for user -> " +  UserPage.this.getModel().getObject().getDisplayname())));
+				}
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleWicketEvent)
+					return true;
+				return false;
+			}
+		});
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 	
 	
@@ -290,7 +330,7 @@ public class UserPage extends ObjectPage<User> {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 		
-		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.user_info) {
+		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.user_panel_info) {
 		 	private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -299,7 +339,7 @@ public class UserPage extends ObjectPage<User> {
 		};
 		tabs.add(tab_1);
 	 
-		NamedTab tab_2=new NamedTab(Model.of("password"), ServerAppConstant.user_password) {
+		NamedTab tab_2=new NamedTab(Model.of("password"), ServerAppConstant.user_panel_password) {
 		 	private static final long serialVersionUID = 1L;
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
@@ -309,7 +349,7 @@ public class UserPage extends ObjectPage<User> {
 		tabs.add(tab_2);
 		
 		if (getStartTab()==null)
-				setStartTab(ServerAppConstant.user_info);
+				setStartTab(ServerAppConstant.user_panel_info);
 
 		return tabs;
 	}

@@ -11,6 +11,7 @@ import org.apache.wicket.model.PropertyModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
+import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -29,6 +30,7 @@ import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import wktui.base.InvisiblePanel;
 
 /**
  * 
@@ -70,6 +72,9 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 		super.onInitialize();
 
 		setUpModel();
+		
+		add(new InvisiblePanel("error"));
+
 
 		Form<ArtExhibitionItem> form = new Form<ArtExhibitionItem>("form");
 		add(form);
@@ -250,17 +255,18 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 	}
 
 	protected void onSave(AjaxRequestTarget target) {
-		logger.debug("onSave");
-		logger.debug("updated parts:");
-		getUpdatedParts().forEach(s -> logger.debug(s));
-		logger.debug("saving...");
+
+		try {
+			getUpdatedParts().forEach(s -> logger.debug(s));
+			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			getForm().setFormState(FormState.VIEW);
+			getForm().updateReload();
+			fire (new ObjectUpdateEvent(target));
 		
-		save(getModelObject(), getSessionUser(), getUpdatedParts());
-		
-		getForm().setFormState(FormState.VIEW);
-		getForm().updateReload();
-		fire (new ObjectUpdateEvent(target));
-	
+		} catch (Exception e) {
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
+		}
 		target.add(this);
 	}
 

@@ -240,16 +240,17 @@ public abstract class BasePage extends WebPage {
 			this.language = getSessionUser().get().getLanguage();
 			//this.language = Locale.forLanguageTag(Language.EN).getLanguage();
 		}
-		else
-			this.language = Locale.forLanguageTag(Language.ES).getLanguage();
-	
+		else {
+			this.language = Locale.getDefault().getLanguage();
+			//this.language = Locale.forLanguageTag(Language.ES).getLanguage();
+		}
 		
 		if (getSession() != null)
 			getSession().setLocale(Locale.forLanguageTag(this.language));
 
 		//Session.get().setLocale(Locale.ENGLISH);
 		
-		logger.debug( this.getClass().getSimpleName() + " -> " + Session.get().getLocale().getLanguage() );
+		//logger.debug( this.getClass().getSimpleName() + " -> " + Session.get().getLocale().getLanguage() );
 		
 		
 		this.wfont = new WebMarkupContainer("google-font");
@@ -347,7 +348,7 @@ public abstract class BasePage extends WebPage {
 	public void onBeforeRender() {
 		super.onBeforeRender();
 		// this.initialized=true;
-		getServerCall().forEach((k, v) -> logger.debug(k + " -> " + v.toString()));
+		//getServerCall().forEach((k, v) -> logger.debug(k + " -> " + v.toString()));
 	}
 
 	@Override
@@ -542,16 +543,11 @@ public abstract class BasePage extends WebPage {
 		return (ArtExhibitionItemRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemRecordDBService.class);
 	}
 
-	
-
-	
-	
+	 
 	protected ArtWorkDBService getArtWorkDBService() 				{return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);}
 	protected  ArtWorkRecordDBService getArtWorkRecordDBService() 	{return (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);	}
 
-	
-	
-
+	 
 	protected InstitutionDBService getInstitutionDBService() {
 		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 	}
@@ -560,23 +556,13 @@ public abstract class BasePage extends WebPage {
 		return (InstitutionRecordDBService) ServiceLocator.getInstance().getBean(InstitutionRecordDBService.class);
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	protected GuideContentDBService getGuideContentDBService() {
+   	protected GuideContentDBService getGuideContentDBService() {
 		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 	}
 	protected GuideContentRecordDBService getGuideContentRecordDBService() {
 		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
 	}
-	
-	
-
-	
+	 
 	protected PersonDBService getPersonDBService() {
 		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 	}
@@ -592,10 +578,7 @@ public abstract class BasePage extends WebPage {
 	protected SiteRecordDBService getSiteRecordDBService() {
 		return (SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class);
 	}
-
-	
-	
-	
+ 	
 	protected ResourceDBService getResourceDBService() {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
@@ -603,36 +586,19 @@ public abstract class BasePage extends WebPage {
 	public UserDBService getUserDBService() {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
-
-	
-	 
+ 	 
 	protected  DateTimeService getDateTimeService() {
 		return (DateTimeService) ServiceLocator.getInstance().getBean(DateTimeService.class);
 	}
-	
-	
-	
-	 
-
-
+  
 	protected Optional<ArtExhibitionSection> getArtExhibitionSection(Long id) {
 		return null;
 	}
-	
-	
-	
-	
-	
-	
-	
-	 
-
-	
-	
+ 	
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
-
+ 
 	 
 	/** Object ----------------  */
 /**
@@ -698,15 +664,11 @@ public abstract class BasePage extends WebPage {
 		return service.getArtExhibitions(site.getId(), os1, os2);
 	}
 	
-	
-	
-	
-	public Iterable<ArtWork> getArtWorks(Site site) {
+ 	public Iterable<ArtWork> getArtWorks(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getSiteArtWorks(site);
 	}
-
-
+ 
 	public Iterable<ArtWork> getArtWorks(Site site, ObjectState os1) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getSiteArtWorks(site, os1);
@@ -716,15 +678,7 @@ public abstract class BasePage extends WebPage {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getSiteArtWorks(site, os1, os2);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
+ 	
 	public Iterable<User> getUsers() {
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 		return service.findAllSorted();

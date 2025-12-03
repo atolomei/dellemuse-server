@@ -385,7 +385,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
 
 						protected IModel<String> getInfo() {
@@ -412,7 +412,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
 						@Override
 						protected String getTitleIcon() {
@@ -481,7 +481,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
 
 						protected IModel<String> getInfo() {
@@ -510,7 +510,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
 
 						@Override
@@ -579,7 +579,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
 
 						protected IModel<String> getInfo() {
@@ -606,7 +606,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
 
 						@Override
@@ -672,7 +672,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
 
 						 
@@ -706,7 +706,7 @@ public class SitePage extends BasePage {
 						
 						@Override
 						public void onClick() {
-							setResponsePage(new ArtExhibitionPage(getModel(), getList()));
+							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
 
 						protected IModel<String> getInfo() {

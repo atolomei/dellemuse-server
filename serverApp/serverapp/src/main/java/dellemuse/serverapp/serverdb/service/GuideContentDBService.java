@@ -29,6 +29,7 @@ import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
@@ -98,18 +99,16 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 	public void save(GuideContent o, User user, List<String> updatedParts) {
 		super.save(o);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
-		
 
 		Optional<AudioStudio> oa = getAudioStudioDBService().findByGuideContent(o);
-		
+
 		if (oa.isPresent()) {
 			oa.get().setName(o.getName());
 			oa.get().setInfo(o.getInfo());
 			getAudioStudioDBService().save(oa.get());
 		}
 	}
-	
-	
+
 	@Transactional
 	public void delete(GuideContent c, User deletedBy) {
 
@@ -135,7 +134,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
 
-		for (GuideContentRecord g: getGuideContentRecordDBService().findAllByGuideContent(c)) {
+		for (GuideContentRecord g : getGuideContentRecordDBService().findAllByGuideContent(c)) {
 			getGuideContentRecordDBService().markAsDeleted(g, deletedBy);
 		}
 
@@ -184,14 +183,26 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	
+	@Transactional
+	public List<GuideContent> getBySite(Site site) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
+		Root<GuideContent> root = cq.from(getEntityClass());
+
+		Predicate p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
+		cq.select(root).where(p1);
+
+		// cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
 	@Transactional
 	public Long newAudioId(Site site) {
 		String seqName = site.getAudioIdSequencerName();
 		return ((Number) getEntityManager().createNativeQuery("SELECT nextval('" + seqName + "')").getSingleResult()).longValue();
 	}
-	
-	
+
 	@Transactional
 	public void delete(GuideContent c) {
 		this.getRepository().delete(c);
@@ -245,13 +256,10 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 	public String getObjectClassName() {
 		return GuideContentRecord.class.getSimpleName().toLowerCase();
 	}
-	
+
 	@PostConstruct
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
-
-	
-
 
 }

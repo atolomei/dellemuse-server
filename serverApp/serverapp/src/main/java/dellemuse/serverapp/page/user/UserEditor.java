@@ -12,6 +12,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.person.ServerAppConstant;
@@ -30,6 +31,7 @@ import io.wktui.form.field.ZoneIdField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import wktui.base.InvisiblePanel;
 
 public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
@@ -40,11 +42,9 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	private Form<User> form;
 	private TextField<String> nameField;
 	private ZoneIdField zoneidField;
-	
-	
+	private List<ToolbarItem> list;
+
 	/**
-	 * 
-	 * 
 	 * @param id
 	 * @param model
 	 */
@@ -52,53 +52,71 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		super(id, model);
 	}
 
+	@Override
 	public void onInitialize() {
 		super.onInitialize();
+
+		add(new InvisiblePanel("error"));
 
 		this.form = new Form<User>("personForm", getModel());
 		add(this.form);
 
-		this.form.setFormState(FormState.VIEW);
+		this.nameField = new TextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
+		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 
-		this.nameField = new TextField<String>("username", 	new PropertyModel<String>(getModel(), "username"),	getLabel("username"));
-		this.zoneidField = new ZoneIdField("zoneid", 		new PropertyModel<ZoneId>(getModel(), "zoneId"),	getLabel("zoneid"));
-		
 		this.form.add(nameField);
 		this.form.add(zoneidField);
+		this.form.setFormState(FormState.VIEW);
 
-	
 		EditButtons<User> buttons = new EditButtons<User>("buttons", this.form, getModel()) {
 
 			private static final long serialVersionUID = 1L;
 
-			public void onEdit( AjaxRequestTarget target ) {
-				 UserEditor.this.onEdit(target);
+			public void onEdit(AjaxRequestTarget target) {
+				UserEditor.this.onEdit(target);
 			}
 
-			public void onCancel( AjaxRequestTarget target ) {
-				 UserEditor.this.onCancel(target);
+			public void onCancel(AjaxRequestTarget target) {
+				UserEditor.this.onCancel(target);
 			}
 
-			public void onSave(AjaxRequestTarget target ) {
-				 UserEditor.this.onSave(target);
+			public void onSave(AjaxRequestTarget target) {
+				UserEditor.this.onSave(target);
+			}
+
+			protected String getSaveClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
+
+			protected String getCancelClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
+
+			@Override
+			public boolean isVisible() {
+				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
-		
+
 		this.form.add(buttons);
 	}
-	
+
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
-		
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		
+
+		if (list != null)
+			return list;
+
+		list = new ArrayList<ToolbarItem>();
+
 		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new MenuAjaxEvent(ServerAppConstant.action_site_edit, target));
+				fire(new MenuAjaxEvent(ServerAppConstant.site_action_edit, target));
 			}
+
 			@Override
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
@@ -106,17 +124,18 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		};
 		create.setAlign(Align.TOP_LEFT);
 		list.add(create);
+
 		return list;
 	}
 
 	public Form<User> getForm() {
 		return form;
 	}
- 
+
 	public void setForm(Form<User> form) {
 		this.form = form;
 	}
-	
+
 	protected void onCancel(AjaxRequestTarget target) {
 		this.form.setFormState(FormState.VIEW);
 		target.add(this.form);
@@ -126,15 +145,19 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		this.form.setFormState(FormState.EDIT);
 		target.add(this.form);
 	}
-	
+
 	protected void onSave(AjaxRequestTarget target) {
-		this.form.setFormState(FormState.VIEW);
-		target.add(this.form);
-		save(getModelObject(), getSessionUser(), getUpdatedParts());
-		
+
+		try {
+			this.form.setFormState(FormState.VIEW);
+			target.add(this.form);
+			save(getModelObject(), getSessionUser(), getUpdatedParts());
+		} catch (Exception e) {
+
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
+
+		}
 	}
 
-	
-
-	
 }

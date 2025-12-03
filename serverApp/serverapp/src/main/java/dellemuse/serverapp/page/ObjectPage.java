@@ -39,17 +39,15 @@ import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
 /**
- * site 
- * foto 
- * Info - exhibitions
+ * site foto Info - exhibitions
  */
 
 public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	private static final long serialVersionUID = 1L;
-	 
+
 	static private Logger logger = Logger.getLogger(ObjectPage.class.getName());
- 
+
 	private StringValue stringValue;
 	private IModel<T> model;
 
@@ -59,125 +57,129 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private WebMarkupContainer internalPanelContainer;
 	private int currentIndex = 0;
 	private WebMarkupContainer toolbarContainer;
-	
+
 	private List<INamedTab> ipanels;
 	private List<INamedTab> tabs;
 	private WebMarkupContainer currentPanel;
 	private ObjectMetaEditor<T> metaEditor;
-	
+
 	private String startingTab = null;
 	private Panel audit;
 	private Panel pageHeader;
-	
+
 	protected abstract Optional<T> getObject(Long id);
+
 	protected abstract IModel<String> getPageTitle();
+
 	protected abstract IRequestablePage getObjectPage(IModel<T> iModel, List<IModel<T>> list);
+
 	protected abstract List<INamedTab> getInternalPanels();
+
 	protected abstract List<ToolbarItem> getToolbarItems();
+
 	protected abstract void onEdit(AjaxRequestTarget target);
+
 	protected abstract Panel createHeaderPanel();
-	
 
 	public ObjectPage() {
 		super();
-	}		
-	
+	}
+
 	public ObjectPage(PageParameters parameters) {
-		 super(parameters);
-		 stringValue = getPageParameters().get("id");
-	 }
-	
+		super(parameters);
+		stringValue = getPageParameters().get("id");
+	}
+
 	public ObjectPage(IModel<T> model) {
 		setModel(model);
 		getPageParameters().add("id", model.getObject().getId().toString());
 	}
-	
+
 	public ObjectPage(IModel<T> model, List<IModel<T>> list) {
 		Check.requireNonNullArgument(model, "model is null");
-		Check.requireTrue(model.getObject()!=null, "modelOjbect is null");
+		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
 		setModel(model);
 		setList(list);
-		getPageParameters().add( "id", model.getObject().getId().toString());
+		getPageParameters().add("id", model.getObject().getId().toString());
 	}
-	
-    public IModel<T> getModel() {
-    		return this.model;		
+
+	public IModel<T> getModel() {
+		return this.model;
 	}
- 
-    public void setModel(IModel<T> model) {
-    		this.model=model;		
+
+	public void setModel(IModel<T> model) {
+		this.model = model;
 	}
-    
+
 	public List<IModel<T>> getList() {
 		return list;
 	}
 
-	public void setList(List<IModel<T>>siteList) {
+	public void setList(List<IModel<T>> siteList) {
 		this.list = siteList;
 	}
-	
-    public void setPageHeaderPanel(Panel panel) {
-    	addOrReplace(panel);
-    }
 
-    public void addDefaultPageHeaderPanel() {
-    	this.addOrReplace(new InvisiblePanel("page-header"));
-   }
+	public void setPageHeaderPanel(Panel panel) {
+		addOrReplace(panel);
+	}
 
-    @Override
-    public void onBeforeRender() {
+	public void addDefaultPageHeaderPanel() {
+		this.addOrReplace(new InvisiblePanel("page-header"));
+	}
+
+	@Override
+	public void onBeforeRender() {
 		super.onBeforeRender();
-		
-		if (get("page-header")==null)
+
+		if (get("page-header") == null)
 			this.addDefaultPageHeaderPanel();
 	}
 
-    
-    public void setStartTab(String tabName) {
-    	this.startingTab=tabName;
-    }
+	public void setStartTab(String tabName) {
+		this.startingTab = tabName;
+	}
 
-    public String getStartTab() {
-    	return this.startingTab;
-    }
-     
-    public void togglePanel(String name, AjaxRequestTarget target ) {
-    	togglePanel(getTab(name ), target );
-    } 	
+	public String getStartTab() {
+		return this.startingTab;
+	}
 
-    
-    public void togglePanel(int panelOrder, AjaxRequestTarget target ) {
-   
-    	if (this.currentIndex==panelOrder) {
-    		target.add(this.toolbarContainer);
-    		target.add(this.internalPanelContainer);
-    		return;
-    	}
-    	
-    	this.currentIndex = panelOrder;
-    	this.currentPanel= getIPanels().get(getCurrentIndex()).getPanel("internalPanel");
+	public void togglePanel(String name, AjaxRequestTarget target) {
+		togglePanel(getTab(name), target);
+	}
+
+	public void togglePanel(int panelOrder, AjaxRequestTarget target) {
+
+		if (this.currentIndex == panelOrder) {
+			target.add(this.toolbarContainer);
+			target.add(this.internalPanelContainer);
+			return;
+		}
+
+		this.currentIndex = panelOrder;
+		this.currentPanel = getIPanels().get(getCurrentIndex()).getPanel("internalPanel");
 		this.internalPanelContainer.addOrReplace(this.currentPanel);
-	
+
 		addToolbar();
 
 		target.add(this.toolbarContainer);
 		target.add(this.internalPanelContainer);
-    }
-    
-    @Override
+	}
+
+	@Override
 	public void onDetach() {
-	    super.onDetach();
-	    
-	    if (getList()!=null)
-	    	getList().forEach(i->i.detach());
-    }
-	 
+		super.onDetach();
+
+		if (getList() != null)
+			getList().forEach(i -> i.detach());
+	}
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
+
 		try {
 			setUpModel();
+
 		} catch (Exception e) {
 			logger.error(e);
 			addErrorPanels(e);
@@ -186,8 +188,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 		this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
 			private static final long serialVersionUID = 1L;
+
 			public boolean isVisible() {
-				return getToolbarItems()!=null && getToolbarItems().size()>0;
+				return getToolbarItems() != null && getToolbarItems().size() > 0;
 			}
 		};
 		this.toolbarContainer.setOutputMarkupId(true);
@@ -196,103 +199,99 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		internalPanelContainer = new WebMarkupContainer("internalPanelContainer");
 		internalPanelContainer.setOutputMarkupId(true);
 		add(internalPanelContainer);
-		
+
 		setCurrent();
-		
-		add(new GlobalTopPanel("top-panel", new ObjectModel<User>( getSessionUser().get())));
+
+		add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
 		add(new GlobalFooterPanel<>("footer-panel"));
-		
+
 		x_addHeaderPanel();
 		addNavigator();
-		
+
 		tabs = getIPanels();
-		
-		if (this.startingTab!=null) {
-				int tabOrder=getTab(this.startingTab);
-				this.currentIndex=tabOrder;
+
+		if (this.startingTab != null) {
+			int tabOrder = getTab(this.startingTab);
+			this.currentIndex = tabOrder;
 		}
-		
+
 		currentPanel = tabs.get(getCurrentIndex()).getPanel("internalPanel");
 		internalPanelContainer.add(currentPanel);
-		
+
 		addToolbar();
 	}
-	
+
 	protected int getCurrentIndex() {
 		return this.currentIndex;
 	}
-	
+
 	protected WebMarkupContainer getCurrentPanel() {
 		return this.currentPanel;
 	}
- 	
+
 	protected List<INamedTab> getTabs() {
 		return this.tabs;
 	}
-	
+
 	protected ObjectMetaEditor<T> getMetaEditor() {
 		return this.metaEditor;
 	}
-	
+
 	protected void x_addHeaderPanel() {
-		Panel panel = createHeaderPanel();
-		if (panel==null)
-			pageHeader=new InvisiblePanel("header");
-		else
-			pageHeader=panel;
-		addOrReplace(pageHeader);
+		try {
+			Panel panel = createHeaderPanel();
+			if (panel == null)
+				pageHeader = new InvisiblePanel("header");
+			else
+				pageHeader = panel;
+			addOrReplace(pageHeader);
+		} catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new ErrorPanel("header", e));
+		}
 	}
-	
+
 	protected void setUpModel() {
-		if (getModel()==null) {
-			if (this.stringValue!=null) {
-				Optional<T> o =  getObject(Long.valueOf(this.stringValue.toLong()));  
+		if (getModel() == null) {
+			if (this.stringValue != null) {
+				Optional<T> o = getObject(Long.valueOf(this.stringValue.toLong()));
 				if (o.isPresent()) {
 					setModel(new ObjectModel<T>(o.get()));
 				}
 			}
 		}
-		if (getModel()==null) {
-			throw new RuntimeException("no objectModel");
-		}
-	}
-    
 
-		
-	protected Panel getAudssitPanel(String id) {
-		
-		if (this.audit==null) {
-				audit = new  AlertPanel<Void>(id, 
-						AlertPanel.WARNING, 
-						null, 
-						null, 
-						null,
-						getLabel( "not-enabled"));
-						audit.add( new org.apache.wicket.AttributeModifier("style"," float:left; width:100%; margin-bottom:5em;"));		
- 		}
-		return audit;
+		if (getModel() == null)
+			throw new IllegalStateException("ObjectModel is null");
 	}
 
-	
+	/**
+	 * protected Panel getAudssitPanel(String id) {
+	 * 
+	 * if (this.audit == null) { audit = new AlertPanel<Void>(id,
+	 * AlertPanel.WARNING, null, null, null, getLabel("not-enabled")); audit.add(new
+	 * org.apache.wicket.AttributeModifier("style", " float:left; width:100%;
+	 * margin-bottom:5em;")); } return audit; }
+	 **/
+
 	protected int getCurrent() {
 		return this.current;
 	}
 
-	
 	protected void setCurrent() {
-		
-		if (this.getList()==null)
+
+		if (this.getList() == null)
 			return;
-		
-		if (getModel()==null)
+
+		if (getModel() == null)
 			return;
-		
+
 		int n = 0;
 
 		for (IModel<T> m : this.getList()) {
 			if (getModel().getObject().getId().equals(m.getObject().getId())) {
 				current = n;
-				 
+
 				break;
 			}
 			n++;
@@ -300,220 +299,202 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	}
 
 	protected void addErrorPanels(Exception e) {
-		
+
 		if (getSessionUser().isPresent())
-			addOrReplace(new GlobalTopPanel("top-panel", new ObjectModel<User>( getSessionUser().get())));
+			addOrReplace(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
 		else
 			addOrReplace(new GlobalTopPanel("top-panel"));
+
 		addOrReplace(new InvisiblePanel("page-header"));
-		addOrReplace( new InvisiblePanel("toolbarContainer"));
+		addOrReplace(new InvisiblePanel("toolbarContainer"));
+
 		this.internalPanelContainer = new WebMarkupContainer("internalPanelContainer");
-		add(this.internalPanelContainer);
+		addOrReplace(this.internalPanelContainer);
+
 		this.internalPanelContainer.add(new ErrorPanel("internalPanel", e));
+
 		addOrReplace(new InvisiblePanel("navigatorContainer"));
 		addOrReplace(new GlobalFooterPanel<>("footer-panel"));
 	}
 
 	protected void addListeners() {
-			super.addListeners();
-			
-			
-			add(new io.wktui.event.WicketEventListener<ObjectUpdateEvent>() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public void onEvent(ObjectUpdateEvent event) {
-					setUpModel();
-					x_addHeaderPanel();
-					event.getTarget().add(pageHeader);
-				}
-				
-				@Override
-				public boolean handle(UIEvent event) {
-					if (event instanceof ObjectUpdateEvent)
-						return true;
-					return false;
-				}
-			});
-			
-			add(new io.wktui.event.WicketEventListener<ObjectRestoreEvent>() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public void onEvent(ObjectRestoreEvent event) {
-					setUpModel();
-					x_addHeaderPanel();
-					event.getTarget().add(pageHeader);
-					event.getTarget().add(toolbarContainer);
-				}
-				
-				@Override
-				public boolean handle(UIEvent event) {
-					if (event instanceof ObjectRestoreEvent)
-						return true;
-					return false;
-				}
-			});
+		super.addListeners();
 
-			
-			
-			add(new io.wktui.event.WicketEventListener<ObjectMarkAsDeleteEvent>() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public void onEvent(ObjectMarkAsDeleteEvent event) {
-					setUpModel();
-					x_addHeaderPanel();
-					event.getTarget().add(pageHeader);
-					event.getTarget().add(toolbarContainer);
-				}
-				
-				@Override
-				public boolean handle(UIEvent event) {
-					if (event instanceof ObjectMarkAsDeleteEvent)
-						return true;
-					return false;
-				}
-			});
+		add(new io.wktui.event.WicketEventListener<ObjectUpdateEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(ObjectUpdateEvent event) {
+				setUpModel();
+				x_addHeaderPanel();
+				event.getTarget().add(pageHeader);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectUpdateEvent)
+					return true;
+				return false;
+			}
+		});
+
+		add(new io.wktui.event.WicketEventListener<ObjectRestoreEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(ObjectRestoreEvent event) {
+				setUpModel();
+				x_addHeaderPanel();
+				event.getTarget().add(pageHeader);
+				event.getTarget().add(toolbarContainer);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectRestoreEvent)
+					return true;
+				return false;
+			}
+		});
+
+		add(new io.wktui.event.WicketEventListener<ObjectMarkAsDeleteEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(ObjectMarkAsDeleteEvent event) {
+				setUpModel();
+				x_addHeaderPanel();
+				event.getTarget().add(pageHeader);
+				event.getTarget().add(toolbarContainer);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectMarkAsDeleteEvent)
+					return true;
+				return false;
+			}
+		});
 	}
-	
+
 	protected Panel getMetaEditor(String id) {
-		if (this.metaEditor==null) {
+		if (this.metaEditor == null) {
 			metaEditor = new ObjectMetaEditor<T>(id, getModel());
-		
-			metaEditor.setLanguage( ObjectPage.this.isLanguage());
+			metaEditor.setLanguage(ObjectPage.this.isLanguage());
 			metaEditor.setAudioAutoGenerate(ObjectPage.this.isAudioAutoGenerate());
 		}
-		
+
 		return (metaEditor);
 	}
-	
-	
+
 	protected boolean isLanguage() {
 		return getModel().getObject() instanceof MultiLanguageObject;
 	}
-	
-
-
-	
 
 	protected boolean isAudioAutoGenerate() {
 		return false;
 	}
 
-	
-	
 	protected List<INamedTab> createInternalPanels() {
-		
+
 		List<INamedTab> tabs = new ArrayList<INamedTab>();
-		
-		NamedTab tab_2=new NamedTab(Model.of("metainfo"), ServerAppConstant.object_meta) {
+		NamedTab tab_2 = new NamedTab(Model.of("metainfo"), ServerAppConstant.object_meta) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
 				return getMetaEditor(panelId);
 			}
 		};
 		tabs.add(tab_2);
-		
-		/**
-		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getAuditPanel(panelId);
-			}
-		};
-		tabs.add(audit);
-		**/
-		
 		return tabs;
 	}
-	
-	
-    private int getTab(String name) {
-    	
-    	List<INamedTab> tabs =  getIPanels();
-    	
-    	int current = 0;
-    	int selected = 0;
-    	for (INamedTab tab: tabs) {
-    		logger.debug("tab->" + tab.getTitle().getObject().toString());
-    		if (tab.getName().equals(name)) {
-    			logger.debug("Selected title -> " + tab.getTitle().getObject().toString());
-    			selected = current;
-	    			break;
-    		}
-    		current++;
-    	}
 
-    	return selected;
-    }
-    
-  
- 	private void addToolbar() {
-		
-		WebMarkupContainer wCurrent = getCurrentPanel();
-	
-		Toolbar toolbarItems = new Toolbar("toolbarItems");
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		List<ToolbarItem> localItems = null;
-		List<ToolbarItem> globalItems = getToolbarItems();
-		
-		if (wCurrent instanceof InternalPanel)
-			localItems = ((InternalPanel) wCurrent).getToolbarItems();
+	private int getTab(String name) {
 
-		if (localItems!=null)
-			list.addAll(localItems);
-		
-		if (globalItems!=null)
-			list.addAll(globalItems);
-		
-		if (list.size()>0) {
-			list.forEach(t -> toolbarItems.addItem(t));
-			this.toolbarContainer.addOrReplace(toolbarItems);
+		List<INamedTab> tabs = getIPanels();
+
+		int current = 0;
+		int selected = 0;
+		for (INamedTab tab : tabs) {
+			if (tab.getName().equals(name)) {
+				//logger.debug("Selected title -> " + tab.getTitle().getObject().toString());
+				selected = current;
+				break;
+			}
+			current++;
 		}
-		else {
-			this.toolbarContainer.addOrReplace(new InvisiblePanel("toolbarItems"));
+
+		return selected;
+	}
+
+	private void addToolbar() {
+
+		try {
+			WebMarkupContainer wCurrent = getCurrentPanel();
+
+			Toolbar toolbarItems = new Toolbar("toolbarItems");
+			List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+			List<ToolbarItem> localItems = null;
+			List<ToolbarItem> globalItems = getToolbarItems();
+
+			if (wCurrent instanceof InternalPanel)
+				localItems = ((InternalPanel) wCurrent).getToolbarItems();
+
+			if (localItems != null)
+				list.addAll(localItems);
+
+			if (globalItems != null)
+				list.addAll(globalItems);
+
+			if (list.size() > 0) {
+				list.forEach(t -> toolbarItems.addItem(t));
+				this.toolbarContainer.addOrReplace(toolbarItems);
+			} else {
+				this.toolbarContainer.addOrReplace(new InvisiblePanel("toolbarItems"));
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			this.toolbarContainer.addOrReplace(new ErrorPanel("toolbarItems", e));
 		}
 	}
-	
-	
+
 	private void addNavigator() {
 
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
-		
 		add(this.navigatorContainer);
-		
-		this.navigatorContainer.setVisible(getList()!=null && getList().size()>0);
 
-		if (getList() != null) {
-			ListNavigator<T> nav = new ListNavigator<T>("navigator", this.current,
-					getList()) {
-				private static final long serialVersionUID = 1L;
+		try {
+			this.navigatorContainer.setVisible(getList() != null && getList().size() > 0);
 
-				@Override
-				protected IModel<String> getLabel(IModel<T> model) {
-					return new Model<String>(model.getObject().getDisplayname());
-				}
+			if (getList() != null) {
+				ListNavigator<T> nav = new ListNavigator<T>("navigator", this.current, getList()) {
+					private static final long serialVersionUID = 1L;
 
-				@Override
-				protected void navigate(int current) {
-					setResponsePage(getObjectPage(getList().get(current), getList()));
-				}
-			};
-			this.navigatorContainer.add(nav);
-		} else {
-			this.navigatorContainer.add(new InvisiblePanel("navigator"));
+					@Override
+					protected IModel<String> getLabel(IModel<T> model) {
+						return new Model<String>(model.getObject().getDisplayname());
+					}
+
+					@Override
+					protected void navigate(int current) {
+						setResponsePage(getObjectPage(getList().get(current), getList()));
+					}
+				};
+				this.navigatorContainer.add(nav);
+			} else {
+				this.navigatorContainer.add(new InvisiblePanel("navigator"));
+			}
+		} catch (Exception e) {
+			logger.error(e);
+			this.navigatorContainer.add(new ErrorPanel("navigator", e));
 		}
 	}
- 
+
 	private List<INamedTab> getIPanels() {
-		if (ipanels==null) {
-			ipanels =getInternalPanels();
-		}
+		if (ipanels == null)  
+			ipanels = getInternalPanels();
 		return ipanels;
 	}
- 
+
 }
-
-

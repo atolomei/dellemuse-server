@@ -18,6 +18,7 @@ import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
+import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -28,8 +29,9 @@ import io.wktui.form.button.EditButtons;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
+import wktui.base.InvisiblePanel;
 
-public class InstitutionEditor extends DBObjectEditor<Institution>   {
+public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,7 +39,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 	private Form<Institution> form;
 
- 	private TextField<String> nameField;
+	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
 	private TextField<String> shortNameField;
 	private TextAreaField<String> addressField;
@@ -67,11 +69,11 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		
-		if (photoModel!=null)
+
+		if (photoModel != null)
 			photoModel.detach();
-	
-		if (logoModel!=null)
+
+		if (logoModel != null)
 			logoModel.detach();
 	}
 
@@ -81,55 +83,51 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 		Optional<Institution> o_i = getInstitutionDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<Institution>(o_i.get()));
-		
-		if (getModel().getObject().getPhoto()!=null) {
+
+		if (getModel().getObject().getPhoto() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
 		}
-		
-		if (getModel().getObject().getLogo()!=null) {
+
+		if (getModel().getObject().getLogo() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getLogo().getId());
 			setLogoModel(new ObjectModel<Resource>(o_r.get()));
 		}
-		
+
+		add(new InvisiblePanel("error"));
+
 		this.form = new Form<Institution>("institutionForm", getModel());
 
 		add(this.form);
 		setForm(this.form);
-		
+
 		/**
-		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
-			
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (getStates());
-			}
-			
-			@Override
-			protected String getDisplayValue(ObjectState value) {
-				if (value==null)
-					return null;
-				return value.getLabel(getLocale());
-			}
-		};
-		form.add(objectStateField);
+		 * objectStateField = new ChoiceField<ObjectState>("state", new
+		 * PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public IModel<List<ObjectState>> getChoices() { return new
+		 *           ListModel<ObjectState> (getStates()); }
+		 * 
+		 * @Override protected String getDisplayValue(ObjectState value) { if
+		 *           (value==null) return null; return value.getLabel(getLocale()); } };
+		 *           form.add(objectStateField);
 		 **/
-		
-	 	nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-	 	subtitleField	= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
-	 	shortNameField 	= new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
-		addressField 	= new TextAreaField<String>("address", new PropertyModel<String>(getModel(), "address"), getLabel("address"), 4);
-		websiteField 	= new TextField<String>("website", new PropertyModel<String>(getModel(), "website"), getLabel("website"));
-		mapurlField 	= new TextField<String>("mapurl", new PropertyModel<String>(getModel(), "mapUrl"), getLabel("mapurl"));
-		emailField 		= new TextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
-		phoneField 		= new TextAreaField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"), 4);
-		instagramField 	= new TextField<String>("instagram", new PropertyModel<String>(getModel(), "instagram"), getLabel("instagram"));
-		whatsappField 	= new TextField<String>("whatsapp", new PropertyModel<String>(getModel(), "whatsapp"), getLabel("whatsapp"));
-		infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
-		
-		photoField 		= new FileUploadSimpleField<Resource>("photo", getLabel("photo")) {
+
+		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		subtitleField = new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
+		shortNameField = new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
+		addressField = new TextAreaField<String>("address", new PropertyModel<String>(getModel(), "address"), getLabel("address"), 4);
+		websiteField = new TextField<String>("website", new PropertyModel<String>(getModel(), "website"), getLabel("website"));
+		mapurlField = new TextField<String>("mapurl", new PropertyModel<String>(getModel(), "mapUrl"), getLabel("mapurl"));
+		emailField = new TextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
+		phoneField = new TextAreaField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"), 4);
+		instagramField = new TextField<String>("instagram", new PropertyModel<String>(getModel(), "instagram"), getLabel("instagram"));
+		whatsappField = new TextField<String>("whatsapp", new PropertyModel<String>(getModel(), "whatsapp"), getLabel("whatsapp"));
+		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
+
+		photoField = new FileUploadSimpleField<Resource>("photo", getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -142,9 +140,9 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 			}
 
 			public String getFileName() {
-				if (getModel()==null)
+				if (getModel() == null)
 					return null;
-				return InstitutionEditor.this.getPhotoMeta( getModel().getObject() );
+				return InstitutionEditor.this.getPhotoMeta(getModel().getObject());
 			}
 
 			public boolean isThumbnail() {
@@ -173,8 +171,8 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 			}
 		};
 
-	 	form.add(nameField);
-		form.add(shortNameField);	
+		form.add(nameField);
+		form.add(shortNameField);
 		form.add(subtitleField);
 		form.add(infoField);
 		form.add(addressField);
@@ -209,7 +207,6 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 			}
 		};
 
-		
 		EditButtons<Institution> b_buttons_top = new EditButtons<Institution>("buttons-top", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -230,11 +227,11 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 			public boolean isVisible() {
 				return getForm().getFormState() == FormState.EDIT;
 			}
-			
+
 			protected String getSaveClass() {
 				return "ps-0 btn btn-sm btn-link";
 			}
-			
+
 			protected String getCancelClass() {
 				return "ps-0 btn btn-sm btn-link";
 			}
@@ -267,47 +264,43 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 	protected String getPhotoFileName() {
 		if (getPhotoModel() == null)
 			return null;
-		return getPhotoModel().getObject().getDisplayname() + (getPhotoModel().getObject().getSize() != 0
-				? " ( " + formatFileSize(getPhotoModel().getObject().getSize()) + " )"
-				: "");
+		return getPhotoModel().getObject().getDisplayname() + (getPhotoModel().getObject().getSize() != 0 ? " ( " + formatFileSize(getPhotoModel().getObject().getSize()) + " )" : "");
 	}
-	
+
 	protected String getLogoFileName() {
-		
+
 		if (getLogoModel() == null)
 			return null;
-		
-		return getLogoModel().getObject().getDisplayname() + (getLogoModel().getObject().getSize() != 0
-				? " ( " + formatFileSize(getLogoModel().getObject().getSize()) + " )"
-				: "");
+
+		return getLogoModel().getObject().getDisplayname() + (getLogoModel().getObject().getSize() != 0 ? " ( " + formatFileSize(getLogoModel().getObject().getSize()) + " )" : "");
 	}
-	
+
 	/**
 	 * @return
 	 */
 	protected Image getPhotoThumbnail() {
-		
+
 		if (getPhotoModel() == null)
 			return null;
 
 		try {
-		String presignedThumbnail = getPresignedThumbnail(getPhotoModel().getObject(), ThumbnailSize.SMALL);
-		Image image;
+			String presignedThumbnail = getPresignedThumbnail(getPhotoModel().getObject(), ThumbnailSize.SMALL);
+			Image image;
 
-		if (presignedThumbnail != null) {
-			Url url = Url.parse(presignedThumbnail);
-			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			image = new Image("image", resourceReference);
-		} else {
-			image = new Image("image", new UrlResourceReference(Url.parse("")));
-			image.setVisible(false);
-		}
-		return image;
+			if (presignedThumbnail != null) {
+				Url url = Url.parse(presignedThumbnail);
+				UrlResourceReference resourceReference = new UrlResourceReference(url);
+				image = new Image("image", resourceReference);
+			} else {
+				image = new Image("image", new UrlResourceReference(Url.parse("")));
+				image.setVisible(false);
+			}
+			return image;
 		} catch (Exception e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 			return null;
 		}
-		
+
 	}
 
 	protected boolean processPhotoUpload(List<FileUpload> uploads) {
@@ -323,23 +316,17 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 					// upload photo to ObjectStorage
 					String bucketName = ServerConstant.MEDIA_BUCKET;
-					String objectName = getResourceDBService()
-							.normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-"
-							+ String.valueOf(getResourceDBService().newId());
+					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
 					try (InputStream is = upload.getInputStream()) {
-						
-						getResourceDBService().upload(
-								bucketName, 
-								objectName, 
-								upload.getInputStream(), 
-								upload.getClientFileName());
-						
+
+						getResourceDBService().upload(bucketName, objectName, upload.getInputStream(), upload.getClientFileName());
+
 						User user = getUserDBService().findRoot();
 
-						Resource resource = getResourceDBService().create(bucketName, objectName,
-								upload.getClientFileName(), getResourceDBService().getMimeType(upload.getClientFileName()), upload.getSize(), null, user, upload.getClientFileName());
-						
+						Resource resource = getResourceDBService().create(bucketName, objectName, upload.getClientFileName(), getResourceDBService().getMimeType(upload.getClientFileName()), upload.getSize(), null, user,
+								upload.getClientFileName());
+
 						setPhotoModel(new ObjectModel<Resource>(resource));
 
 						getModel().getObject().setPhoto(resource);
@@ -361,7 +348,6 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 		return uploadedPhoto;
 	}
 
-
 	protected boolean processLogoUpload(List<FileUpload> uploads) {
 
 		if (this.uploadedLogo)
@@ -370,28 +356,21 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 		if (uploads != null && !uploads.isEmpty()) {
 			for (FileUpload upload : uploads) {
 				try {
-					
+
 					logger.debug("name -> " + upload.getClientFileName());
 					logger.debug("Size -> " + upload.getSize());
 
 					String bucketName = ServerConstant.MEDIA_BUCKET;
-					String objectName = getResourceDBService()
-							.normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-"
-							+ String.valueOf(getResourceDBService().newId());
+					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
 					try (InputStream is = upload.getInputStream()) {
 
-						getResourceDBService().upload(bucketName, 
-								objectName, upload.getInputStream(),
-								upload.getClientFileName());
+						getResourceDBService().upload(bucketName, objectName, upload.getInputStream(), upload.getClientFileName());
 						User user = getUserDBService().findRoot();
 
-						Resource resource = getResourceDBService().create(bucketName, 
-								objectName,
-								upload.getClientFileName(), 
-								getResourceDBService().getMimeType(upload.getClientFileName()), 
-								upload.getSize(), null, user, upload.getClientFileName());
-						
+						Resource resource = getResourceDBService().create(bucketName, objectName, upload.getClientFileName(), getResourceDBService().getMimeType(upload.getClientFileName()), upload.getSize(), null, user,
+								upload.getClientFileName());
+
 						setLogoModel(new ObjectModel<Resource>(resource));
 
 						getModel().getObject().setLogo(resource);
@@ -412,20 +391,23 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 
 		return uploadedLogo;
 	}
-	
+
 	protected IModel<Resource> getPhotoModel() {
 		return this.photoModel;
 	}
+
 	protected void setPhotoModel(ObjectModel<Resource> model) {
-			this.photoModel=model;
+		this.photoModel = model;
 	}
+
 	protected IModel<Resource> getLogoModel() {
 		return this.logoModel;
 	}
+
 	protected void setLogoModel(ObjectModel<Resource> model) {
-			this.logoModel=model;
+		this.logoModel = model;
 	}
-	
+
 	protected void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
 	}
@@ -435,8 +417,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 	 */
 	protected void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
-		// getForm().setFormState(FormState.EDIT);
-		// target.add(this);
+
 	}
 
 	@Override
@@ -449,11 +430,6 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 		logger.debug(getModelObject().toString());
 		logger.debug("done");
 
-		// try {
-		// if (!getUpdatedParts().isEmpty()) {
-		//
-		// }
-		// getModelObject();
 	}
 
 	/**
@@ -461,20 +437,23 @@ public class InstitutionEditor extends DBObjectEditor<Institution>   {
 	 */
 	protected void onSave(AjaxRequestTarget target) {
 
-		logger.debug("onSave");
-		logger.debug("updated parts:");
 		getUpdatedParts().forEach(s -> logger.debug(s));
-		logger.debug("saving...");
-		
-		
-		save(getModelObject(), getSessionUser(), getUpdatedParts());
-		
-		
-		uploadedPhoto = false;
-		getForm().setFormState(FormState.VIEW);
-		getForm().updateReload();
-		fire (new ObjectUpdateEvent(target));
-	
+
+		try {
+
+			save(getModelObject(), getSessionUser(), getUpdatedParts());
+
+			uploadedPhoto = false;
+			getForm().setFormState(FormState.VIEW);
+			getForm().updateReload();
+			fire(new ObjectUpdateEvent(target));
+
+		} catch (Exception e) {
+
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
+
+		}
 		target.add(this);
 
 	}

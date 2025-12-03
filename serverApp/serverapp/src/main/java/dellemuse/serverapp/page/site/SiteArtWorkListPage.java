@@ -3,7 +3,6 @@ package dellemuse.serverapp.page.site;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -63,11 +62,9 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	private StringValue stringValue;
 
 	private IModel<Site> siteModel;
-	
-	private List<ToolbarItem> listToolbar;
-	
 
-	
+	private List<ToolbarItem> listToolbar;
+
 	public SiteArtWorkListPage() {
 		super();
 		setIsExpanded(true);
@@ -77,39 +74,32 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		super(parameters);
 		stringValue = getPageParameters().get("id");
 		setIsExpanded(true);
-		 
+
 	}
 
 	public SiteArtWorkListPage(IModel<Site> siteModel) {
 		super();
 		Check.requireNonNullArgument(siteModel, "siteModel is null");
-		 
+
 		setSiteModel(siteModel);
 		getPageParameters().add("id", siteModel.getObject().getId().toString());
 		super.setIsExpanded(true);
 	}
 
- 
-
 	@Override
 	public Iterable<ArtWork> getObjects() {
 		return getArtWorks(getSiteModel().getObject());
 	}
-	
+
 	@Override
 	public Iterable<ArtWork> getObjects(ObjectState os1) {
 		return getArtWorks(getSiteModel().getObject(), os1);
 	}
 
-	
-
 	@Override
 	public Iterable<ArtWork> getObjects(ObjectState os1, ObjectState os2) {
 		return getArtWorks(getSiteModel().getObject(), os1, os2);
 	}
-	
-	
-	
 
 	@Override
 	public IModel<String> getObjectInfo(IModel<ArtWork> model) {
@@ -121,11 +111,10 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	public IModel<String> getObjectTitle(IModel<ArtWork> model) {
 		StringBuilder str = new StringBuilder();
 		str.append(model.getObject().getDisplayname());
-		
-		if (model.getObject().getState()==ObjectState.DELETED) 
+
+		if (model.getObject().getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
 
-		
 		return Model.of(str.toString());
 	}
 
@@ -133,21 +122,21 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	public IModel<String> getObjectSubtitle(IModel<ArtWork> model) {
 		return Model.of(getArtistStr(model.getObject()));
 	}
-	
+
 	@Override
 	public void onClick(IModel<ArtWork> model) {
 		setResponsePage(new ArtWorkPage(model, getList()));
 	}
 
-	protected List<ToolbarItem> getToolbarItemsLeft() {return null;}
-	
-	
-	
+	protected List<ToolbarItem> getToolbarItemsLeft() {
+		return null;
+	}
+
 	@Override
 	protected WebMarkupContainer getObjectMenu(IModel<ArtWork> model) {
-		
+
 		NavDropDownMenu<ArtWork> menu = new NavDropDownMenu<ArtWork>("menu", model, null);
-		
+
 		menu.setOutputMarkupId(true);
 
 		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
@@ -202,8 +191,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		});
 		return menu;
 	}
-	
-	
+
 	@Override
 	public IModel<String> getPageTitle() {
 		return getLabel("artworks");
@@ -217,7 +205,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	public void onConfigure() {
 		super.onConfigure();
 	}
-	
+
 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
@@ -225,9 +213,10 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
+
 	@Override
 	public void onInitialize() {
-		
+
 		if (getSiteModel() == null) {
 			if (this.stringValue != null) {
 				Optional<Site> o_site = getSite(Long.valueOf(stringValue.toLong()));
@@ -246,7 +235,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 				setSiteModel(new ObjectModel<Site>(o_site.get()));
 			}
 		}
- 
+
 		super.onInitialize();
 	}
 
@@ -257,52 +246,48 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		if (siteModel != null)
 			siteModel.detach();
 	}
-	
+
 	@Override
 	protected void addHeaderPanel() {
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(),
-				new Model<String>(getSiteModel().getObject().getDisplayname())));
+		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(), new Model<String>(getSiteModel().getObject().getDisplayname())));
 
 		bc.addElement(new BCElement(getLabel("artwork")));
-		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null,
-				new Model<String>(getSiteModel().getObject().getDisplayname()));
+		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, new Model<String>(getSiteModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
-		
-		 ph.setContext(getLabel("site"));
-		
-		if (getSiteModel().getObject().getSubtitle()!=null)
-			ph.setTagline( Model.of( getSiteModel().getObject().getSubtitle()));
 
-		 if (getSiteModel().getObject().getPhoto() != null)
-				ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));
+		ph.setContext(getLabel("site"));
+
+		if (getSiteModel().getObject().getSubtitle() != null)
+			ph.setTagline(Model.of(getSiteModel().getObject().getSubtitle()));
+
+		if (getSiteModel().getObject().getPhoto() != null)
+			ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));
 
 		add(ph);
 	}
 
 	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
-		
+
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		
-		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(),  Align.TOP_RIGHT ));
-		
+
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
+
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
+
 			protected void onClick() {
 				SiteArtWorkListPage.this.onCreate();
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
-		
+
 		list.add(create);
-		
+
 		return list;
 	}
-
-	
-
 
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
@@ -319,18 +304,18 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		return listToolbar;
 	}
-	
-	
+
 	@Override
 	protected void addListeners() {
 		super.addListeners();
- 
+
 		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
-				if (event.getName().equals(ServerAppConstant.action_site_home)) {
-					setResponsePage( new SitePage( getSiteModel(), null));
+				if (event.getName().equals(ServerAppConstant.site_action_home)) {
+					setResponsePage(new SitePage(getSiteModel(), null));
 				}
 			}
 
@@ -342,13 +327,12 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 			}
 		});
 	}
-	
+
 	@Override
 	protected IModel<String> getTitleLabel() {
 		return getLabel("artworks");
 	}
-	
-	
+
 	@Override
 	protected boolean isSettings() {
 		return true;
@@ -359,7 +343,6 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		return ListPanelMode.TITLE;
 	}
 
-	 
 	protected void onCreate() {
 		ArtWork aw = getArtWorkDBService().create("new", getSiteModel().getObject(), getUserDBService().findRoot());
 		IModel<ArtWork> m = new ObjectModel<ArtWork>(aw);
@@ -382,5 +365,4 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		return null;
 	}
 
-	
 }

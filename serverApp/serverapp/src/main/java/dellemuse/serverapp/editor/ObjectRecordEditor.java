@@ -14,7 +14,7 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
- 
+
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.audiostudio.AudioStudioPage;
@@ -88,7 +88,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		super.onInitialize();
 
 		setUpModel();
-		
+		add(new InvisiblePanel("error"));
 		loadForm();
 	}
 
@@ -104,7 +104,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			public boolean isVisible() {
 				return isMultiLanguageObject();
 			}
-			
+
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_object_edit_record, target, ObjectRecordEditor.this.getModel().getObject().getLanguage()));
@@ -121,18 +121,14 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		return list;
 	}
 
-	
 	protected boolean isAudioStudio() {
-		return  ((getSourceModel().getObject() instanceof GuideContent) || 
-				(getSourceModel().getObject() instanceof ArtExhibitionGuide));
+		return ((getSourceModel().getObject() instanceof GuideContent) || (getSourceModel().getObject() instanceof ArtExhibitionGuide));
 	}
 
 	protected boolean isMultiLanguageObject() {
-		return  (getSourceModel().getObject() instanceof MultiLanguageObject);
+		return (getSourceModel().getObject() instanceof MultiLanguageObject);
 	}
 
-	
-	
 	public Optional<Person> getPerson(Long value) {
 		return super.getPerson(value);
 	}
@@ -151,21 +147,16 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	}
 
 	public void onSave(AjaxRequestTarget target) {
-		logger.debug("onSave");
-		logger.debug("updated parts:");
-		getUpdatedParts().forEach(s -> logger.debug(s));
-		logger.debug("saving...");
 
-		save(getModelObject(), getSessionUser(), getUpdatedParts());
-
-		getForm().setFormState(FormState.VIEW);
-		getForm().addOrReplace(new InvisiblePanel("error"));
+		try {
+			getUpdatedParts().forEach(s -> logger.debug(s));
+			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			getForm().setFormState(FormState.VIEW);
+		} catch (Exception e) {
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
+		}
 		target.add(this);
-
-		// ---
-		// TODO AT
-		// fir e( ne w (target));
-		// --
 	}
 
 	@Override
@@ -177,7 +168,6 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 		if (audioModel != null)
 			audioModel.detach();
-
 	}
 
 	public IModel<T> getSourceModel() {
@@ -228,9 +218,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		if (uploads != null && !uploads.isEmpty()) {
 
 			for (FileUpload upload : uploads) {
-
 				try {
-
 					logger.debug("name -> " + upload.getClientFileName());
 					logger.debug("Size -> " + upload.getSize());
 
@@ -303,9 +291,6 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 				loadForm();
 
 			} else {
-				
-				logger.debug(getModel().getObject().getLastModified().toString());
-
 				String date = getDateTimeService().format(getModel().getObject().getLastModified());
 				io.wktui.error.AlertPanel<R> alert = new io.wktui.error.AlertPanel<R>("alert", io.wktui.error.AlertPanel.INFO, null, getModel(), null, getLabel("translated-on", date));
 				getForm().addOrReplace(alert);
@@ -331,12 +316,9 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	}
 
 	private void setUpModel() {
-		
 		@SuppressWarnings("unchecked")
 		Optional<R> o_i = (Optional<R>) getDBService(getModelObject().getClass()).findWithDeps(getModel().getObject().getId());
-	
 		setModel(new ObjectModel<R>(o_i.get()));
-		
 		if (getModel().getObject().getAudio() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
 			setAudioModel(new ObjectModel<Resource>(o_r.get()));
@@ -394,31 +376,25 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		form.add(specField);
 		form.add(opensField);
 
-	/**
-		audioAutoField = new ChoiceField<Boolean>("audioAuto", new PropertyModel<Boolean>(getModel(), "audioAuto"), getLabel("audioAuto")) {
+		/**
+		 * audioAutoField = new ChoiceField<Boolean>("audioAuto", new
+		 * PropertyModel<Boolean>(getModel(), "audioAuto"), getLabel("audioAuto")) {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public IModel<List<Boolean>> getChoices() { return new
+		 *           ListModel<Boolean>(b_list); }
+		 * 
+		 * @Override protected String getDisplayValue(Boolean value) { if (value ==
+		 *           null) return null; if (value.booleanValue()) return
+		 *           getLabel("yes").getObject(); return getLabel("no").getObject(); }
+		 *           };
+		 * 
+		 *           audioAutoField.setVisible(isAudioVisible());
+		 * 
+		 *           form.add(audioAutoField);
+		 **/
 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public IModel<List<Boolean>> getChoices() {
-				return new ListModel<Boolean>(b_list);
-			}
-
-			@Override
-			protected String getDisplayValue(Boolean value) {
-				if (value == null)
-					return null;
-				if (value.booleanValue())
-					return getLabel("yes").getObject();
-				return getLabel("no").getObject();
-			}
-		};
-
-		audioAutoField.setVisible(isAudioVisible());
-
-		form.add(audioAutoField);
-**/
-		
 		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
@@ -453,21 +429,14 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		form.add(title);
 
 		this.openAudioStudio = new Link<R>("openAudioStudio", getModel()) {
-
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public void onClick() {
-
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser());
-
 				if (oa.isPresent())
 					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get())));
-
 				logger.error("audio studio not created for -> " + getModel().getObject().getDisplayname());
-
 			}
-
 			@Override
 			public boolean isVisible() {
 				return isAudioStudioEnabled(getModel().getObject());
@@ -502,9 +471,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
-
 		form.add(buttons);
-
 		EditButtons<R> b_buttons_top = new EditButtons<R>("buttons-top", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -534,12 +501,8 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 				return "ps-0 btn btn-sm btn-link";
 			}
 		};
-
-		
 		getForm().add(b_buttons_top);
-
 		getForm().addOrReplace(new InvisiblePanel("error"));
 
-		
 	}
 }

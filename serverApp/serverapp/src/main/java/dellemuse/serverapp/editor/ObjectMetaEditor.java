@@ -48,10 +48,10 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 	private boolean isAudioAutoGenerate = false;
 	private boolean isLanguage = false;
-	
+
 	private Language masterLanguage;
 	private List<ToolbarItem> list;
-	
+
 	/**
 	 * @param id
 	 * @param model
@@ -60,15 +60,12 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		super(id, model);
 	}
 
-	
-
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 
-		
-		if (list!=null)
+		if (list != null)
 			return list;
-		
+
 		list = new ArrayList<ToolbarItem>();
 
 		AjaxButtonToolbarItem<T> create = new AjaxButtonToolbarItem<T>() {
@@ -93,195 +90,189 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		return getSessionUser().getLocale();
 	}
 
-
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		setUpModel();
 
+		add(new InvisiblePanel("error"));
+
 		try {
-			
-		
-		Form<T> form = new Form<T>("form");
-		add(form);
-		setForm(form);
 
-		if (getModel().getObject() instanceof MultiLanguageObject) {
+			Form<T> form = new Form<T>("form");
+			add(form);
+			setForm(form);
 
-			this.masterLanguageField = new ChoiceField<Language>("masterlanguage", new PropertyModel<Language>(ObjectMetaEditor.this, "MasterLanguage"), getLabel("masterlanguage")) {
+			if (getModel().getObject() instanceof MultiLanguageObject) {
+
+				this.masterLanguageField = new ChoiceField<Language>("masterlanguage", new PropertyModel<Language>(ObjectMetaEditor.this, "MasterLanguage"), getLabel("masterlanguage")) {
+
+					private static final long serialVersionUID = 1L;
+
+					public boolean isVisible() {
+						return ObjectMetaEditor.this.isLanguage();
+
+					}
+
+					@Override
+					public IModel<List<Language>> getChoices() {
+						return new ListModel<Language>(getLanguages());
+					}
+
+					@Override
+					protected String getDisplayValue(Language value) {
+						if (value == null)
+							return null;
+						return value.getLabel(getUserLocale());
+					}
+				};
+
+				form.add(masterLanguageField);
+
+				this.translateMode = new ChoiceField<TranslateMode>("translatemode", new PropertyModel<TranslateMode>(getModel(), "translateMode"), getLabel("translatemode")) {
+
+					private static final long serialVersionUID = 1L;
+
+					public boolean isVisible() {
+						return false;
+					}
+
+					@Override
+					public IModel<List<TranslateMode>> getChoices() {
+						return new ListModel<TranslateMode>(getTranslateModes());
+					}
+
+					@Override
+					protected String getDisplayValue(TranslateMode value) {
+						if (value == null)
+							return null;
+						return value.getLabel(getUserLocale());
+					}
+				};
+				form.add(translateMode);
+			} else {
+				form.add(new InvisiblePanel("translatemode"));
+				form.add(new InvisiblePanel("masterlanguage"));
+			}
+
+			this.objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 
 				private static final long serialVersionUID = 1L;
 
-				public boolean isVisible() {
-					return ObjectMetaEditor.this.isLanguage();
-					
+				@Override
+				public IModel<List<ObjectState>> getChoices() {
+					return new ListModel<ObjectState>(getStates());
 				}
 
 				@Override
-				public IModel<List<Language>> getChoices() {
-					return new ListModel<Language>(getLanguages());
-				}
-
-				@Override
-				protected String getDisplayValue(Language value) {
+				protected String getDisplayValue(ObjectState value) {
 					if (value == null)
 						return null;
-					return value.getLabel(getUserLocale());
+					return value.getLabel(getLocale());
 				}
 			};
+			form.add(this.objectStateField);
 
-			form.add(masterLanguageField);
-
-			this.translateMode = new ChoiceField<TranslateMode>("translatemode", new PropertyModel<TranslateMode>(getModel(), "translateMode"), getLabel("translatemode")) {
+			this.audioModeField = new ChoiceField<Boolean>("audiomode", new PropertyModel<Boolean>(getModel(), "audioAutoGenerate"), getLabel("audiomode")) {
 
 				private static final long serialVersionUID = 1L;
 
-				public boolean isVisible() {
-					return false;
-					//return ObjectMetaEditor.this.getModel().getObject() instanceof MultiLanguageObject;
+				@Override
+				public IModel<List<Boolean>> getChoices() {
+					return new ListModel<Boolean>(b_list);
 				}
 
 				@Override
-				public IModel<List<TranslateMode>> getChoices() {
-					return new ListModel<TranslateMode>(getTranslateModes());
-				}
-
-				@Override
-				protected String getDisplayValue(TranslateMode value) {
+				protected String getDisplayValue(Boolean value) {
 					if (value == null)
 						return null;
-					return value.getLabel(getUserLocale());
+					if (value.booleanValue())
+						return getLabel("yes").getObject();
+					return getLabel("no").getObject();
+				}
+
+				public boolean isVisible() {
+					return ObjectMetaEditor.this.isAudioAutoGenerate();
+				}
+
+			};
+			form.add(this.audioModeField);
+
+			EditButtons<T> buttons = new EditButtons<T>("buttons-bottom", getForm(), getModel()) {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void onEdit(AjaxRequestTarget target) {
+					ObjectMetaEditor.this.onEdit(target);
+				}
+
+				@Override
+				public void onCancel(AjaxRequestTarget target) {
+					ObjectMetaEditor.this.onCancel(target);
+				}
+
+				@Override
+				public void onSave(AjaxRequestTarget target) {
+					ObjectMetaEditor.this.onSave(target);
+				}
+
+				@Override
+				public boolean isVisible() {
+					return getForm().getFormState() == FormState.EDIT;
 				}
 			};
-			form.add(translateMode);
-		} else {
-			form.add(new InvisiblePanel("translatemode"));
-			form.add(new InvisiblePanel("masterlanguage"));
-		}
 
-		this.objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
+			form.add(buttons);
 
-			private static final long serialVersionUID = 1L;
+			EditButtons<T> b_buttons_top = new EditButtons<T>("buttons-top", getForm(), getModel()) {
 
-			@Override
-			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState>(getStates());
-			}
+				private static final long serialVersionUID = 1L;
 
-			@Override
-			protected String getDisplayValue(ObjectState value) {
-				if (value == null)
-					return null;
-				return value.getLabel(getLocale());
-			}
-		};
-		form.add(this.objectStateField);
+				public void onEdit(AjaxRequestTarget target) {
+					ObjectMetaEditor.this.onEdit(target);
+				}
 
-		this.audioModeField = new ChoiceField<Boolean>("audiomode", new PropertyModel<Boolean>(getModel(), "audioAutoGenerate"), getLabel("audiomode")) {
+				public void onCancel(AjaxRequestTarget target) {
+					ObjectMetaEditor.this.onCancel(target);
+				}
 
-			private static final long serialVersionUID = 1L;
+				public void onSave(AjaxRequestTarget target) {
+					ObjectMetaEditor.this.onSave(target);
+				}
 
-			@Override
-			public IModel<List<Boolean>> getChoices() {
-				return new ListModel<Boolean>(b_list);
-			}
+				@Override
+				public boolean isVisible() {
+					return getForm().getFormState() == FormState.EDIT;
+				}
 
-			@Override
-			protected String getDisplayValue(Boolean value) {
-				if (value == null)
-					return null;
-				if (value.booleanValue())
-					return getLabel("yes").getObject();
-				return getLabel("no").getObject();
-			}
+				protected String getSaveClass() {
+					return "ps-0 btn btn-sm btn-link";
+				}
 
-			public boolean isVisible() {
-				return ObjectMetaEditor.this.isAudioAutoGenerate();
-			}
+				protected String getCancelClass() {
+					return "ps-0 btn btn-sm btn-link";
+				}
 
-		};
-		form.add(this.audioModeField);
+			};
 
-		EditButtons<T> buttons = new EditButtons<T>("buttons-bottom", getForm(), getModel()) {
+			getForm().add(b_buttons_top);
 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEdit(AjaxRequestTarget target) {
-				ObjectMetaEditor.this.onEdit(target);
-			}
-
-			@Override
-			public void onCancel(AjaxRequestTarget target) {
-				ObjectMetaEditor.this.onCancel(target);
-			}
-
-			@Override
-			public void onSave(AjaxRequestTarget target) {
-				ObjectMetaEditor.this.onSave(target);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return getForm().getFormState() == FormState.EDIT;
-			}
-		};
-
-		form.add(buttons);
-
-		EditButtons<T> b_buttons_top = new EditButtons<T>("buttons-top", getForm(), getModel()) {
-
-			private static final long serialVersionUID = 1L;
-
-			public void onEdit(AjaxRequestTarget target) {
-				ObjectMetaEditor.this.onEdit(target);
-			}
-
-			public void onCancel(AjaxRequestTarget target) {
-				ObjectMetaEditor.this.onCancel(target);
-			}
-
-			public void onSave(AjaxRequestTarget target) {
-				ObjectMetaEditor.this.onSave(target);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return getForm().getFormState() == FormState.EDIT;
-			}
-
-			protected String getSaveClass() {
-				return "ps-0 btn btn-sm btn-link";
-			}
-
-			protected String getCancelClass() {
-				return "ps-0 btn btn-sm btn-link";
-			}
-
-		};
-		
-		getForm().add(b_buttons_top);
-		
 		} catch (Exception e) {
 			logger.error(e);
-			add( new ErrorPanel("form", e));
+			add(new ErrorPanel("form", e));
 		}
 	}
 
-	
-
 	protected boolean isLanguage() {
 		return isLanguage;
-		
-//		return ObjectMetaEditor.this.getModel().getObject() instanceof MultiLanguageObject;
 	}
 
 	public void setLanguage(boolean b) {
 		this.isLanguage = b;
 	}
 
-	
 	protected boolean isAudioAutoGenerate() {
 		return isAudioAutoGenerate;
 	}
@@ -304,45 +295,42 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 	public void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
-		// getForm().setFormState(FormState.VIEW);
-		// target.add(getForm());
+
 	}
 
 	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
-		// getForm().setFormState(FormState.EDIT);
-		// target.add(getForm());
+
 	}
 
 	protected void onSave(AjaxRequestTarget target) {
-		logger.debug("onSave");
-		logger.debug("updated parts:");
-		getUpdatedParts().forEach(s -> logger.debug(s));
-		logger.debug("saving...");
 
-		if ((getModel().getObject() instanceof MultiLanguageObject) && getMasterLanguage() != null) {
-			((MultiLanguageObject) getModel().getObject()).setMasterLanguage(getMasterLanguage().getLanguageCode());
+		try {
+
+			getUpdatedParts().forEach(s -> logger.debug(s));
+
+			if ((getModel().getObject() instanceof MultiLanguageObject) && getMasterLanguage() != null) {
+				((MultiLanguageObject) getModel().getObject()).setMasterLanguage(getMasterLanguage().getLanguageCode());
+			}
+
+			save(getModelObject(), getSessionUser(), AuditKey.TRANSLATE);
+			getForm().setFormState(FormState.VIEW);
+			 
+		} catch (Exception e) {
+
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
 		}
-		save(getModelObject(), getSessionUser(), AuditKey.TRANSLATE);
 
-		getForm().setFormState(FormState.VIEW);
-		logger.debug("done");
 		target.add(this);
 
-		// TODO AT
-		// fir e( ne w (target));
 	}
-
-	
-
-	 
 
 	protected void onSubmit() {
 		logger.debug("");
 		logger.debug("onSubmit");
 		logger.debug("");
 	}
-
 
 	public Language getMasterLanguage() {
 		return masterLanguage;
@@ -360,12 +348,8 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			}
 		}
 	}
-	
+
 	public void save(T modelObject, User user, String msg) {
 		DBService.getDBService(modelObject.getClass()).saveViaBaseClass((DelleMuseObject) modelObject, user, msg);
 	}
-	
-	//private DBService<?, Long> getDBService(Class<? extends DelleMuseObject> clazz) {
-	//	return DBService.getDBService(clazz);
-	//}
 }

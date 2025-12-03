@@ -318,7 +318,7 @@ protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
-				if (event.getName().equals(ServerAppConstant.action_site_home)) {
+				if (event.getName().equals(ServerAppConstant.site_action_home)) {
 					setResponsePage( new SitePage( getSiteModel(), null));
 				}
 			}

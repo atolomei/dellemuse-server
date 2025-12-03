@@ -55,6 +55,7 @@ import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.DTFormatter;
+import io.wktui.error.AlertPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
@@ -314,23 +315,17 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 
 	protected void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
-		// getForm().setFormState(FormState.VIEW);
-		// target.add(getForm());
 	}
 
 	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
-		// getForm().setFormState(FormState.EDIT);
-		// target.add(getForm());
 	}
 
 	protected void onSave(AjaxRequestTarget target) {
-		logger.debug("onSave");
-		logger.debug("updated parts:");
+		
 		
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
-
 		
 		if (getSiteModel().getObject().getZoneId()==null)
 			throw new IllegalArgumentException("zone id is null");
@@ -348,7 +343,6 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 				
 				String la=getModel().getObject().getLanguage();
 				logger.debug(la);
-				
 				LocalDate d_from = getDateTimeService().parseFlexibleDate(getFrom(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
 				LocalTime localTime = LocalTime.MIN; // 00:00:00
 				java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(d_from, localTime);
@@ -511,4 +505,5 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		this.siteModel = siteModel;
 	}
 
+	 
 }

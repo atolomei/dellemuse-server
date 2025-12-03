@@ -13,6 +13,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.artexhibition.ArtExhibitionGuidesPanel;
 import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
@@ -20,6 +21,7 @@ import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -141,6 +143,9 @@ public class ArtExhibitionItemsGuidesPanel extends DBModelPanel<ArtExhibitionIte
 
 			protected List<IModel<GuideContent>> filter(List<IModel<GuideContent>> initialList,
 					String filter) {
+				
+				return iFilter(initialList, filter);
+				/**
 				List<IModel<GuideContent>> list = new ArrayList<IModel<GuideContent>>();
 				final String str = filter.trim().toLowerCase();
 				initialList.forEach(s -> {
@@ -148,7 +153,7 @@ public class ArtExhibitionItemsGuidesPanel extends DBModelPanel<ArtExhibitionIte
 						list.add(s);
 					}
 				});
-				return list;
+				return list;*/
 			}
 			
 			@Override
@@ -191,6 +196,11 @@ public class ArtExhibitionItemsGuidesPanel extends DBModelPanel<ArtExhibitionIte
 			public List<IModel<GuideContent>> getItems()  {
 				return  ArtExhibitionItemsGuidesPanel.this.getItems();
 			}
+			
+			//@Override
+			//protected void setItems(List<IModel<GuideContent>> list) {
+			//	ArtExhibitionItemsGuidesPanel.this.setItems(list);
+			//}
 		};
 		add(itemsPanel);
 
@@ -198,6 +208,12 @@ public class ArtExhibitionItemsGuidesPanel extends DBModelPanel<ArtExhibitionIte
 		itemsPanel.setLiveSearch(false);
 		itemsPanel.setSettings(true);
 		itemsPanel.setHasExpander(true);
+	}
+
+  	
+	protected void setItems(List<IModel<GuideContent>> list2) {
+		this.list=list2;
+		
 	}
 
 	protected List<IModel<GuideContent>> getItems() {

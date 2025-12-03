@@ -24,11 +24,16 @@ import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
+import dellemuse.serverapp.page.error.ErrorPage;
+import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
+import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
@@ -37,6 +42,7 @@ import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.listNavigator.ListNavigator;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.SeparatorMenuItem;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -195,6 +201,29 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 				};
 			}
 		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+
+				return new  LinkMenuItem<Person>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						fire(new SimpleWicketEvent(ServerAppConstant.person_user));
+					}
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("user");
+					}
+				};
+			}
+		});
+		
 		
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
@@ -310,6 +339,29 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 			@Override
 			public boolean handle(UIEvent event) {
 				if (event instanceof MenuAjaxEvent)
+					return true;
+				return false;
+			}
+		});
+		
+		
+		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(SimpleWicketEvent event) {
+				if (event.getName().equals(ServerAppConstant.user_panel_person)) {
+					User user= PersonPage.this.getModel().getObject().getUser();
+					if (user!=null) {
+						setResponsePage(new UserPage(new ObjectModel<User>( user)));
+					}
+					else
+						setResponsePage( new ErrorPage(Model.of("not found for person -> " + PersonPage.this.getModel().getObject().getDisplayname())));
+				}
+			}
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SimpleWicketEvent)
 					return true;
 				return false;
 			}

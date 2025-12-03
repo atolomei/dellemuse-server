@@ -5,14 +5,16 @@ public class ServerAppConstant {
 	
 	/** site */
 
-	static final public String action_site_home = "action-home";
-	static final public String action_site_edit = "action-edit";
+	static final public String site_action_home = "site-action-home";
+	static final public String site_action_edit = "site-action-edit";
 
-	static final public String site_info = "site-info";
- 	static final public String siterecord_info = "siterecord-info";
+	static final public String site_page_info 	= "site-panel-info";
+	static final public String site_page_search 	= "site-panel-search";
+
+	static final public String siterecord_info = "siterecord-info";
 	
 	
- 	static final public String action_exhibition_info_edit = "action-exhibition-info-edit";
+ 	static final public String action_exhibition_info_edit = "exhibition-action-info-edit";
 	static final public String action_exhibition_items_edit = "action-exhibition-items-edit";
 	static final public String action_exhibition_guide_create = "action-exhibition-guides-create";
 	static final public String action_exhibition_guides_edit = "action-exhibition-guides-edit";
@@ -90,28 +92,30 @@ public class ServerAppConstant {
 	
 	
 	/** person */
-	static final public String person_info 			= "person-info";
-	static final public String personrecord_info 	= "personrecord-info";
-	static final public String person_meta 			= "person-meta";
-	static final public String person_audit 		= "person-audit";
-	
+	static final public String person_info 			= "person-panel-info";
+	static final public String personrecord_info 	= "personrecord-panel-info";
+	static final public String person_meta 			= "person-panel-meta";
+	static final public String person_audit 		= "person-panel-audit";
+	static final public String person_user	 		= "person-page-user";
+	 
 	static final public String action_person_edit_info = "person-action-edit-info";
 	static final public String action_person_edit_meta = "person-action-edit-meta";
 	 
 	
 	/** user */
-	static final public String user_info 			= "user-info";
-	static final public String user_password		= "user-password";
- 
-	
-	static final public String action_user_edit_info = "user-action-edit-info";
-	static final public String action_user_edit_meta = "user-action-edit-meta";
+	static final public String user_panel_info 			= "user-panel-info";
+	static final public String user_panel_password		= "user-panel-password";
+	static final public String user_panel_person 		= "user-page-person";
+
+	static final public String user_action_edit_info = "user-action-edit-info";
+	static final public String user_action_edit_meta = "user-action-edit-meta";
 	 
 	
-	public static final long DEFAULT_SLEEP_TIME = 1 * 60 * 1000; // 1 minute;
 	
 	
-	static final public String headphoneIcon = "fa-solid fa-headphones";
 	
+	static public final long DEFAULT_SLEEP_TIME = 1 * 60 * 1000; // 1 minute;
+	static public final String headphoneIcon = "fa-solid fa-headphones";
+ 
 	
 }

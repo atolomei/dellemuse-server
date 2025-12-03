@@ -233,7 +233,7 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
-				if (event.getName().equals(ServerAppConstant.action_site_home)) {
+				if (event.getName().equals(ServerAppConstant.site_action_home)) {
 					setResponsePage(new SitePage(getSiteModel(), null));
 				}
 			}
