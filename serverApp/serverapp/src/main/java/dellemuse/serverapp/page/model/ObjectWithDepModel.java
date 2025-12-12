@@ -3,7 +3,7 @@ package dellemuse.serverapp.page.model;
 import java.util.Optional;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.page.ObjectPage;
+ 
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.service.DBService;
 

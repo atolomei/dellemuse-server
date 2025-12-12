@@ -12,19 +12,19 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.ServerConstant;
+ 
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.Institution;
+ 
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
+ 
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -35,11 +35,7 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanelMode;
 
-/**
- * 
- *  
- *   
- */
+ 
 
 @MountPath("/exhibition/list")
 public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
@@ -47,17 +43,17 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 	private static final long serialVersionUID = 1L;
 	
 	static private Logger logger = Logger.getLogger(ArtExhibitionListPage.class.getName());
-
+	
+	private List<ToolbarItem> listToolbar;
+	
 	public ArtExhibitionListPage() {
 		super();
 	}		
 	
 	public ArtExhibitionListPage(PageParameters parameters) {
 		 super(parameters);
-	 }
+	}
 
-private List<ToolbarItem> listToolbar;
-	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -106,8 +102,6 @@ private List<ToolbarItem> listToolbar;
 		return service.findAllSorted(os1, os2);
 	}
 
-	
-	
 	@Override
 	public IModel<String> getObjectInfo(IModel<ArtExhibition> model) {
 		return new Model<String>(model.getObject().getInfo());
@@ -162,6 +156,7 @@ private List<ToolbarItem> listToolbar;
 			bc.addElement(new BCElement(getLabel("exhibitions")));
 			JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("exhibitions"));
 			ph.setBreadCrumb(bc);
+			ph.setIcon(ArtExhibition.getIcon());
 			
 			 ph.setContext(getLabel("exhibitions"));
 			

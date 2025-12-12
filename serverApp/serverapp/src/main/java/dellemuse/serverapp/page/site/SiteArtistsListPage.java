@@ -22,8 +22,8 @@ import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.PersonPage;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.PersonPage;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -257,7 +257,7 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, new Model<String>(getSiteModel().getObject().getDisplayname()));
 
 		ph.setContext(getLabel("site"));
-
+	
 		if (getSiteModel().getObject().getSubtitle() != null)
 			ph.setTagline(Model.of(getSiteModel().getObject().getSubtitle()));
 
@@ -270,7 +270,6 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 
 	@Override
 	protected String getObjectTitleIcon(IModel<Person> model) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

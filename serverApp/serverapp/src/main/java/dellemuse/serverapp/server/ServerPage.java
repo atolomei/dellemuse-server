@@ -1,11 +1,14 @@
 package dellemuse.serverapp.server;
 
 
+import java.util.Optional;
+
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.serverdb.model.User;
 import jakarta.transaction.Transactional;
 
 /**
@@ -28,6 +31,10 @@ public class ServerPage extends BasePage {
 
 	static private Logger logger = Logger.getLogger(ServerPage.class.getName());
 
+	public boolean hasAccessRight(Optional<User> ouser) {
+		return true;
+	}
+	
 	public ServerPage() {
 		super();
 	}

@@ -14,7 +14,7 @@ import dellemuse.model.util.Constant;
 import dellemuse.model.util.TimerThread;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
- 
+
 import dellemuse.serverapp.serverdb.service.base.BaseService;
 import dellemuse.serverapp.service.SystemService;
 import io.odilon.client.ODClient;
@@ -54,7 +54,7 @@ public class ObjectStorageService extends BaseService implements SystemService {
 	public ObjectStorageService(ServerDBSettings settings) {
 		super(settings);
 	}
-	
+
 	public ResultSet<Item<ObjectMetadata>> listObjects(String bucketName) throws IOException {
 
 		try {
@@ -62,14 +62,10 @@ public class ObjectStorageService extends BaseService implements SystemService {
 		} catch (ODClientException e) {
 			throw new IOException(e);
 		}
-		 
-		
-	}
-	
-	
 
-	public void putObject(String bucketName, String objectName, InputStream stream, String fileName)
-			throws IOException {
+	}
+
+	public void putObject(String bucketName, String objectName, InputStream stream, String fileName) throws IOException {
 		try {
 			logger.debug("putObject -> " + bucketName + "-" + objectName + " | " + fileName);
 			getClient().putObjectStream(bucketName, objectName, stream, fileName);
@@ -102,16 +98,15 @@ public class ObjectStorageService extends BaseService implements SystemService {
 			throw new IOException(e);
 		}
 	}
-	
-	public boolean existsObject(String bucketName, String objectName) throws IOException  {
+
+	public boolean existsObject(String bucketName, String objectName) throws IOException {
 		try {
 			return getClient().existsObject(bucketName, objectName);
 		} catch (ODClientException e) {
 			throw new IOException(e);
 		}
 	}
-	
-	
+
 	public void createBucket(String bucketName) throws IOException {
 
 		try {
@@ -133,10 +128,9 @@ public class ObjectStorageService extends BaseService implements SystemService {
 		this.accessKey = getSettings().getObjectStorageAccessKey();
 		this.secretKey = getSettings().getObjectStorageSecretKey();
 
-		
-		startupLogger.info( ServerConstant.SEPARATOR);
+		startupLogger.info(ServerConstant.SEPARATOR);
 		startupLogger.info("Starting connection to Odilon Object Storage");
-		
+
 		connect();
 
 		this.timerConnect = new TimerThread() {
@@ -179,12 +173,11 @@ public class ObjectStorageService extends BaseService implements SystemService {
 		thread.setName(ObjectStorageService.class.getSimpleName() + " - connection timer");
 		thread.start();
 
-		startupLogger.info(
-				"Connected to Odilon server -> " + this.client.getSchemaAndHost() + ":" + String.valueOf(this.port));
-	
+		startupLogger.info("Connected to Odilon server -> " + this.client.getSchemaAndHost() + ":" + String.valueOf(this.port));
+
 		startupLogger.debug(this.toString());
 		startupLogger.debug("Startup -> " + this.getClass().getSimpleName());
-	
+
 	}
 
 	protected String getEndPoint() {
@@ -195,8 +188,7 @@ public class ObjectStorageService extends BaseService implements SystemService {
 
 		this.client = new ODClient(this.endpoint, this.port, this.accessKey, this.secretKey);
 
-		this.client.setPresignedUrl(getSettings().getObjectStoragePresignedUrl(),
-				getSettings().getObjectStoragePresignedPort(), getSettings().isObjectStoragePresignedSSL());
+		this.client.setPresignedUrl(getSettings().getObjectStoragePresignedUrl(), getSettings().getObjectStoragePresignedPort(), getSettings().isObjectStoragePresignedSSL());
 
 		String ping = this.client.ping();
 
@@ -228,21 +220,18 @@ public class ObjectStorageService extends BaseService implements SystemService {
 				startupLogger.debug("Creating bucket -> " + ServerConstant.AUDIO_SPEECH_BUCKET);
 				this.client.createBucket(ServerConstant.AUDIO_SPEECH_BUCKET);
 			}
-			
+
 			if (!this.client.existsBucket(ServerConstant.AUDIO_SPEECHMUSIC_BUCKET)) {
 				startupLogger.debug("Creating bucket -> " + ServerConstant.AUDIO_SPEECHMUSIC_BUCKET);
 				this.client.createBucket(ServerConstant.AUDIO_SPEECHMUSIC_BUCKET);
 			}
-			
+
 		} catch (ODClientException e) {
 			throw new InternalCriticalException(e);
 		}
 
-		logger.debug(
-				"Connected to Odilon server -> " + this.client.getSchemaAndHost() + ":" + String.valueOf(this.port));
+		logger.debug("Connected to Odilon server -> " + this.client.getSchemaAndHost() + ":" + String.valueOf(this.port));
 
 	}
-
-
 
 }

@@ -20,7 +20,6 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
-
 /**
  * 
  * values [ {"name", "text", "hashSrc"}, ]
@@ -73,15 +72,6 @@ public abstract class TranslationRecord extends DelleMuseObject implements Audio
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource audio;
 	
-	/**
-	 * by default it is true, sometimes the thumbnail 
-	 * generated is not correct, for those images we dont use thumbnail
-	 * 
-	 */
-	//@Column(name = "usethumbnail")
-	//@JsonProperty("usethumbnail")
-	//private boolean usethumbnail;
-	
 	@Column(name = "subtitle_hash")
 	private int subtitleHash;
 	
@@ -109,6 +99,16 @@ public abstract class TranslationRecord extends DelleMuseObject implements Audio
 	@Column(name = "audioAuto")
 	private boolean audioAuto;
 	
+	@Column(name = "language")
+	private String language;
+	
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
+	}
 	public abstract MultiLanguageObject getParentObject();
 
 	
@@ -192,11 +192,7 @@ public abstract class TranslationRecord extends DelleMuseObject implements Audio
 		return audio;
 	}
 
-	//public boolean isUsethumbnail() {
-	//	return usethumbnail;
-	//}
-
-	public void setIntro(String intro) {
+ 	public void setIntro(String intro) {
 		this.intro = intro;
 	}
 
@@ -211,11 +207,7 @@ public abstract class TranslationRecord extends DelleMuseObject implements Audio
 	public void setAudio(Resource audio) {
 		this.audio = audio;
 	}
-
-	//public void setUsethumbnail(boolean usethumbnail) {
-	//	this.usethumbnail = usethumbnail;
-	//}
-
+ 
 	@Override
 	protected String baseJSON() {
 		
@@ -254,7 +246,6 @@ public abstract class TranslationRecord extends DelleMuseObject implements Audio
 
 		return str.toString();
 	}
-
 
 	public String getSpec() {
 		return spec;
@@ -295,7 +286,6 @@ public abstract class TranslationRecord extends DelleMuseObject implements Audio
 	public void setAudioAuto(boolean audioAuto) {
 		this.audioAuto = audioAuto;
 	}
-
 
 	public abstract boolean isAudioStudioEnabled();
 	

@@ -12,27 +12,16 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
-import dellemuse.model.DelleMuseModelObject;
+ 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import io.wktui.model.TextCleaner;
-import io.wktui.nav.breadcrumb.BreadCrumb;
-import io.wktui.nav.menu.DropDownMenu;
-import io.wktui.nav.menu.LinkMenuItem;
-import io.wktui.nav.menu.MenuItemPanel;
-import io.wktui.nav.menu.NavBar;
-import io.wktui.nav.menu.NavDropDownMenu;
-import io.wktui.nav.menu.SeparatorMenuItem;
-import wktui.base.BasePanel;
-import wktui.base.DummyBlockPanel;
+ 
 import wktui.base.InvisiblePanel;
-import wktui.base.LabelPanel;
-import wktui.base.ModelPanel;
+ 
 
 
 public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
@@ -48,13 +37,16 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	
 	private Image image;
 	private WebMarkupContainer imageContainer;
+	private WebMarkupContainer iconContainer;
+	
 	private Link<Resource> imageLink;
 	private IModel<Resource> photo;
 	private WebMarkupContainer frame = new WebMarkupContainer("frame");
-
-	private WebMarkupContainer contextContainer;
+ 
 	private boolean imageAdded = false;
 	private boolean photoVisible = true;
+	
+	private String icon;
 	
 	private String imgCss = "jumbo-img jumbo-md mb-2 mb-lg-0 border bg-body-tertiary";
 	
@@ -71,6 +63,14 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 		this.title=title; 
 		setOutputMarkupId(true); 
 	}
+ public void setIcon( String s) {
+	 this.icon=s;
+ }
+ 
+ public String getIcon() {
+	 return this.icon;
+ }
+ 
  
 	@Override
 	public void onDetach() {
@@ -166,9 +166,30 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	
 	}
 
-    protected String getCss() {
-    	return ((this.image!=null&&this.image.isVisible())?"mb-0 pb-4 border-bottom":"mb-0 pb-2 border-bottom");
+	
+	String headerCss;
+	
+	public void setHeaderCss( String s) {
+		this.headerCss=s;
 	}
+	
+    protected String getCss() {
+    
+    	if (headerCss!=null)
+    		return headerCss;
+    	
+    	if (this.image!=null && this.image.isVisible())
+    		return "mb-0 pb-4 border-bottom";
+    	
+    	if (getIcon()!=null)
+    		return "mb-0 pb-4 border-bottom";
+    		
+    	return "mb-0 pb-2 border-bottom";
+
+    	//return ((this.image!=null&&this.image.isVisible())?"mb-0 pb-4  ":"mb-0 pb-2  ");
+
+    
+    }
     
     
     protected boolean isPhotoVisible() {
@@ -190,6 +211,31 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
       
     }
 	
+	WebMarkupContainer ic;
+	
+	
+    private void addIcon() {
+    	
+		this.iconContainer = new WebMarkupContainer("iconContainer") {
+		 	private static final long serialVersionUID = 1L;
+			public boolean isVisible() {
+				return getIcon()!=null;
+			}
+		};
+
+		this.iconContainer.setOutputMarkupId(true);
+		
+		frame.addOrReplace(this.iconContainer);
+
+		if (getIcon()!=null) {
+		
+			ic = new  WebMarkupContainer("icon");
+			this.iconContainer.add(ic);
+			ic.add( new AttributeModifier("class", getIcon()));
+		}
+    
+    }
+    
 	
     private void addImageAndInfo() {
 
@@ -245,7 +291,11 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 			this.imageLink.addOrReplace(image);
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
-	}
+	
+    
+		addIcon();
+		
+    }
 
 	
 }

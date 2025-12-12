@@ -14,6 +14,17 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtWorkType extends DelleMuseObject {
 
+	@Column(name = "language")
+	private String language;
+	
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
+	}
+
 
     public ArtWorkType() {
     }

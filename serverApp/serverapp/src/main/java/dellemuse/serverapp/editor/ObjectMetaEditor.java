@@ -13,7 +13,7 @@ import org.apache.wicket.model.util.ListModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
@@ -174,6 +174,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			};
 			form.add(this.objectStateField);
 
+			/**
 			this.audioModeField = new ChoiceField<Boolean>("audiomode", new PropertyModel<Boolean>(getModel(), "audioAutoGenerate"), getLabel("audiomode")) {
 
 				private static final long serialVersionUID = 1L;
@@ -198,7 +199,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 			};
 			form.add(this.audioModeField);
-
+*/
 			EditButtons<T> buttons = new EditButtons<T>("buttons-bottom", getForm(), getModel()) {
 
 				private static final long serialVersionUID = 1L;
@@ -261,7 +262,11 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 		} catch (Exception e) {
 			logger.error(e);
-			add(new ErrorPanel("form", e));
+			Form<T> form = new Form<T>("form");
+			form.setVisible(false);
+			addOrReplace(form);
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+		
 		}
 	}
 

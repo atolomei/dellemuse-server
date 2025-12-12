@@ -16,8 +16,7 @@ import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import io.wktui.struct.list.ListPanelWicketEvent;
  
-import wktui.base.InvisiblePanel;
-import wktui.base.ModelPanel;
+ 
 
 public abstract class DelleMuseObjectListItemPanel<T extends DelleMuseObject> extends ObjectListItemPanel<T> {
 

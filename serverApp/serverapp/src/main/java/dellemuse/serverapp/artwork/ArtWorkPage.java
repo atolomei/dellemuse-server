@@ -5,47 +5,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
-import org.apache.wicket.Component;
+ 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
+ 
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.link.Link;
+ 
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.Url;
+ 
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.UrlResourceReference;
-import org.apache.wicket.util.string.StringValue;
+ 
 import org.wicketstuff.annotation.mount.MountPath;
-
-import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
-
+ 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.ref.RefPersonModel;
+ 
 import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.artexhibition.ArtExhibitionNavDropDownMenuToolbarItem;
-import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
-import dellemuse.serverapp.artexhibitionsection.ArtExhibitionSectionPage;
+ 
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
-import dellemuse.serverapp.editor.ObjectMetaEditor;
-import dellemuse.serverapp.editor.ObjectRecordEditor;
+ 
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import io.wktui.event.MenuAjaxEvent;
@@ -83,6 +79,61 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 	private ArtWorkMainPanel editor;
 	private List<ToolbarItem> list;
 
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
+	
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+		
+			if (set!=null) {
+					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+					if (isAccess)
+						return true;
+			}
+		}
+		
+		{
+			final Long sid = getSiteModel().getObject().getId();
+			
+			Set<RoleSite> set = user.getRolesSite();
+	
+			if (set!=null) {
+				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}		
+		
+		{
+			final Long iid = getSiteModel().getObject().getInstitution().getId();
+		
+			Set<RoleInstitution> set = user.getRolesInstitution();
+			
+			if (set!=null) {
+				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+				if (isAccess)
+					return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	
 	public ArtWorkPage() {
 		super();
 	}

@@ -128,46 +128,7 @@ public class CommandService extends BaseService {
 		return this.commands;
 	}
 
-	/**
-	 * private synchronized void cleanUp(boolean bforce) {
-	 * 
-	 * 
-	 * if ((getCommands().size() < maxSize) && !bforce) { return; }
-	 * 
-	 * this.com_lock.writeLock().lock();
-	 * 
-	 * try {
-	 * 
-	 * this.commandsTerminated.clear();
-	 * 
-	 * OffsetDateTime onow = OffsetDateTime.now(); this.lastCleanUp =
-	 * OffsetDateTime.now();
-	 * 
-	 * for (Entry<Serializable, Command> entry : getCommands().entrySet()) {
-	 * 
-	 * Command com = entry.getValue();
-	 * 
-	 * //Duration duration = com.getDuration(); //if (duration.getSeconds() > TTL)
-	 * // com.setState(CommandState.UNKNOWN);
-	 * 
-	 * 
-	 * 
-	 * 
-	 * if (com.getStatus() == CommandState.COMPLETED || com.getState() ==
-	 * CommandState.ERROR || com.getState() == CommandState.CANCELED ||
-	 * com.getState() == CommandState.UNKNOWN) {
-	 * this.commands_terminated.add(entry.getValue()); }
-	 * 
-	 * }
-	 * 
-	 * Iterator<Command> it = this.commands_terminated.iterator();
-	 * 
-	 * while (it.hasNext()) { Command cmd = it.next();
-	 * getCommands().remove(cmd.getId()); } this.commands_terminated.clear();
-	 * this.max_size += (int) (MAX_SIZE * 1 / 4); } finally {
-	 * this.com_lock.writeLock().unlock(); } }
-	 **/
-
+ 
 	/**
 	 * Client has finished using the Command
 	 *

@@ -32,7 +32,6 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
 
 	static private final List<Boolean> b_list = new ArrayList<Boolean>();
 	static {
-
 		b_list.add(Boolean.TRUE);
 		b_list.add(Boolean.FALSE);
 	}
@@ -188,9 +187,7 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
 	private void setUpModel() {
 		Optional<ArtWorkRecord> o_i = getArtWorkRecordDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<ArtWorkRecord>(o_i.get()));
-
 		Optional<ArtWork> o_a = getArtWorkDBService().findWithDeps(getModel().getObject().getArtwork().getId());
 		setArtWorkModel(new ObjectModel<ArtWork>(o_a.get()));
 	}
-
 }

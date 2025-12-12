@@ -25,8 +25,8 @@ import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.ArtistArtWorksPanel;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
  
 import dellemuse.serverapp.serverdb.model.Person;

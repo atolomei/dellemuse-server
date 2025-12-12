@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdSerializer;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -38,6 +39,18 @@ public class FavoriteSite extends DelleMuseObject {
     @JsonProperty("person")
     @JsonSerialize(using = DelleMuseIdSerializer.class)
     private Person person;
+
+    @Column(name = "language")
+	private String language;
+	
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
+	}
+
 
     public FavoriteSite() {
     }

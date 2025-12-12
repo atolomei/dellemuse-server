@@ -3,6 +3,7 @@ package dellemuse.serverapp.artexhibitionguide;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -22,15 +23,18 @@ import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
-
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -68,6 +72,53 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 	private ArtExhibitionGuideEditor editor;
 
 	private List<ToolbarItem> list;
+
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get(); 
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set =user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getInstitution().getId();
+			Set<RoleInstitution> set = user.getRolesInstitution();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(sid) && (p.getKey().equals(RoleInstitution.ADMIN))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
 
 	public ArtExhibitionGuidePage() {
 		super();
@@ -125,7 +176,7 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 	protected boolean isLanguage() {
 		return false;
 	}
-	
+
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
 		getRecordEditors().get(lang).edit(target);
 	}
@@ -184,15 +235,14 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 				}
 
 				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
-					if (event.getMoreInfo()!=null) {
-						ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_audit+"-"+event.getMoreInfo(), event.getTarget());
+					if (event.getMoreInfo() != null) {
+						ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_audit + "-" + event.getMoreInfo(), event.getTarget());
 						ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
-					}
-					else {
+					} else {
 						ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 						ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
 					}
-					
+
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
 				}
 			}

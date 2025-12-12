@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -41,9 +42,9 @@ import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.PersonPage;
-import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.SitePage;
+import dellemuse.serverapp.person.PersonPage;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -55,6 +56,9 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.event.MenuAjaxEvent;
@@ -65,21 +69,16 @@ import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
-import io.wktui.nav.listNavigator.ListNavigator;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.SeparatorMenuItem;
 import io.wktui.nav.menu.TitleMenuItem;
-import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
+
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
-import io.wktui.struct.list.ListPanelMode;
-import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
-import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
 /**
@@ -100,6 +99,48 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	private ObjectMetaEditor<Institution> metaEditor;
 	private List<ToolbarItem> list;
 
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
+	
+	
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+		
+			if (set!=null) {
+					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+					if (isAccess)
+						return true;
+			}
+		}
+	 	
+		
+		{
+			final Long iid = getModel().getObject().getId();
+		
+			Set<RoleInstitution> set = user.getRolesInstitution();
+			
+			if (set!=null) {
+				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+				if (isAccess)
+					return true;
+			}
+		}
+		
+		return false;
+	}
 	 	
 	public InstitutionPage() {
 		super();
@@ -524,7 +565,9 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		
 		if (getModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
-
+		else
+			ph.setIcon(Institution.getIcon());
+		
 		ph.setBreadCrumb(bc);
 
 		 ph.setContext(getLabel("institution"));

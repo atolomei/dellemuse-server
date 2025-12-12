@@ -7,15 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
- 
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
-import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
- 
-import jakarta.persistence.Column;
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -35,7 +31,7 @@ public class ArtWorkRecord extends TranslationRecord {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	@JsonProperty("artwork")
 	private ArtWork artwork;
- 
+
 	public ArtWorkRecord() {
 	}
 
@@ -49,18 +45,17 @@ public class ArtWorkRecord extends TranslationRecord {
 
 	@Override
 	public MultiLanguageObject getParentObject() {
-		 return this.artwork !=null? this.artwork : null;
-	 }
-	
+		return this.artwork != null ? this.artwork : null;
+	}
+
 	@Override
 	public boolean isAudioStudioEnabled() {
 		return false;
 	}
-	
+
 	@Override
 	public String getPrefixUrl() {
-			throw new RuntimeException("not done");
+		throw new RuntimeException("not done");
 	}
 
-	
 };

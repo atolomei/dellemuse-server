@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -28,10 +29,10 @@ import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
 import dellemuse.serverapp.page.site.SiteInfoPage;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
@@ -40,7 +41,11 @@ import dellemuse.serverapp.serverdb.model.GuideContent;
 
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -76,6 +81,56 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	private JumboPageHeaderPanel<GuideContent> header;
 	private List<ToolbarItem> list;
 
+	
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
+	
+		User user = ouser.get(); 
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+		Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set!=null) {
+					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+					if (isAccess)
+						return true;
+			}
+		}
+		
+		
+		{
+			final Long sid = getSiteModel().getObject().getId();
+			
+			Set<RoleSite> set = user.getRolesSite();
+			if (set!=null) {
+				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}		
+		
+		{
+			final Long iid = getSiteModel().getObject().getInstitution().getId();
+			Set<RoleInstitution> set = user.getRolesInstitution();
+			if (set!=null) {
+				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	} 
 	public GuideContentPage() {
 		super();
 	}
@@ -282,15 +337,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 						//SiteInfoPage.this.getHeader().setPhotoVisible(true);
 					}
 				}
-				
-				
-				
-				
-				
-				
-				
-				
-			}
+	 		}
 
 			@Override
 			public boolean handle(UIEvent event) {
@@ -400,7 +447,10 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		header = new JumboPageHeaderPanel<GuideContent>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
 		header.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 		header.setContext(getLabel("guide-content"));
-
+	
+		//header.setIcon(GuideContent.getIcon());
+		//header.setHeaderCss("mb-0 pb-2 border-none");
+		
 		if (getList() != null && getList().size() > 0) {
 			Navigator<GuideContent> nav = new Navigator<GuideContent>("navigator", getCurrent(), getList()) {
 				private static final long serialVersionUID = 1L;

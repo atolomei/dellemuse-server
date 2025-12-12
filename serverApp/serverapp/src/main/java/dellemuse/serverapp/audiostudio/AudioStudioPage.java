@@ -1,6 +1,9 @@
 package dellemuse.serverapp.audiostudio;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -18,7 +21,10 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
+import dellemuse.serverapp.serverdb.model.Site;
 import io.odilon.util.Check;
 import io.wktui.error.ErrorPanel;
 import io.wktui.nav.breadcrumb.BCElement;
@@ -42,30 +48,69 @@ import io.wktui.nav.breadcrumb.HREFBCElement;
 public class AudioStudioPage extends BasePage {
 
 	private static final long serialVersionUID = 1L;
-
-	@SuppressWarnings("unused")
+	 
 	static private Logger logger = Logger.getLogger(AudioStudioPage.class.getName());
 
 	private IModel<AudioStudio> model;
-	
+
 	private StringValue stringValue;
 	private Exception exceptionError;
-	
-	//private AudioStudioEditor editor;
 
 	private AudioStudioEditorMainPanel asEditorMainPanel;
 
-	
 	private Panel header;
-	
+
 	private String parentObjectName;
 	private Long parentObjectId;
 	private String parentObjectPrefix;
-	
+
 	private String mlo_parentObjectName;
 	private Long mlo_parentObjectId;
 	private String mlo_parentObjectPrefix;
 
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (ouser.isEmpty())
+			return false;
+ 		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+		
+			Optional<Site> o = getAudioStudioDBService().getSite( getModel().getObject() );
+			if (o.isEmpty())
+				return true;
+			
+			final Long sid = o.get().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
 	/**
 	 * @param model
 	 */
@@ -88,42 +133,39 @@ public class AudioStudioPage extends BasePage {
 		super.onInitialize();
 
 		try {
-				setUpModel();
-		
-				if (getModel() == null) {
-					setResponsePage(new ErrorPage(exceptionError));
-					return;
-				}
-		
-				add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
-				add(new GlobalFooterPanel<Void>("footer-panel"));
-	
+			
+			setUpModel();
+
+			if (getModel() == null) {
+				setResponsePage(new ErrorPage(exceptionError));
+				return;
+			}
+
+			add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
+			add(new GlobalFooterPanel<Void>("footer-panel"));
+
 		} catch (Exception e) {
 			logger.error(e);
-			addOrReplace( new ErrorPanel("top-panel", e));
-			addOrReplace( new ErrorPanel("footer-panel", e));
+			addOrReplace(new ErrorPanel("top-panel", e));
+			addOrReplace(new ErrorPanel("footer-panel", e));
+		}
+
+		addHeaderPanel();
+		
+		if (!this.hasAccessRight(getSessionUser())) {
+			add( new ErrorPanel("editor", getLabel("not-authorized")));
+			return;
 		}
 		
-		addHeaderPanel();
-			
-		try { 
-			//editor = new AudioStudioEditor("editor", getModel(), getServerUrl() + "/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString() );
-			//add(editor);
+		try {
 			asEditorMainPanel = new AudioStudioEditorMainPanel("editor", getModel(), getParentObjectUrl());
 			add(asEditorMainPanel);
-
-			
 		} catch (Exception e) {
-			addOrReplace( new ErrorPanel("editor", e));
+			logger.error(e);
+			addOrReplace(new ErrorPanel("editor", e));
 		}
 	}
 
-	protected String getParentObjectUrl() {
-		return getServerUrl() + "/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString() ;
-		
-	}
-	
-	
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -144,58 +186,67 @@ public class AudioStudioPage extends BasePage {
 
 		try {
 			BreadCrumb<Void> bc = createBreadCrumb();
-			bc.addElement(new HREFBCElement("/" +mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString(), Model.of(mlo_parentObjectName + " (" + getLabel("audio-guide").getObject()+ ")")));
+			bc.addElement(new HREFBCElement("/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString(), Model.of(mlo_parentObjectName + " (" + getLabel("audio-guide").getObject() + ")")));
 			bc.addElement(new BCElement(getLabel("audio-studio-bcrumb", getModel().getObject().getDisplayname())));
-			
+
 			JumboPageHeaderPanel<AudioStudio> h = new JumboPageHeaderPanel<AudioStudio>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
 			h.setBreadCrumb(bc);
+			
+			h.setIcon(AudioStudio.getIcon());
 			h.setContext(getLabel("audio-studio"));
-			this.header=h;
-				
+			h.setHeaderCss("mb-0 pb-2 border-none");
+			this.header = h;
+
 		} catch (Exception e) {
-			this.header=new ErrorPanel("page-header", e);
+			this.header = new ErrorPanel("page-header", e);
 		}
 		addOrReplace(this.header);
 	}
 
-	
 	protected void setUpModel() {
-		 
-			if (getModel() == null) {
-				if (stringValue != null) {
-					Optional<AudioStudio> o_ag = getAudioStudioDBService().findWithDeps(Long.valueOf(stringValue.toLong()));
-					if (o_ag.isPresent()) {
-						setModel(new ObjectModel<AudioStudio>(o_ag.get()));
-					}
-				}
-			} else {
-				if (!getModel().getObject().isDependencies()) {
-					Optional<AudioStudio> o_ag = getAudioStudioDBService().findWithDeps(getModel().getObject().getId());
-					if (o_ag.isPresent()) {
-						setModel(new ObjectModel<AudioStudio>(o_ag.get()));
-					}
-				}
-			}
-		
-			AudioStudioParentObject ap = getAudioStudioDBService().findParentObjectWithDeps(getModel().getObject()).get();
 
-			parentObjectName = ap.getName();
-			parentObjectId =ap.getId();
-			parentObjectPrefix=ap.getPrefixUrl();
-			
-			if (ap instanceof TranslationRecord) {
-				
-				mlo_parentObjectName = 	ap.getName();
-				mlo_parentObjectId   = ap.getId();
-				mlo_parentObjectPrefix = ap.getPrefixUrl();
+		if (getModel() == null) {
+			if (stringValue != null) {
+				Optional<AudioStudio> o_ag = getAudioStudioDBService().findWithDeps(Long.valueOf(stringValue.toLong()));
+				if (o_ag.isPresent()) {
+					setModel(new ObjectModel<AudioStudio>(o_ag.get()));
+				}
 			}
-			else {
-				mlo_parentObjectName =   parentObjectName;
-				mlo_parentObjectId   = 	 parentObjectId;
-				mlo_parentObjectPrefix = parentObjectPrefix;
+		} else {
+			if (!getModel().getObject().isDependencies()) {
+				Optional<AudioStudio> o_ag = getAudioStudioDBService().findWithDeps(getModel().getObject().getId());
+				if (o_ag.isPresent()) {
+					setModel(new ObjectModel<AudioStudio>(o_ag.get()));
+				}
 			}
+		}
+
+		AudioStudioParentObject ap = getAudioStudioDBService().findParentObjectWithDeps(getModel().getObject()).get();
+
+		parentObjectName = ap.getName();
+		parentObjectId = ap.getId();
+		parentObjectPrefix = ap.getPrefixUrl();
+
+		if (ap instanceof TranslationRecord) {
 			
-		 
+			mlo_parentObjectName = ((TranslationRecord) ap).getParentObject().getName();
+			mlo_parentObjectId = ((TranslationRecord) ap).getParentObject().getId();
+			mlo_parentObjectPrefix = ((TranslationRecord) ap).getParentObject().getPrefixUrl();
+		
+		} else {
+			
+			
+			mlo_parentObjectName = parentObjectName;
+			mlo_parentObjectId = parentObjectId;
+			mlo_parentObjectPrefix = parentObjectPrefix;
+		}
+		
+		
 	}
+	
+	protected String getParentObjectUrl() {
+		return getServerUrl() + "/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString();
+	}
+
 
 }

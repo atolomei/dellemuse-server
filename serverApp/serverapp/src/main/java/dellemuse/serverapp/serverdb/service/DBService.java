@@ -29,6 +29,9 @@ import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
+import dellemuse.serverapp.serverdb.service.security.RoleGeneralDBService;
+import dellemuse.serverapp.serverdb.service.security.RoleInstitutionDBService;
+import dellemuse.serverapp.serverdb.service.security.RoleSiteDBService;
 import dellemuse.serverapp.service.SystemService;
 import dellemuse.serverapp.service.language.LanguageService;
 import jakarta.persistence.EntityManager;
@@ -329,6 +332,22 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (DelleMuseAuditDBService) ServiceLocator.getInstance().getBean(DelleMuseAuditDBService.class);
 	}
 	
+	protected RoleGeneralDBService getRoleGeneralDBService() {
+		return (RoleGeneralDBService) ServiceLocator.getInstance().getBean( RoleGeneralDBService.class);
+	}
+	
+	protected RoleInstitutionDBService getRoleInstitutionDBService() {
+		return (RoleInstitutionDBService) ServiceLocator.getInstance().getBean(RoleInstitutionDBService.class);
+	}
+
+	protected RoleSiteDBService getRoleSiteDBService() {
+		return (RoleSiteDBService) ServiceLocator.getInstance().getBean(RoleSiteDBService.class);
+	}
+	
+	protected  SiteDBService getSiteDBService() {
+		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+	}
+
 	protected String getDefaultMasterLanguage() {
 		return getLanguageService().getDefaultLanguage().getLanguageCode();
 	}

@@ -32,6 +32,7 @@ import dellemuse.serverapp.serverdb.model.Room;
 import dellemuse.serverapp.serverdb.model.RoomType;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.repository.PersonRepository;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
@@ -65,8 +66,6 @@ public class SiteDBService extends DBService<Site, Long> {
 		this.siteRecordDBService = siteRecordDBService;
 	}
 
-	
-	
 	@Transactional
  	public Site create(String name, User createdBy) {
 
@@ -83,7 +82,6 @@ public class SiteDBService extends DBService<Site, Long> {
 		
 		c.setZoneId( getSettings().getDefaultZoneId().getId());
 
-		
 		getRepository().save(c);
 		createSequence(c);
 		
@@ -92,6 +90,9 @@ public class SiteDBService extends DBService<Site, Long> {
 		for (Language la: getLanguageService().getLanguages())
 			getSiteRecordDBService().create(c, la.getLanguageCode(), createdBy);
 		
+		getRoleSiteDBService().create("admin",  RoleGeneral.ADMIN, c, createdBy);
+		getRoleSiteDBService().create("editor", RoleGeneral.ADMIN, c, createdBy);	
+
 		return c;
 	}
 
@@ -129,10 +130,13 @@ public class SiteDBService extends DBService<Site, Long> {
 		createSequence(c);
 		
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(institution, createdBy,  AuditAction.UPDATE, AuditKey.ADD_SITE));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(institution, createdBy, AuditAction.UPDATE, AuditKey.ADD_SITE));
 
 		for (Language la : getLanguageService().getLanguages())
 			getSiteRecordDBService().create(c, la.getLanguageCode(), createdBy);
+	
+		getRoleSiteDBService().create("admin",  RoleGeneral.ADMIN, c, createdBy);
+		getRoleSiteDBService().create("editor", RoleGeneral.ADMIN, c, createdBy);	
 	
 		return c;
 	}
@@ -183,6 +187,11 @@ public class SiteDBService extends DBService<Site, Long> {
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(in, createdBy,  AuditAction.UPDATE, AuditKey.ADD_SITE));
 		
+		getRoleSiteDBService().create("admin",  RoleGeneral.ADMIN, c, createdBy);
+		getRoleSiteDBService().create("editor", RoleGeneral.ADMIN, c, createdBy);	
+
+
+		
 		return c;
 	}
 	
@@ -196,11 +205,7 @@ public class SiteDBService extends DBService<Site, Long> {
 	public void restore(Site c, User restoredBy) {
 		super.restore(c, restoredBy);
 		 
-		// c.getGuideContents().forEach( gc -> {
-		// if ( !gc.getLastModified().isBefore(date) &&
-		// gc.getState()==ObjectState.DELETED)
-		// getGuideContentDBService().restore(gc, restoredBy);
-		// });
+	 
 	}
 
 	@Transactional

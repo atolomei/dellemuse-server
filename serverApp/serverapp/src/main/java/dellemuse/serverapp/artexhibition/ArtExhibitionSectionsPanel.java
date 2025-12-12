@@ -22,7 +22,7 @@ import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
@@ -356,11 +356,7 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 				return  ArtExhibitionSectionsPanel.this.getItems();
 			}
 			
-			//@Override
-			//protected void setItems(List<IModel<ArtExhibitionSection>> list) {
-			//	ArtExhibitionSectionsPanel.this.setItems(list);
-			//}
-			
+			 
 		};
 		add(sectionsPanel);
 
@@ -370,9 +366,7 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 		sectionsPanel.setHasExpander(true);
 	}
 	
-	private void setItems(List<IModel<ArtExhibitionSection>> list) {
-		 this.list = list;
-	}
+	 
 
 	private List<IModel<ArtExhibitionSection>> getItems() {
 		if (this.list == null) {

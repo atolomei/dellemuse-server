@@ -3,7 +3,7 @@ package dellemuse.serverapp.editor;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;

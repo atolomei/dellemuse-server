@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
@@ -35,6 +36,8 @@ import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
+import dellemuse.serverapp.serverdb.service.security.RoleInstitutionDBService;
+import dellemuse.serverapp.serverdb.service.security.RoleSiteDBService;
 
 
 @Component
@@ -156,6 +159,40 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 					);
 			*/
 			
+			/**
+			final User root = ((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class)).findRoot();
+			
+			{
+			final RoleInstitutionDBService rs=(RoleInstitutionDBService) ServiceLocator.getInstance().getBean(RoleInstitutionDBService.class);
+			final InstitutionDBService is=(InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
+
+			is.findAll().forEach( i -> {
+				 
+				if (!rs.findByInstitution(i).iterator().hasNext()) {
+					rs.create("admin", i, root);
+				}
+			});
+			}
+			**/
+		
+			/**
+			{
+				final User root = ((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class)).findRoot();
+				final RoleSiteDBService rs=(RoleSiteDBService) ServiceLocator.getInstance().getBean(RoleSiteDBService.class);
+				final SiteDBService is=(SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+
+				is.findAll().forEach( i -> {
+	
+					//if (!rs.findBySite(i).iterator().hasNext()) {
+					//	rs.create("editor", i, root);
+					//}
+
+					//if (!rs.findBySite(i).iterator().hasNext()) {
+					//			rs.create("admin", i, root);
+					//}
+				});
+			}
+			**/
 		};
 	}
 	

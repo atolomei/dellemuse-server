@@ -4,55 +4,19 @@
 				<fieldset>
 					<div class="row">
 						<div class="mt-3 mb-3 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
-							<h3><wicket:message key="metainfo"/></h3>
+							<h3> <wicket:message key="metainfo"/></h3>
 						</div>
 					</div>
 					<div class="mb-3 mt-0 mr-0" wicket:id="buttons-top"></div>
 					<div class="mb-3" wicket:id="state"></div>
 					<div class="mb-3" wicket:id="masterlanguage"></div>
 					<div class="mb-3" wicket:id="translatemode"></div>
-					<div class="mb-3" wicket:id="audiomode"></div>
+					<!-- div class="mb-3" wicket:id="audiomode"></div -->
 					<div class="mb-3 mt-3 mr-0" wicket:id="buttons-bottom"></div>
-
 				</fieldset>
 			</form>
-			
 			<div class="mt-2 mb-2" wicket:id="error"></div>
 			
-			
-
-<!-- 
-
-
- alter table artwork add column masterlanguage character varying(24);
-ALTER TABLE
-dellemuse=# alter table artwork add column translation integer default 0;
-
-
-
-translate records 
-
-master language -> none, spa, 
-translate records yes - no
-
-
-master lang
-translate records yes| no | only not edited
-
-
-
-en campos info
---------------
-auto translate
-auto translate disabled for this field
-boton translate from master
-
---
-
-master-language -> spa
-translate-records -> all | none 
-
--->
 
 </wicket:panel>
 

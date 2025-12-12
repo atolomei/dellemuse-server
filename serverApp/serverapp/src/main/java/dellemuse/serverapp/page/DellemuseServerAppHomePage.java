@@ -52,6 +52,11 @@ public class DellemuseServerAppHomePage extends BasePage {
 	}
 
 	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		return true;
+	}
+
+	@Override
 	public void onDetach() {
 		super.onDetach();
 

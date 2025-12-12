@@ -2,6 +2,8 @@ package dellemuse.serverapp.serverdb.model;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -13,13 +15,10 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.DeserializationFeature;
+ 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.hibernate6.Hibernate6Module;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
+ 
 import dellemuse.model.JsonObject;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseObjectMapper;
@@ -40,14 +39,6 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Transient;
 
 /**
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
  * 
  */
 @Entity
@@ -99,20 +90,27 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	@Enumerated(EnumType.ORDINAL)
 	private ObjectState state;
 
-	@Column(name = "language")
-	private String language;
-
-	@Column(name = "audioautogenerate")
-	private boolean audioAutoGenerate;
-
 	@Transient
 	private boolean dependecies = false;
 
 	public DelleMuseObject() {
 	}
 	
+	public String getDisplayClass() {
+		ResourceBundle res = ResourceBundle.getBundle(DelleMuseObject.class.getName(), Locale.ENGLISH);
+		return res.getString("name");
+	}
+	
+	public String getDisplayClass(Locale locale) {
+		ResourceBundle res = ResourceBundle.getBundle(DelleMuseObject.class.getName(), locale);
+		return res.getString("name");
+	}
+	
+	/**
+	 * used by Audit
+	 */
 	public String getObjectClassName() {
-		return this.getClass().getSimpleName().toLowerCase();
+			return this.getClass().getSimpleName().toLowerCase();
 	}
 	
 	public boolean isDependencies() {
@@ -138,6 +136,10 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 
 	public ObjectState getState() {
 		return this.state;
+	}
+	
+	public void setState(ObjectState state) {
+		this.state = state;
 	}
 
 	public void setObjectState(ObjectState state) {
@@ -180,14 +182,6 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		return getName();
 	}
 
-	public String getLanguage() {
-		return this.language;
-	}
-
-	public void setLanguage(String lang) {
-		language = lang;
-	}
-
 	@Override
 	@JsonIgnore
 	public ObjectMapper getObjectMapper() {
@@ -196,9 +190,6 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 
 	protected String baseJSON() {
 		StringBuilder str = new StringBuilder();
-
-		str.append(getClass().getSimpleName());
-
 		str.append("\"id\": " + getId().toString());
 
 		if (name != null)
@@ -256,17 +247,36 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 			return " { \"error\": \"" + e.getClass().getName() + (e.getMessage() != null ? (" | " + e.getMessage().replace("\"", "'" + "\"")) : "") + " }";
 		}
 	}
-
-	public boolean isAudioAutoGenerate() {
-		return audioAutoGenerate;
+	
+	@Override
+	public int hashCode() {
+	    return getId() != null ? getId().hashCode() : 0;
 	}
 
-	public void setState(ObjectState state) {
-		this.state = state;
-	}
+	
+	@Override
+	public boolean equals(Object o) {
 
-	public void setAudioAutoGenerate(boolean audioAutoGenerate) {
-		this.audioAutoGenerate = audioAutoGenerate;
-	}
+		if (o==null)
+			return false;
+		 
+		if (this == o) 
+			return true;
 
+		if (!(o instanceof DelleMuseObject)) 
+			return false;
+		 
+		if (this.getId()==null)
+			return false;
+	 
+		if ((o.getClass().getName().equals(this.getClass().getName()))) {
+			
+			if (((DelleMuseObject) o).getId()==null)
+					return false;
+			
+			return ((DelleMuseObject) o).getId().equals(getId());
+		}
+		
+		return false;
+	}
 }

@@ -3,6 +3,7 @@ package dellemuse.serverapp.page.library;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -42,6 +43,8 @@ import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
@@ -79,6 +82,24 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 	private List<ToolbarItem> listToolbar;
 
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  if (user.isRoot()) return true;
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set = user.getRolesGeneral();
+		if (set==null)
+			return false;
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	}
+	
+	
 	public GuideContentListPage() {
 		super();
 	}
@@ -99,7 +120,6 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);
-
 		return listToolbar;
 	}
 

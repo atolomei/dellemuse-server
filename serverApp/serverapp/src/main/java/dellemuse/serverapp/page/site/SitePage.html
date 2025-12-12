@@ -2,22 +2,23 @@
 <body>
 	<wicket:extend>
 
-		<section wicket:id="top-panel" />
+		<section wicket:id="top-panel"></section>
 
 		<section class="container-xxl main">
 
 			<div style="float: left; width: 100%;" class="mb-0" wicket:id="page-header"></div>
 
+			<div wicket:id="error"></div>
 
-			<div class="row">
+			<div wicket:id="toolbarContainer" class="row">
 				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
 					<div class="mt-1 mb-1 float-start w-100 bg-body-primary">
-						<div class="d-block float-start text-sm-start text-start w-100" wicket:id="toolbarItems" />
+						<div class="d-block float-start text-sm-start text-start w-100" wicket:id="toolbarItems"></div>
 					</div>
 				</div>
 			</div>
 
-			<div class="mt-4 mb-3" style="float: left; width: 100%; padding: 0;">
+			<div wicket:id="siteInfoContainer" class="mt-4 mb-3" style="float: left; width: 100%; padding: 0;">
 				<div class="row">
 					<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 						<h3>
@@ -25,6 +26,7 @@
 						</h3>
 					</div>
 				</div>
+				
 				<div class="row">
 					<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
 						<ul class="list-group">
@@ -36,8 +38,7 @@
 				</div>
 			</div>
 
-
-			<div class="mt-4 mb-3" style="float: left; width: 100%; padding: 0;">
+			<div wicket:id="linksContainer" class="mt-4 mb-3" style="float: left; width: 100%; padding: 0;">
 				<div class="row">
 					<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 						<h3>
@@ -57,7 +58,7 @@
 				</div>
 			</div>
 
-			<div class="mt-4 mb-3" style="float: left; width: 100%; padding: 0;">
+			<div wicket:id="exhibitionsContainer" class="mt-4 mb-3" style="float: left; width: 100%; padding: 0;">
 
 				<div class="row">
 					<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
@@ -84,15 +85,12 @@
 						</div>
 					</div>
 
-
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 							<div style="float: left; width: 100%;" wicket:id="exhibitionsTemporary"></div>
 						</div>
 					</div>
 				</div>
-
-
 
 				<div class="mt-2 mb-5" style="float: left; width: 100%; padding: 0;">
 					<div class="row">
@@ -103,16 +101,14 @@
 						</div>
 					</div>
 
-
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 							<div style="float: left; width: 100%;" wicket:id="exhibitionsPermanent"></div>
 						</div>
 					</div>
 				</div>
-	
 
-	<div class="mt-2 mb-5" style="float: left; width: 100%; padding: 0;">
+				<div class="mt-2 mb-5" style="float: left; width: 100%; padding: 0;">
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 							<h4>
@@ -121,14 +117,13 @@
 						</div>
 					</div>
 
-
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 							<div style="float: left; width: 100%;" wicket:id="exhibitionsTemporaryComing"></div>
 						</div>
 					</div>
 				</div>
-				
+
 				<div class="mt-2 mb-5" style="float: left; width: 100%; padding: 0;">
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
@@ -138,35 +133,25 @@
 						</div>
 					</div>
 
-
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 							<div style="float: left; width: 100%;" wicket:id="exhibitionsTemporaryPast"></div>
 						</div>
 					</div>
 				</div>
-
-
-
-			
-
-
 			</div>
-
-
-
 		</section>
 
 		<section wicket:id="navigatorContainer" class="container-fluid border-top bg-body-tertiary"
 			style="width: 100%; float: left;">
 			<div class="container">
 				<div class="container mt-4 mb-4">
-					<div wicket:id="navigator" />
+					<div wicket:id="navigator"></div>
 				</div>
 			</div>
 		</section>
 
-		<section style="float: left; width: 100%;" class="hide-sm" wicket:id="footer-panel" />
+		<section style="float: left; width: 100%;" class="hide-sm" wicket:id="footer-panel"></section>
 
 	</wicket:extend>
 

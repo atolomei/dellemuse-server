@@ -1,8 +1,9 @@
-package dellemuse.serverapp.page.person;
+package dellemuse.serverapp.person;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -31,6 +32,8 @@ import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -72,6 +75,37 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	private PersonEditor editor;
 	private List<ToolbarItem> list;
 
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
+	
+		{
+			
+			User user = ouser.get();  
+			
+			if (user.isRoot()) 
+				return true;
+			
+			if (!user.isDependencies()) {
+				user = getUserDBService().findWithDeps(user.getId()).get();
+			}
+
+			Set<RoleGeneral> set = user.getRolesGeneral();
+		
+			if (set!=null) {
+					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+					if (isAccess)
+						return true;
+			}
+		}
+	
+		return false;
+	}
+	
+	
 	public PersonPage() {
 		super();
 	}
@@ -135,6 +169,8 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		ph.setBreadCrumb(bc);
 		
 		 ph.setContext(getLabel("person-title"));
+		 ph.setIcon( Person.getIcon());
+		 ph.setHeaderCss("mb-0 pb-2 border-none");		 
 		 
 		if (getList() != null && getList().size() > 0) {
 			Navigator<Person> nav = new Navigator<Person>("navigator", getCurrent(), getList()) {
@@ -175,8 +211,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		if (list!=null)
 			return list;
 		
-		 
-		list = new ArrayList<ToolbarItem>();
+ 		list = new ArrayList<ToolbarItem>();
 			
 		DropDownMenuToolbarItem<Person> menu = new DropDownMenuToolbarItem<Person>("item", getModel(), Align.TOP_RIGHT);
 		menu.setTitle(getLabel("person", getModel().getObject().getDisplayName()));
@@ -223,9 +258,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 				};
 			}
 		});
-		
-		
-		
+ 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -255,10 +288,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 				};
 			}
 		});		
-		
-	 
-		
-		
+ 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -288,13 +318,9 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 			}
 		});
 	 
-		
-	 
-		list.add(menu);
+	 	list.add(menu);
 		
 		return list;
-		
-		
 	}
 
 	protected Optional<PersonRecord> loadTranslationRecord(String lang) {
@@ -307,9 +333,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 
 	protected void addListeners() {
 		super.addListeners();
- 
-		
-	 
+  
 		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
 			private static final long serialVersionUID = 1L;
 
@@ -350,13 +374,13 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
-				if (event.getName().equals(ServerAppConstant.user_panel_person)) {
+				if (event.getName().equals(ServerAppConstant.person_user)) {
 					User user= PersonPage.this.getModel().getObject().getUser();
 					if (user!=null) {
 						setResponsePage(new UserPage(new ObjectModel<User>( user)));
 					}
 					else
-						setResponsePage( new ErrorPage(Model.of("not found for person -> " + PersonPage.this.getModel().getObject().getDisplayname())));
+						setResponsePage(new ErrorPage(Model.of("user not found for person -> " + PersonPage.this.getModel().getObject().getDisplayname())));
 				}
 			}
 			@Override

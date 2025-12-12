@@ -1,4 +1,4 @@
-package dellemuse.serverapp.page.person;
+package dellemuse.serverapp.person;
 
 public class ServerAppConstant {
 
@@ -9,8 +9,10 @@ public class ServerAppConstant {
 	static final public String site_action_edit = "site-action-edit";
 
 	static final public String site_page_info 	= "site-panel-info";
-	static final public String site_page_search 	= "site-panel-search";
+	static final public String site_page_search = "site-page-search";
+	static final public String site_page_users  = "site-page-users";
 
+	
 	static final public String siterecord_info = "siterecord-info";
 	
 	
@@ -106,16 +108,20 @@ public class ServerAppConstant {
 	static final public String user_panel_info 			= "user-panel-info";
 	static final public String user_panel_password		= "user-panel-password";
 	static final public String user_panel_person 		= "user-page-person";
-
+	static final public String user_panel_roles 		= "user-panel-roles";
+	
 	static final public String user_action_edit_info = "user-action-edit-info";
 	static final public String user_action_edit_meta = "user-action-edit-meta";
 	 
 	
 	
 	
+	/** role */
+	static final public String role_panel_info 			= "role-panel-info";
 	
 	static public final long DEFAULT_SLEEP_TIME = 1 * 60 * 1000; // 1 minute;
 	static public final String headphoneIcon = "fa-solid fa-headphones";
+
  
 	
 }

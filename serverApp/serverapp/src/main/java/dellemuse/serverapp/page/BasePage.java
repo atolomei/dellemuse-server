@@ -182,6 +182,13 @@ public abstract class BasePage extends WebPage {
 	 * 
 	 * 
 	 */
+	
+	
+	
+	
+	public abstract boolean hasAccessRight(Optional<User> ouser);
+	
+	
 	public BasePage() {
 		super();
 	}
@@ -483,10 +490,6 @@ public abstract class BasePage extends WebPage {
 		return new StringResourceModel(key, this);
 	}
 
-	//protected IModel<String> getLabel(String key, String shortName) {
-	//	return new StringResourceModel(key, this).setParameters(new Object[] { shortName });
-	//}
-
 	protected IModel<String> getLabel(String key, String... parameter) {
 	        StringResourceModel model = new StringResourceModel(key, this, null);
 	        model.setParameters((Object[]) parameter);
@@ -496,6 +499,7 @@ public abstract class BasePage extends WebPage {
 	/** Session User */
 
 	public Optional<User> getSessionUser() {
+		
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 		User user = service.findRoot();
 		if (user == null)
@@ -505,15 +509,13 @@ public abstract class BasePage extends WebPage {
 
 	/** DB Services */
 
-
-
 	protected ArtExhibitionDBService getArtExhibitionDBService() {
 		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 	}
+
 	protected ArtExhibitionRecordDBService getArtExhibitionRecordDBService() {
 		return (ArtExhibitionRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionRecordDBService.class);
 	}
-
 	
 	protected ArtExhibitionSectionDBService getArtExhibitionSectionDBService() {
 		return (ArtExhibitionSectionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionSectionDBService.class);
@@ -534,7 +536,6 @@ public abstract class BasePage extends WebPage {
 		return (AudioStudioDBService) ServiceLocator.getInstance().getBean( AudioStudioDBService.class);
 	}
 	
-	
 	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
 		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 	}
@@ -542,12 +543,10 @@ public abstract class BasePage extends WebPage {
 	protected ArtExhibitionItemRecordDBService getArtExhibitionItemRecordDBService() {
 		return (ArtExhibitionItemRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemRecordDBService.class);
 	}
-
 	 
 	protected ArtWorkDBService getArtWorkDBService() 				{return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);}
 	protected  ArtWorkRecordDBService getArtWorkRecordDBService() 	{return (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);	}
 
-	 
 	protected InstitutionDBService getInstitutionDBService() {
 		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 	}
@@ -559,7 +558,8 @@ public abstract class BasePage extends WebPage {
    	protected GuideContentDBService getGuideContentDBService() {
 		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 	}
-	protected GuideContentRecordDBService getGuideContentRecordDBService() {
+
+   	protected GuideContentRecordDBService getGuideContentRecordDBService() {
 		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
 	}
 	 
@@ -571,10 +571,10 @@ public abstract class BasePage extends WebPage {
 		return (PersonRecordDBService) ServiceLocator.getInstance().getBean(PersonRecordDBService.class);
 	}
 	
-
 	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
+
 	protected SiteRecordDBService getSiteRecordDBService() {
 		return (SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class);
 	}
@@ -599,15 +599,15 @@ public abstract class BasePage extends WebPage {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
  
-	 
 	/** Object ----------------  */
-/**
-	public ArtWork lazyLoad(ArtWork s) {
-		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
-		ArtWork a = service.lazyLoad(s);
-		return a;
-	}
-**/
+	/**
+		public ArtWork lazyLoad(ArtWork s) {
+			ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+			ArtWork a = service.lazyLoad(s);
+			return a;
+		}
+	**/
+	
 	public Optional<ArtWork> findArtWorkByIdWithDeps(Long id) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		return service.findWithDeps(id);
@@ -623,7 +623,6 @@ public abstract class BasePage extends WebPage {
 				.getBean(InstitutionDBService.class);
 		return service.findById(id);
 	}
-
 	
 	/** Iterable */
 	
@@ -641,7 +640,6 @@ public abstract class BasePage extends WebPage {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.findAllSorted(o1, o2);
 	}
-	
 	
 	public Iterable<Site> getSites(Institution in) {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
@@ -684,12 +682,10 @@ public abstract class BasePage extends WebPage {
 		return service.findAllSorted();
 	}
 	
-	
 	public Iterable<User> getUsers(ObjectState os1, ObjectState os2) {
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 		return service.findAllSorted(os1, os2);
 	}
-	
 	
 	public Iterable<GuideContent> getGuideContents(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
@@ -697,12 +693,10 @@ public abstract class BasePage extends WebPage {
 		return service.getSiteGuideContent(site.getId());
 	}
 	
-	
 	public Iterable<GuideContent> getGuideContents(Site site, ObjectState os1) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
 				.getBean(SiteDBService.class);
 			return service.getSiteGuideContent(site.getId(), os1);
-		
 	}
 
 	public Iterable<GuideContent> getGuideContents(Site site, ObjectState os1, ObjectState os2) {
@@ -710,11 +704,6 @@ public abstract class BasePage extends WebPage {
 				.getBean(SiteDBService.class);
 			return service.getSiteGuideContent(site.getId(), os1, os2);
 	}
-	
-	
-	
-	
-	
 	
 	public Optional<Site> getSite(Long id) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
@@ -730,9 +719,7 @@ public abstract class BasePage extends WebPage {
 	public Optional<ArtExhibition> getArtExhibition(Long id) {
 		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 		return service.findById(id);
-
 	}
-
 	
 	public Optional<Site> findByIdWithDeps(Long id) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
@@ -762,14 +749,12 @@ public abstract class BasePage extends WebPage {
 		String str = TextCleaner.truncate(info.toString(), 220);
 		return str;
 	}
-	
-	
+ 	
 	protected Optional<ArtExhibitionItem> getArtExhibitionItem(Long id) {
 		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 		return service.findById(id);
 	}
-	
-	
+ 
 	public Optional<ArtExhibitionGuide> getArtExhibitionGuide(Long id) {
 		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 		return service.findById(id);
@@ -796,10 +781,7 @@ public abstract class BasePage extends WebPage {
 		return service.findAllSorted();
 	}
 
- 
-
-	
-	public String getPresignedThumbnailSmall(Resource photo) {
+  	public String getPresignedThumbnailSmall(Resource photo) {
 		try {
 			if (photo.isUsethumbnail()) {
 				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance()

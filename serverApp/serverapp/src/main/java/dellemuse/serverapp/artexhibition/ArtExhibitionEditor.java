@@ -4,65 +4,39 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
+ 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+ 
 import java.util.ArrayList;
-import java.util.HashSet;
+ 
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
-import org.threeten.bp.LocalDateTime;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.artwork.ArtWorkEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.model.ObjectWithDepModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Institution;
-import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.service.DBService;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.DTFormatter;
-import io.wktui.error.AlertPanel;
 import io.wktui.event.MenuAjaxEvent;
-import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
-import io.wktui.form.button.SubmitButton;
-import io.wktui.form.field.BooleanField;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
@@ -70,18 +44,10 @@ import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import jakarta.transaction.Transactional;
 import wktui.base.InvisiblePanel;
-import wktui.base.ModelPanel;
 
 /**
- * 
- * horario información técnica
- * 
- * 
- * 
- * alter table artexhibition add column spec text;
- * 
+ * horario información técnica alter table artexhibition add column spec text;
  */
 public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implements InternalPanel {
 
@@ -89,30 +55,20 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 
 	static private Logger logger = Logger.getLogger(ArtExhibitionEditor.class.getName());
 
-	private ArtExhibitionItemsPanel itemsPanel;
-
 	private TextAreaField<String> opensField;
-
 	private TextField<String> urlField;
-
 	private TextField<String> nameField;
 	private TextField<String> shortField;
-
 	private TextField<String> subtitleField;
 	private TextAreaField<String> specField;
-
 	private TextAreaField<String> locationField;
 	private TextAreaField<String> infoField;
 	private TextAreaField<String> introField;
 	private FileUploadSimpleField<Resource> photoField;
-
 	private ChoiceField<Boolean> permanentField;
-
 	private TextField<String> mapField;
-
 	private TextField<String> fromField;
 	private TextField<String> toField;
-
 	private IModel<Resource> photoModel;
 
 	private boolean uploadedPhoto = false;
@@ -138,9 +94,9 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		setUpModel();
 
 		add(new InvisiblePanel("error"));
-		
+
 		Form<ArtExhibition> form = new Form<ArtExhibition>("form");
-		
+
 		add(form);
 		setForm(form);
 
@@ -172,8 +128,6 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		specField = new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 4);
 		opensField = new TextAreaField<String>("opens", new PropertyModel<String>(getModel(), "opens"), getLabel("opens"), 4);
 		mapField = new TextField<String>("map", new PropertyModel<String>(getModel(), "map"), getLabel("map"));
-		
-		
 		fromField = new TextField<String>("from", new PropertyModel<String>(this, "from"), getLabel("from")) {
 			private static final long serialVersionUID = 1L;
 
@@ -181,7 +135,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
 		};
-		
+
 		toField = new TextField<String>("to", new PropertyModel<String>(this, "to"), getLabel("to")) {
 			private static final long serialVersionUID = 1L;
 
@@ -189,8 +143,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
 		};
-		
-		
+
 		urlField = new TextField<String>("url", new PropertyModel<String>(getModel(), "website"), getLabel("url"));
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		shortField = new TextField<String>("shortname", new PropertyModel<String>(getModel(), "shortname"), getLabel("shortname"));
@@ -221,22 +174,23 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 			public boolean isThumbnail() {
 				return true;
 			}
+
+			@Override
+			protected void onRemove(AjaxRequestTarget target) {
+				logger.debug("onRemove");
+			}
 		};
 
 		form.add(specField);
 		form.add(locationField);
-
 		form.add(opensField);
 		form.add(mapField);
 		form.add(permanentField);
-
 		form.add(nameField);
 		form.add(shortField);
 		form.add(subtitleField);
-
 		form.add(infoField);
 		form.add(introField);
-
 		form.add(photoField);
 		form.add(urlField);
 		form.add(fromField);
@@ -299,18 +253,6 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 
 		};
 		getForm().add(b_buttons_top);
-
-		// addItemsPanel();
-
-	}
-
-	private void addItemsPanel() {
-
-		if (itemsPanel == null) {
-			itemsPanel = new ArtExhibitionItemsPanel("itemsPanel", getModel(), getSiteModel());
-		}
-		add(itemsPanel);
-
 	}
 
 	protected void onCancel(AjaxRequestTarget target) {
@@ -322,26 +264,23 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 	}
 
 	protected void onSave(AjaxRequestTarget target) {
-		
-		
+
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
-		
-		if (getSiteModel().getObject().getZoneId()==null)
+
+		if (getSiteModel().getObject().getZoneId() == null)
 			throw new IllegalArgumentException("zone id is null");
-		
-		
-		if (getSiteModel().getObject().getLanguage()==null)
+
+		if (getSiteModel().getObject().getLanguage() == null)
 			throw new IllegalArgumentException("Language is null");
 
-		
 		ZoneId zoneId = ZoneId.of(getSiteModel().getObject().getZoneId());
 
 		try {
-			
+
 			if (getFrom() != null) {
-				
-				String la=getModel().getObject().getLanguage();
+
+				String la = getModel().getObject().getLanguage();
 				logger.debug(la);
 				LocalDate d_from = getDateTimeService().parseFlexibleDate(getFrom(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
 				LocalTime localTime = LocalTime.MIN; // 00:00:00
@@ -351,7 +290,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 				getModel().getObject().setFromDate(offsetDateTime);
 				setFrom(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
 			}
-	
+
 			if (getTo() != null) {
 				LocalDate d_to = getDateTimeService().parseFlexibleDate(getTo(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
 				LocalTime localTime = LocalTime.MIN; // 00:00:00
@@ -363,24 +302,17 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 			}
 
 			save(getModelObject(), getSessionUser(), getUpdatedParts());
-	
 			this.uploadedPhoto = false;
-
 			getForm().setFormState(FormState.VIEW);
-
 			getForm().updateReload();
-			
 			fire(new ObjectUpdateEvent(target));
-			
+
 		} catch (Exception e) {
-			addOrReplace( new SimpleAlertRow<Void>("error", e));
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
 			logger.error(e);
 		}
-	
-			target.add(this);
-
+		target.add(this);
 	}
-
 
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
@@ -505,5 +437,4 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 		this.siteModel = siteModel;
 	}
 
-	 
 }

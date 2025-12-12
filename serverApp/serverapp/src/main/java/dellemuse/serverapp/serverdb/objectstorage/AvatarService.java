@@ -15,14 +15,11 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.Constant;
 import dellemuse.model.util.FSUtil;
 import dellemuse.model.util.ThumbnailSize;
-import dellemuse.model.util.TimerThread;
  
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
-import dellemuse.serverapp.serverdb.ServerDBConstant;
 import dellemuse.serverapp.serverdb.ServiceStatus;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
@@ -32,13 +29,7 @@ import dellemuse.serverapp.serverdb.service.base.BaseService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.SystemService;
-import io.odilon.client.ODClient;
-import io.odilon.client.OdilonClient;
 import io.odilon.client.error.ODClientException;
-import io.odilon.errors.InternalCriticalException;
-import io.odilon.model.ObjectMetadata;
-import io.odilon.model.list.Item;
-import io.odilon.model.list.ResultSet;
 import jakarta.annotation.PostConstruct;
 
 @Service

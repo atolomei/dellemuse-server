@@ -1,7 +1,9 @@
-package dellemuse.serverapp.page.person;
+package dellemuse.serverapp.person;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.apache.maven.model.Site;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -33,22 +35,15 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.site.SiteArtExhibitionsListPage;
-import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
-import dellemuse.serverapp.page.site.SitePage;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
-import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
@@ -58,15 +53,6 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
  
 import io.wktui.struct.list.ListPanelMode;
 
-
-/**
- * 
- * site 
- * foto 
- * Info - exhibitions
- * 
- */
-
 @MountPath("/person/list")
 public class PersonListPage extends ObjectListPage<Person> {
 
@@ -75,6 +61,27 @@ public class PersonListPage extends ObjectListPage<Person> {
 	static private Logger logger = Logger.getLogger(PersonListPage.class.getName());
 	private List<ToolbarItem> listToolbar;
 
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get(); 
+		
+		if (user.isRoot()) 
+			return true;
+
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set = user.getRolesGeneral();
+		
+		if (set==null)
+			return false;
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	}
 	
 	public  PersonListPage() {
 		super();
@@ -82,7 +89,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 		 
 	}		
 	
-	public  PersonListPage(PageParameters parameters) {
+	public PersonListPage(PageParameters parameters) {
 		 super(parameters);
 		 setIsExpanded(true);
 	}
@@ -185,25 +192,21 @@ public class PersonListPage extends ObjectListPage<Person> {
 	    bc.addElement(new BCElement( getLabel("persons")));
 	    JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("persons"));
 		ph.setBreadCrumb(bc);
+		ph.setIcon(Person.getIcon()  );
+		ph.setHeaderCss("mb-0 pb-2 border-none");
 		add(ph);
 	}
-
-	
-	 
 	
 	@Override
 	public Iterable<Person> getObjects() {
 		return super.getPersons();
 	}
 
-	
-
 	@Override
 	public Iterable<Person> getObjects(ObjectState os1) {
 		 return this.getObjects(os1, null);
 	}
 
-	
 	@Override
 	public Iterable<Person> getObjects(ObjectState os1, ObjectState os2) {
 
@@ -221,7 +224,6 @@ public class PersonListPage extends ObjectListPage<Person> {
 		return service.findAllSorted(os1, os2);
 	}
 	 
-	
 	@Override
 	public IModel<String> getObjectInfo(IModel<Person> model) {
 		return new Model<String>(model.getObject().getInfo());
@@ -231,7 +233,6 @@ public class PersonListPage extends ObjectListPage<Person> {
 	public IModel<String> getObjectTitle(IModel<Person> model) {
 		if (model.getObject().getState()==ObjectState.DELETED) 
 			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-
 		return new Model<String>(model.getObject().getLastFirstname());
 	}
 
@@ -269,8 +270,8 @@ public class PersonListPage extends ObjectListPage<Person> {
 		 if ( model.getObject().getPhoto()!=null) {
 		 		Resource photo = getResource(model.getObject().getPhoto().getId()).get();
 		 	    return getPresignedThumbnailSmall(photo);
-		     }
-		  return null;	
+	     }
+		 return null;	
 	}
 
 	@Override
@@ -283,9 +284,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
-
 		list.add(create);
-		
 		return list;
 	}
 
@@ -295,8 +294,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 
 	@Override
 	protected String getObjectTitleIcon(IModel<Person> model) {
-		// TODO Auto-generated method stub
-		return null;
+	 	return null;
 	}
 
 

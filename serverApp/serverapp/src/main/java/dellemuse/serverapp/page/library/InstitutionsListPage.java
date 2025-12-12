@@ -2,6 +2,8 @@ package dellemuse.serverapp.page.library;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -20,6 +22,8 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.error.ErrorPanel;
@@ -27,6 +31,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
@@ -43,6 +48,24 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	private List<ToolbarItem> mainToolbar;
 	private List<ToolbarItem> listToolbar;
 
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  if (user.isRoot()) return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set =user.getRolesGeneral();
+		if (set==null)
+			return false;
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	}
+	
 	public InstitutionsListPage() {
 		super();
 		super.setIsExpanded(true);
@@ -129,13 +152,13 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Institution>(id) {
+				return new LinkMenuItem<Institution>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick () {
+						setResponsePage( new InstitutionPage( getModel() ));
 					}
 
 					@Override
@@ -146,29 +169,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			}
 		});
 
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Institution> getItem(String id) {
-
-				return new AjaxLinkMenuItem<Institution>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("delete");
-					}
-				};
-			}
-		});
+		 
 		return menu;
 	}
 	
@@ -198,7 +199,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	@Override
 	public Iterable<Institution> getObjects() {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
-		//ObjectStateEnumSelector os = getObjectStateEnumSelector();
+	 
 		return service.findAllSorted();
 	}
 
@@ -252,7 +253,11 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			bc.addElement(new BCElement(getLabel("institutions")));
 			JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("institutions"));
 			ph.setBreadCrumb(bc);
+			ph.setIcon(Institution.getIcon()  );
+			ph.setHeaderCss("mb-2 pb-2 border-none");
+
 			add(ph);
+
 		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("page-header", e));

@@ -14,6 +14,7 @@ import dellemuse.model.util.Check;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
 import dellemuse.serverapp.audit.AuditKey;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 
 import dellemuse.serverapp.serverdb.model.AudioStudio;
@@ -22,7 +23,7 @@ import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 
 import dellemuse.serverapp.serverdb.model.Resource;
-
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 
@@ -321,6 +322,32 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 		aw.setDependencies(true);
 
 		return o_aw;
+	}
+	
+	
+	@Transactional
+	public Optional<Site> getSite(AudioStudio audioStudio) {
+		
+		Check.requireNonNullArgument(audioStudio, "audioStudio is null");
+		
+		if (!audioStudio.isDependencies())
+			audioStudio = this.findWithDeps(audioStudio.getId()).get();
+		
+		if (audioStudio.getArtExhibitionGuide()!=null) {
+			ArtExhibitionGuide g = audioStudio.getArtExhibitionGuide();
+			g=getArtExhibitionGuideDBService().findWithDeps(g.getId()).get();
+			Site s=g.getArtExhibition().getSite();
+			return getSiteDBService().findById(s.getId());
+		}
+
+		if (audioStudio.getGuideContent()!=null) {
+			GuideContent g = audioStudio.getGuideContent();
+			g=getGuideContentDBService().findWithDeps(g.getId()).get();
+			ArtExhibition a = g.getArtExhibitionGuide().getArtExhibition();
+			return getSiteDBService().findById(a.getSite().getId());
+		}
+		
+		return Optional.empty();
 	}
 
 	@Transactional

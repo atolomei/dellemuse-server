@@ -1,7 +1,5 @@
 package dellemuse.serverapp.serverdb.service;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +18,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.AudioStudio;
+ 
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
@@ -29,10 +27,10 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
-import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
+ 
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
-import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
+ 
 import io.odilon.util.Check;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -62,10 +60,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		super(repository, settings);
 		this.artExhibitionRecordDBService = artExhibitionRecordDBService;
 	}
-
-	/**
-	 * 
-	 */
+	 
 	@Transactional
 	public ArtExhibition create(String name, User createdBy) {
 		
@@ -129,9 +124,7 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 	}
 
-	
 	/**
-	 * 
 	 *  ArtExhibition (1)
 	 *  ArtExhibitionRecord(n) 
 	 *  ArtExhibitionItem (n)
@@ -153,8 +146,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		c.getArtExhibitionItems().forEach(gc -> {
 			getArtExhibitionItemDBService().markAsDeleted(gc, deletedBy);
 		});
-		
-		
 	}
  	
 	@Transactional
@@ -176,12 +167,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 			getArtExhibitionItemDBService().restore(gc, restoredBy);
 		});
 	}
-
-	@Override
-	public String getObjectClassName() {
-		 return ArtExhibition.class.getSimpleName().toLowerCase();
-	}
-	
 
 	@Transactional
 	public Optional<ArtExhibition> findWithDeps(Long id) {
@@ -214,7 +199,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 
 		return o;
 	}
-	
 
 	@Transactional
 	public void addItem(ArtExhibition exhibition, ArtWork artwork, User addedBy) {
@@ -240,8 +224,9 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		exhibition.setLastModified(OffsetDateTime.now());
 		exhibition.setLastModifiedUser(addedBy);
 		
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(exhibition, addedBy, AuditAction.UPDATE, AuditKey.ADD_ITEM));
 		getRepository().save(exhibition);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.ofArtExhibition(exhibition, addedBy, AuditAction.UPDATE, AuditKey.ADD_ITEM, item));
+		
 	}
 
 	@Transactional
@@ -305,7 +290,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 	public List<ArtExhibition> getByName(String name) {
 		return createNameQuery(name).getResultList();
 	}
-
 	
 	@Transactional
 	public Boolean isArtExhibitionGuides(ArtExhibition exhibition) {
@@ -313,24 +297,19 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(ArtExhibitionGuide.class);
 		
 		Root<ArtExhibitionGuide> root = cq.from(ArtExhibitionGuide.class);
-		
-		//	cq.select(root).where(cb.equal(root.get("artExhibition").get("id"), exhibition.getId()));
-
+	
 		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
 		Predicate p1 = cb.equal(root.get("state"), ObjectState.EDITION);
 		Predicate p2 = cb.equal(root.get("state"), ObjectState.PUBLISHED);
 		Predicate statePredicate = cb.or(p1, p2);
 		Predicate combinedPredicate = cb.and(p0, statePredicate);
 		cq.select(root).where(combinedPredicate);
-
 		
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		List<ArtExhibitionGuide> list = getEntityManager().createQuery(cq).getResultList();
 	
 		return (list!=null && list.size()>0);
-	
 	}
-
 	
 	@Transactional
 	public List<ArtExhibitionGuide> getArtExhibitionGuides(ArtExhibition exhibition) {
@@ -353,14 +332,11 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-
 	@Transactional
 	public List<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition exhibition, ObjectState os1) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionItem> cq = cb.createQuery(ArtExhibitionItem.class);
 		Root<ArtExhibitionItem> root = cq.from(ArtExhibitionItem.class);
-	
-		// cq.select(root).where(cb.equal(root.get("artExhibition").get("id"), exhibition.getId()));
 		
 		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
 		Predicate p1 = cb.equal(root.get("state"), os1);
@@ -372,15 +348,12 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-
 	@Transactional
 	public List<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition exhibition, ObjectState os1, ObjectState os2) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionItem> cq = cb.createQuery(ArtExhibitionItem.class);
 		Root<ArtExhibitionItem> root = cq.from(ArtExhibitionItem.class);
-	
-		//cq.select(root).where(cb.equal(root.get("artExhibition").get("id"), exhibition.getId()));
-		
+			
 		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
 		Predicate p1 = cb.equal(root.get("state"), os1);
 		Predicate p2 = cb.equal(root.get("state"), os2);
@@ -392,11 +365,6 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-
-	
-	
-	
-	
 	
 	@Transactional
 	public List<ArtExhibitionSection> getArtExhibitionSections(ArtExhibition exhibition) {
@@ -417,6 +385,11 @@ public class ArtExhibitionDBService extends DBService<ArtExhibition, Long> {
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 
 		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	@Override
+	public String getObjectClassName() {
+		 return ArtExhibition.class.getSimpleName().toLowerCase();
 	}
 
 	@Override

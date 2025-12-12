@@ -74,7 +74,7 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 	 * 
 	 * 
 	 * @param name
-	 * @param ArtExhibition
+	 * @param Role
 	 * @param createdBy
 	 * @return
 	 */

@@ -2,10 +2,12 @@ package dellemuse.serverapp.page;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
+ 
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -48,13 +50,13 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	private List<IModel<T>> list;
 	private ListPanel<T> panel;
 	private WebMarkupContainer titleContainer;
-	private Label title;
+	 
 
 	private WebMarkupContainer mainToolbarContainer;
-	private WebMarkupContainer mainToolbar;
+	 
 
 	private WebMarkupContainer listToolbarContainer;
-	private WebMarkupContainer listToolbar;
+ 
 
 	private boolean b_expand = false;
 	private ObjectStateEnumSelector oses;
@@ -113,23 +115,12 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 		if (this.list != null)
 			this.list.forEach(i -> i.detach());
-		
-		//if (this.initialList != null)
-		//	this.initialList.forEach(i -> i.detach());
-		
-		
 	}
 
 	public List<IModel<T>> getList() {
 		return this.list;
 	}
 
-
-	//public List<IModel<T>> getInitialList() {
-	//	return this.initialList;
-	//}
-	
-	
 	public void setIsExpanded(boolean b) {
 		this.b_expand = b;
 	}
@@ -142,6 +133,11 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		return getTitleLabel() != null;
 	}
 
+	protected void refresh(AjaxRequestTarget target) {
+		target.add(this.panel);
+		target.add(this.listToolbarContainer);
+	}
+	
 	protected void addListeners() {
 		super.addListeners();
 
@@ -156,9 +152,9 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 				logger.debug(event.toString());
 
 				loadList();
-
-				event.getTarget().add(ObjectListPage.this.panel);
-				event.getTarget().add(ObjectListPage.this.listToolbarContainer);
+				refresh(event.getTarget() );
+				
+				 
 
 			}
 
@@ -195,6 +191,14 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		};
 	}
 
+	
+	
+	
+	public boolean hasAccessRight(Optional<User> optional) {
+		return true;
+	}
+	
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -210,8 +214,23 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		}
 
 		try {
-
+			
 			addHeaderPanel();
+
+		} catch (Exception e) {
+			addOrReplace(new ErrorPanel("page-header", e));
+			logger.error(e);
+		}
+
+		if (!hasAccessRight( getSessionUser())) {
+			addOrReplace(new InvisiblePanel("mainToolbarContainer"));
+			addOrReplace(new InvisiblePanel("listToolbarContainer"));
+			addOrReplace(new InvisiblePanel("titleContainer"));
+			addOrReplace( new ErrorPanel("contents", getLabel("not-authorized")));
+			return;
+		}
+ 		
+		try {
 			addMainToolbar();
 			addListToolbar();
 
@@ -220,6 +239,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			addOrReplace(new ErrorPanel("page-header", e));
 			addOrReplace(new InvisiblePanel("mainToolbarContainer"));
 			addOrReplace(new InvisiblePanel("listToolbarContainer"));
+			addOrReplace(new InvisiblePanel("titleContainer"));
 		}
 
 		try {
@@ -258,21 +278,6 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 				public List<IModel<T>> getItems() {
 					return ObjectListPage.this.getList();
 				}
-
-				//@Override
-				//protected void resetItems() {
-				//	loadList();
-				//}
-
-				
-				//protected List<IModel<T>> getInitialItems() {
-				//	return ObjectListPage.this.getInitialList();
-				//}
-				
-				//@Override
-				//protected void setItems(List<IModel<T>> list) {
-				//	ObjectListPage.this.setList(list);
-				//}
 
 				@Override
 				public Integer getTotalItems() {
@@ -337,20 +342,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 				@Override
 				public IModel<String> getItemLabel(IModel<T> model) {
-					return new Model<String>(model.getObject().getDisplayname());
-				}
-
-				@Override
-				protected List<IModel<T>> filter(List<IModel<T>> initialList, String filter) {
-					List<IModel<T>> list = new ArrayList<IModel<T>>();
-					final String str = filter.trim().toLowerCase();
-					initialList.forEach(s -> {
-						if (s.getObject().getDisplayname().toLowerCase().contains(str)) {
-							list.add(s);
-						}
-					});
-					return list;
-
+					return  ObjectListPage.this.getObjectTitle(model);
 				}
 			};
 
@@ -358,7 +350,6 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			this.panel.setSettings(isSettings());
 			this.panel.setTitle(getListPanelLabel());
 			this.panel.setListPanelMode(getListPanelMode());
-
 			add(this.panel);
 
 		} catch (Exception e) {
@@ -453,7 +444,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			private static final long serialVersionUID = 1L;
 
 			public boolean isVisible() {
-				return getMainToolbarItems() != null && getMainToolbarItems().size() > 0;
+				return getListToolbarItems() != null && getListToolbarItems().size() > 0;
 			}
 		};
 

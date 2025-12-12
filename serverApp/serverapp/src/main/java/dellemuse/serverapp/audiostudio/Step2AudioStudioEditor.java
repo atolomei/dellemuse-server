@@ -213,78 +213,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 		
 		
 		
-		
-		/**
-		
-		
-		
-		
-		
-		
-		
-		
-		this.generate = new AjaxLink<Void>("generate") {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public boolean isEnabled() {
-				return true;
-			}
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-
-				getForm().updateModel();
-
-				//Step2AudioStudioEditor.this.getModel().getObject()
-				//		.setMusicUrl("https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
-
-				String musicUrl = Step2AudioStudioEditor.this.getModel().getObject().getMusicUrl();
-					
-				if (musicUrl==null) {
-					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.DANGER, Model.of("Music URL is empty"));
-					getForm().addOrReplace(alert);
-					target.add(getForm());
-					return;
-				}
-				
-				if (Step2AudioStudioEditor.this.getModel().getObject().getAudioSpeech() != null) {
-					
-					Long voiceResourceId = Step2AudioStudioEditor.this.getModel().getObject().getAudioSpeech().getId();
-					// musicUrl = "https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3";
-					Integer introDurationSec = Step2AudioStudioEditor.this.getIntroDurationSec();
-					Integer fadeDurationSec = Step2AudioStudioEditor.this.getFadeDurationSec();
-					Integer voiceOverlapDurationSec = Step2AudioStudioEditor.this.getVoiceOverlapDurationSec();
-
-					IntegrateMusicCommand c = new IntegrateMusicCommand(voiceResourceId, musicUrl, introDurationSec, fadeDurationSec, voiceOverlapDurationSec);
-					c.execute();
-
-					if (c.isSuccess()) {
-						// save resource music + file
-						File file = new File(c.getoutputFilePath());
-						step2Upload(file);
-						addStep2MP3();
-						// save(AudioStudioEditor.this.getModel().getObject());
-					} else {
-
-						String err = c.getErrorMsg();
-						logger.error(err);
-
-						AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.WARNING, Model.of(err));
-						getForm().addOrReplace(alert);
-						
-					}
-					target.add(getForm());
-
-				}
-			}
-		};
-
-		form.add(generate);
-
-*/
-		
+		 
 		AjaxLink<Void> next3 = new AjaxLink<Void>("next3") {
 			private static final long serialVersionUID = 1L;
 
@@ -325,10 +254,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 		edit();
 	}
 
-	/**
-	 * 
-	 * 
-	 */
+ 
 	private void addStep2MP3() {
 
 		this.step2mp3 = new WebMarkupContainer("step2MP3");
@@ -358,11 +284,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 		getForm().addOrReplace(this.step2mp3);
 	}
 
-	/**
-	 * 
-	 * @param file
-	 * @return
-	 */
+	 
 	private boolean step2Upload(File file) {
 
 		if (this.uploadedStep2)
@@ -409,10 +331,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 		return uploadedStep2;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
+	 
 	private int getHashAudioSpeechMusic() {
 
 		StringBuilder str = new StringBuilder();

@@ -26,17 +26,12 @@ public class InfoAudioStudioEditor extends BaseAudioStudioEditor {
 	private TextAreaField<String> infoField;
 	private Form<AudioStudio> form;
 		
-	/**
-	 * @param id
-	 * @param model
-	 */
+	 
 	public InfoAudioStudioEditor(String id, IModel<AudioStudio> model ) {
 		super(id, model );
 	}
  
-	/** 
-	 * 
-	 */
+	 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -44,9 +39,7 @@ public class InfoAudioStudioEditor extends BaseAudioStudioEditor {
 	}
 	
 	private void setup() {
-
-		//AudioStudioParentObject po = getAudioStudioDBService().findParentObjectWithDeps(getModelObject()).get();
-		
+ 
 		getModel().getObject().setName(super.getParentName());
 		getModel().getObject().setInfo(super.getParentInfo());
 		
@@ -63,7 +56,6 @@ public class InfoAudioStudioEditor extends BaseAudioStudioEditor {
 			public boolean isEnabled() {
 				return false;
 			};
-
 		};
 		form.add(infoField);
 		form.add(nameField);

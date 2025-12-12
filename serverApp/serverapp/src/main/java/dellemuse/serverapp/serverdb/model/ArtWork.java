@@ -135,6 +135,10 @@ public class ArtWork extends MultiLanguageObject {
 	public int getYear() {
 		return this.year;
 	}
+
+	public static String getIcon() {
+		return "fa-solid fa-paintbrush";
+	}
 	
 	
 };

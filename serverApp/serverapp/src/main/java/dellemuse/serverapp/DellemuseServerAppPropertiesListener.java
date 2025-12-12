@@ -17,7 +17,6 @@
 
 package dellemuse.serverapp;
 
-
 import java.util.Properties;
 
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
@@ -27,40 +26,38 @@ import org.springframework.core.env.PropertiesPropertySource;
 
 import dellemuse.model.logging.Logger;
 
-
 /**
  * @author atolomei@novamens.com (Alejandro Tolomei)
  */
 public class DellemuseServerAppPropertiesListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent> {
-			
+
 	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(DellemuseServerAppPropertiesListener.class.getName());
-	
+
 	@Override
 	public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
-		    
-		ConfigurableEnvironment environment = event.getEnvironment();
-		    Properties props = new Properties();
-		    props.put("app.name", "DellemuseServerApp");
-		    props.put("spring.servlet.multipart.max-file-size", "100GB");
-		    props.put("spring.servlet.multipart.max-request-size", "100GB");
-		    props.put("spring.main.banner-mode", "off");
-		    props.put("spring.main.log-startup-info", "false");
-		    props.put("server.error.whitelabel.enabled", "false");
-		    props.put("spring.main.lazy-initialization", "false");
-		    props.put("spring.output.ansi.enabled", "DETECT");
-		    props.put("server.error.whitelabel.enabled", "false");
 
-		    props.put("server.compression.enabled", "true");
-		    props.put("server.compression.mime-types", "text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json");
-		    props.put("server.compression.min-response-size", "1024");
-		    props.put("spring.resources.cache.cachecontrol.max-age", "120");
-		    props.put("spring.resources.cache.cachecontrol.must-revalidate", "true");
-		    //props.put("spring.servlet.multipart.file-size-threshold", "24KB");
-		    
-		    environment.getPropertySources().addFirst(new PropertiesPropertySource("dellemuseProps", props));
-		    
-		    
+		ConfigurableEnvironment environment = event.getEnvironment();
+		Properties props = new Properties();
+		props.put("app.name", "DellemuseServerApp");
+		props.put("spring.servlet.multipart.max-file-size", "100GB");
+		props.put("spring.servlet.multipart.max-request-size", "100GB");
+		props.put("spring.main.banner-mode", "off");
+		props.put("spring.main.log-startup-info", "false");
+		props.put("server.error.whitelabel.enabled", "false");
+		props.put("spring.main.lazy-initialization", "false");
+		props.put("spring.output.ansi.enabled", "DETECT");
+		props.put("server.error.whitelabel.enabled", "false");
+
+		props.put("server.compression.enabled", "true");
+		props.put("server.compression.mime-types", "text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json");
+		props.put("server.compression.min-response-size", "1024");
+		props.put("spring.resources.cache.cachecontrol.max-age", "120");
+		props.put("spring.resources.cache.cachecontrol.must-revalidate", "true");
+		// props.put("spring.servlet.multipart.file-size-threshold", "24KB");
+
+		environment.getPropertySources().addFirst(new PropertiesPropertySource("dellemuseProps", props));
+
 	}
-	 
+
 }

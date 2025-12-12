@@ -1,9 +1,12 @@
 package dellemuse.serverapp.page.error;
 
+import java.util.Optional;
+
 import org.apache.wicket.model.IModel;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.error.ErrorPanel;
 import wktui.base.InvisiblePanel;
 
@@ -40,5 +43,11 @@ public class ErrorPage extends BasePage {
 		else {
 			add( new InvisiblePanel("error"));
 		}
+	}
+
+
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		return true;
 	}
 }

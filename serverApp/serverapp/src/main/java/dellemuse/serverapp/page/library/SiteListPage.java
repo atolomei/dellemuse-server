@@ -3,6 +3,7 @@ package dellemuse.serverapp.page.library;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -39,6 +40,8 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -70,6 +73,21 @@ public class SiteListPage extends ObjectListPage<Site> {
 	private List<ToolbarItem> listToolbar;
 	
 	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  if (user.isRoot()) return true;
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set = user.getRolesGeneral();
+		if (set==null)
+			return false;
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	} 
 	
 	public SiteListPage() {
 		super();
@@ -200,6 +218,9 @@ public class SiteListPage extends ObjectListPage<Site> {
 		bc.addElement(new BCElement(getLabel("sites")));
 		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("sites"));
 		ph.setBreadCrumb(bc);
+		ph.setIcon(Site.getIcon()  );
+		ph.setHeaderCss("mb-4 pb-2 border-none");
+
 		add(ph);
 	}
 

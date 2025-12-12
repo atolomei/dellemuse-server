@@ -36,8 +36,7 @@ import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
-
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -156,33 +155,13 @@ public class ArtExhibitionGuideEditor extends DBObjectEditor<ArtExhibitionGuide>
 
 			public boolean isThumbnail() {
 				return true;
+			} 
+			
+			@Override
+			protected void onRemove(AjaxRequestTarget target) {
+				logger.debug("onRemove");
 			}
-			/**
-			 * protected WebMarkupContainer getFeedbackPanel() {
-			 * 
-			 * if (getModel()!=null && getModel().getObject()!=null) { if
-			 * (getModel().getObject().isAudioAutoGenerate()) { AlertPanel<Void> alert = new
-			 * AlertPanel<Void>("feedback", AlertPanel.INFO, null, null, null, getLabel(
-			 * "generated",
-			 * getDateTimeService().format(getModel().getObject().getLastModified(),
-			 * DTFormatter.Month_Day_Year_hh_mm )));
-			 * 
-			 * alert.add( new org.apache.wicket.AttributeModifier("style"," float:left;
-			 * width:100%; margin-top:1px;")); return alert; } else { AlertPanel<Void> alert
-			 * = new AlertPanel<Void>("feedback", AlertPanel.INFO, null, null, null,
-			 * getLabel( "manually-uploaded",
-			 * getModel().getObject().getLastModifiedUser().getName(),
-			 * getDateTimeService().format(getModel().getObject().getLastModified(),
-			 * DTFormatter.Month_Day_Year_hh_mm ))); alert.add( new
-			 * org.apache.wicket.AttributeModifier("style"," float:left; width:100%;
-			 * margin-top:1px;"));
-			 * 
-			 * return alert;
-			 * 
-			 * } }
-			 * 
-			 * return null; }
-			 */
+
 		};
 
 		audioIdField = new StaticTextField<String>("audioid", new PropertyModel<String>(getModel(), "audioId"), getLabel("audioid"));

@@ -25,6 +25,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
+import io.wktui.audio.AudioPlayer;
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
 import io.wktui.form.button.SubmitButton;
@@ -352,19 +353,32 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		this.step1mp3 = new WebMarkupContainer("step1MP3");
 
 		if (getAudioSpeechModel() != null && getAudioSpeechModel().getObject() != null) {
+			
 			String audioUrl = getPresignedUrl(getAudioSpeechModel().getObject());
+			
+			
 			Url url = Url.parse(audioUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
 			Audio audio = new Audio("audioVoice", resourceReference);
 			this.step1mp3.addOrReplace(audio);
+			
+			//AudioPlayer p=new AudioPlayer ("player", audioUrl);
+			//this.step1mp3.addOrReplace(p);
+					
+			
 			Label am = new Label("audioVoiceMetadata", getAudioMeta(getAudioSpeechModel().getObject()));
 			am.setEscapeModelStrings(false);
 			this.step1mp3.addOrReplace(am);
 		} else {
 			Url url = Url.parse("");
+
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			Audio audio = new Audio("audioVoice", resourceReference);
+			 Audio audio = new Audio("audioVoice", resourceReference);
 			this.step1mp3.addOrReplace(audio);
+
+			//AudioPlayer p=new AudioPlayer ("player", "");
+			//this.step1mp3.addOrReplace(p);
+			
 			Label am = new Label("audioVoiceMetadata", "");
 			am.setEscapeModelStrings(false);
 			this.step1mp3.addOrReplace(am);

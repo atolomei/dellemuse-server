@@ -86,6 +86,17 @@ public class Room extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource map;
 
+    @Column(name = "language")
+	private String language;
+	
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
+	}
+	
     public Room() {
     }
 

@@ -21,7 +21,7 @@ import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -29,7 +29,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import io.wktui.event.MenuAjaxEvent;
-import io.wktui.event.SimpleAjaxWicketEvent;
+ 
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
@@ -48,9 +48,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 	static private Logger logger = Logger.getLogger(SiteInfoEditor.class.getName());
 
-	// ChoiceField<Institution> institutionField;
-
-	private ChoiceField<Language> masterLanguageField;
+ 	private ChoiceField<Language> masterLanguageField;
 
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
@@ -101,12 +99,9 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getLogo().getId());
 			setLogoModel(new ObjectModel<Resource>(o_r.get()));
 		}
-
-		
-
+ 
 		add(new InvisiblePanel("error"));
-
-		
+ 	
 		Form<Site> form = new Form<Site>("siteForm", getModel());
 		add(form);
 		setForm(form);
@@ -120,20 +115,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 		// StreamSupport.stream(getInstitutions().spliterator(),
 		// false).collect(Collectors.toList());
-		/**
-		 * 
-		 * 
-		 * ------------ abm inst abm site abm awork abm exhi abm guide ------------
-		 * 
-		 * institutionField = new ChoiceField<Institution>("institution", null,
-		 * getLabel("institution")) { private static final long serialVersionUID = 1L;
-		 * protected String getDisplayValue(Institution value) { if (value==null) return
-		 * null; return value.getDisplayname(); } };
-		 **/
-		// institutionField.setChoices(new ListModel<Institution>(
-		// StreamSupport.stream(getInstitutions().spliterator(),
-		// false).collect(Collectors.toList()) ));
-
+	 
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		subtitleField = new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
 		shortNameField = new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
@@ -146,7 +128,6 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 		phoneField = new TextAreaField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"), 3);
 		instagramField = new TextField<String>("instagram", new PropertyModel<String>(getModel(), "instagram"), getLabel("instagram"));
 		whatsappField = new TextField<String>("whatsapp", new PropertyModel<String>(getModel(), "whatsapp"), getLabel("whatsapp"));
-
 		photoField = new FileUploadSimpleField<Void>("photo", getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
@@ -165,7 +146,6 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 				if (getPhotoModel() == null)
 					return null;
 				return SiteInfoEditor.this.getPhotoMeta(getPhotoModel().getObject());
-
 			}
 
 			public boolean isThumbnail() {
@@ -194,6 +174,12 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 			protected boolean processFileUploads(List<FileUpload> uploads) {
 				return SiteInfoEditor.this.processLogoUpload(uploads);
 			}
+			
+			@Override
+			protected void onRemove(AjaxRequestTarget target) {
+				logger.debug("onRemove");
+			}
+
 		};
 
 		this.masterLanguageField = new ChoiceField<Language>("masterlanguage", new PropertyModel<Language>(getModel(), "ML"), getLabel("masterlanguage")) {
@@ -335,16 +321,14 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 	protected void onCancel(AjaxRequestTarget target) {
 		super.cancel(target);
-		// getForm().setFormState(FormState.VIEW);
-		// target.add(getForm());
+		 
 	}
 
 	protected void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
 		target.add(getForm());
 
-		// getForm().setFormState(FormState.EDIT);
-		// target.add(getForm());
+		 
 	}
 
 	protected void onSave(AjaxRequestTarget target) {
@@ -396,16 +380,6 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 		logger.debug(emailField.getValue());
 		logger.debug("done");
 		logger.debug("");
-
-		/**
-		 * emailField.updateModel();
-		 * logger.debug(emailField.getModel().getObject().toString());
-		 * logger.debug(emailField.getValue().toString());
-		 * logger.debug(((org.apache.wicket.markup.html.form.TextField)
-		 * emailField.getInput()).getValue()); logger.debug( (String)
-		 * emailField.getDefaultModelObject());
-		 **/
-
 	}
 
 	protected boolean processPhotoUpload(List<FileUpload> uploads) {
@@ -414,12 +388,11 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 			return false;
 
 		if (uploads != null && !uploads.isEmpty()) {
+
 			for (FileUpload upload : uploads) {
+			
 				try {
-
-					logger.debug("name -> " + upload.getClientFileName());
-					logger.debug("Size -> " + upload.getSize());
-
+				
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
@@ -451,10 +424,6 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 		if (uploads != null && !uploads.isEmpty()) {
 			for (FileUpload upload : uploads) {
 				try {
-
-					logger.debug("name -> " + upload.getClientFileName());
-					logger.debug("Size -> " + upload.getSize());
-
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
@@ -477,23 +446,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 	}
 
 	protected Image getLogoThuembnail() {
-
 		return getThumbnail(getLogoModel().getObject());
-
-		/**
-		 * if (getLogoModel() == null) return null;
-		 * 
-		 * String presignedThumbnail =
-		 * getPresignedThumbnailSmall(getLogoModel().getObject());
-		 * 
-		 * Image image;
-		 * 
-		 * if (presignedThumbnail != null) { Url url = Url.parse(presignedThumbnail);
-		 * UrlResourceReference resourceReference = new UrlResourceReference(url); image
-		 * = new Image("image", resourceReference); } else { image = new Image("image",
-		 * new UrlResourceReference(Url.parse(""))); image.setVisible(false); } return
-		 * image;
-		 */
 	}
 
 	/**
@@ -501,17 +454,6 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 	 */
 	protected Image getPhotoThumbnail() {
 		return getThumbnail(getPhotoModel().getObject());
-
-		/**
-		 * if (getPhotoModel() == null) return null; String presignedThumbnail =
-		 * getPresignedThumbnailSmall(getPhotoModel().getObject()); Image image; if
-		 * (presignedThumbnail != null) { Url url = Url.parse(presignedThumbnail);
-		 * UrlResourceReference resourceReference = new UrlResourceReference(url); image
-		 * = new Image("image", resourceReference); } else { image = new Image("image",
-		 * new UrlResourceReference(Url.parse(""))); image.setVisible(false); } return
-		 * image;
-		 **/
-
 	}
 
 	protected String getPhotoFileName() {

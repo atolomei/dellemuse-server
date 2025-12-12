@@ -3,9 +3,12 @@ package dellemuse.serverapp.page.site;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -15,8 +18,9 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
-import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
+ 
 import dellemuse.serverapp.editor.ObjectMetaEditor;
+import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
@@ -24,20 +28,23 @@ import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
-import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.odilon.util.Check;
+import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.UIEvent;
@@ -47,6 +54,12 @@ import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.listNavigator.ListNavigator;
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.NavDropDownMenu;
+import io.wktui.nav.menu.SeparatorMenuItem;
+import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.ButtonToolbarItem;
 import io.wktui.nav.toolbar.LinkButtonToolbarItem;
 import io.wktui.nav.toolbar.Toolbar;
@@ -54,7 +67,7 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
-import jakarta.transaction.Transactional;
+ 
 import wktui.base.InvisiblePanel;
 
 /**
@@ -80,7 +93,7 @@ public class SitePage extends BasePage {
 	private Link<Site> linkArtists;
 
 	private Link<Site> linkFloors;
-	// private Link<Site> linkContents;
+	 
 
 	private Link<Site> linkExhibitions;
 
@@ -92,12 +105,60 @@ public class SitePage extends BasePage {
 	private List<IModel<Site>> siteList;
 	private int current = 0;
 	private WebMarkupContainer navigatorContainer;
-	private Exception exceptionError;
+	 
 
 	private WebMarkupContainer exToolbarContainer;
 
 	private ObjectMetaEditor<Site> metaEditor;
 
+	private boolean listsLoaded = false;
+
+	private WebMarkupContainer  exhibitionsContainer;
+	
+	private WebMarkupContainer linksContainer;
+	
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		 if (!user.isDependencies()) {
+			 user=getUserDBService().findWithDeps(user.getId()).get();
+		 }
+		 
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+		
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
+	
+	
+	
 	public SitePage() {
 		super();
 	}
@@ -109,7 +170,6 @@ public class SitePage extends BasePage {
 
 	public SitePage(IModel<Site> model) {
 		this(model, null);
-
 	}
 
 	public SitePage(IModel<Site> model, List<IModel<Site>> list) {
@@ -120,129 +180,65 @@ public class SitePage extends BasePage {
 		this.setSiteList(list);
 	}
 
+	protected void addErrorPanels(Exception e) {
+
+		if (getSessionUser().isPresent())
+			addOrReplace(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
+		else
+			addOrReplace(new GlobalTopPanel("top-panel"));
+
+		addOrReplace(new GlobalFooterPanel<>("footer-panel"));
+		
+		addOrReplace(new InvisiblePanel("navigatorContainer"));
+		addOrReplace(new InvisiblePanel("exhibitionsContainer"));
+		addOrReplace(new InvisiblePanel("linksContainer"));
+		addOrReplace(new InvisiblePanel("toolbarContainer"));
+		addOrReplace(new InvisiblePanel("siteInfoContainer"));
+
+		SimpleAlertRow<Void> r=new SimpleAlertRow<Void>("error", e);
+		addOrReplace(r);
+		
+	}
 	/**
 	 * Institution Site Artwork Person Exhibition ExhibitionItem GuideContent User
 	 */
-	@Transactional
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
+		try {
 		setUpModel();
-
-		if (getSiteModel() == null) {
-			setResponsePage(new ErrorPage(exceptionError));
+		} catch (Exception e) {
+			logger.error(e);
+			addErrorPanels(e);
 			return;
 		}
-
+		
 		setCurrent();
-
-		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-		bc.addElement(new BCElement(new Model<String>(getSiteModel().getObject().getDisplayname())));
-		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), new Model<String>(getSiteModel().getObject().getDisplayname()));
-		ph.setBreadCrumb(bc);
-
-		ph.setContext(getLabel("site"));
-
-		if (getSiteModel().getObject().getSubtitle() != null)
-			ph.setTagline(Model.of(getSiteModel().getObject().getSubtitle()));
-
-		if (getSiteModel().getObject().getPhoto() != null)
-			ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));
-
-		if (getSiteList() != null && getSiteList().size() > 0) {
-			Navigator<Site> nav = new Navigator<Site>("navigator", getCurrent(), getSiteList()) {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void navigate(int current) {
-					setResponsePage(new SitePage(getList().get(current), getList()));
-				}
-			};
-			bc.setNavigator(nav);
-		}
-
-		add(ph);
+		addHeader();
 
 		add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
 		add(new GlobalFooterPanel<>("footer-panel"));
 
+		if (!hasAccessRight( getSessionUser() )) {
+			 SimpleAlertRow<Void> r=new SimpleAlertRow<Void>("error");
+			 r.setText(getLabel("not-authorized"));
+			add(r);
+			add(new InvisiblePanel("navigatorContainer"));
+			add(new InvisiblePanel("exhibitionsContainer"));
+			add(new InvisiblePanel("linksContainer"));
+			add(new InvisiblePanel("toolbarContainer"));
+			add(new InvisiblePanel("siteInfoContainer"));
+			return;
+		}
+	
+		add(new InvisiblePanel("error"));
+		
+		addSiteInfo();		
+		addCatalog();		
 		addExhibitions();
-
-		linkInfo = new Link<Site>("info", getSiteModel()) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new SiteInfoPage(getSiteModel()));
-			}
-		};
-
-		add(linkInfo);
-		linkInst = new Link<Site>("institution", getSiteModel()) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new InstitutionPage(getInstitutionModel()));
-
-			}
-		};
-		add(linkInst);
-
-		linkArtWork = new Link<Site>("artwork", getSiteModel()) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new SiteArtWorkListPage(getSiteModel()));
-			}
-		};
-		add(linkArtWork);
-
-		linkArtists = new Link<Site>("artists", getSiteModel()) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new SiteArtistsListPage(getSiteModel()));
-			}
-		};
-		add(linkArtists);
-
-		linkFloors = new Link<Site>("floors", getSiteModel()) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new SiteFloorsPage(getSiteModel()));
-			}
-		};
-		add(linkFloors);
-
-		/**
-		 * linkContents = new Link<Site>("contents", getSiteModel()) { private static
-		 * final long serialVersionUID = 1L;
-		 * 
-		 * @Override public void onClick() { setResponsePage(new
-		 *           SiteGuideContentsListPage(getSiteModel())); } }; add(linkContents);
-		 **/
-
-		linkExhibitions = new Link<Site>("exhibitions", getSiteModel()) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick() {
-				setResponsePage(new SiteArtExhibitionsListPage(getSiteModel()));
-			}
-		};
-		add(linkExhibitions);
-
 		addNavigator();
-		// addImageAndInfo();
 		addToolbar();
-
 	}
 
 	protected IModel<Institution> getInstitutionModel() {
@@ -259,10 +255,9 @@ public class SitePage extends BasePage {
 		return (metaEditor);
 	}
 
-	
 	protected void addListeners() {
 		super.addListeners();
-	
+
 		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
 			private static final long serialVersionUID = 1L;
 
@@ -283,9 +278,7 @@ public class SitePage extends BasePage {
 		});
 
 	}
-	
-	
-	
+
 	private void addNavigator() {
 
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
@@ -313,16 +306,24 @@ public class SitePage extends BasePage {
 		}
 	}
 
-	/*¨*
+	
+
+	/*
+	 * ¨*
 	 * 
 	 * 
 	 * 
 	 */
 	private void addExhibitions() {
 
+		
+		
+		this.exhibitionsContainer = new WebMarkupContainer("exhibitionsContainer");
+		add(this.exhibitionsContainer);
+		
 		this.exToolbarContainer = new WebMarkupContainer("exToolbarContainer");
 		this.exToolbarContainer.setOutputMarkupId(true);
-		add(this.exToolbarContainer);
+		this.exhibitionsContainer.add(this.exToolbarContainer);
 
 		Toolbar toolbarItems = new Toolbar("toolbarItems");
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
@@ -392,7 +393,7 @@ public class SitePage extends BasePage {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
 						}
-
+			
 					};
 				}
 
@@ -414,24 +415,30 @@ public class SitePage extends BasePage {
 						public void onClick() {
 							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
+
 						@Override
 						protected String getTitleIcon() {
 							return SitePage.this.getObjectTitleIcon(getModel());
 						}
+
 						protected IModel<String> getInfo() {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
 						}
+						
+						@Override
+						protected WebMarkupContainer getObjectMenu() {
+							return SitePage.this.getObjectMenu(getModel());
+						}
+						
 					};
 					return panel;
 				}
 			};
 
 			panel.setHasExpander(true);
-			add(panel);
-
-			// panel.setTitle(getLabel("exhibitions-permanent"));
-			panel.setListPanelMode(ListPanelMode.TITLE);
+			this.exhibitionsContainer.add(panel);
+		 	panel.setListPanelMode(ListPanelMode.TITLE);
 			panel.setLiveSearch(false);
 			panel.setSettings(true);
 
@@ -451,10 +458,6 @@ public class SitePage extends BasePage {
 					});
 					return list;
 				}
-				
-			 
-
-				
 
 				@Override
 				protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
@@ -488,8 +491,6 @@ public class SitePage extends BasePage {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
 						}
-						
-						
 
 					};
 				}
@@ -518,18 +519,22 @@ public class SitePage extends BasePage {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
 						}
+
 						@Override
 						protected String getTitleIcon() {
 							return SitePage.this.getObjectTitleIcon(getModel());
 						}
+						
+						@Override
+						protected WebMarkupContainer getObjectMenu() {
+							return SitePage.this.getObjectMenu(getModel());
+						}
 
-						
-						
 					};
 					return panel;
 				}
 			};
-			add(panel);
+			this.exhibitionsContainer.add(panel);
 
 			// panel.setTitle(getLabel("exhibitions-temporary"));
 
@@ -613,18 +618,21 @@ public class SitePage extends BasePage {
 						protected String getTitleIcon() {
 							return SitePage.this.getObjectTitleIcon(getModel());
 						}
-						
+
 						protected IModel<String> getInfo() {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
+						}
+						
+						@Override
+						protected WebMarkupContainer getObjectMenu() {
+							return SitePage.this.getObjectMenu(getModel());
 						}
 					};
 					return panel;
 				}
 			};
-			add(panel);
-
-			// panel.setTitle(getLabel("exhibitions-temporary"));
+			this.exhibitionsContainer.add(panel);
 
 			panel.setListPanelMode(ListPanelMode.TITLE);
 			panel.setLiveSearch(false);
@@ -675,8 +683,6 @@ public class SitePage extends BasePage {
 							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
 						}
 
-						 
-						
 						protected IModel<String> getInfo() {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
@@ -703,7 +709,7 @@ public class SitePage extends BasePage {
 						protected String getTitleIcon() {
 							return SitePage.this.getObjectTitleIcon(getModel());
 						}
-						
+
 						@Override
 						public void onClick() {
 							setResponsePage(new ArtExhibitionPage(getModel(), getWorkingItems()));
@@ -713,11 +719,17 @@ public class SitePage extends BasePage {
 							String str = TextCleaner.clean(getModel().getObject().getIntro());
 							return new Model<String>(str);
 						}
+						
+						@Override
+						protected WebMarkupContainer getObjectMenu() {
+							return SitePage.this.getObjectMenu(getModel());
+						}
+						
 					};
 					return panel;
 				}
 			};
-			add(panel);
+			this.exhibitionsContainer.add(panel);
 
 			panel.setListPanelMode(ListPanelMode.TITLE);
 			panel.setLiveSearch(false);
@@ -727,6 +739,117 @@ public class SitePage extends BasePage {
 
 	}
 
+	protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
+
+		NavDropDownMenu<ArtExhibition> menu = new NavDropDownMenu<ArtExhibition>("menu", model, null) {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isVisible() {
+				return true;
+			}
+		};
+	
+		menu.setOutputMarkupId(true);
+
+		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new LinkMenuItem<ArtExhibition>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						setResponsePage(new ArtExhibitionPage(getModel()));					
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("open");
+					}
+				};
+			}
+		});
+	 
+		
+		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject())) {
+			
+
+	 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition >() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public MenuItemPanel< ArtExhibition> getItem(String id) {
+					return new SeparatorMenuItem<ArtExhibition>(id, model);
+				}
+			});
+		
+			 menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public MenuItemPanel<ArtExhibition> getItem(String id) {
+						return new TitleMenuItem<ArtExhibition>(id) {
+					
+							private static final long serialVersionUID = 1L;
+					
+							@Override
+							public IModel<String> getLabel() {
+								return getLabel("artexhibitionguides");
+							}
+						};
+					}
+				});
+			
+			
+			 for( ArtExhibitionGuide g:getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
+				 
+				 
+				 final String agname = TextCleaner.truncate(g.getDisplayname(), 24);
+				 final Long gid=g.getId();
+			
+				 
+				 menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+		
+						private static final long serialVersionUID = 1L;
+						
+						@Override
+						public MenuItemPanel<ArtExhibition> getItem(String id) {
+		
+							return new LinkMenuItem<ArtExhibition>(id) {
+		
+								private static final long serialVersionUID = 1L;
+		
+								@Override
+								public void onClick() {
+									setResponsePage(new RedirectPage("/guide/"+gid));					
+								}
+		
+								@Override
+								public IModel<String> getLabel() {
+									return Model.of(agname);
+								}
+							};
+						}
+					});
+			 
+			 }
+		 
+		}
+		
+		return menu;
+		
+		
+		
+	}
+
+	
+	
 	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
 		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject())) {
 			return ServerAppConstant.headphoneIcon;
@@ -778,7 +901,7 @@ public class SitePage extends BasePage {
 		this.siteList = siteList;
 	}
 
-	boolean listsLoaded = false;
+
 
 	private void loadLists() {
 		try {
@@ -878,20 +1001,141 @@ public class SitePage extends BasePage {
 				}
 			}
 		} catch (Exception e) {
-			logger.error(e);
-			exceptionError = e;
+			throw e;
 		}
 	}
 
 	private void addToolbar() {
 
+		WebMarkupContainer toolbarContainer = new WebMarkupContainer ("toolbarContainer");
+		add(toolbarContainer);
+		
 		Toolbar toolbarItems = new Toolbar("toolbarItems");
 
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 
 		list.forEach(t -> toolbarItems.addItem(t));
-		add(toolbarItems);
+		toolbarContainer.add(toolbarItems);
+	}
+
+	private void addHeader() {
+		
+		BreadCrumb<Void> bc = createBreadCrumb();
+		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
+		bc.addElement(new BCElement(new Model<String>(getSiteModel().getObject().getDisplayname())));
+		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), new Model<String>(getSiteModel().getObject().getDisplayname()));
+		ph.setBreadCrumb(bc);
+
+		ph.setContext(getLabel("site"));
+
+		if (getSiteModel().getObject().getSubtitle() != null)
+			ph.setTagline(Model.of(getSiteModel().getObject().getSubtitle()));
+
+		if (getSiteModel().getObject().getPhoto() != null)
+			ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));
+		else {
+			ph.setIcon(Site.getIcon());
+		}
+
+		if (getSiteList() != null && getSiteList().size() > 0) {
+			Navigator<Site> nav = new Navigator<Site>("navigator", getCurrent(), getSiteList()) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void navigate(int current) {
+					setResponsePage(new SitePage(getList().get(current), getList()));
+				}
+			};
+			bc.setNavigator(nav);
+		}
+		add(ph);
+ 	}
+	
+	
+	private void addSiteInfo() {
+		
+		WebMarkupContainer s = new WebMarkupContainer("siteInfoContainer");
+		add(s);
+		
+		linkInfo = new Link<Site>("info", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new SiteInfoPage(getSiteModel()));
+			}
+		};
+
+		s.add(linkInfo);
+		
+		linkInst = new Link<Site>("institution", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new InstitutionPage(getInstitutionModel()));
+
+			}
+		};
+		s.add(linkInst);
+
+		
+		linkFloors = new Link<Site>("floors", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new SiteFloorsPage(getSiteModel()));
+			}
+		};
+		s.add(linkFloors);
+
+	}
+	 	
+	private void addCatalog() {
+		
+		this.linksContainer = new WebMarkupContainer("linksContainer");
+		add(this.linksContainer);
+	 	
+		linkArtWork = new Link<Site>("artwork", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new SiteArtWorkListPage(getSiteModel()));
+			}
+		};
+		this.linksContainer.add(linkArtWork);
+
+		linkArtists = new Link<Site>("artists", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new SiteArtistsListPage(getSiteModel()));
+			}
+		};
+		this.linksContainer.add(linkArtists);
+
+	
+		/**
+		 * linkContents = new Link<Site>("contents", getSiteModel()) { private static
+		 * final long serialVersionUID = 1L;
+		 * 
+		 * @Override public void onClick() { setResponsePage(new
+		 *           SiteGuideContentsListPage(getSiteModel())); } }; add(linkContents);
+		 **/
+
+		linkExhibitions = new Link<Site>("exhibitions", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new SiteArtExhibitionsListPage(getSiteModel()));
+			}
+		};
+		this.linksContainer.add(linkExhibitions);
 	}
 
 }

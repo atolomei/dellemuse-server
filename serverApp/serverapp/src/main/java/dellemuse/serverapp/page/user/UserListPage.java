@@ -1,52 +1,44 @@
 package dellemuse.serverapp.page.user;
 
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.maven.model.Site;
-import org.apache.wicket.ajax.AjaxRequestTarget;
+import java.util.Optional;
+import java.util.Set;
+ 
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
+ 
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.component.IRequestablePage;
+ 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.string.StringValue;
+ 
 import org.wicketstuff.annotation.mount.MountPath;
 
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.SiteModel;
+ 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
+ 
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
+ 
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtWork;
+ 
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Resource;
+ 
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.service.PersonDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.UserDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import io.wktui.model.TextCleaner;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+ 
+import io.wktui.error.ErrorPanel;
+ 
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
-import io.wktui.nav.breadcrumb.HREFBCElement;
-import io.wktui.nav.menu.AjaxLinkMenuItem;
+ 
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
@@ -68,6 +60,22 @@ public class UserListPage extends ObjectListPage<User> {
 	private List<ToolbarItem> list;
 	private List<ToolbarItem> listToolbar;
 		
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  if (user.isRoot()) return true;
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set = user.getRolesGeneral();
+		if (set==null)
+			return false;
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	}
+	
 	public UserListPage() {
 		super();
 		setIsExpanded(true);
@@ -107,7 +115,6 @@ public class UserListPage extends ObjectListPage<User> {
 	public IModel<String> getObjectTitle(IModel<User> model) {
 		if (model.getObject().getState()==ObjectState.DELETED) 
 			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-
 		return new Model<String>(model.getObject().getDisplayname());
 	}
 
@@ -115,7 +122,6 @@ public class UserListPage extends ObjectListPage<User> {
 	public void onClick(IModel<User> model) {
 		setResponsePage(new UserPage(model, getList()));
 	}
-
 
 	@Override
 	public IModel<String> getListPanelLabel() {
@@ -134,10 +140,6 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	protected String getObjectImageSrc(IModel<User> model) {
-		// if (model.getObject().getPhoto() != null) {
-		// Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-		// return getPresignedThumbnailSmall(photo);
-		// }
 		return null;
 	}
 
@@ -163,14 +165,21 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	protected void addHeaderPanel() {
+
+		try {
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new BCElement(getLabel("users")));
-
 		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("users"));
 		ph.setBreadCrumb(bc);
+		ph.setIcon(User.getIcon());
+		ph.setHeaderCss("mb-0 pb-2 border-none");
 		add(ph);
+		}
+		catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new ErrorPanel("page-header", e));
+		}
 	}
-
 	
 	protected IModel<String> getTitleLabel() {
 		return null;
@@ -208,13 +217,13 @@ public class UserListPage extends ObjectListPage<User> {
 			@Override
 			public MenuItemPanel<User> getItem(String id) {
 
-				return new AjaxLinkMenuItem<User>(id) {
+				return new  LinkMenuItem<User>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick() {
+						setResponsePage( new UserPage(model));
 					}
 
 					@Override
@@ -225,6 +234,7 @@ public class UserListPage extends ObjectListPage<User> {
 			}
 		});
 
+		/**
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 
 			private static final long serialVersionUID = 1L;
@@ -248,6 +258,8 @@ public class UserListPage extends ObjectListPage<User> {
 				};
 			}
 		});
+		
+		*/
 		return menu;
 	}
 	
@@ -270,7 +282,6 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	protected String getObjectTitleIcon(IModel<User> model) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

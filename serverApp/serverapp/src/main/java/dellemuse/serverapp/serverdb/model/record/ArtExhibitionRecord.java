@@ -7,19 +7,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.serverapp.jpa.events.ArtWorkEventListener;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
-import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
-import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -36,8 +30,6 @@ public class ArtExhibitionRecord extends TranslationRecord {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	@JsonProperty("artExhibition")
 	private ArtExhibition artExhibition;
-  
-
 	
 	public ArtExhibitionRecord() {
 	}
@@ -49,8 +41,6 @@ public class ArtExhibitionRecord extends TranslationRecord {
 	public void setExhibition(ArtExhibition artExhibition) {
 		this.artExhibition = artExhibition;
 	}
-
-	 
   
 	public ArtExhibition getArtExhibition() {
 		return artExhibition;
@@ -72,8 +62,7 @@ public class ArtExhibitionRecord extends TranslationRecord {
 	
 	@Override
 	public String getPrefixUrl() {
-			throw new RuntimeException("not done");
+		throw new RuntimeException("not done");
 	}
-
 	
 };

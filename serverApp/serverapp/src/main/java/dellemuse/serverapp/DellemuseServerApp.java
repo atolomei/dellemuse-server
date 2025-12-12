@@ -18,8 +18,8 @@ import dellemuse.model.logging.Logger;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
-@EnableJpaRepositories({"dellemuse.serverapp.serverdb.repository"})
-@ComponentScan({"dellemuse.serverapp"})
+@EnableJpaRepositories({ "dellemuse.serverapp.serverdb.repository" })
+@ComponentScan({ "dellemuse.serverapp" })
 @EntityScan("dellemuse.serverapp.serverdb.model")
 public class DellemuseServerApp {
 

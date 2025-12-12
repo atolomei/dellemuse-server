@@ -10,29 +10,26 @@ import java.util.stream.StreamSupport;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebPage;
+ 
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+ 
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.StringResourceModel;
+ 
 import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.NumberFormatter;
+ 
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
-import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.model.DBModelPanel;
+ 
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+ 
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Institution;
-import dellemuse.serverapp.serverdb.model.ObjectState;
+ 
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 
@@ -79,9 +76,6 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork> {
 	 */
 	public void setMainArtist(Long id) {
 		mainArtists.add(id);
-		// Set<Person> set = new HashSet<>();
-		// set.add(p);
-		// getModel().getObject().setArtists(set);
 	}
 
 	public Long getMainArtist() {
@@ -139,23 +133,13 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork> {
 			public boolean isThumbnail() {
 				return true;
 			}
-		};
+			
+			@Override
+			protected void onRemove(AjaxRequestTarget target) {
+				logger.debug("onRemove");
+			}
 
-		/**
-		 * c_useThumbnailField = new ChoiceField<Boolean>("usethumbnail", new
-		 * PropertyModel<Boolean>(getModel(), "usethumbnail"), getLabel("usethumbnail"))
-		 * {
-		 * 
-		 * private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public IModel<List<Boolean>> getChoices() { return new
-		 *           ListModel<Boolean> (b_list); }
-		 * 
-		 * @Override protected String getDisplayValue(Boolean value) { if (value==null)
-		 *           return null; if (value.booleanValue()) return
-		 *           getLabel("yes").getObject(); return getLabel("no").getObject(); }
-		 *           };
-		 **/
+		};
 
 		c_numberField = new NumberField<Integer>("year", new PropertyModel<Integer>(getModel(), "year"), getLabel("year"));
 		artistField = new ChoiceField<Long>("artist", new PropertyModel<Long>(this, "mainArtist"), getLabel("artist")) {

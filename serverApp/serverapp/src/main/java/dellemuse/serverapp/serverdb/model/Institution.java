@@ -278,4 +278,31 @@ public class Institution extends MultiLanguageObject {
 		return str.toString();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+
+		if (o==null)
+			return false;
+		 
+		if (this == o) return true;
+
+		if (!(o instanceof Institution)) return false;
+		 
+		if (this.getId()==null)
+			return false;
+	 
+		if ((o instanceof GuideContent)) {
+			
+			if (((Institution) o).getId()==null)
+					return false;
+			
+			return ((Institution) o).getId().equals(getId());
+		}
+		
+		return false;
+	}
+	public static final String getIcon() {
+		return "fa-regular fa-building";
+	}
+
 };

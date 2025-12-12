@@ -72,13 +72,6 @@ public class InstitutionRecordEditor extends DBObjectEditor<InstitutionRecord>  
 	}
 	
 	
-	private void setUpModel() {
-		Optional<InstitutionRecord> o_i = getInstitutionRecordDBService().findWithDeps(getModel().getObject().getId());
-		setModel(new ObjectModel<InstitutionRecord>(o_i.get()));
-		
-		Optional<Institution> o_a = getInstitutionDBService().findWithDeps(getModel().getObject().getInstitution().getId());
-		setInstitutionModel(new ObjectModel<Institution>(o_a.get()));
-	}
 	
 
 	@Override
@@ -206,16 +199,12 @@ public class InstitutionRecordEditor extends DBObjectEditor<InstitutionRecord>  
 		// --
 	}
 
-	
-
-
 	@Override
 	public void onDetach() {
 		super.onDetach();
 
 		if (this.institutionModel!=null)
 			this.institutionModel.detach();
-	
 	}
  
 	protected void onSubmit() {
@@ -227,7 +216,15 @@ public class InstitutionRecordEditor extends DBObjectEditor<InstitutionRecord>  
  	private void setInstitutionModel(ObjectModel<Institution> m) {
 		this.institutionModel=m;
 	}
-
+ 	
+ 	private void setUpModel() {
+		Optional<InstitutionRecord> o_i = getInstitutionRecordDBService().findWithDeps(getModel().getObject().getId());
+		setModel(new ObjectModel<InstitutionRecord>(o_i.get()));
+		
+		Optional<Institution> o_a = getInstitutionDBService().findWithDeps(getModel().getObject().getInstitution().getId());
+		setInstitutionModel(new ObjectModel<Institution>(o_a.get()));
+	}
+	
  
 
 }

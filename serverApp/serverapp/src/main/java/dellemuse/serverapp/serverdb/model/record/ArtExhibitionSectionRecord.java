@@ -6,19 +6,17 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
+ 
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
-import dellemuse.serverapp.serverdb.model.Resource;
+ 
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
-import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
-import jakarta.persistence.Column;
+ 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+ 
 import jakarta.persistence.Table;
 
 @Entity
@@ -34,9 +32,6 @@ public class ArtExhibitionSectionRecord extends TranslationRecord {
 	@JsonProperty("artExhibitionSection")
 	private ArtExhibitionSection artExhibitionSection;
 
-  
- 
-
 	public ArtExhibitionSectionRecord() {
 	}
 
@@ -44,11 +39,9 @@ public class ArtExhibitionSectionRecord extends TranslationRecord {
 		return artExhibitionSection;
 	}
  
-
 	public void setArtExhibitionSection (ArtExhibitionSection  artExhibitionSection ) {
 		this.artExhibitionSection = artExhibitionSection ;
 	}
-
 	 
 	@Override
 	public boolean isAudioStudioEnabled() {
@@ -64,5 +57,4 @@ public class ArtExhibitionSectionRecord extends TranslationRecord {
 	public String getPrefixUrl() {
 			throw new RuntimeException("not done");
 	}
-
 };

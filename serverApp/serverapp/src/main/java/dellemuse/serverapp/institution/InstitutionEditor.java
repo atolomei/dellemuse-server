@@ -101,19 +101,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		add(this.form);
 		setForm(this.form);
 
-		/**
-		 * objectStateField = new ChoiceField<ObjectState>("state", new
-		 * PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
-		 * 
-		 * private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public IModel<List<ObjectState>> getChoices() { return new
-		 *           ListModel<ObjectState> (getStates()); }
-		 * 
-		 * @Override protected String getDisplayValue(ObjectState value) { if
-		 *           (value==null) return null; return value.getLabel(getLocale()); } };
-		 *           form.add(objectStateField);
-		 **/
+		 
 
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		subtitleField = new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
@@ -148,6 +136,12 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 			public boolean isThumbnail() {
 				return true;
 			}
+			
+			@Override
+			protected void onRemove(AjaxRequestTarget target) {
+				logger.debug("onRemove");
+			}
+
 		};
 
 		logoField = new FileUploadSimpleField<Resource>("logo", getLabel("logo")) {

@@ -16,7 +16,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
-import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -32,7 +32,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
-import dellemuse.serverapp.serverdb.service.DBService;
+
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
@@ -72,16 +72,13 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	static public final List<ObjectState> b_state = new ArrayList<ObjectState>();
 	static {
-		//b_state.add(ObjectState.DRAFT);
+
 		b_state.add(ObjectState.EDITION);
 		b_state.add(ObjectState.DELETED);
 		b_state.add(ObjectState.PUBLISHED);
-		//b_state.add(ObjectState.ARCHIVED);
-		//b_state.add(ObjectState.APPROVED);
 	}
 
 	private Form<T> form;
-//	private IModel<T> model;
 	private boolean readonly = false;
 	private List<String> updatedParts = new ArrayList<String>();
 
@@ -106,24 +103,9 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		getForm().visitChildren(Field.class, new IVisitor<Field<?>, Void>() {
 			@Override
 			public void component(Field<?> field, IVisit<Void> visit) {
-				// if (focus==null) {
-				// target.focusComponent(field.getInput());
-				// focus = field;
-				// }
 				field.editOff();
 			}
 		});
-
-		/**
-		 * getForm().visitChildren(ObjectEditorPanel.class, new
-		 * IVisitor<ObjectEditorPanel<?>, Void>() {
-		 * 
-		 * @Override public void component(ObjectEditorPanel<?> panel, IVisit<Void>
-		 *           visit) { panel.cancel(); } }); getForm().visitChildren(Field.class,
-		 *           new IVisitor<Field<?>, Void>() {
-		 * @Override public void component(Field<?> field, IVisit<Void> visit) {
-		 *           field.cancel(); } });
-		 **/
 		target.add(this);
 	}
 
@@ -132,10 +114,6 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		getForm().visitChildren(Field.class, new IVisitor<Field<?>, Void>() {
 			@Override
 			public void component(Field<?> field, IVisit<Void> visit) {
-				// if (focus==null) {
-				// target.focusComponent(field.getInput());
-				// focus = field;
-				// }
 				field.editOn();
 
 			}
@@ -147,10 +125,6 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		getForm().visitChildren(Field.class, new IVisitor<Field<?>, Void>() {
 			@Override
 			public void component(Field<?> field, IVisit<Void> visit) {
-				// if (focus==null) {
-				// target.focusComponent(field.getInput());
-				// focus = field;
-				// }
 				field.editOn();
 
 			}
@@ -173,10 +147,6 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		getForm().visitChildren(Field.class, new IVisitor<Field<?>, Void>() {
 			@Override
 			public void component(Field<?> field, IVisit<Void> visit) {
-				// if (focus==null) {
-				// target.focusComponent(field.getInput());
-				// focus = field;
-				// }
 				field.editOff();
 			}
 		});
@@ -267,19 +237,16 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		service.save(a);
 	}
 
-	public void save(ArtExhibition a,  User user) {
+	public void save(ArtExhibition a, User user) {
 		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 		service.save(a, user);
 	}
-	
-	
 
 	public void save(ArtWork modelObject, User user, List<String> updatedParts) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		service.save(modelObject, user, updatedParts);
 	}
 
-	
 	public void save(ArtExhibitionItem modelObject, User user, List<String> updatedParts) {
 		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 		service.save(modelObject, user, updatedParts);
@@ -289,50 +256,42 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 		service.save(modelObject, user, updatedParts);
 	}
-	
+
 	public void save(ArtExhibitionGuide modelObject, User user, List<String> updatedParts) {
 		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 		service.save(modelObject, user, updatedParts);
 	}
 
-	
-	public void save( GuideContent modelObject, User user, List<String> updatedParts) {
+	public void save(GuideContent modelObject, User user, List<String> updatedParts) {
 		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 		service.save(modelObject, user, updatedParts);
 	}
-	
-	
-	public void save(Institution inst, User user,  List<String> updatedParts) {
+
+	public void save(Institution inst, User user, List<String> updatedParts) {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 		service.save(inst, user, updatedParts);
 	}
 
-	
-	public void save(Person person, User user,  List<String> updatedParts) {
+	public void save(Person person, User user, List<String> updatedParts) {
 		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 		service.save(person, user, updatedParts);
 	}
-	
-	
-	public void save(User u, User user,  List<String> updatedParts) {
+
+	public void save(User u, User user, List<String> updatedParts) {
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 		service.save(u, user, updatedParts);
 	}
-	
-	
+
 	public void save(InstitutionRecord ir) {
 		InstitutionRecordDBService service = (InstitutionRecordDBService) ServiceLocator.getInstance().getBean(InstitutionRecordDBService.class);
 		service.save(ir);
 	}
 
-	 
-
 	public void save(Site site, User user, List<String> updatedParts) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		service.save(site, user, updatedParts);
 	}
-	
-	
+
 	public void save(SiteRecord ir) {
 		SiteRecordDBService service = (SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class);
 		service.save(ir);
@@ -347,8 +306,6 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		ArtWorkRecordDBService service = (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);
 		service.save(o);
 	}
-
-	
 
 	/** ------------------------ **/
 

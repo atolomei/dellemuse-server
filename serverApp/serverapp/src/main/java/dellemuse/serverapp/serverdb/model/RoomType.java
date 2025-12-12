@@ -1,9 +1,5 @@
 package dellemuse.serverapp.serverdb.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import dellemuse.model.RoomModel;
-import dellemuse.model.RoomTypeModel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -12,20 +8,17 @@ import jakarta.persistence.Table;
 @Table(name = "roomType")
 public class RoomType extends DelleMuseObject {
 
+	@Column(name = "language")
+	private String language;
+	
+	public String getLanguage() {
+		return this.language;
+	}
 
+	public void setLanguage(String lang) {
+		language = lang;
+	}
     public RoomType() {
     }
-
-
-    /**
-    @Override
-    public RoomTypeModel model() {
-        try {
-            return (RoomTypeModel) getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),RoomTypeModel.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    **/
-
+ 
 }

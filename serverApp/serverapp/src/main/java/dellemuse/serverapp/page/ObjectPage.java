@@ -3,6 +3,7 @@ package dellemuse.serverapp.page;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -22,10 +23,11 @@ import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.guidecontent.GuideContentEditor;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import io.odilon.util.Check;
 import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
@@ -64,7 +66,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private ObjectMetaEditor<T> metaEditor;
 
 	private String startingTab = null;
-	private Panel audit;
+	 
 	private Panel pageHeader;
 
 	protected abstract Optional<T> getObject(Long id);
@@ -81,6 +83,13 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	protected abstract Panel createHeaderPanel();
 
+	
+
+	public boolean hasAccessRight(Optional<User> ouser) {
+		return true;
+	}
+	
+	
 	public ObjectPage() {
 		super();
 	}
@@ -179,16 +188,17 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 		try {
 			setUpModel();
-
 		} catch (Exception e) {
 			logger.error(e);
 			addErrorPanels(e);
 			return;
 		}
+ 		
+		add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
+		add(new GlobalFooterPanel<>("footer-panel"));
 
-		this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
+	 	this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
 			private static final long serialVersionUID = 1L;
-
 			public boolean isVisible() {
 				return getToolbarItems() != null && getToolbarItems().size() > 0;
 			}
@@ -201,20 +211,27 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		add(internalPanelContainer);
 
 		setCurrent();
-
-		add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
-		add(new GlobalFooterPanel<>("footer-panel"));
-
 		x_addHeaderPanel();
+
+		if (!this.hasAccessRight(getSessionUser())) {
+			this.toolbarContainer.addOrReplace(new InvisiblePanel("toolbarItems"));
+			addOrReplace(new InvisiblePanel("navigatorContainer"));
+			internalPanelContainer.add( new ErrorPanel("internalPanel", getLabel("not-authorized")));
+			return;
+		
+		
+		
+		}
+		
+		
 		addNavigator();
 
 		tabs = getIPanels();
-
+		
 		if (this.startingTab != null) {
 			int tabOrder = getTab(this.startingTab);
 			this.currentIndex = tabOrder;
 		}
-
 		currentPanel = tabs.get(getCurrentIndex()).getPanel("internalPanel");
 		internalPanelContainer.add(currentPanel);
 
@@ -265,19 +282,16 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			throw new IllegalStateException("ObjectModel is null");
 	}
 
-	/**
-	 * protected Panel getAudssitPanel(String id) {
-	 * 
-	 * if (this.audit == null) { audit = new AlertPanel<Void>(id,
-	 * AlertPanel.WARNING, null, null, null, getLabel("not-enabled")); audit.add(new
-	 * org.apache.wicket.AttributeModifier("style", " float:left; width:100%;
-	 * margin-bottom:5em;")); } return audit; }
-	 **/
+ 
 
 	protected int getCurrent() {
 		return this.current;
 	}
 
+	protected Panel getHeaderPanel() {
+		return this.pageHeader;
+	}
+	
 	protected void setCurrent() {
 
 		if (this.getList() == null)

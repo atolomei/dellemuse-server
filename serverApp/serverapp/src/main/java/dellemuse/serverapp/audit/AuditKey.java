@@ -4,6 +4,11 @@ import java.util.List;
 
 public class AuditKey {
 
+	
+	public static final String ADD_ROLE = "add role";
+	public static final String REMOVE_ROLE = "remove role";
+	
+	
 	public static final String MARK_AS_DELETED = "mark as deleted";
 	public static final String RESTORE = "restore";
 	

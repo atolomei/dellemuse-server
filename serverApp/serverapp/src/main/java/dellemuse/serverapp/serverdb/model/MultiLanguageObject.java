@@ -18,11 +18,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
 /**
- * extraField_1 extraField_1_hash
- * 
- * extraField_2 extraField_2_hash
- * 
- * extraField_3 extraField_3_hash
+ * extraField_1 extraField_1_hash extraField_2 extraField_2_hash extraField_3
+ * extraField_3_hash
  * 
  * address opens
  */
@@ -90,16 +87,17 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource speechaudio;
 
-	/**
-	 * by default it is true, sometimes the thumbnail generated is not correct, for
-	 * those images we dont use thumbnail
-	 * 
-	
-	@Column(name = "usethumbnail")
-	@JsonProperty("usethumbnail")
-	private boolean usethumbnail;
- */
-	
+	@Column(name = "language")
+	private String language;
+
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
+	}
+
 	public abstract String getPrefixUrl();
 
 	public void setTranslateMode(TranslateMode m) {
@@ -118,14 +116,11 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 		this.setMasterLanguage(la.getLanguageCode());
 	}
 
-	
 	@JsonIgnore
 	public Language getML() {
-		 return Language.of(getMasterLanguage());
+		return Language.of(getMasterLanguage());
 	}
 
-
-	
 	public void setMasterLanguage(String m) {
 		this.masterLanguage = m;
 	}
@@ -185,7 +180,7 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 	public void setSpeechAudio(Resource audio) {
 		this.speechaudio = audio;
 	}
- 
+
 	public String getSpec() {
 		return spec;
 	}

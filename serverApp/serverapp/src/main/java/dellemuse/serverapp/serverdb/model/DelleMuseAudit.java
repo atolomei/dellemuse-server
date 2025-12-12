@@ -2,6 +2,7 @@ package dellemuse.serverapp.serverdb.model;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.annotations.Fetch;
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.model.JsonObject;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseObjectMapper;
+import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseUserSerializer;
 import io.odilon.util.Check;
 import jakarta.persistence.Column;
@@ -282,9 +284,19 @@ public class DelleMuseAudit extends JsonObject implements Identifiable, Auditabl
 		this.audit = audit;
 	}
 	
+	/**
+	 * 
+	 * 
+	 * 
+	 * @param id
+	 * @param objectClassName
+	 * @param user
+	 * @param a
+	 * @return
+	 */
 	
+	/**
 	public static DelleMuseAudit of(Long id, String objectClassName, User user, AuditAction a) {
-
 		Check.requireNonNullArgument(id, "id is null");
 		Check.requireNonNullArgument(objectClassName, " objectClassName is null");
 
@@ -297,9 +309,11 @@ public class DelleMuseAudit extends JsonObject implements Identifiable, Auditabl
 
 		audit.setObjectClassName(objectClassName);
 		return audit;
+		
 	}
-
-	public static DelleMuseAudit of(DelleMuseObject o, User user) {
+*/
+	
+	public static DelleMuseAudit of(DelleMuseObject o, User user, AuditAction a) {
 
 		Check.requireNonNullArgument(o, "DelleMuseObject is null");
 		Check.requireTrue(o.getId() != null, "DelleMuseObject id is null");
@@ -307,18 +321,18 @@ public class DelleMuseAudit extends JsonObject implements Identifiable, Auditabl
 		DelleMuseAudit audit = new DelleMuseAudit();
 		OffsetDateTime now = OffsetDateTime.now();
 		audit.setLastModified(now);
-		audit.setAction(AuditAction.UPDATE);
+		audit.setAction(a);
 		audit.setObjectId(o.getId());
 		audit.setUser(user);
 		audit.setObjectClassName(o.getObjectClassName());
 		return audit;
 	}
 
-	public static DelleMuseAudit of(DelleMuseObject o, User user, AuditAction a) {
-		return of(o, user, a, null);
+	 public static DelleMuseAudit of(DelleMuseObject o, User user, AuditAction a, String auditMsg) {
+		return of(o, user, a, null, null);
 	}
 
-	public static DelleMuseAudit of(DelleMuseObject o, User user, AuditAction a, String auditMsg) {
+	public static DelleMuseAudit of(DelleMuseObject o, User user, AuditAction a, String auditMsg, Map<String, String> auditJson) {
 
 		Check.requireNonNullArgument(o, "DelleMuseObject is null");
 		Check.requireTrue(o.getId() != null, "DelleMuseObject id is null");
@@ -330,11 +344,46 @@ public class DelleMuseAudit extends JsonObject implements Identifiable, Auditabl
 		if (auditMsg != null)
 			audit.setDescription(auditMsg);
 
+		if (auditJson != null)
+			audit.setAudit(auditJson);
+		
 		audit.setUser(user);
 		audit.setAction(a);
 		audit.setObjectId(o.getId());
-		audit.setAction(a);
 		audit.setObjectClassName(o.getObjectClassName());
 		return audit;
+	}
+
+	public static DelleMuseAudit ofArtExhibition(DelleMuseObject o, User addedBy, AuditAction update, String addItem, ArtExhibitionItem item) {
+		
+		Check.requireNonNullArgument(o, "DelleMuseObject is null");
+		Check.requireTrue(o.getId() != null, "DelleMuseObject id is null");
+		
+		Map<String, String> map = new HashMap<String, String>();
+
+		map.put("class", item.getClass().getSimpleName());
+		map.put("action", String.valueOf(update.getId()));
+		map.put("subaction", addItem);
+		map.put("id", item.getId().toString());
+		map.put("name", item.getName());
+		
+		return of(o, addedBy, update, addItem, map);
+	}
+
+	public static DelleMuseAudit ofUser(User u, User by, AuditAction update, String addRole, Role r) {
+	
+		Check.requireNonNullArgument(u, "User is null");
+		Check.requireTrue(u.getId() != null, "User id is null");
+		
+		Map<String, String> map = new HashMap<String, String>();
+
+		map.put("class", r.getClass().getSimpleName());
+		map.put("action", String.valueOf(update.getId()));
+		map.put("subaction", addRole);
+		map.put("id", r.getId().toString());
+		map.put("name", r.getName());
+		
+		return of(u, by, update, addRole, map);
+
 	}
 }

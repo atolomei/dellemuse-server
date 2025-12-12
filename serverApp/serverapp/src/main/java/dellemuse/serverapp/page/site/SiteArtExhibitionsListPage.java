@@ -3,6 +3,7 @@ package dellemuse.serverapp.page.site;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -22,12 +23,14 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
- 
+import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import io.odilon.util.Check;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
@@ -55,7 +58,46 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 	private StringValue stringValue;
 	private IModel<Site> siteModel;
 	private List<ToolbarItem> listToolbar;
-	
+
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get();
+
+		if (user.isRoot())
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
+
 	public SiteArtExhibitionsListPage() {
 		super();
 	}
@@ -73,11 +115,11 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		getPageParameters().add("id", siteModel.getObject().getId().toString());
 		setSiteModel(siteModel);
 	}
-	
+
 	protected IModel<String> getTitleLabel() {
 		return getLabel("exhibitions");
 	}
-	
+
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -94,10 +136,9 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		return listToolbar;
 	}
 
-	
 	@Override
 	public void onInitialize() {
-		
+
 		if (getSiteModel() == null) {
 			if (stringValue != null) {
 				Optional<Site> o_site = getSite(Long.valueOf(stringValue.toLong()));
@@ -110,46 +151,43 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		if (getSiteModel() == null) {
 			throw new RuntimeException("no site");
 		}
-		
+
 		if (!getSiteModel().getObject().isDependencies()) {
 			Optional<Site> o_site = findByIdWithDeps(Long.valueOf(getSiteModel().getObject().getId()));
 			if (o_site.isPresent()) {
 				setSiteModel(new ObjectModel<Site>(o_site.get()));
 			}
 		}
-		
+
 		super.onInitialize();
 	}
- 
- @Override
+
+	@Override
 	protected void addHeaderPanel() {
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(),
-				new Model<String>(getSiteModel().getObject().getDisplayname())));
+		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(), new Model<String>(getSiteModel().getObject().getDisplayname())));
 
 		bc.addElement(new BCElement(getLabel("artexhibitions")));
-		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null,
-				new Model<String>(getSiteModel().getObject().getDisplayname()));
+		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, new Model<String>(getSiteModel().getObject().getDisplayname()));
 		ph.setBreadCrumb(bc);
-		
+
 		ph.setContext(getLabel("site"));
 
-		if (getSiteModel().getObject().getSubtitle()!=null)
-			ph.setTagline( Model.of( getSiteModel().getObject().getSubtitle()));
+		if (getSiteModel().getObject().getSubtitle() != null)
+			ph.setTagline(Model.of(getSiteModel().getObject().getSubtitle()));
 
-		 if (getSiteModel().getObject().getPhoto() != null)
+		if (getSiteModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));
 
 		add(ph);
 	}
 
- 
-@Override
-protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
-		
+	@Override
+	protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
+
 		NavDropDownMenu<ArtExhibition> menu = new NavDropDownMenu<ArtExhibition>("menu", model, null);
-		
+
 		menu.setOutputMarkupId(true);
 
 		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
@@ -180,36 +218,28 @@ protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 		});
 
 		/**
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public MenuItemPanel<ArtExhibition> getItem(String id) {
+		 * 
+		 *           return new AjaxLinkMenuItem<ArtExhibition>(id) {
+		 * 
+		 *           private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
+		 *           }
+		 * 
+		 * @Override public IModel<String> getLabel() { return getLabel("delete"); } };
+		 *           } });
+		 */
 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<ArtExhibition> getItem(String id) {
-
-				return new AjaxLinkMenuItem<ArtExhibition>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("delete");
-					}
-				};
-			}
-		});
-		*/
-		
 		return menu;
 	}
-	
+
 	public IRequestablePage getObjectPage(IModel<ArtExhibition> model) {
-			return new ArtExhibitionPage(model);
+		return new ArtExhibitionPage(model);
 	}
 
 	@Override
@@ -221,30 +251,30 @@ protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 	public Iterable<ArtExhibition> getObjects(ObjectState os1) {
 		return super.getSiteArtExhibitions(getSiteModel().getObject(), os1);
 	}
-	
+
 	@Override
 	public Iterable<ArtExhibition> getObjects(ObjectState os1, ObjectState os2) {
 		return super.getSiteArtExhibitions(getSiteModel().getObject(), os1, os2);
 	}
-	
+
 	@Override
 	public IModel<String> getObjectInfo(IModel<ArtExhibition> model) {
-		return new Model<String>( model.getObject().getIntro());
+		return new Model<String>(model.getObject().getIntro());
 	}
 
 	@Override
 	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
-		if ( getArtExhibitionDBService().isArtExhibitionGuides(model.getObject()) )
+		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject()))
 			return ServerAppConstant.headphoneIcon;
 		else
 			return null;
 	}
-	
+
 	@Override
 	public IModel<String> getObjectTitle(IModel<ArtExhibition> model) {
-		if (model.getObject().getState()==ObjectState.DELETED) 
+		if (model.getObject().getState() == ObjectState.DELETED)
 			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-		return new Model<String>( model.getObject().getDisplayname() );
+		return new Model<String>(model.getObject().getDisplayname());
 	}
 
 	@Override
@@ -254,9 +284,9 @@ protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 
 	@Override
 	public IModel<String> getPageTitle() {
-		return new Model<String> ( getSiteModel().getObject().getDisplayname());
+		return new Model<String>(getSiteModel().getObject().getDisplayname());
 	}
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -272,13 +302,13 @@ protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
-	 
+
 	protected void onCreate() {
 		try {
 			ArtExhibition in = getArtExhibitionDBService().create("new", getSiteModel().getObject(), getUserDBService().findRoot());
-			IModel<ArtExhibition> m =  new ObjectModel<ArtExhibition>(in);
+			IModel<ArtExhibition> m = new ObjectModel<ArtExhibition>(in);
 			getList().add(m);
-			ArtExhibitionPage a=new ArtExhibitionPage(m, getList());
+			ArtExhibitionPage a = new ArtExhibitionPage(m, getList());
 			setResponsePage(a);
 		} catch (Exception e) {
 			logger.error(e);
@@ -286,40 +316,36 @@ protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 		}
 	}
 
-	
 	protected List<ToolbarItem> getMainToolbarItems() {
-		
+
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		
-		list.add(new SiteNavDropDownMenuToolbarItem(	"item", 
-														getSiteModel(), 
-														Align.TOP_RIGHT));
-		
+
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
+
 			protected void onClick() {
 				SiteArtExhibitionsListPage.this.onCreate();
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
 		list.add(create);
-		
-		
+
 		return list;
 	}
-	
-	
+
 	@Override
 	protected void addListeners() {
 		super.addListeners();
- 
+
 		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
 				if (event.getName().equals(ServerAppConstant.site_action_home)) {
-					setResponsePage( new SitePage( getSiteModel(), null));
+					setResponsePage(new SitePage(getSiteModel(), null));
 				}
 			}
 
@@ -337,7 +363,7 @@ protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	protected String getObjectImageSrc(IModel<ArtExhibition> model) {
 		if (model.getObject().getPhoto() != null) {
@@ -346,5 +372,5 @@ protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 		}
 		return null;
 	}
-	
+
 }

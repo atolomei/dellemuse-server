@@ -1,6 +1,8 @@
 package dellemuse.serverapp.page;
 
  
+import java.util.Optional;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.StatelessForm;
@@ -74,6 +76,15 @@ public class LoginPage extends BasePage {
 	private TextField<String> passwordField;
 
 	private boolean isError = false;
+	
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		return true;
+	}
+	
+	
+	
 	
 	public LoginPage() {
 		super();

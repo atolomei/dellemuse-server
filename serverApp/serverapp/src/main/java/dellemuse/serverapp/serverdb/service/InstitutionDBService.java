@@ -74,7 +74,11 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 			getInstitutionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.UPDATE));
-		return getRepository().save(c);
+		
+		
+		getRoleInstitutionDBService().create("admin", c, createdBy);
+		
+		return c;
 	}
 
 	@Transactional
@@ -103,6 +107,8 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		for (Language la : getLanguageService().getLanguages())
 			getInstitutionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
+		getRoleInstitutionDBService().create("admin", c, createdBy);
+
 		return c;
 	}
 	
@@ -119,9 +125,10 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
-
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
 		getRepository().save(c);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
+		
 	}
 
 	@Transactional
@@ -130,9 +137,10 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 		c.setLastModified(date);
 		c.setLastModifiedUser(restoredBy);
 		c.setState(ObjectState.EDITION);
-
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE, AuditKey.RESTORE));
 		getRepository().save(c);
+		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE, AuditKey.RESTORE));
+		
 	}
 
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import dellemuse.serverapp.jpa.events.ResourceEventListener;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -15,6 +16,12 @@ import jakarta.persistence.Table;
 @EntityListeners(ResourceEventListener.class)
 @JsonInclude(Include.NON_NULL)
 public class Resource extends DelleMuseObject {
+
+	
+
+	public static String getIcon() {
+		return "fa-regular fa-file";
+	}
 
 	@Column(name = "bucketName")
 	private String bucketName;
@@ -60,6 +67,16 @@ public class Resource extends DelleMuseObject {
 	@Column(name = "audit")
 	private String audit;
 
+	@Column(name = "language")
+	private String language;
+	
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
+	}
 	public Resource() {
 	}
 
@@ -170,6 +187,31 @@ public class Resource extends DelleMuseObject {
 
 	public void setAudit(String audit) {
 		this.audit = audit;
+	}
+
+	
+	@Override
+	public boolean equals(Object o) {
+
+		if (o==null)
+			return false;
+		 
+		if (this == o) return true;
+
+		if (!(o instanceof RoleGeneral)) return false;
+		 
+		if (this.getId()==null)
+			return false;
+	 
+		if ((o instanceof Resource)) {
+			
+			if (((Resource) o).getId()==null)
+					return false;
+			
+			return ((Resource) o).getId().equals(getId());
+		}
+		
+		return false;
 	}
 
 };

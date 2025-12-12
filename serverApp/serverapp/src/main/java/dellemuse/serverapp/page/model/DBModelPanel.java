@@ -11,6 +11,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
+import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
@@ -21,7 +22,6 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Identifiable;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -40,7 +40,6 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionSectionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
-import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
@@ -56,7 +55,10 @@ import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
-
+import dellemuse.serverapp.serverdb.service.security.RoleDBService;
+import dellemuse.serverapp.serverdb.service.security.RoleGeneralDBService;
+import dellemuse.serverapp.serverdb.service.security.RoleInstitutionDBService;
+import dellemuse.serverapp.serverdb.service.security.RoleSiteDBService;
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.language.LanguageService;
@@ -67,6 +69,8 @@ import wktui.base.ModelPanel;
 public class DBModelPanel<T> extends ModelPanel<T> {
 
 	private static final long serialVersionUID = 1L;
+
+	static private Logger logger = Logger.getLogger(DBModelPanel.class.getName());
 
 	public DBModelPanel(String id, IModel<T> model) {
 		super(id, model);
@@ -351,9 +355,13 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 
 	public String getPresignedUrl(Resource resource) {
 		try {
-			Optional<Integer> urlExpiresInSeconds = Optional.of(120);
-			Optional<Integer> objectCacheExpiresInSeconds = Optional.of(120);
+			Optional<Integer> urlExpiresInSeconds = Optional.of(360);
+			Optional<Integer> objectCacheExpiresInSeconds = Optional.of(360);
 			String url = getObjectStorageService().getClient().getPresignedObjectUrl(resource.getBucketName(), resource.getObjectName(), urlExpiresInSeconds, objectCacheExpiresInSeconds);
+			
+			
+			logger.debug(url);
+
 			return url;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -632,11 +640,27 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return (DateTimeService) ServiceLocator.getInstance().getBean(DateTimeService.class);
 	}
 
-	protected AudioStudioDBService getAudioStudioDBService() {
-		return (AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class);
-
+	protected RoleDBService getRoleDBService() {
+		return (RoleDBService) ServiceLocator.getInstance().getBean(RoleDBService.class);
 	}
 
+	protected RoleGeneralDBService getRoleGeneralDBService() {
+		return (RoleGeneralDBService) ServiceLocator.getInstance().getBean(RoleGeneralDBService.class);
+	}
+
+	protected RoleSiteDBService getRoleSiteDBService() {
+		return (RoleSiteDBService) ServiceLocator.getInstance().getBean(RoleSiteDBService.class);
+	}
+	
+	protected RoleInstitutionDBService getRoleInstitutionDBService() {
+		return (RoleInstitutionDBService) ServiceLocator.getInstance().getBean(RoleInstitutionDBService.class);
+	}
+	
+	public AudioStudioDBService getAudioStudioDBService() {
+		return (AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class);
+	}
+
+	
 	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}

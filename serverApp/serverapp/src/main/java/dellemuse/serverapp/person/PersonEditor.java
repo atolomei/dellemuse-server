@@ -1,4 +1,4 @@
-package dellemuse.serverapp.page.person;
+package dellemuse.serverapp.person;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 	private TextField<String> emailField;
 	private TextField<String> webpageField;
 
-	private FileUploadSimpleField<Void> photoField;
+	private FileUploadSimpleField<Resource> photoField;
 	private IModel<Resource> photoModel;
 
 	private TextAreaField<String> infoField;
@@ -133,7 +133,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		phoneField = new TextField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"));
 		emailField = new TextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
 		webpageField = new TextField<String>("webpage", new PropertyModel<String>(getModel(), "webpage"), getLabel("webpage"));
-		photoField = new FileUploadSimpleField<Void>("photo", getLabel("photo")) {
+		photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -157,6 +157,12 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 			public boolean isThumbnail() {
 				return true;
 			}
+			
+			@Override
+			protected void onRemove(AjaxRequestTarget target) {
+				logger.debug("onRemove");
+			}
+
 		};
 
 		form.add(nameField);

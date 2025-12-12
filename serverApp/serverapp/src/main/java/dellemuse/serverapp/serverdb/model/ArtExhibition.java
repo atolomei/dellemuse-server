@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
-import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -53,7 +53,7 @@ public class ArtExhibition extends MultiLanguageObject {
 	@Column(name = "toDate")
 	private OffsetDateTime toDate;
 
- 	@Column(name = "shortname")
+	@Column(name = "shortname")
 	private String shortname;
 
 	@Column(name = "shortnameKey")
@@ -85,7 +85,7 @@ public class ArtExhibition extends MultiLanguageObject {
 	public ArtExhibition() {
 	}
 
-	public String getPrefixUrl() {
+	public final String getPrefixUrl() {
 		return PrefixUrl.ArtExhibition;
 	}
 
@@ -184,8 +184,7 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setShortnamekey(String shortnamekey) {
 		this.shortnamekey = shortnamekey;
 	}
-	
-	
+
 	/**
 	 * @return
 	 */
@@ -236,5 +235,32 @@ public class ArtExhibition extends MultiLanguageObject {
 
 		return toDate.isBefore(now);
 	}
+	
+	@Override
+	public boolean equals(Object o) {
 
+		if (o==null)
+			return false;
+		 
+		if (this == o) return true;
+
+		if (!(o instanceof ArtExhibition)) return false;
+		 
+		if (this.getId()==null)
+			return false;
+	 
+		if ((o instanceof ArtExhibition)) {
+			
+			if (((ArtExhibition) o).getId()==null)
+					return false;
+			
+			return ((ArtExhibition) o).getId().equals(getId());
+		}
+		
+		return false;
+	}
+
+	public static String getIcon() {
+		return "fa-solid fa-solid fa-gallery-thumbnails";
+	}
 };

@@ -21,7 +21,6 @@ import jakarta.persistence.Table;
 @Table(name = "roomRecord")
 @JsonInclude(Include.NON_NULL)
 public class RoomRecord extends DelleMuseObject {
-
    
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
     @JoinColumn(name = "room_id", referencedColumnName = "id", nullable = true)
@@ -37,7 +36,6 @@ public class RoomRecord extends DelleMuseObject {
     @Column(name = "info")
     private String info;
     
-
     @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "photo", nullable = true)
     @JsonManagedReference
@@ -70,10 +68,18 @@ public class RoomRecord extends DelleMuseObject {
     @JsonSerialize(using = DelleMuseResourceSerializer.class)
     private Resource map;
 
+    @Column(name = "language")
+	private String language;
+	
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
+	}
     public RoomRecord() {
     }
-
-    
 
     public String getSubtitle() {
         return subtitle;
@@ -83,9 +89,6 @@ public class RoomRecord extends DelleMuseObject {
         this.subtitle = subtitle;
     }
 
-    
- 
-
     public String getInfo() {
         return info;
     }
@@ -93,6 +96,5 @@ public class RoomRecord extends DelleMuseObject {
     public void setInfo(String info) {
         this.info = info;
     }
-
     
 };

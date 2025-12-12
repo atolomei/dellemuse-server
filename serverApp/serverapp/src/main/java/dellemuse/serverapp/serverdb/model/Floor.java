@@ -7,12 +7,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.model.FloorModel;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
-import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.CascadeType;
@@ -102,6 +99,17 @@ public class Floor extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource map;
 
+	@Column(name = "language")
+	private String language;
+	
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
+	}
+
 	public Floor() {
 	}
 
@@ -168,12 +176,5 @@ public class Floor extends DelleMuseObject {
 	public void setInfoKey(String infoKey) {
 		this.infoKey = infoKey;
 	}
-
-	/**
-	 * @Override public FloorModel model() { try { return (FloorModel)
-	 *           getObjectMapper().readValue(getObjectMapper().writeValueAsString(this),
-	 *           FloorModel.class); } catch (JsonProcessingException e) { throw new
-	 *           RuntimeException(e); } }
-	 **/
 
 };

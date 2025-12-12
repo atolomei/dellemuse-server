@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.page.PrefixUrl;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
@@ -30,7 +31,7 @@ import jakarta.persistence.Table;
  * Indexes are -> lower( title )
  * 
  * 
- * delete site 
+ * delete site
  * 
  * artworks must be empty
  * 
@@ -67,13 +68,13 @@ public class Site extends MultiLanguageObject {
 	@JsonProperty("zoneId")
 	@Column(name = "zoneid")
 	private String zoneId;
-	
+
 	@Column(name = "shortName")
 	private String shortName;
 
 	@Column(name = "abstract")
 	private String siteAbstract;
- 
+
 	@Column(name = "address")
 	private String address;
 
@@ -100,7 +101,7 @@ public class Site extends MultiLanguageObject {
 
 	@Column(name = "twitter")
 	private String twitter;
-	
+
 	// Resource
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "logo", nullable = true)
@@ -109,7 +110,6 @@ public class Site extends MultiLanguageObject {
 	@JsonProperty("logo")
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource logo;
-
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "map", nullable = true)
@@ -125,14 +125,35 @@ public class Site extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
 	private List<Floor> floors;
 
- 	
-	
 	public Site() {
 	}
 
+	@Override
+	public boolean equals(Object o) {
 
-	
-	
+		if (o == null)
+			return false;
+
+		if (this == o)
+			return true;
+
+		if (!(o instanceof RoleGeneral))
+			return false;
+
+		if (this.getId() == null)
+			return false;
+
+		if ((o instanceof Site)) {
+
+			if (((Site) o).getId() == null)
+				return false;
+
+			return ((Site) o).getId().equals(getId());
+		}
+
+		return false;
+	}
+
 	@Override
 	public String getDisplayname() {
 		return getName();
@@ -161,8 +182,6 @@ public class Site extends MultiLanguageObject {
 	public void setInstitution(Institution institution) {
 		this.institution = institution;
 	}
-
-	 
 
 	public String getWebsite() {
 		return website;
@@ -271,13 +290,17 @@ public class Site extends MultiLanguageObject {
 	public void setZoneId(String zoneid) {
 		this.zoneId = zoneid;
 	}
+
 	public final String getPrefixUrl() {
 		return PrefixUrl.Site;
 	}
 
-	
 	public final String getAudioIdSequencerName() {
-		return "audio_id_"+ getId().toString() + "_seq";
+		return "audio_id_" + getId().toString() + "_seq";
+	}
+
+	static public final String getIcon() {
+		return "fa-solid fa-building-columns";
 	}
 
 	

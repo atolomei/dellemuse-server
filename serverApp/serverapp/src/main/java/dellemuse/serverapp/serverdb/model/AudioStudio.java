@@ -33,6 +33,13 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class AudioStudio extends DelleMuseObject {
 
+	
+	public static String getIcon() {
+		return "fa-solid fa-microphone-lines";
+	}
+	
+	
+	
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
 	@JoinColumn(name = "artExhibitionGuide_id", nullable = true)
 	@JsonManagedReference
@@ -118,9 +125,18 @@ public class AudioStudio extends DelleMuseObject {
 	@Column(name = "audio_speech_music_hash")
 	private int audioSpeechMusicHash;
 
+	@Column(name = "language")
+	private String language;
 	
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
+	}
+
 	/** ---------------------------- **/
-	
 	
 	public AudioStudio() {
 	}

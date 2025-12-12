@@ -2,7 +2,7 @@ package dellemuse.serverapp.service;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import dellemuse.serverapp.page.person.ServerAppConstant;
+import dellemuse.serverapp.person.ServerAppConstant;
 import io.odilon.log.Logger;
 import io.odilon.util.Check;
 

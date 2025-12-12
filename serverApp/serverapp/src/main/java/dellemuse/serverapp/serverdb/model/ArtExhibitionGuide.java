@@ -7,28 +7,21 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
-import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity
@@ -67,15 +60,12 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 	@Column(name = "official")
 	private boolean official;
 
-	
 	/** CREATE SEQUENCE if not exists audio_id START 1; */
 	@Column(name = "audio_id")
 	private Long audioId;
 	
-	
 	public ArtExhibitionGuide() {
 	}
-
 	
 	public String getPrefixUrl() {
 		return PrefixUrl.ArtExhibitionGuide;
@@ -121,7 +111,6 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 		this.artExhibitionGuideOrder = artExhibitionGuideOrder;
 	}
 
-
 	public Long getAudioId() {
 		return audioId;
 	}
@@ -130,4 +119,31 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 		this.audioId = audioId;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+
+		if (o==null)
+			return false;
+		 
+		if (this == o) return true;
+
+		if (!(o instanceof ArtExhibitionGuide)) return false;
+		 
+		if (this.getId()==null)
+			return false;
+	 
+		if ((o instanceof ArtExhibitionGuide)) {
+			
+			if (((ArtExhibitionGuide) o).getId()==null)
+					return false;
+			
+			return ((ArtExhibitionGuide) o).getId().equals(getId());
+		}
+		
+		return false;
+	}
+	
+	public static String getIcon() {
+		return "fa-solid fa-folder-music";
+	}
 };
