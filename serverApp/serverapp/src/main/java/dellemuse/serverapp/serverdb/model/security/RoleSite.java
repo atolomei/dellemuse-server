@@ -1,0 +1,116 @@
+package dellemuse.serverapp.serverdb.model.security;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
+import dellemuse.serverapp.serverdb.model.serializer.DelleMuseSetPersonSerializer;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "roleSite")
+@JsonInclude(Include.NON_NULL)
+public class RoleSite extends Role {
+
+	public static final String ADMIN = "admin";
+	public static final String EDITOR = "editor";
+	public static final String AUDIT = "audit";
+	
+	@OneToOne(fetch = FetchType.EAGER, targetEntity = Site.class)
+	@JoinColumn(name = "site_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	private Site site;
+
+	
+	@ManyToMany(mappedBy = "rolesSite")
+	@JsonSerialize(using = DelleMuseSetPersonSerializer.class)
+	@JsonManagedReference
+	@JsonProperty("users")
+	private Set<User> users;
+
+	@Column(name = "key")
+	private String key;
+	
+	public String getKey() {
+		return key;
+	}
+	
+	public void setKey(String key) {
+		this.key=key;
+	}
+
+	
+	public RoleSite() {
+	}
+
+	public Site getSite() {
+		return site;
+	}
+
+	public void setSite(Site site) {
+		this.site = site;
+	}
+	
+	public String getRoleDisplayName() {
+		return ( (getSite()!=null) ? (getSite().getName() + " - " ):"") + getName();
+	}
+	@Override
+	public String getDisplayClass() {
+		ResourceBundle res = ResourceBundle.getBundle(getClass().getName(), Locale.ENGLISH);
+		return res.getString("name");
+	}
+	
+	@Override
+	public String getDisplayClass(Locale locale) {
+		ResourceBundle res = ResourceBundle.getBundle(getClass().getName(), locale);
+		return res.getString( "name");
+	}
+	
+	@Override
+	public Set<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<User> users) {
+		this.users = users;
+	}
+
+
+	@Override
+	public boolean equals(Object o) {
+
+		if (o==null)
+			return false;
+		
+		if (this.getId()==null)
+			return false;
+	 
+		if ((o instanceof RoleSite)) {
+			
+			if (((RoleSite) o).getId()==null)
+					return false;
+			
+			return ((RoleSite) o).getId().equals(getId());
+		}
+		
+		return false;
+	}
+};
