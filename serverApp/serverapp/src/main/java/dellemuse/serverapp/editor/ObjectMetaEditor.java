@@ -41,7 +41,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 	static private Logger logger = Logger.getLogger(ObjectMetaEditor.class.getName());
 
 	private ChoiceField<ObjectState> objectStateField;
-	private ChoiceField<Boolean> audioModeField;
+	//private ChoiceField<Boolean> audioModeField;
 
 	private ChoiceField<Language> masterLanguageField;
 	private ChoiceField<TranslateMode> translateMode;
@@ -80,14 +80,22 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
 			}
+			
+			public boolean isEnabled() {
+				return ObjectMetaEditor.this.isEditEnabled();
+			}
 		};
 		create.setAlign(Align.TOP_LEFT);
 		list.add(create);
 		return list;
 	}
 
+	protected boolean isEditEnabled() {
+		return true;
+	}
+
 	protected Locale getUserLocale() {
-		return getSessionUser().getLocale();
+		return getSessionUser().get().getLocale();
 	}
 
 	@Override
@@ -221,6 +229,10 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 				@Override
 				public boolean isVisible() {
+				
+					if (!hasWritePermission())
+						return false;
+					
 					return getForm().getFormState() == FormState.EDIT;
 				}
 			};
@@ -245,6 +257,10 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 				@Override
 				public boolean isVisible() {
+					
+					if (!hasWritePermission())
+						return false;
+					
 					return getForm().getFormState() == FormState.EDIT;
 				}
 
@@ -318,7 +334,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 				((MultiLanguageObject) getModel().getObject()).setMasterLanguage(getMasterLanguage().getLanguageCode());
 			}
 
-			save(getModelObject(), getSessionUser(), AuditKey.TRANSLATE);
+			save(getModelObject(), getSessionUser().get(), AuditKey.TRANSLATE);
 			getForm().setFormState(FormState.VIEW);
 			 
 		} catch (Exception e) {

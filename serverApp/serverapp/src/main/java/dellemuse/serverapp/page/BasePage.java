@@ -499,9 +499,8 @@ public abstract class BasePage extends WebPage {
 	/** Session User */
 
 	public Optional<User> getSessionUser() {
-		
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
-		User user = service.findRoot();
+		User user=service.getSessionUser();
 		if (user == null)
 			return Optional.empty();
 		return Optional.of(user);

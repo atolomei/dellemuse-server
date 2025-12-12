@@ -16,6 +16,7 @@ import org.apache.wicket.model.util.ListModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
@@ -42,7 +43,7 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.InvisiblePanel;
 
-public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPanel {
+public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -74,6 +75,12 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 	private boolean uploadedPhoto = false;
 	private boolean uploadedLogo = false;
+
+	
+	 
+	public IModel<Site> getSiteModel() {
+		return getModel();
+	}
 
 	/**
 	 * @param id
@@ -236,6 +243,10 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -259,6 +270,10 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -304,7 +319,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 	}
 
 	protected Locale getUserLocale() {
-		return getSessionUser().getLocale();
+		return getSessionUser().get().getLocale();
 	}
 
 	@Override
@@ -316,7 +331,6 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 		if (logoModel != null)
 			logoModel.detach();
-
 	}
 
 	protected void onCancel(AjaxRequestTarget target) {
@@ -341,7 +355,7 @@ public class SiteInfoEditor extends DBObjectEditor<Site> implements InternalPane
 
 			getModelObject().setLanguage(PARENT_PATH);
 
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 			uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();

@@ -197,6 +197,10 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -219,6 +223,10 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -435,7 +443,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 		try {
 
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 
 			uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);

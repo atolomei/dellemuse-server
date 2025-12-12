@@ -21,6 +21,7 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.audiostudio.AudioStudioPage;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
@@ -54,7 +55,7 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.InvisiblePanel;
 
-public class GuideContentEditor extends DBObjectEditor<GuideContent> implements InternalPanel {
+public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -217,6 +218,10 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -240,6 +245,10 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -289,7 +298,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 
 			@Override
 			public void onClick() {
-				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser());
+				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
 					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get())));
 				else
@@ -343,7 +352,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 			}
 
 			public String getIconCss() {
-				return "fa-regular fa-pen-to-square";
+				return "fa-rduotone fa-pen-to-square";
 			}
 
 		};
@@ -376,7 +385,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 
 			@Override
 			public String getIconCss() {
-				return "fa-regular fa-trash";
+				return "fa-duotone fa-trash";
 			}
 
 			protected String getButtonCss() {
@@ -633,7 +642,7 @@ public class GuideContentEditor extends DBObjectEditor<GuideContent> implements 
 			getUpdatedParts().forEach(s -> logger.debug(s));
 			logger.debug("saving...");
 
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 
 			uploadedPhoto = false;
 

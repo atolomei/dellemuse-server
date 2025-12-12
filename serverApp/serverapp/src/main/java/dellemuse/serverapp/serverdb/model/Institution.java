@@ -302,7 +302,7 @@ public class Institution extends MultiLanguageObject {
 		return false;
 	}
 	public static final String getIcon() {
-		return "fa-regular fa-building";
+		return "fa-duotone fa-building";
 	}
 
 };

@@ -6,45 +6,44 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
- 
+
 import org.apache.wicket.markup.html.WebMarkupContainer;
- 
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
- 
+
 import org.apache.wicket.request.mapper.parameter.PageParameters;
- 
+
 import org.wicketstuff.annotation.mount.MountPath;
 
- 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
- 
+
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
- 
+
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
- 
+
 import dellemuse.serverapp.serverdb.model.ObjectState;
- 
+
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
- 
+
 import io.wktui.error.ErrorPanel;
- 
+
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
- 
+
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-
+import io.wktui.struct.list.ListPanelMode;
 
 /**
  * site foto Info - exhibitions
@@ -59,23 +58,32 @@ public class UserListPage extends ObjectListPage<User> {
 
 	private List<ToolbarItem> list;
 	private List<ToolbarItem> listToolbar;
-		
+
+	
+	@Override
+	protected Panel getObjectListItemExpandedPanel(IModel<User> model, ListPanelMode mode) {
+		return new UserExpandedPanel("expanded-panel", model);
+	}
+	
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		if (ouser.isEmpty())
 			return false;
-		
-		User user = ouser.get();  if (user.isRoot()) return true;
+
+		User user = ouser.get();
+		if (user.isRoot())
+			return true;
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
 		Set<RoleGeneral> set = user.getRolesGeneral();
-		if (set==null)
+		if (set == null)
 			return false;
-		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
 	}
-	
+
 	public UserListPage() {
 		super();
 		setIsExpanded(true);
@@ -113,7 +121,7 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<User> model) {
-		if (model.getObject().getState()==ObjectState.DELETED) 
+		if (model.getObject().getState() == ObjectState.DELETED)
 			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
 		return new Model<String>(model.getObject().getDisplayname());
 	}
@@ -145,8 +153,8 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
-		
-		if (list!=null)
+
+		if (list != null)
 			return list;
 
 		list = new ArrayList<ToolbarItem>();
@@ -167,25 +175,23 @@ public class UserListPage extends ObjectListPage<User> {
 	protected void addHeaderPanel() {
 
 		try {
-		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(new BCElement(getLabel("users")));
-		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("users"));
-		ph.setBreadCrumb(bc);
-		ph.setIcon(User.getIcon());
-		ph.setHeaderCss("mb-0 pb-2 border-none");
-		add(ph);
-		}
-		catch (Exception e) {
+			BreadCrumb<Void> bc = createBreadCrumb();
+			bc.addElement(new BCElement(getLabel("users")));
+			JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("users"));
+			ph.setBreadCrumb(bc);
+			ph.setIcon(User.getIcon());
+			ph.setHeaderCss("mb-0 pb-2 border-none");
+			add(ph);
+		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("page-header", e));
 		}
 	}
-	
+
 	protected IModel<String> getTitleLabel() {
 		return null;
 	}
 
-	
 	protected void onCreate() {
 
 		try {
@@ -217,13 +223,13 @@ public class UserListPage extends ObjectListPage<User> {
 			@Override
 			public MenuItemPanel<User> getItem(String id) {
 
-				return new  LinkMenuItem<User>(id) {
+				return new LinkMenuItem<User>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void onClick() {
-						setResponsePage( new UserPage(model));
+						setResponsePage(new UserPage(model));
 					}
 
 					@Override
@@ -235,35 +241,26 @@ public class UserListPage extends ObjectListPage<User> {
 		});
 
 		/**
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<User> getItem(String id) {
-
-				return new AjaxLinkMenuItem<User>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("delete");
-					}
-				};
-			}
-		});
-		
-		*/
+		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public MenuItemPanel<User> getItem(String id) {
+		 * 
+		 *           return new AjaxLinkMenuItem<User>(id) {
+		 * 
+		 *           private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
+		 *           }
+		 * 
+		 * @Override public IModel<String> getLabel() { return getLabel("delete"); } };
+		 *           } });
+		 * 
+		 */
 		return menu;
 	}
-	
-	
+
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 

@@ -113,7 +113,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 			protected String getDisplayValue(ObjectState value) {
 				if (value == null)
 					return null;
-				return value.getLabel(getSessionUser().getLocale());
+				return value.getLabel(getSessionUser().get().getLocale());
 			}
 
 			@Override
@@ -193,6 +193,10 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -217,6 +221,10 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -276,7 +284,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 	protected void onSave(AjaxRequestTarget target) {
 
 		try {
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 
 			uploadedPhoto = false;
 

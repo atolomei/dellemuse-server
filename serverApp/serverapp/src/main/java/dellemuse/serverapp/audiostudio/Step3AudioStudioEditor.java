@@ -78,6 +78,9 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 
 			@Override
 			public boolean isEnabled() {
+				
+				if (!hasWritePermission())
+					return false;
 
 				if (getParentObjectState()== ObjectState.DELETED)
 					return false;
@@ -172,7 +175,7 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 		if (saveRequired) {	
 	
 			logger.debug(po.getAudio().getId());
-			save(po, getSessionUser(),  List.of(AuditKey.INTEGRATE_AUDIO));
+			save(po, getSessionUser().get(),  List.of(AuditKey.INTEGRATE_AUDIO));
 			SimpleAlertRow<Void> p = new SimpleAlertRow<Void>("info");
 			p.setAlertType(AlertPanel.INFO);
 			p.setText( Model.of("successfully integrated"));

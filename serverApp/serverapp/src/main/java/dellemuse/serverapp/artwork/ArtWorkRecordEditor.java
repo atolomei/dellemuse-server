@@ -12,10 +12,12 @@ import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
@@ -24,7 +26,7 @@ import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import wktui.base.InvisiblePanel;
 
-public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
+public class ArtWorkRecordEditor extends DBSiteObjectEditor<ArtWorkRecord> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -41,6 +43,16 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
 	private TextAreaField<String> specField;
 	private IModel<ArtWork> artWorkModel;
 
+	
+	private IModel<Site> siteModel;
+	
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
 	/**
 	 * @param id
 	 * @param model
@@ -102,6 +114,10 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -125,6 +141,10 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -156,7 +176,7 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
 	public void onSave(AjaxRequestTarget target) {
 		try {
 			getUpdatedParts().forEach(s -> logger.debug(s));
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 			getForm().setFormState(FormState.VIEW);
 		} catch (Exception e) {
 
@@ -172,6 +192,10 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
 
 		if (this.artWorkModel != null)
 			this.artWorkModel.detach();
+		
+
+		if (siteModel!=null)
+			siteModel.detach();
 	}
 
 	protected void onSubmit() {
@@ -189,5 +213,10 @@ public class ArtWorkRecordEditor extends DBObjectEditor<ArtWorkRecord> {
 		setModel(new ObjectModel<ArtWorkRecord>(o_i.get()));
 		Optional<ArtWork> o_a = getArtWorkDBService().findWithDeps(getModel().getObject().getArtwork().getId());
 		setArtWorkModel(new ObjectModel<ArtWork>(o_a.get()));
+		
+		if (getArtWorkModel().getObject().getSite() != null) {
+			Optional<Site> o_s = getSiteDBService().findWithDeps(getArtWorkModel().getObject().getSite().getId());
+			setSiteModel(new ObjectModel<Site>(o_s.get()));
+		}
 	}
 }

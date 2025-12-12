@@ -188,28 +188,7 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 	
 	}
 
-	/**
-	protected void onObjectRemove(IModel<Role> model, AjaxRequestTarget target) {
-		getUserDBService().removeRole( getModel().getObject(), model.getObject(), getSessionUser());
-		resetList();
-		target.add(this.roleUsersPanel);
-	}
-
-	protected void onObjectSelect(IModel<Role> model, AjaxRequestTarget target) {
-		getUserDBService().addRole( getModel().getObject(), model.getObject(), getSessionUser());
-		resetList();
-		target.add(this.roleUsersPanel);
-
-	}
-	
-	protected IModel<String> getObjectInfo(IModel<Role> model) {
-		return new Model<String>(model.getObject().getRoleDisplayName() + " (" + model.getObject().getDisplayClass(getLocale()) + ") ");
-	}
-
-	protected IModel<String> getObjectSubtitle(IModel<ArtExhibitionItem> model) {
-		return null;
-	}
-**/
+	 
 
 	protected IModel<String> getObjectTitle(IModel<User> model) {
 		StringBuilder str = new StringBuilder();
@@ -221,10 +200,7 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		return Model.of(str.toString());
 	}
 	
-	
-	//private void resetList() {
-	//	this.roleUsers = null;
-	//}
+ 
 
 	private void setUpModel() {
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
@@ -373,7 +349,7 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		roleUsersPanel.setListPanelMode(ListPanelMode.TITLE);
 		roleUsersPanel.setLiveSearch(false);
 		roleUsersPanel.setSettings(true);
-		roleUsersPanel.setHasExpander(true);
+		roleUsersPanel.setHasExpander(false);
 	}
 
 	/**

@@ -251,7 +251,7 @@ public class Person extends MultiLanguageObject {
 	}
 
 	public static final String getIcon() {
-		return "fa-solid fa-person";
+		return "fa-duotone fa-person";
 	}
 
 }

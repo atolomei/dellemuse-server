@@ -114,6 +114,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		form.add(styleField);
 
 		SubmitButton<AudioStudio> sm = new SubmitButton<AudioStudio>("generate", getModel(), getForm()) {
+			
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -145,6 +146,9 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			@Override
 			public boolean isEnabled() {
 
+				if (!hasWritePermission())
+					return false;
+				
 				if (getParentObjectState()== ObjectState.DELETED)
 					return false;
 			 
@@ -302,7 +306,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 				getModel().getObject().setSettings(map);
 
-				getAudioStudioDBService().save(getModel().getObject(), getSessionUser(), AuditKey.GENERATE_VOICE);
+				getAudioStudioDBService().save(getModel().getObject(), getSessionUser().get(), AuditKey.GENERATE_VOICE);
 		
 			}
 			

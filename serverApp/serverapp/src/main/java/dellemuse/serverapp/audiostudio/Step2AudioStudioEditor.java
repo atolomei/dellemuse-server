@@ -124,6 +124,9 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 			@Override
 			public boolean isEnabled() {
 
+				if (!hasWritePermission())
+					return false;
+				
 				if (getParentObjectState()== ObjectState.DELETED)
 					return false;
 				
@@ -318,7 +321,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 					map.put("voiceOverlapDurationSec", getVoiceOverlapDurationSec().toString());
 
 				getModel().getObject().setSettings(map);
-				getAudioStudioDBService().save(getModel().getObject(), getSessionUser(), AuditKey.ADD_MUSIC);
+				getAudioStudioDBService().save(getModel().getObject(), getSessionUser().get(), AuditKey.ADD_MUSIC);
 			}
 
 			uploadedStep2 = true;

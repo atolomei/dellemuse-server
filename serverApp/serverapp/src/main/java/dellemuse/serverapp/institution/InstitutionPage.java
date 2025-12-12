@@ -92,11 +92,10 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 	static private Logger logger = Logger.getLogger(InstitutionPage.class.getName());
 
-	private Image image;
-	private WebMarkupContainer imageContainer;
-	private Link<Resource> imageLink;
+	 
+	 
 	private InstitutionMainPanel editor;
-	private ObjectMetaEditor<Institution> metaEditor;
+ 
 	private List<ToolbarItem> list;
 
 	
@@ -212,6 +211,12 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 				//	InstitutionPage.this.togglePanel(event.getName(), event.getTarget());
 				//}
 			
+				else if (event.getName().equals(ServerAppConstant.institution_users_panel)) {
+					InstitutionPage.this.togglePanel(ServerAppConstant.institution_users_panel, event.getTarget());
+				}
+
+		 		
+				
 				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 				
 					InstitutionPage.this.togglePanel(event.getName(), event.getTarget());
@@ -337,6 +342,37 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			}
 		}
 		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<Institution> getItem(String id) {
+				return new SeparatorMenuItem<Institution>(id, getModel());
+			}
+		});
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Institution> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Institution>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick(AjaxRequestTarget target)  {
+						fire ( new MenuAjaxEvent(ServerAppConstant.institution_users_panel, target));
+					}
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("users");
+					}
+				};
+			}
+		});		
+		
+		
  		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -421,7 +457,8 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			});
 		});
 		
-		 
+	
+		
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
@@ -474,18 +511,19 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		};
 		tabs.add(tab_1);
 
-		/**
-		NamedTab tab_2 = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
+		
+		NamedTab tab_2 = new NamedTab(Model.of("users"), ServerAppConstant.institution_users_panel) {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return new AuditPanel<Institution>(panelId, getModel());
+				return getUsersPanel(panelId);
 			}
 		};
 		tabs.add(tab_2);
-		**/
 		
+	 	
 		
 		if (getStartTab()==null)
 			setStartTab( ServerAppConstant.institution_info );
@@ -596,7 +634,17 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			editor = new InstitutionMainPanel(id, getModel());
 		return editor;
 	}
-
+	
+	
+	InstitutionUsersPanel iup;
+	
+	protected Panel getUsersPanel(String id) {
+		if (iup == null)
+			iup = new InstitutionUsersPanel(id, getModel());
+		return iup;
+	}
+	
+	
 	@Override
 	public void onDetach() {
 		super.onDetach();

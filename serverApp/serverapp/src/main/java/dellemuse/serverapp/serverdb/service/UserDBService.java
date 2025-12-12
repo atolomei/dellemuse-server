@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.wicket.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -218,13 +219,15 @@ public class UserDBService extends DBService<User, Long> {
 	
 	@Transactional
 	public Iterable<User> getSiteUsers(Site site) {
-		
 		Set<User> list = new HashSet<User>();
 		getRoleSiteDBService().findBySite(site).forEach( r -> {
 					r.getUsers().forEach( u -> list.add(u));
 		});
 		return list;	
 	}
+	
+	
+	 
 	
 	@Transactional
 	public Iterable<User> getInstitutionUsers(Institution i) {
@@ -304,6 +307,8 @@ public class UserDBService extends DBService<User, Long> {
     protected void onInitialize() {
     	super.register(getEntityClass(), this);
     }
+
+
 
 
     

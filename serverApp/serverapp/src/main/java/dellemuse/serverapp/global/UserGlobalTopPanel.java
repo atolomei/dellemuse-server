@@ -13,6 +13,7 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 import dellemuse.model.UserModel;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.page.user.UserPage;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.AvatarService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -111,6 +112,14 @@ public class UserGlobalTopPanel extends ModelPanel<User> {
 							return null;
 						}
 					};
+				}
+			});
+
+			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Void>() {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public MenuItemPanel<Void> getItem(String id) {
+					return new io.wktui.nav.menu.SeparatorMenuItem<Void>(id);
 				}
 			});
 

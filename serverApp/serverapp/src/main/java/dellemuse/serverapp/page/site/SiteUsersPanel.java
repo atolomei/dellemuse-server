@@ -22,6 +22,8 @@ import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.user.UserExpandedPanel;
+import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.role.RoleUsersPanel;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
  
@@ -42,23 +44,21 @@ import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.InvisiblePanel;
 
-public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel {
+public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	static private Logger logger = Logger.getLogger(SiteRolesPanel.class.getName());
+	static private Logger logger = Logger.getLogger(SiteUsersPanel.class.getName());
 
 	private List<IModel<User>> users;
  	private ListPanel<User> usersPanel;
 	private WebMarkupContainer listToolbarContainer;
 
-
-	 
 	// private List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
 
 	private ObjectStateEnumSelector oses;
 
-	public SiteRolesPanel(String id, IModel<Site> model) {
+	public SiteUsersPanel(String id, IModel<Site> model) {
 		super(id, model);
 		setOutputMarkupId(true);
 	}
@@ -105,14 +105,10 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 		/**
 		if (listToolbar != null)
 			return listToolbar;
-
 		listToolbar = new ArrayList<ToolbarItem>();
-
 		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-
 		listToolbar.add(s);
-
 		return listToolbar;
 	*/
 		
@@ -128,8 +124,8 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 			public void onEvent(ObjectStateSelectEvent event) {
 				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
 				load();
-				event.getTarget().add(SiteRolesPanel.this.usersPanel);
-				event.getTarget().add(SiteRolesPanel.this.listToolbarContainer);
+				event.getTarget().add(SiteUsersPanel.this.usersPanel);
+				event.getTarget().add(SiteUsersPanel.this.listToolbarContainer);
 			}
 
 			@Override
@@ -143,17 +139,14 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 	}
 
 	 protected List<IModel<User>> getUsers() {
-		 
-		 if ( this.users==null)
+		 if (this.users==null)
 			 load();
-		 
 		 return this.users;
 	 }
 	 
 	protected synchronized void load() {
 
 		this.users = new ArrayList<IModel<User>>();
-
 	 
 		Site site;
 		
@@ -165,9 +158,7 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 			
 		getUserDBService().getSiteUsers( site ).forEach( u -> users.add( new ObjectModel<User>(u)) );
 	}
-
-
-	
+ 	
 	/**
 	protected void onObjectRemove(IModel<Role> model, AjaxRequestTarget target) {
 		getUserDBService().removeRole( getModel().getObject(), model.getObject(), getSessionUser());
@@ -200,11 +191,7 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 
 		return Model.of(str.toString());
 	}
-	
-	
-	//private void resetList() {
-	//	this.roleUsers = null;
-	//}
+ 
 
 	private void setUpModel() {
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
@@ -324,9 +311,7 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<User> model, ListPanelMode mode) {
-				return null;
-				// return UserRolesPanel.this.getObjectListItemExpandedPanel(model, mode);
-
+					return new UserExpandedPanel("expanded-panel", model);
 			}
 
 			@Override
@@ -337,7 +322,7 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 
 					@Override
 					protected IModel<String> getObjectTitle() {
-						return SiteRolesPanel.this.getObjectTitle(getModel());
+						return SiteUsersPanel.this.getObjectTitle(getModel());
 					}
 
 					@Override
@@ -348,8 +333,7 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 
 					@Override
 					public void onClick() {
-						// setResponsePage(new
-						// ArtExhibitionItemPage(getModel(),UserRolesPanel.this.getItems()));
+						  setResponsePage(new UserPage(getModel()));
 					}
 
 					 
@@ -364,18 +348,12 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 
 			@Override
 			public List<IModel<User>> getItems() {
-				return SiteRolesPanel.this.getUsers();
+				return SiteUsersPanel.this.getUsers();
 			}
+ 		};
 
-			// @Override
-			// protected void setItems(List<IModel<ArtExhibitionItem>> list) {
-			// ArtExhibitionItemsPanel.this.setList(list);
-			// }
-
-		};
-		add(usersPanel);
-
-		// panel.setTitle(getLabel("exhibitions-permanent"));
+ 		add(usersPanel);
+		 
 		usersPanel.setListPanelMode(ListPanelMode.TITLE);
 		usersPanel.setLiveSearch(false);
 		usersPanel.setSettings(true);

@@ -58,6 +58,12 @@ public class UserPage extends ObjectPage<User> {
 	private List<ToolbarItem> userMenu = null;
 
 	
+	protected boolean isMetaEditEnabled() {
+		if (getModel().getObject().isRoot())
+			return false;
+		return true;
+	}
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 

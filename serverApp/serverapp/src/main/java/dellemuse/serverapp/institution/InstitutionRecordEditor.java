@@ -125,6 +125,10 @@ public class InstitutionRecordEditor extends DBObjectEditor<InstitutionRecord>  
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -150,6 +154,10 @@ public class InstitutionRecordEditor extends DBObjectEditor<InstitutionRecord>  
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 			
@@ -187,7 +195,7 @@ public class InstitutionRecordEditor extends DBObjectEditor<InstitutionRecord>  
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
 	
-		save(getModelObject(), getSessionUser(), getUpdatedParts());
+		save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 	 
 		getForm().setFormState(FormState.VIEW);
 		logger.debug("done");

@@ -177,7 +177,7 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 	protected abstract void onObjectSelect(IModel<T> model, AjaxRequestTarget target);
 
 	protected WebMarkupContainer getObjectMenu(IModel<T> model) {
-		LabelAjaxLinkPanel<T> b = new LabelAjaxLinkPanel<T>("menu", null, model, "fa-regular fa-plus") {
+		LabelAjaxLinkPanel<T> b = new LabelAjaxLinkPanel<T>("menu", null, model, "fa-duotone fa-plus") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

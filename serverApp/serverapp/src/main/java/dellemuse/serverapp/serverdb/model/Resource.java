@@ -18,11 +18,7 @@ import jakarta.persistence.Table;
 public class Resource extends DelleMuseObject {
 
 	
-
-	public static String getIcon() {
-		return "fa-regular fa-file";
-	}
-
+	
 	@Column(name = "bucketName")
 	private String bucketName;
 
@@ -214,4 +210,10 @@ public class Resource extends DelleMuseObject {
 		return false;
 	}
 
+	
+	public static String getIcon() {
+		return "fa-duotone fa-file";
+	}
+
+	
 };

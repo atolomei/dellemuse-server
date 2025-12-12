@@ -63,7 +63,7 @@ public abstract class Role extends DelleMuseObject {
 	}
 
 	public static final String getIcon() {
-		return "fa-regular fa-id-badge";
+		return "fa-duotone fa-id-badge";
 	}
  	
 	

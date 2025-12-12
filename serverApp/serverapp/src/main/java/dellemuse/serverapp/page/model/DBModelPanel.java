@@ -606,10 +606,14 @@ public class DBModelPanel<T> extends ModelPanel<T> {
 		return getUserDBService().findRoot();
 	}
 
-	protected User getSessionUser() {
-		return getUserDBService().getSessionUser();
+	protected Optional<User> getSessionUser() {
+		User user=getUserDBService().getSessionUser();
+		if (user==null)
+			return Optional.empty();
+		return Optional.of(user);
 	}
 
+	
 	/** DBService ------------------------- */
 
 	protected InstitutionDBService getInstitutionDBService() {

@@ -125,20 +125,10 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 		 
  
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
-
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public MenuItemPanel<Site> getItem(String id) {
-
-				return new io.wktui.nav.menu.SeparatorMenuItem<Site>(id) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public boolean isVisible() {
-						return true;
-					}
-				};
+				return new io.wktui.nav.menu.SeparatorMenuItem<Site>(id);
 			}
 		});
 

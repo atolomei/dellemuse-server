@@ -4,27 +4,17 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.pages.RedirectPage;
+ 
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+ 
 import org.apache.wicket.request.Url;
-import org.apache.wicket.request.resource.ResourceReference;
+ 
 import org.apache.wicket.request.resource.UrlResourceReference;
-
-import dellemuse.model.DelleMuseModelObject;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.SiteModel;
-import dellemuse.serverapp.serverdb.model.DelleMuseObject;
-import io.wktui.nav.menu.DropDownMenu;
-import io.wktui.nav.menu.LinkMenuItem;
-import io.wktui.nav.menu.MenuItemPanel;
-import io.wktui.nav.menu.NavBar;
-import io.wktui.nav.menu.NavDropDownMenu;
-import io.wktui.nav.menu.SeparatorMenuItem;
+ 
 import io.wktui.struct.list.ListPanelMode;
-import wktui.base.BasePanel;
+ 
 import wktui.base.InvisiblePanel;
-import wktui.base.LabelPanel;
+ 
 import wktui.base.ModelPanel;
 
 public abstract class ObjectListItemExpandedPanel<T> extends ModelPanel<T> {
@@ -33,7 +23,7 @@ public abstract class ObjectListItemExpandedPanel<T> extends ModelPanel<T> {
 
 	private IModel<String> subtitle;
 	private String icon;
-	private IModel<String> iconCss;
+	//private IModel<String> iconCss;
 	private Link<T> imageLink;
 	private Image image;
 	ListPanelMode mode;
@@ -92,7 +82,6 @@ public abstract class ObjectListItemExpandedPanel<T> extends ModelPanel<T> {
 		Label text = new Label("text", getInfo());
 		text.setEscapeModelStrings(false);
 		this.textContainer.add(text);
-		//this.textContainer.setVisible( this.mode!=ListPanelMode.TITLE);
 		this.textContainer.setVisible(true);
 		
 		
@@ -133,33 +122,24 @@ public abstract class ObjectListItemExpandedPanel<T> extends ModelPanel<T> {
 			};
 			imageContainer.addOrReplace(noimage);
 		}
-		
 	}
 
 	protected String getTitleLinkCss() {
 		return "title-link";
 	}
 
-
 	protected abstract IModel<String> getInfo();
 	
-	//{
-//		return new Model<String>(getModel().getObject().getDisplayname());
-//	}
-
-	protected IModel<String> getObjectSubtitle() {
+ 	protected IModel<String> getObjectSubtitle() {
 		return subtitle;
 	}
 	
-	
 	public void onClick() {
-
 	}
 
 	protected String getImageSrc() {
 		return null;
 	}
-	
 	
 	protected String getIcon() {
 		return icon;
@@ -168,8 +148,6 @@ public abstract class ObjectListItemExpandedPanel<T> extends ModelPanel<T> {
 	public void setIcon(String icon) {
 		this.icon = icon;
 	}
-
-	 
 
 	public void setObjectSubtitle(IModel<String> subtitle) {
 		this.subtitle = subtitle;

@@ -150,7 +150,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 		try {
 			getUpdatedParts().forEach(s -> logger.debug(s));
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 			getForm().setFormState(FormState.VIEW);
 		} catch (Exception e) {
 			addOrReplace(new SimpleAlertRow<Void>("error", e));
@@ -207,7 +207,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	}
 
 	protected Locale getUserLocale() {
-		return getSessionUser().getLocale();
+		return getSessionUser().get().getLocale();
 	}
 
 	protected boolean processAudioUpload(List<FileUpload> uploads) {
@@ -287,7 +287,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 				logger.debug(getModelObject().getIntro());
 				logger.debug(getModelObject().getInfo());
 
-				save(getModelObject(), getSessionUser(), AuditKey.TRANSLATE);
+				save(getModelObject(), getSessionUser().get(), AuditKey.TRANSLATE);
 				loadForm();
 
 			} else {
@@ -343,6 +343,10 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -351,7 +355,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		form.add(new InvisiblePanel("alert"));
 
 		Locale langLocale = Locale.forLanguageTag(getSourceModel().getObject().getMasterLanguage());
-		Locale userLocale = getSessionUser().getLocale();
+		Locale userLocale = getSessionUser().get().getLocale();
 
 		t_label = new Label("translatesrc", getLabel("translate-button-text", langLocale.getDisplayLanguage(userLocale)));
 		this.translate.add(t_label);
@@ -432,7 +436,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick() {
-				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser());
+				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
 					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get())));
 				logger.error("audio studio not created for -> " + getModel().getObject().getDisplayname());
@@ -468,6 +472,9 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			@Override
 			public boolean isVisible() {
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -490,6 +497,10 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 

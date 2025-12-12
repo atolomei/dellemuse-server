@@ -75,7 +75,10 @@ public class User extends DelleMuseObject {
 	private String language;
 
 	public static final String getIcon() {
-		return "fa-solid fa-user";
+
+		//return "fa-solid fa-user";
+		
+		return "fa-duotone fa-solid fa-user";
 	}
 	
 	@Override

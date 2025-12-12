@@ -393,12 +393,22 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	protected Panel getMetaEditor(String id) {
 		if (this.metaEditor == null) {
-			metaEditor = new ObjectMetaEditor<T>(id, getModel());
+			metaEditor = new ObjectMetaEditor<T>(id, getModel()) {
+				
+				public boolean isEditEnabled() {
+					return ObjectPage.this.isMetaEditEnabled();
+				}
+				
+			};
 			metaEditor.setLanguage(ObjectPage.this.isLanguage());
 			metaEditor.setAudioAutoGenerate(ObjectPage.this.isAudioAutoGenerate());
 		}
 
 		return (metaEditor);
+	}
+
+	protected boolean isMetaEditEnabled() {
+		return true;
 	}
 
 	protected boolean isLanguage() {

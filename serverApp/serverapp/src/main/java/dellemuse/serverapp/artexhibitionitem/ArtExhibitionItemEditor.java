@@ -10,6 +10,7 @@ import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
@@ -37,7 +38,7 @@ import wktui.base.InvisiblePanel;
  * alter table artexhibition add column spec text;
  * 
  */
-public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> implements InternalPanel {
+public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionItem> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -135,6 +136,10 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -158,6 +163,10 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 			
@@ -258,7 +267,7 @@ public class ArtExhibitionItemEditor extends DBObjectEditor<ArtExhibitionItem> i
 
 		try {
 			getUpdatedParts().forEach(s -> logger.debug(s));
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
 			fire (new ObjectUpdateEvent(target));

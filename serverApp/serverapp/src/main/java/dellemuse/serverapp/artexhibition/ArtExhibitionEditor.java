@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -24,6 +25,7 @@ import org.apache.wicket.model.util.ListModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
@@ -32,6 +34,9 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.service.DTFormatter;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
@@ -49,7 +54,7 @@ import wktui.base.InvisiblePanel;
 /**
  * horario información técnica alter table artexhibition add column spec text;
  */
-public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implements InternalPanel {
+public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -79,6 +84,10 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 	private IModel<Site> siteModel;
 	private List<ToolbarItem> x_list;
 
+	
+	
+	
+	
 	/**
 	 * @param id
 	 * @param model
@@ -217,6 +226,10 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -240,6 +253,10 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -301,7 +318,7 @@ public class ArtExhibitionEditor extends DBObjectEditor<ArtExhibition> implement
 				setTo(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
 			}
 
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 			this.uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();

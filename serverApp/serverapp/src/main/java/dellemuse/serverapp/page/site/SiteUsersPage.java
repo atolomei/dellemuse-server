@@ -43,11 +43,11 @@ import wktui.base.NamedTab;
  */
 
 @MountPath("/site/users/${id}")
-public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
+public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 	private static final long serialVersionUID = 1L;
 
-	static private Logger logger = Logger.getLogger(SiteRolesPage.class.getName());
+	static private Logger logger = Logger.getLogger(SiteUsersPage.class.getName());
 
 	private List<ToolbarItem> list;
 
@@ -90,15 +90,15 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		
 		return false;
 	} 
-	public SiteRolesPage() {
+	public SiteUsersPage() {
 		super();
 	}
 
-	public SiteRolesPage(PageParameters parameters) {
+	public SiteUsersPage(PageParameters parameters) {
 		super(parameters);
 	}
 
-	public SiteRolesPage(IModel<Site> model) {
+	public SiteUsersPage(IModel<Site> model) {
 		super(model);
 	}
 
@@ -170,7 +170,7 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return new SiteRolesPanel(panelId, getModel());
+				return new SiteUsersPanel(panelId, getModel());
 			}
 		};
 		tabs.add(tab_1);
@@ -223,29 +223,29 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
-					SiteRolesPage.this.onEdit(event.getTarget());
+					SiteUsersPage.this.onEdit(event.getTarget());
 				}
 
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
-					SiteRolesPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
+					SiteUsersPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
 				}
 
 				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
-					SiteRolesPage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
+					SiteUsersPage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
 				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
-					SiteRolesPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+					SiteUsersPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
 
 				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
-					SiteRolesPage.this.togglePanel(event.getName(), event.getTarget());
+					SiteUsersPage.this.togglePanel(event.getName(), event.getTarget());
 				}
 
 				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
 					if (event.getMoreInfo() != null) {
-						SiteRolesPage.this.togglePanel(ServerAppConstant.object_audit + "-" + event.getMoreInfo(), event.getTarget());
+						SiteUsersPage.this.togglePanel(ServerAppConstant.object_audit + "-" + event.getMoreInfo(), event.getTarget());
 						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
 					} else {
-						SiteRolesPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+						SiteUsersPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
 					}
 				}

@@ -25,7 +25,7 @@ import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+ 
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -72,54 +72,25 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	
 	private ObjectStateEnumSelector oses;
 	
-	 
-	
-	
-	/**
-	 * 
-	 * Artwork name
-	 * Artwork artists
-	 * 
-	 * Floor
-	 * Room
-	 * Read Code
-	 * 
-	 * Inflo
-	 * 
-	 * 
-	 * 
-	 * @param model
-	 * @return
-	 */
-	
-	/**
-	 * @param id
-	 * @param model
-	 */
 	
 	public ArtExhibitionItemsPanel(String id, IModel<ArtExhibition> model, IModel<Site> siteModel) {
 		super(id, model);
 		this.siteModel=siteModel;
 		setOutputMarkupId (true );
-		
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
 		setUpModel();
-		
 		addListToolbar();
 		addItems();
 		addSelector();
-	
 	}
 
 	private void setUpModel() {
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
 	}
-
 	
 	@Override
 	public void onDetach() {

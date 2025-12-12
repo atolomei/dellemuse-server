@@ -94,6 +94,10 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -121,6 +125,17 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
 			}
+			
+			@Override
+			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+		
+				return true;
+			}
+			
+			
 		};
 		create.setAlign(Align.TOP_LEFT);
 		list.add(create);
@@ -151,7 +166,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		try {
 			this.form.setFormState(FormState.VIEW);
 			target.add(this.form);
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 		} catch (Exception e) {
 
 			addOrReplace(new SimpleAlertRow<Void>("error", e));

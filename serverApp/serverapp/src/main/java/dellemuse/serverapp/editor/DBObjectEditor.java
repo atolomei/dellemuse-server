@@ -82,6 +82,12 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 	private boolean readonly = false;
 	private List<String> updatedParts = new ArrayList<String>();
 
+	
+	public boolean hasWritePermission() {
+		return true;
+	}
+	
+	
 	public DBObjectEditor(String id, IModel<T> model) {
 		super(id, model);
 		super.setOutputMarkupId(true);

@@ -11,7 +11,7 @@ public class ServerAppConstant {
 	static final public String site_page_info 	= "site-panel-info";
 	static final public String site_page_search = "site-page-search";
 	static final public String site_page_users  = "site-page-users";
-
+	static final public String site_page_roles  = "site-page-roles";
 	
 	static final public String siterecord_info = "siterecord-info";
 	
@@ -88,6 +88,10 @@ public class ServerAppConstant {
 	static final public String institutionrecord_info = "institutionrecord-info";
 	static final public String institution_meta = "institution-meta";
 	static final public String institution_audit = "institution-audit";
+	static final public String institution_users_panel = "institution-users";
+	
+	
+	
 	
 	static final public String action_institution_edit = "action-institution-edit";
 	

@@ -23,6 +23,7 @@ import dellemuse.model.logging.Logger;
  
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
  
@@ -32,7 +33,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
  
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
-
+import dellemuse.serverapp.serverdb.model.Site;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
@@ -43,7 +44,7 @@ import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import wktui.base.InvisiblePanel;
 
-public class ArtWorkEditor extends DBObjectEditor<ArtWork> {
+public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -198,6 +199,10 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork> {
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -221,6 +226,10 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork> {
 
 			@Override
 			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -262,7 +271,7 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork> {
 				getModel().getObject().setArtists(set);
 			}
 
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 			uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
@@ -282,7 +291,14 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork> {
 
 		if (photoModel != null)
 			photoModel.detach();
+	
+	
+		if (siteModel!=null)
+			siteModel.detach();
+		
 	}
+	
+	
 
 	protected IModel<Resource> getPhotoModel() {
 		return this.photoModel;
@@ -344,5 +360,22 @@ public class ArtWorkEditor extends DBObjectEditor<ArtWork> {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
 		}
+		
+		if (getModel().getObject().getSite() != null) {
+			Optional<Site> o_s = getSiteDBService().findWithDeps(getModel().getObject().getSite().getId());
+			setSiteModel(new ObjectModel<Site>(o_s.get()));
+		}
+	
+	
+	}
+	
+	private IModel<Site> siteModel;
+	
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
 	}
 }

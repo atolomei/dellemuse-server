@@ -93,7 +93,11 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 			@Override
 			public boolean isVisible() {
-				return getForm().getFormState() == FormState.EDIT;
+				
+					if (!hasWritePermission())
+						return false;
+			
+					return getForm().getFormState() == FormState.EDIT;
 			}
 
 		};
@@ -155,7 +159,7 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 			this.form.setFormState(FormState.VIEW);
 			target.add(this.form);
-			save(getModelObject(), getSessionUser(), getUpdatedParts());
+			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 		
 		} catch (Exception e) {
 			addOrReplace(new SimpleAlertRow<Void>("error", e));

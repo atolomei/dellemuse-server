@@ -215,7 +215,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 	}
 
 	protected void onObjectRemove(IModel<Role> model, AjaxRequestTarget target) {
-		getUserDBService().removeRole(getModel().getObject(), model.getObject(), getSessionUser());
+		getUserDBService().removeRole(getModel().getObject(), model.getObject(), getSessionUser().get());
 		resetList();
 		target.add(this.userRolesPanel);
 	}

@@ -123,7 +123,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		if (getItems().size()<0)
 			name = name + "-"+String.valueOf(getItems().size());
 
-		service.create(name, getModel().getObject(), getSessionUser());
+		service.create(name, getModel().getObject(), getSessionUser().get());
 	
 		resetItems();
 		target.add(this.itemsContainer);
@@ -135,6 +135,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	}
 
 	protected WebMarkupContainer getMenu(IModel<ArtExhibitionGuide> model) {
+		
 		NavDropDownMenu<ArtExhibitionGuide> menu = new NavDropDownMenu<ArtExhibitionGuide>("menu", model, null) {
 			private static final long serialVersionUID = 1L;
 
@@ -191,7 +192,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	
 	protected Panel getObjectListItemExpandedPanel(IModel<ArtExhibitionGuide> model, ListPanelMode mode) {
 
-		model.setObject( super.findArtExhibitionGuideWithDeps(model.getObject().getId()).get() );
+		model.setObject(super.findArtExhibitionGuideWithDeps(model.getObject().getId()).get() );
 		
 		return new ObjectListItemExpandedPanel<ArtExhibitionGuide>("expanded-panel", model, mode) {
 
@@ -233,17 +234,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			protected List<IModel<ArtExhibitionGuide>> filter(List<IModel<ArtExhibitionGuide>> initialList,
 					String filter) {
 				return iFilter(initialList, filter);
-/**
-				List<IModel<ArtExhibitionGuide>> list = new ArrayList<IModel<ArtExhibitionGuide>>();
-				final String str = filter.trim().toLowerCase();
-				initialList.forEach(s -> {
-					if (s.getObject().getDisplayname().toLowerCase().contains(str)) {
-						list.add(s);
-					}
-				});
-				return list;*/
 			}
-
 
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<ArtExhibitionGuide> model, ListPanelMode mode) {
