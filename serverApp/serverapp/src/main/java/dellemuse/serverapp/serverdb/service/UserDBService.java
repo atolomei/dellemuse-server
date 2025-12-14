@@ -77,16 +77,19 @@ public class UserDBService extends DBService<User, Long> {
      */
     @Transactional
     public User create(String name, Person person, User createdBy) {
-        User c = new User();
+      
+    	User c = new User();
         c.setName(name);
-        
-    	c.setLanguage(getDefaultMasterLanguage());
+        c.setUsername(name);
+
+        c.setLanguage(getDefaultMasterLanguage());
 	
     	c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
         c.setZoneId( getSettings().getDefaultZoneId() );
-        
+        c.setState(ObjectState.PUBLISHED);
+
         String hash = new BCryptPasswordEncoder().encode("dellemuse");
         c.setPassword(hash);
         // BCrypt.checkpw(plainPassword, hashedPasswordFromDB);
@@ -106,6 +109,29 @@ public class UserDBService extends DBService<User, Long> {
 	public void save(User o, User user, List<String> updatedParts) {
 			super.save(o);
 			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+	
+	
+
+	@Transactional
+	public void markAsDeleted(User c, User deletedBy) {
+		
+		if (c.isRoot())
+			throw new IllegalArgumentException("root user can not be deleted");
+		
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(deletedBy);
+		c.setState(ObjectState.DELETED);
+
+		getRepository().save(c);	
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
+	}
+	
+	@Transactional	
+	public void delete(User o, User by) {
+		if (o.isRoot())
+			throw new IllegalArgumentException("root user can not be deleted");
+		super.delete(o, by);
 	}
     
 	@Transactional	

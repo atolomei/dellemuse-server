@@ -125,7 +125,6 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	
 	@Transactional
 	public void delete(T c, User user) {
-	
 		logger.debug("deleting -> " + c.getDisplayname() );
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, user, AuditAction.DELETE));
 		getRepository().delete(c);

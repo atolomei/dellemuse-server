@@ -329,7 +329,7 @@ public class DelleMuseAudit extends JsonObject implements Identifiable, Auditabl
 	}
 
 	 public static DelleMuseAudit of(DelleMuseObject o, User user, AuditAction a, String auditMsg) {
-		return of(o, user, a, null, null);
+		return of(o, user, a, auditMsg, null);
 	}
 
 	public static DelleMuseAudit of(DelleMuseObject o, User user, AuditAction a, String auditMsg, Map<String, String> auditJson) {

@@ -1,6 +1,7 @@
 package dellemuse.serverapp.institution;
 
 import java.io.InputStream;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ import io.wktui.form.button.EditButtons;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
+import io.wktui.form.field.ZoneIdField;
 import wktui.base.InvisiblePanel;
 
 public class InstitutionEditor extends DBObjectEditor<Institution> {
@@ -38,7 +40,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 	static private Logger logger = Logger.getLogger(InstitutionEditor.class.getName());
 
 	private Form<Institution> form;
-
+	private ZoneIdField zoneIdField;
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
 	private TextField<String> shortNameField;
@@ -101,7 +103,9 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		add(this.form);
 		setForm(this.form);
 
-		 
+		
+		zoneIdField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
+ 
 
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		subtitleField = new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
@@ -178,6 +182,8 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		form.add(whatsappField);
 		form.add(photoField);
 		form.add(logoField);
+		form.add(zoneIdField);
+		
 
 		EditButtons<Institution> b_buttons = new EditButtons<Institution>("buttons-bottom", getForm(), getModel()) {
 
@@ -424,11 +430,8 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 	@Override
 	public void update(AjaxRequestTarget target) {
-
 		updateModel();
-
 		target.add(this);
-
 		logger.debug(getModelObject().toString());
 		logger.debug("done");
 
@@ -439,12 +442,11 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 	 */
 	protected void onSave(AjaxRequestTarget target) {
 
+		updateModel();
 		getUpdatedParts().forEach(s -> logger.debug(s));
 
 		try {
-
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
-
 			uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();

@@ -1,5 +1,6 @@
 package dellemuse.serverapp.serverdb.model;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -283,11 +284,11 @@ public class Site extends MultiLanguageObject {
 		return floors;
 	}
 
-	public String getZoneId() {
+	public String getZoneIdStr() {
 		return zoneId;
 	}
 
-	public void setZoneId(String zoneid) {
+	public void setZoneIdStr(String zoneid) {
 		this.zoneId = zoneid;
 	}
 
@@ -303,5 +304,15 @@ public class Site extends MultiLanguageObject {
 		return "fa-solid fa-building-columns";
 	}
 
+	public void setZoneId(ZoneId z) {
+		this.setZoneIdStr(z.getId());
+	}
 	
+	public ZoneId getZoneId() {
+		
+		if (getZoneIdStr()==null)
+			return ZoneId.systemDefault();
+		
+		return ZoneId.of(zoneId);
+	}
 };

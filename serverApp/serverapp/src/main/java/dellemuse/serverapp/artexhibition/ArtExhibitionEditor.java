@@ -291,7 +291,7 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 		if (getSiteModel().getObject().getLanguage() == null)
 			throw new IllegalArgumentException("Language is null");
 
-		ZoneId zoneId = ZoneId.of(getSiteModel().getObject().getZoneId());
+		ZoneId zoneId = ZoneId.of(getSiteModel().getObject().getZoneIdStr());
 
 		try {
 

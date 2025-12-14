@@ -80,7 +80,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setLastModifiedUser(createdBy);
 		c.setState(ObjectState.EDITION);
 		
-		c.setZoneId( getSettings().getDefaultZoneId().getId());
+		c.setZoneIdStr( getSettings().getDefaultZoneId().getId());
 
 		getRepository().save(c);
 		createSequence(c);
@@ -120,10 +120,11 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setState(ObjectState.EDITION);
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-
+		c.setZoneId(institution.getZoneId());
+		
 		shortName.ifPresent(c::setShortName);
 		address.ifPresent(c::setAddress);
-		c.setZoneId( getSettings().getDefaultZoneId().getId());
+		c.setZoneIdStr( getSettings().getDefaultZoneId().getId());
 		
 		
 		getRepository().save(c);
@@ -161,8 +162,7 @@ public class SiteDBService extends DBService<Site, Long> {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 
-		c.setZoneId( getSettings().getDefaultZoneId().getId());
-
+		c.setZoneId(in.getZoneId());
 		
 		c.setAddress(in.getAddress());
 		c.setWebsite(in.getWebsite());

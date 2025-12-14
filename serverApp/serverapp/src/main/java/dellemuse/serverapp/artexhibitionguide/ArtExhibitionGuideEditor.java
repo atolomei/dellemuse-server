@@ -72,7 +72,7 @@ import wktui.base.InvisiblePanel;
  * alter table artexhibition add column spec text;
  * 
  */
-public class ArtExhibitionGuideEditor extends  DBSiteObjectEditor<ArtExhibitionGuide> implements InternalPanel {
+public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGuide> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 

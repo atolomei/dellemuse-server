@@ -27,6 +27,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
  
 import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.error.ErrorPanel;
+import io.wktui.event.CloseErrorPanelAjaxEvent;
 import io.wktui.event.UIEvent;
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -53,7 +54,12 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	 
 
 	private WebMarkupContainer mainToolbarContainer;
-	 
+
+	private WebMarkupContainer contentsContainerContainer;
+	private WebMarkupContainer errorContainer;
+
+	
+	
 
 	private WebMarkupContainer listToolbarContainer;
  
@@ -97,9 +103,9 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		addOrReplace(panel);
 	}
 
-	public void addDefaultPageHeaderPanel() {
-		this.addOrReplace(new InvisiblePanel("page-header"));
-	}
+	//public void addDefaultPageHeaderPanel() {
+	//	this.addOrReplace(new InvisiblePanel("page-header"));
+	//}
 
 	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
 		this.oses = o;
@@ -109,93 +115,11 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		return this.oses;
 	}
 
-	@Override
-	public void onDetach() {
-		super.onDetach();
-
-		if (this.list != null)
-			this.list.forEach(i -> i.detach());
-	}
-
-	public List<IModel<T>> getList() {
-		return this.list;
-	}
-
-	public void setIsExpanded(boolean b) {
-		this.b_expand = b;
-	}
-
-	protected boolean isIsExpanded() {
-		return b_expand;
-	}
-
-	protected boolean isTitle() {
-		return getTitleLabel() != null;
-	}
-
-	protected void refresh(AjaxRequestTarget target) {
-		target.add(this.panel);
-		target.add(this.listToolbarContainer);
-	}
 	
-	protected void addListeners() {
-		super.addListeners();
-
-		add(new io.wktui.event.WicketEventListener<ObjectStateSelectEvent>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(ObjectStateSelectEvent event) {
-
-				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
-
-				logger.debug(event.toString());
-
-				loadList();
-				refresh(event.getTarget() );
-				
-				 
-
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof ObjectStateSelectEvent)
-					return true;
-				return false;
-			}
-		});
-
-	}
-
-	protected Panel getObjectListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
-
-		return new ObjectListItemExpandedPanel<T>("expanded-panel", model, mode) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected IModel<String> getInfo() {
-				return ObjectListPage.this.getObjectInfo(getModel());
-			}
-
-			@Override
-			protected IModel<String> getObjectSubtitle() {
-				return ObjectListPage.this.getObjectSubtitle(getModel());
-			}
-
-			@Override
-			protected String getImageSrc() {
-				return ObjectListPage.this.getObjectImageSrc(getModel());
-			}
-		};
-	}
-
+	private Panel errorPanel;
 	
-	
-	
-	public boolean hasAccessRight(Optional<User> optional) {
-		return true;
+	protected Panel getErrorPanel() {
+		return this.errorPanel;
 	}
 	
 	
@@ -203,6 +127,22 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	public void onInitialize() {
 		super.onInitialize();
 
+		 contentsContainerContainer =  new WebMarkupContainer("contentsContainer");
+		 contentsContainerContainer.setOutputMarkupId(true);
+		 add(contentsContainerContainer);
+		 
+		 errorContainer= new WebMarkupContainer("errorContainer") {
+			private static final long serialVersionUID = 1L;
+			 public boolean isVisible() {
+				 return (getErrorPanel()!=null) && getErrorPanel().isVisible();
+			 }
+		 };
+		 errorContainer.setOutputMarkupId(true);
+		 errorContainer.add(new InvisiblePanel("error"));
+		 contentsContainerContainer.add(errorContainer);
+		 
+			
+		 
 		try {
 			add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
 			add(new GlobalFooterPanel<>("footer-panel"));
@@ -226,7 +166,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			addOrReplace(new InvisiblePanel("mainToolbarContainer"));
 			addOrReplace(new InvisiblePanel("listToolbarContainer"));
 			addOrReplace(new InvisiblePanel("titleContainer"));
-			addOrReplace( new ErrorPanel("contents", getLabel("not-authorized")));
+			 contentsContainerContainer.addOrReplace( new ErrorPanel("contents", getLabel("not-authorized")));
 			return;
 		}
  		
@@ -350,13 +290,129 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			this.panel.setSettings(isSettings());
 			this.panel.setTitle(getListPanelLabel());
 			this.panel.setListPanelMode(getListPanelMode());
-			add(this.panel);
+			 contentsContainerContainer.add(this.panel);
 
 		} catch (Exception e) {
 			logger.error(e);
-			addOrReplace(new ErrorPanel("contents", e));
+			 contentsContainerContainer.addOrReplace(new ErrorPanel("contents", e));
 		}
 	}
+	
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (this.list != null)
+			this.list.forEach(i -> i.detach());
+	}
+
+	public List<IModel<T>> getList() {
+		return this.list;
+	}
+
+	public void setIsExpanded(boolean b) {
+		this.b_expand = b;
+	}
+
+	protected boolean isIsExpanded() {
+		return b_expand;
+	}
+
+	protected boolean isTitle() {
+		return getTitleLabel() != null;
+	}
+
+	protected void refresh(AjaxRequestTarget target) {
+		target.add(this. contentsContainerContainer);
+		target.add(this.listToolbarContainer);
+	}
+	
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<ObjectStateSelectEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(ObjectStateSelectEvent event) {
+				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
+				loadList();
+				refresh(event.getTarget());
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectStateSelectEvent)
+					return true;
+				return false;
+			}
+		});
+
+		
+		
+		add(new io.wktui.event.WicketEventListener<CloseErrorPanelAjaxEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(CloseErrorPanelAjaxEvent event) {
+				setErrorPanel( new InvisiblePanel("error"));
+				refresh(event.getTarget());
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof CloseErrorPanelAjaxEvent)
+					return true;
+				return false;
+			}
+		});
+
+		
+		
+		
+		
+		
+		
+		
+	}
+
+	protected Panel getObjectListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
+
+		return new ObjectListItemExpandedPanel<T>("expanded-panel", model, mode) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected IModel<String> getInfo() {
+				return ObjectListPage.this.getObjectInfo(getModel());
+			}
+
+			@Override
+			protected IModel<String> getObjectSubtitle() {
+				return ObjectListPage.this.getObjectSubtitle(getModel());
+			}
+
+			@Override
+			protected String getImageSrc() {
+				return ObjectListPage.this.getObjectImageSrc(getModel());
+			}
+		};
+	}
+ 
+	
+	public boolean hasAccessRight(Optional<User> optional) {
+		return true;
+	}
+	
+	
+	protected void setErrorPanel(Panel panel) {
+		if (!panel.getId().equals("error"))
+			throw new IllegalArgumentException("id must be -> error");
+		errorPanel=panel;
+		errorContainer.addOrReplace(errorPanel);
+	}
+	
+
 
 	protected void setList(List<IModel<T>> list) {
 		this.list = list;
@@ -386,6 +442,11 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		return null;
 	}
 
+	/**
+	 * 
+	 * 
+	 */
+
 	protected void loadList() {
 
 		this.list = new ArrayList<IModel<T>>();
@@ -407,13 +468,12 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
 			getObjects(ObjectState.DELETED).forEach(s -> this.list.add(new ObjectModel<T>(s)));
-
-		//this.list.forEach(c -> logger.debug(c.toString()));
-
-		//this.initialList = new ArrayList<IModel<T>>();
-		//this.list.forEach( v -> this.initialList.add(v));
-
 	}
+
+	/**
+	 * 
+	 * 
+	 */
 
 	private void addMainToolbar() {
 
@@ -437,6 +497,11 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			this.mainToolbarContainer.add(new InvisiblePanel("mainToolbar"));
 		}
 	}
+	
+	/**
+	 * 
+	 * 
+	 */
 
 	private void addListToolbar() {
 

@@ -154,6 +154,7 @@ public class UserPage extends ObjectPage<User> {
 
 				if (event.getName().equals(ServerAppConstant.user_action_edit_info)) { 
 					UserPage.this.onEdit(event.getTarget());
+					
 				} else if (event.getName().equals(ServerAppConstant.user_panel_info)) {
 					UserPage.this.togglePanel(ServerAppConstant.user_panel_info, event.getTarget());
 				} else if (event.getName().equals(ServerAppConstant.user_panel_password)) {
@@ -273,6 +274,8 @@ public class UserPage extends ObjectPage<User> {
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<User>(id, getModel());
 	}
+	
+	
 
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {

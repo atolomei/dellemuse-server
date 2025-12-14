@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -36,7 +37,7 @@ import io.wktui.error.ErrorPanel;
 
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
-
+import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
@@ -59,13 +60,11 @@ public class UserListPage extends ObjectListPage<User> {
 	private List<ToolbarItem> list;
 	private List<ToolbarItem> listToolbar;
 
-	
 	@Override
 	protected Panel getObjectListItemExpandedPanel(IModel<User> model, ListPanelMode mode) {
 		return new UserExpandedPanel("expanded-panel", model);
 	}
-	
-	
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		if (ouser.isEmpty())
@@ -195,10 +194,12 @@ public class UserListPage extends ObjectListPage<User> {
 	protected void onCreate() {
 
 		try {
+			
 			User in = getUserDBService().create("new", getUserDBService().findRoot());
 			IModel<User> m = new ObjectModel<User>(in);
 			getList().add(m);
-			// setResponsePage( new UserPage(m,getList()));
+			setResponsePage(new UserPage(m, getList()));
+			
 		} catch (Exception e) {
 			logger.error(e);
 			setResponsePage(new ErrorPage(e));
@@ -240,24 +241,35 @@ public class UserListPage extends ObjectListPage<User> {
 			}
 		});
 
-		/**
-		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-		 * 
-		 * private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public MenuItemPanel<User> getItem(String id) {
-		 * 
-		 *           return new AjaxLinkMenuItem<User>(id) {
-		 * 
-		 *           private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
-		 *           }
-		 * 
-		 * @Override public IModel<String> getLabel() { return getLabel("delete"); } };
-		 *           } });
-		 * 
-		 */
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+				return new AjaxLinkMenuItem<User>(id) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						try {
+							getUserDBService().markAsDeleted(getModel().getObject(), getSessionUser().get());
+						} catch (Exception e) {
+							logger.error(e);
+							UserListPage.this.setErrorPanel( new ErrorPanel("error", e, true));
+						}
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+
+			}
+		});
+
 		return menu;
 	}
 

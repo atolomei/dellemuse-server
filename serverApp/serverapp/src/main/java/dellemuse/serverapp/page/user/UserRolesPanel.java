@@ -221,7 +221,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 	}
 
 	protected void onObjectSelect(IModel<Role> model, AjaxRequestTarget target) {
-		getUserDBService().addRole(getModel().getObject(), model.getObject(), getSessionUser());
+		getUserDBService().addRole(getModel().getObject(), model.getObject(), getSessionUser().get());
 		resetList();
 		target.add(this.userRolesPanel);
 

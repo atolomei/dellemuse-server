@@ -1,5 +1,6 @@
 package dellemuse.serverapp.page.site;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +39,7 @@ import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
+import io.wktui.form.field.ZoneIdField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
@@ -51,6 +53,9 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 
  	private ChoiceField<Language> masterLanguageField;
 
+ 	
+ 	private ZoneIdField zoneIdField;
+ 	
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
 
@@ -123,6 +128,8 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		// StreamSupport.stream(getInstitutions().spliterator(),
 		// false).collect(Collectors.toList());
 	 
+		
+		zoneIdField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		subtitleField = new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
 		shortNameField = new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
@@ -221,7 +228,9 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		form.add(whatsappField);
 		form.add(photoField);
 		form.add(logoField);
-
+		form.add(zoneIdField);
+		
+		
 		EditButtons<Site> buttons = new EditButtons<Site>("buttons-bottom", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;

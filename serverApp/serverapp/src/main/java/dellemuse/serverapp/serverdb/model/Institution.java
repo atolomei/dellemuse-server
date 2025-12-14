@@ -1,5 +1,6 @@
 package dellemuse.serverapp.serverdb.model;
 
+import java.time.ZoneId;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -24,19 +25,6 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
-
-/**
- * 
- * 
- * ABM 
- * 
- *  
- * State -> "archived"
- * 
- * Delete institution -> delete sites
- * 
- * 
- */
 @Entity
 @Table(name = "institution")
 @JsonInclude(Include.NON_NULL)
@@ -84,6 +72,10 @@ public class Institution extends MultiLanguageObject {
 
 	@Column(name = "twitter")
 	private String twitter;
+	
+	@JsonProperty("zoneId")
+	@Column(name = "zoneid")
+	private String zoneId;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = Site.class)
 	@JoinColumn(name = "institution_id", nullable = true, insertable = false)
@@ -301,8 +293,29 @@ public class Institution extends MultiLanguageObject {
 		
 		return false;
 	}
+	
+
+	public String getZoneIdStr() {
+		return zoneId;
+	}
+
+	public void setZoneIdStr(String zoneid) {
+		this.zoneId = zoneid;
+	}
+	public void setZoneId(ZoneId z) {
+		this.setZoneIdStr(z.getId());
+	}
+	
+	public ZoneId getZoneId() {
+		
+		if (getZoneIdStr()==null)
+			return ZoneId.systemDefault();
+		
+		return ZoneId.of(zoneId);
+	}
+	
 	public static final String getIcon() {
 		return "fa-duotone fa-building";
 	}
-
+	
 };

@@ -52,9 +52,9 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
  	private ListPanel<User> roleUsersPanel;
 	private WebMarkupContainer listToolbarContainer;
 
-
+	private WebMarkupContainer titleContainer;
+ 
 	
-	 
 	private ObjectStateEnumSelector oses;
 
 	public RoleUsersPanel(String id, IModel<Role> model) {
@@ -67,6 +67,7 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		super.onInitialize();
 
 		setUpModel();
+		addTitlePanel();
 		addListToolbar();
 		addRoleUsers();
 	}
@@ -96,7 +97,21 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		this.roleUsers = list;
 	}
 
- 
+ protected void addTitlePanel() {
+	 add(new WebMarkupContainer("titleContainer") {
+		 private static final long serialVersionUID = 1L;
+		 public boolean isVisible() {
+			 return RoleUsersPanel.this.isTitleVisible();
+		 }
+	 });
+	 
+	 
+	 
+ }
+
+	protected boolean isTitleVisible() {
+	return true;
+}
 
 	protected List<ToolbarItem> getListToolbarItems() {
 		return null;
@@ -288,6 +303,13 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 
 			private static final long serialVersionUID = 1L;
 
+			@Override
+			protected boolean isToolbar() {
+				return  RoleUsersPanel.this.isToolbar();
+			}
+
+			
+			
 			protected List<IModel<User>> filter(List<IModel<User>> initialList, String filter) {
 				return iFilter(initialList, filter);
 			}
@@ -350,6 +372,11 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		roleUsersPanel.setLiveSearch(false);
 		roleUsersPanel.setSettings(true);
 		roleUsersPanel.setHasExpander(false);
+	
+	}
+
+	protected boolean isToolbar() {
+		return true;
 	}
 
 	/**

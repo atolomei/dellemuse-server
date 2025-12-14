@@ -24,8 +24,7 @@ import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
-import io.wktui.form.button.SubmitButton;
-import io.wktui.form.field.ChoiceField;
+ 
 import io.wktui.form.field.TextField;
 import io.wktui.form.field.ZoneIdField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -113,12 +112,12 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 		list = new ArrayList<ToolbarItem>();
 
-		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
+		AjaxButtonToolbarItem<User> create = new AjaxButtonToolbarItem<User>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
-				fire(new MenuAjaxEvent(ServerAppConstant.site_action_edit, target));
+				fire(new MenuAjaxEvent(ServerAppConstant.user_action_edit_info, target));
 			}
 
 			@Override
@@ -157,8 +156,8 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	}
 
 	protected void onEdit(AjaxRequestTarget target) {
-		this.form.setFormState(FormState.EDIT);
-		target.add(this.form);
+		super.edit(target);
+		target.add(getForm());
 	}
 
 	protected void onSave(AjaxRequestTarget target) {

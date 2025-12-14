@@ -1,6 +1,7 @@
 package dellemuse.serverapp.serverdb.service;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -121,7 +122,10 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 	 */
 	@Transactional
 	public void markAsDeleted(ArtExhibitionGuide c, User deletedBy) {
-		
+
+		if (!c.isDependencies())
+			c=this.findWithDeps(c.getId()).get();
+
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
@@ -130,17 +134,15 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		getRepository().save(c);		
 		
 		Optional<AudioStudio> o = getAudioStudioDBService().findByArtExhibitionGuide(c);
-		
 		if (o.isPresent()) 
 			getAudioStudioDBService().markAsDeleted(o.get(), deletedBy);
 		
 		for (ArtExhibitionGuideRecord g: getArtExhibitionGuideRecordDBService(). findAllByArtExhibitionGuide(c)) {
 			getArtExhibitionGuideRecordDBService().markAsDeleted(g, deletedBy);		
 		}
+	
 		
-
 		/** GuideContent (n) */
-		
 		c.getGuideContents().forEach( gc -> {
 			getGuideContentDBService().markAsDeleted(gc, deletedBy);
 		});
@@ -236,13 +238,14 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		if (a.getAudio() != null)
 			a.getAudio().getBucketName();
 
+		List<GuideContent> li = new ArrayList<GuideContent>();
+		a.getGuideContents().forEach( c -> {
+			li.add(getGuideContentDBService().findById(c.getId()).get());
+		});
+		
 		a.setDependencies(true);
-
 		return o;
 	}
-
-	
-
 
 	@Override
 	public String getObjectClassName() {
