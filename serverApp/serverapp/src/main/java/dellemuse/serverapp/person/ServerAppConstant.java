@@ -35,7 +35,7 @@ public class ServerAppConstant {
 	static final public String exhibition_item_info = "exhibition-item-info";
 	
 	
-	
+	static final public String branded_exhibition_guide = "branded_exhibition_guide";
 		
 	
 	/**   */

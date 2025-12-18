@@ -4,12 +4,12 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 
 .main {min-height: calc(100vh - 117px);}
 
-.dellemuse .thumbnail {max-width: 100%; max-height: 100%; width: 100%; padding: 2px; border: 1px solid #fcfcfd;}
+.dellemuse .thumbnail {max-width: 100%; max-height: 100%; width: 100%; padding: 0px; border: 1px solid #fcfcfd;}
 .dellemuse .imageContainer {position: relative; float: left; width: 100%; background: #eeeeef; padding: 0.5em; min-height: 10em;}
 
 
-
-
+.dellemuse  .navbar-brand img {max-height:30px; margin-right: 0.5em; float:left;}
+.dellemuse  .navbar-brand  i {color: #eeeeef; margin-top:0; margin-right: 0.5em; height:1em; float:left;}
 <!-- 
 
 
@@ -23,14 +23,14 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 .dellemuse .mode-title .list-group-item .expanded a.title-link 	{font-weight:bold; font-size:1.15em;   }
 .dellemuse .list-group-item .subtitle 							{color: inherit; font-size: 1em; font-weight: normal; padding: 0; margin-top: 0.2em;}
 
-.dellemuse .mode-title-image .list-group-item a.title-link 		{font-size:1.15em; font-weight: bold;}
+.dellemuse .mode-title-image .list-group-item a.title-link 		{font-size:1.2em; font-weight: bold;}
 .dellemuse .mode-title .list-group-item a.title-link  			{text-decoration: none; color: inherit; font-size: 1em; font-weight: normal; padding: 0;}
 .dellemuse .mode-title .list-group-item .subtitle 				{color: inherit; font-size: 1em; font-weight: normal; padding: 0; margin-top: 0.2em;}
 
 .dellemuse .dropdown-menu {min-width: 20rem;}
 .dellemuse .dropdown-menu .dropdown-item {float:left; width:100%; font-size: 0.9em;}
  
-.dellemuse .form-control {font-size:15px;}
+.dellemuse .form-control {font-size:1em;}
 .dellemuse .form-control:disabled {background-color: transparent; font-style:italic;}
 
 .dellemuse .alert-info .iconClose {color:blue; font-size:14px; padding: 0 10px;}
@@ -48,8 +48,12 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 .dellemuse .btn-link 		{color: var(--bs-link-color);}
 
 .dellemuse .jumbo-img 							{position: relative; float: left;  width: 100%; padding: 0;  overflow:hidden;}
+.dellemuse .jumbo-img i							{color:rgb(13, 110, 253); font-size: 14em;}
+
+
+
 .dellemuse .jumbo-img img 						{width:auto; padding:0; border:none;} 
-.dellemuse .imgReduced .jumbo-img img.thumbnail {max-height: 26em; width: auto; padding: 2px; border: 1px solid #fcfcfd;}
+.dellemuse .imgReduced .jumbo-img img.thumbnail {max-height: 20em; width: auto; padding: 2px; border: 1px solid #fcfcfd;}
 
 .dellemuse .jumbo-sm {max-height:20em;}
 .dellemuse .jumbo-sm img { max-height:110%;} 
@@ -80,18 +84,20 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 .breadcrumb-item.active a,
 a.listItemLink {text-decoration: none; color: inherit;}
 
+
+
+
 .dellemuse h1, 
-.dellemuse .h1 {font-weight: bold;}
+.dellemuse .h1 { font-weight: bold; line-height:1.15em; margin-bottom: 0;}
  
 .dellemuse h2, 
-.dellemuse .h2 {font-size: 1.85em;font-weight: bold;}
+.dellemuse .h2 { font-weight: bold; margin-bottom: 0.75rem;}
  
 .dellemuse h3, 
-.dellemuse .h3 {font-size: 1.45em;font-weight: bold;}
- 
+.dellemuse .h3 { font-weight: bold;}
 
 .dellemuse h4, 
-.dellemuse .h4 {font-size: 1.1em;font-weight: bold;}
+.dellemuse .h4 { font-weight: bold;}
 
 .dellemuse .text p:last-child { margin-bottom:0;}
 .dellemuse .text-to-read {line-height: 1.7em; font-size:1.1em;}
@@ -127,6 +133,8 @@ a.listItemLink {text-decoration: none; color: inherit;}
 .pill .title {font-weight:bold; line-height: 1.5em; font-size:1.15em;}
 .pill .text  {line-height: 1.5em;}
 
+/**- ---------------------------------------------------------------------------------- - */
+
 .turismo-top {
     display: none;
     padding: 12px 15px 12px 15px;
@@ -140,10 +148,38 @@ a.listItemLink {text-decoration: none; color: inherit;}
     bottom: 20px;
     right: 20px;
 }
-    
-    
+ 
 
 
+.dellemuse h1, 
+.dellemuse .h1 {font-size: calc(1.5rem + 0.45vw);}
+
+.dellemuse h2, 
+.dellemuse .h2 {font-size: calc(1.12rem + 0.3vw)}
+ 
+
+.dellemuse h3, 
+.dellemuse .h3 {font-size: calc(1.0rem + 0.35vw)}
+ 
+.dellemuse h4, 
+.dellemuse .h4 {font-size: calc(1.0rem + 0.2vw)}
+
+
+
+
+  
+/**- ---------------------------------------------------------------------------------- - */
+@media (max-width: 768px) {
+	
+.dellemuse .thumbnail {
+	max-width: 100%;
+    max-height: 18em;
+    width: auto;
+    padding: 0px;	
+}
+
+
+}
   
  
  

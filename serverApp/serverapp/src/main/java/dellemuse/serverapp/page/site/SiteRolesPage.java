@@ -103,6 +103,11 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	}
 
 	@Override
+	protected Class<?> getTranslationClass() {
+		return SiteRecord.class;
+	}
+
+	@Override
 	protected Optional<Site> getObject(Long id) {
 		return getSite(id);
 	}
@@ -180,11 +185,7 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 		return tabs;
 	}
-
-	@Override
-	protected void onEdit(AjaxRequestTarget target) {
-
-	}
+ 
 
 	protected void setUpModel() {
 		super.setUpModel();
@@ -223,7 +224,7 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
-					SiteRolesPage.this.onEdit(event.getTarget());
+					//SiteRolesPage.this.onEdit(event.getTarget());
 				}
 
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {

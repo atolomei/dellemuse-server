@@ -22,6 +22,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -212,6 +213,13 @@ public class ArtExhibitionItemRecordDBService extends RecordDBService<ArtExhibit
 		super.register(getEntityClass(), this);
 	}
 
+	@Override
+	@Transactional
+	public Optional<ArtExhibitionItemRecord> findByParentObject(MultiLanguageObject o, String lang) {
+		return findByArtExhibitionItem((ArtExhibitionItem) o, lang);
+	}
+	
+	
  	@Transactional
 	private void deleteResources(Long id) {
 		

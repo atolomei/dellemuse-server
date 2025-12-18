@@ -30,6 +30,7 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
@@ -135,7 +136,12 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 		super(model, list);
 	}
 
+	
 	@Override
+	protected Class<?> getTranslationClass() {
+		return ArtExhibitionRecord.class;
+	}
+	 
 	protected void onEdit(AjaxRequestTarget target) {
 		editor.onEdit(target);
 	}

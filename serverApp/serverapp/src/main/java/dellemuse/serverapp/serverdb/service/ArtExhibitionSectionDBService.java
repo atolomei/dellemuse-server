@@ -39,7 +39,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSection, Long> {
+public class ArtExhibitionSectionDBService extends  MultiLanguageObjectDBservice<ArtExhibitionSection, Long> {
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ArtExhibitionSectionDBService.class.getName());
@@ -165,6 +165,7 @@ public class ArtExhibitionSectionDBService extends DBService<ArtExhibitionSectio
 	}
 	@PostConstruct
 	protected void onInitialize() {
+		super.registerRecordDB(getEntityClass(), getArtExhibitionSectionRecordDBService());
 		super.register(getEntityClass(), this);
 	}
 

@@ -24,6 +24,7 @@ import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -76,6 +77,13 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 
 		return c;
 	}
+	
+	@Override
+	@Transactional
+	public Optional<ArtExhibitionGuideRecord> findByParentObject(MultiLanguageObject o, String lang) {
+		return findByArtExhibitionGuide((ArtExhibitionGuide) o, lang);
+	}
+	
 	
 	@Transactional
 	public ArtExhibitionGuideRecord create(ArtExhibitionGuide a, String lang, User createdBy) {
@@ -145,6 +153,10 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 			getAudioStudioDBService().restore(o.get(), by);
 	}
 
+	
+	
+	
+	
 	/**
 	 * 
 	 * 

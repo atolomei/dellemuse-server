@@ -46,7 +46,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class SiteDBService extends DBService<Site, Long> {
+public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(SiteDBService.class.getName());
@@ -531,8 +531,10 @@ public class SiteDBService extends DBService<Site, Long> {
 
 	@PostConstruct
 	protected void onInitialize() {
+		super.registerRecordDB(getEntityClass(), getSiteRecordDBService());
 		super.register(getEntityClass(), this);
 	}
+	
 
 	@Override
 	protected Class<Site> getEntityClass() {

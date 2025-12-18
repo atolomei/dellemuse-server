@@ -181,10 +181,7 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return tabs;
 	}
 
-	@Override
-	protected void onEdit(AjaxRequestTarget target) {
-
-	}
+	 
 
 	protected void setUpModel() {
 		super.setUpModel();
@@ -223,7 +220,7 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
-					SiteUsersPage.this.onEdit(event.getTarget());
+					//SiteUsersPage.this.onEdit(event.getTarget());
 				}
 
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
@@ -281,6 +278,11 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 				return false;
 			}
 		});
+	}
+	
+	@Override
+	protected Class<?> getTranslationClass() {
+		return SiteRecord.class;
 	}
 
 }

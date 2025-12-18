@@ -266,7 +266,7 @@ public class UserPage extends ObjectPage<User> {
 		return new UserPage(model, list);
 	}
 
-	@Override
+	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}
@@ -341,6 +341,12 @@ public class UserPage extends ObjectPage<User> {
 			setStartTab(ServerAppConstant.user_panel_info);
 
 		return tabs;
+	}
+
+	@Override
+	protected Panel createSearchPanel() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

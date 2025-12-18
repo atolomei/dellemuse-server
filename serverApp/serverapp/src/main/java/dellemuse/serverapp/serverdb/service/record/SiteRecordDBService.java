@@ -22,11 +22,13 @@ import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
+import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.RecordDBService;
@@ -48,7 +50,12 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 		super(repository, settings);
 	}
 	
-	 
+	
+	@Override
+	@Transactional
+	public Optional<SiteRecord> findByParentObject(MultiLanguageObject o, String lang) {
+		return findBySite((Site) o, lang);
+	}
 	
 	@Transactional
 	public SiteRecord create(Site a, String lang, User createdBy) {
@@ -91,8 +98,7 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 	}
 
 	/**
-	 * 
-	 * 
+	 
 	 * @param a
 	 * @param lang
 	 * @return

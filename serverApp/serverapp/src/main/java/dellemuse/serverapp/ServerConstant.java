@@ -5,12 +5,14 @@ public class ServerConstant {
 	static public final String AVATAR = "avatar";
 	static public final String AVATAR_BUCKET = "avatar";
 	static public final String MEDIA_BUCKET = "media";
+	static public final String QR_BUCKET = "qr";
+	static public final String THUMBNAIL_BUCKET = "thumbnail";
+	static public final String SERVER_RESOURCES_BUCKET = "server";
 
+	
 	static public final String AUDIO_SPEECH_BUCKET = "audio-voice";
 	static public final String AUDIO_SPEECHMUSIC_BUCKET = "audio-voice-music";
 
-	static public final String QR_BUCKET = "qr";
-	static public final String THUMBNAIL_BUCKET = "thumbnail";
 
 	static public final int THUMBNAIL_CACHE_DURATION_SECS = 60 * 60 * 24; // 1d
 

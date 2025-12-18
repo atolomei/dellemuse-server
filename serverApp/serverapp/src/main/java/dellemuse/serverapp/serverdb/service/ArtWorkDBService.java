@@ -40,7 +40,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ArtWorkDBService extends DBService<ArtWork, Long> {
+public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Long> {
 
 	static private Logger logger = Logger.getLogger(ArtWorkDBService.class.getName());
 
@@ -265,6 +265,7 @@ public class ArtWorkDBService extends DBService<ArtWork, Long> {
 
 	@PostConstruct
 	protected void onInitialize() {
+		super.registerRecordDB(getEntityClass(),getArtWorkRecordDBService());
 		super.register(getEntityClass(), this);
 	}
 

@@ -36,7 +36,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class InstitutionDBService extends DBService<Institution, Long> {
+public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institution, Long> {
 
 	private static final Logger logger = Logger.getLogger(InstitutionDBService.class.getName());
 
@@ -255,6 +255,7 @@ public class InstitutionDBService extends DBService<Institution, Long> {
 
 	@PostConstruct
 	protected void onInitialize() {
+		super.registerRecordDB(getEntityClass(), getInstitutionRecordDBService());
 		super.register(getEntityClass(), this);
 	}
 }

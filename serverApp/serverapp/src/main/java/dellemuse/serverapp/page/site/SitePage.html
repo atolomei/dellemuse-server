@@ -52,7 +52,7 @@
 							<li class="list-group-item"><a wicket:id="artists" href="#"> <wicket:message key="artists" /></a></li>
 							<li class="list-group-item"><a wicket:id="artwork" href="#"> <wicket:message key="artwork" /></a></li>
 							<li class="list-group-item"><a wicket:id="exhibitions" href="#"> <wicket:message key="exhibitions" /></a></li>
-							<!-- li class="list-group-item"><a wicket:id="contents" href="#"> <wicket:message key="guide-contents" /></a></li -->
+							<li class="list-group-item"><a wicket:id="search" href="#"> <wicket:message key="search"/></a></li>
 						</ul>
 					</div>
 				</div>
@@ -60,7 +60,24 @@
 
 
 
-			<div wicket:id="securityContainer" class="mt-4 mb-3" style="float: left; width: 100%; padding: 0;">
+			<div wicket:id="brandedSiteContainer" class="mt-4 pt-4 mb-2" style="float: left; width: 100%;">
+				<div class="row">
+					<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
+						<h3>
+							<wicket:message key="branded-site" />
+						</h3>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+						<ul class="list-group">
+								<li class="list-group-item"><a wicket:id="brandedSite" href="#"><wicket:message key="branded-site"/></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			
+			<div wicket:id="securityContainer"  class="mt-4 pt-4 mb-2 " style="float: left; width: 100%;">
 				<div class="row">
 					<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 						<h3>
@@ -78,19 +95,20 @@
 				</div>
 			</div>
 			
-			<div wicket:id="exhibitionsContainer" class="mt-4 mb-3" style="float: left; width: 100%; padding: 0;">
+			
+			<div wicket:id="exhibitionsContainer" class="mt-4 pt-4 mb-2" style="float: left; width: 100%;">
 
-				<div class="row">
+				<!-- div class="row">
 					<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 						<h3>
-							<wicket:message key="exhibitions-current" />
+							<wicket:message key="exhibitions" />
 						</h3>
 					</div>
-				</div>
+				</div -->
 
 				<div wicket:id="exToolbarContainer" class="row">
 					<div class="mt-0 mb-2 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-						<div class="mt-1 mb-2 float-start w-100 bg-body-primary">
+						<div class="mt-0 mb-1 float-start w-100 bg-body-primary">
 							<div class="d-block float-start text-sm-start text-start w-100" wicket:id="toolbarItems"></div>
 						</div>
 					</div>
@@ -99,9 +117,9 @@
 				<div class="mt-2 mb-5" style="float: left; width: 100%; padding: 0;">
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
-							<h4>
+							<h3>
 								<wicket:message key="exhibitions-temporary" />
-							</h4>
+							</h3>
 						</div>
 					</div>
 
@@ -115,9 +133,9 @@
 				<div class="mt-2 mb-5" style="float: left; width: 100%; padding: 0;">
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
-							<h4>
+							<h3>
 								<wicket:message key="exhibitions-permanent" />
-							</h4>
+							</h3>
 						</div>
 					</div>
 
@@ -131,9 +149,9 @@
 				<div class="mt-2 mb-5" style="float: left; width: 100%; padding: 0;">
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
-							<h4>
+							<h3>
 								<wicket:message key="exhibitions-temporary-coming" />
-							</h4>
+							</h3>
 						</div>
 					</div>
 
@@ -147,9 +165,9 @@
 				<div class="mt-2 mb-5" style="float: left; width: 100%; padding: 0;">
 					<div class="row">
 						<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
-							<h4>
+							<h3>
 								<wicket:message key="exhibitions-temporary-past" />
-							</h4>
+							</h3>
 						</div>
 					</div>
 

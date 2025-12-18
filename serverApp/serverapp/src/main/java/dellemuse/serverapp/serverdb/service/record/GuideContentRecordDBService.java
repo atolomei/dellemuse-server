@@ -22,11 +22,13 @@ import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.RecordDBService;
@@ -48,7 +50,11 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 		super(repository, settings);
 	}
 	
-	
+	@Override
+	@Transactional
+	public Optional<GuideContentRecord> findByParentObject(MultiLanguageObject o, String lang) {
+		return findByGuideContent((GuideContent) o, lang);
+	}
 	/**
 	 * 
 	 * 

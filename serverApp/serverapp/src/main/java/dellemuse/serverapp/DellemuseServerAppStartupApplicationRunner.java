@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import org.apache.wicket.settings.ResourceSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -80,6 +81,8 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 		
 		startupLogger.info	("Startup at -> " + DateTimeFormatter.RFC_1123_DATE_TIME.format(OffsetDateTime.now()));
 	
+		
+	 
 		/**
 		CommandService service = (CommandService) ServiceLocator.getInstance().getBean(CommandService.class);
 		ResourceDBService rs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);

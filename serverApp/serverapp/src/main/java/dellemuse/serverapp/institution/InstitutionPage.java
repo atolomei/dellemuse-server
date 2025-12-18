@@ -661,6 +661,10 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	}
 
 	@Override
+	protected Class<?> getTranslationClass() {
+		return InstitutionRecord.class;
+	}
+
 	protected void onEdit(AjaxRequestTarget target) {
 		editor.getInstitutionEditor().edit(target);
 	}

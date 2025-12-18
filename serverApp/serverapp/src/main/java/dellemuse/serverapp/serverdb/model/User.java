@@ -105,7 +105,7 @@ public class User extends DelleMuseObject {
 	}
 
 	public String getLanguage() {
-		return this.language;
+		 return this.language;
 	}
 
 	public void setLanguage(String lang) {

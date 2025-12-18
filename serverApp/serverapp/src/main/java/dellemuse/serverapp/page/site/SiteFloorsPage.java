@@ -158,7 +158,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 
 	protected Panel getEditor(String id) {
 		if (this.editor == null)
-			// this.editor = new SiteEditor("editor", getModel());
+			 
 			this.editor = new ErrorPanel(id, Model.of("not done"));
 		return this.editor;
 	}
@@ -201,10 +201,8 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 	}
 
 	@Override
-	protected void onEdit(AjaxRequestTarget target) {
-		logger.error("not done");
-		// editor.onEdit(target);
-	}
+	protected Panel createSearchPanel() { return null;}
+
 
 	@Override
 	protected void setUpModel() {
@@ -228,7 +226,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
-					SiteFloorsPage.this.onEdit(event.getTarget());
+					//SiteFloorsPage.this.onEdit(event.getTarget());
 				}
 
 				else if (event.getName().equals(ServerAppConstant.site_page_info)) {

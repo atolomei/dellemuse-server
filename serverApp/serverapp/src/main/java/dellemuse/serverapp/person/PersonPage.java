@@ -32,6 +32,7 @@ import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
+import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import io.wktui.event.MenuAjaxEvent;
@@ -147,6 +148,10 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	}
 
 	@Override
+	protected Class<?> getTranslationClass() {
+		return PersonRecord.class;
+	}
+	@Override
 	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
@@ -200,7 +205,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		return new PersonPage(model, list);
 	}
 
-	@Override
+	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}

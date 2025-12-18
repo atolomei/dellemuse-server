@@ -35,7 +35,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class GuideContentDBService extends DBService<GuideContent, Long> {
+public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideContent, Long> {
 
 	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(GuideContentDBService.class.getName());
@@ -360,6 +360,7 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
 
 	@PostConstruct
 	protected void onInitialize() {
+		super.registerRecordDB(getEntityClass(), getGuideContentRecordDBService());
 		super.register(getEntityClass(), this);
 	}
 

@@ -23,11 +23,13 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
@@ -45,6 +47,15 @@ import jakarta.transaction.Transactional;
 public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhibitionSectionRecord, Long> {
 
 	static private Logger logger = Logger.getLogger(ArtExhibitionSectionRecordDBService.class.getName());
+
+	
+	@Override
+	@Transactional
+	public Optional<ArtExhibitionSectionRecord> findByParentObject(MultiLanguageObject o, String lang) {
+		//return findByArtExhibitionSection((ArtExhibitionSection) o, lang);
+	
+		throw new RuntimeException ("not done");
+	}
 
 	public ArtExhibitionSectionRecordDBService(CrudRepository<ArtExhibitionSectionRecord, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);

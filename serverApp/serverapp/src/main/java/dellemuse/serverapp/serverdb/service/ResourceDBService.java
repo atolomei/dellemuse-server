@@ -150,9 +150,13 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         
     		String ext = FilenameUtils.getExtension(fileName).toLowerCase();
 
+    		
             if (ext.equals("jpg") || ext.equals("jpeg"))
                 return "image/jpeg";
 
+            if (ext.equals("svg"))
+            	return "image/svg+xml";
+            			
             return "image/" + ext;
         }
 

@@ -22,6 +22,7 @@ import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -50,7 +51,11 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 		super(repository, settings);
 	}
 	
-	 
+	@Override
+	@Transactional
+	public Optional<PersonRecord> findByParentObject(MultiLanguageObject o, String lang) {
+		return findByPerson((Person) o, lang);
+	}
 	/**
 	 * 
 	 * 

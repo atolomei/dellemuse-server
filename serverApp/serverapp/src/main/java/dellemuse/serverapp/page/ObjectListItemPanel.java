@@ -171,6 +171,8 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		super.onInitialize();
 
 		this.imageContainer = new WebMarkupContainer("imageContainer");
+		this.imageContainer.add(new org.apache.wicket.AttributeModifier("class", getImageCss()));
+		
 		add(this.imageContainer);
 		this.imageContainer.setVisible(isImageVisible());
 
@@ -277,15 +279,27 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 	protected String getImageSrc() {
 		return null;
 	}
+	
+	protected String getImageCss() {
+
+		StringBuilder str = new StringBuilder();
+		str.append("bg-body-tertiary border rounded-0 col-xxl-2  col-xl-2  col-lg-3  col-md-5 col-sm-12 col-xs-12 text-lg-start text-md-start text-xs-center");
+
+		if (this.isMenuVisible()) {
+			str.append(" ismenu");
+		}
+		return str.toString();
+	}
+	
 
 	protected String getCss() {
 
 		StringBuilder str = new StringBuilder();
 
 		if (isImageVisible())
-			str.append("col-xxl-9  col-xl-9  col-lg-9  col-md-7  col-sm-12 text-lg-start text-md-start text-xs-center");
+			str.append("mt-1 mt-md-0 mt-xl-0 mt-lg-0 mt-xxl-0 col-xxl-10  col-xl-10  col-lg-9  col-md-7 col-sm-12 text-lg-start text-md-start text-xs-center");
 		else
-			str.append("col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-lg-start text-md-start text-xs-center");
+			str.append("col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 text-lg-start text-md-start text-xs-center");
 
 		if (this.isMenuVisible()) {
 			str.append(" ismenu");

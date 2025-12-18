@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -68,27 +69,19 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private String startingTab = null;
 	 
 	private Panel pageHeader;
+	private Panel globalSearch;
 
 	protected abstract Optional<T> getObject(Long id);
-
 	protected abstract IModel<String> getPageTitle();
-
 	protected abstract IRequestablePage getObjectPage(IModel<T> iModel, List<IModel<T>> list);
-
 	protected abstract List<INamedTab> getInternalPanels();
-
 	protected abstract List<ToolbarItem> getToolbarItems();
-
-	protected abstract void onEdit(AjaxRequestTarget target);
-
+	 
 	protected abstract Panel createHeaderPanel();
-
-	
 
 	public boolean hasAccessRight(Optional<User> ouser) {
 		return true;
 	}
-	
 	
 	public ObjectPage() {
 		super();
@@ -181,20 +174,31 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		if (getList() != null)
 			getList().forEach(i -> i.detach());
 	}
+	
+	
 
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		try {
+			
 			setUpModel();
+		
 		} catch (Exception e) {
 			logger.error(e);
 			addErrorPanels(e);
 			return;
 		}
  		
-		add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
+		
+		addGlobalSearch();
+		
+		
+		add( createGlobalTopPanel("top-panel"));
+		//add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
+	
 		add(new GlobalFooterPanel<>("footer-panel"));
 
 	 	this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
@@ -211,7 +215,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		add(internalPanelContainer);
 
 		setCurrent();
-		x_addHeaderPanel();
+		initHeaderPanel();
 
 		if (!this.hasAccessRight(getSessionUser())) {
 			this.toolbarContainer.addOrReplace(new InvisiblePanel("toolbarItems"));
@@ -238,6 +242,10 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		addToolbar();
 	}
 
+	protected Panel createGlobalTopPanel(String id) {
+		return new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get()));
+	}
+	
 	protected int getCurrentIndex() {
 		return this.currentIndex;
 	}
@@ -254,17 +262,41 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		return this.metaEditor;
 	}
 
-	protected void x_addHeaderPanel() {
+	
+	protected abstract Panel createSearchPanel();
+	
+	protected void addGlobalSearch() {
+		
+		try {
+			Panel panel = createSearchPanel();
+			if (panel == null)
+				this.globalSearch = new InvisiblePanel("globalSearch");
+			else
+				this.globalSearch  = panel;
+			addOrReplace(this.globalSearch);
+		} catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new ErrorPanel("globalSearch", e));
+		}
+		
+		 
+	}
+
+	
+	
+	protected void initHeaderPanel() {
 		try {
 			Panel panel = createHeaderPanel();
 			if (panel == null)
-				pageHeader = new InvisiblePanel("header");
+				pageHeader = new InvisiblePanel("page-header");
 			else
 				pageHeader = panel;
+			
 			addOrReplace(pageHeader);
+			
 		} catch (Exception e) {
 			logger.error(e);
-			addOrReplace(new ErrorPanel("header", e));
+			addOrReplace(new ErrorPanel("page-header", e));
 		}
 	}
 
@@ -340,7 +372,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			@Override
 			public void onEvent(ObjectUpdateEvent event) {
 				setUpModel();
-				x_addHeaderPanel();
+				initHeaderPanel();
 				event.getTarget().add(pageHeader);
 			}
 
@@ -358,7 +390,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			@Override
 			public void onEvent(ObjectRestoreEvent event) {
 				setUpModel();
-				x_addHeaderPanel();
+				initHeaderPanel();
 				event.getTarget().add(pageHeader);
 				event.getTarget().add(toolbarContainer);
 			}
@@ -377,7 +409,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			@Override
 			public void onEvent(ObjectMarkAsDeleteEvent event) {
 				setUpModel();
-				x_addHeaderPanel();
+				initHeaderPanel();
 				event.getTarget().add(pageHeader);
 				event.getTarget().add(toolbarContainer);
 			}
@@ -519,6 +551,14 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		if (ipanels == null)  
 			ipanels = getInternalPanels();
 		return ipanels;
+	}
+
+	public Panel getGlobalSearch() {
+		return globalSearch;
+	}
+
+	public void setGlobalSearch(Panel globalSearch) {
+		this.globalSearch = globalSearch;
 	}
 
 }

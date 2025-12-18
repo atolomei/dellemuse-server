@@ -82,7 +82,7 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 					@Override
 					public IModel<String> getLabel() {
 						return getLabel("information");
-						//			return getLabel("site-info-record", getModel().getObject().getMasterLanguage());
+						 
 					}
 				};
 			}
@@ -124,6 +124,9 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 		}
 		 
  
+		
+		
+		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 			private static final long serialVersionUID = 1L;
 			@Override

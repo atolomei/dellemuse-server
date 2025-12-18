@@ -130,6 +130,8 @@ public class SiteStatePage extends ObjectPage<Site> {
 		super(model);
 	}
 
+	@Override
+	protected Panel createSearchPanel() { return null;}
 
 	protected void addListeners() {
 		super.addListeners();
@@ -141,7 +143,7 @@ public class SiteStatePage extends ObjectPage<Site> {
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
-					SiteStatePage.this.onEdit(event.getTarget());
+					//SiteStatePage.this.onEdit(event.getTarget());
 				}
 			
 				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
@@ -183,7 +185,8 @@ public class SiteStatePage extends ObjectPage<Site> {
 		});
 	
 	}
-	
+ 
+
 	
 	@Override
 	protected Optional<Site> getObject(Long id) {
@@ -320,13 +323,7 @@ public class SiteStatePage extends ObjectPage<Site> {
 		return tabs;
 	}
 
-	
-	@Override
-	protected void onEdit(AjaxRequestTarget target) {
-		this.editor.onEdit(target);
-
-	}
-
+ 
 	protected void setUpModel() {
 		super.setUpModel();
 

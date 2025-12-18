@@ -47,7 +47,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, Long> {
+public class ArtExhibitionGuideDBService extends  MultiLanguageObjectDBservice<ArtExhibitionGuide, Long> {
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ArtExhibitionGuideDBService.class.getName());
@@ -285,6 +285,29 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 		return  getArtExhibitionGuideContents(guide.getId(), o1, o2);
 	}
 	
+	@Transactional
+	public List<ArtExhibitionGuide> getArtExhibitionGuidesBySite(Site s, ObjectState o1, ObjectState o2) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(ArtExhibitionGuide.class);
+		Root<ArtExhibitionGuide> root = cq.from(ArtExhibitionGuide.class);
+		
+		// cq.select(root).where(cb.equal(root.get("artExhibitionGuide").get("id"), guideId));
+	
+		Predicate p_site = cb.equal(root.get("artExhibitionGuide").get("artExhibition").get("site").get("id"), String.valueOf(s.getId()));
+
+		Predicate p_o1 = cb.equal(root.get("state"), o1);
+		Predicate p_o2 = cb.equal(root.get("state"), o2);
+
+		Predicate statePredicate = cb.or(p_o1, p_o2);
+		Predicate combinedPredicate = cb.and(p_site, statePredicate);
+
+		cq.select(root).where(combinedPredicate);
+		
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	
 	
 	@Transactional
 	public List<GuideContent> getArtExhibitionGuideContents(Long guideId, ObjectState o1) {
@@ -352,6 +375,7 @@ public class ArtExhibitionGuideDBService extends DBService<ArtExhibitionGuide, L
 
 	@PostConstruct
 	protected void onInitialize() {
+		super.registerRecordDB(getEntityClass(), getArtExhibitionGuideRecordDBService());
 		super.register(getEntityClass(), this);
 	}
 	

@@ -48,7 +48,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	
 	private String icon;
 	
-	private String imgCss = "jumbo-img jumbo-md mb-2 mb-lg-0 border bg-body-tertiary";
+	private String imgCss = "jumbo-img jumbo-md mb-0 mb-lg-0 border bg-body-tertiary";
 	
 	public JumboPageHeaderPanel(String id) {
 		this(id, null, null);
@@ -186,7 +186,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
     		
     	return "mb-0 pb-2 border-bottom";
 
-    	//return ((this.image!=null&&this.image.isVisible())?"mb-0 pb-4  ":"mb-0 pb-2  ");
+   
 
     
     }

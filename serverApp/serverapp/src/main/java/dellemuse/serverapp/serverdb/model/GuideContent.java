@@ -119,7 +119,7 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	}
 	
 	public static String getIcon() {
-		return "fa-solid fa-headphones";
+		return "fa-duotone fa-solid fa-headphones";
 	}
 	
 };

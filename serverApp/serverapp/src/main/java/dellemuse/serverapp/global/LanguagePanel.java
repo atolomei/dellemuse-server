@@ -58,22 +58,20 @@ public class LanguagePanel extends ModelPanel<User> {
 	public void onInitialize() {
 		super.onInitialize();
 
-		for (Language l: getLanguageService().getLanguages()) {
-			if (l.getLanguageCode().equals(Locale.forLanguageTag(Language.ES).getLanguage())) {
-				setLanguage(l);
-				break;
-			}
-		}
 		
-		languages = getLanguageService().getLanguagesSorted(Locale.forLanguageTag(Language.ES));
+		
+		setLanguage( Language.of(getModel().getObject().getLocale().getLanguage()));
+		
+		//for (Language l: getLanguageService().getLanguages()) {
+		//	if (l.getLanguageCode().equals(Locale.forLanguageTag(Language.ES).getLanguage())) {
+		//		setLanguage(l);
+		//		break;
+		//	}
+		//}
+		
+		languages = getLanguageService().getLanguagesSorted(getModel().getObject().getLocale());
 
-		/**
-		 * languages.sort(new Comparator<Language>() {
-		 * 
-		 * @Override public int compare(Language o1, Language o2) { return
-		 *           o1.getLabel(getLocale()).compareToIgnoreCase(o2.getLabel(getLocale()));
-		 *           } });
-		 **/
+		 
 
 		this.selector = new DropDownChoice<Language>("languages", getChoices()) {
 

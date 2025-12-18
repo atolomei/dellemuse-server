@@ -135,6 +135,10 @@ public class RolePage extends ObjectPage<Role> {
 	}
 
 	@Override
+	protected Panel createSearchPanel() { return null;}
+	
+
+	@Override
 	protected Panel createHeaderPanel() {
 
 		try {
@@ -224,10 +228,6 @@ public class RolePage extends ObjectPage<Role> {
 		return Optional.empty();
 	}
 
-	@Override
-	protected void onEdit(AjaxRequestTarget target) {
-		// TODO Auto-generated method stub
-		
-	}
+ 
 
 }

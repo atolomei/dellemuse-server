@@ -35,6 +35,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
+import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
@@ -153,6 +154,12 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 	protected boolean isAudioVisible() {
 		return true;
 	}
+	
+	
+	@Override
+	protected Class<?> getTranslationClass() {
+		return ArtExhibitionSectionRecord.class;
+	}
 
 	protected List<ToolbarItem> getToolbarItems() {
 
@@ -175,10 +182,7 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 		return list;
 	}
 
-	@Override
-	protected void onEdit(AjaxRequestTarget target) {
-		// editor.onEdit(target);
-	}
+	 
 
 	protected void onDelete(AjaxRequestTarget target) {
 		getArtExhibitionSectionDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
@@ -203,7 +207,7 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.action_exhibition_item_info_edit)) {
-					ArtExhibitionSectionPage.this.onEdit(event.getTarget());
+					//ArtExhibitionSectionPage.this.onEdit(event.getTarget());
 				}
 
 				if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {

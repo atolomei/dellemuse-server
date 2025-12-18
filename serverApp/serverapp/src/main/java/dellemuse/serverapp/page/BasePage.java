@@ -30,19 +30,13 @@ import org.apache.wicket.request.resource.JavaScriptResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.string.StringValue;
 
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionItemModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
+ 
 import dellemuse.model.DelleMuseModelObject;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
+ 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.ref.RefPersonModel;
-import dellemuse.model.ref.RefResourceModel;
+ 
 import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.editor.ObjectMetaEditor;
+ 
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
@@ -82,6 +76,7 @@ import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
+import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
@@ -245,7 +240,7 @@ public abstract class BasePage extends WebPage {
 		
 		if (ou.isPresent() && ou.get().getLanguage()!=null) {
 			this.language = getSessionUser().get().getLanguage();
-			//this.language = Locale.forLanguageTag(Language.EN).getLanguage();
+			 
 		}
 		else {
 			this.language = Locale.getDefault().getLanguage();
@@ -585,6 +580,10 @@ public abstract class BasePage extends WebPage {
 	public UserDBService getUserDBService() {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
+	
+	public LanguageObjectService getLanguageObjectService() {
+		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
+	}
  	 
 	protected  DateTimeService getDateTimeService() {
 		return (DateTimeService) ServiceLocator.getInstance().getBean(DateTimeService.class);
@@ -597,16 +596,7 @@ public abstract class BasePage extends WebPage {
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
- 
-	/** Object ----------------  */
-	/**
-		public ArtWork lazyLoad(ArtWork s) {
-			ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
-			ArtWork a = service.lazyLoad(s);
-			return a;
-		}
-	**/
-	
+ 	
 	public Optional<ArtWork> findArtWorkByIdWithDeps(Long id) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		return service.findWithDeps(id);

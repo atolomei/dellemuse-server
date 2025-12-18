@@ -32,6 +32,7 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
@@ -50,13 +51,6 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-/**
- * site foto Info - exhibitions alter table artexhibition alter column fromdate
- * drop not null; ALTER TABLE dellemuse=# alter table artexhibition alter column
- * todate drop not null;
- * 
- */
-
 @MountPath("/guide/${id}")
 public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitionGuide, ArtExhibitionGuideRecord> {
 
@@ -73,53 +67,7 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 
 	private List<ToolbarItem> list;
 
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-
-		if (ouser.isEmpty())
-			return false;
-
-		User user = ouser.get(); 
-		
-		if (user.isRoot()) 
-			return true;
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		{
-			Set<RoleGeneral> set =user.getRolesGeneral();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		{
-			final Long sid = getSiteModel().getObject().getId();
-			Set<RoleSite> set = user.getRolesSite();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		{
-			final Long sid = getSiteModel().getObject().getInstitution().getId();
-			Set<RoleInstitution> set = user.getRolesInstitution();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(sid) && (p.getKey().equals(RoleInstitution.ADMIN))));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		return false;
-	}
-
+ 
 	public ArtExhibitionGuidePage() {
 		super();
 	}
@@ -173,6 +121,10 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 	}
 
 	@Override
+	protected Class<?> getTranslationClass() {
+		return ArtExhibitionGuideRecord.class;
+	}
+	@Override
 	protected boolean isLanguage() {
 		return false;
 	}
@@ -211,29 +163,25 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 				} else if (event.getName().equals(ServerAppConstant.action_artexhibitionguide_restore)) {
 					ArtExhibitionGuidePage.this.onRestore(event.getTarget());
 				}
-
 				// panels -----------
-
 				else if (event.getName().equals(ServerAppConstant.artexhibitionguide_info)) {
 					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.artexhibitionguide_info, event.getTarget());
 					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
 				}
-
 				else if (event.getName().equals(ServerAppConstant.artexhibitionguide_contents)) {
 					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.artexhibitionguide_contents, event.getTarget());
 					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
 				}
-
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
-				} else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
+				} 
+				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 					ArtExhibitionGuidePage.this.togglePanel(event.getName(), event.getTarget());
 				}
-
 				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
 					if (event.getMoreInfo() != null) {
 						ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_audit + "-" + event.getMoreInfo(), event.getTarget());
@@ -242,7 +190,6 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 						ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 						ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
 					}
-
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
 				}
 			}
@@ -274,7 +221,7 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		});
 	}
 
-	@Override
+ 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}
@@ -299,7 +246,6 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 			return list;
 
 		list = new ArrayList<ToolbarItem>();
-
 		list.add(new ArtExhibitionGuideNavDropDownMenuToolbarItem("item", getModel(), getLabel("audio-guide", TextCleaner.truncate(getModel().getObject().getName(), 24)), Align.TOP_RIGHT));
 
 		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), getLabel("art-exhibition", TextCleaner.truncate(getArtExhibitionModel().getObject().getName(), 24)),
@@ -312,7 +258,6 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 
 		list.add(site);
-
 		return list;
 	}
 
@@ -334,9 +279,7 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		List<INamedTab> tabs = super.createInternalPanels();
 
 		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.artexhibitionguide_info) {
-
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
 				return getArtExhibitionGuideEditor(panelId);
@@ -345,9 +288,7 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		tabs.add(tab_1);
 
 		NamedTab tab_2 = new NamedTab(Model.of("contents"), ServerAppConstant.artexhibitionguide_contents) {
-
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
 				return getGuideContentsPanel(panelId);
@@ -377,19 +318,12 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		BreadCrumb<Void> bc = createBreadCrumb();
 
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-
 		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(), new Model<String>(getSiteModel().getObject().getDisplayname())));
-
 		bc.addElement(new HREFBCElement("/site/exhibitions/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
-
 		bc.addElement(new HREFBCElement("/artexhibition/" + getArtExhibitionModel().getObject().getId().toString(), Model.of(getArtExhibitionModel().getObject().getDisplayname() + " (E)")));
-
 		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname() + " (AG)")));
-
 		this.header = new JumboPageHeaderPanel<ArtExhibitionGuide>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
-
 		this.header.setContext(getLabel("exhibition-guide"));
-
 		this.header.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 
 		if (getList() != null && getList().size() > 0) {
@@ -452,4 +386,50 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		return this.header;
 	}
 
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get();
+
+		if (user.isRoot())
+			return true;
+
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getInstitution().getId();
+			Set<RoleInstitution> set = user.getRolesInstitution();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(sid) && (p.getKey().equals(RoleInstitution.ADMIN))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
 }

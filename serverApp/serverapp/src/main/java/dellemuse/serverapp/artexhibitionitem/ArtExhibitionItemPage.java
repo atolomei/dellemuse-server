@@ -201,7 +201,7 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 		return list;
 	}
 
-	@Override
+	 
 	protected void onEdit(AjaxRequestTarget target) {
 		editor.onEdit(target);
 	}
@@ -481,6 +481,12 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 			this.artWorkModel.detach();
 
 	}
+	
+	@Override
+	protected Class<?> getTranslationClass() {
+		return ArtExhibitionItemRecord.class;
+	}
+
 
 	@Override
 	protected List<INamedTab> getInternalPanels() {

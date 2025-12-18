@@ -46,10 +46,10 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 	@JsonIgnore
 	static final private ObjectMapper mapper = new DellemuseObjectMapper();
 
-	//static {
-	//	mapper.registerModule(new JavaTimeModule());
-	//	mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	//}
+	// static {
+	// mapper.registerModule(new JavaTimeModule());
+	// mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	// }
 
 	@JsonIgnore
 	@Autowired
@@ -74,8 +74,6 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 		this.repository = repository;
 	}
 
-	//public abstract T create(String name, User createdBy);
-
 	@Transactional
 	public <S extends T> S save(S entity) {
 		return repository.save(entity);
@@ -95,12 +93,12 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 	public Iterable<T> findAll() {
 		return repository.findAll();
 	}
-	
+
 	@Transactional
 	public void delete(T c) {
 		repository.delete(c);
 	}
-		
+
 	@Transactional
 	public void deleteById(I id) {
 		repository.deleteById(id);
@@ -126,11 +124,10 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 		return createNameQuery(name, true).getResultList();
 	}
 
-
 	public TypedQuery<T> createNameQuery(String name) {
 		return createNameQuery(name, false);
 	}
-	
+
 	public TypedQuery<T> createNameQuery(String name, boolean isLike) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
@@ -138,9 +135,9 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 
 		if (isLike)
 			cq.select(root).where(cb.like(cb.lower(root.get(getNameColumn())), "%" + name.toLowerCase() + "%"));
-		 else 
+		else
 			cq.select(root).where(cb.equal(cb.lower(root.get(getNameColumn())), name.toLowerCase()));
-		
+
 		return getEntityManager().createQuery(cq);
 	}
 

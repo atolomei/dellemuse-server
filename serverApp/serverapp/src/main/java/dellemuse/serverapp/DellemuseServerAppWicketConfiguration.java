@@ -16,5 +16,7 @@ public class DellemuseServerAppWicketConfiguration implements WicketApplicationI
 	   webApplication.getCspSettings().blocking().disabled();
 	   webApplication.getApplicationSettings().setPageExpiredErrorPage(SessionExpiredPage.class);
 	   webApplication.getApplicationSettings().setInternalErrorPage(InternalErrorPage.class);
+	   webApplication.getResourceSettings().setThrowExceptionOnMissingResource(false);
+	   
 	}
 }

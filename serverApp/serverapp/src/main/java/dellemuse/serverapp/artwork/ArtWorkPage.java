@@ -39,6 +39,7 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
+import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
@@ -195,8 +196,12 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 
 	protected boolean isSpecVisible() {
 		return true;
-	};
+	}
 
+	@Override
+	protected Class<?> getTranslationClass() {
+		return ArtWorkRecord.class;
+	}
 	@Override
 	protected Optional<ArtWorkRecord> loadTranslationRecord(String lang) {
 		return getArtWorkRecordDBService().findByArtWork(getModel().getObject(), lang);

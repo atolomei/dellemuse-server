@@ -45,7 +45,7 @@ import jakarta.transaction.Transactional;
 
 
 @Service
-public class PersonDBService extends DBService<Person, Long> {
+public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long> {
 
     private static final Logger logger = Logger.getLogger(PersonDBService.class.getName());
 
@@ -273,7 +273,8 @@ public class PersonDBService extends DBService<Person, Long> {
 
     @PostConstruct
     protected void onInitialize() {
-    	super.register(getEntityClass(), this);
+    	super.registerRecordDB(getEntityClass(), getPersonRecordDBService());
+		super.register(getEntityClass(), this);
     }
 
 

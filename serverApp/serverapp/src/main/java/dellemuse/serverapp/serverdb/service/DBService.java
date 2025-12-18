@@ -23,6 +23,7 @@ import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -79,83 +80,74 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	 * @param repository
 	 * @param settings
 	 */
- 	public DBService(CrudRepository<T, I> repository, ServerDBSettings settings ) {
+	public DBService(CrudRepository<T, I> repository, ServerDBSettings settings) {
 		super(repository, settings);
 		this.repository = repository;
 	}
- 
- 	
- 	
+
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public <S extends T> S saveViaBaseClass(DelleMuseObject entity, User user, String auditMsg) {
 		entity.setLastModified(OffsetDateTime.now());
-	
+
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(entity, user, AuditAction.UPDATE, auditMsg));
 		return getRepository().save((S) entity);
 	}
-	
+
 	@Transactional
 	public <S extends T> S save(S entity, String auditMsg, User user) {
-		
+
 		OffsetDateTime now = OffsetDateTime.now();
 		entity.setLastModified(now);
-		
+
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(entity, user, AuditAction.UPDATE, auditMsg));
 		return getRepository().save(entity);
 	}
-	
-	
-	 @Transactional	
+
+	@Transactional
 	public <S extends T> void save(S o, User user, List<String> updatedParts) {
 		super.save(o);
-			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
-		}
-	 
-	
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+
 	@Transactional
 	public <S extends T> S save(S entity, User user) {
-		
+
 		OffsetDateTime now = OffsetDateTime.now();
 		entity.setLastModified(now);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(entity, user, AuditAction.UPDATE));
 		return getRepository().save(entity);
 	}
-	
-	
+
 	@Transactional
 	public void delete(T c, User user) {
-		logger.debug("deleting -> " + c.getDisplayname() );
+		 
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, user, AuditAction.DELETE));
 		getRepository().delete(c);
 	}
 
 	@Transactional
 	public void markAsDeleted(T c, User deletedBy) {
-		
+
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
 
-		getRepository().save(c);	
+		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
-			
+
 	}
-	
+
 	@Transactional
 	public void restore(T c, User restoredBy) {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(restoredBy);
 		c.setState(ObjectState.EDITION);
 
-		getRepository().save(c);		
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy,  AuditAction.UPDATE, AuditKey.RESTORE));
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE, AuditKey.RESTORE));
 	}
-	
-	
-	
-	
-	
+
 	@Transactional
 	public Iterable<T> findAll() {
 		return getRepository().findAll();
@@ -175,8 +167,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	public boolean existsById(I id) {
 		return getRepository().existsById(id);
 	}
-	
-	
+
 	@Transactional
 	public Iterable<T> findAllSorted() {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -185,7 +176,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	@Transactional
 	public Iterable<T> findAllSorted(ObjectState os) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -195,23 +186,23 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	@Transactional
 	public Iterable<T> findAllSorted(ObjectState os1, ObjectState os2) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> root = cq.from(getEntityClass());
-		Predicate p1 = cb.equal(root.get("state"), os1 );
-		Predicate p2 = cb.equal(root.get("state"), os2 );
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		Predicate p2 = cb.equal(root.get("state"), os2);
 		Predicate combinedPredicate = cb.or(p1, p2);
 		cq.select(root).where(combinedPredicate);
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	@Transactional
 	public void flush() {
-		 getEntityManager().flush();
+		getEntityManager().flush();
 	}
 
 	@Transactional
@@ -220,7 +211,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		getEntityManager().detach(o);
 	}
 
- 	@Transactional
+	@Transactional
 	public List<T> getByName(String name) {
 		return createNameQuery(name, false).getResultList();
 	}
@@ -235,7 +226,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	}
 
 	public TypedQuery<T> createNameQuery(String name, boolean isLike) {
-		CriteriaBuilder cb =  getEntityManager().getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> root = cq.from(getEntityClass());
 		if (isLike) {
@@ -243,41 +234,38 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		} else {
 			cq.select(root).where(cb.equal(cb.lower(root.get(getNameColumn())), name.toLowerCase()));
 		}
-		return  getEntityManager().createQuery(cq);
+		return getEntityManager().createQuery(cq);
 	}
-	
-	
+
 	@Transactional
 	public void initAudit() {
-		this.findAll().forEach( i -> {
+		this.findAll().forEach(i -> {
 			List<DelleMuseAudit> list = getDelleMuseAuditDBService().getAudit(i.getId(), i.getObjectClassName());
-			if (list==null || list.isEmpty()) {
-				logger.debug( "Adding Audit to -> " + i.getName());
+			if (list == null || list.isEmpty()) {
+				logger.debug("Adding Audit to -> " + i.getName());
 				getDelleMuseAuditDBService().save(DelleMuseAudit.of(i, getUserDBService().findRoot(), AuditAction.CREATE));
 			}
 		});
 	}
-	
-	
+
 	public String normalize(String name) {
 		return this.getEntityClass().getSimpleName().toLowerCase() + "-" + name.toLowerCase().trim();
 	}
-	
+
 	public EntityManager getEntityManager() {
 		return entityManager;
 	}
-	
+
 	public CrudRepository<T, I> getRepository() {
 		return repository;
 	}
 
 	protected abstract Class<T> getEntityClass();
 
-	
 	public String getObjectClassName() {
 		return this.getEntityClass().getSimpleName().toLowerCase();
 	}
-	
+
 	protected String getNameColumn() {
 		return "name";
 	}
@@ -286,18 +274,18 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 	}
 
- 	protected ArtExhibitionDBService getArtExhibitionDBService() {
+	protected ArtExhibitionDBService getArtExhibitionDBService() {
 		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 	}
 
 	protected ResourceDBService getResourceDBService() {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
-	
+
 	protected UserDBService getUserDBService() {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
- 	
+
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
@@ -311,14 +299,13 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	}
 
 	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
-		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance()
-				.getBean(ArtExhibitionGuideRecordDBService.class);
+		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
 	}
- 
+
 	protected GuideContentDBService getGuideContentDBService() {
 		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 	}
-	
+
 	protected GuideContentRecordDBService getGuideContentRecordDBService() {
 		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
 	}
@@ -326,15 +313,15 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	protected AudioStudioDBService getAudioStudioDBService() {
 		return (AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class);
 	}
-	
+
 	protected DelleMuseAuditDBService getDelleMuseAuditDBService() {
 		return (DelleMuseAuditDBService) ServiceLocator.getInstance().getBean(DelleMuseAuditDBService.class);
 	}
-	
+
 	protected RoleGeneralDBService getRoleGeneralDBService() {
-		return (RoleGeneralDBService) ServiceLocator.getInstance().getBean( RoleGeneralDBService.class);
+		return (RoleGeneralDBService) ServiceLocator.getInstance().getBean(RoleGeneralDBService.class);
 	}
-	
+
 	protected RoleInstitutionDBService getRoleInstitutionDBService() {
 		return (RoleInstitutionDBService) ServiceLocator.getInstance().getBean(RoleInstitutionDBService.class);
 	}
@@ -342,8 +329,8 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	protected RoleSiteDBService getRoleSiteDBService() {
 		return (RoleSiteDBService) ServiceLocator.getInstance().getBean(RoleSiteDBService.class);
 	}
-	
-	protected  SiteDBService getSiteDBService() {
+
+	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
 

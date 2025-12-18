@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 
+import dellemuse.serverapp.branded.BrandedSitePage;
 import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
@@ -360,6 +361,42 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<Site>(id);
+			}
+		});
+		
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new LinkMenuItem<Site>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						setResponsePage(new BrandedSitePage(getModel()));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("branded-site");
+					}
+				};
+			}
+		});
+		
+		
+		
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 

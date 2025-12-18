@@ -367,7 +367,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		});
 	}
 
-	@Override
+	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}
@@ -404,6 +404,12 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	protected boolean isAudioVisible() {
 		return true;
 	}
+	
+	@Override
+	protected Class<?> getTranslationClass() {
+		return GuideContentRecord.class;
+	}
+
 	
 	@Override
 	protected IRequestablePage getObjectPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {

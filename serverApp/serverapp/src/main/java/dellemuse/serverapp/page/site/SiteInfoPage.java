@@ -29,7 +29,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-
+import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
@@ -198,12 +198,16 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return tabs;
 	}
 
-	@Override
+	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 
 	}
 
+	@Override
+	protected Class<?> getTranslationClass() {
+		return SiteRecord.class;
+	}
 	protected void setUpModel() {
 		super.setUpModel();
 
