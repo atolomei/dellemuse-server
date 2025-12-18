@@ -1,0 +1,40 @@
+
+<wicket:panel>
+
+
+	
+
+	<div wicket:id="infoContainer" class="border-top pt-4 pb-4 mb-4 border-bottom" style="float: left; width: 100%; padding: 0;">
+		<div class="row">
+			<div class="mb-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+				<h3>
+					<wicket:message key="audio-guide" />
+				</h3>
+			</div>
+		</div>
+
+
+		<div wicket:id="audioContainer" class="row">
+			<div class="mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<div wicket:id="intro-audio" class="w-100">
+						<audio wicket:id="audio" controls="controls" class="w-100 mt-2 mb-2">
+					</audio>
+				</div>
+			</div>
+		</div>
+
+		<div wicket:id="error" />
+		
+
+		<div wicket:id="textContainer" class="row">
+			<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<div class="pb-3 text" wicket:id="info"></div>
+			</div>
+		</div>
+
+ 
+
+	</div>
+
+
+</wicket:panel>

@@ -1,0 +1,75 @@
+
+<wicket:panel>
+
+
+	<div wicket:id="infoContainer" class="border-top pt-4 pb-4 mb-4 border-bottom" style="float: left; width: 100%; padding: 0;">
+		<div class="row">
+			<div class="mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+				<h3>
+					<wicket:message key="intro" />
+				</h3>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<div class="pb-3 text" wicket:id="intro"></div>
+			</div>
+		</div>
+
+		<div wicket:id="audioContainer" class="row">
+			<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<div wicket:id="intro-audio" class="w-100">
+					<audio wicket:id="audioIntro" controls="controls" class="w-100 mt-2 mb-2">
+					</audio>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--  div wicket:id="descriptionContainer" class="pb-4 mb-4 border-bottom" style="float: left; width: 100%; padding: 0;">
+		<div class="row">
+			<div class="mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+				<h3>
+					<wicket:message key="description" />
+				</h3>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 mb-2">
+				<div class="text" wicket:id="description"></div>
+			</div>
+		</div>
+	</div -->
+
+
+
+
+	<div class="pb-4 mb-4 border-bottom" style="float: left; width: 100%; padding: 0;">
+		<div class="row">
+			<div class="mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+				<h3>
+					<wicket:message key="items" />
+				</h3>
+			</div>
+		</div>
+
+
+		<!-- div wicket:id="listToolbarContainer" class="row">
+			<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+				<div class="mt-1 mb-1 float-start w-100 bg-body-primary">
+					<div class="d-block float-start text-sm-start text-start w-100" wicket:id="listToolbar" />
+				</div>
+			</div>
+		</div -->
+
+
+		<div class="row">
+			<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+				<div style="float: left; width: 100%;" wicket:id="items"></div>
+			</div>
+		</div>
+
+	</div>
+
+</wicket:panel>
