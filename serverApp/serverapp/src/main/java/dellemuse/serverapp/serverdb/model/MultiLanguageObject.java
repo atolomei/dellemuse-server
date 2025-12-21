@@ -8,9 +8,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.jpa.events.ArtWorkEventListener;
+import dellemuse.serverapp.jpa.events.MultiLanguageObjectEventListener;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -26,11 +29,8 @@ import jakarta.persistence.OneToOne;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @JsonInclude(Include.NON_NULL)
+@EntityListeners(MultiLanguageObjectEventListener.class)
 public abstract class MultiLanguageObject extends DelleMuseObject {
-
-	@Column(name = "translation")
-	@JsonProperty("translateMode")
-	private TranslateMode translateMode;
 
 	/**
 	 * language -> it is the language of this content masterLanguage -> it is the
@@ -54,7 +54,11 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 
 	@Column(name = "opens")
 	private String opens;
-
+	
+	@Column(name = "translation")
+	@JsonProperty("translateMode")
+	private TranslateMode translateMode;
+	
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "photo", nullable = true)
 	@JsonManagedReference

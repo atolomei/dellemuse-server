@@ -28,11 +28,11 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+ 
 import io.odilon.util.Check;
-import io.wktui.error.AlertPanel;
+ 
 import io.wktui.error.ErrorPanel;
-import io.wktui.event.SimpleAjaxWicketEvent;
+ 
 import io.wktui.event.UIEvent;
 import io.wktui.nav.listNavigator.ListNavigator;
 import io.wktui.nav.toolbar.Toolbar;
@@ -196,9 +196,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		addGlobalSearch();
 		
 		
-		add( createGlobalTopPanel("top-panel"));
-		//add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
-	
+		add(createGlobalTopPanel("top-panel"));
 		add(new GlobalFooterPanel<>("footer-panel"));
 
 	 	this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {

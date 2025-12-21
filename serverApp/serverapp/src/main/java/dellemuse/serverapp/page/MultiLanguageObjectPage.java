@@ -36,8 +36,7 @@ import wktui.base.NamedTab;
  * site foto Info - exhibitions
  */
 
-public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R extends TranslationRecord>
-		extends ObjectPage<T> {
+public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R extends TranslationRecord> extends ObjectPage<T> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -45,19 +44,17 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 
 	private Map<String, ObjectRecordEditor<T, R>> recordEditors = new HashMap<String, ObjectRecordEditor<T, R>>();
 
-	
-	private Map<String, IModel<R>> recordModels = new HashMap<String,  IModel<R>>();
-	
+	private Map<String, IModel<R>> recordModels = new HashMap<String, IModel<R>>();
+
 	private Map<String, AuditPanel<R>> auditPanels = new HashMap<String, AuditPanel<R>>();
 
-	
 	protected abstract Optional<R> loadTranslationRecord(String lang);
 
 	protected abstract R createTranslationRecord(String lang);
 
 	IModel<String> displayName;
 	IModel<String> subtitle;
-	
+
 	public MultiLanguageObjectPage() {
 		super();
 	}
@@ -77,69 +74,61 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		recordModels.forEach((k,v)->v.detach());
-		
+		recordModels.forEach((k, v) -> v.detach());
+
 	}
+
 	@Override
-	protected Panel createSearchPanel() { return null;}
+	protected Panel createSearchPanel() {
+		return null;
+	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 	}
-	
+
+	/**
 	public IModel<String> getObjectTitle(Site o) {
 		StringBuilder str = new StringBuilder();
-		str.append( getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
 		return Model.of(str.toString());
-	}
-
+	}***/
+/**
 	public IModel<String> getObjectTitle(ArtExhibitionGuide o) {
 		StringBuilder str = new StringBuilder();
-		str.append( getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
 		return Model.of(str.toString());
 	}
-	
+	**/
+/**
 	public IModel<String> getObjectTitle(GuideContent o) {
 		StringBuilder str = new StringBuilder();
-		str.append( getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
 		return Model.of(str.toString());
 	}
-	
-	
-	
+**/
 	public IModel<String> getObjectSubtitle(MultiLanguageObject o) {
 		StringBuilder str = new StringBuilder();
-		str.append( getLanguageObjectService().getObjectSubtitle(o, getLocale()));
+		str.append(getLanguageObjectService().getObjectSubtitle(o, getLocale()));
 		return Model.of(str.toString());
 	}
 
-	
+	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		return Model.of(str.toString());
+	}
 	
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
-	
-	/**
-	protected IModel<String> getModelObjectDisplayName() {
-		if (displayName==null) 
-			displayName= Model.of(getLanguageObjectService().getObjectDisplayName(getModel().getObject(), getLocale()));
-		return displayName;
-	}
-
-	
-	protected IModel<String> getModelObjectSubtitle() {
-		if (subtitle==null) 
-			subtitle = Model.of(getLanguageObjectService().getObjectSubtitle(getModel().getObject(), getLocale()));
-		return subtitle;
-	}
-**/
 
 	@Override
 	protected List<INamedTab> createInternalPanels() {
@@ -152,9 +141,7 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 
 			if (!la.getLanguageCode().equals(getModel().getObject().getMasterLanguage())) {
 
-				NamedTab tab = new NamedTab(Model.of(la.getLanguageCode()),
-						ServerAppConstant.object_translation_record_info + "-" + la.getLanguageCode(),
-						la.getLanguageCode()) {
+				NamedTab tab = new NamedTab(Model.of(la.getLanguageCode()), ServerAppConstant.object_translation_record_info + "-" + la.getLanguageCode(), la.getLanguageCode()) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -167,7 +154,6 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 			}
 		}
 
-		
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
 			private static final long serialVersionUID = 1L;
@@ -178,15 +164,12 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 			}
 		};
 		tabs.add(audit);
-		
-		
+
 		for (Language la : list) {
 
 			if (!la.getLanguageCode().equals(getModel().getObject().getMasterLanguage())) {
 
-				NamedTab tab = new NamedTab(Model.of(la.getLanguageCode()),
-						ServerAppConstant.object_audit + "-" + la.getLanguageCode(),
-						la.getLanguageCode()) {
+				NamedTab tab = new NamedTab(Model.of(la.getLanguageCode()), ServerAppConstant.object_audit + "-" + la.getLanguageCode(), la.getLanguageCode()) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -198,11 +181,9 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 				tabs.add(tab);
 			}
 		}
-	 	return tabs;
+		return tabs;
 	}
 
-	
-	
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<T>(id, getModel());
 	}
@@ -211,7 +192,7 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 
 		if (this.auditPanels.containsKey(lang))
 			return this.auditPanels.get(lang);
-		
+
 		R ar = null;
 
 		Optional<R> a = loadTranslationRecord(lang);
@@ -224,15 +205,12 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 		IModel<R> translationRecordModel = new ObjectModel<R>(ar);
 		AuditPanel<R> e = new AuditPanel<R>(id, translationRecordModel);
 
-		e.setTitle( getLabel("audit-lang", lang));
-		
+		e.setTitle(getLabel("audit-lang", lang));
+
 		this.auditPanels.put(lang, e);
 		return e;
 	}
-	
 
-	
-	
 	protected Map<String, ObjectRecordEditor<T, R>> getRecordEditors() {
 		return this.recordEditors;
 	}
@@ -242,41 +220,37 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 	}
 
 	protected abstract Class<?> getTranslationClass();
-	
+
 	protected IModel<R> getTranslationRecordModel(String lang) {
 		if (recordModels.containsKey(lang))
 			return recordModels.get(lang);
-		
+
 		R ar = null;
 		Optional<R> a = loadTranslationRecord(lang);
-			if (a.isEmpty()) {
+		if (a.isEmpty()) {
 			ar = createTranslationRecord(lang);
 		} else
 			ar = a.get();
-		
+
 		IModel<R> translationRecordModel = new ObjectModel<R>(ar);
 		recordModels.put(lang, translationRecordModel);
-		
+
 		return recordModels.get(lang);
 	}
-	
+
 	protected Panel getTranslateRecordEditor(String id, String lang) {
 
 		if (this.recordEditors.containsKey(lang))
 			return this.recordEditors.get(lang);
 
-
 		/**
-		 R ar = getTranslationRecordModel(lang);
-
-		Optional<R> a = loadTranslationRecord(lang);
-			if (a.isEmpty()) {
-			ar = createTranslationRecord(lang);
-		} else
-			ar = a.get();
+		 * R ar = getTranslationRecordModel(lang);
+		 * 
+		 * Optional<R> a = loadTranslationRecord(lang); if (a.isEmpty()) { ar =
+		 * createTranslationRecord(lang); } else ar = a.get();
 		 **/
-			
-		IModel<R> translationRecordModel =getTranslationRecordModel(lang);
+
+		IModel<R> translationRecordModel = getTranslationRecordModel(lang);
 		ObjectRecordEditor<T, R> e = new ObjectRecordEditor<T, R>(id, getModel(), translationRecordModel);
 
 		e.setIntroVisible(isIntroVisible());

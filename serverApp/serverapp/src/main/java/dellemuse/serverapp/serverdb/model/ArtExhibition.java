@@ -82,6 +82,11 @@ public class ArtExhibition extends MultiLanguageObject {
 	@Column(name = "website")
 	private String website;
 
+	@Override
+	public String getObjectClassName() {
+		return ArtExhibition.class.getSimpleName();
+	}
+	
 	public ArtExhibition() {
 	}
 

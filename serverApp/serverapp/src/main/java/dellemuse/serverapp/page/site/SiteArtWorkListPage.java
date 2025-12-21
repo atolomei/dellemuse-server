@@ -149,6 +149,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		return new Model<String>(str);
 	}
 
+	/**
 	@Override
 	public IModel<String> getObjectTitle(IModel<ArtWork> model) {
 		StringBuilder str = new StringBuilder();
@@ -159,7 +160,8 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		return Model.of(str.toString());
 	}
-
+**/
+	
 	@Override
 	public IModel<String> getObjectSubtitle(IModel<ArtWork> model) {
 		return Model.of(getArtistStr(model.getObject()));
@@ -181,7 +183,8 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss
+("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {

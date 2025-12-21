@@ -3,13 +3,14 @@ package dellemuse.serverapp;
 import java.io.File;
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Locale;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
-import org.threeten.bp.ZoneId;
+ 
 
 import jakarta.annotation.PostConstruct;
 import dellemuse.model.logging.Logger;
@@ -405,5 +406,17 @@ public class ServerDBSettings {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public int getFileCacheInitialCapacity() {
+		return 1000;
+	}
+
+	public long getFileCacheMaxCapacity() {
+	 	return 100000;
+	}
+
+	public long getLanguageCacheDurationMinutes() {
+		return 10;
 	}
 }

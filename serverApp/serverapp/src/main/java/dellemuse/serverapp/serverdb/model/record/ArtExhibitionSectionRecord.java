@@ -35,6 +35,12 @@ public class ArtExhibitionSectionRecord extends TranslationRecord {
 	public ArtExhibitionSectionRecord() {
 	}
 
+	@Override
+	public String getObjectClassName() {
+		return   ArtExhibitionSectionRecord.class.getSimpleName();
+	}
+
+	
 	public ArtExhibitionSection getArtExhibitionSection() {
 		return artExhibitionSection;
 	}

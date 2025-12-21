@@ -20,7 +20,7 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
- 
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
@@ -106,11 +106,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 	public IModel<String> getObjectInfo(IModel<ArtExhibition> model) {
 		return new Model<String>(model.getObject().getInfo());
 	}
-
-	@Override
-	public IModel<String> getObjectTitle(IModel<ArtExhibition> model) {
-		return new Model<String>(model.getObject().getDisplayname());
-	}
+ 
 
 	@Override
 	public void onClick(IModel<ArtExhibition> model) {
@@ -171,7 +167,8 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 		
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss
+("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {

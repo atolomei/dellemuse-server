@@ -64,7 +64,7 @@ public class QRCodeGenerationCommand extends Command {
 		
 				aw=o.get();
 				
-				if ((aw.getQRCode()==null) && (aw.getName()!=null) && (aw.getArtists() != null)) {
+				if ((aw.getQRCode()==null) && (aw.getName()!=null)) {
 				 
 					String url = getSettings().getQRServer()  + aw.getId().toString();
 

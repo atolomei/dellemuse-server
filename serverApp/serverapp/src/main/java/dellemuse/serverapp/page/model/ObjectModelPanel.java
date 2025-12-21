@@ -8,12 +8,14 @@ import java.util.Optional;
 
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
 import dellemuse.serverapp.command.CommandService;
 import dellemuse.serverapp.elevenlabs.ElevenLabsService;
@@ -25,6 +27,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Identifiable;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -87,6 +90,19 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		});
 		return list;
 	}
+	
+	
+	/** Save --------------------------------------------------------- */
+
+	
+	protected IModel<String> getObjectTitle(MultiLanguageObject o) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+		return Model.of(str.toString());
+	}
+	
 
 	/** Save --------------------------------------------------------- */
 
@@ -171,7 +187,9 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	}
 
 	public Iterable<ArtWork> getArtWorks(Person person) {
-		return getSiteDBService().findDistinctArtWorkByPersonId(person.getId());
+		if (person.isDependencies())
+			person=getPersonDBService().findWithDeps(person.getId()).get();
+		return person.getArtworks();
 	}
 
 	public Iterable<ArtWork> getSiteArtWorks(Site site) {
@@ -220,7 +238,11 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 				photo = this.getResourceDBService().findWithDeps(photo.getId()).get();
 			}
 			
-			if ((photo.getMedia() == null) || (photo.getMedia().length()==0) || (photo.getMedia().endsWith("svg+xml") || photo.getMedia().endsWith("webp"))) {
+			if (	(photo.getMedia() == null) || 
+					(photo.getMedia().length()==0) ||
+					 photo.getMedia().endsWith("svg+xml") ||
+					 photo.getMedia().endsWith("svg") ||
+					 photo.getMedia().endsWith("webp")) {
 			
 				ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
 				return service.getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
@@ -237,6 +259,7 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 				return service.getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
 			}
 		} catch (Exception e) {
+			logger.error(e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -316,11 +339,13 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		StringBuilder info = new StringBuilder();
 
 		int n = 0;
-		for (Person p : aw.getArtists()) {
+	
+		/**for (Person p : aw.getArtists()) {
 			if (n++ > 0)
 				info.append(", ");
 			info.append(p.getDisplayname());
-		}
+		}*/
+		
 		String str = TextCleaner.truncate(info.toString(), 220);
 		return str;
 	}

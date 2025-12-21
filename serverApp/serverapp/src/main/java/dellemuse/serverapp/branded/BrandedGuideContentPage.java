@@ -30,6 +30,7 @@ import dellemuse.serverapp.branded.panel.BrandedSiteSearcherPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
@@ -46,7 +47,7 @@ import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
- 
+import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.toolbar.ToolbarItem;
 import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
@@ -219,7 +220,6 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		this.setArtExhibitionGuideModel(new ObjectModel<ArtExhibitionGuide>(o_g.get()));
 
 		ArtExhibition a = item.getArtExhibition();
-
 		Optional<ArtExhibition> o_a = getArtExhibitionDBService().findWithDeps(a.getId());
 		this.setArtExhibitionModel(new ObjectModel<ArtExhibition>(o_a.get()));
 
@@ -308,6 +308,22 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		ph.setBreadCrumb(bc);
 		ph.setTagline(Model.of(getArtistStr(getArtWorkModel().getObject())));
 
+		
+		if (getList() != null && getList().size() > 0) {
+			Navigator<GuideContent> nav = new Navigator<GuideContent>("navigator", getCurrent(), getList()) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void navigate(int current) {
+					setResponsePage(new BrandedGuideContentPage(getList().get(current), getList()));
+				}
+			};
+			bc.setNavigator(nav);
+		}
+		
+		
+		
+		
 		return ph;
 	}
 	

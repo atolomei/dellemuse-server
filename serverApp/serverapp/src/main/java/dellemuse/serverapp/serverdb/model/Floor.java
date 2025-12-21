@@ -113,6 +113,12 @@ public class Floor extends DelleMuseObject {
 	public Floor() {
 	}
 
+
+	@Override
+	public String getObjectClassName() {
+		return Floor.class.getSimpleName();
+	}
+	
 	public FloorType getFloorType() {
 		return floorType;
 	}

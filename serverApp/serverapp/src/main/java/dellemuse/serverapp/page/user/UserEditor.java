@@ -3,6 +3,7 @@ package dellemuse.serverapp.page.user;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
@@ -12,6 +13,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
@@ -24,7 +26,7 @@ import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
- 
+import io.wktui.form.field.LocaleField;
 import io.wktui.form.field.TextField;
 import io.wktui.form.field.ZoneIdField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -42,6 +44,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	private TextField<String> nameField;
 	private ZoneIdField zoneidField;
 	private List<ToolbarItem> list;
+	private LocaleField localeField;
 
 	/**
 	 * @param id
@@ -50,7 +53,14 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	public UserEditor(String id, IModel<User> model) {
 		super(id, model);
 	}
-
+/**
+	IModel<Locale> mLocale;
+	
+	public void setUserLocale( IModel<Locale> locale) {
+		mlocale=Model.of();
+	}
+	**/
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -60,11 +70,17 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		this.form = new Form<User>("personForm", getModel());
 		add(this.form);
 
+		
+		logger.debug( "user locale -> " + getModel().getObject().getLocale().getLanguage());
+		
 		this.nameField = new TextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
 		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
-
+		this.localeField = new LocaleField("locale", new PropertyModel<Locale>(getModel(), "locale"), getLabel("locale"));
+		
 		this.form.add(nameField);
 		this.form.add(zoneidField);
+		this.form.add(localeField);
+		
 		this.form.setFormState(FormState.VIEW);
 
 		EditButtons<User> buttons = new EditButtons<User>("buttons", this.form, getModel()) {
@@ -166,6 +182,9 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 			this.form.setFormState(FormState.VIEW);
 			target.add(this.form);
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
+			getForm().updateReload();
+			fireScanAll(new ObjectUpdateEvent(target));
+			
 		} catch (Exception e) {
 
 			addOrReplace(new SimpleAlertRow<Void>("error", e));

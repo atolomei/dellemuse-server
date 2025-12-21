@@ -33,6 +33,12 @@ public class GuideContentRecord extends TranslationRecord {
 	public GuideContentRecord() {
 	}
 
+	@Override
+	public String getObjectClassName() {
+		return   GuideContentRecord.class.getSimpleName();
+	}
+
+	
 	public GuideContent getGuideContent() {
 		return guideContent;
 	}

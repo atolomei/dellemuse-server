@@ -58,6 +58,11 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	public GuideContent() {
 	}
 
+	@Override
+	public String getObjectClassName() {
+		return GuideContent.class.getSimpleName();
+	}
+
 	public String getPrefixUrl() {
 		return PrefixUrl.GuideContent;
 	}

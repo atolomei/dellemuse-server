@@ -52,6 +52,11 @@ public class FavoriteSite extends DelleMuseObject {
 	}
 
 
+	@Override
+	public String getObjectClassName() {
+		return FavoriteSite.class.getSimpleName();
+	}
+	
     public FavoriteSite() {
     }
 

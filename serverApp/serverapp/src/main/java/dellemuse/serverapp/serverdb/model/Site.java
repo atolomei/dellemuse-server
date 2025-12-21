@@ -130,6 +130,11 @@ public class Site extends MultiLanguageObject {
 	}
 
 	@Override
+	public String getObjectClassName() {
+		return Site.class.getSimpleName();
+	}
+
+	@Override
 	public boolean equals(Object o) {
 
 		if (o == null)

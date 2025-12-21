@@ -536,11 +536,13 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	}
 	
 	protected IModel<String> getMainTitle() {
-			return new Model<String>(getModel().getObject().getDisplayname());
+			return getObjectTitle( getModel().getObject() );
 	}
 	
 	protected IModel<String> getMainSubtitle() {
 
+		return getObjectSubtitle( getModel().getObject() );
+		/**
 		String masterLang = getModel().getObject().getMasterLanguage();
 		String userLang = getSessionUser().get().getLanguage();
 		
@@ -561,6 +563,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		
 		
 		return new Model<String>(getModel().getObject().getDisplayname());
+		*/
 	}
 	
 	
@@ -570,7 +573,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/institution/list", getLabel("institutions")));
-		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
+		bc.addElement(new BCElement(  getObjectTitle( getModel().getObject() )));
 
 		if (getList() != null && getList().size() > 0) {
 			Navigator<Institution> nav = new Navigator<Institution>("navigator", getCurrent(), getList()) {

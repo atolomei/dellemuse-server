@@ -209,7 +209,8 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 		
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss(ServerConstant.menuLabelCss);
+		menu.setTitleCss
+(ServerConstant.menuLabelCss);
 		menu.setIconCss(ServerConstant.menuIconCss);
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Resource>() {

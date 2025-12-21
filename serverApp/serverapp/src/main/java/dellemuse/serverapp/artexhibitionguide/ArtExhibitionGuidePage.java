@@ -321,8 +321,8 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(), new Model<String>(getSiteModel().getObject().getDisplayname())));
 		bc.addElement(new HREFBCElement("/site/exhibitions/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
 		bc.addElement(new HREFBCElement("/artexhibition/" + getArtExhibitionModel().getObject().getId().toString(), Model.of(getArtExhibitionModel().getObject().getDisplayname() + " (E)")));
-		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname() + " (AG)")));
-		this.header = new JumboPageHeaderPanel<ArtExhibitionGuide>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
+		bc.addElement(new BCElement(getObjectTitle( getModel().getObject())));
+		this.header = new JumboPageHeaderPanel<ArtExhibitionGuide>("page-header", getModel(), getObjectTitle( getModel().getObject()));
 		this.header.setContext(getLabel("exhibition-guide"));
 		this.header.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 
@@ -344,9 +344,9 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 			header.setPhotoModel(new ObjectModel<Resource>(getArtExhibitionModel().getObject().getPhoto()));
 
 		if (getModel().getObject().getSubtitle() != null)
-			header.setTagline(Model.of(getModel().getObject().getSubtitle()));
-		else if (getArtExhibitionModel().getObject().getSubtitle() != null)
-			header.setTagline(Model.of(getArtExhibitionModel().getObject().getSubtitle()));
+			header.setTagline(getObjectSubtitle( getModel().getObject()));
+		else if ( getObjectSubtitle(getArtExhibitionModel().getObject())  != null)
+			header.setTagline(getObjectSubtitle(getArtExhibitionModel().getObject()));
 
 		this.header.setBreadCrumb(bc);
 

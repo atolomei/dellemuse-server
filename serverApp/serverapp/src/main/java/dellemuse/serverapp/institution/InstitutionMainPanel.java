@@ -12,6 +12,7 @@ import org.apache.wicket.model.Model;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemsGuidesPanel;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
  
@@ -98,6 +99,11 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 						setResponsePage(new SitePage(getModel(), getSiteList()));
 					}
 
+					@Override
+					protected IModel<String> getObjectTitle() {
+						return InstitutionMainPanel.this.getObjectTitle(getModel().getObject());
+					}
+		
 					protected IModel<String> getInfo() {
 						String str = TextCleaner.clean(model.getObject().getInfo(), 280);
 						return new Model<String>(str);

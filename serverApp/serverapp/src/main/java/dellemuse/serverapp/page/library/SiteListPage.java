@@ -141,6 +141,7 @@ public class SiteListPage extends ObjectListPage<Site> {
 		return new Model<String>(TextCleaner.clean(model.getObject().getInfo(), 280));
 	}
 
+	/**
 	@Override
 	public IModel<String> getObjectTitle(IModel<Site> model) {
 		
@@ -149,6 +150,7 @@ public class SiteListPage extends ObjectListPage<Site> {
 
 		return new Model<String>(model.getObject().getDisplayname());
 	}
+	**/
 
 	@Override
 	public void onClick(IModel<Site> model) {
@@ -258,7 +260,8 @@ public class SiteListPage extends ObjectListPage<Site> {
 
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss
+("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {

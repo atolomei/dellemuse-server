@@ -30,46 +30,9 @@ import dellemuse.serverapp.serverdb.model.record.PersonRecord;
  */
 @Repository
 public interface PersonRecordRepository extends ListCrudRepository<PersonRecord, Long> {
-
-	 
-	@Query("""
-	        SELECT DISTINCT aa.person
-	        FROM ArtWorkArtist aa
-	        JOIN aa.artwork a
-	        WHERE a.site.id = :siteId 
-	        order by aa.person.sortlastfirstname
-	    """)
-	    List<Person> findDistinctPersonsBySiteId(@Param("siteId") Long siteId);
-	 
-	
-	@Query("""
-	        SELECT aa.artwork
-	        FROM ArtWorkArtist aa
-	        WHERE aa.person.id = :personId 
-	        order by aa.artwork.name
-	    """)
-	    List<ArtWork> findDistinctArtWorkByPersonId(@Param("personId") Long personId);
-	
+ 
 	
 	
 }
 
-
-/**
-
-
- JOIN aa.person p
-
-public interface SiteArtistsRepository extends JpaRepository<Person, Long> {
-
-	@Query("""
-	        SELECT DISTINCT aa.person
-	        FROM ArtworkArtist aa
-	        JOIN aa.artwork a
-	        WHERE a.site.id = :siteId
-	    """)
-	    List<Person> findDistinctPersonsBySiteId(@Param("siteId") Long siteId);
-	
-	
-}
-**/
+ 

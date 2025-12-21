@@ -14,6 +14,7 @@ import org.apache.wicket.model.Model;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.artexhibition.ArtExhibitionSectionsPanel;
 import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
 import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
@@ -317,7 +318,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
@@ -535,7 +536,9 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 				DelleMuseObjectListItemPanel<GuideContent> panel = new DelleMuseObjectListItemPanel<GuideContent>("row-element", model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
+ 
 
+					
 					@Override
 					protected String getTitleIcon() {
 						if (getModel().getObject().getAudio() != null)
@@ -546,7 +549,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 					@Override
 					protected IModel<String> getObjectTitle() {
-						return ArtExhibitionGuideContentsPanel.this.getObjectTitle(getModel());
+						return ArtExhibitionGuideContentsPanel.this.getObjectTitle(getModel().getObject());
 					}
 
 					@Override

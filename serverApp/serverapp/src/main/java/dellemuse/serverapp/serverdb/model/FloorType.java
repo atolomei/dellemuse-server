@@ -27,4 +27,9 @@ public class FloorType extends DelleMuseObject {
     public FloorType() {
     }
     
+	@Override
+	public String getObjectClassName() {
+		return FloorType.class.getSimpleName();
+	}
+
 }

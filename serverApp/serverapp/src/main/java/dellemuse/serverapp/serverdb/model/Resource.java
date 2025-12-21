@@ -77,6 +77,12 @@ public class Resource extends DelleMuseObject {
 	}
 
 	@Override
+	public String getObjectClassName() {
+		return Resource.class.getSimpleName();
+	}
+
+	
+	@Override
 	public String getDisplayname() {
 		return getName();
 	}

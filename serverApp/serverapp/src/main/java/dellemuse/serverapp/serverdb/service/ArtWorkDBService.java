@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.hibernate.Hibernate;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
 import dellemuse.serverapp.service.language.LanguageService;
@@ -154,6 +156,7 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
  
 
 	@SuppressWarnings("unused")
+	//@EntityGraph(attributePaths = {"artists"})
 	@Transactional
 	public Optional<ArtWork> findWithDeps(Long id) {
 
@@ -166,10 +169,11 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 
 		aw.getSite().getDisplayname();
 
-		for (Person p : aw.getArtists()) {
-			p.getDisplayName();
-		}
-
+		Set<Person> set= new HashSet<Person>();
+		
+		aw.getArtists().forEach( p -> set.add(getPersonDBService().findById( p.getId()).get() ));
+		aw.setArtists(set);
+		
 		Resource photo = aw.getPhoto();
 
 		User u = aw.getLastModifiedUser();
@@ -186,14 +190,16 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 			User qu = qrcode.getLastModifiedUser();
 			qrcode.getBucketName();
 		}
-
-		for (Person p : aw.getArtists()) {
-			Long p_id = p.getId();
-		}
-
+		 
+		
 		aw.setDependencies(true);
 
 		return o_aw;
+	}
+
+	public PersonDBService getPersonDBService() {
+		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
+		 
 	}
 
 	@Transactional
@@ -229,15 +235,18 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 	}
 
 	@Transactional
-	public List<Person> loadArtists(ArtWork aw) {
+	public List<Person> getArtists(ArtWork aw) {
 
-		aw = findById(aw.getId()).get();
+		/**aw = findById(aw.getId()).get();
 		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 		List<Person> list = new ArrayList<Person>();
-		for (Person person : aw.getArtists()) {
-			list.add(service.findById(person.getId()).get());
-		}
+		aw.getAwArtists().forEach( i-> {
+				list.add( service.findById(i.getPerson().getId()).get() );
+		});
 		return list;
+**/
+		return null;
+		
 	}
 
 	/**

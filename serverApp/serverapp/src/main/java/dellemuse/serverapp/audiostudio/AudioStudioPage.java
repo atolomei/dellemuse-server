@@ -189,7 +189,11 @@ public class AudioStudioPage extends BasePage {
 			bc.addElement(new HREFBCElement("/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString(), Model.of(mlo_parentObjectName + " (" + getLabel("audio-guide").getObject() + ")")));
 			bc.addElement(new BCElement(getLabel("audio-studio-bcrumb", getModel().getObject().getDisplayname())));
 
-			JumboPageHeaderPanel<AudioStudio> h = new JumboPageHeaderPanel<AudioStudio>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
+			JumboPageHeaderPanel<AudioStudio> h = new JumboPageHeaderPanel<AudioStudio>("page-header", getModel(), 
+					
+					new Model<String>(mlo_parentObjectName)
+					
+					);
 			h.setBreadCrumb(bc);
 			
 			h.setIcon(AudioStudio.getIcon());
@@ -234,7 +238,6 @@ public class AudioStudioPage extends BasePage {
 			mlo_parentObjectPrefix = ((TranslationRecord) ap).getParentObject().getPrefixUrl();
 		
 		} else {
-			
 			
 			mlo_parentObjectName = parentObjectName;
 			mlo_parentObjectId = parentObjectId;

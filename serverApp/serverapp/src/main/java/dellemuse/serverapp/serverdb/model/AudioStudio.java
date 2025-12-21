@@ -140,6 +140,13 @@ public class AudioStudio extends DelleMuseObject {
 	
 	public AudioStudio() {
 	}
+	
+	
+	@Override
+	public String getObjectClassName() {
+		return AudioStudio.class.getSimpleName();
+	}
+
 
 	public AudioStudioParentObject getParentOject() {
 

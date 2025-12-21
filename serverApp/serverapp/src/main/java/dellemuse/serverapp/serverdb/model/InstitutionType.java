@@ -24,4 +24,9 @@ public class InstitutionType extends DelleMuseObject {
 
     public InstitutionType() {
     }
+
+    @Override
+	public String getObjectClassName() {
+		return InstitutionType.class.getSimpleName();
+	}
 }

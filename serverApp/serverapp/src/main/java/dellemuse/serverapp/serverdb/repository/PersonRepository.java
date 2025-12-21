@@ -2,6 +2,7 @@ package dellemuse.serverapp.serverdb.repository;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -30,10 +31,21 @@ import dellemuse.serverapp.serverdb.model.Person;
 @Repository
 public interface PersonRepository extends ListCrudRepository<Person, Long> {
 
-	 
+	
+	
+	@EntityGraph(attributePaths = {"artworks"})
+	@Query("""
+	    select distinct p
+	    from Person p
+	    join p.artworks aw
+	    where aw.site.id = :siteId order by p.sortlastfirstname
+	""")
+	List<Person> findDistinctPersonsBySiteId(@Param("siteId") Long siteId);
+	
+	 /**
 	@Query("""
 	        SELECT DISTINCT aa.person
-	        FROM ArtWorkArtist aa
+	        FROM ArtWork Artist aa
 	        JOIN aa.artwork a
 	        WHERE a.site.id = :siteId 
 	        order by aa.person.sortlastfirstname
@@ -43,13 +55,21 @@ public interface PersonRepository extends ListCrudRepository<Person, Long> {
 	
 	@Query("""
 	        SELECT aa.artwork
-	        FROM ArtWorkArtist aa
+	        FROM ArtWork Artist aa
 	        WHERE aa.person.id = :personId 
 	        order by aa.artwork.name
 	    """)
 	    List<ArtWork> findDistinctArtWorkByPersonId(@Param("personId") Long personId);
 	
-	
+	 
+	@Query("""
+	        SELECT DISTINCT aa.person
+	        FROM ArtWork Artist aa
+	        WHERE aa.artwork.id = :artworkId
+	        order by aa.person.sortlastfirstname
+	    """)
+	    List<Person> getArworkArtists(@Param("siteId") Long artworkId);
+	**/
 	
 }
 
@@ -63,7 +83,7 @@ public interface SiteArtistsRepository extends JpaRepository<Person, Long> {
 
 	@Query("""
 	        SELECT DISTINCT aa.person
-	        FROM ArtworkArtist aa
+	        FROM Artwork Artist aa
 	        JOIN aa.artwork a
 	        WHERE a.site.id = :siteId
 	    """)

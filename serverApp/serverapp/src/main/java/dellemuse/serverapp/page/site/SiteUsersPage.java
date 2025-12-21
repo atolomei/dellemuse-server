@@ -51,45 +51,44 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 	private List<ToolbarItem> list;
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-		
+
 		if (ouser.isEmpty())
 			return false;
-	
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
+
+		User user = ouser.get();
+
+		if (user.isRoot())
 			return true;
-		
+
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
-		
+
 		{
-		Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set!=null) {
-					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-					if (isAccess)
-						return true;
-			}
-		}
-		
-		
-		{
-			final Long sid = getModel().getObject().getId();
-			
-			Set<RoleSite> set = user.getRolesSite();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
 				if (isAccess)
 					return true;
 			}
-		}		
-		
+		}
+
+		{
+			final Long sid = getModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
 		return false;
-	} 
+	}
+
 	public SiteUsersPage() {
 		super();
 	}
@@ -181,8 +180,6 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return tabs;
 	}
 
-	 
-
 	protected void setUpModel() {
 		super.setUpModel();
 
@@ -220,7 +217,7 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
-					//SiteUsersPage.this.onEdit(event.getTarget());
+					// SiteUsersPage.this.onEdit(event.getTarget());
 				}
 
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
@@ -247,10 +244,6 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 					}
 				}
 
-				// else if (event.getName().equals(ServerAppConstant.object_audit)) {
-				// SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit,
-				// event.getTarget());
-				// }
 			}
 
 			@Override
@@ -279,7 +272,7 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			}
 		});
 	}
-	
+
 	@Override
 	protected Class<?> getTranslationClass() {
 		return SiteRecord.class;

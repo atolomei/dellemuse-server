@@ -245,6 +245,18 @@
 			<artifactId>odilon-client</artifactId>
 			<version>${odilon-client-version}</version>
 		</dependency>
+		
+		
+		
+		<!-- CAFFEINE
+		======================================================  -->
+
+		<dependency>
+		  <groupId>com.github.ben-manes.caffeine</groupId>
+		  <artifactId>caffeine</artifactId>
+		  <!-- version -> we use the one provided by Spring --> 
+		</dependency>
+		
 
 		<!-- jackson Hibernate
 	    =======================================================  -->

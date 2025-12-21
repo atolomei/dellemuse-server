@@ -592,6 +592,14 @@ COMMIT;
 
 
 
+						
+	
+CREATE TABLE awpe (
+	artwork_id		  bigint references artwork(id),
+	person_id		  bigint references person(id),
+	PRIMARY KEY (artwork_id, person_id)
+);
+
 
 
 

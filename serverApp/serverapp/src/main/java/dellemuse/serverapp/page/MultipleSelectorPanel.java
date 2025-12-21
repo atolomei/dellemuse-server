@@ -3,40 +3,43 @@ package dellemuse.serverapp.page;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
+ 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.request.component.IRequestablePage;
+ 
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
-import io.wktui.form.button.SubmitButton;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
+ 
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.LabelAjaxLinkPanel;
 
 public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends DBModelPanel<T> {
 
+	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(MultipleSelectorPanel.class.getName());
 
 	private static final long serialVersionUID = 1L;
 
 	private List<IModel<T>> list;
-
 	private WebMarkupContainer titleContainer;
 	private WebMarkupContainer itemsContainer;
 	private ListPanel<T> listPanel;
 	private IModel<String> title;
 
 	protected abstract IModel<String> getObjectSubtitle(IModel<T> model);
-
 	protected abstract String getObjectImageSrc(IModel<T> model);
+	protected abstract IModel<String> getObjectInfo(IModel<T> model);
+	protected abstract void onClick(IModel<T> model);
+	protected abstract void onObjectSelect(IModel<T> model, AjaxRequestTarget target);
 
+	
 	public MultipleSelectorPanel(String id, List<IModel<T>> list) {
 		this(id, list, null);
 	}
@@ -55,30 +58,59 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 		itemsContainer = new WebMarkupContainer("itemsContainer");
 		itemsContainer.setOutputMarkupId(true);
 		add(itemsContainer);
-
 		titleContainer = new WebMarkupContainer("titleContainer");
 		titleContainer.setOutputMarkupId(true);
 		titleContainer.setVisible(getTitle() != null);
 		add(titleContainer);
-
 		titleContainer.add(new Label("title", getTitle()));
-
 		renderPanel();
-
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
-
 		if (this.list != null)
 			this.list.forEach(i -> i.detach());
 	}
 
+
+	public List<IModel<T>> getList() {
+		return list;
+	}
+
+	public void setList(List<IModel<T>> list) {
+		this.list = list;
+	}
+
+	protected boolean isExpander() {
+		return true;
+	}
+
+	protected IModel<String> getObjectTitle(IModel<T> model) {
+		if (model.getObject() instanceof MultiLanguageObject) {
+			return super.getObjectTitle( (MultiLanguageObject) model.getObject());
+		}
+		return Model.of(model.getObject().getDisplayname());
+	}
+
+	protected WebMarkupContainer getObjectMenu(IModel<T> model) {
+
+		LabelAjaxLinkPanel<T> b = new LabelAjaxLinkPanel<T>("menu", null, model, "fa-duotone fa-plus") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				onObjectSelect(getModel(), target);
+			}
+		};
+		b.setLinkCss("btn btn-sm btn-outline-primary");
+		return b;
+	}
+
+
 	protected IModel<String> getTitle() {
 		return title;
 	}
-
+	
 	protected Panel getObjectListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
 
 		return new ObjectListItemExpandedPanel<T>("expanded-panel", model, mode) {
@@ -101,7 +133,7 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 			}
 		};
 	}
-
+	
 	private void renderPanel() {
 
 		this.listPanel = new ListPanel<T>("items", getList()) {
@@ -157,46 +189,7 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 		this.listPanel.setHasExpander(isExpander());
 		this.listPanel.setSettings(true);
 		this.listPanel.setLiveSearch(true);
-
 		this.itemsContainer.addOrReplace(this.listPanel);
-
 	}
-
-	protected boolean isExpander() {
-		return true;
-	}
-
-	protected IModel<String> getObjectTitle(IModel<T> model) {
-		return Model.of(model.getObject().getDisplayname());
-	}
-
-	protected abstract IModel<String> getObjectInfo(IModel<T> model);
-
-	protected abstract void onClick(IModel<T> model);
-
-	protected abstract void onObjectSelect(IModel<T> model, AjaxRequestTarget target);
-
-	protected WebMarkupContainer getObjectMenu(IModel<T> model) {
-		LabelAjaxLinkPanel<T> b = new LabelAjaxLinkPanel<T>("menu", null, model, "fa-duotone fa-plus") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				onObjectSelect(getModel(), target);
-			}
-		};
-
-		b.setLinkCss("btn btn-sm btn-outline-primary");
-		return b;
-
-	};
-
-	public List<IModel<T>> getList() {
-		return list;
-	}
-
-	public void setList(List<IModel<T>> list) {
-		this.list = list;
-	}
-
+	
 }

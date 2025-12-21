@@ -32,6 +32,12 @@ public class InstitutionRecord extends TranslationRecord {
 
 	public InstitutionRecord() {
 	}
+	
+	@Override
+	public String getObjectClassName() {
+		return InstitutionRecord.class.getSimpleName();
+	}
+
 
 	@Override
 	public String getPrefixUrl() {

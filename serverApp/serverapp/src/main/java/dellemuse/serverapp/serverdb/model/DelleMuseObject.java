@@ -110,7 +110,7 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	 * used by Audit
 	 */
 	public String getObjectClassName() {
-			return this.getClass().getSimpleName().toLowerCase();
+			return this.getClass().getSimpleName();
 	}
 	
 	public boolean isDependencies() {

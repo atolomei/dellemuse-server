@@ -103,6 +103,7 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 		return new Model<String>(str);
 	}
 
+	/**
 	@Override
 	public IModel<String> getObjectTitle(IModel<Person> model) {
 		if (model.getObject().getState() == ObjectState.DELETED)
@@ -110,7 +111,8 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 
 		return new Model<String>(model.getObject().getLastFirstname());
 	}
-
+**/
+	
 	@Override
 	public void onClick(IModel<Person> model) {
 		setResponsePage(new PersonPage(model, getList()));

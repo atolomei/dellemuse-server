@@ -3,15 +3,6 @@ package dellemuse.serverapp.serverdb.repository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.ArtWorkArtist;
-import dellemuse.serverapp.serverdb.model.Floor;
-import dellemuse.serverapp.serverdb.model.FloorType;
-import dellemuse.serverapp.serverdb.model.GuideContent;
-import dellemuse.serverapp.serverdb.model.InstitutionType;
-import dellemuse.serverapp.serverdb.model.InstitutionalContent;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Room;
 import dellemuse.serverapp.serverdb.model.RoomType;

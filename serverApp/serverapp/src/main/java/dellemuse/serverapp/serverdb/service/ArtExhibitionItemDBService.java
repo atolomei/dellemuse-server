@@ -222,7 +222,7 @@ public class ArtExhibitionItemDBService extends  MultiLanguageObjectDBservice<Ar
 
     @PostConstruct
     protected void onInitialize() {
-    	super.registerRecordDB(getEntityClass(), getArtExhibitionItemRecordDBService());
+		super.registerRecordDB(getEntityClass(), getArtExhibitionItemRecordDBService());
 		super.register(getEntityClass(), this);
     }
 

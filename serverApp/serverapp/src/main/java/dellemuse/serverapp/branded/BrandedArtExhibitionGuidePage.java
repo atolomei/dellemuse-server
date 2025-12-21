@@ -37,7 +37,7 @@ import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 
 import io.wktui.nav.toolbar.ToolbarItem;
-import wktui.base.DummyBlockPanel;
+ 
 import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
@@ -55,12 +55,12 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
-		if (getModel().getObject().getState()==ObjectState.DELETED)
+		if (getModel().getObject().getState() == ObjectState.DELETED)
 			return false;
-			
-	//	if (getModel().getObject().getState()==ObjectState.EDITION)
-	//		return false;
-		
+
+		// if (getModel().getObject().getState()==ObjectState.EDITION)
+		// return false;
+
 		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
 			return false;
 
@@ -108,18 +108,16 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			this.siteModel.detach();
 	}
 
-
 	@Override
 	protected Panel createGlobalTopPanel(String id) {
-		return new BrandedGlobalTopPanel("top-panel",  getSiteModel() );
+		return new BrandedGlobalTopPanel("top-panel", getSiteModel());
 	}
-	
+
 	@Override
 	protected Panel createSearchPanel() {
 		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel());
 	}
 
-	
 	@Override
 	protected Optional<ArtExhibitionGuideRecord> loadTranslationRecord(String lang) {
 		return getArtExhibitionGuideRecordDBService().findByArtExhibitionGuide(getModel().getObject(), lang);
@@ -156,25 +154,24 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 	protected WebMarkupContainer getGuideContentsPanel(String id) {
 		return new InvisiblePanel(id);
- 	}
+	}
 
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 
-		NamedTab tab_2 = new NamedTab(Model.of(ServerAppConstant.branded_exhibition_guide), 
-									  ServerAppConstant.branded_exhibition_guide) {
+		NamedTab tab_2 = new NamedTab(Model.of(ServerAppConstant.branded_exhibition_guide), ServerAppConstant.branded_exhibition_guide) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return new BrandedArtExhibitionGuidePanel(panelId,BrandedArtExhibitionGuidePage.this.getModel(), BrandedArtExhibitionGuidePage.this.getSiteModel());
+				return new BrandedArtExhibitionGuidePanel(panelId, BrandedArtExhibitionGuidePage.this.getModel(), BrandedArtExhibitionGuidePage.this.getSiteModel());
 			}
 		};
 		tabs.add(tab_2);
-		
+
 		super.setStartTab(ServerAppConstant.branded_exhibition_guide);
 
 		return tabs;
@@ -194,12 +191,12 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	protected Panel createHeaderPanel() {
 
 		try {
-			
+
 			BreadCrumb<Void> bc = createBreadCrumb();
-			
+
 			bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("audio-guides")));
-			bc.addElement(new BCElement( getObjectTitle(getSiteModel().getObject()) ));
-			
+			bc.addElement(new BCElement(getObjectTitle(getSiteModel().getObject())));
+
 			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getSiteModel().getObject()));
 			ph.setBreadCrumb(bc);
 
@@ -209,9 +206,9 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			ph.setHeaderCss("mb-0 mt-0 pt-0 pb-2 border-none");
 
 			boolean isPhoto = false;
-			
+
 			ph.setContext(getLabel("exhibition-guide"));
-			
+
 			if (getModel().getObject().getPhoto() != null) {
 				ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 				isPhoto = true;
@@ -224,13 +221,12 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 				ph.setHeaderCss("mb-0 mt-0 pt-0 pb-4 border-none");
 				ph.setIcon(GuideContent.getIcon());
 			}
-			
-			IModel<String> s= getObjectSubtitle(getSiteModel().getObject());
-			
-			
+
+			IModel<String> s = getObjectSubtitle(getSiteModel().getObject());
+
 			if (s.getObject().length() > 0)
 				ph.setTagline(s);
-			
+
 			else if (getArtExhibitionModel().getObject().getSubtitle() != null)
 				ph.setTagline(Model.of(getArtExhibitionModel().getObject().getSubtitle()));
 			return ph;
@@ -269,7 +265,6 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	protected IModel<ArtExhibition> getArtExhibitionModel() {
 		return this.artExhibitionModel;
 	}
-
 
 	@Override
 	protected Class<?> getTranslationClass() {

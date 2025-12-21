@@ -270,7 +270,7 @@ public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionIte
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
-			fire (new ObjectUpdateEvent(target));
+			fireScanAll(new ObjectUpdateEvent(target));
 		
 		} catch (Exception e) {
 			addOrReplace(new SimpleAlertRow<Void>("error", e));

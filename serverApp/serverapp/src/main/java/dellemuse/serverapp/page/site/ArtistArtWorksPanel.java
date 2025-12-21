@@ -38,8 +38,10 @@ public class ArtistArtWorksPanel extends DBModelPanel<Person> {
 	public void onInitialize() {
 		super.onInitialize();
 
+		getModel().setObject(getPersonDBService().findWithDeps( getModel().getObject().getId()).get());
+		
 		List<IModel<ArtWork>> list = new ArrayList<IModel<ArtWork>>();
-		getArtWorks(getModel().getObject()).forEach(a -> {
+		getModel().getObject().getArtworks().forEach(a -> {
 			list.add(new ObjectModel<ArtWork>(a));
 		});
 
@@ -69,7 +71,7 @@ public class ArtistArtWorksPanel extends DBModelPanel<Person> {
 					}
 				};
 
-				Label la = new Label("title", item.getModel().getObject().getObject().getDisplayname());
+				Label la = new Label("title", getObjectTitle( item.getModel().getObject().getObject()) );
 				link.add(la);
 				m.add(link);
 				item.add(m);

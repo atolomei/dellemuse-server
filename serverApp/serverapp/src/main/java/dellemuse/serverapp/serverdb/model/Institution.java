@@ -104,7 +104,12 @@ public class Institution extends MultiLanguageObject {
 	public Institution() {
 	}
 
+	@Override
+	public String getObjectClassName() {
+		return Institution.class.getSimpleName();
+	}
 
+	
 	public String getPrefixUrl() {
 		return PrefixUrl.Institution;
 	}

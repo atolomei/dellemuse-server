@@ -14,6 +14,7 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibition.ArtExhibitionGuidesPanel;
+import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideContentsPanel;
 import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
@@ -168,6 +169,11 @@ public class ArtExhibitionItemsGuidesPanel extends DBModelPanel<ArtExhibitionIte
 						model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
 
+					@Override
+					protected IModel<String> getObjectTitle() {
+						return  ArtExhibitionItemsGuidesPanel.this.getObjectTitle(getModel().getObject());
+					}
+					
 					@Override
 					protected String getImageSrc() {
 						return ArtExhibitionItemsGuidesPanel.this.getObjectImageSrc(getModel());

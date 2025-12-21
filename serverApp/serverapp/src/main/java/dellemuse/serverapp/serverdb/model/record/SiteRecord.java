@@ -62,6 +62,12 @@ public class SiteRecord extends TranslationRecord {
 	}
 
 	@Override
+	public String getObjectClassName() {
+		return SiteRecord.class.getSimpleName();
+	}
+
+	
+	@Override
 	public String getPrefixUrl() {
 		return PrefixUrl.Site;
 	}

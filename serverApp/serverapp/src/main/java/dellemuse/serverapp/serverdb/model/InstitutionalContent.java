@@ -88,7 +88,12 @@ public class InstitutionalContent extends DelleMuseObject {
     public InstitutionalContent() {
     }
 
+	@Override
+	public String getObjectClassName() {
+		return InstitutionalContent.class.getSimpleName();
+	}
 
+	
     public Institution getInstitution() {
         return institution;
     }

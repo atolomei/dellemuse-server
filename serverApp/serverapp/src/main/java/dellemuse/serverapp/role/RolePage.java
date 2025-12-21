@@ -103,8 +103,7 @@ public class RolePage extends ObjectPage<Role> {
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
 
-				logger.debug(event.toString());
-
+			 
 				 
 				if (event.getName().equals(ServerAppConstant.role_panel_info)) {
 					RolePage.this.togglePanel(ServerAppConstant.role_panel_info, event.getTarget());

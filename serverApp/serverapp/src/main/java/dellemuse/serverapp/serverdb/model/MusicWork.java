@@ -63,6 +63,11 @@ public class MusicWork extends MultiLanguageObject {
 	public MusicWork() {
 	}
 
+	@Override
+	public String getObjectClassName() {
+		return MusicWork.class.getSimpleName();
+	}
+	
 	public String getPrefixUrl() {
 		return PrefixUrl.music;
 	}

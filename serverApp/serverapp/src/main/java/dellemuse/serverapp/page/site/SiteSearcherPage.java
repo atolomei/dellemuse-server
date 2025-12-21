@@ -248,11 +248,7 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
 					}
 				}
-
-				// else if (event.getName().equals(ServerAppConstant.object_audit)) {
-				// SiteInfoPage.this.togglePanel(ServerAppConstant.object_audit,
-				// event.getTarget());
-				// }
+ 
 			}
 
 			@Override

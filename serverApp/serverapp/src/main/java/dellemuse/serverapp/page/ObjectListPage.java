@@ -15,6 +15,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
@@ -22,7 +23,7 @@ import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
 import dellemuse.serverapp.page.model.ObjectModel;
 
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
- 
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
  
 import dellemuse.serverapp.serverdb.model.User;
@@ -57,14 +58,10 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 	private WebMarkupContainer contentsContainerContainer;
 	private WebMarkupContainer errorContainer;
-
-	
-	
-
 	private WebMarkupContainer listToolbarContainer;
- 
-
+	private Panel errorPanel;
 	private boolean b_expand = false;
+
 	private ObjectStateEnumSelector oses;
 
 	protected abstract void addHeaderPanel();
@@ -77,7 +74,17 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 	protected abstract IModel<String> getObjectInfo(IModel<T> model);
 
-	protected abstract IModel<String> getObjectTitle(IModel<T> model);
+	
+	protected IModel<String> getObjectTitle(IModel<T> model) {
+		if (model.getObject() instanceof MultiLanguageObject) {
+			StringBuilder str = new StringBuilder();
+			str.append(getLanguageObjectService().getObjectDisplayName( ((MultiLanguageObject) model.getObject()) , getLocale()));
+			if (model.getObject().getState()==ObjectState.DELETED) 
+				str.append(ServerConstant.DELETED_ICON);
+			return Model.of(str.toString());
+		}
+		return Model.of(model.getObject().getDisplayname() + ((model.getObject().getState()==ObjectState.DELETED) ?  ServerConstant.DELETED_ICON : "") );
+	}
 
 	protected abstract String getObjectTitleIcon(IModel<T> model);
 
@@ -103,10 +110,6 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		addOrReplace(panel);
 	}
 
-	//public void addDefaultPageHeaderPanel() {
-	//	this.addOrReplace(new InvisiblePanel("page-header"));
-	//}
-
 	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
 		this.oses = o;
 	}
@@ -114,9 +117,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	public ObjectStateEnumSelector getObjectStateEnumSelector() {
 		return this.oses;
 	}
-
 	
-	private Panel errorPanel;
 	
 	protected Panel getErrorPanel() {
 		return this.errorPanel;
@@ -210,7 +211,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 			loadList();
 
-			this.panel = new ListPanel<>("contents") {
+			this.panel = new ListPanel<T>("contents") {
 
 				private static final long serialVersionUID = 1L;
 
@@ -228,14 +229,18 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 				protected Panel getListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
 					return ObjectListPage.this.getObjectListItemExpandedPanel(model, mode);
 				}
+			
+				
 
 				@Override
 				protected Panel getListItemPanel(IModel<T> model, ListPanelMode mode) {
 
-					DelleMuseObjectListItemPanel<T> panel = new DelleMuseObjectListItemPanel<>("row-element", model, mode) {
+					DelleMuseObjectListItemPanel<T> panel = new DelleMuseObjectListItemPanel<T>("row-element", model, mode) {
 
 						private static final long serialVersionUID = 1L;
 
+
+						
 						@Override
 						protected WebMarkupContainer getObjectMenu() {
 							return ObjectListPage.this.getObjectMenu(getModel());
@@ -266,6 +271,11 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 							return ObjectListPage.this.getObjectSubtitle(getModel());
 						}
 
+
+						 
+					 
+					
+						
 						@Override
 						protected String getImageSrc() {
 							return ObjectListPage.this.getObjectImageSrc(getModel());

@@ -185,7 +185,7 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 		}
 		
 		getForm().updateReload();
-		fire(new ObjectUpdateEvent(target));
+		fireScanAll(new ObjectUpdateEvent(target));
 		target.add(this);
 	}
 

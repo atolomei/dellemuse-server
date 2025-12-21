@@ -3,9 +3,9 @@ package dellemuse.serverapp.branded;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
- 
+
 import org.apache.wicket.markup.html.WebMarkupContainer;
- 
+
 import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -22,23 +22,23 @@ import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
- 
+
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
- 
+
 import dellemuse.serverapp.page.model.ObjectModel;
- 
+
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
- 
+
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
- 
+
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageObjectService;
@@ -78,7 +78,7 @@ public class BrandedSitePage extends BasePage {
 	private List<IModel<ArtExhibition>> listTemporaryPast;
 	private List<IModel<ArtExhibition>> listTemporaryComing;
 	private Panel searcher;
-	 
+
 	private boolean listsLoaded = false;
 
 	private WebMarkupContainer exhibitionsContainer;
@@ -89,38 +89,35 @@ public class BrandedSitePage extends BasePage {
 			return false;
 		return true;
 	}
-	
+
 	protected IModel<String> getObjectTitle(ArtExhibitionGuide o) {
 		StringBuilder str = new StringBuilder();
-		str.append( getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
 		return Model.of(str.toString());
 	}
-	
-	
+
 	protected IModel<String> getObjectTitle(ArtExhibition o) {
 		StringBuilder str = new StringBuilder();
-		str.append( getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
 		return Model.of(str.toString());
 	}
 
 	protected IModel<String> getObjectSubtitle(ArtExhibition o) {
-		return Model.of(TextCleaner.clean( getLanguageObjectService().getObjectSubtitle(o, getLocale()), 220));
+		return Model.of(TextCleaner.clean(getLanguageObjectService().getObjectSubtitle(o, getLocale()), 220));
 	}
-	
+
 	protected IModel<String> getObjectInfo(ArtExhibition o) {
-		return Model.of(TextCleaner.clean( getLanguageObjectService().getInfo(o, getLocale()), 220));
+		return Model.of(TextCleaner.clean(getLanguageObjectService().getInfo(o, getLocale()), 220));
 	}
-	
+
 	protected IModel<String> getObjectIntro(ArtExhibition o) {
-		return Model.of(TextCleaner.clean( getLanguageObjectService().getIntro(o, getLocale()), 220));
+		return Model.of(TextCleaner.clean(getLanguageObjectService().getIntro(o, getLocale()), 220));
 	}
-	
-	
-	
+
 	public BrandedSitePage() {
 		super();
 	}
@@ -168,7 +165,6 @@ public class BrandedSitePage extends BasePage {
 		addExhibitions();
 	}
 
-	
 	protected Optional<ArtExhibitionGuide> getArtExhibitionGuide(IModel<ArtExhibition> model) {
 		for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
 			if (g.isOfficial())
@@ -176,13 +172,11 @@ public class BrandedSitePage extends BasePage {
 		}
 		return Optional.empty();
 	}
-	
-	
-	
+
 	protected void addSearch() {
 		this.searcher = new BrandedSiteSearcherPanel("search", getSiteModel());
-	 	addOrReplace(this.searcher);
-	
+		addOrReplace(this.searcher);
+
 	}
 
 	protected IModel<Institution> getInstitutionModel() {
@@ -200,7 +194,7 @@ public class BrandedSitePage extends BasePage {
 
 		{
 			ListPanel<ArtExhibition> panel = new ListPanel<>("exhibitionsPermanent", getArtExhibitionsPermanent()) {
-				
+
 				private static final long serialVersionUID = 1L;
 
 				protected List<IModel<ArtExhibition>> filter(List<IModel<ArtExhibition>> initialList, String filter) {
@@ -237,7 +231,7 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g=getArtExhibitionGuide(getModel());
+							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 							if (g.isPresent())
 								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 						}
@@ -254,11 +248,11 @@ public class BrandedSitePage extends BasePage {
 					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
-
 						@Override
 						protected IModel<String> getObjectTitle() {
 							return BrandedSitePage.this.getObjectTitle(getModel().getObject());
 						}
+
 						@Override
 						protected String getImageSrc() {
 							if (getModel().getObject().getPhoto() != null) {
@@ -270,7 +264,7 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g=getArtExhibitionGuide(getModel());
+							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 							if (g.isPresent())
 								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 						}
@@ -341,7 +335,7 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g=getArtExhibitionGuide(getModel());
+							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 							if (g.isPresent())
 								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 						}
@@ -358,12 +352,11 @@ public class BrandedSitePage extends BasePage {
 					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
-
 						@Override
 						protected IModel<String> getObjectTitle() {
 							return BrandedSitePage.this.getObjectTitle(getModel().getObject());
 						}
-						
+
 						@Override
 						protected String getImageSrc() {
 							if (getModel().getObject().getPhoto() != null) {
@@ -375,7 +368,7 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g=getArtExhibitionGuide(getModel());
+							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 							if (g.isPresent())
 								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 						}
@@ -448,14 +441,14 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g=getArtExhibitionGuide(getModel());
+							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 							if (g.isPresent())
 								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 						}
 
 						protected IModel<String> getInfo() {
-							return BrandedSitePage.this.getObjectInfo( getModel().getObject() );
-							
+							return BrandedSitePage.this.getObjectInfo(getModel().getObject());
+
 						}
 
 					};
@@ -466,12 +459,11 @@ public class BrandedSitePage extends BasePage {
 					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
-
 						@Override
 						protected IModel<String> getObjectTitle() {
 							return BrandedSitePage.this.getObjectTitle(getModel().getObject());
 						}
-						
+
 						@Override
 						protected String getImageSrc() {
 							if (getModel().getObject().getPhoto() != null) {
@@ -483,7 +475,7 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g=getArtExhibitionGuide(getModel());
+							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 							if (g.isPresent())
 								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 						}
@@ -536,7 +528,6 @@ public class BrandedSitePage extends BasePage {
 
 						private static final long serialVersionUID = 1L;
 
-
 						@Override
 						protected IModel<String> getObjectSubtitle() {
 							if (getMode() == ListPanelMode.TITLE)
@@ -556,7 +547,7 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g=getArtExhibitionGuide(getModel());
+							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 							if (g.isPresent())
 								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 						}
@@ -574,7 +565,6 @@ public class BrandedSitePage extends BasePage {
 					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
-						
 						@Override
 						protected IModel<String> getObjectTitle() {
 							return BrandedSitePage.this.getObjectTitle(getModel().getObject());
@@ -596,7 +586,7 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g=getArtExhibitionGuide(getModel());
+							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 							if (g.isPresent())
 								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 						}
@@ -636,7 +626,7 @@ public class BrandedSitePage extends BasePage {
 
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
@@ -652,7 +642,7 @@ public class BrandedSitePage extends BasePage {
 
 					@Override
 					public void onClick() {
-						Optional<ArtExhibitionGuide> g=getArtExhibitionGuide(getModel());
+						Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 						if (g.isPresent())
 							setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 					}
@@ -750,8 +740,6 @@ public class BrandedSitePage extends BasePage {
 		}
 		return null;
 	}
-
-	 
 
 	@Override
 	public void onDetach() {
@@ -869,12 +857,12 @@ public class BrandedSitePage extends BasePage {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("audio-guides")));
-		
+
 		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getLabel("audio-guides"));
 		ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0  border-none bg-body-tertiary");
 		ph.setHeaderCss("mb-2 mt-0 pt-0 pb-2 border-none");
-		
-		//ph.setIcon(GuideContent.getIcon());
+
+		// ph.setIcon(GuideContent.getIcon());
 		ph.setBreadCrumb(bc);
 
 		// ph.setContext(getLabel("site"));

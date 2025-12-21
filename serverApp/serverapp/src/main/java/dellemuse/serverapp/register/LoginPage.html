@@ -1,0 +1,69 @@
+<html xmlns:wicket="http://wicket.apache.org">
+<body>
+	<wicket:extend>
+
+		<div class="container-fluid login">
+
+
+			<div class="row">
+				<div class="d-block mt-0 col-xxl-3 col-xl-4 col-lg-5 col-md-6 col-sm-12 col-xs-12"
+					style="position: relative; height: 100vh;">
+
+					<div class="mt-0 w-100 ps-4 pe-4"
+						style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: inline-block; background: inherit;">
+
+						<div class="row">
+							<div class="text-center mt-4 ps-4 pe-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<div class="w-100  ps-4 pe-4" style="margin-bottom: 3em;">
+									<div class="w-100 mb-1">
+										<span style="font-weight: 600; color: #f07104; font-size: 1em; line-height: 1.2em; margin: 0;">DELLEMUSE</span>
+									</div>
+									<div class="w-100">
+										<span style="font-weight: 400; font-size: 0.92em; color: #555555;">audio guides for the arts and
+											culture</span>
+									</div>
+								</div>
+
+								<form wicket:id="loginForm" method="post" action="/perform_login"
+									class="text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center mt-4 ps-4 pe-4">
+									<fieldset>
+										<div class="mb-4" wicket:id="username"></div>
+										<div class="mb-4" wicket:id="password"></div>
+										<div class="mb-4 mt-3 mr-0" wicket:id="buttons-bottom"></div>
+									</fieldset>
+								</form>
+							</div>
+
+							<div wicket:id="alertContainer" class="row">
+								<div class="mt-0 mb-0 text-center col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<div wicket:id="alert"></div>
+								</div>
+							</div>
+
+						</div>
+
+						<div class="row">
+							<div class="text-center  mt-3 mb-3 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+								<a class="btn-link" style="text-decoration: none;"><wicket:message key="forgot-password" /></a>
+
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="d-none d-md-block mt-0 col-xxl-9 col-xl-8 col-lg-7 col-md-6 col-sm-12 col-xs-12">
+					<div class="container-fluid text-bg-dark d-none d-md-block" style="height: 100vh; position: relative;">
+						<img class="d-none d-md-block centered"
+							style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: block; max-height: 80vh; max-width: 80%;"
+							wicket:id="logo" />
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</wicket:extend>
+</body>
+</html>
+
+

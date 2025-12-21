@@ -146,7 +146,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss(
 				"fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
@@ -221,6 +221,9 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			
 			private static final long serialVersionUID = 1L;
 
+			
+		
+			
 			public List<IModel<ArtExhibitionGuide>> getItems()  {
 				return  ArtExhibitionGuidesPanel.this.getItems();
 			}
@@ -248,6 +251,11 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 						model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
 
+					@Override
+					protected IModel<String> getObjectTitle() {
+						return ArtExhibitionGuidesPanel.this.getObjectTitle(getModel().getObject());
+					}
+					
 					@Override
 					protected String getTitleIcon() {
 						if (getModel().getObject().getAudio()!=null)

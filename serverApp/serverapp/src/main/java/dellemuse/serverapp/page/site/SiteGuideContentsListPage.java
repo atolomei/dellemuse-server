@@ -111,6 +111,7 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 		return new Model<String>( model.getObject().getInfo());
 	}
 
+	/**
 	public IModel<String> getObjectTitle(IModel<GuideContent> model) {
 		
 		if (model.getObject().getState()==ObjectState.DELETED) 
@@ -118,7 +119,8 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 
 		return new Model<String>( model.getObject().getDisplayname() );
 	}
-
+**/
+	
 	public void onClick(IModel<GuideContent> model) {
 		
 	}

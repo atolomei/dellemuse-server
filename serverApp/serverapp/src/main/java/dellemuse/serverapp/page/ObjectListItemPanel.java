@@ -6,16 +6,14 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
-import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import io.wktui.event.UIEvent;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import io.wktui.struct.list.ListPanelWicketEvent;
- 
+
 import wktui.base.InvisiblePanel;
 import wktui.base.ModelPanel;
 
@@ -31,7 +29,7 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 	private boolean imageVisible = true;
 
 	private String titleIcon = null;
-	
+
 	private WebMarkupContainer imageContainer;
 	private WebMarkupContainer titleTextContainer;
 	private WebMarkupContainer textContainer;
@@ -59,29 +57,22 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 			@Override
 			public void onEvent(ListPanelWicketEvent<T> event) {
 
-					
 				if (isEqual(event.getModel().getObject(), ObjectListItemPanel.this.getModel().getObject())) {
-				//if (event.getModel().getObject().getId()
-				//		.equals(ObjectListItemPanel.this.getModel().getObject().getId())) {
 					if (event.getName().equals(ListPanel.ITEM_EXPAND)) {
-						ObjectListItemPanel.this.titleTextContainer.add(
-								new AttributeModifier("class", getCss() + (event.isExpanded() ? " expanded " : "")));
+						ObjectListItemPanel.this.titleTextContainer.add(new AttributeModifier("class", getCss() + (event.isExpanded() ? " expanded " : "")));
 						event.getTarget().add(ObjectListItemPanel.this.titleTextContainer);
 					}
 				}
 			}
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public boolean handle(UIEvent event) {
-				
+
 				if (event instanceof ListPanelWicketEvent) {
 					ListPanelWicketEvent<?> e = (ListPanelWicketEvent<?>) event;
-			 		if (isEqual((T) e.getModel().getObject(), ObjectListItemPanel.this.getModel().getObject()))
+					if (isEqual((T) e.getModel().getObject(), ObjectListItemPanel.this.getModel().getObject()))
 						return true;
-					
-					//DelleMuseObject o = (DelleMuseObject) e.getModel().getObject();
-					//if (isEqual(event.getModel().getObject(), ObjectListItemPanel.this.getModel().getObject())
-					//	return true;
 				}
 				return false;
 			}
@@ -96,14 +87,13 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 
 		if (getIcon() != null) {
 			WebMarkupContainer ic = new WebMarkupContainer("icon");
-			ic.add( new org.apache.wicket.AttributeModifier("class", getIcon()));
+			ic.add(new org.apache.wicket.AttributeModifier("class", getIcon()));
 			this.imageLink.addOrReplace(ic);
 
 		} else {
 			this.imageLink.addOrReplace(new InvisiblePanel("icon"));
 		}
 
-		
 		if (isImageVisible()) {
 			String imageSrc = getImageSrc();
 
@@ -131,26 +121,19 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 
 	}
 
-	
-	public void setTutleIcon( String titleIcon ) {
-		this.titleIcon=titleIcon;
+	public void setTutleIcon(String titleIcon) {
+		this.titleIcon = titleIcon;
 	}
-	
+
 	protected String getTitleIcon() {
 		return this.titleIcon;
 	}
-	
-	
+
 	protected String getIcon() {
 		return icon;
 	}
 
-	//public void setIcon(String icon) {
-	//	this.icon = icon;
-	//}
-
-
-	public void setObjectSubtitle(IModel<String> subtitle) {
+ 	public void setObjectSubtitle(IModel<String> subtitle) {
 		this.subtitle = subtitle;
 	}
 
@@ -172,7 +155,7 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 
 		this.imageContainer = new WebMarkupContainer("imageContainer");
 		this.imageContainer.add(new org.apache.wicket.AttributeModifier("class", getImageCss()));
-		
+
 		add(this.imageContainer);
 		this.imageContainer.setVisible(isImageVisible());
 
@@ -220,25 +203,19 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		title.setEscapeModelStrings(false);
 		titleLink.add(title);
 
-		
-		//if (getTitleIcon()!=null) {
-				WebMarkupContainer ti=new WebMarkupContainer("titleIcon") {
-					private static final long serialVersionUID = 1L;
+		WebMarkupContainer ti = new WebMarkupContainer("titleIcon") {
+			private static final long serialVersionUID = 1L;
 
-					public boolean isVisible() {
-						return  getTitleIcon()!=null;
-					}
-				};
-				
-				ti.add( new org.apache.wicket.AttributeModifier("class", "float-none ps-3 pe-3 " + (getTitleIcon()!=null ? getTitleIcon() :"")));
-				this.titleTextContainer.add(ti);
-				
-		//}
-		//else {
-		//	titleLink.add( new InvisibleIcon("titleIcon"));
-		//}
-		
-		
+			public boolean isVisible() {
+				return getTitleIcon() != null;
+			}
+		};
+
+		ti.add(new org.apache.wicket.AttributeModifier("class", "float-none ps-3 pe-3 " + (getTitleIcon() != null ? getTitleIcon() : "")));
+		this.titleTextContainer.add(ti);
+
+		 
+
 		if (getObjectSubtitle() != null) {
 			WebMarkupContainer subtitleContainer = new WebMarkupContainer("subtitle-container");
 			titleTextContainer.addOrReplace(subtitleContainer);
@@ -257,13 +234,12 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 
 	protected abstract IModel<String> getObjectTitle();
 
-	
 	protected WebMarkupContainer getObjectMenu() {
 		return null;
 	}
 
 	protected abstract IModel<String> getInfo();
-	
+
 	protected IModel<String> getObjectSubtitle() {
 		return subtitle;
 	}
@@ -279,7 +255,7 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 	protected String getImageSrc() {
 		return null;
 	}
-	
+
 	protected String getImageCss() {
 
 		StringBuilder str = new StringBuilder();
@@ -290,7 +266,6 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		}
 		return str.toString();
 	}
-	
 
 	protected String getCss() {
 

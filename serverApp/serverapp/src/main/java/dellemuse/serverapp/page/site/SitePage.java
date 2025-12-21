@@ -212,7 +212,7 @@ public class SitePage extends BasePage {
 		}
 
 		add(new InvisiblePanel("error"));
-		
+
 		setCurrent();
 		addHeader();
 
@@ -223,7 +223,7 @@ public class SitePage extends BasePage {
 			SimpleAlertRow<Void> r = new SimpleAlertRow<Void>("error");
 			r.setText(getLabel("not-authorized"));
 			addOrReplace(r);
-			
+
 			addOrReplace(new InvisiblePanel("brandedSiteContainer"));
 			addOrReplace(new InvisiblePanel("navigatorContainer"));
 			addOrReplace(new InvisiblePanel("exhibitionsContainer"));
@@ -241,7 +241,7 @@ public class SitePage extends BasePage {
 		addToolbar();
 		addSecurityPanel();
 		addBrandedSitePanel();
-		
+
 	}
 
 	protected IModel<Institution> getInstitutionModel() {
@@ -323,15 +323,14 @@ public class SitePage extends BasePage {
 		this.exToolbarContainer = new WebMarkupContainer("exToolbarContainer");
 		this.exToolbarContainer.setVisible(false);
 
-		
-		 this.exToolbarContainer.setOutputMarkupId(true);
-		 this.exhibitionsContainer.add(this.exToolbarContainer);
-		 
-		  /**
-		  Toolbar toolbarItems = new Toolbar("toolbarItems"); List<ToolbarItem> list =
-		  new ArrayList<ToolbarItem>();
-		  
-		  ButtonToolbarItem<Site> create = new
+		this.exToolbarContainer.setOutputMarkupId(true);
+		this.exhibitionsContainer.add(this.exToolbarContainer);
+
+		/**
+		 * Toolbar toolbarItems = new Toolbar("toolbarItems"); List<ToolbarItem> list =
+		 * new ArrayList<ToolbarItem>();
+		 * 
+		 * ButtonToolbarItem<Site> create = new
 		 * LinkButtonToolbarItem<Site>(getSiteModel(), getLabel("create")) { private
 		 * static final long serialVersionUID = 1L;
 		 * 
@@ -364,13 +363,11 @@ public class SitePage extends BasePage {
 
 						private static final long serialVersionUID = 1L;
 
-						
-						
 						@Override
 						protected IModel<String> getObjectSubtitle() {
 							if (getMode() == ListPanelMode.TITLE)
 								return null;
-							return SitePage.this.getObjectSubtitle( getModel().getObject());
+							return SitePage.this.getObjectSubtitle(getModel().getObject());
 						}
 
 						@Override
@@ -388,7 +385,7 @@ public class SitePage extends BasePage {
 						}
 
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(SitePage.this.getObjectIntro( getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(SitePage.this.getObjectIntro(getModel().getObject()).getObject(), 420);
 							return Model.of(str);
 						}
 
@@ -404,7 +401,7 @@ public class SitePage extends BasePage {
 						protected IModel<String> getObjectTitle() {
 							return SitePage.this.getObjectTitle(getModel().getObject());
 						}
-						
+
 						@Override
 						protected String getImageSrc() {
 							if (getModel().getObject().getPhoto() != null) {
@@ -425,7 +422,7 @@ public class SitePage extends BasePage {
 						}
 
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(SitePage.this.getObjectIntro( getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(SitePage.this.getObjectIntro(getModel().getObject()).getObject(), 420);
 							return new Model<String>(str);
 						}
 
@@ -473,7 +470,7 @@ public class SitePage extends BasePage {
 						protected IModel<String> getObjectSubtitle() {
 							if (getMode() == ListPanelMode.TITLE)
 								return null;
-							return SitePage.this.getObjectSubtitle( getModel().getObject());
+							return SitePage.this.getObjectSubtitle(getModel().getObject());
 						}
 
 						@Override
@@ -503,11 +500,11 @@ public class SitePage extends BasePage {
 					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
-
 						@Override
 						protected IModel<String> getObjectTitle() {
 							return SitePage.this.getObjectTitle(getModel().getObject());
 						}
+
 						@Override
 						protected String getImageSrc() {
 							if (getModel().getObject().getPhoto() != null) {
@@ -578,7 +575,7 @@ public class SitePage extends BasePage {
 						protected IModel<String> getObjectSubtitle() {
 							if (getMode() == ListPanelMode.TITLE)
 								return null;
-							return SitePage.this.getObjectSubtitle( getModel().getObject());
+							return SitePage.this.getObjectSubtitle(getModel().getObject());
 						}
 
 						@Override
@@ -608,12 +605,11 @@ public class SitePage extends BasePage {
 					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
-
 						@Override
 						protected IModel<String> getObjectTitle() {
 							return SitePage.this.getObjectTitle(getModel().getObject());
 						}
-						
+
 						@Override
 						protected String getImageSrc() {
 							if (getModel().getObject().getPhoto() != null) {
@@ -676,12 +672,11 @@ public class SitePage extends BasePage {
 
 						private static final long serialVersionUID = 1L;
 
-						
 						@Override
 						protected IModel<String> getObjectSubtitle() {
 							if (getMode() == ListPanelMode.TITLE)
 								return null;
-							return  SitePage.this.getObjectSubtitle(getModel().getObject());
+							return SitePage.this.getObjectSubtitle(getModel().getObject());
 						}
 
 						@Override
@@ -711,12 +706,11 @@ public class SitePage extends BasePage {
 					DelleMuseObjectListItemPanel<ArtExhibition> panel = new DelleMuseObjectListItemPanel<ArtExhibition>("row-element", model, getListPanelMode()) {
 						private static final long serialVersionUID = 1L;
 
-
 						@Override
 						protected IModel<String> getObjectTitle() {
 							return SitePage.this.getObjectTitle(getModel().getObject());
 						}
-						
+
 						@Override
 						protected String getImageSrc() {
 							if (getModel().getObject().getPhoto() != null) {
@@ -772,7 +766,8 @@ public class SitePage extends BasePage {
 
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss
+("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
@@ -829,7 +824,7 @@ public class SitePage extends BasePage {
 
 			for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
 
-				final String agname = TextCleaner.truncate( getObjectTitle(g).getObject(), 24);
+				final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24);
 				final Long gid = g.getId();
 
 				menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
@@ -1031,40 +1026,40 @@ public class SitePage extends BasePage {
 		toolbarContainer.add(toolbarItems);
 	}
 
-	
 	public IModel<String> getObjectTitle(MultiLanguageObject o) {
 		StringBuilder str = new StringBuilder();
-		str.append( getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
 		return Model.of(str.toString());
 	}
 
-	protected IModel<String> getObjectSubtitle(MultiLanguageObject s) {
-		return Model.of(getLanguageObjectService().getObjectSubtitle(s, getLocale()));
-	}
-	
+	//protected IModel<String> getObjectSubtitle(MultiLanguageObject s) {
+	//	return Model.of(getLanguageObjectService().getObjectSubtitle(s, getLocale()));
+	//}
+
 	protected IModel<String> getObjectInfo(MultiLanguageObject s) {
 		return Model.of(getLanguageObjectService().getInfo(s, getLocale()));
 	}
+
 	protected IModel<String> getObjectIntro(MultiLanguageObject s) {
 		return Model.of(getLanguageObjectService().getIntro(s, getLocale()));
 	}
-	
+
 	private void addHeader() {
 
 		try {
 			BreadCrumb<Void> bc = createBreadCrumb();
 			bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-			bc.addElement(new BCElement( getObjectTitle( getSiteModel().getObject()) ));
-			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle( getSiteModel().getObject()) );
+			bc.addElement(new BCElement(getObjectTitle(getSiteModel().getObject())));
+			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getSiteModel().getObject()));
 			ph.setBreadCrumb(bc);
 
 			ph.setContext(getLabel("site"));
 
-			IModel<String> st=getObjectSubtitle(getSiteModel().getObject());
-					
-			if (st.getObject().length()>0)
+			IModel<String> st = getObjectSubtitle(getSiteModel().getObject());
+
+			if (st.getObject().length() > 0)
 				ph.setTagline(st);
 
 			if (getSiteModel().getObject().getPhoto() != null)
@@ -1179,7 +1174,6 @@ public class SitePage extends BasePage {
 		this.catalogContainer = new WebMarkupContainer("linksContainer");
 		add(this.catalogContainer);
 
-
 		this.catalogContainer.add(new Link<Site>("search", getSiteModel()) {
 			private static final long serialVersionUID = 1L;
 
@@ -1208,8 +1202,6 @@ public class SitePage extends BasePage {
 			}
 		};
 		this.catalogContainer.add(linkArtists);
-
-		 
 
 		linkExhibitions = new Link<Site>("exhibitions", getSiteModel()) {
 			private static final long serialVersionUID = 1L;

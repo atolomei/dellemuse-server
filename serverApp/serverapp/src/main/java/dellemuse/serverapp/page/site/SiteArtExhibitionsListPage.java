@@ -190,7 +190,8 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss
+("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
@@ -270,12 +271,14 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 			return null;
 	}
 
+	/**
 	@Override
 	public IModel<String> getObjectTitle(IModel<ArtExhibition> model) {
 		if (model.getObject().getState() == ObjectState.DELETED)
 			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
 		return new Model<String>(model.getObject().getDisplayname());
-	}
+	}**/
+	
 
 	@Override
 	public void onClick(IModel<ArtExhibition> model) {

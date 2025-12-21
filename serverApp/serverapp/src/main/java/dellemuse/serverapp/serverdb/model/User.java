@@ -1,12 +1,12 @@
 package dellemuse.serverapp.serverdb.model;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
-import org.threeten.bp.ZoneId;
+ 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -42,9 +42,17 @@ public class User extends DelleMuseObject {
 
 	static private Logger logger = Logger.getLogger(User.class.getName());
 
+
+	public static final String getIcon() {
+		return "fa-duotone fa-solid fa-user";
+	}
+
+	
+	@JsonProperty("zoneId")
 	@Column(name = "zoneId")
 	private String zoneId;
 
+	@JsonProperty("password")
 	@Column(name = "password")
 	private String password;
  
@@ -62,7 +70,6 @@ public class User extends DelleMuseObject {
 	@JsonProperty("rolesInstitution")
 	private Set<RoleInstitution> rolesInstitution;
  
-
 	@ManyToMany(cascade = { CascadeType.MERGE }, fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "site_role_id") })
 	@JsonSerialize(using = DelleMuseSetPersonSerializer.class)
@@ -73,32 +80,12 @@ public class User extends DelleMuseObject {
 
 	@Column(name = "language")
 	private String language;
-
-	public static final String getIcon() {
-
-		//return "fa-solid fa-user";
-		
-		return "fa-duotone fa-solid fa-user";
-	}
 	
 	@Override
-	public int hashCode() {
-	    return getId() != null ? getId().hashCode() : 0;
+	public String getObjectClassName() {
+		return User.class.getSimpleName();
 	}
-	
-	@Override
-	public boolean equals(Object o) {
-	    
-		if (o==null) return false;
-	    
-		if (this == o) return true;
-	    
-	    if (!(o instanceof User)) return false;
-	    
-	    User other = (User) o;
-	    return getId() != null && getId().equals(other.getId());
-	}
-	
+
 	
 	
 	public User() {
@@ -128,14 +115,31 @@ public class User extends DelleMuseObject {
 		return Locale.forLanguageTag(getLanguage());
 	}
 
-	public void setZoneId(ZoneId zid) {
-		this.zoneId = zid.getId();
+	public void setLocale(Locale locale) {
+		setLanguage(locale.getLanguage());
+	}
+
+	
+	public void setZoneId(ZoneId z) {
+		this.setZoneIdStr(z.getId());
 	}
 
 	public ZoneId getZoneId() {
+		if (getZoneIdStr()==null)
+			return ZoneId.systemDefault();
 		return ZoneId.of(zoneId);
+		
 	}
 
+	public String getZoneIdStr() {
+		return zoneId;
+	}
+	
+	public void setZoneIdStr(String zoneid) {
+		this.zoneId = zoneid;
+	}
+	
+	
 	public String getPassword() {
 		return password;
 	}
@@ -167,7 +171,27 @@ public class User extends DelleMuseObject {
 	public void setRolesSite(Set<RoleSite> roles) {
 		this.rolesSite = roles;
 	}
-
+	
+	@Override
+	public int hashCode() {
+	    return getId() != null ? getId().hashCode() : 0;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+	    
+		if (o==null) return false;
+	    
+		if (this == o) return true;
+	    
+	    if (!(o instanceof User)) return false;
+	    
+	    User other = (User) o;
+	    return getId() != null && getId().equals(other.getId());
+	}
+	
+	
+	
 	public List<String> getRolesAsString() {
 
 		List<String> list = new ArrayList<String>();

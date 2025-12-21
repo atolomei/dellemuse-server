@@ -194,7 +194,7 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 	
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss(
 				"fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
@@ -303,7 +303,7 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 		this.sectionsPanel = new ListPanel<ArtExhibitionSection>("items") {
 
 			private static final long serialVersionUID = 1L;
-
+/**
 			protected List<IModel<ArtExhibitionSection>> filter(List<IModel<ArtExhibitionSection>> initialList,
 					String filter) {
 				List<IModel<ArtExhibitionSection>> list = new ArrayList<IModel<ArtExhibitionSection>>();
@@ -315,6 +315,7 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 				});
 				return list;
 			}
+	**/
 			
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<ArtExhibitionSection> model, ListPanelMode mode) {
@@ -328,6 +329,11 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 						model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
 
+					@Override
+					protected IModel<String> getObjectTitle() {
+						return ArtExhibitionSectionsPanel.this.getObjectTitle(getModel().getObject());
+					}
+					
 					@Override
 					protected String getImageSrc() {
 						return ArtExhibitionSectionsPanel.this.getObjectImageSrc(getModel());

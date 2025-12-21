@@ -45,6 +45,7 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -730,11 +731,16 @@ public abstract class BasePage extends WebPage {
 		
 		StringBuilder info = new StringBuilder();
 		int n = 0;
+		
+	 
 		for (Person p : aw.getArtists()) {
 			if (n++ > 0)
 				info.append(", ");
-			info.append(p.getDisplayname());
-		}
+			info.append(
+					getLanguageObjectService().getPersonFirstLastName(p, getLocale())
+					);
+		} 
+		
 		String str = TextCleaner.truncate(info.toString(), 220);
 		return str;
 	}
@@ -789,6 +795,21 @@ public abstract class BasePage extends WebPage {
 		}
 	}
 
+	public IModel<String> getObjectSubtitle(MultiLanguageObject o) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getObjectSubtitle(o, getLocale()));
+		return Model.of(str.toString());
+	}
+
+	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		return Model.of(str.toString());
+	}
+  	
+  	
+  	
+  	
 	public ArtExhibition createExhibition(Site site) {
 		 
 		return getArtExhibitionDBService().create("new", site,   getUserDBService().findRoot());

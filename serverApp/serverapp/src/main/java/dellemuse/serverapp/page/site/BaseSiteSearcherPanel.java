@@ -125,7 +125,7 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 	}
 
 	protected IModel<String> getObjectInfo(IModel<GuideContent> model) {
-		return Model.of(TextCleaner.clean( getLanguageObjectService().getInfo(model.getObject(), getLocale())));
+		return Model.of(TextCleaner.clean( getLanguageObjectService().getInfo(model.getObject(), getLocale()), 600 ) );
 	}
 	
 	protected IModel<String> getObjectSubtitle(IModel<GuideContent> model) {
@@ -141,8 +141,6 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 		return Model.of(str.toString());
 	}
 	
-	
-
 	protected String getObjectImageSrc(IModel<GuideContent> model) {
 		return super.getImageSrc(model.getObject());
 	}
@@ -154,8 +152,6 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 	protected List<IModel<GuideContent>> getList() {
 		return this.list;
 	}
-
-
 
 	
 	protected Panel getObjectListItemExpandedPanel(IModel<GuideContent> model, ListPanelMode mode) {
@@ -184,47 +180,7 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 	}
 	
 	protected WebMarkupContainer getMenu(IModel<GuideContent> model) {
-	
 		return null;
-		/*
-		NavDropDownMenu<GuideContent> menu = new NavDropDownMenu<GuideContent>("menu", model, null) {
-			private static final long serialVersionUID = 1L;
-
-			public boolean isVisible() {
-				return true;
-			}
-		};
-	
-		menu.setOutputMarkupId(true);
-
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
-		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
-
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<GuideContent> getItem(String id) {
-
-				return new AjaxLinkMenuItem<GuideContent>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						BaseSiteSearcherPanel.this.onClick( getModel(), target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("open");
-					}
-				};
-			}
-		});
-		return menu;*/
-		
 	}
 	
 	protected  WebMarkupContainer getItemsContainer() {
@@ -257,8 +213,7 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 		this.form = new Form<Void>("form");
 		add(this.form);
 
-		// this.aidField = new TextField<String>("aid", new PropertyModel<String>(this, "audioId"), getLabel("search-by-aid"));
-		
+	 	
 		this.aidField = new TextField<String>("aid", new PropertyModel<String>(this, "audioId"), null );
 		
 		this.aidField.setPlaceHolderLabel(getLabel("search-by-aid"));
@@ -386,7 +341,6 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 			public List<IModel<GuideContent>> getItems()  {
 				return  BaseSiteSearcherPanel.this.getItems();
 			}
-			
 		};
 		
 		itemsContainer.addOrReplace(itemsPanel);
@@ -398,7 +352,5 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 		itemsPanel.setItemMenu(false);
 		itemsPanel.setHasExpander(true);
 	}
-
-	
 	
 }

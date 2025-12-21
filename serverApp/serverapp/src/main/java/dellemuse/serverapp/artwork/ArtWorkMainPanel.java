@@ -89,26 +89,17 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork>  implements Internal
 		Optional<ArtWork> o_i = getArtWorkDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<ArtWork>(o_i.get()));
 		
-		// ObjectStorageFileModel = new ObjectStorageFileModel(o_i.get().getQRCode())
-		
-		
-		//this.metaEditor = new ObjectMetaEditor<ArtWork>("metaEditor", getModel());
-		//add(this.metaEditor);
-		
-		
-		
+	 	
 		this.editor = new ArtWorkEditor("artworkEditor", getModel());
 		add(this.editor);
 		
 		if (getModel().getObject().getArtists()!=null && getModel().getObject().getArtists().size()>0) {
-			
 			Person person = getModel().getObject().getArtists().iterator().next();
 			add(new ArtistArtWorksPanel("more", new ObjectModel<Person>(person)));
 		}
 		else {
 			add(new InvisiblePanel("more"));
 		}
-	
 		
 		 qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
 		

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
@@ -41,6 +42,12 @@ public abstract class Role extends DelleMuseObject {
 	
 	public Role() {
 	}
+	
+	@Override
+	public String getObjectClassName() {
+		return Role.class.getSimpleName();
+	}
+
 	
 	public String getRoleDisplayName() {
 		return getName();

@@ -450,7 +450,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 			uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
-			fire(new ObjectUpdateEvent(target));
+			fireScanAll(new ObjectUpdateEvent(target));
 
 		} catch (Exception e) {
 

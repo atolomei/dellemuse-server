@@ -8,12 +8,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
+import dellemuse.serverapp.jpa.events.MultiLanguageObjectEventListener;
+import dellemuse.serverapp.jpa.events.TranslationRecordEventListener;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -30,6 +33,7 @@ import jakarta.persistence.OneToOne;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@EntityListeners(TranslationRecordEventListener.class)
 @JsonInclude(Include.NON_NULL)
 public abstract class TranslationRecord extends DelleMuseObject implements AudioStudioParentObject {
 

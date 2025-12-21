@@ -3,9 +3,10 @@ package dellemuse.serverapp.serverdb.service;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.ArtWorkArtist;
+ 
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -61,10 +62,6 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         this.personRecordDBService=personRecordDBService;
     }
 
-
-    protected PersonRecordDBService getPersonRecordDBService() {
-		return this.personRecordDBService;
-	}
 
     @Transactional
     public Person create(String name, String lastname, User createdBy) {
@@ -158,13 +155,18 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 		
 		if (photo != null)
 			photo.getBucketName();
-
+		
+		if (aw.getArtworks()!=null && aw.getArtworks().size()>0) {
+			Set<ArtWork> set= new HashSet<ArtWork>();
+			aw.getArtworks().forEach( p -> set.add(getArtWorkDBService().findById( p.getId()).get() ));
+			aw.setArtworks(set);
+		}
+		
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
-	
-   
+	 
     
     @Transactional
     public Iterable<Person> findAllSorted() {
@@ -184,16 +186,14 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 
     @Transactional
     public List<ArtWork> getArtWorks(Person person) {
-        List<ArtWorkArtist> artWorkArtists = entityManager
-                .createQuery("FROM ArtWorkArtist WHERE artist.id = :artistid", ArtWorkArtist.class)
-                .setParameter("artistid", person.getId())
-                .getResultList();
-
-        return artWorkArtists.stream()
-                .map(ArtWorkArtist::getArtwork)
-                .collect(Collectors.toList());
-    }
-
+       
+    	if (!person.isDependencies()) {
+    		person = findWithDeps( person.getId()).get();
+    	}
+    	return person.getArtworks().stream().collect(Collectors.toList());
+    	
+     }
+    
     public List<Person> getByName(String name) {
         return createNameQuery(name).getResultList();
     }
@@ -228,8 +228,6 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         List<Person> list = getEntityManager().createQuery(cq).getResultList();
         return list.stream().findFirst();
 	}
-	
-	
 	
     @Transactional
     public Optional<Person> findByName(String name, Optional<String> lastName) {
@@ -276,6 +274,17 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
     	super.registerRecordDB(getEntityClass(), getPersonRecordDBService());
 		super.register(getEntityClass(), this);
     }
+
+    protected PersonRecordDBService getPersonRecordDBService() {
+		return this.personRecordDBService;
+	}
+
+
+	public ArtWorkDBService getArtWorkDBService() {
+		return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+		 
+	}
+
 
 
 	

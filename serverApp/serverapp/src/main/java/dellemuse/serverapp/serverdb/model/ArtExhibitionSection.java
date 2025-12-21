@@ -40,6 +40,12 @@ public class ArtExhibitionSection extends MultiLanguageObject {
 	public ArtExhibitionSection() {
 	}
  
+	@Override
+	public String getObjectClassName() {
+		return ArtExhibitionSection.class.getSimpleName();
+	}
+
+	
 	public String getPrefixUrl() {
 		return PrefixUrl.ArtExhibitionSection;
 	}

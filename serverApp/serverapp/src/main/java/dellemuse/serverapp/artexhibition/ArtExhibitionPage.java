@@ -415,11 +415,12 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 		try {
 			BreadCrumb<Void> bc = createBreadCrumb();
 			bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-			bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(), new Model<String>(getSiteModel().getObject().getDisplayname())));
+			bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(),
+					getObjectTitle(getSiteModel().getObject())));
 			bc.addElement(new HREFBCElement("/site/exhibitions/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
-			bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
+			bc.addElement(new BCElement( getObjectTitle(getModel().getObject())));
 
-			JumboPageHeaderPanel<ArtExhibition> header = new JumboPageHeaderPanel<ArtExhibition>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
+			JumboPageHeaderPanel<ArtExhibition> header = new JumboPageHeaderPanel<ArtExhibition>("page-header", getModel(),  getObjectTitle(getModel().getObject() ));
 			header.setContext(getLabel("artexhibition"));
 
 			if (getList() != null && getList().size() > 0) {
@@ -437,8 +438,8 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 			if (getModel().getObject().getPhoto() != null)
 				header.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 
-			if (getModel().getObject().getSubtitle() != null)
-				header.setTagline(Model.of(getModel().getObject().getSubtitle()));
+			if (getObjectSubtitle(getModel().getObject()) != null)
+				header.setTagline(getObjectSubtitle(getModel().getObject()));
 
 			header.setBreadCrumb(bc);
 			return header;

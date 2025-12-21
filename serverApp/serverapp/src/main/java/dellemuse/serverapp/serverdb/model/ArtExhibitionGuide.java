@@ -67,6 +67,11 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 	public ArtExhibitionGuide() {
 	}
 	
+	@Override
+	public String getObjectClassName() {
+		return ArtExhibitionGuide.class.getSimpleName();
+	}
+	
 	public String getPrefixUrl() {
 		return PrefixUrl.ArtExhibitionGuide;
 	}

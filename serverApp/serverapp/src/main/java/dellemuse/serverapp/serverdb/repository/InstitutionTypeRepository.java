@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.ArtWorkArtist;
 import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.FloorType;
 import dellemuse.serverapp.serverdb.model.GuideContent;

@@ -35,6 +35,12 @@ public class ArtWorkRecord extends TranslationRecord {
 	public ArtWorkRecord() {
 	}
 
+	@Override
+	public String getObjectClassName() {
+		return   ArtWorkRecord.class.getSimpleName();
+	}
+
+	
 	public ArtWork getArtwork() {
 		return artwork;
 	}

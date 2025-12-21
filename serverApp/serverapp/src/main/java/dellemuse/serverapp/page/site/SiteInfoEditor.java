@@ -368,7 +368,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 			uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
-			fire(new ObjectUpdateEvent(target));
+			fireScanAll(new ObjectUpdateEvent(target));
 
 		} catch (Exception e) {
 

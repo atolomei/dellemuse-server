@@ -30,6 +30,9 @@ public class Language extends JsonObject implements Serializable {
 		return map.get(code);
 	}
 	
+	static  public Map<String, Language> getLanguages() { 
+			return map;
+	}
 
 	
 	

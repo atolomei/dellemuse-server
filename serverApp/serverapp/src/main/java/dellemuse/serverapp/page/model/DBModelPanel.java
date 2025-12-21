@@ -25,13 +25,20 @@ import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Identifiable;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
+import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
+import dellemuse.serverapp.serverdb.model.record.PersonRecord;
+import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
  
 
@@ -50,12 +57,17 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 		List<IModel<S>> list = new ArrayList<IModel<S>>();
 		final String str = filter.trim().toLowerCase();
 		initialList.forEach(s -> {
-			if (s.getObject().getName().toLowerCase().contains(str)) {
+			if (s.getObject() instanceof MultiLanguageObject) {
+				 if (getObjectTitle( (MultiLanguageObject) s.getObject()).getObject().toLowerCase().contains(str))
+					 list.add(s);
+			}
+			else if (s.getObject().getName().toLowerCase().contains(str)) {
 				list.add(s);
 			}
 		});
 		return list;
 	}
+	
 
 	/** Save --------------------------------------------------------- */
 
@@ -100,6 +112,27 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 
 			else if (po instanceof ArtExhibitionGuideRecord)
 				getArtExhibitionGuideRecordDBService().save((ArtExhibitionGuideRecord) po, user, msg);
+			
+			else if (po instanceof ArtExhibitionItemRecord)
+				getArtExhibitionItemRecordDBService().save((ArtExhibitionItemRecord) po, user, msg);
+			
+			else if (po instanceof ArtExhibitionRecord)
+				getArtExhibitionRecordDBService().save((ArtExhibitionRecord) po, user, msg);
+			
+			else if (po instanceof ArtWorkRecord)
+				getArtWorkRecordDBService().save((ArtWorkRecord) po, user, msg);
+
+			else if (po instanceof PersonRecord)
+				getPersonRecordDBService().save((PersonRecord) po, user, msg);
+
+			
+			else if (po instanceof InstitutionRecord)
+				getInstitutionRecordDBService().save((InstitutionRecord) po, user, msg);
+			
+			else if (po instanceof SiteRecord)
+				getSiteRecordDBService().save((SiteRecord) po, user, msg);
+			
+			
 		}
 	}
 

@@ -35,15 +35,14 @@ public class ArtWork extends DelleMuseObject {
 	@JsonBackReference
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private Site site;
-	
-	@ManyToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
-	@JoinTable(name = "ArtWorkArtist", joinColumns = { @JoinColumn(name = "artwork_id") }, inverseJoinColumns = {
-			@JoinColumn(name = "person_id") })
+
+	@ManyToMany(cascade = { CascadeType.DETACH }, fetch = FetchType.LAZY)
+	@JoinTable(name = "ArtWorkArtist", joinColumns = { @JoinColumn(name = "artwork_id") }, inverseJoinColumns = { @JoinColumn(name = "person_id") })
 	@JsonSerialize(using = DelleMuseSetPersonSerializer.class)
 	@JsonManagedReference
 	@JsonBackReference
 	@JsonProperty("artists")
-	Set<Person> artists = new HashSet<>();
+	Set<Person> artists = new HashSet<Person>();
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWorkType.class)
 	@JoinColumn(name = "artworkType_id", nullable = true)
@@ -104,8 +103,6 @@ public class ArtWork extends DelleMuseObject {
 	@JsonProperty("audio")
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource audio;
-
-	
 
 	public ArtWork() {
 	}

@@ -2,6 +2,12 @@
 body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Arial, sans serif; font-size:15px; }
 
 
+
+.centered 			{position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: block;}
+.x-centered  		{float:left; position: relative; left:50%; transform:translateX(-50%);}
+
+.login .fw-bold {font-weight:400 !important;}
+
 .main {min-height: calc(100vh - 117px);}
 
 .dellemuse .thumbnail {max-width: 100%; max-height: 100%; width: 100%; padding: 0px; border: 1px solid #fcfcfd;}
@@ -15,6 +21,14 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 
 
  -->
+
+.notoggle .dropdown-toggle::after {
+  display: none;
+}
+
+.notoggle .dropdown-menu {margin-top:2em;}
+
+
 
 .mode-title {padding:0;}
 

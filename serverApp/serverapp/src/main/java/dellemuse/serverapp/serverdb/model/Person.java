@@ -1,7 +1,11 @@
 package dellemuse.serverapp.serverdb.model;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -9,22 +13,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.page.PrefixUrl;
-import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
-import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
+ 
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseUserSerializer;
+ 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+ 
 import jakarta.persistence.Table;
-
-/**
- * 
- * alter table person add column translation integer default 0; alter table
- * person add column masterlanguage character varying(24) default 'es';;
- */
 
 @Entity
 @Table(name = "person")
@@ -65,7 +64,39 @@ public class Person extends MultiLanguageObject {
 	@Column(name = "webpage")
 	private String webpage;
 
-	/**
+	@ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
+	@JoinColumn(name = "user_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseUserSerializer.class)
+	@JsonProperty("user")
+	private User user;
+ 	
+	@ManyToMany(mappedBy = "artists", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("artists")
+    private Set<ArtWork> artworks = new HashSet<>();
+
+    public Set<ArtWork> getArtworks() {
+        return artworks;
+    }
+	
+	public Person() {
+	}
+
+	@Override
+	public String getObjectClassName() {
+		return Person.class.getSimpleName();
+	}
+	
+	public String getPrefixUrl() {
+		return PrefixUrl.Person;
+	}
+
+	public String getTitle() {
+		return getDisplayName();
+	}
+
+  	/**
 	 * 
 	 * alter table person add column webpage character varying (2048);
 	 * 
@@ -75,38 +106,17 @@ public class Person extends MultiLanguageObject {
 	 * https://stackoverflow.com/questions/21708339/avoid-jackson-serialization-on-non-fetched-lazy-objects/21760361#21760361
 	 * 
 	 * 
+	 * spring.jpa.open-in-view=false
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+	 * 
 	 */
-	@ManyToOne(fetch = FetchType.EAGER, targetEntity = User.class)
-	@JoinColumn(name = "user_id", nullable = true)
-	@JsonManagedReference
-	@JsonBackReference
-	@JsonSerialize(using = DelleMuseUserSerializer.class)
-	@JsonProperty("user")
-	private User user;
-
-	public Person() {
-	}
-
-	public String getPrefixUrl() {
-		return PrefixUrl.Person;
-	}
-
-	public String getTitle() {
-		if (super.getTitle() != null)
-			super.getTitle();
-		return getName() + " " + getLastname();
-	}
-
+	
 	@JsonIgnore
 	public String getDisplayName() {
-
-		if (getTitle() != null)
-			return getTitle();
-
-		if (getName() != null)
-			return getName() + " " + getLastname();
-
-		return getLastname();
+ 		return getLastFirstname();
 	}
 
 	public String getLastname() {
@@ -212,6 +222,25 @@ public class Person extends MultiLanguageObject {
 		return str.toString();
 	}
 
+	
+	public String getFirstLastname() {
+
+		StringBuilder str = new StringBuilder();
+
+		if (getName() != null) {
+			str.append(getName());
+		}
+
+		if (getLastname() != null && getLastname().length() > 0) {
+			if (str.length() > 0)
+				str.append(" ");
+			str.append(getLastname());
+		}
+		return str.toString();
+	}
+
+	
+	
 	public String getWebpage() {
 		return webpage;
 	}
@@ -254,4 +283,9 @@ public class Person extends MultiLanguageObject {
 		return "fa-duotone fa-person";
 	}
 
+	public void setArtworks(Set<ArtWork> artworks) {
+		this.artworks = artworks;
+	}
+
+	
 }

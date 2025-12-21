@@ -39,6 +39,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -49,6 +50,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.UIEvent;
 import io.wktui.form.FormState;
@@ -56,7 +58,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
- 
+
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanel;
@@ -80,8 +82,6 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 	private FormState state = FormState.VIEW;
 
-	 
-	 
 	private ListPanel<GuideContent> itemsPanel;
 	private WebMarkupContainer listToolbarContainer;
 	private List<ToolbarItem> listToolbar;
@@ -89,7 +89,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 	private WebMarkupContainer infoContainer;
 	private Boolean isArtExhibitionGuideInfo;
-	
+
 	public BrandedArtExhibitionGuidePanel(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel) {
 		super(id, model);
 		this.siteModel = siteModel;
@@ -99,123 +99,101 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
+
 		setUpModel();
 
 		try {
 			addInfo();
-	 		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
-			addOrReplace(new ErrorPanel("infoContainer",e));
+			addOrReplace(new ErrorPanel("infoContainer", e));
 		}
 
-		try { 
+		try {
 			addGuideContents();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			logger.error(e);
-			addOrReplace( new ErrorPanel("items",e));
-			
+			addOrReplace(new ErrorPanel("items", e));
+
 		}
 	}
-	
+
 	protected void addDescription() {
 		WebMarkupContainer descContainer = new WebMarkupContainer("descriptionContainer");
 		addOrReplace(descContainer);
-        ExpandableReadPanel desc = new ExpandableReadPanel("description", getArtExhibitionGuideInfo());
-        descContainer.add(desc);
-        descContainer.setVisible(isArtExhibitionGuideInfo());
+		ExpandableReadPanel desc = new ExpandableReadPanel("description", getArtExhibitionGuideInfo());
+		descContainer.add(desc);
+		descContainer.setVisible(isArtExhibitionGuideInfo());
 	}
-	
+
 	protected void addInfo() {
-		
+
 		infoContainer = new WebMarkupContainer("infoContainer");
 		add(infoContainer);
-		
+
 		WebMarkupContainer audioContainer = new WebMarkupContainer("audioContainer");
 		infoContainer.addOrReplace(audioContainer);
-		
+		infoContainer.add(new InvisiblePanel("error"));
+
 		try {
-			
+
 			String intro = getLanguageObjectService().getIntro(getArtExhibitionModel().getObject(), getLocale());
-			IModel<String> m = Model.of(intro!=null?intro:"");
+			IModel<String> m = Model.of(intro != null ? intro : "");
 			infoContainer.add(((new Label("intro", m)).setEscapeModelStrings(false)));
-			
-		
-			/**intro  audio guide */ 
-			
-			Resource r=getLanguageObjectService().getAudio( getModel().getObject(), getLocale());
-			if (r!=null) {
-			    WebMarkupContainer audioIntroContainer = new WebMarkupContainer("intro-audio");
-			    audioContainer.add(audioIntroContainer);
-		        String as =  getPresignedUrl(getModel().getObject().getAudio());
-		        Url url = Url.parse(as);
-	            UrlResourceReference resourceReference = new UrlResourceReference(url);
-		        Audio audio = new Audio("audioIntro", resourceReference);
-		        audioIntroContainer.add(audio);
+
+			/** intro audio guide */
+
+			Resource r = getLanguageObjectService().getAudio(getModel().getObject(), getLocale());
+
+			if (r != null) {
+
+				int c = getLanguageObjectService().compareAudioLanguage(getModel().getObject(), getLocale());
+				if (c != 0) {
+					infoContainer.addOrReplace(new AlertPanel<Void>("error", AlertPanel.INFO, getLabel("audio-other", Language.of(getModel().getObject().getMasterLanguage()).getLabel(getLocale()))));
+				}
+
+				WebMarkupContainer audioIntroContainer = new WebMarkupContainer("intro-audio");
+				audioContainer.add(audioIntroContainer);
+				String as = getPresignedUrl(getModel().getObject().getAudio());
+				Url url = Url.parse(as);
+				UrlResourceReference resourceReference = new UrlResourceReference(url);
+				Audio audio = new Audio("audioIntro", resourceReference);
+				audioIntroContainer.add(audio);
+			} else {
+				audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));
 			}
-			else {
-			    audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));
-			}
-		    audioContainer.setVisible(r!=null);
-	 
-	    
+			audioContainer.setVisible(r != null);
+
 		} catch (Exception e) {
 			logger.error(e);
-			infoContainer.addOrReplace( new Label("intro", ""));
+			infoContainer.addOrReplace(new Label("intro", ""));
 			audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));
 			audioContainer.setVisible(false);
-			addOrReplace( new ErrorPanel("descriptionContainer", e));
+			addOrReplace(new ErrorPanel("descriptionContainer", e));
 		}
 	}
-	
-	
-	
+
 	private boolean isArtExhibitionGuideInfo() {
-		
-		if (isArtExhibitionGuideInfo==null)
-			isArtExhibitionGuideInfo = Boolean.valueOf( 
-			getArtExhibitionGuideInfo()!=null && 
-			getArtExhibitionGuideInfo().getObject()!=null &&
-			getArtExhibitionGuideInfo().getObject().length()>0);
+
+		if (isArtExhibitionGuideInfo == null)
+			isArtExhibitionGuideInfo = Boolean.valueOf(getArtExhibitionGuideInfo() != null && getArtExhibitionGuideInfo().getObject() != null && getArtExhibitionGuideInfo().getObject().length() > 0);
 		return this.isArtExhibitionGuideInfo.booleanValue();
 	}
-	
-	
-	
-	private IModel<String> getObjectInfo() {
-		
-		String s=getLanguageObjectService().getInfo(getModel().getObject(), getLocale());
-		
-		if (s!=null)
-			return Model.of(s);
-		
-		
-		s=getLanguageObjectService().getInfo(getArtExhibitionModel().getObject(), getLocale());
-		if (s!=null)
-			return Model.of(s);
-		
-		s= "";
-		return Model.of(s);
-		 
-	
-	}
-	
+
+	 
+
 	private IModel<String> getArtExhibitionGuideInfo() {
 
-		
-		
-	     if (getModel().getObject().getInfo()!=null)
-	         return new Model<String>(getModel().getObject().getInfo());
-	     
-	     if (getArtExhibitionModel().getObject().getInfo()!=null)
-	         return new Model<String>(getArtExhibitionModel().getObject().getInfo());
-	     
-	     return new Model<String>("");
-		
-		}
-	
+		if (getModel().getObject().getInfo() != null)
+			return new Model<String>(getModel().getObject().getInfo());
+
+		if (getArtExhibitionModel().getObject().getInfo() != null)
+			return new Model<String>(getArtExhibitionModel().getObject().getInfo());
+
+		return new Model<String>("");
+
+	}
+
 	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
 		this.oses = o;
 	}
@@ -246,7 +224,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
 			getObjects(ObjectState.DELETED).forEach(s -> this.guideContentsList.add(new ObjectModel<GuideContent>(s)));
 
-		this.guideContentsList.forEach(c -> logger.debug(c.toString()));
+		 
 	}
 
 	protected void addListeners() {
@@ -304,9 +282,9 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 	}
 
 	public IModel<String> getObjectTitle(IModel<GuideContent> model) {
-		
+
 		StringBuilder str = new StringBuilder();
-		str.append( getLanguageObjectService().getObjectDisplayName(model.getObject(), getLocale()));
+		str.append(getLanguageObjectService().getObjectDisplayName(model.getObject(), getLocale()));
 		if (model.getObject().getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
 		return Model.of(str.toString());
@@ -363,11 +341,11 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 		};
 	}
- 
+
 	protected void onObjectSelect(IModel<ArtExhibitionItem> model, AjaxRequestTarget target) {
 
 		ArtExhibitionItem item = model.getObject();
-	 		super.addItem(getModel().getObject(), item, getUserDBService().findRoot());
+		super.addItem(getModel().getObject(), item, getUserDBService().findRoot());
 		resetList();
 		target.add(this.itemsPanel);
 	}
@@ -382,67 +360,55 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		return Model.of(TextCleaner.clean(getLanguageObjectService().getInfo(model.getObject(), getLocale()), 420));
 	}
 
-	
 	protected IModel<String> getObjectSubtitle(IModel<GuideContent> model) {
-	 	return Model.of(TextCleaner.clean(getLanguageObjectService().getObjectSubtitle(model.getObject(), getLocale()), 280));
+		return Model.of(TextCleaner.clean(getLanguageObjectService().getObjectSubtitle(model.getObject(), getLocale()), 280));
 	}
 
 	protected String getObjectImageSrc(IModel<GuideContent> model) {
 		return super.getImageSrc(model.getObject());
 	}
 
- 
-
 	protected WebMarkupContainer getMenu(IModel<GuideContent> model) {
-		
+
 		return null;
 		/**
-		NavDropDownMenu<GuideContent> menu = new NavDropDownMenu<GuideContent>("menu", model, null) {
-			private static final long serialVersionUID = 1L;
+		 * NavDropDownMenu<GuideContent> menu = new
+		 * NavDropDownMenu<GuideContent>("menu", model, null) { private static final
+		 * long serialVersionUID = 1L;
+		 * 
+		 * public boolean isVisible() { return true; } };
+		 * 
+		 * menu.setOutputMarkupId(true);
+		 * 
+		 * menu.setTitleCss
+("d-block-inline d-sm-block-inline d-md-block-inline
+		 * d-lg-none d-xl-none d-xxl-none ps-1 pe-1"); menu.setIconCss("fa-solid
+		 * fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline
+		 * d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+		 */
 
-			public boolean isVisible() {
-				return true;
-			}
-		};
-
-		menu.setOutputMarkupId(true);
-
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
-		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
-*/
-		
 		/**
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public MenuItemPanel<GuideContent> getItem(String id) {
+		 * 
+		 *           return new AjaxLinkMenuItem<GuideContent>(id) {
+		 * 
+		 *           private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
+		 *           }
+		 * 
+		 * @Override public IModel<String> getLabel() { return getLabel("open"); }
+		 * 
+		 *           }; } });
+		 * 
+		 *           return menu;
+		 * 
+		 **/
 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<GuideContent> getItem(String id) {
-
-				return new AjaxLinkMenuItem<GuideContent>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("open");
-					}
-
-				};
-			}
-		});
-		
-			return menu;
-			
-**/
-		
-		 
-	
 	}
 
 	private List<IModel<GuideContent>> getItems() {
@@ -452,7 +418,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		}
 		return this.guideContentsList;
 	}
- 
+
 	protected List<ToolbarItem> getListToolbarItems() {
 
 		if (listToolbar != null)
@@ -466,18 +432,17 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		return listToolbar;
 	}
 
- 
-
 	private void addGuideContents() {
 
 		this.itemsPanel = new ListPanel<GuideContent>("items") {
 
 			private static final long serialVersionUID = 1L;
 
+			/**
 			@Override
 			protected List<IModel<GuideContent>> filter(List<IModel<GuideContent>> initialList, String filter) {
 				return iFilter(initialList, filter);
-			}
+			}**/
 
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<GuideContent> model, ListPanelMode mode) {
@@ -501,7 +466,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 					@Override
 					protected IModel<String> getObjectTitle() {
-						return BrandedArtExhibitionGuidePanel.this.getObjectTitle(getModel());
+						return BrandedArtExhibitionGuidePanel.this.getObjectTitle(getModel().getObject());
 					}
 
 					@Override
@@ -539,7 +504,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 			}
 		};
 		add(itemsPanel);
-	  
+
 		itemsPanel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
 		itemsPanel.setLiveSearch(false);
 		itemsPanel.setSettings(true);
@@ -557,14 +522,14 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 	public void setState(FormState state) {
 		this.state = state;
 	}
- 
+
 	protected boolean isAudio(IModel<GuideContent> model) {
 		return model.getObject().getAudio() != null;
 	}
 
 	private void setUpModel() {
 		ArtExhibition ae = getModel().getObject().getArtExhibition();
-		setArtExhibitionModel(new ObjectModel<ArtExhibition>( getArtExhibitionDBService().findById(ae.getId()).get()));
+		setArtExhibitionModel(new ObjectModel<ArtExhibition>(getArtExhibitionDBService().findById(ae.getId()).get()));
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
 	}
 

@@ -292,7 +292,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 			getForm().updateReload();
 
-			fire(new ObjectUpdateEvent(target));
+			fireScanAll(new ObjectUpdateEvent(target));
 
 		} catch (Exception e) {
 

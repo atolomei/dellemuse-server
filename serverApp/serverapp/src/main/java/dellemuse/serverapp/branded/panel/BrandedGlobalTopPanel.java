@@ -57,13 +57,14 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 		{
 			NavBar<Site> nav = new NavBar<Site>("navbarLeft" , getModel());
 	
+			//nav.add(new AttributeModifier("style", "padding-top:0; padding-bottom:0;"));
 			String logoUrl = getPresignedUrl(getModel().getObject().getLogo());
 			
 			Url url = Url.parse(logoUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
 			Image image = new Image("logo", resourceReference);
 	
-			image.add(new AttributeModifier("style", "max-height:50px; max-width:110px;"));
+			image.add(new AttributeModifier("style", "max-height:50px; max-width:132px;"));
 	
 			LogoPanel<Site> logoPanel = new LogoPanel<Site>("item", getModel(), image) {
 				private static final long serialVersionUID = 1L;
@@ -72,6 +73,8 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 				}
 			};
 	
+			//logoPanel.add(new AttributeModifier("style", "padding-top:0; padding-bottom:0;"));
+			
 			nav.addNoCollapseLeft(logoPanel);
 			add(nav);  
 		}

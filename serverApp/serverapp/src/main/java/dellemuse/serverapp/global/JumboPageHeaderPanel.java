@@ -12,17 +12,15 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
- 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Resource;
- 
+import io.wktui.event.UIEvent;
 import wktui.base.InvisiblePanel;
- 
-
 
 public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 
@@ -31,218 +29,191 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	private static final long serialVersionUID = 1L;
 
 	private IModel<String> title;
-	private IModel<String> tagLine;// = Model.of("En el barrio de San Telmo, el museo alberga más de 7000 obras de arte argentino e internacional.");
-							
+	private IModel<String> tagLine;// = Model.of("En el barrio de San Telmo, el museo alberga más de 7000 obras de
+									// arte argentino e internacional.");
+
 	private IModel<String> context;
-	
+
 	private Image image;
 	private WebMarkupContainer imageContainer;
 	private WebMarkupContainer iconContainer;
-	
+
 	private Link<Resource> imageLink;
 	private IModel<Resource> photo;
 	private WebMarkupContainer frame = new WebMarkupContainer("frame");
- 
-	private boolean imageAdded = false;
+	private WebMarkupContainer ic;
+
+	//private boolean imageAdded = false;
 	private boolean photoVisible = true;
-	
+	private String headerCss;
 	private String icon;
-	
+
 	private String imgCss = "jumbo-img jumbo-md mb-0 mb-lg-0 border bg-body-tertiary";
-	
+
 	public JumboPageHeaderPanel(String id) {
 		this(id, null, null);
 	}
 
 	public JumboPageHeaderPanel(String id, IModel<T> model) {
-	       this(id, model, null);
+		this(id, model, null);
 	}
 
 	public JumboPageHeaderPanel(String id, IModel<T> model, IModel<String> title) {
 		super(id, model);
-		this.title=title; 
-		setOutputMarkupId(true); 
+		this.title = title;
+		setOutputMarkupId(true);
 	}
- public void setIcon( String s) {
-	 this.icon=s;
- }
- 
- public String getIcon() {
-	 return this.icon;
- }
- 
- 
+
+	public void setIcon(String s) {
+		this.icon = s;
+	}
+
+	public String getIcon() {
+		return this.icon;
+	}
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		
-		if (getPhotoModel()!=null)
-		 getPhotoModel().detach();
-	
+
+		if (getPhotoModel() != null)
+			getPhotoModel().detach();
+
 	}
-	
+
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
-		Label title = new Label("title", getTitle());
-		
-		frame.add(title);
-		add(frame);
-		
-		addImageAndInfo();
-		
+		frame.setOutputMarkupId(true);
 		frame.add(new org.apache.wicket.AttributeModifier("class", getCss()));
-		
-		 if (getTagline()!=null) {
-	            WebMarkupContainer taglineContainer =  new WebMarkupContainer("taglineContainer");
-	            taglineContainer.add((new Label("tagline", getTagline())).setEscapeModelStrings(false));
-	            frame.addOrReplace(taglineContainer);
-	     }
-	     else {
-	       	frame.addOrReplace( new InvisiblePanel("taglineContainer"));
-	    }
-		 if (getContext()!=null) {
-	            WebMarkupContainer taglineContainer =  new WebMarkupContainer("contextContainer");
-	            taglineContainer.add((new Label("context", getContext())).setEscapeModelStrings(false));
-	            frame.addOrReplace(taglineContainer);
-	     }
-	     else {
-	       	frame.addOrReplace(new InvisiblePanel("contextContainer"));
-	    }
-	}
-	
-    public void setContext(IModel<String> context) {
-		this.context=context;
+
+		add(frame);
+
+		ini();
 	}
 
-    public IModel<String> getContext() {
+	public void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<ObjectUpdateEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(ObjectUpdateEvent event) {
+				ini();
+				event.getTarget().add(frame);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectUpdateEvent)
+					return true;
+				return false;
+			}
+		});
+
+	}
+
+	public void setContext(IModel<String> context) {
+		this.context = context;
+	}
+
+	public IModel<String> getContext() {
 		return this.context;
 	}
 
 	public void setPhotoVisible(boolean b) {
-    	this.photoVisible=b;
-    }
+		this.photoVisible = b;
+	}
 
 	@Override
-    public void onBeforeRender() {
-        super.onBeforeRender();
-    
-        if (frame.get("breadcrumb")==null) {
-        	frame.addOrReplace(new InvisiblePanel("breadcrumb"));
-        }
-   
-    }
-    
-    public void setBreadCrumb(Panel bc) {
-        if (!bc.getId().equals("breadcrumb"))
-            throw new IllegalArgumentException(" id must be breadcrumb -> " + bc.getId());
-        frame.addOrReplace(bc);
-    }
-	
-    public IModel<String> getTagline() {
-        return this.tagLine;
-    }
-	
-    public void setTagline(IModel<String> tag) {
-        this.tagLine=tag;
-    }
+	public void onBeforeRender() {
+		super.onBeforeRender();
 
-    public IModel<Resource> getPhotoModel() {
-    	return this.photo;
-    }
+		if (frame.get("breadcrumb") == null) {
+			frame.addOrReplace(new InvisiblePanel("breadcrumb"));
+		}
 
-    public void  setPhotoModel(IModel<Resource> p) {
-    	this.photo=p;
-    }
+	}
 
-	
+	public void setBreadCrumb(Panel bc) {
+		if (!bc.getId().equals("breadcrumb"))
+			throw new IllegalArgumentException(" id must be breadcrumb -> " + bc.getId());
+		frame.addOrReplace(bc);
+	}
+
+	public IModel<String> getTagline() {
+		return this.tagLine;
+	}
+
+	public void setTagline(IModel<String> tag) {
+		this.tagLine = tag;
+	}
+
+	public IModel<Resource> getPhotoModel() {
+		return this.photo;
+	}
+
+	public void setPhotoModel(IModel<Resource> p) {
+		this.photo = p;
+	}
+
 	public void setImageLinkCss(String css) {
-		
+
 		imgCss = css;
-		
-		if (this.imageLink!=null)
-			this.imageLink.add( new AttributeModifier("class", imgCss));
-	
+
+		if (this.imageLink != null)
+			this.imageLink.add(new AttributeModifier("class", imgCss));
 	}
 
 	
-	String headerCss;
-	
-	public void setHeaderCss( String s) {
-		this.headerCss=s;
+
+	public void setHeaderCss(String s) {
+		this.headerCss = s;
 	}
-	
-    protected String getCss() {
-    
-    	if (headerCss!=null)
-    		return headerCss;
-    	
-    	if (this.image!=null && this.image.isVisible())
-    		return "mb-0 pb-4 border-bottom";
-    	
-    	if (getIcon()!=null)
-    		return "mb-0 pb-4 border-bottom";
-    		
-    	return "mb-0 pb-2 border-bottom";
 
-   
+	protected String getCss() {
 
-    
-    }
-    
-    
-    protected boolean isPhotoVisible() {
+		if (headerCss != null)
+			return headerCss;
+
+		if (this.image != null && this.image.isVisible())
+			return "mb-0 pb-4 border-bottom";
+
+		if (getIcon() != null)
+			return "mb-0 pb-4 border-bottom";
+
+		return "mb-0 pb-2 border-bottom";
+
+	}
+
+	protected boolean isPhotoVisible() {
 		return photoVisible;
 	}
 
-
 	private IModel<String> getTitle() {
-	    
-    	if (this.title!=null)
-    		return this.title;
-    	
-    	if (getModel()!=null) {
-    		if (getModel().getObject() instanceof DelleMuseObject) {
-    			return new Model<String>( ((DelleMuseObject) getModel().getObject()).getDisplayname() );
-    		}
-    	}
-    	return new Model<String>( getClass().getSimpleName());  
-      
-    }
-	
-	WebMarkupContainer ic;
-	
-	
-    private void addIcon() {
-    	
-		this.iconContainer = new WebMarkupContainer("iconContainer") {
-		 	private static final long serialVersionUID = 1L;
-			public boolean isVisible() {
-				return getIcon()!=null;
+
+		if (this.title != null)
+			return this.title;
+
+		if (getModel() != null) {
+			if (getModel().getObject() instanceof DelleMuseObject) {
+				return new Model<String>(((DelleMuseObject) getModel().getObject()).getDisplayname());
 			}
-		};
-
-		this.iconContainer.setOutputMarkupId(true);
-		
-		frame.addOrReplace(this.iconContainer);
-
-		if (getIcon()!=null) {
-		
-			ic = new  WebMarkupContainer("icon");
-			this.iconContainer.add(ic);
-			ic.add( new AttributeModifier("class", getIcon()));
 		}
-    
-    }
-    
-	
-    private void addImageAndInfo() {
+		return new Model<String>(getClass().getSimpleName());
 
-		imageAdded = true;
-	
+	}
+
+	private void addImageAndInfo() {
+
+		//imageAdded = true;
+
 		this.imageContainer = new WebMarkupContainer("imageContainer") {
-		 	private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 1L;
+
 			public boolean isVisible() {
 				if (getPhotoModel() == null)
 					return false;
@@ -251,51 +222,91 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 		};
 
 		this.imageContainer.setOutputMarkupId(true);
-		
+
 		frame.addOrReplace(this.imageContainer);
 		this.imageLink = new Link<Resource>("image-link", null) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() {
-				// logger.debug("on click");
+				logger.debug("on click");
 			}
 		};
-		
-		
-		if (imgCss!=null)
-			this.imageLink.add( new AttributeModifier("class", imgCss));
-		
-		this.imageContainer.add(this.imageLink);
-		
-	 
+
+		if (imgCss != null)
+			this.imageLink.add(new AttributeModifier("class", imgCss));
+
+		this.imageContainer.addOrReplace(this.imageLink);
+
 		String presignedThumbnail = null;
-		
+
 		try {
-				if (getPhotoModel()!=null && getPhotoModel().getObject() !=null) { 
-					presignedThumbnail = getPresignedThumbnail(getPhotoModel().getObject(), ThumbnailSize.W980);
-				}
-				
-				if (presignedThumbnail != null) {
-						Url url = Url.parse(presignedThumbnail);
-						UrlResourceReference resourceReference = new UrlResourceReference(url);
-						this.image = new Image("image", resourceReference);
-						this.imageLink.addOrReplace(this.image);
-					} else {
-						this.image = new Image("image", new UrlResourceReference(Url.parse("")));
-						this.image.setVisible(false);
-						this.imageLink.addOrReplace(image);
-					}
+			if (getPhotoModel() != null && getPhotoModel().getObject() != null) {
+				presignedThumbnail = getPresignedThumbnail(getPhotoModel().getObject(), ThumbnailSize.W980);
+			}
+
+			if (presignedThumbnail != null) {
+				Url url = Url.parse(presignedThumbnail);
+				UrlResourceReference resourceReference = new UrlResourceReference(url);
+				this.image = new Image("image", resourceReference);
+				this.imageLink.addOrReplace(this.image);
+			} else {
+				this.image = new Image("image", new UrlResourceReference(Url.parse("")));
+				this.image.setVisible(false);
+				this.imageLink.addOrReplace(image);
+			}
 		} catch (Exception e) {
 			this.image = new Image("image", new UrlResourceReference(Url.parse("")));
 			this.image.setVisible(false);
 			this.imageLink.addOrReplace(image);
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
-	
-    
-		addIcon();
-		
-    }
 
+		// addIcon();
+
+		this.iconContainer = new WebMarkupContainer("iconContainer") {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isVisible() {
+				return getIcon() != null;
+			}
+		};
+
+		this.iconContainer.setOutputMarkupId(true);
+
+		frame.addOrReplace(this.iconContainer);
+
+		if (getIcon() != null) {
+			ic = new WebMarkupContainer("icon");
+			this.iconContainer.addOrReplace(ic);
+			ic.add(new AttributeModifier("class", getIcon()));
+		}
+
+	}
 	
+	private void ini() {
+		
+		Label title = new Label("title", getTitle());
+
+		frame.addOrReplace(title);
+
+		addImageAndInfo();
+
+		if (getTagline() != null) {
+			WebMarkupContainer taglineContainer = new WebMarkupContainer("taglineContainer");
+			taglineContainer.add((new Label("tagline", getTagline())).setEscapeModelStrings(false));
+			frame.addOrReplace(taglineContainer);
+		} else {
+			frame.addOrReplace(new InvisiblePanel("taglineContainer"));
+		}
+		if (getContext() != null) {
+			WebMarkupContainer taglineContainer = new WebMarkupContainer("contextContainer");
+			taglineContainer.add((new Label("context", getContext())).setEscapeModelStrings(false));
+			frame.addOrReplace(taglineContainer);
+		} else {
+			frame.addOrReplace(new InvisiblePanel("contextContainer"));
+		}
+	}
+
+
 }

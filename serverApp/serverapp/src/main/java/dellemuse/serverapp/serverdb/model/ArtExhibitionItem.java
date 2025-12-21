@@ -84,6 +84,11 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	public ArtExhibitionItem() {
 	}
  
+	@Override
+	public String getObjectClassName() {
+		return ArtExhibitionItem.class.getSimpleName();
+	}
+
 
 	public String getPrefixUrl() {
 		return PrefixUrl.ArtExhibitionItem;

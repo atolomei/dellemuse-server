@@ -34,6 +34,12 @@ public class ArtExhibitionRecord extends TranslationRecord {
 	public ArtExhibitionRecord() {
 	}
 
+	@Override
+	public String getObjectClassName() {
+		return   ArtExhibitionRecord.class.getSimpleName();
+	}
+
+	
 	public ArtExhibition getExhibition() {
 		return artExhibition;
 	}

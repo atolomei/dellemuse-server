@@ -6,10 +6,12 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.JsonObject;
+import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,22 +25,22 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
-@Entity
+/*@Entity
 @Table(name = "artworkArtist")
 @JsonInclude(Include.NON_NULL)
+*/
 public class ArtWorkArtist extends  JsonObject implements Identifiable  {
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
-    @JoinColumn(name = "artwork_id", nullable = true)
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+   // @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWork.class)
+    //@JoinColumn(name = "artwork_id", referencedColumnName = "id", nullable = false)
+    //@JsonIgnore
     private ArtWork artwork;
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
-    @JoinColumn(name = "person_id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdSerializer.class)
+    
+    
+    
+   // @ManyToOne(fetch = FetchType.LAZY, targetEntity = Person.class)
+    //@JoinColumn(name = "person_id", referencedColumnName = "id", nullable = false)
+    //@JsonIgnore
     private Person person;
     
     @Id
@@ -50,10 +52,7 @@ public class ArtWorkArtist extends  JsonObject implements Identifiable  {
 	@Column(name = "name")
 	private String name;
 
-	//@Column(name = "nameKey")
-	//private String nameKey;
-
-	@Column(name = "title")
+ 	@Column(name = "title")
 	private String title;
 
 	@Column(name = "titleKey")

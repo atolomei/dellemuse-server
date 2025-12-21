@@ -62,7 +62,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 	private boolean uploadedPhoto = false;
 	private List<Long> mainArtists;
-
+	private IModel<Site> siteModel;
 	/**
 	 * @param id
 	 * @param model
@@ -94,10 +94,16 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		add(new InvisiblePanel("error"));
 
 		mainArtists = new ArrayList<Long>();
-
-		if (getModel().getObject().getArtists() != null && getModel().getObject().getArtists().size() > 0) {
-			setMainArtist(getModel().getObject().getArtists().iterator().next().getId());
+		
+		
+	 	
+		Set<Person> set = getModel().getObject().getArtists();
+		
+		if (set!=null && set.size()>0) {
+			setMainArtist(set.iterator().next().getId());
 		}
+
+	 
 
 		Form<ArtWork> form = new Form<ArtWork>("form");
 		add(form);
@@ -138,12 +144,12 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			@Override
 			protected void onRemove(AjaxRequestTarget target) {
 				logger.debug("onRemove");
-			}
+			} 
 
 		};
 
 		c_numberField = new NumberField<Integer>("year", new PropertyModel<Integer>(getModel(), "year"), getLabel("year"));
-		artistField = new ChoiceField<Long>("artist", new PropertyModel<Long>(this, "mainArtist"), getLabel("artist")) {
+		artistField   = new ChoiceField<Long>("artist", new PropertyModel<Long>(this, "mainArtist"), getLabel("artist")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -275,7 +281,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
-			fire(new ObjectUpdateEvent(target));
+			fireScanAll(new ObjectUpdateEvent(target));
 
 		} catch (Exception e) {
 			addOrReplace(new SimpleAlertRow<Void>("error", e));
@@ -369,7 +375,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 	
 	}
 	
-	private IModel<Site> siteModel;
+	
 	
 	public IModel<Site> getSiteModel() {
 		return siteModel;

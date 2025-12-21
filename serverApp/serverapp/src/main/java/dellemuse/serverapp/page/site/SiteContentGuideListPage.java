@@ -138,6 +138,7 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 		return new Model<String>(str);
 	}
 
+	/**
 	@Override
 	public IModel<String> getObjectTitle(IModel<GuideContent> model) {
 		
@@ -146,7 +147,8 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 
 		return new Model<String>(model.getObject().getDisplayname());
 	}
-
+**/
+	
 	@Override
 	public void onClick(IModel<GuideContent> model) {
 		 setResponsePage(new GuideContentPage(model, getList()));

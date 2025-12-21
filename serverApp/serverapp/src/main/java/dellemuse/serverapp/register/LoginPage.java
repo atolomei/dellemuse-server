@@ -1,4 +1,4 @@
-package dellemuse.serverapp.page;
+package dellemuse.serverapp.register;
 
  
 import java.util.Optional;
@@ -6,8 +6,11 @@ import java.util.Optional;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.StatelessForm;
+import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.model.IModel;
 //import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.servlet.ServletWebRequest;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
@@ -29,8 +32,10 @@ import com.giffing.wicket.spring.boot.context.scan.WicketSignInPage;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.security.SecureWebSession;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.DellemuseServer;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
@@ -102,14 +107,25 @@ public class LoginPage extends BasePage {
 		super.onInitialize();
 		
 		if (getSession().isTemporary()) {
-	        getSession().bind(); // 🔧 fuerza creación temprana de sesión
+	        getSession().bind(); //   fuerza creación temprana de sesión
 	    }
 	 	
-		add(new GlobalTopPanel("top-panel"));
-		add(new GlobalFooterPanel<Void>("footer-panel"));
+		//add(new GlobalTopPanel("top-panel"));
+		//add(new GlobalFooterPanel<Void>("footer-panel"));
 		//add(new FeedbackPanel("feedback"));
+		//add(new InvisiblePanel("page-header"));
 		
-		add( new InvisiblePanel("page-header"));
+		Image image = new Image(
+			    "logo",
+			    new org.apache.wicket.request.resource.PackageResourceReference(
+			        LoginPage.class,
+			        "dellemuse-logo-blanco.png"
+			    )
+			);
+		
+		
+		add(image);
+		
 		
 		alertContainer  = new WebMarkupContainer("alertContainer");
 		add(alertContainer);
@@ -204,7 +220,11 @@ public class LoginPage extends BasePage {
 	    
 	    userNameField = new TextField<String>( "username",  new PropertyModel<String>(this, "username"), getLabel("username"));
 	    passwordField = new TextField<String>( "password",  new PropertyModel<String>(this, "password"), getLabel("password"));
-
+	    
+	    userNameField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control");
+	    passwordField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control");
+	    
+	    
 		SubmitButton<User> buttons = new SubmitButton<User>("buttons-bottom", getForm()) {
 
 			private static final long serialVersionUID = 1L;
@@ -214,8 +234,12 @@ public class LoginPage extends BasePage {
 				logger.debug("error");
 				//ArtExhibitionEditor.this.onEdit(target);
 			}
-
-
+			  public IModel<String> getLabel() {
+			    	return getLabel("signin");
+			  }
+			  protected String getSaveCss() {
+			        return "btn btn-primary btn-lg";
+			    }
 		};
 		form.add(buttons);
 	    

@@ -359,11 +359,11 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 	/**
 	 * 
-	 * select name from person where id in (select person_id from artworkArtist
+	 * select name from person where id in (select person_id from artwork Artist
 	 * where artwork_id in (select id from artwork where site_owner_id = 137));
 	 * 
 	 * select distinct p.lastname from person p where p.id in (select person_id from
-	 * artworkartist AA, artwork A where A.id=AA.artwork_id and A.site_owner_id=137)
+	 * artwork artist AA, artwork A where A.id=AA.artwork_id and A.site_owner_id=137)
 	 * order by p.lastname;
 	 * 
 	 * @param siteId
@@ -383,10 +383,10 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 		Set<Person> persons = new HashSet<Person>();
 
-		list.forEach(i -> {
+		/**list.forEach(i -> {
 			i.getArtists().forEach(k -> persons.add(k));
 		});
-
+**/
 		return persons;
 	}
 
@@ -395,10 +395,6 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		return getPersonRepository().findDistinctPersonsBySiteId(siteId);
 	}
 
-	@Transactional
-	public Iterable<ArtWork> findDistinctArtWorkByPersonId(Long id) {
-		return getPersonRepository().findDistinctArtWorkByPersonId(id);
-	}
 
 	public boolean isDetached(Site entity) {
 		return !getEntityManager().contains(entity);

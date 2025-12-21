@@ -12,7 +12,7 @@ import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -33,8 +33,20 @@ public class PersonRecord extends TranslationRecord {
 	@JsonProperty("person")
 	private Person person;
 
+	
+	@JsonProperty("person")
+	@Column(name = "lastname")
+	private String lastname;
+	
+	
 	public PersonRecord() {
 	}
+	
+	@Override
+	public String getObjectClassName() {
+		return PersonRecord.class.getSimpleName();
+	}
+
 
 	public String getTitle() {
 		if (super.getTitle() != null)
@@ -73,6 +85,7 @@ public class PersonRecord extends TranslationRecord {
 	
 	public void setPerson(Person person) {
 		this.person = person;
+		this.lastname=person.getLastname();
 	}
 
 	public String getLastFirstname() {
@@ -88,9 +101,45 @@ public class PersonRecord extends TranslationRecord {
 		return str.toString();
 	}
 
+	public String getFirstLastname() {
+
+		StringBuilder str = new StringBuilder();
+
+		if (getName() != null) {
+			str.append(getName());
+		}
+
+		if (getLastname() != null && getLastname().length() > 0) {
+			if (str.length() > 0)
+				str.append(" ");
+			str.append(getLastname());
+		}
+		return str.toString();
+	}
+
+	
+	
+	public String getLastname() {
+		
+		if (lastname!=null)
+			return lastname;
+		
+		return person!=null ? person.getLastname() : null;
+	}
+
 	@Override
 	public MultiLanguageObject getParentObject() {
 		return this.person != null ? this.person : null;
 	}
+
+	public Person getPerson() {
+		return person;
+	}
+
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}
+
+	 
 
 }

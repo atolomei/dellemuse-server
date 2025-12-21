@@ -35,6 +35,7 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -132,7 +133,8 @@ public class PersonListPage extends ObjectListPage<Person> {
 		
 		menu.setOutputMarkupId(true);
 
-		menu.setLabelCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss
+("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
@@ -229,13 +231,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 		return new Model<String>(model.getObject().getInfo());
 	}
 
-	@Override
-	public IModel<String> getObjectTitle(IModel<Person> model) {
-		if (model.getObject().getState()==ObjectState.DELETED) 
-			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-		return new Model<String>(model.getObject().getLastFirstname());
-	}
-
+	 	
 	@Override
 	public void onClick(IModel<Person> model) {
 		setResponsePage(new PersonPage(model, getList()));

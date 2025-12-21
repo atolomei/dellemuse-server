@@ -11,17 +11,18 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.branded.BrandedGuideContentPage;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.error.ErrorPage;
-import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
+ 
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.BaseSiteSearcherPanel;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Site;
-import io.wktui.event.UIEvent;
+ 
 import io.wktui.nav.toolbar.ToolbarItem;
-import wktui.base.InvisiblePanel;
+ 
  
 
 public class BrandedSiteSearcherPanel extends BaseSiteSearcherPanel implements InternalPanel {
@@ -50,7 +51,6 @@ public class BrandedSiteSearcherPanel extends BaseSiteSearcherPanel implements I
 			}
 		};
 		m.add(close);
-		
 	}
 
 	@Override
@@ -68,34 +68,9 @@ public class BrandedSiteSearcherPanel extends BaseSiteSearcherPanel implements I
 	@Override
 	protected void addListeners() {
 		super.addListeners();
-/**
-		add(new io.wktui.event.WicketEventListener<ObjectStateSelectEvent>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(ObjectStateSelectEvent event) {
-				 
-				reloadList();
-				
-				event.getTarget().add( getItemsContainer());
-				event.getTarget().add( getListToolbarContainer());
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof ObjectStateSelectEvent)
-					return true;
-				return false;
-			}
-		});
-		**/
 	}
 	
-	@Override
-	protected void onClick(IModel<GuideContent> model, AjaxRequestTarget target) {
-		// TODO Auto-generated method stub
-		
-	}
+	 
 
 	@Override
 	protected List<IModel<GuideContent>> generateList() {
@@ -113,7 +88,13 @@ public class BrandedSiteSearcherPanel extends BaseSiteSearcherPanel implements I
 
 	@Override
 	protected void onClick(IModel<GuideContent> model) {
-		setResponsePage( new ErrorPage(Model.of("not done")));
+		setResponsePage( new BrandedGuideContentPage(model, getList()));
+		
+	}
+
+	@Override
+	protected void onClick(IModel<GuideContent> model, AjaxRequestTarget target) {
+	 
 		
 	}
  	

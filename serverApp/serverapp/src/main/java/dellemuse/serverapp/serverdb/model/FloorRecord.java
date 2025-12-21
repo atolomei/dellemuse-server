@@ -63,6 +63,14 @@ public class FloorRecord extends DelleMuseObject {
     @Column(name = "language")
 	private String language;
 	
+    
+	@Override
+	public String getObjectClassName() {
+		return FloorRecord.class.getSimpleName();
+	}
+
+	
+	
 	public String getLanguage() {
 		return this.language;
 	}
