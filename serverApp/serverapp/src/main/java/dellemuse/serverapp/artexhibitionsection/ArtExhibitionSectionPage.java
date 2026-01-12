@@ -32,6 +32,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
@@ -74,6 +75,10 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 
 	 
 	JumboPageHeaderPanel<ArtExhibitionSection> header;
+
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
 
 	
 	

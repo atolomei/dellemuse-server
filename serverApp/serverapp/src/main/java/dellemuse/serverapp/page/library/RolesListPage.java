@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -15,7 +16,9 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.user.UserExpandedPanel;
 import dellemuse.serverapp.role.RolePage;
+import dellemuse.serverapp.role.RoleUsersPanel;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
@@ -72,20 +75,19 @@ public class RolesListPage extends ObjectListPage<Role> {
 	
 	public RolesListPage() {
 		super();
+		super.setIsExpanded(true);
 	}
 
 	public RolesListPage(PageParameters parameters) {
 		super(parameters);
+		super.setIsExpanded(true);
 	}
 
 	public void onInitialize() {
 		super.onInitialize();
-		
 		selected=RoleEnumSelector.ALL;
-		super.setIsExpanded(false);
 	}
 	
-
 	protected void addListeners() {
 		super.addListeners();
 
@@ -95,7 +97,6 @@ public class RolesListPage extends ObjectListPage<Role> {
 			@Override
 			public void onEvent(RoleSelectEvent event) {
 				selected=event.getRoleEnumSelector();
-				logger.debug(event.toString());
 				loadList();
 				refresh(event.getTarget());
  			}
@@ -161,6 +162,13 @@ public class RolesListPage extends ObjectListPage<Role> {
 		return Model.of(model.getObject().getRoleDisplayName());
 	}
 
+
+	@Override
+	protected Panel getObjectListItemExpandedPanel(IModel<Role> model, ListPanelMode mode) {
+		return new RoleUsersPanel("expanded-panel", model, false);
+	}
+
+	
 	@Override
 	public void onClick(IModel<Role> model) {
 		 setResponsePage(new RolePage(model, getList()));
@@ -224,7 +232,9 @@ public class RolesListPage extends ObjectListPage<Role> {
 	protected void addHeaderPanel() {
 		try {
 		BreadCrumb<Void> bc = createBreadCrumb();
+		bc.addElement(new BCElement(getLabel("security")));
 		bc.addElement(new BCElement(getLabel("roles")));
+
 		JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("roles"));
 		ph.setBreadCrumb(bc);
 		ph.setContext(getLabel("security"));

@@ -19,7 +19,6 @@ public class ObjectWithDepModel<T extends DelleMuseObject> extends ObjectModel<T
 		logger.debug(object.getDisplayname());
 	}
 
-	
 	 
 	@Override
 	public void setObject(T object) {

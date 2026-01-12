@@ -22,6 +22,7 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionStatusType;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
@@ -102,7 +103,7 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		 
+		c.setState(ObjectState.EDITION);
 
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
@@ -169,9 +170,9 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 
 		aw.getSite().getDisplayname();
 
-		Set<Person> set= new HashSet<Person>();
+		Set<Artist> set= new HashSet<Artist>();
 		
-		aw.getArtists().forEach( p -> set.add(getPersonDBService().findById( p.getId()).get() ));
+		aw.getArtists().forEach( p -> set.add(getArtistDBService().findById( p.getId()).get() ));
 		aw.setArtists(set);
 		
 		Resource photo = aw.getPhoto();
@@ -195,6 +196,12 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 		aw.setDependencies(true);
 
 		return o_aw;
+	}
+	
+	
+	public ArtistDBService getArtistDBService() {
+		return (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
+		 
 	}
 
 	public PersonDBService getPersonDBService() {

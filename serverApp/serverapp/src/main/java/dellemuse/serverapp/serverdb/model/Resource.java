@@ -17,8 +17,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Resource extends DelleMuseObject {
 
-	
-	
 	@Column(name = "bucketName")
 	private String bucketName;
 

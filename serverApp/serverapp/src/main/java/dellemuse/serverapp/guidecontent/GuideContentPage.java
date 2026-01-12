@@ -1,13 +1,11 @@
 package dellemuse.serverapp.guidecontent;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -19,17 +17,16 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibition.ArtExhibitionEXTNavDropDownMenuToolbarItem;
-import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
+
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideEXTNavDropDownMenuToolbarItem;
-import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideNavDropDownMenuToolbarItem;
-import dellemuse.serverapp.artwork.ArtWorkPage;
+
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
-import dellemuse.serverapp.page.ObjectPage;
+
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.site.SiteInfoPage;
+
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.person.ServerAppConstant;
@@ -38,7 +35,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
-
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -83,54 +80,59 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 
 	
 	
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
+
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-		
+
 		if (ouser.isEmpty())
 			return false;
-	
-		User user = ouser.get(); 
-		
-		if (user.isRoot()) 
+
+		User user = ouser.get();
+
+		if (user.isRoot())
 			return true;
-		
+
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
 		{
-		Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set!=null) {
-					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-					if (isAccess)
-						return true;
-			}
-		}
-		
-		
-		{
-			final Long sid = getSiteModel().getObject().getId();
-			
-			Set<RoleSite> set = user.getRolesSite();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
 				if (isAccess)
 					return true;
 			}
-		}		
-		
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
 		{
 			final Long iid = getSiteModel().getObject().getInstitution().getId();
 			Set<RoleInstitution> set = user.getRolesInstitution();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN))));
 				if (isAccess)
 					return true;
 			}
 		}
 
 		return false;
-	} 
+	}
+
 	public GuideContentPage() {
 		super();
 	}
@@ -206,7 +208,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	public void setArtWorkModel(IModel<ArtWork> artWorkModel) {
 		this.artWorkModel = artWorkModel;
 	}
-		
+
 	protected WebMarkupContainer getEditor(String id) {
 		if (this.editor == null)
 			this.editor = new GuideContentEditor(id, getModel(), getArtExhibitionGuideModel(), getArtExhibitionModel(), getSiteModel());
@@ -299,7 +301,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 				}
 
 				/** Panels */
-				
+
 				else if (event.getName().equals(ServerAppConstant.guide_content_info)) {
 					GuideContentPage.this.togglePanel(ServerAppConstant.guide_content_info, event.getTarget());
 					GuideContentPage.this.getHeader().setPhotoVisible(true);
@@ -321,23 +323,23 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 					return;
 				}
 
-				//else if (event.getName().equals(ServerAppConstant.object_audit)) {
-				//	GuideContentPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-				//	GuideContentPage.this.getHeader().setPhotoVisible(true);
-				//	event.getTarget().add(GuideContentPage.this.getHeader());
-				//}
-				
+				// else if (event.getName().equals(ServerAppConstant.object_audit)) {
+				// GuideContentPage.this.togglePanel(ServerAppConstant.object_audit,
+				// event.getTarget());
+				// GuideContentPage.this.getHeader().setPhotoVisible(true);
+				// event.getTarget().add(GuideContentPage.this.getHeader());
+				// }
+
 				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
-					if (event.getMoreInfo()!=null) {
-						GuideContentPage.this.togglePanel(ServerAppConstant.object_audit+"-"+event.getMoreInfo(), event.getTarget());
-						//SiteInfoPage.this.getHeader().setPhotoVisible(true);
-					}
-					else {
+					if (event.getMoreInfo() != null) {
+						GuideContentPage.this.togglePanel(ServerAppConstant.object_audit + "-" + event.getMoreInfo(), event.getTarget());
+						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
+					} else {
 						GuideContentPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-						//SiteInfoPage.this.getHeader().setPhotoVisible(true);
+						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
 					}
 				}
-	 		}
+			}
 
 			@Override
 			public boolean handle(UIEvent event) {
@@ -367,7 +369,6 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		});
 	}
 
-	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}
@@ -404,13 +405,12 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	protected boolean isAudioVisible() {
 		return true;
 	}
-	
+
 	@Override
 	protected Class<?> getTranslationClass() {
 		return GuideContentRecord.class;
 	}
 
-	
 	@Override
 	protected IRequestablePage getObjectPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {
 		return new GuideContentPage(model, list);
@@ -425,6 +425,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		getGuideContentDBService().restore(getModel().getObject(), getSessionUser().get());
 		fireScanAll(new ObjectRestoreEvent(target));
 	}
+
 	@Override
 	protected Optional<GuideContent> getObject(Long id) {
 		return getGuideContent(id);
@@ -453,10 +454,10 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		header = new JumboPageHeaderPanel<GuideContent>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
 		header.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 		header.setContext(getLabel("guide-content"));
-	
-		//header.setIcon(GuideContent.getIcon());
-		//header.setHeaderCss("mb-0 pb-2 border-none");
-		
+
+		// header.setIcon(GuideContent.getIcon());
+		// header.setHeaderCss("mb-0 pb-2 border-none");
+
 		if (getList() != null && getList().size() > 0) {
 			Navigator<GuideContent> nav = new Navigator<GuideContent>("navigator", getCurrent(), getList()) {
 				private static final long serialVersionUID = 1L;
@@ -512,7 +513,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 
 		return tabs;
 	}
-	
+
 	private JumboPageHeaderPanel<?> getHeader() {
 		return header;
 	}

@@ -64,7 +64,7 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
 			Image image = new Image("logo", resourceReference);
 	
-			image.add(new AttributeModifier("style", "max-height:50px; max-width:132px;"));
+			image.add(new AttributeModifier("style", "max-height:50px; max-width:112px;"));
 	
 			LogoPanel<Site> logoPanel = new LogoPanel<Site>("item", getModel(), image) {
 				private static final long serialVersionUID = 1L;

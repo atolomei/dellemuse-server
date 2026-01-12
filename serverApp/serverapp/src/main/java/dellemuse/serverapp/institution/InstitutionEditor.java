@@ -103,9 +103,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		add(this.form);
 		setForm(this.form);
 
-		
 		zoneIdField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
- 
 
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		subtitleField = new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
@@ -140,7 +138,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 			public boolean isThumbnail() {
 				return true;
 			}
-			
+
 			@Override
 			protected void onRemove(AjaxRequestTarget target) {
 				logger.debug("onRemove");
@@ -183,7 +181,6 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		form.add(photoField);
 		form.add(logoField);
 		form.add(zoneIdField);
-		
 
 		EditButtons<Institution> b_buttons = new EditButtons<Institution>("buttons-bottom", getForm(), getModel()) {
 
@@ -203,10 +200,10 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -229,10 +226,10 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 

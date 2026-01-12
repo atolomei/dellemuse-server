@@ -30,7 +30,7 @@ import io.wktui.error.ErrorPanel;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
-import io.wktui.nav.menu.AjaxLinkMenuItem;
+ 
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
@@ -76,6 +76,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		super.setIsExpanded(true);
 	}
 
+	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
@@ -137,8 +138,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		NavDropDownMenu<Institution> menu = new NavDropDownMenu<Institution>("menu", model, null);
 
 		menu.setOutputMarkupId(true);
-		menu.setTitleCss
-("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
@@ -164,12 +164,9 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 				};
 			}
 		});
-
-		 
 		return menu;
 	}
 	
-
 	@Override
 	public Iterable<Institution> getObjects(ObjectState os1) {
 		return getObjects(os1, null);
@@ -203,6 +200,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	public IModel<String> getObjectInfo(IModel<Institution> model) {
 		return new Model<String>(TextCleaner.clean(model.getObject().getInfo(), 280));
 	}
+	
 /**
 	@Override
 	public IModel<String> getObjectTitle(IModel<Institution> model) {
@@ -251,9 +249,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			ph.setBreadCrumb(bc);
 			ph.setIcon(Institution.getIcon()  );
 			ph.setHeaderCss("mb-2 pb-2 border-none");
-
 			add(ph);
-
 		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("page-header", e));

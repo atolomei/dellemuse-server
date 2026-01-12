@@ -3,42 +3,45 @@
 	<wicket:extend>
 
 		<section wicket:id="top-panel" />
-		
-		<section wicket:id="globalSearch" />
-		
 
-		<section class="container-xxl main">
+		<div wicket:id="mainContainer">
 
-			<div class="row">
-				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12"> 
-					<div style="width:100%; float:left;" wicket:id="page-header"></div>
-				</div>
-			</div>
-			
-			<div wicket:id="toolbarContainer" class="row">
-				<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
-					<div class="mt-1 mb-1 float-start w-100 bg-body-primary">
-						<div class="d-block float-start text-sm-start text-start w-100" wicket:id="toolbarItems" />
+			<section wicket:id="globalSearch" />
+
+			<section class="container-xxl main">
+
+				<div class="row">
+					<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+						<div wicket:id="page-header"></div>
 					</div>
 				</div>
-			</div>
 
-			<div wicket:id="internalPanelContainer" class="row">
-				<div class="mt-0 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-					<div wicket:id="internalPanel" />
+				<div wicket:id="toolbarContainer" class="row">
+					<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
+						<div class="mt-1 mb-1 float-start w-100 bg-body-primary">
+							<div class="d-block float-start text-sm-start text-start w-100" wicket:id="toolbarItems" />
+						</div>
+					</div>
 				</div>
-			</div>
 
-		</section>
-
-		<section wicket:id="navigatorContainer" class="container-fluid bg-body-tertiary border-top"
-			style="width: 100%; float: left;">
-			<div class="container">
-				<div class="container mt-4 mb-4">
-					<div wicket:id="navigator" />
+				<div wicket:id="internalPanelContainer" class="row">
+					<div class="mt-0 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<div wicket:id="internalPanel" />
+					</div>
 				</div>
-			</div>
-		</section>
+
+			</section>
+
+			<section wicket:id="navigatorContainer" class="container-fluid border-top"
+				style="width: 100%; float: left;">
+				<div class="container-xxl" style="padding:0;">
+					<div class="mt-0 mb-0">
+						<div wicket:id="navigator" />
+					</div>
+				</div>
+			</section>
+
+		</div>
 
 		<section style="float: left; width: 100%;" class="hide-sm" wicket:id="footer-panel" />
 

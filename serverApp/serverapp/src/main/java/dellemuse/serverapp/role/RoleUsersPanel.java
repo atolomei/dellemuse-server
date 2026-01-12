@@ -13,26 +13,26 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
- 
+import dellemuse.serverapp.institution.InstitutionUsersPanel;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
- 
+
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
- 
+import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
- 
+
 import dellemuse.serverapp.serverdb.model.ObjectState;
- 
+
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import io.wktui.event.UIEvent;
 import io.wktui.form.FormState;
- 
+
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
@@ -46,19 +46,19 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(RoleUsersPanel.class.getName());
 
 	private List<IModel<User>> roleUsers;
- 	private ListPanel<User> roleUsersPanel;
+	private ListPanel<User> roleUsersPanel;
 	private WebMarkupContainer listToolbarContainer;
 
-	private WebMarkupContainer titleContainer;
- 
-	
 	private ObjectStateEnumSelector oses;
 
-	public RoleUsersPanel(String id, IModel<Role> model) {
+	boolean titleVisible = true;
+	public RoleUsersPanel(String id, IModel<Role> model, boolean titleVisible) {
 		super(id, model);
+		this.titleVisible=titleVisible;
 		setOutputMarkupId(true);
 	}
 
@@ -97,38 +97,38 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		this.roleUsers = list;
 	}
 
- protected void addTitlePanel() {
-	 add(new WebMarkupContainer("titleContainer") {
-		 private static final long serialVersionUID = 1L;
-		 public boolean isVisible() {
-			 return RoleUsersPanel.this.isTitleVisible();
-		 }
-	 });
-	 
-	 
-	 
- }
+	protected void addTitlePanel() {
+		add(new WebMarkupContainer("titleContainer") {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isVisible() {
+				return RoleUsersPanel.this.isTitleVisible();
+			}
+		});
+
+	}
 
 	protected boolean isTitleVisible() {
-	return true;
-}
+		return this.titleVisible;
+	}
 
 	protected List<ToolbarItem> getListToolbarItems() {
 		return null;
 		/**
-		if (listToolbar != null)
-			return listToolbar;
+		 * if (listToolbar != null) return listToolbar;
+		 * 
+		 * listToolbar = new ArrayList<ToolbarItem>();
+		 * 
+		 * IModel<String> selected =
+		 * Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+		 * ObjectStateListSelector s = new ObjectStateListSelector("item", selected,
+		 * Align.TOP_LEFT);
+		 * 
+		 * listToolbar.add(s);
+		 * 
+		 * return listToolbar;
+		 */
 
-		listToolbar = new ArrayList<ToolbarItem>();
-
-		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
-		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-
-		listToolbar.add(s);
-
-		return listToolbar;
-	*/
-		
 	}
 
 	protected void addListeners() {
@@ -155,67 +155,32 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 
 	}
 
-	 protected List<IModel<User>> getRoleUsers() {
-		 
-		 if ( this.roleUsers==null)
-			 load();
-		 
-		 return this.roleUsers;
-	 }
-	 
+	protected List<IModel<User>> getRoleUsers() {
+
+		if (this.roleUsers == null)
+			load();
+
+		return this.roleUsers;
+	}
+
 	protected synchronized void load() {
 
 		this.roleUsers = new ArrayList<IModel<User>>();
-
-	 
 		Role role;
-		
 		if (!getModel().getObject().isDependencies()) {
 			role = getRoleDBService().findWithDeps(getModel().getObject()).get();
-		}
-		else
+		} else
 			role = getModel().getObject();
-				
 		role.getUsers().forEach(s -> this.roleUsers.add(new ObjectModel<User>(s)));
-
-		/**
-		 * if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
-		 * getObjects(ObjectState.PUBLISHED).forEach(s -> this.userRoles.add(new
-		 * ObjectModel<Role>(s)));
-		 * 
-		 * if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
-		 * getObjects(ObjectState.EDITION).forEach(s -> this.userRoles.add(new
-		 * ObjectModel<Role>(s)));
-		 * 
-		 * else if (this.getObjectStateEnumSelector() == null) getObjects().forEach(s ->
-		 * this.userRoles.add(new ObjectModel<Role>(s)));
-		 * 
-		 * else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.ALL)
-		 * getObjects().forEach(s -> this.userRoles.add(new
-		 * ObjectModel<ArtExhibitionItem>(s)));
-		 * 
-		 * else if (this.getObjectStateEnumSelector() ==
-		 * ObjectStateEnumSelector.DELETED) getObjects(ObjectState.DELETED).forEach(s ->
-		 * this.userRoles.add(new ObjectModel<Role>(s)));
-		 **/
-		
-		this.roleUsers.forEach(c -> logger.debug(c.getObject().toString()));
-	
 	}
-
-	 
 
 	protected IModel<String> getObjectTitle(IModel<User> model) {
 		StringBuilder str = new StringBuilder();
 		str.append(model.getObject().getName());
-
 		if (model.getObject().getState() == ObjectState.DELETED)
 			str.append(ServerConstant.DELETED_ICON);
-
 		return Model.of(str.toString());
 	}
-	
- 
 
 	private void setUpModel() {
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
@@ -223,77 +188,54 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		getModel().setObject(getRoleDBService().findWithDeps(u).get());
 	}
 
-	
-/**
-	private WebMarkupContainer getMenu(IModel<Role> model) {
-		NavDropDownMenu<Role> menu = new NavDropDownMenu<Role>("menu", model, null) {
-			private static final long serialVersionUID = 1L;
+	/**
+	 * private WebMarkupContainer getMenu(IModel<Role> model) {
+	 * NavDropDownMenu<Role> menu = new NavDropDownMenu<Role>("menu", model, null) {
+	 * private static final long serialVersionUID = 1L;
+	 * 
+	 * public boolean isVisible() { return true; } };
+	 * 
+	 * menu.setOutputMarkupId(true);
+	 * 
+	 * menu.setTitleCss ("d-block-inline d-sm-block-inline d-md-block-inline
+	 * d-lg-none d-xl-none d-xxl-none ps-1 pe-1"); menu.setIconCss("fa-solid
+	 * fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline
+	 * d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
+	 * 
+	 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
+	 * 
+	 * private static final long serialVersionUID = 1L;
+	 * 
+	 * @Override public MenuItemPanel<Role> getItem(String id) {
+	 * 
+	 *           return new AjaxLinkMenuItem<Role>(id) {
+	 * 
+	 *           private static final long serialVersionUID = 1L;
+	 * 
+	 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
+	 *           }
+	 * 
+	 * @Override public IModel<String> getLabel() { return getLabel("open"); }
+	 * 
+	 *           }; } });
+	 * 
+	 *           menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
+	 * 
+	 *           private static final long serialVersionUID = 1L;
+	 * 
+	 * @Override public MenuItemPanel<Role> getItem(String id) {
+	 * 
+	 *           return new AjaxLinkMenuItem<Role>(id) {
+	 * 
+	 *           private static final long serialVersionUID = 1L;
+	 * 
+	 * @Override public void onClick(AjaxRequestTarget target) {
+	 *           RoleUsersPanel.this.onObjectRemove(getModel(), target); }
+	 * 
+	 * @Override public IModel<String> getLabel() { return getLabel("remove"); } };
+	 *           } }); return menu; }
+	 */
 
-			public boolean isVisible() {
-				return true;
-			}
-		};
-
-		menu.setOutputMarkupId(true);
-
-		menu.setTitleCss
-("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
-		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
-
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Role> getItem(String id) {
-
-				return new AjaxLinkMenuItem<Role>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("open");
-					}
-
-				};
-			}
-		});
-
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Role> getItem(String id) {
-
-				return new AjaxLinkMenuItem<Role>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						RoleUsersPanel.this.onObjectRemove(getModel(), target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("remove");
-					}
-				};
-			}
-		});
-		return menu;
-	}
-*/
-	
-	 
- 
 	/**
 	 * 
 	 * 
@@ -305,21 +247,21 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 			private static final long serialVersionUID = 1L;
 
 			@Override
+			public IModel<String> getItemLabel(IModel<User> model) {
+				return  RoleUsersPanel.this.getObjectTitle(model);
+			}
+			
+			@Override
 			protected boolean isToolbar() {
-				return  RoleUsersPanel.this.isToolbar();
+				return RoleUsersPanel.this.isToolbar();
 			}
 
-			
-			
-			protected List<IModel<User>> filter(List<IModel<User>> initialList, String filter) {
-				return iFilter(initialList, filter);
-			}
+			 
 
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<User> model, ListPanelMode mode) {
 				return null;
-				// return UserRolesPanel.this.getObjectListItemExpandedPanel(model, mode);
-
+				 
 			}
 
 			@Override
@@ -341,11 +283,9 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 
 					@Override
 					public void onClick() {
-						// setResponsePage(new
-						// ArtExhibitionItemPage(getModel(),UserRolesPanel.this.getItems()));
+						setResponsePage(new UserPage(getModel()));
 					}
 
-					 
 					@Override
 					protected String getTitleIcon() {
 						return null;
@@ -357,23 +297,17 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 
 			@Override
 			public List<IModel<User>> getItems() {
-				return RoleUsersPanel.this. getRoleUsers();
+				return RoleUsersPanel.this.getRoleUsers();
 			}
-
-			// @Override
-			// protected void setItems(List<IModel<ArtExhibitionItem>> list) {
-			// ArtExhibitionItemsPanel.this.setList(list);
-			// }
 
 		};
 		add(roleUsersPanel);
 
-		// panel.setTitle(getLabel("exhibitions-permanent"));
 		roleUsersPanel.setListPanelMode(ListPanelMode.TITLE);
 		roleUsersPanel.setLiveSearch(false);
 		roleUsersPanel.setSettings(true);
 		roleUsersPanel.setHasExpander(false);
-	
+
 	}
 
 	protected boolean isToolbar() {

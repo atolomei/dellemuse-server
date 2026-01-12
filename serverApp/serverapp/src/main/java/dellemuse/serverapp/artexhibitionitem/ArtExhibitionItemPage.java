@@ -58,6 +58,8 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -99,14 +101,17 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 	private IModel<ArtExhibition> artExhibitionModel;
 	private IModel<ArtWork> artWorkModel;
 
-	private Link<ArtExhibitionItem> imageLink;
-	private Image image;
-	private WebMarkupContainer imageContainer;
+	 
 
 	private ArtExhibitionItemEditor editor;
 	private JumboPageHeaderPanel<ArtExhibitionItem> header;
 	private List<ToolbarItem> list;
 
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
+
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
@@ -157,6 +162,10 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 		return false;
 	}
 
+	protected boolean isLanguage() {
+		return false;
+	}
+	
 	protected Optional<ArtExhibitionItemRecord> loadTranslationRecord(String lang) {
 		return getArtExhibitionItemRecordDBService().findByArtExhibitionItem(getModel().getObject(), lang);
 	}
@@ -214,7 +223,7 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
-				logger.debug(event.toString());
+				 
 
 				if (event.getName().equals(ServerAppConstant.action_exhibition_item_info_edit)) {
 					ArtExhibitionItemPage.this.onEdit(event.getTarget());
@@ -381,6 +390,13 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 
 		if (getArtWorkModel().getObject().getPhoto() != null)
 			header.setPhotoModel(new ObjectModel<Resource>(getArtWorkModel().getObject().getPhoto()));
+		else {
+			
+			header.setIcon( ArtExhibition.getIcon());
+			header.setHeaderCss("mb-0 pb-5  pt-0 border-none");
+			
+			
+		}
 
 		// if (getModel().getObject().getSubtitle()!=null)
 		// header.setTagline(Model.of(getModel().getObject().getSubtitle()));
@@ -388,7 +404,8 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 
 		// header.setTagline(Model.of(getArtExhibitionModel().getObject().getSubtitle()));
 
-		header.setTagline(Model.of(getArtistStr(getArtWorkModel().getObject())));
+		//if(getArtWorkModel().getObject().getArtists()!=null)
+		//	header.setTagline(Model.of(getArtistStr(getArtWorkModel().getObject())));
 
 		header.setBreadCrumb(bc);
 		add(header);

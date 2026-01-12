@@ -88,6 +88,11 @@ public class SiteSearcherPanel extends BaseSiteSearcherPanel implements Internal
 	}
 
 	@Override
+	protected String getSaveCss() {
+		return "btn btn-primary btn-sm";
+	}
+	
+	@Override
 	protected void addListeners() {
 		super.addListeners();
 

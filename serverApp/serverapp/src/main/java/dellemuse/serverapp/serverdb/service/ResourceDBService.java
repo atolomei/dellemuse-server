@@ -21,6 +21,7 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
@@ -72,6 +73,7 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         c.setFileName(fileName);
         c.setSize(size);
         c.setTag(tag);
+        c.setState( ObjectState.PUBLISHED);
         
         if (media != null)
             c.setMedia(media);
@@ -90,19 +92,7 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         return c;
     }
     
-  	/**@Transactional
-    public void delete(Resource r) {
-    	r.setLastModifiedUser(null);
-    	super.delete(r);
-    }
    
-	@Transactional
-    public void delete(Long id) {
-		Resource r = findWithDeps( id ).get();
-		r.setLastModifiedUser(null);
-		super.deleteById(id);
-    }
-   **/
     
  	@Transactional
        public Optional<Resource> findWithDeps(Long id) {

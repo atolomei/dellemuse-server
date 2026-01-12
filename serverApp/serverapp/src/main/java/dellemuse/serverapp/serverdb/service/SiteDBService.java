@@ -1,10 +1,15 @@
 package dellemuse.serverapp.serverdb.service;
 
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
@@ -19,6 +24,7 @@ import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Floor;
@@ -33,6 +39,7 @@ import dellemuse.serverapp.serverdb.model.RoomType;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.repository.ArtistRepository;
 import dellemuse.serverapp.serverdb.repository.PersonRepository;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
@@ -54,15 +61,27 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	@JsonIgnore
+	@Autowired
 	private final PersonRepository personRepository;
 
 	@JsonIgnore
 	@Autowired
+	private final ArtistRepository artistRepository;
+
+	
+	@JsonIgnore
+	@Autowired
 	final SiteRecordDBService siteRecordDBService;
 
-	public SiteDBService(CrudRepository<Site, Long> repository, ServerDBSettings settings, PersonRepository personRepository, SiteRecordDBService siteRecordDBService) {
+	public SiteDBService(CrudRepository<Site, Long> repository, 
+			ServerDBSettings settings, 
+			PersonRepository personRepository, 
+			ArtistRepository artistRepository,
+			SiteRecordDBService siteRecordDBService) {
 		super(repository, settings);
 		this.personRepository = personRepository;
+		this.artistRepository=artistRepository;
 		this.siteRecordDBService = siteRecordDBService;
 	}
 
@@ -82,6 +101,8 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		
 		c.setZoneIdStr( getSettings().getDefaultZoneId().getId());
 
+		
+		c.setLanguages( Site.getDefaultLanguages() );
 		getRepository().save(c);
 		createSequence(c);
 		
@@ -126,6 +147,8 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		address.ifPresent(c::setAddress);
 		c.setZoneIdStr( getSettings().getDefaultZoneId().getId());
 		
+		c.setLanguages( Site.getDefaultLanguages() );
+
 		
 		getRepository().save(c);
 		createSequence(c);
@@ -189,8 +212,6 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		
 		getRoleSiteDBService().create("admin",  RoleGeneral.ADMIN, c, createdBy);
 		getRoleSiteDBService().create("editor", RoleGeneral.ADMIN, c, createdBy);	
-
-
 		
 		return c;
 	}
@@ -346,6 +367,29 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	public Iterable<ArtExhibition> getArtExhibitionsByOrdinal(Site site, ObjectState os1, ObjectState os2) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibition> cq = cb.createQuery(ArtExhibition.class);
+		Root<ArtExhibition> root = cq.from(ArtExhibition.class);
+
+		Predicate p0 = cb.equal(root.get("site").get("id"), site.getId().toString());
+
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		Predicate p2 = cb.equal(root.get("state"), os2);
+
+		Predicate combinedPredicate = cb.or(p1, p2);
+		Predicate finalredicate = cb.and(p0, combinedPredicate);
+
+		cq.select(root).where(finalredicate);
+		cq.orderBy(cb.asc(root.get("ordinal") ));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	
+	
+	
+	}
+	
+	
 	@Transactional
 	public List<ArtExhibitionItem> getSiteArtExhibitionItems(Long siteId) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -371,7 +415,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	 */
 
 	@Transactional
-	public Set<Person> getSiteArtists(Long siteId) {
+	public Set<Artist> getSiteArtists(Long siteId) {
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtWork> cq = cb.createQuery(ArtWork.class);
@@ -381,22 +425,39 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 		List<ArtWork> list = getEntityManager().createQuery(cq).getResultList();
 
-		Set<Person> persons = new HashSet<Person>();
-
-		/**list.forEach(i -> {
-			i.getArtists().forEach(k -> persons.add(k));
+		TreeSet<Artist> ts = new TreeSet<>( new Comparator<Artist>() {
+			@Override
+			public int compare(Artist o1, Artist o2) {
+			 return o1.getDisplayname().compareToIgnoreCase(o2.getDisplayname());
+			}
 		});
-**/
-		return persons;
+		
+		list.forEach( e -> e.getArtists().forEach(a -> ts.add(a)));
+
+		return ts;
 	}
 
 	@Transactional
-	public List<Person> getArtistsBySiteId(Long siteId) {
-		return getPersonRepository().findDistinctPersonsBySiteId(siteId);
+	public List<Artist> getArtistsBySiteId(Long siteId) {
+		
+			Set<Artist> s= getSiteArtists(siteId);
+		List<Artist> l  = new ArrayList<Artist>();
+		s.forEach(i-> l.add(i));
+		return l;
+		
+		/**
+		s.forEach(a -> logger.debug(a.getDisplayname()));
+		
+		List<Artist> list = getArtistRepository().findDistinctArtistsBySiteId(siteId);
+		
+		return list;
+**/
+		
 	}
 
 
 	public boolean isDetached(Site entity) {
+		
 		return !getEntityManager().contains(entity);
 	}
 
@@ -541,6 +602,10 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		return this.personRepository;
 	}
 
+	private ArtistRepository getArtistRepository() {
+		return this.artistRepository;
+	}
+	
 	private SiteRecordDBService getSiteRecordDBService() {
 		return this.siteRecordDBService;
 	}
@@ -559,6 +624,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	public Iterable<Person> getArtistsBySiteId(Long id, ObjectState os1, ObjectState os2) {
 		throw new RuntimeException("not done");
 	}
+
 
 	
 

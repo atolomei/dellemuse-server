@@ -23,6 +23,7 @@ import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
@@ -319,18 +320,26 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 		GuideContent a = o.get();
 
-		if (a.getArtExhibitionGuide() != null)
-			a.getArtExhibitionGuide().getDisplayname();
-
-		if (a.getArtExhibitionItem() != null)
-			a.getArtExhibitionItem().getDisplayname();
-
-		if (a.getPhoto() != null)
-			a.getPhoto().getBucketName();
-
-		if (a.getAudio() != null)
-			a.getAudio().getBucketName();
-
+		if (a.getArtExhibitionGuide() != null) {
+			ArtExhibitionGuide g = a.getArtExhibitionGuide();
+			a.setArtExhibitionGuide( getArtExhibitionGuideDBService().findById(g.getId()).get());
+		}
+		
+		if (a.getArtExhibitionItem() != null) {
+			ArtExhibitionItem item = a.getArtExhibitionItem();
+			a.setArtExhibitionItem( getArtExhibitionItemDBService().findById(item.getId()).get());
+		}
+		
+		if (a.getPhoto() != null) {
+			Resource r=getResourceDBService().findById( a.getPhoto().getId()).get();
+			a.setPhoto(r);
+		}
+		
+		if (a.getAudio() != null) {
+			Resource r=getResourceDBService().findById( a.getAudio().getId()).get();
+			a.setAudio(r);
+		}
+		
 		a.setDependencies(true);
 
 		return o;

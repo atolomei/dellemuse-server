@@ -29,7 +29,9 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
@@ -75,6 +77,10 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 
 	private PersonEditor editor;
 	private List<ToolbarItem> list;
+
+	protected List<Language> getSupportedLanguages() {
+		return  getLanguageService().getLanguages();
+	}
 
 	
 	@Override
@@ -128,6 +134,18 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		super.onInitialize();
 	}
 
+	protected void setUpModel() {
+		super.setUpModel();
+
+		if (!getModel().getObject().isDependencies()) {
+			Optional<Person> o_i = getPersonDBService().findWithDeps(getModel().getObject().getId());
+			setModel(new ObjectModel<Person>(o_i.get()));
+		}
+
+	}
+
+	
+	
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -156,27 +174,25 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/person/list", getLabel("persons")));
-		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
+		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getFirstLastname())));
 
-		if (getList() != null && getList().size() > 0) {
-			Navigator<Person> nav = new Navigator<Person>("navigator", getCurrent(), getList()) {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void navigate(int current) {
-					setResponsePage(new PersonPage(getList().get(current), getList()));
-				}
-			};
-			bc.setNavigator(nav);
-		}
+		 
 		JumboPageHeaderPanel<Person> ph = new JumboPageHeaderPanel<Person>("page-header", getModel(),
-				new Model<String>(getModel().getObject().getDisplayname()));
+				new Model<String>(getModel().getObject().getFirstLastname()));
 		ph.setBreadCrumb(bc);
 		
 		 ph.setContext(getLabel("person-title"));
-		 ph.setIcon( Person.getIcon());
-		 ph.setHeaderCss("mb-0 pb-2 border-none");		 
 		 
+		 if (getModel().getObject().getPhoto()!=null) {
+			 ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
+			 ph.setHeaderCss("mb-0 pb-0 border-none");	
+		
+		 }
+		 else {
+			 ph.setIcon( Person.getIcon());
+			 ph.setHeaderCss("mb-0 pb-2 border-none");	
+		 }
+ 		 
 		if (getList() != null && getList().size() > 0) {
 			Navigator<Person> nav = new Navigator<Person>("navigator", getCurrent(), getList()) {
 				private static final long serialVersionUID = 1L;

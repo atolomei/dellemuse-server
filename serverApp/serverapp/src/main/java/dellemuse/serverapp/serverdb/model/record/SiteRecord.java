@@ -1,5 +1,5 @@
 package dellemuse.serverapp.serverdb.model.record;
- 
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -11,7 +11,7 @@ import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
- 
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -32,31 +32,39 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class SiteRecord extends TranslationRecord {
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
-    @JoinColumn(name = "site_id", referencedColumnName = "id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
-    @JsonProperty("site")
-    private Site site;
- 
- 	@Column(name = "abstract")
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
+	@JoinColumn(name = "site_id", referencedColumnName = "id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	@JsonProperty("site")
+	private Site site;
+
+	@Column(name = "abstract")
 	private String siteAbstract;
- 	
+
 	@Column(name = "abstract_hash")
 	private int abstractHash;
 
 	@Column(name = "opens")
 	private String opens;
-	
+
 	@Column(name = "opens_hash")
 	private int opensHash;
-	
+
 	@Column(name = "address")
 	private String address;
-	
+
 	@Column(name = "address_hash")
 	private int addressHash;
+
+	@Column(name = "labelPermanentExhibitions")
+	private String labelPermanentExhibitions;
+
+	
+	@Column(name = "labelTemporaryExhibitions")
+	private String labelTemporaryExhibitions;
+	
 	
 	public SiteRecord() {
 	}
@@ -66,12 +74,11 @@ public class SiteRecord extends TranslationRecord {
 		return SiteRecord.class.getSimpleName();
 	}
 
-	
 	@Override
 	public String getPrefixUrl() {
 		return PrefixUrl.Site;
 	}
-	
+
 	@Override
 	public String getDisplayname() {
 		return getName();
@@ -100,7 +107,7 @@ public class SiteRecord extends TranslationRecord {
 	public void setSite(Site site) {
 		this.site = site;
 	}
-	
+
 	@Override
 	public boolean isAudioStudioEnabled() {
 		return false;
@@ -108,8 +115,8 @@ public class SiteRecord extends TranslationRecord {
 
 	@Override
 	public MultiLanguageObject getParentObject() {
-		 return this.site !=null? this.site : null;
-	 }
+		return this.site != null ? this.site : null;
+	}
 
 	public String getAddress() {
 		return address;
@@ -141,5 +148,13 @@ public class SiteRecord extends TranslationRecord {
 
 	public void setAddressHash(int addressHash) {
 		this.addressHash = addressHash;
+	}
+
+	public String getLabelPermanentExhibitions() {
+		return labelPermanentExhibitions;
+	}
+
+	public void setLabelPermanentExhibitions(String labelPermanentExhibitions) {
+		this.labelPermanentExhibitions = labelPermanentExhibitions;
 	}
 };

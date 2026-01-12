@@ -33,13 +33,10 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class AudioStudio extends DelleMuseObject {
 
-	
 	public static String getIcon() {
 		return "fa-solid fa-microphone-lines";
 	}
-	
-	
-	
+
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
 	@JoinColumn(name = "artExhibitionGuide_id", nullable = true)
 	@JsonManagedReference
@@ -93,9 +90,6 @@ public class AudioStudio extends DelleMuseObject {
 
 	/** ---------------------------- **/
 
-	@Column(name = "info")
-	private String info;
-
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "audioSpeech", nullable = true)
 	@JsonManagedReference
@@ -128,23 +122,12 @@ public class AudioStudio extends DelleMuseObject {
 	@Column(name = "language")
 	private String language;
 	
-	public String getLanguage() {
-		return this.language;
-	}
-
-	public void setLanguage(String lang) {
-		language = lang;
-	}
-
+	@Column(name = "info")
+	private String info;
+	
 	/** ---------------------------- **/
-	
+
 	public AudioStudio() {
-	}
-	
-	
-	@Override
-	public String getObjectClassName() {
-		return AudioStudio.class.getSimpleName();
 	}
 
 
@@ -163,6 +146,20 @@ public class AudioStudio extends DelleMuseObject {
 			return guideContentRecord;
 
 		return null;
+	}
+
+	@Override
+	public String getObjectClassName() {
+		return AudioStudio.class.getSimpleName();
+	}
+
+	
+	public String getLanguage() {
+		return this.language;
+	}
+
+	public void setLanguage(String lang) {
+		language = lang;
 	}
 
 	public ArtExhibitionGuide getArtExhibitionGuide() {

@@ -32,6 +32,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -283,7 +284,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		if (!model.getObject().isDependencies()) {
 			model.setObject(super.findGuideContentWithDeps(model.getObject().getId()).get());
 		}
-		return Model.of(TextCleaner.clean(getInfo(model.getObject())));
+		return Model.of(TextCleaner.clean(getInfo(model.getObject()), 420 ));
 	}
 
 	protected IModel<String> getObjectSubtitle(IModel<GuideContent> model) {
@@ -515,14 +516,8 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected List<IModel<GuideContent>> filter(List<IModel<GuideContent>> initialList, String filter) {
-				return iFilter(initialList, filter);
-				/**
-				 * List<IModel<GuideContent>> list = new ArrayList<IModel<GuideContent>>();
-				 * final String str = filter.trim().toLowerCase(); initialList.forEach(s -> { if
-				 * (s.getObject().getDisplayname().toLowerCase().contains(str)) { list.add(s); }
-				 * }); return list;
-				 */
+			public IModel<String> getItemLabel(IModel<GuideContent> model) {
+				return ArtExhibitionGuideContentsPanel.this.getObjectTitle(model.getObject());
 			}
 
 			@Override
@@ -536,9 +531,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 				DelleMuseObjectListItemPanel<GuideContent> panel = new DelleMuseObjectListItemPanel<GuideContent>("row-element", model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
- 
 
-					
 					@Override
 					protected String getTitleIcon() {
 						if (getModel().getObject().getAudio() != null)
@@ -585,11 +578,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			public List<IModel<GuideContent>> getItems() {
 				return ArtExhibitionGuideContentsPanel.this.getItems();
 			}
-
-			//@Override
-			//protected void setItems(List<IModel<GuideContent>> list) {
-			//	ArtExhibitionGuideContentsPanel.this.setList(list);
-			//}
+ 
 
 		};
 		add(itemsPanel);

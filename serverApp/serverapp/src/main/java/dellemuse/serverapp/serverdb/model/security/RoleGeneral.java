@@ -4,7 +4,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,12 +12,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseSetPersonSerializer;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
@@ -26,29 +21,27 @@ import jakarta.persistence.Table;
 @Table(name = "roleGeneral")
 @JsonInclude(Include.NON_NULL)
 public class RoleGeneral extends Role {
-	
-	
+
 	public static final String ADMIN = "admin";
 	public static final String AUDIT = "audit";
-	
-	
+
 	@ManyToMany(mappedBy = "rolesGeneral")
 	@JsonSerialize(using = DelleMuseSetPersonSerializer.class)
 	@JsonManagedReference
 	@JsonProperty("users")
 	private Set<User> users;
-	
+
 	@Column(name = "key")
 	private String key;
-	
-	public  String getKey() {
+
+	public String getKey() {
 		return key;
 	}
+
 	public void setKey(String key) {
-		this.key=key;
+		this.key = key;
 	}
 
-	
 	public RoleGeneral() {
 	}
 
@@ -71,22 +64,24 @@ public class RoleGeneral extends Role {
 	@Override
 	public boolean equals(Object o) {
 
-		if (o==null)
+		if (o == null)
 			return false;
-		 
-		if (this == o) return true;
 
-		if (!(o instanceof RoleGeneral)) return false;
-		 
-		if (this.getId()==null)
+		if (this == o)
+			return true;
+
+		if (!(o instanceof RoleGeneral))
 			return false;
-	 
+
+		if (this.getId() == null)
+			return false;
+
 		if ((o instanceof RoleGeneral)) {
-			if (((RoleGeneral) o).getId()==null)
-					return false;
+			if (((RoleGeneral) o).getId() == null)
+				return false;
 			return ((RoleGeneral) o).getId().equals(getId());
 		}
-		
+
 		return false;
 	}
 
@@ -97,8 +92,5 @@ public class RoleGeneral extends Role {
 	public void setUsers(Set<User> users) {
 		this.users = users;
 	}
-	
-
-	
 
 };

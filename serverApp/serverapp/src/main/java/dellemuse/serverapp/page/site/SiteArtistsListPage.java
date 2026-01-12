@@ -3,6 +3,7 @@ package dellemuse.serverapp.page.site;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -25,10 +26,14 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.PersonPage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.odilon.util.Check;
@@ -47,7 +52,7 @@ import io.wktui.struct.list.ListPanelMode;
  * Site Information Exhibitions Artworks Exhibitions
  */
 @MountPath("/site/artists/${id}")
-public class SiteArtistsListPage extends ObjectListPage<Person> {
+public class SiteArtistsListPage extends ObjectListPage<Artist> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -57,10 +62,51 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 
 	private IModel<Site> siteModel;
 
+	
+
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get();
+
+		if (user.isRoot())
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
+	
+	
 	public SiteArtistsListPage() {
 		super();
 		setIsExpanded(true);
-
 	}
 
 	public SiteArtistsListPage(PageParameters parameters) {
@@ -80,42 +126,48 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 	}
 
 	@Override
-	public Iterable<Person> getObjects() {
+	public Iterable<Artist> getObjects() {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getArtistsBySiteId(getSiteModel().getObject().getId());
 	}
 
 	@Override
-	public Iterable<Person> getObjects(ObjectState os1) {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1);
+	public Iterable<Artist> getObjects(ObjectState os1) {
+		throw new RuntimeException("not done");
+		//SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		//return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1);
 	}
 
 	@Override
-	public Iterable<Person> getObjects(ObjectState os1, ObjectState os2) {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1, os2);
+	public Iterable<Artist> getObjects(ObjectState os1, ObjectState os2) {
+		throw new RuntimeException("not done");
+		//SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		//return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1, os2);
 	}
 
 	@Override
-	public IModel<String> getObjectInfo(IModel<Person> model) {
-		String str = TextCleaner.clean(model.getObject().getInfo(), 280);
+	public IModel<String> getObjectInfo(IModel<Artist> model) {
+		
+		
+		
+		
+		String str = TextCleaner.clean(model.getObject().getPerson().getInfo(), 280);
 		return new Model<String>(str);
 	}
 
-	/**
-	@Override
-	public IModel<String> getObjectTitle(IModel<Person> model) {
-		if (model.getObject().getState() == ObjectState.DELETED)
-			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-
-		return new Model<String>(model.getObject().getLastFirstname());
+ 
+	public IModel<String> getObjectSubtitle(IModel<Artist> model) {
+		if (model.getObject().getPerson().getSubtitle()==null)
+			return null;
+		String str = TextCleaner.clean(model.getObject().getPerson().getSubtitle(), 280);
+		return new Model<String>(str);
 	}
-**/
 	
 	@Override
-	public void onClick(IModel<Person> model) {
-		setResponsePage(new PersonPage(model, getList()));
+	public void onClick(IModel<Artist> model) {
+		Person person=model.getObject().getPerson();
+		if (person!=null)
+			setResponsePage(new PersonPage( new ObjectModel<Person>(person)));
 	}
 
 	@Override
@@ -128,14 +180,22 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 		return null;
 	}
 
+	@Override
 	public void onConfigure() {
 		super.onConfigure();
 		logger.debug("on configure");
 	}
 
 	@Override
-	public void onInitialize() {
+	public void onBeforeRender() {
+		super.onBeforeRender();
+		logger.debug("onBeforeRender");
+	}
 
+	
+	@Override
+	public void onInitialize() {
+		
 		if (getSiteModel() == null) {
 			if (stringValue != null) {
 				Optional<Site> o_site = getSite(Long.valueOf(stringValue.toLong()));
@@ -155,6 +215,11 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 			}
 		}
 		super.onInitialize();
+	}
+
+	
+	public void setUpModel() {
+	
 	}
 
 	@Override
@@ -213,14 +278,17 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 		return null;
 	}
 
-	protected Panel getObjectListItemExpandedPanel(IModel<Person> model, ListPanelMode mode) {
-		ArtistArtWorksPanel panel = new ArtistArtWorksPanel("expanded-panel", model);
-		return panel;
-	}
 
 	@Override
-	protected String getObjectImageSrc(IModel<Person> model) {
-		if (model != null && model.getObject().getPhoto() != null) {
+	protected Panel getObjectListItemExpandedPanel(IModel<Artist> model, ListPanelMode mode) {
+		ArtistArtWorksPanel panel = new ArtistArtWorksPanel("expanded-panel", model, getSiteModel());
+		return panel;
+	}
+	
+
+	@Override
+	protected String getObjectImageSrc(IModel<Artist> model) {
+		if (model != null && model.getObject().getPerson().getPhoto() != null) {
 			Resource photo = getResource(model.getObject().getPhoto().getId()).get();
 			return getPresignedThumbnailSmall(photo);
 		}
@@ -271,7 +339,7 @@ public class SiteArtistsListPage extends ObjectListPage<Person> {
 	}
 
 	@Override
-	protected String getObjectTitleIcon(IModel<Person> model) {
+	protected String getObjectTitleIcon(IModel<Artist> model) {
 		return null;
 	}
 

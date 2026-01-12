@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
-import dellemuse.serverapp.jpa.events.MultiLanguageObjectEventListener;
 import dellemuse.serverapp.jpa.events.TranslationRecordEventListener;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;

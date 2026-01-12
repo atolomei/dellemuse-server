@@ -307,7 +307,8 @@ public class UserDBService extends DBService<User, Long> {
     }
     
     public User getSessionUser() {
-    	return findRoot();
+    	return findByUsername("atolomei").get();
+    	//return findRoot();
     }
  
 	public PersonDBService getPersonDBService() {

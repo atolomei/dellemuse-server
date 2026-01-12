@@ -26,6 +26,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -37,7 +38,7 @@ import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 
 import io.wktui.nav.toolbar.ToolbarItem;
- 
+
 import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
@@ -52,6 +53,18 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	private IModel<Site> siteModel;
 	private IModel<ArtExhibition> artExhibitionModel;
 
+	
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
+
+	
+	
+	@Override
+	protected boolean isDarkTheme() {
+		return true;
+	}
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
@@ -70,6 +83,11 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		return true;
 	}
 
+	protected IModel<String> getMainClass() {
+		return Model.of("branded text-bg-dark");
+	}
+	
+	
 	public BrandedArtExhibitionGuidePage() {
 		super();
 	}
@@ -195,20 +213,21 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			BreadCrumb<Void> bc = createBreadCrumb();
 
 			bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("audio-guides")));
-			bc.addElement(new BCElement(getObjectTitle(getSiteModel().getObject())));
+			bc.addElement(new BCElement(getObjectTitle(getArtExhibitionModel().getObject())));
 
-			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getSiteModel().getObject()));
+			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getArtExhibitionModel().getObject()));
 			ph.setBreadCrumb(bc);
 
 			ph.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 
-			ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0 border-none bg-body-tertiary");
+			ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0 border-none bg-dark");
 			ph.setHeaderCss("mb-0 mt-0 pt-0 pb-2 border-none");
 
 			boolean isPhoto = false;
 
 			ph.setContext(getLabel("exhibition-guide"));
 
+			/**
 			if (getModel().getObject().getPhoto() != null) {
 				ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 				isPhoto = true;
@@ -221,14 +240,15 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 				ph.setHeaderCss("mb-0 mt-0 pt-0 pb-4 border-none");
 				ph.setIcon(GuideContent.getIcon());
 			}
+*/
+			
+			//IModel<String> s = getObjectSubtitle(getArtExhibitionModel().getObject());
 
-			IModel<String> s = getObjectSubtitle(getSiteModel().getObject());
+			//if (s.getObject().length() > 0)
+		//		ph.setTagline(s);
 
-			if (s.getObject().length() > 0)
-				ph.setTagline(s);
-
-			else if (getArtExhibitionModel().getObject().getSubtitle() != null)
-				ph.setTagline(Model.of(getArtExhibitionModel().getObject().getSubtitle()));
+			//else if (getArtExhibitionModel().getObject().getSubtitle() != null)
+			//	ph.setTagline(Model.of(getArtExhibitionModel().getObject().getSubtitle()));
 			return ph;
 
 		} catch (Exception e) {

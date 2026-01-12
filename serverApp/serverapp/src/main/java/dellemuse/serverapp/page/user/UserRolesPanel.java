@@ -23,7 +23,7 @@ import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-
+import dellemuse.serverapp.role.RolePage;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -35,6 +35,7 @@ import io.wktui.event.UIEvent;
 import io.wktui.form.FormState;
 
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.Toolbar;
@@ -215,9 +216,13 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 	}
 
 	protected void onObjectRemove(IModel<Role> model, AjaxRequestTarget target) {
-		getUserDBService().removeRole(getModel().getObject(), model.getObject(), getSessionUser().get());
-		resetList();
-		target.add(this.userRolesPanel);
+		try {
+			getUserDBService().removeRole(getModel().getObject(), model.getObject(), getSessionUser().get());
+			resetList();
+			target.add(this.userRolesPanel);
+		} catch (Exception e) {
+			logger.error(e);
+		}
 	}
 
 	protected void onObjectSelect(IModel<Role> model, AjaxRequestTarget target) {
@@ -239,7 +244,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 		StringBuilder str = new StringBuilder();
 		str.append(model.getObject().getRoleDisplayName() + " (" + model.getObject().getDisplayClass(getLocale()) + ") ");
 
-		if (model.getObject().getState() == ObjectState.DELETED)
+	if (model.getObject().getState() == ObjectState.DELETED)
 			str.append(ServerConstant.DELETED_ICON);
 
 		return Model.of(str.toString());
@@ -278,8 +283,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 		menu.setOutputMarkupId(true);
 
-		menu.setTitleCss
-("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
@@ -289,18 +293,18 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 			@Override
 			public MenuItemPanel<Role> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Role>(id) {
+				return new LinkMenuItem<Role>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick() {
+						setResponsePage( new RolePage( getModel()));
 					}
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("open");
+						return UserRolesPanel.this.getLabel("open");
 					}
 
 				};
@@ -325,7 +329,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("remove");
+						return UserRolesPanel.this.getLabel("remove");
 					}
 				};
 			}
@@ -402,7 +406,8 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 			@Override
 			protected IModel<String> getObjectTitle(IModel<Role> model) {
-				return Model.of(model.getObject().getRoleDisplayName() + " (" + model.getObject().getDisplayClass(getLocale()) + ") ");
+				return UserRolesPanel.this.getObjectTitle(model);
+				//return Model.of(model.getObject().getRoleDisplayName() + " (" + model.getObject().getDisplayClass(getLocale()) + ") ");
 			}
 
 			@Override
@@ -447,15 +452,17 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 			private static final long serialVersionUID = 1L;
 
-			protected List<IModel<Role>> filter(List<IModel<Role>> initialList, String filter) {
-				return iFilter(initialList, filter);
+			
+			@Override
+			public IModel<String> getItemLabel(IModel<Role> model) {
+				return UserRolesPanel.this.getObjectTitle(model);
 			}
+
 
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<Role> model, ListPanelMode mode) {
 				return null;
-				// return UserRolesPanel.this.getObjectListItemExpandedPanel(model, mode);
-
+			 
 			}
 
 			@Override
@@ -472,13 +479,11 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 					@Override
 					protected String getImageSrc() {
 						return null;
-						// return UserRolesPanel.this.getObjectImageSrc(getModel());
 					}
 
 					@Override
 					public void onClick() {
-						// setResponsePage(new
-						// ArtExhibitionItemPage(getModel(),UserRolesPanel.this.getItems()));
+						  setResponsePage(new RolePage(getModel()));
 					}
 
 					@Override
@@ -500,24 +505,22 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 				return panel;
 			}
 
+			 
+			
 			@Override
 			public List<IModel<Role>> getItems() {
 				return UserRolesPanel.this.getUserRoles();
 			}
-
-			// @Override
-			// protected void setItems(List<IModel<ArtExhibitionItem>> list) {
-			// ArtExhibitionItemsPanel.this.setList(list);
-			// }
+ 
 
 		};
 		add(userRolesPanel);
 
-		// panel.setTitle(getLabel("exhibitions-permanent"));
+		 
 		userRolesPanel.setListPanelMode(ListPanelMode.TITLE);
 		userRolesPanel.setLiveSearch(false);
 		userRolesPanel.setSettings(true);
-		userRolesPanel.setHasExpander(true);
+		userRolesPanel.setHasExpander(false);
 	}
 
 	/**

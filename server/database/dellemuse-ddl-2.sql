@@ -109,7 +109,42 @@ insert into role (name, lastmodifieduser) values ('SITE_ADMIN', (select id from 
 insert into role (name, lastmodifieduser) values ('SITE_EDITOR', (select id from users where username like 'root%' limit 1));
 
 
+BEIGN
 
+CREATE TABLE artist (
+						id				     bigint primary key default nextval('sequence_id'),
+						language 			 character varying(24) not null,
+						masterlanguage       character varying(24)  default 'es',
+						person_id 	         bigint  references person(id) on delete cascade, 
+						nickname			 character varying(512),
+						created				 timestamp with time zone DEFAULT now() not null,
+						lastmodified		 timestamp with time zone DEFAULT now() not null,
+						lastmodifieduser	 bigint references users(id) on delete restrict not null,
+						draft         		 text
+ 						);
+
+
+ 						
+CREATE TABLE siteArtist (
+						id				      bigint primary key default nextval('sequence_id'),
+						name				  character varying(512),
+						site_id				  bigint references site(id) on delete cascade not null,
+						artist_id			  bigint references site(id) on delete cascade not null,
+						state				  integer default 1,
+						created				  timestamp with time zone DEFAULT now() not null,
+						lastmodified		  timestamp with time zone DEFAULT now() not null,
+						lastmodifieduser	  bigint references users(id) on delete restrict not null,
+						draft         		  text
+ 						);
+ 						
+ 						
+			COMMIT
+
+
+
+
+	
+END 
 
 
 

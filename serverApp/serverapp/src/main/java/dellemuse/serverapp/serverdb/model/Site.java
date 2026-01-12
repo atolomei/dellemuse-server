@@ -1,8 +1,16 @@
 package dellemuse.serverapp.serverdb.model;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -11,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
@@ -43,8 +52,19 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Site extends MultiLanguageObject {
 
+	static List<Language> defaults;
 
-	// List
+	static {
+		defaults = new ArrayList<Language>();
+		defaults.add(Language.of(Language.EN));
+		defaults.add(Language.of(Language.ES));
+		defaults.add(Language.of(Language.PT));
+	}
+
+	static public List<Language> getDefaultLanguages() {
+		return defaults;
+	}
+
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
 	@JoinColumn(name = "siteType_id", nullable = true)
 	@JsonManagedReference
@@ -103,6 +123,15 @@ public class Site extends MultiLanguageObject {
 	@Column(name = "twitter")
 	private String twitter;
 
+	@Column(name = "labelPermanentExhibitions")
+	private String labelPermanentExhibitions;
+
+	@Column(name = "labelTemporaryExhibitions")
+	private String labelTemporaryExhibitions;
+
+	@Column(name = "sortAlphabetical")
+	private boolean sortAlphabetical;
+
 	// Resource
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "logo", nullable = true)
@@ -125,6 +154,10 @@ public class Site extends MultiLanguageObject {
 	@OrderBy("floorNumber ASC")
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
 	private List<Floor> floors;
+
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "languages", columnDefinition = "json")
+	private Map<String, String> languages;
 
 	public Site() {
 	}
@@ -306,18 +339,70 @@ public class Site extends MultiLanguageObject {
 	}
 
 	static public final String getIcon() {
-		return "fa-solid fa-building-columns";
+		return Icons.Site;
 	}
 
 	public void setZoneId(ZoneId z) {
 		this.setZoneIdStr(z.getId());
 	}
-	
+
 	public ZoneId getZoneId() {
-		
-		if (getZoneIdStr()==null)
+
+		if (getZoneIdStr() == null)
 			return ZoneId.systemDefault();
-		
+
 		return ZoneId.of(zoneId);
 	}
+
+	public List<Language> getLanguages() {
+		if (this.languages == null) {
+			return Site.getDefaultLanguages();
+		}
+		List<Language> list = new ArrayList<Language>();
+		this.languages.forEach((k, v) -> list.add(Language.of(k)));
+		return list;
+	}
+
+	public void setLanguages(List<Language> list) {
+		if (list == null) {
+			this.languages = null;
+			return;
+		}
+		Map<String, String> map = new HashMap<String, String>();
+		list.forEach(l -> map.put(l.getLanguageCode(), l.getLanguageCode()));
+		setLanguagesMap(map);
+	}
+
+	public Map<String, String> getLanguagesMap() {
+		return languages;
+	}
+
+	public void setLanguagesMap(Map<String, String> languages) {
+		this.languages = languages;
+	}
+
+	public String getLabelPermanentExhibitions() {
+		return labelPermanentExhibitions;
+	}
+
+	public String getLabelTemporaryExhibitions() {
+		return labelTemporaryExhibitions;
+	}
+
+	public void setLabelPermanentExhibitions(String labelPermanentExhibitions) {
+		this.labelPermanentExhibitions = labelPermanentExhibitions;
+	}
+
+	public void setLabelTemporaryExhibitions(String labelTemporaryExhibitions) {
+		this.labelTemporaryExhibitions = labelTemporaryExhibitions;
+	}
+
+	public boolean isetical() {
+		return sortAlphabetical;
+	}
+
+	public void setSortAlphabetical(boolean sortAlphabetical) {
+		this.sortAlphabetical = sortAlphabetical;
+	}
+
 };

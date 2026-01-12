@@ -35,6 +35,8 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 	private WebMarkupContainer textContainer;
 	private WebMarkupContainer menu = null;
 
+	protected abstract boolean isEqual(T o1, T o2);
+
 	/**
 	 * @param id
 	 * @param model
@@ -78,8 +80,6 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 			}
 		});
 	}
-
-	protected abstract boolean isEqual(T o1, T o2);
 
 	@Override
 	public void onBeforeRender() {
@@ -133,7 +133,7 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		return icon;
 	}
 
- 	public void setObjectSubtitle(IModel<String> subtitle) {
+	public void setObjectSubtitle(IModel<String> subtitle) {
 		this.subtitle = subtitle;
 	}
 
@@ -168,12 +168,6 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		this.textContainer = new WebMarkupContainer("textContainer");
 		this.titleTextContainer.add(this.textContainer);
 
-		WebMarkupContainer menu = null;
-		menu = getObjectMenu();
-		if (menu == null)
-			menu = new InvisiblePanel("menu");
-		this.titleTextContainer.add(menu);
-
 		this.imageLink = new Link<>("image-link", getModel()) {
 			private static final long serialVersionUID = 1L;
 
@@ -184,6 +178,12 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		};
 
 		this.imageContainer.add(imageLink);
+
+		WebMarkupContainer menu = null;
+		menu = getObjectMenu();
+		if (menu == null)
+			menu = new InvisiblePanel("menu");
+		add(menu);
 
 		Link<T> titleLink = new Link<>("title-link", getModel()) {
 			private static final long serialVersionUID = 1L;
@@ -203,18 +203,21 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		title.setEscapeModelStrings(false);
 		titleLink.add(title);
 
-		WebMarkupContainer ti = new WebMarkupContainer("titleIcon") {
-			private static final long serialVersionUID = 1L;
+		// if (menu!=null) {
+		// title.add(new AttributeModifier("class", "me-4"));
+		// }
 
-			public boolean isVisible() {
-				return getTitleIcon() != null;
-			}
-		};
-
-		ti.add(new org.apache.wicket.AttributeModifier("class", "float-none ps-3 pe-3 " + (getTitleIcon() != null ? getTitleIcon() : "")));
-		this.titleTextContainer.add(ti);
-
-		 
+		/**
+		 * WebMarkupContainer ti = new WebMarkupContainer("titleIcon") { private static
+		 * final long serialVersionUID = 1L;
+		 * 
+		 * public boolean isVisible() { return (getTitleIcon() != null); } };
+		 * 
+		 * ti.add(new org.apache.wicket.AttributeModifier("class", " d-none d-md-block
+		 * d-lg-block d-xl-block d-xxl-block float-none ps-2 pe-2 titleIcon " +
+		 * (getTitleIcon() != null ? getTitleIcon() : ""))); add(ti);
+		 * 
+		 **/
 
 		if (getObjectSubtitle() != null) {
 			WebMarkupContainer subtitleContainer = new WebMarkupContainer("subtitle-container");
@@ -259,7 +262,7 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 	protected String getImageCss() {
 
 		StringBuilder str = new StringBuilder();
-		str.append("bg-body-tertiary border rounded-0 col-xxl-2  col-xl-2  col-lg-3  col-md-5 col-sm-12 col-xs-12 text-lg-start text-md-start text-xs-center");
+		str.append("bg-dark border rounded-0 col-xxl-2  col-xl-2  col-lg-3  col-md-4 col-sm-12 col-xs-12 text-lg-start text-md-start text-xs-center");
 
 		if (this.isMenuVisible()) {
 			str.append(" ismenu");
@@ -272,9 +275,9 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		StringBuilder str = new StringBuilder();
 
 		if (isImageVisible())
-			str.append("mt-1 mt-md-0 mt-xl-0 mt-lg-0 mt-xxl-0 col-xxl-10  col-xl-10  col-lg-9  col-md-7 col-sm-12 text-lg-start text-md-start text-xs-center");
+			str.append("ps-2 pe-2 mt-2 mt-md-0 mt-xl-0 mt-lg-0 mt-xxl-0 col-xxl-10  col-xl-10  col-lg-9  col-md-8 col-sm-12 text-lg-start text-md-start text-xs-center");
 		else
-			str.append("col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 text-lg-start text-md-start text-xs-center");
+			str.append("ps-2 pe-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 text-lg-start text-md-start text-xs-center");
 
 		if (this.isMenuVisible()) {
 			str.append(" ismenu");

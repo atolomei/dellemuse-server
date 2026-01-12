@@ -15,6 +15,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
  
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
+import dellemuse.serverapp.page.DellemuseServerAppHomePage;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
  
@@ -281,8 +282,10 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 
 			private static final long serialVersionUID = 1L;
 
-			protected List<IModel<RoleSite>> filter(List<IModel<RoleSite>> initialList, String filter) {
-				return iFilter(initialList, filter);
+			
+			@Override
+			public IModel<String> getItemLabel(IModel<RoleSite> model) {
+				return SiteRolesPanel.this.getObjectTitle(model);
 			}
 
 			@Override
@@ -290,7 +293,7 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 				
 				IModel<Role> m=new ObjectModel<Role>( model.getObject());
 				
-				return new RoleUsersPanel("expanded-panel", m) {
+				return new RoleUsersPanel("expanded-panel", m, true) {
 					
 					private static final long serialVersionUID = 1L;
 					

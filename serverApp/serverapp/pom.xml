@@ -246,8 +246,6 @@
 			<version>${odilon-client-version}</version>
 		</dependency>
 		
-		
-		
 		<!-- CAFFEINE
 		======================================================  -->
 
@@ -257,7 +255,6 @@
 		  <!-- version -> we use the one provided by Spring --> 
 		</dependency>
 		
-
 		<!-- jackson Hibernate
 	    =======================================================  -->
 
@@ -278,7 +275,7 @@
 		</dependency>
 
 
-	<!-- Thumbnail =============================================================  -->
+	<!-- Thumbnail ================================================  -->
 
 		<dependency>
 			<groupId>net.coobird</groupId>
@@ -309,16 +306,14 @@
 				    <artifactId>javase</artifactId>
 				    <version>3.3.0</version>
 		</dependency>
-
 		
-				<!-- https://mvnrepository.com/artifact/net.jthink/jaudiotagger -->
+		<!-- https://mvnrepository.com/artifact/net.jthink/jaudiotagger -->
+	
 		<dependency>
 		    <groupId>net.jthink</groupId>
 		    <artifactId>jaudiotagger</artifactId>
 		    <version>3.0.1</version>
 		</dependency>
-
-
 
 
 		<!-- s. WICKET  SPRING
@@ -327,7 +322,6 @@
 			Enables and configures Apache Wicket from within a Spring Boot Application.
 		https://mvnrepository.com/artifact/com.giffing.wicket.spring.boot.starter/wicket-spring-boot-starter 
 		-->
-
 
 		<dependency>
 			<groupId>com.giffing.wicket.spring.boot.starter</groupId>
@@ -349,9 +343,7 @@
        		 <version>${wicket-version}</version> <!-- Use the appropriate version -->
 	    </dependency>
 	    
-
-
-		<dependency>
+ 		<dependency>
 			<groupId>org.wicketstuff</groupId>
 			<artifactId>wicketstuff-annotation</artifactId>
 			<version>${wicket-version}</version>
@@ -377,10 +369,10 @@
 	    <version>${google-cloud-translate-version}</version>
 	</dependency>
 
-
 		<!-- s. TEST ====================================================  -->
 
 		<!-- exclude junit 4 -->
+		
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -396,6 +388,7 @@
 		<!-- e. TEST ====================================================  -->
 
 		<!-- junit 5 -->
+		
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>

@@ -25,6 +25,7 @@ import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -34,10 +35,12 @@ import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import io.odilon.util.Check;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
+import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
@@ -128,7 +131,7 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);
@@ -201,13 +204,13 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 			@Override
 			public MenuItemPanel<ArtExhibition> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtExhibition>(id) {
+				return new  LinkMenuItem<ArtExhibition>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick() {
+						setResponsePage ( new ArtExhibitionPage(model, getList()));
 					}
 
 					@Override
@@ -240,7 +243,7 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 	}
 
 	public IRequestablePage getObjectPage(IModel<ArtExhibition> model) {
-		return new ArtExhibitionPage(model);
+		return new ArtExhibitionPage(model, getList());
 	}
 
 	@Override
@@ -260,9 +263,19 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 	@Override
 	public IModel<String> getObjectInfo(IModel<ArtExhibition> model) {
-		return new Model<String>(model.getObject().getIntro());
+		
+		
+		String intro = getLanguageObjectService().getIntro(model.getObject(), getLocale());
+		
+		if (intro!=null) 
+			return Model.of(TextCleaner.truncate(intro, ServerConstant.INTRO_MAX));
+
+		String info = getLanguageObjectService().getInfo(model.getObject(), getLocale());
+		return Model.of(TextCleaner.truncate(info, ServerConstant.INTRO_MAX));
+		
 	}
 
+	
 	@Override
 	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
 		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject()))

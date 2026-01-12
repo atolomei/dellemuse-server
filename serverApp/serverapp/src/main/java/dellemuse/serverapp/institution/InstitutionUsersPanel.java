@@ -321,9 +321,9 @@ public class InstitutionUsersPanel extends DBModelPanel<Institution> implements 
 		this.usersPanel = new ListPanel<User>("users") {
 
 			private static final long serialVersionUID = 1L;
-
-			protected List<IModel<User>> filter(List<IModel<User>> initialList, String filter) {
-				return iFilter(initialList, filter);
+			@Override
+			public IModel<String> getItemLabel(IModel<User> model) {
+				return InstitutionUsersPanel.this.getObjectTitle(model);
 			}
 
 			@Override

@@ -61,11 +61,6 @@ public class UserListPage extends ObjectListPage<User> {
 	private List<ToolbarItem> listToolbar;
 
 	@Override
-	protected Panel getObjectListItemExpandedPanel(IModel<User> model, ListPanelMode mode) {
-		return new UserExpandedPanel("expanded-panel", model);
-	}
-
-	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		if (ouser.isEmpty())
 			return false;
@@ -136,6 +131,11 @@ public class UserListPage extends ObjectListPage<User> {
 	}
 
 	@Override
+	protected Panel getObjectListItemExpandedPanel(IModel<User> model, ListPanelMode mode) {
+		return new UserExpandedPanel("expanded-panel", model);
+	}
+
+	@Override
 	public void onDetach() {
 		super.onDetach();
 	}
@@ -175,6 +175,7 @@ public class UserListPage extends ObjectListPage<User> {
 
 		try {
 			BreadCrumb<Void> bc = createBreadCrumb();
+			bc.addElement(new BCElement(getLabel("security")));
 			bc.addElement(new BCElement(getLabel("users")));
 			JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("users"));
 			ph.setBreadCrumb(bc);
@@ -194,12 +195,12 @@ public class UserListPage extends ObjectListPage<User> {
 	protected void onCreate() {
 
 		try {
-			
+
 			User in = getUserDBService().create("new", getUserDBService().findRoot());
 			IModel<User> m = new ObjectModel<User>(in);
 			getList().add(m);
 			setResponsePage(new UserPage(m, getList()));
-			
+
 		} catch (Exception e) {
 			logger.error(e);
 			setResponsePage(new ErrorPage(e));
@@ -214,8 +215,7 @@ public class UserListPage extends ObjectListPage<User> {
 
 		menu.setOutputMarkupId(true);
 
-		menu.setTitleCss
-("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
@@ -257,7 +257,7 @@ public class UserListPage extends ObjectListPage<User> {
 							getUserDBService().markAsDeleted(getModel().getObject(), getSessionUser().get());
 						} catch (Exception e) {
 							logger.error(e);
-							UserListPage.this.setErrorPanel( new ErrorPanel("error", e, true));
+							UserListPage.this.setErrorPanel(new ErrorPanel("error", e, true));
 						}
 						refresh(target);
 					}

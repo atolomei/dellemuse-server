@@ -5,7 +5,7 @@ import java.util.List;
 import io.wktui.nav.toolbar.ToolbarItem;
 
 public interface InternalPanel {
-	
-	 public List<ToolbarItem> getToolbarItems();
+
+	public List<ToolbarItem> getToolbarItems();
 
 }

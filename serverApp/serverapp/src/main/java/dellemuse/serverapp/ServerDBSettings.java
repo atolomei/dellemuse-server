@@ -419,4 +419,8 @@ public class ServerDBSettings {
 	public long getLanguageCacheDurationMinutes() {
 		return 10;
 	}
+
+	public String getNoReplyEmailAddress() {
+		return "noreply@dellemuse.app";
+	}
 }

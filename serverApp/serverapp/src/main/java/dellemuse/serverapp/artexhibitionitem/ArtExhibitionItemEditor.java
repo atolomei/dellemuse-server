@@ -80,24 +80,7 @@ public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionIte
 		Form<ArtExhibitionItem> form = new Form<ArtExhibitionItem>("form");
 		add(form);
 		setForm(form);
-	
-		/**objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
-			
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public IModel<List<ObjectState>> getChoices() {
-				return new ListModel<ObjectState> (getStates());
-			}
-			
-			@Override
-			protected String getDisplayValue(ObjectState value) {
-				if (value==null)
-					return null;
-				return value.getLabel( getLocale());
-			}
-		};
-		*/
+	 
 		
 		
 		this.nameField 		= new TextField<String>("name", 	new PropertyModel<String>(getModel(), "name"), getLabel("name"));
@@ -108,7 +91,7 @@ public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionIte
 		this.qrCodeField 	= new TextField<String>("qrcode", 	new PropertyModel<String>(getModel(), "qRCode"), getLabel("qrcode"));
 		
 		form.add(nameField);
-		//form.add(objectStateField);
+	 
 		form.add(floorStrField);
 		form.add(roomStrField);
 		form.add(orderField);

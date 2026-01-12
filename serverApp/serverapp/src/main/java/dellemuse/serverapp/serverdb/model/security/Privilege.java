@@ -13,12 +13,12 @@ import jakarta.persistence.Table;
 @Table(name = "privilege")
 @JsonInclude(Include.NON_NULL)
 public class Privilege extends DelleMuseObject {
-	
+
 	public Privilege() {
 	}
-	
+
 	public final String getPrefixUrl() {
 		return PrefixUrl.Privilege;
 	}
-	 
+
 };

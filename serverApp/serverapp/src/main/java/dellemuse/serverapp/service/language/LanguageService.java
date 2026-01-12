@@ -67,8 +67,8 @@ public class LanguageService extends BaseService {
 			}
 		});
 		
-		
 		String s=getSettings().getDefaultMasterLanguage();
+
 		for (Language l: getLanguages()) {
 			if (l.getLanguageCode().equals(s)) {
 				defaultLanguage=l;
@@ -88,25 +88,8 @@ public class LanguageService extends BaseService {
 	
 	
 	public Language getDefaultLanguage() {
-/**
-		if (defaultLanguage==null) {
-			synchronized (this) {
-			String s=getSettings().getDefaultMasterLanguage();
-			for (Language l: getLanguages()) {
-				if (l.getLanguageCode().equals(s)) {
-					defaultLanguage=l;
-					return defaultLanguage;
-				}
-			}
-			
-			if (defaultLanguage==null)
-				defaultLanguage=getLanguages().get(0);
-			}
-		}
-	**/	
-		return defaultLanguage;
+ 		return defaultLanguage;
 	}
-	
 	
 	public List<Language> getLanguagesSorted(Locale locale) {
 		

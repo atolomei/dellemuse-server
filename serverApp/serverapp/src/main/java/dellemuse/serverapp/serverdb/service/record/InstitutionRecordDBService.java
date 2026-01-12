@@ -75,21 +75,7 @@ public class InstitutionRecordDBService extends RecordDBService<InstitutionRecor
 		
 		return c;
 	}
-
-	/**@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-	public void delete(InstitutionRecord c, User deletedBy) {
-			c.setLastModified(OffsetDateTime.now());
-			c.setLastModifiedUser(deletedBy);
-			c.setState(ObjectState.DELETED);
-
-			getRepository().save(c);
-			getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE));
-	}*/
-	
+ 
 	
 	/**
 	 * 
@@ -159,21 +145,31 @@ public class InstitutionRecordDBService extends RecordDBService<InstitutionRecor
 		
 		InstitutionRecord aw = o_aw.get();
 		 
-		Resource photo = aw.getPhoto();
+		 
+			Resource photo = aw.getPhoto();
+			if (photo!=null)
+				aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
+			
+			Resource audio = aw.getAudio();
+			if (audio!=null)
+				aw.setAudio(getResourceDBService().findById(audio.getId()).get());
 
-		//User u = aw.getLastModifiedUser();
-		
-		//if (u!=null)
-		//	u.getDisplayname();
-		
-		if (photo != null)
-			photo.getBucketName();
-		
+			User user = aw.getLastModifiedUser();
+			if (user!=null)
+				aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+			
+			if (aw.getParentObject()!=null) {
+				Institution c = (Institution) aw.getParentObject();
+				aw.setInstitution( getInstitutionDBService().findById(c.getId()).get());
+			}
+			
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
 	
+	
+
 	@Override
 	protected Class<InstitutionRecord> getEntityClass() {
 		return InstitutionRecord.class;

@@ -1,66 +1,36 @@
 package dellemuse.serverapp.institution;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.Url;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.UrlResourceReference;
-import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.artwork.ArtWorkPage;
-import dellemuse.serverapp.artwork.ArtWorkRecordEditor;
 import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
-import dellemuse.serverapp.editor.ObjectMetaEditor;
-import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
-import dellemuse.serverapp.page.ObjectPage;
-import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
-import dellemuse.serverapp.person.PersonPage;
 import dellemuse.serverapp.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
-import dellemuse.serverapp.serverdb.model.security.RoleSite;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.UIEvent;
@@ -92,55 +62,55 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 	static private Logger logger = Logger.getLogger(InstitutionPage.class.getName());
 
-	 
-	 
 	private InstitutionMainPanel editor;
- 
 	private List<ToolbarItem> list;
+
+	
+	protected List<Language> getSupportedLanguages() {
+		return  getLanguageService().getLanguages();
+	}
 
 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-		
+
 		if (ouser.isEmpty())
 			return false;
-	
-	
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
+
+		User user = ouser.get();
+
+		if (user.isRoot())
 			return true;
-		
+
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
 		{
 			Set<RoleGeneral> set = user.getRolesGeneral();
-		
-			if (set!=null) {
-					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-					if (isAccess)
-						return true;
-			}
-		}
-	 	
-		
-		{
-			final Long iid = getModel().getObject().getId();
-		
-			Set<RoleInstitution> set = user.getRolesInstitution();
-			
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
 				if (isAccess)
 					return true;
 			}
 		}
-		
+
+		{
+			final Long iid = getModel().getObject().getId();
+
+			Set<RoleInstitution> set = user.getRolesInstitution();
+
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN))));
+				if (isAccess)
+					return true;
+			}
+		}
+
 		return false;
 	}
-	 	
+
 	public InstitutionPage() {
 		super();
 	}
@@ -163,15 +133,15 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	protected boolean isLanguage() {
 		return false;
 	}
-	
+
 	protected Optional<InstitutionRecord> loadTranslationRecord(String lang) {
 		return getInstitutionRecordDBService().findByInstitution(getModel().getObject(), lang);
 	}
-	
+
 	protected InstitutionRecord createTranslationRecord(String lang) {
 		return getInstitutionRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
-	
+
 	protected void addListeners() {
 		super.addListeners();
 
@@ -186,54 +156,52 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 				// ------
 				// action
 				// ------
-				
+
 				if (event.getName().equals(ServerAppConstant.action_institution_edit)) {
 					InstitutionPage.this.onEdit(event.getTarget());
 				}
-				
+
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					InstitutionPage.this.onEditMeta(event.getTarget());
 				}
-				
+
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
 					InstitutionPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
 				}
-				
+
 				// ------
 				// panel
 				// ------
-				
+
 				else if (event.getName().equals(ServerAppConstant.institution_info)) {
 					InstitutionPage.this.togglePanel(ServerAppConstant.institution_info, event.getTarget());
 				}
 
-				//else if (event.getName().startsWith(ServerAppConstant.institutionrecord_info)) {
-				//	InstitutionPage.this.togglePanel(event.getName(), event.getTarget());
-				//}
-			
+				// else if
+				// (event.getName().startsWith(ServerAppConstant.institutionrecord_info)) {
+				// InstitutionPage.this.togglePanel(event.getName(), event.getTarget());
+				// }
+
 				else if (event.getName().equals(ServerAppConstant.institution_users_panel)) {
 					InstitutionPage.this.togglePanel(ServerAppConstant.institution_users_panel, event.getTarget());
 				}
 
-		 		
-				
 				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
-				
+
 					InstitutionPage.this.togglePanel(event.getName(), event.getTarget());
-				
+
 				}
-			 
+
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					InstitutionPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
 					// event.getTarget().add(ArtWorkPage.this.getHeader());
 				}
-				
+
 				else if (event.getName().equals(ServerAppConstant.object_audit)) {
 					InstitutionPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}
-			
-			
+
 			}
 
 			@Override
@@ -244,52 +212,45 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			}
 		});
 	}
-	
+
 	protected void onDelete(AjaxRequestTarget target) {
-		getInstitutionDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
+		getInstitutionDBService().markAsDeleted(getModel().getObject(), getSessionUser().get());
 		fireScanAll(new ObjectMarkAsDeleteEvent(target));
 	}
-	
+
 	protected void onRestore(AjaxRequestTarget target) {
-		getInstitutionDBService().restore( getModel().getObject(), getSessionUser().get() );
+		getInstitutionDBService().restore(getModel().getObject(), getSessionUser().get());
 		fireScanAll(new ObjectRestoreEvent(target));
 	}
 
-	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
-  
 
-		if (list!=null)
+		if (list != null)
 			return list;
-		
-		list = new ArrayList<ToolbarItem>();
-			
-		DropDownMenuToolbarItem<Institution> menu = new DropDownMenuToolbarItem<Institution>("item", getModel(), Align.TOP_RIGHT);
-		menu.setTitle(Model.of( TextCleaner.truncate ( getModel().getObject().getName(), 24) +" (Inst)" ));
 
-		
-		
-		
-		 
-		 menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public MenuItemPanel<Institution> getItem(String id) {
-					return new TitleMenuItem<Institution>(id) {
-				
-						private static final long serialVersionUID = 1L;
-				
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("information");
-						}
-					};
-				}
-			});
-		
-		
-		
+		list = new ArrayList<ToolbarItem>();
+
+		DropDownMenuToolbarItem<Institution> menu = new DropDownMenuToolbarItem<Institution>("item", getModel(), Align.TOP_RIGHT);
+		menu.setTitle(Model.of(TextCleaner.truncate(getModel().getObject().getName(), 24) + " (Inst)"));
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Institution> getItem(String id) {
+				return new TitleMenuItem<Institution>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("information");
+					}
+				};
+			}
+		});
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
 
@@ -310,28 +271,28 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 				};
 			}
 		});
-	 
-		
-		for (Language la: getLanguageService().getLanguages()) {
-			
+
+		for (Language la : getLanguageService().getLanguages()) {
+
 			final String langCode = la.getLanguageCode();
-			
-			if (!langCode.equals( getModel().getObject().getMasterLanguage())) {
-				
+
+			if (!langCode.equals(getModel().getObject().getMasterLanguage())) {
+
 				menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
-	
+
 					private static final long serialVersionUID = 1L;
-	
+
 					@Override
 					public MenuItemPanel<Institution> getItem(String id) {
-	
+
 						return new AjaxLinkMenuItem<Institution>(id, getModel()) {
 							private static final long serialVersionUID = 1L;
+
 							@Override
-							public void onClick(AjaxRequestTarget target)  {
-								fire ( new MenuAjaxEvent(ServerAppConstant.object_translation_record_info+"-"+langCode, target));
+							public void onClick(AjaxRequestTarget target) {
+								fire(new MenuAjaxEvent(ServerAppConstant.object_translation_record_info + "-" + langCode, target));
 							}
-	
+
 							@Override
 							public IModel<String> getLabel() {
 								return getLabel("institution-record", langCode);
@@ -341,16 +302,16 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 				});
 			}
 		}
-		
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new SeparatorMenuItem<Institution>(id, getModel());
 			}
 		});
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 
 			private static final long serialVersionUID = 1L;
@@ -360,28 +321,29 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 				return new AjaxLinkMenuItem<Institution>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.institution_users_panel, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.institution_users_panel, target));
 					}
+
 					@Override
 					public IModel<String> getLabel() {
 						return getLabel("users");
 					}
 				};
 			}
-		});		
-		
-		
- 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new SeparatorMenuItem<Institution>(id, getModel());
 			}
 		});
-		
- 		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 
 			private static final long serialVersionUID = 1L;
@@ -391,29 +353,32 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 				return new AjaxLinkMenuItem<Institution>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_meta, target));
 					}
+
 					@Override
 					public IModel<String> getLabel() {
 						return getLabel("institution-meta");
 					}
 				};
 			}
-		});		
-		
-		
+		});
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new io.wktui.nav.menu.SeparatorMenuItem<Institution>(id);
 			}
 		});
-		
- 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new TitleMenuItem<Institution>(id) {
@@ -426,13 +391,12 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 				};
 			}
 		});
-		
-			
-		getSites(getModel().getObject()).forEach( site ->  {
-	
+
+		getSites(getModel().getObject()).forEach(site -> {
+
 			final Long siteId = site.getId();
 			final String siteName = site.getDisplayname();
-			
+
 			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 
 				private static final long serialVersionUID = 1L;
@@ -444,8 +408,8 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 						@Override
 						public void onClick() {
-								InstitutionPage.this.getSite(siteId);
-								setResponsePage( new SitePage(new ObjectModel<Site>(InstitutionPage.this.getSite(siteId).get())));
+							InstitutionPage.this.getSite(siteId);
+							setResponsePage(new SitePage(new ObjectModel<Site>(InstitutionPage.this.getSite(siteId).get())));
 						}
 
 						@Override
@@ -456,21 +420,19 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 				}
 			});
 		});
-		
-	
-		
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new SeparatorMenuItem<Institution>(id, getModel());
 			}
 		});
 
-		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 				return new AjaxLinkMenuItem<Institution>(id, getModel()) {
@@ -488,13 +450,12 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 				};
 			}
 		});
-	 
-		
+
 		list.add(menu);
-	
+
 		return list;
 	}
- 
+
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
@@ -511,7 +472,6 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		};
 		tabs.add(tab_1);
 
-		
 		NamedTab tab_2 = new NamedTab(Model.of("users"), ServerAppConstant.institution_users_panel) {
 
 			private static final long serialVersionUID = 1L;
@@ -522,58 +482,49 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			}
 		};
 		tabs.add(tab_2);
-		
-	 	
-		
-		if (getStartTab()==null)
-			setStartTab( ServerAppConstant.institution_info );
+
+		if (getStartTab() == null)
+			setStartTab(ServerAppConstant.institution_info);
 
 		return tabs;
 	}
-	
+
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Institution>(id, getModel());
 	}
-	
+
 	protected IModel<String> getMainTitle() {
-			return getObjectTitle( getModel().getObject() );
+		return getObjectTitle(getModel().getObject());
 	}
-	
+
 	protected IModel<String> getMainSubtitle() {
 
-		return getObjectSubtitle( getModel().getObject() );
+		return getObjectSubtitle(getModel().getObject());
 		/**
-		String masterLang = getModel().getObject().getMasterLanguage();
-		String userLang = getSessionUser().get().getLanguage();
-		
-		if (masterLang==null || userLang==null) {
-			return null;
-		}
-
-
-		if (masterLang.equals(userLang))  {
-			if (getModel().getObject().getSubtitle()!=null) 
-				return Model.of(getModel().getObject().getSubtitle());
-			else
-				return null;
-		}
-		
-		
-		StringBuilder str = new StringBuilder();
-		
-		
-		return new Model<String>(getModel().getObject().getDisplayname());
-		*/
+		 * String masterLang = getModel().getObject().getMasterLanguage(); String
+		 * userLang = getSessionUser().get().getLanguage();
+		 * 
+		 * if (masterLang==null || userLang==null) { return null; }
+		 * 
+		 * 
+		 * if (masterLang.equals(userLang)) { if
+		 * (getModel().getObject().getSubtitle()!=null) return
+		 * Model.of(getModel().getObject().getSubtitle()); else return null; }
+		 * 
+		 * 
+		 * StringBuilder str = new StringBuilder();
+		 * 
+		 * 
+		 * return new Model<String>(getModel().getObject().getDisplayname());
+		 */
 	}
-	
-	
 
 	@Override
 	protected Panel createHeaderPanel() {
-		
+
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/institution/list", getLabel("institutions")));
-		bc.addElement(new BCElement(  getObjectTitle( getModel().getObject() )));
+		bc.addElement(new BCElement(getObjectTitle(getModel().getObject())));
 
 		if (getList() != null && getList().size() > 0) {
 			Navigator<Institution> nav = new Navigator<Institution>("navigator", getCurrent(), getList()) {
@@ -587,32 +538,28 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			bc.setNavigator(nav);
 		}
 
-		
 		JumboPageHeaderPanel<Institution> ph = new JumboPageHeaderPanel<Institution>("page-header", getModel(), getMainTitle());
 
-		
 		StringBuilder str = new StringBuilder();
-		
+
 		if (!getModel().getObject().getMasterLanguage().equals(getSessionUser().get().getLanguage())) {
-			
-			str.append(getModel().getObject() );
+
+			str.append(getModel().getObject());
 		}
-	
-			
+
 		if (getModel().getObject().getSubtitle() != null) {
 			ph.setTagline(Model.of(getModel().getObject().getSubtitle()));
 		}
-		
-		
+
 		if (getModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 		else
 			ph.setIcon(Institution.getIcon());
-		
+
 		ph.setBreadCrumb(bc);
 
-		 ph.setContext(getLabel("institution"));
-		 
+		ph.setContext(getLabel("institution"));
+
 		return ph;
 
 	}
@@ -637,17 +584,15 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			editor = new InstitutionMainPanel(id, getModel());
 		return editor;
 	}
-	
-	
+
 	InstitutionUsersPanel iup;
-	
+
 	protected Panel getUsersPanel(String id) {
 		if (iup == null)
 			iup = new InstitutionUsersPanel(id, getModel());
 		return iup;
 	}
-	
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -677,7 +622,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	}
 
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
-				getRecordEditors().get(lang).edit(target);		
+		getRecordEditors().get(lang).edit(target);
 	}
 
 }

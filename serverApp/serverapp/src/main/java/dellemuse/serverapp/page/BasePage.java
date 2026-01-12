@@ -1,9 +1,7 @@
 package dellemuse.serverapp.page;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -11,7 +9,6 @@ import java.util.Optional;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.Session;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -26,32 +23,26 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.CssResourceReference;
-import org.apache.wicket.request.resource.JavaScriptResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
-import org.apache.wicket.util.string.StringValue;
 
- 
 import dellemuse.model.DelleMuseModelObject;
- 
 import dellemuse.model.logging.Logger;
- 
 import dellemuse.model.util.ThumbnailSize;
- 
+
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
-import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
@@ -113,9 +104,10 @@ public abstract class BasePage extends WebPage {
 	// return new JavaScriptResourceReference(BasePage.class,"popper.min.js");
 	// }
 
-	//public static JavaScriptResourceReference getJavaScriptKbeeResourceReference() {
-	//	return new JavaScriptResourceReference(BasePage.class, "kbee.js");
-	//}
+	// public static JavaScriptResourceReference
+	// getJavaScriptKbeeResourceReference() {
+	// return new JavaScriptResourceReference(BasePage.class, "kbee.js");
+	// }
 
 	static {
 		// xfavicon =
@@ -126,20 +118,8 @@ public abstract class BasePage extends WebPage {
 		xrating = "General";
 	}
 
-	// private static final String
-	// DEFAULT_LATO_FONTS="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,900;1,400&display=swap";
-
 	private static final ResourceReference BOOTSTRAP_CSS = Bootstrap.getCssResourceReference();
 	private static final ResourceReference BOOTSTRAP_JS = Bootstrap.getJavaScriptResourceReference();
-
-	// private static final ResourceReference POPPER_JS =
-	// BasePage.getJavaScriptPopperResourceReference();
-	//private static final ResourceReference KBEE_JS = BasePage.getJavaScriptKbeeResourceReference();
-
-	// private static final ResourceReference AW = new
-	// CssResourceReference(BasePage.class, "./all.min.css");
-	// private static final ResourceReference FONT_AWESOME_CSS = new
-	// CssResourceReference(BasePage.class, "./dellemuse.css");
 
 	private static final ResourceReference CSS = new CssResourceReference(BasePage.class, "./dellemuse.css");
 
@@ -161,30 +141,8 @@ public abstract class BasePage extends WebPage {
 	private WebMarkupContainer lang;
 	private WebMarkupContainer kw;
 
-	// private boolean initialized = false;
-
-	// Map<Long, IModel<ArtExhibitionItemModel>> cacheArtExhibitionItem = new
-	// HashMap<Long, IModel<ArtExhibitionItemModel>>();
-
-	/**
-	 * 
-	 * 
-	 * 	
-	   
-	    HiddenField<String> csrfToken = new HiddenField<>("csrf", Model.of(csrfTokenValue));
-		form.add(csrfToken);
-
-
-	 * 
-	 * 
-	 */
-	
-	
-	
-	
 	public abstract boolean hasAccessRight(Optional<User> ouser);
-	
-	
+
 	public BasePage() {
 		super();
 	}
@@ -196,8 +154,6 @@ public abstract class BasePage extends WebPage {
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		// if (cacheArtExhibitionItem != null)
-		// cacheArtExhibitionItem.forEach((k, v) -> v.detach());
 	}
 
 	public BreadCrumb<Void> createBreadCrumb() {
@@ -221,41 +177,28 @@ public abstract class BasePage extends WebPage {
 	@Override
 	public void onAfterRender() {
 		super.onAfterRender();
-		// cacheArtExhibitionItem.clear();
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
+
 		addListeners();
-		
-		// cacheArtExhibitionItem = new HashMap<Long, IModel<ArtExhibitionItemModel>>();
 
 		if (logger.isDebugEnabled())
 			serverCall = new HashMap<String, Integer>();
 
-		// ()!=null? getSession().getLocale().getLanguage() : null;
+		Optional<User> ou = getSessionUser();
 
-		Optional<User> ou=getSessionUser();
-		
-		if (ou.isPresent() && ou.get().getLanguage()!=null) {
+		if (ou.isPresent() && ou.get().getLanguage() != null) {
 			this.language = getSessionUser().get().getLanguage();
-			 
-		}
-		else {
+		} else {
 			this.language = Locale.getDefault().getLanguage();
-			//this.language = Locale.forLanguageTag(Language.ES).getLanguage();
 		}
-		
+
 		if (getSession() != null)
 			getSession().setLocale(Locale.forLanguageTag(this.language));
 
-		//Session.get().setLocale(Locale.ENGLISH);
-		
-		//logger.debug( this.getClass().getSimpleName() + " -> " + Session.get().getLocale().getLanguage() );
-		
-		
 		this.wfont = new WebMarkupContainer("google-font");
 		this.wfont.add(new AttributeModifier("rel", "stylesheet"));
 		this.wfont.add(new AttributeModifier("href", getPageFonts()));
@@ -275,7 +218,6 @@ public abstract class BasePage extends WebPage {
 
 			@Override
 			public String getObject() {
-				// return getPageLanguage();
 				return xlanguage;
 			}
 		}));
@@ -341,17 +283,34 @@ public abstract class BasePage extends WebPage {
 		if (XUA_Compatible != null)
 			setPageXUACompatible(XUA_Compatible);
 
+		/**
+		 * WebMarkupContainer html = new WebMarkupContainer("html"); //
+		 * html.add(AttributeModifier.replace("lang", getPageLanguage())); //
+		 * html.add(AttributeModifier.replace("dir", isRtl() ? "rtl" : "ltr")); //
+		 * html.add(AttributeModifier.append("class", "base-page"));
+		 * 
+		 * html.add(AttributeModifier.replace( "data-bs-theme", new IModel<String>() {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public String getObject() { return isDarkTheme() ? "dark" : null; }
+		 *           } )); super.add(html);
+		 **/
+
 	}
 
-	
+	protected boolean isDarkTheme() {
+
+		return false;
+	}
+
 	protected void addListeners() {
 	}
-	
+
 	@Override
 	public void onBeforeRender() {
 		super.onBeforeRender();
-		// this.initialized=true;
-		//getServerCall().forEach((k, v) -> logger.debug(k + " -> " + v.toString()));
+
 	}
 
 	@Override
@@ -372,35 +331,21 @@ public abstract class BasePage extends WebPage {
 			response.render(new PriorityHeaderItem(headerItem));
 		}
 
-		// response.render(JavaScriptHeaderItem.forUrl("popper.min.js"));
-		// response.render(JavaScriptHeaderItem.forReference(POPPER_JS));
-		
-		
-		// response.render(JavaScriptHeaderItem.forReference(KBEE_JS));
-
-		response.render(JavaScriptHeaderItem
-				.forReference(getApplication().getJavaScriptLibrarySettings().getJQueryReference()));
-		response.render(JavaScriptHeaderItem
-				.forReference(getApplication().getJavaScriptLibrarySettings().getWicketAjaxReference()));
+		response.render(JavaScriptHeaderItem.forReference(getApplication().getJavaScriptLibrarySettings().getJQueryReference()));
+		response.render(JavaScriptHeaderItem.forReference(getApplication().getJavaScriptLibrarySettings().getWicketAjaxReference()));
 
 		response.render(CssHeaderItem.forReference(BOOTSTRAP_CSS));
 		response.render(JavaScriptHeaderItem.forReference(BOOTSTRAP_JS));
 
-		// response.render(CssHeaderItem.forReference(AW));
-
 		response.render(CssHeaderItem.forReference(CSS));
-
-		// response.render(JavaScriptHeaderItem.forReference(NotyJSReference.INSTANCE));
-		// response.render(JavaScriptHeaderItem.forReference(NotyPackagedJSReference.INSTANCE));
-		// response.render(JavaScriptHeaderItem.forReference(NotyThemeBootstrapJSReference.INSTANCE));
 
 		if (getCssResource() != null)
 			response.render(CssHeaderItem.forReference(getCssResource()));
 
-		// if (!hasLateralMenu()) {
-		// response.render(OnDomReadyHeaderItem.forScript("$('body').removeClass('sidebar-xs');"));
-		// response.render(OnDomReadyHeaderItem.forScript("$('body').addClass('nosidebar');"));
-		// }
+		if (isDarkTheme()) {
+			String script = "document.documentElement.setAttribute('data-bs-theme','dark');";
+			response.render(JavaScriptHeaderItem.forScript(script, "set-bs-theme"));
+		}
 
 	}
 
@@ -487,16 +432,16 @@ public abstract class BasePage extends WebPage {
 	}
 
 	protected IModel<String> getLabel(String key, String... parameter) {
-	        StringResourceModel model = new StringResourceModel(key, this, null);
-	        model.setParameters((Object[]) parameter);
-	        return model;
-	    }
-	
+		StringResourceModel model = new StringResourceModel(key, this, null);
+		model.setParameters((Object[]) parameter);
+		return model;
+	}
+
 	/** Session User */
 
 	public Optional<User> getSessionUser() {
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
-		User user=service.getSessionUser();
+		User user = service.getSessionUser();
 		if (user == null)
 			return Optional.empty();
 		return Optional.of(user);
@@ -511,61 +456,67 @@ public abstract class BasePage extends WebPage {
 	protected ArtExhibitionRecordDBService getArtExhibitionRecordDBService() {
 		return (ArtExhibitionRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionRecordDBService.class);
 	}
-	
+
 	protected ArtExhibitionSectionDBService getArtExhibitionSectionDBService() {
 		return (ArtExhibitionSectionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionSectionDBService.class);
 	}
-	
+
 	protected ArtExhibitionSectionRecordDBService getArtExhibitionSectionRecordDBService() {
 		return (ArtExhibitionSectionRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionSectionRecordDBService.class);
 	}
-	
+
 	protected ArtExhibitionGuideDBService getArtExhibitionGuideDBService() {
 		return (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 	}
+
 	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
 		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
 	}
-	
+
 	protected AudioStudioDBService getAudioStudioDBService() {
-		return (AudioStudioDBService) ServiceLocator.getInstance().getBean( AudioStudioDBService.class);
+		return (AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class);
 	}
-	
+
 	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
 		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 	}
-	
+
 	protected ArtExhibitionItemRecordDBService getArtExhibitionItemRecordDBService() {
 		return (ArtExhibitionItemRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemRecordDBService.class);
 	}
-	 
-	protected ArtWorkDBService getArtWorkDBService() 				{return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);}
-	protected  ArtWorkRecordDBService getArtWorkRecordDBService() 	{return (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);	}
+
+	protected ArtWorkDBService getArtWorkDBService() {
+		return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+	}
+
+	protected ArtWorkRecordDBService getArtWorkRecordDBService() {
+		return (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);
+	}
 
 	protected InstitutionDBService getInstitutionDBService() {
 		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 	}
-	
+
 	protected InstitutionRecordDBService getInstitutionRecordDBService() {
 		return (InstitutionRecordDBService) ServiceLocator.getInstance().getBean(InstitutionRecordDBService.class);
 	}
-	
-   	protected GuideContentDBService getGuideContentDBService() {
+
+	protected GuideContentDBService getGuideContentDBService() {
 		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 	}
 
-   	protected GuideContentRecordDBService getGuideContentRecordDBService() {
+	protected GuideContentRecordDBService getGuideContentRecordDBService() {
 		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
 	}
-	 
+
 	protected PersonDBService getPersonDBService() {
 		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 	}
-	
+
 	protected PersonRecordDBService getPersonRecordDBService() {
 		return (PersonRecordDBService) ServiceLocator.getInstance().getBean(PersonRecordDBService.class);
 	}
-	
+
 	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
@@ -573,7 +524,7 @@ public abstract class BasePage extends WebPage {
 	protected SiteRecordDBService getSiteRecordDBService() {
 		return (SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class);
 	}
- 	
+
 	protected ResourceDBService getResourceDBService() {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
@@ -581,41 +532,40 @@ public abstract class BasePage extends WebPage {
 	public UserDBService getUserDBService() {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
-	
+
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
- 	 
-	protected  DateTimeService getDateTimeService() {
+
+	protected DateTimeService getDateTimeService() {
 		return (DateTimeService) ServiceLocator.getInstance().getBean(DateTimeService.class);
 	}
-  
+
 	protected Optional<ArtExhibitionSection> getArtExhibitionSection(Long id) {
 		return null;
 	}
- 	
+
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
- 	
+
 	public Optional<ArtWork> findArtWorkByIdWithDeps(Long id) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		return service.findWithDeps(id);
 	}
-	
+
 	public Optional<Person> getPerson(Long id) {
 		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 		return service.findById(id);
 	}
 
 	public Optional<Institution> getInstitution(Long id) {
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
-				.getBean(InstitutionDBService.class);
+		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 		return service.findById(id);
 	}
-	
+
 	/** Iterable */
-	
+
 	public Iterable<Person> getPersons() {
 		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 		return service.findAllSorted();
@@ -626,75 +576,71 @@ public abstract class BasePage extends WebPage {
 		return service.findAllSorted();
 	}
 
-	public Iterable<Site> getSites(ObjectState o1,  ObjectState o2) {
+	public Iterable<Site> getSites(ObjectState o1, ObjectState o2) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.findAllSorted(o1, o2);
 	}
-	
+
 	public Iterable<Site> getSites(Institution in) {
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
-				.getBean(InstitutionDBService.class);
+		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 		return service.getSites(in.getId());
 	}
 
-	public Iterable<ArtExhibition> getSiteArtExhibitions( Site site ) {
-		SiteDBService service= (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+	public Iterable<ArtExhibition> getSiteArtExhibitions(Site site) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getArtExhibitions(site.getId());
 	}
 
-	public Iterable<ArtExhibition> getSiteArtExhibitions( Site site, ObjectState os1 ) {
-		SiteDBService service= (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+	public Iterable<ArtExhibition> getSiteArtExhibitions(Site site, ObjectState os1) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getArtExhibitions(site.getId(), os1);
 	}
 
-	public Iterable<ArtExhibition> getSiteArtExhibitions( Site site, ObjectState os1, ObjectState os2 ) {
-		SiteDBService service= (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+	public Iterable<ArtExhibition> getSiteArtExhibitions(Site site, ObjectState os1, ObjectState os2) {
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getArtExhibitions(site.getId(), os1, os2);
 	}
-	
- 	public Iterable<ArtWork> getArtWorks(Site site) {
+
+	public Iterable<ArtWork> getArtWorks(Site site) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getSiteArtWorks(site);
 	}
- 
+
 	public Iterable<ArtWork> getArtWorks(Site site, ObjectState os1) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getSiteArtWorks(site, os1);
 	}
-	
+
 	public Iterable<ArtWork> getArtWorks(Site site, ObjectState os1, ObjectState os2) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getSiteArtWorks(site, os1, os2);
 	}
- 	
+
 	public Iterable<User> getUsers() {
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 		return service.findAllSorted();
 	}
-	
+
 	public Iterable<User> getUsers(ObjectState os1, ObjectState os2) {
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 		return service.findAllSorted(os1, os2);
 	}
-	
+
 	public Iterable<GuideContent> getGuideContents(Site site) {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
-			.getBean(SiteDBService.class);
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.getSiteGuideContent(site.getId());
 	}
-	
+
 	public Iterable<GuideContent> getGuideContents(Site site, ObjectState os1) {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
-				.getBean(SiteDBService.class);
-			return service.getSiteGuideContent(site.getId(), os1);
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return service.getSiteGuideContent(site.getId(), os1);
 	}
 
 	public Iterable<GuideContent> getGuideContents(Site site, ObjectState os1, ObjectState os2) {
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance()
-				.getBean(SiteDBService.class);
-			return service.getSiteGuideContent(site.getId(), os1, os2);
+		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return service.getSiteGuideContent(site.getId(), os1, os2);
 	}
-	
+
 	public Optional<Site> getSite(Long id) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.findById(id);
@@ -710,56 +656,53 @@ public abstract class BasePage extends WebPage {
 		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 		return service.findById(id);
 	}
-	
+
 	public Optional<Site> findByIdWithDeps(Long id) {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		return service.findWithDeps(id);
 	}
 
 	/** Object */
-	
+
 	public Optional<ArtWork> getArtWork(Long id) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		return service.findById(id);
 	}
-	
+
 	public String getArtistStr(ArtWork aw) {
-		
+
 		if (!aw.isDependencies()) {
-			aw=this.findArtWorkByIdWithDeps(aw.getId()).get();
+			aw = this.findArtWorkByIdWithDeps(aw.getId()).get();
 		}
-		
+
 		StringBuilder info = new StringBuilder();
 		int n = 0;
-		
-	 
-		for (Person p : aw.getArtists()) {
+
+		for (Artist p : aw.getArtists()) {
 			if (n++ > 0)
 				info.append(", ");
-			info.append(
-					getLanguageObjectService().getPersonFirstLastName(p, getLocale())
-					);
-		} 
-		
+			info.append(getLanguageObjectService().getPersonFirstLastName(p, getLocale()));
+		}
+
 		String str = TextCleaner.truncate(info.toString(), 220);
 		return str;
 	}
- 	
+
 	protected Optional<ArtExhibitionItem> getArtExhibitionItem(Long id) {
 		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 		return service.findById(id);
 	}
- 
+
 	public Optional<ArtExhibitionGuide> getArtExhibitionGuide(Long id) {
 		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 		return service.findById(id);
 	}
-	
+
 	public Optional<GuideContent> getGuideContent(Long id) {
 		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 		return service.findById(id);
 	}
-	
+
 	public Optional<User> getUser(Long id) {
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 		return service.findById(id);
@@ -771,23 +714,20 @@ public abstract class BasePage extends WebPage {
 	}
 
 	public Iterable<Institution> getInstitutions() {
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
-				.getBean(InstitutionDBService.class);
+		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 		return service.findAllSorted();
 	}
 
-  	public String getPresignedThumbnailSmall(Resource photo) {
+	public String getPresignedThumbnailSmall(Resource photo) {
 		try {
 			if (photo.isUsethumbnail()) {
-				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance()
-						.getBean(ResourceThumbnailService.class);
+				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
 				String url = service.getPresignedThumbnailUrl(photo, ThumbnailSize.SMALL);
 				mark("PresignedThumbnailUrl - " + photo.getDisplayname());
 				return url;
 			} else {
 				mark("PresignedUrl - " + photo.getDisplayname());
-				ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance()
-						.getBean(ObjectStorageService.class);
+				ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
 				return service.getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
 			}
 		} catch (Exception e) {
@@ -806,67 +746,63 @@ public abstract class BasePage extends WebPage {
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		return Model.of(str.toString());
 	}
-  	
-  	
-  	
-  	
+
 	public ArtExhibition createExhibition(Site site) {
-		 
-		return getArtExhibitionDBService().create("new", site,   getUserDBService().findRoot());
+
+		return getArtExhibitionDBService().create("new", site, getUserDBService().findRoot());
 	}
 
-	 @SuppressWarnings("unchecked")
-	 public void fireScanAll(UIEvent event) {
-	        for (UIEventListener<UIEvent> listener :  getBehaviors(UIEventListener.class)) {
-	            if (listener.handle(event)) {
-	                listener.onEvent(event);
-	            }
-	        }
-	        fire(event, getPage().iterator(), false);
-	    }
-	 
-	
-	 @SuppressWarnings("unchecked")
-	    public void fire(UIEvent event) {
-	        boolean handled = false;
-	        for (UIEventListener<UIEvent> listener : getPage().getBehaviors(UIEventListener.class)) {
-	            if (listener.handle(event)) {
-	                listener.onEvent(event);
-	                handled = true;
-	                break;
-	            }
-	        }
-	        if (!handled)
-	            fire(event, getPage().iterator());
-	    }
-	 
-	 public boolean fire(UIEvent event, Iterator<Component> components) {
-	        return fire(event, components, true);
-	    }
+	@SuppressWarnings("unchecked")
+	public void fireScanAll(UIEvent event) {
+		for (UIEventListener<UIEvent> listener : getBehaviors(UIEventListener.class)) {
+			if (listener.handle(event)) {
+				listener.onEvent(event);
+			}
+		}
+		fire(event, getPage().iterator(), false);
+	}
 
-	    @SuppressWarnings("unchecked")
-	    public boolean fire(UIEvent event, Iterator<Component> components, boolean stop_first_hit) {
-	        boolean handled = false;
-	        while (components.hasNext()) {
-	            Component component = components.next();
-	            for (UIEventListener<UIEvent> listener : component.getBehaviors(UIEventListener.class)) {
-	                if (listener.handle(event)) {
-	                    listener.onEvent(event);
-	                    if (stop_first_hit) {
-	                        handled = true;
-	                        break;
-	                    }
-	                }
-	            }
-	            if (!handled) {
-	                if (component instanceof MarkupContainer) {
-	                    handled = fire(event, ((MarkupContainer) component).iterator(), stop_first_hit);
-	                }
-	            } else {
-	                break;
-	            }
-	        }
-	        return handled;
-	    }
-	    
+	@SuppressWarnings("unchecked")
+	public void fire(UIEvent event) {
+		boolean handled = false;
+		for (UIEventListener<UIEvent> listener : getPage().getBehaviors(UIEventListener.class)) {
+			if (listener.handle(event)) {
+				listener.onEvent(event);
+				handled = true;
+				break;
+			}
+		}
+		if (!handled)
+			fire(event, getPage().iterator());
+	}
+
+	public boolean fire(UIEvent event, Iterator<Component> components) {
+		return fire(event, components, true);
+	}
+
+	@SuppressWarnings("unchecked")
+	public boolean fire(UIEvent event, Iterator<Component> components, boolean stop_first_hit) {
+		boolean handled = false;
+		while (components.hasNext()) {
+			Component component = components.next();
+			for (UIEventListener<UIEvent> listener : component.getBehaviors(UIEventListener.class)) {
+				if (listener.handle(event)) {
+					listener.onEvent(event);
+					if (stop_first_hit) {
+						handled = true;
+						break;
+					}
+				}
+			}
+			if (!handled) {
+				if (component instanceof MarkupContainer) {
+					handled = fire(event, ((MarkupContainer) component).iterator(), stop_first_hit);
+				}
+			} else {
+				break;
+			}
+		}
+		return handled;
+	}
+
 }

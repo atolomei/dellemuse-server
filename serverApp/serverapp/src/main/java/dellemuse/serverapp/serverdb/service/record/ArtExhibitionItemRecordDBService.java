@@ -21,6 +21,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -86,7 +87,8 @@ public class ArtExhibitionItemRecordDBService extends RecordDBService<ArtExhibit
 		c.setName(a.getName());
 		c.setLanguage(lang);
 		
-		c.setState(ObjectState.EDITION);
+		c.setState(a.getState());
+
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
@@ -168,9 +170,22 @@ public class ArtExhibitionItemRecordDBService extends RecordDBService<ArtExhibit
 		ArtExhibitionItemRecord aw = o_aw.get();
 		 
 		Resource photo = aw.getPhoto();
+		if (photo!=null)
+			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		
+		Resource audio = aw.getAudio();
+		if (audio!=null)
+			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
 
-		if (photo != null)
-			photo.getBucketName();
+		User user = aw.getLastModifiedUser();
+		if (user!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		
+		
+		if (aw.getParentObject()!=null) {
+			ArtExhibitionItem c = (ArtExhibitionItem) aw.getParentObject();
+			aw.setArtExhibitionItem( getArtExhibitionItemDBService().findById(c.getId()).get());
+		}
 		
 		aw.setDependencies(true);
 

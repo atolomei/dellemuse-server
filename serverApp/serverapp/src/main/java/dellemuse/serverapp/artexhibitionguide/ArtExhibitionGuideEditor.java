@@ -115,6 +115,10 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 		setUpModel();
 		addAlert();
 
+		add( new Label( "exhibition-guide-general-info", getLabel("exhibition-guide-general-info", getModel().getObject().getMasterLanguage())));
+		
+		
+		
 		add(new InvisiblePanel("error"));
 
 		Form<ArtExhibitionGuide> form = new Form<ArtExhibitionGuide>("form");

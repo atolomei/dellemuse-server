@@ -64,9 +64,7 @@ public class GlobalTopPanel extends ModelPanel<User> {
 		
 		NavBar<Void> nav = new NavBar<Void>("navbarLeft");
 
-		 //getLabel("dellemuselogo")
-		 
-		LabelLinkPanel logo = new LabelLinkPanel("item") {
+	 	LabelLinkPanel logo = new LabelLinkPanel("item") {
             private static final long serialVersionUID = 1L;
             @Override
             protected void onClick() {
@@ -75,8 +73,8 @@ public class GlobalTopPanel extends ModelPanel<User> {
 		};
 		
 		logo.setLabel(Model.of("dellemuse"));
-		logo.setSubtitle(Model.of("arts and culture audio guides"));
-		
+		logo.setSubtitle(getLabel("dellemuse-tagline"));
+		logo.setSubtitleCss("subtitle d-none d-lg-inline d-xl-inline d-xxl-inline");
 		
 		//String presignedThumbnail = 
 		
@@ -115,7 +113,7 @@ public class GlobalTopPanel extends ModelPanel<User> {
 		// 
 		
 		logo.setLinkStyle("text-decoration: none;");
-		logo.setStyle(" margin-bottom:-2px; font-weight: 600; color: #eeeeef;  font-size: 0.65em; font-style: normal;");
+		//logo.setStyle(" margin-bottom:-2px; font-weight: 600; color: #eeeeef;  font-size: 0.65em; font-style: normal;");
 		
 		add(nav);
 

@@ -132,7 +132,7 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 
 			@Override
 			public IModel<String> getItemLabel(IModel<Site> model) {
-				return new Model<String>(model.getObject().getDisplayname());
+				return InstitutionMainPanel.this.getObjectTitle(model.getObject());
 			}
 
 			@Override

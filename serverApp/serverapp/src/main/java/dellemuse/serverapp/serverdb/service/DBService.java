@@ -26,9 +26,12 @@ import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
+import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
+ 
 import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleGeneralDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleInstitutionDBService;
@@ -269,6 +272,10 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	protected String getNameColumn() {
 		return "name";
 	}
+	
+   protected  ArtWorkDBService getArtWorkDBService() {
+    	return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+	}
 
 	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
 		return (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
@@ -276,6 +283,10 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 	protected ArtExhibitionDBService getArtExhibitionDBService() {
 		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
+	}
+	
+	protected InstitutionDBService getInstitutionDBService() {
+		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 	}
 
 	protected ResourceDBService getResourceDBService() {
@@ -298,6 +309,12 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 	}
 
+
+	protected ArtExhibitionSectionDBService getArtExhibitionSectionDBService() {
+		return (ArtExhibitionSectionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionSectionDBService.class);
+	}
+	
+	
 	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
 		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
 	}
@@ -318,6 +335,10 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (DelleMuseAuditDBService) ServiceLocator.getInstance().getBean(DelleMuseAuditDBService.class);
 	}
 
+	protected PersonDBService getPersonDBService() {
+		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
+	}
+	
 	protected RoleGeneralDBService getRoleGeneralDBService() {
 		return (RoleGeneralDBService) ServiceLocator.getInstance().getBean(RoleGeneralDBService.class);
 	}

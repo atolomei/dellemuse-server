@@ -48,12 +48,15 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 	
 	public ArtExhibitionListPage() {
 		super();
+		this.setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
 	}		
 	
 	public ArtExhibitionListPage(PageParameters parameters) {
 		 super(parameters);
+		 this.setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
 	}
 
+	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -62,7 +65,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		IModel<String> selected = Model.of( super.getObjectStateEnumSelector().getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);

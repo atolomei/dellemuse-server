@@ -23,6 +23,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
+import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.Site;
 import io.odilon.util.Check;
@@ -233,9 +234,9 @@ public class AudioStudioPage extends BasePage {
 
 		if (ap instanceof TranslationRecord) {
 			
-			mlo_parentObjectName = ((TranslationRecord) ap).getParentObject().getName();
-			mlo_parentObjectId = ((TranslationRecord) ap).getParentObject().getId();
-			mlo_parentObjectPrefix = ((TranslationRecord) ap).getParentObject().getPrefixUrl();
+			mlo_parentObjectName 	= ((TranslationRecord) ap).getParentObject().getName();
+			mlo_parentObjectId 		= ((TranslationRecord) ap).getParentObject().getId();
+			mlo_parentObjectPrefix 	= ((TranslationRecord) ap).getParentObject().getPrefixUrl();
 		
 		} else {
 			

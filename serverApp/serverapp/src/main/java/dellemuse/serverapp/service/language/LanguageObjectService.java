@@ -25,6 +25,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.page.library.ArtWorkListPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
@@ -101,11 +102,11 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		final String value = getCache().getIfPresent(key);
 		
 		if (value!=null) {
- 			logger.debug( "cache hit -> " + key );
+ 			 
 			return value;
 		}
 	
-		logger.debug( "cache miss -> " + key );
+		 
 		
 		String displayName;
 
@@ -142,21 +143,17 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		final String value = getCache().getIfPresent(key);
 		
 		if (value!=null) {
-			logger.debug( "cache hit -> " + key );
 			return value;
 		}
 		
 		String displayName;
-
 		String lang = locale.getLanguage();
-		
 		if (lang.equals(o.getMasterLanguage())) {
 			displayName = o.getSubtitle();
 		}
 		else {
 			
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
-
 			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
 			
 			if (t.isEmpty()) {
@@ -284,7 +281,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		final String value = getCache().getIfPresent(key);
 		
 		if (value!=null) {
-			logger.debug( "cache hit -> " + key );
+			 
 
 			return value;
 		}
@@ -318,15 +315,22 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	}
 
 	
+	
+	
+	public String getPersonFirstLastName(Artist p, Locale locale) {
+		if (p==null)
+			return null;
+		return  getPersonFirstLastName(p.getPerson(), locale);
+	}
+	
 	public String getPersonFirstLastName(Person p, Locale locale) {
 
-		
 		final String key = getKey(p, PERSON, locale.getLanguage());
 		final String value = getCache().getIfPresent(key);
 		 
 		
 		if (value!=null) {
-			logger.debug( "cache hit -> " + key );
+			 
 
 			return value;
 		}

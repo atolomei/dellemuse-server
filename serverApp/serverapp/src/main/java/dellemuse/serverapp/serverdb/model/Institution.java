@@ -29,7 +29,7 @@ import jakarta.persistence.Table;
 @Table(name = "institution")
 @JsonInclude(Include.NON_NULL)
 public class Institution extends MultiLanguageObject {
-	
+
 	@ManyToOne(fetch = FetchType.EAGER, targetEntity = InstitutionType.class)
 	@JoinColumn(name = "institutionType_id", nullable = true)
 	@JsonManagedReference
@@ -39,7 +39,7 @@ public class Institution extends MultiLanguageObject {
 
 	@Column(name = "shortName")
 	private String shortName;
- 
+
 	@Column(name = "address")
 	private String address;
 
@@ -72,7 +72,7 @@ public class Institution extends MultiLanguageObject {
 
 	@Column(name = "twitter")
 	private String twitter;
-	
+
 	@JsonProperty("zoneId")
 	@Column(name = "zoneid")
 	private String zoneId;
@@ -109,7 +109,6 @@ public class Institution extends MultiLanguageObject {
 		return Institution.class.getSimpleName();
 	}
 
-	
 	public String getPrefixUrl() {
 		return PrefixUrl.Institution;
 	}
@@ -118,7 +117,7 @@ public class Institution extends MultiLanguageObject {
 	public String getTitle() {
 		return getName();
 	}
-	
+
 	public InstitutionType getInstitutionType() {
 		return institutionType;
 	}
@@ -126,7 +125,6 @@ public class Institution extends MultiLanguageObject {
 	public void setInstitutionType(InstitutionType institutionType) {
 		this.institutionType = institutionType;
 	}
-  
 
 	public String getAddress() {
 		return address;
@@ -224,8 +222,6 @@ public class Institution extends MultiLanguageObject {
 		this.twitter = twitter;
 	}
 
- 
-
 	public String getShortName() {
 		return shortName;
 	}
@@ -241,36 +237,36 @@ public class Institution extends MultiLanguageObject {
 	public void setLogo(Resource logo) {
 		this.logo = logo;
 	}
-	
+
 	@Override
 	public String toString() {
 
 		StringBuilder str = new StringBuilder();
-	
+
 		str.append(getClass().getSimpleName());
-		
-		str.append(" { \"id\": "+ getId().toString());
-		
-		if (getName()!=null)
-			str.append(", \"name\": \""+ getName().toString()+"\"");
-		
-		if (getTitle()!=null)
-			str.append(", \"title\": \""+ getName().toString()+"\"");
-		
-		if (getShortName()!=null)
-			str.append(", \"shortName\": \""+ getShortName().toString()+"\"");
-		
-		if (getWebsite()!=null)
-			str.append(", \"website\": \""+ getWebsite().toString()+"\"");
-		
-		if (getEmail()!=null)
-			str.append(", \"email\": \""+ getEmail().toString()+"\"");
-		
-		if (getMapUrl()!=null)
-			str.append(", \"mapUrl\": \""+ getMapUrl().toString()+"\"");
-		
-		if (getLastModified()!=null)
-			str.append(", \"lastModified\": \""+ df.format(getLastModified())+"\" }");
+
+		str.append(" { \"id\": " + getId().toString());
+
+		if (getName() != null)
+			str.append(", \"name\": \"" + getName().toString() + "\"");
+
+		if (getTitle() != null)
+			str.append(", \"title\": \"" + getName().toString() + "\"");
+
+		if (getShortName() != null)
+			str.append(", \"shortName\": \"" + getShortName().toString() + "\"");
+
+		if (getWebsite() != null)
+			str.append(", \"website\": \"" + getWebsite().toString() + "\"");
+
+		if (getEmail() != null)
+			str.append(", \"email\": \"" + getEmail().toString() + "\"");
+
+		if (getMapUrl() != null)
+			str.append(", \"mapUrl\": \"" + getMapUrl().toString() + "\"");
+
+		if (getLastModified() != null)
+			str.append(", \"lastModified\": \"" + df.format(getLastModified()) + "\" }");
 
 		return str.toString();
 	}
@@ -278,27 +274,28 @@ public class Institution extends MultiLanguageObject {
 	@Override
 	public boolean equals(Object o) {
 
-		if (o==null)
+		if (o == null)
 			return false;
-		 
-		if (this == o) return true;
 
-		if (!(o instanceof Institution)) return false;
-		 
-		if (this.getId()==null)
+		if (this == o)
+			return true;
+
+		if (!(o instanceof Institution))
 			return false;
-	 
+
+		if (this.getId() == null)
+			return false;
+
 		if ((o instanceof GuideContent)) {
-			
-			if (((Institution) o).getId()==null)
-					return false;
-			
+
+			if (((Institution) o).getId() == null)
+				return false;
+
 			return ((Institution) o).getId().equals(getId());
 		}
-		
+
 		return false;
 	}
-	
 
 	public String getZoneIdStr() {
 		return zoneId;
@@ -307,20 +304,21 @@ public class Institution extends MultiLanguageObject {
 	public void setZoneIdStr(String zoneid) {
 		this.zoneId = zoneid;
 	}
+
 	public void setZoneId(ZoneId z) {
 		this.setZoneIdStr(z.getId());
 	}
-	
+
 	public ZoneId getZoneId() {
-		
-		if (getZoneIdStr()==null)
+
+		if (getZoneIdStr() == null)
 			return ZoneId.systemDefault();
-		
+
 		return ZoneId.of(zoneId);
 	}
-	
+
 	public static final String getIcon() {
-		return "fa-duotone fa-building";
+		return "fa-duotone fa-building-columns";
 	}
-	
+
 };

@@ -102,9 +102,7 @@ public class RolePage extends ObjectPage<Role> {
 
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
-
-			 
-				 
+ 	 
 				if (event.getName().equals(ServerAppConstant.role_panel_info)) {
 					RolePage.this.togglePanel(ServerAppConstant.role_panel_info, event.getTarget());
 					
@@ -124,7 +122,7 @@ public class RolePage extends ObjectPage<Role> {
 	
 	protected Panel getRoleUsersPanel(String id) {
 		if (rolesPanel == null)
-			rolesPanel  = new RoleUsersPanel(id, getModel());
+			rolesPanel  = new RoleUsersPanel(id, getModel(), true);
 			return (rolesPanel);
 	}
 	
@@ -223,7 +221,7 @@ public class RolePage extends ObjectPage<Role> {
 
 	@Override
 	protected Optional<Role> getObject(Long id) {
-		// TODO Auto-generated method stub
+		 
 		return Optional.empty();
 	}
 

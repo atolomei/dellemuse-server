@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
@@ -63,15 +64,18 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 	/** CREATE SEQUENCE if not exists audio_id START 1; */
 	@Column(name = "audio_id")
 	private Long audioId;
+
+	@Column(name = "ordinal")
+	private int ordinal;
 	
 	public ArtExhibitionGuide() {
 	}
-	
+
 	@Override
 	public String getObjectClassName() {
 		return ArtExhibitionGuide.class.getSimpleName();
 	}
-	
+
 	public String getPrefixUrl() {
 		return PrefixUrl.ArtExhibitionGuide;
 	}
@@ -127,28 +131,38 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 	@Override
 	public boolean equals(Object o) {
 
-		if (o==null)
+		if (o == null)
 			return false;
-		 
-		if (this == o) return true;
 
-		if (!(o instanceof ArtExhibitionGuide)) return false;
-		 
-		if (this.getId()==null)
+		if (this == o)
+			return true;
+
+		if (!(o instanceof ArtExhibitionGuide))
 			return false;
-	 
+
+		if (this.getId() == null)
+			return false;
+
 		if ((o instanceof ArtExhibitionGuide)) {
-			
-			if (((ArtExhibitionGuide) o).getId()==null)
-					return false;
-			
+
+			if (((ArtExhibitionGuide) o).getId() == null)
+				return false;
+
 			return ((ArtExhibitionGuide) o).getId().equals(getId());
 		}
-		
+
 		return false;
 	}
-	
+
 	public static String getIcon() {
-		return "fa-solid fa-folder-music";
+		return Icons.ArtExhibitionGuide;
+	}
+
+	public int getOrdinal() {
+		return ordinal;
+	}
+
+	public void setOrdinal(int ordinal) {
+		this.ordinal = ordinal;
 	}
 };

@@ -4,19 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.request.Url;
-import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.NumberFormatter;
-import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
-import dellemuse.serverapp.command.CommandService;
-import dellemuse.serverapp.elevenlabs.ElevenLabsService;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
@@ -24,12 +16,8 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Identifiable;
-import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
-import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
@@ -40,8 +28,6 @@ import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
- 
-
 
 public class DBModelPanel<T> extends ObjectModelPanel<T> {
 
@@ -58,16 +44,14 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 		final String str = filter.trim().toLowerCase();
 		initialList.forEach(s -> {
 			if (s.getObject() instanceof MultiLanguageObject) {
-				 if (getObjectTitle( (MultiLanguageObject) s.getObject()).getObject().toLowerCase().contains(str))
-					 list.add(s);
-			}
-			else if (s.getObject().getName().toLowerCase().contains(str)) {
+				if (getObjectTitle((MultiLanguageObject) s.getObject()).getObject().toLowerCase().contains(str))
+					list.add(s);
+			} else if (s.getObject().getName().toLowerCase().contains(str)) {
 				list.add(s);
 			}
 		});
 		return list;
 	}
-	
 
 	/** Save --------------------------------------------------------- */
 
@@ -112,27 +96,25 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 
 			else if (po instanceof ArtExhibitionGuideRecord)
 				getArtExhibitionGuideRecordDBService().save((ArtExhibitionGuideRecord) po, user, msg);
-			
+
 			else if (po instanceof ArtExhibitionItemRecord)
 				getArtExhibitionItemRecordDBService().save((ArtExhibitionItemRecord) po, user, msg);
-			
+
 			else if (po instanceof ArtExhibitionRecord)
 				getArtExhibitionRecordDBService().save((ArtExhibitionRecord) po, user, msg);
-			
+
 			else if (po instanceof ArtWorkRecord)
 				getArtWorkRecordDBService().save((ArtWorkRecord) po, user, msg);
 
 			else if (po instanceof PersonRecord)
 				getPersonRecordDBService().save((PersonRecord) po, user, msg);
 
-			
 			else if (po instanceof InstitutionRecord)
 				getInstitutionRecordDBService().save((InstitutionRecord) po, user, msg);
-			
+
 			else if (po instanceof SiteRecord)
 				getSiteRecordDBService().save((SiteRecord) po, user, msg);
-			
-			
+
 		}
 	}
 
@@ -162,98 +144,94 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 		getGuideContentDBService().create(g, item, addedBy);
 	}
 
-	//public LanguageService getLanguageService() {
-	//	return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
-	//}
+	// public LanguageService getLanguageService() {
+	// return (LanguageService)
+	// ServiceLocator.getInstance().getBean(LanguageService.class);
+	// }
 
 	/** Deps --------------------------------------------------------- */
 
 	/**
-	public Optional<ArtWork> findArtWorkWithDeps(Long id) {
-		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
-		return service.findWithDeps(id);
-	}
+	 * public Optional<ArtWork> findArtWorkWithDeps(Long id) { ArtWorkDBService
+	 * service = (ArtWorkDBService)
+	 * ServiceLocator.getInstance().getBean(ArtWorkDBService.class); return
+	 * service.findWithDeps(id); }
+	 * 
+	 * public Optional<ArtExhibition> findArtExhibitionWithDeps(Long id) {
+	 * ArtExhibitionDBService service = (ArtExhibitionDBService)
+	 * ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class); return
+	 * service.findWithDeps(id); }
+	 * 
+	 * public Optional<ArtExhibitionSection> findArtExhibitionSectionWithDeps(Long
+	 * id) { ArtExhibitionSectionDBService service = (ArtExhibitionSectionDBService)
+	 * ServiceLocator.getInstance().getBean(ArtExhibitionSectionDBService.class);
+	 * return service.findWithDeps(id); }
+	 * 
+	 * public Optional<ArtExhibitionItem> findArtExhibitionItemWithDeps(Long id) {
+	 * ArtExhibitionItemDBService service = (ArtExhibitionItemDBService)
+	 * ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
+	 * return service.findWithDeps(id); }
+	 * 
+	 * public Optional<ArtExhibitionGuide> findArtExhibitionGuideWithDeps(Long id) {
+	 * ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService)
+	 * ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
+	 * return service.findWithDeps(id); }
+	 * 
+	 * public Optional<GuideContent> findGuideContentWithDeps(Long id) {
+	 * GuideContentDBService service = (GuideContentDBService)
+	 * ServiceLocator.getInstance().getBean(GuideContentDBService.class); return
+	 * service.findWithDeps(id); }
+	 * 
+	 * public Optional<Resource> findResourceWithDeps(Long id) { ResourceDBService
+	 * service = (ResourceDBService)
+	 * ServiceLocator.getInstance().getBean(ResourceDBService.class); return
+	 * service.findWithDeps(id); }
+	 */
 
-	public Optional<ArtExhibition> findArtExhibitionWithDeps(Long id) {
-		ArtExhibitionDBService service = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
-		return service.findWithDeps(id);
-	}
-
-	public Optional<ArtExhibitionSection> findArtExhibitionSectionWithDeps(Long id) {
-		ArtExhibitionSectionDBService service = (ArtExhibitionSectionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionSectionDBService.class);
-		return service.findWithDeps(id);
-	}
-
-	public Optional<ArtExhibitionItem> findArtExhibitionItemWithDeps(Long id) {
-		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
-		return service.findWithDeps(id);
-	}
-
-	public Optional<ArtExhibitionGuide> findArtExhibitionGuideWithDeps(Long id) {
-		ArtExhibitionGuideDBService service = (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
-		return service.findWithDeps(id);
-	}
-
-	public Optional<GuideContent> findGuideContentWithDeps(Long id) {
-		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
-		return service.findWithDeps(id);
-	}
-
-	public Optional<Resource> findResourceWithDeps(Long id) {
-		ResourceDBService service = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
-		return service.findWithDeps(id);
-	}
-*/
-	
 	/** Deps END */
 
 	/**
-	public Optional<Person> getPerson(Long id) {
-		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
-		return service.findById(id);
-	}
-*/
-	
+	 * public Optional<Person> getPerson(Long id) { PersonDBService service =
+	 * (PersonDBService)
+	 * ServiceLocator.getInstance().getBean(PersonDBService.class); return
+	 * service.findById(id); }
+	 */
+
 	/** Iterable */
 
 	/**
-	protected Iterable<Institution> getInstitutions() {
-		InstitutionDBService s = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
-		return s.findAllSorted();
-	}
+	 * protected Iterable<Institution> getInstitutions() { InstitutionDBService s =
+	 * (InstitutionDBService)
+	 * ServiceLocator.getInstance().getBean(InstitutionDBService.class); return
+	 * s.findAllSorted(); }
+	 * 
+	 * public Iterable<Person> getPersons() { PersonDBService service =
+	 * (PersonDBService)
+	 * ServiceLocator.getInstance().getBean(PersonDBService.class); return
+	 * service.findAllSorted(); }
+	 * 
+	 * public Iterable<Site> getSites(Institution in) { InstitutionDBService service
+	 * = (InstitutionDBService)
+	 * ServiceLocator.getInstance().getBean(InstitutionDBService.class); return
+	 * service.getSites(in.getId()); }
+	 * 
+	 * public Iterable<GuideContent> getGuideContents(ArtExhibitionGuide o) { return
+	 * getArtExhibitionGuideDBService().getGuideContents(o); }
+	 * 
+	 * public Iterable<GuideContent> getSiteGuideContents(Site s) { return
+	 * getGuideContentDBService().getBySite(s); }
+	 * 
+	 * public Iterable<ArtWork> getArtWorks(Person person) { return
+	 * getSiteDBService().findDistinctArtWorkByPersonId(person.getId()); }
+	 * 
+	 * public Iterable<ArtWork> getSiteArtWorks(Site site) { return
+	 * getSiteDBService().getSiteArtWorks(site, ObjectState.EDITION,
+	 * ObjectState.APPROVED); }
+	 * 
+	 * public Iterable<GuideContent> getGuideContens(ArtExhibitionItem o) { return
+	 * getArtExhibitionItemDBService().getGuideContents(o); }
+	 */
 
-	public Iterable<Person> getPersons() {
-		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
-		return service.findAllSorted();
-	}
-
-	public Iterable<Site> getSites(Institution in) {
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
-		return service.getSites(in.getId());
-	}
-
-	public Iterable<GuideContent> getGuideContents(ArtExhibitionGuide o) {
-		return getArtExhibitionGuideDBService().getGuideContents(o);
-	}
-
-	public Iterable<GuideContent> getSiteGuideContents(Site s) {
-		return getGuideContentDBService().getBySite(s);
-	}
-
-	public Iterable<ArtWork> getArtWorks(Person person) {
-		return getSiteDBService().findDistinctArtWorkByPersonId(person.getId());
-	}
-
-	public Iterable<ArtWork> getSiteArtWorks(Site site) {
-		return getSiteDBService().getSiteArtWorks(site, ObjectState.EDITION, ObjectState.APPROVED);
-	}
-
-	public Iterable<GuideContent> getGuideContens(ArtExhibitionItem o) {
-		return getArtExhibitionItemDBService().getGuideContents(o);
-	}
-*/
-	
-	
 	public Resource createAndUploadFile(InputStream inputStream, String bucketName, String objectName, String fileName, long size) {
 
 		try (InputStream is = inputStream) {
@@ -266,4 +244,4 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 		}
 	}
 
-	}
+}

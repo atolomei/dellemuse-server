@@ -35,6 +35,7 @@ import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -60,9 +61,7 @@ import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
 /**
- * 
  * site foto Info - exhibitions
- * 
  */
 
 @MountPath("/artwork/${id}")
@@ -71,7 +70,6 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(ArtWorkPage.class.getName());
-
 	
 	private JumboPageHeaderPanel<ArtWork> ph;
 	
@@ -81,12 +79,16 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 	private List<ToolbarItem> list;
 
 	
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
+
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		
 		if (ouser.isEmpty())
 			return false;
-	
 		
 		User user = ouser.get();  
 		
@@ -388,8 +390,14 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		if (getModel().getObject().getArtists() != null)
 			ph.setTagline(Model.of(getArtistStr(getModel().getObject())));
 
-		if (getModel().getObject().getPhoto() != null)
+		if (getModel().getObject().getPhoto() != null) {
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
+		}
+		else {
+			ph.setIcon( ArtWork.getIcon());
+			ph.setHeaderCss("mb-0 pb-5  pt-0 border-none");
+		}
+		
 
 		if (getList() != null && getList().size() > 0) {
 			Navigator<ArtWork> nav = new Navigator<ArtWork>("navigator", getCurrent(), getList()) {

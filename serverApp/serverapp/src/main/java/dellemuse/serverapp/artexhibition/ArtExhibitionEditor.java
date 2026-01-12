@@ -44,6 +44,7 @@ import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
+import io.wktui.form.field.NumberField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -75,7 +76,7 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 	private TextField<String> fromField;
 	private TextField<String> toField;
 	private IModel<Resource> photoModel;
-
+	private NumberField<Integer> ordinalield;
 	private boolean uploadedPhoto = false;
 
 	private String from;
@@ -137,9 +138,14 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 		specField = new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 4);
 		opensField = new TextAreaField<String>("opens", new PropertyModel<String>(getModel(), "opens"), getLabel("opens"), 4);
 		mapField = new TextField<String>("map", new PropertyModel<String>(getModel(), "map"), getLabel("map"));
+		
 		fromField = new TextField<String>("from", new PropertyModel<String>(this, "from"), getLabel("from")) {
 			private static final long serialVersionUID = 1L;
 
+			public boolean isVisible() {
+				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
+			}
+			
 			public boolean isEnabled() {
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
@@ -148,6 +154,10 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 		toField = new TextField<String>("to", new PropertyModel<String>(this, "to"), getLabel("to")) {
 			private static final long serialVersionUID = 1L;
 
+			public boolean isVisible() {
+				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
+			}
+			
 			public boolean isEnabled() {
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
@@ -189,7 +199,12 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 				logger.debug("onRemove");
 			}
 		};
-
+		
+		
+	 
+		ordinalield = new NumberField<Integer>("ordinal", new PropertyModel<Integer>(getModel(), "ordinal"), getLabel("ordinal"));
+		form.add(ordinalield);
+		
 		form.add(specField);
 		form.add(locationField);
 		form.add(opensField);
@@ -283,6 +298,13 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 	protected void onSave(AjaxRequestTarget target) {
 
 		getUpdatedParts().forEach(s -> logger.debug(s));
+
+		
+		if( getUpdatedParts()==null || getUpdatedParts().size()==0) {
+		
+			return;
+		}
+		
 		logger.debug("saving...");
 
 		if (getSiteModel().getObject().getZoneId() == null)
@@ -295,29 +317,31 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 		try {
 
-			if (getFrom() != null) {
-
-				String la = getModel().getObject().getLanguage();
-				logger.debug(la);
-				LocalDate d_from = getDateTimeService().parseFlexibleDate(getFrom(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
-				LocalTime localTime = LocalTime.MIN; // 00:00:00
-				java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(d_from, localTime);
-				ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
-				OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
-				getModel().getObject().setFromDate(offsetDateTime);
-				setFrom(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
+			if (fromField.isUpdated()) {
+				if (getFrom() != null) {
+					String la = getModel().getObject().getLanguage();
+					logger.debug(la);
+					LocalDate d_from = getDateTimeService().parseFlexibleDate(getFrom(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
+					LocalTime localTime = LocalTime.MIN; // 00:00:00
+					java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(d_from, localTime);
+					ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+					OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
+					getModel().getObject().setFromDate(offsetDateTime);
+					setFrom(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
+				}
 			}
-
-			if (getTo() != null) {
-				LocalDate d_to = getDateTimeService().parseFlexibleDate(getTo(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
-				LocalTime localTime = LocalTime.MIN; // 00:00:00
-				java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(d_to, localTime);
-				ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
-				OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
-				getModel().getObject().setToDate(offsetDateTime);
-				setTo(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
+			
+			if (toField.isUpdated()) {
+				if (getTo() != null) {
+					LocalDate d_to = getDateTimeService().parseFlexibleDate(getTo(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
+					LocalTime localTime = LocalTime.MIN; // 00:00:00
+					java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(d_to, localTime);
+					ZonedDateTime zonedDateTime = localDateTime.atZone(zoneId);
+					OffsetDateTime offsetDateTime = zonedDateTime.toOffsetDateTime();
+					getModel().getObject().setToDate(offsetDateTime);
+					setTo(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
+				}
 			}
-
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 			this.uploadedPhoto = false;
 			getForm().setFormState(FormState.VIEW);
@@ -326,6 +350,7 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 		} catch (Exception e) {
 			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			getForm().setFormState(FormState.VIEW);
 			logger.error(e);
 		}
 		target.add(this);

@@ -230,7 +230,7 @@ public class ObjectStorageService extends BaseService implements SystemService {
 				startupLogger.debug("Creating bucket -> " + ServerConstant.SERVER_RESOURCES_BUCKET);
 				this.client.createBucket(ServerConstant.SERVER_RESOURCES_BUCKET);
 			}
-			
+
 		} catch (ODClientException e) {
 			throw new InternalCriticalException(e);
 		}

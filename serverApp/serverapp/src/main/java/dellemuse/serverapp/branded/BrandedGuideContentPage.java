@@ -3,7 +3,7 @@ package dellemuse.serverapp.branded;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
- 
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -37,13 +37,14 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
- 
+
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
@@ -66,8 +67,18 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	private IModel<ArtExhibitionItem> artExhibitionItemModel;
 	private IModel<Site> siteModel;
 	private IModel<ArtWork> artWorkModel;
-	 
 
+	
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
+
+	
+	@Override
+	protected boolean isDarkTheme() {
+		return true;
+	}
+	
 	@Override
 	protected Optional<GuideContentRecord> loadTranslationRecord(String lang) {
 		return getGuideContentRecordDBService().findByGuideContent(getModel().getObject(), lang);
@@ -77,37 +88,35 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	protected GuideContentRecord createTranslationRecord(String lang) {
 		return getGuideContentRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
-		
-	
+
 	@Override
 	protected Panel createGlobalTopPanel(String id) {
-		return new BrandedGlobalTopPanel("top-panel",  getSiteModel() );
+		return new BrandedGlobalTopPanel("top-panel", getSiteModel());
 	}
 
-	
 	@Override
 	protected Panel createSearchPanel() {
 		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel());
 	}
-	
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
-		if (getModel().getObject().getState()==ObjectState.DELETED)
+		if (getModel().getObject().getState() == ObjectState.DELETED)
 			return false;
-			
-		//if (getModel().getObject().getState()==ObjectState.EDITION)
-		//	return false;
-		
-		if (getSiteModel().getObject().getState()==ObjectState.DELETED)
+
+		// if (getModel().getObject().getState()==ObjectState.EDITION)
+		// return false;
+
+		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
 			return false;
-		
-	 	if (getModel().getObject().getState()==ObjectState.DELETED)
+
+		if (getModel().getObject().getState() == ObjectState.DELETED)
 			return false;
-	
+
 		return true;
 	}
-	
+
 	public BrandedGuideContentPage() {
 		super();
 	}
@@ -152,12 +161,10 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 			artWorkModel.detach();
 	}
 
-
 	public IModel<ArtExhibition> getArtExhibitionModel() {
 		return artExhibitionModel;
 	}
 
-	
 	public IModel<ArtExhibitionGuide> getArtExhibitionGuideModel() {
 		return artExhibitionGuideModel;
 	}
@@ -173,12 +180,10 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	public void setArtExhibitionItemModel(IModel<ArtExhibitionItem> artExhibitionItemModel) {
 		this.artExhibitionItemModel = artExhibitionItemModel;
 	}
-	
+
 	public IModel<ArtExhibitionItem> getArtExhibitionItemModel() {
 		return artExhibitionItemModel;
 	}
-
-	
 
 	public IModel<ArtWork> getArtWorkModel() {
 		return artWorkModel;
@@ -187,8 +192,6 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	public void setArtWorkModel(IModel<ArtWork> artWorkModel) {
 		this.artWorkModel = artWorkModel;
 	}
-	 
-	
 
 	@Override
 	protected boolean isLanguage() {
@@ -231,38 +234,27 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	protected void addListeners() {
 		super.addListeners();
 
-		
-		
-	 
 	}
 
-	
 	@Override
 	protected Class<?> getTranslationClass() {
 		return GuideContentRecord.class;
 	}
 
-
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 		return null;
-		/**
-			if (this.list != null)
-				return this.list;
-			this.list = new ArrayList<ToolbarItem>();
-			return this.list;
-		 **/
 	}
 
 	protected boolean isAudioVisible() {
 		return true;
 	}
-	
+
 	@Override
 	protected IRequestablePage getObjectPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {
 		return new BrandedGuideContentPage(model, list);
 	}
- 
+
 	@Override
 	protected Optional<GuideContent> getObject(Long id) {
 		return getGuideContent(id);
@@ -278,24 +270,23 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("audio-guides")));
-		bc.addElement(new HREFBCElement("/ag/guide/" + getArtExhibitionGuideModel().getObject().getId().toString(), getObjectTitle( getArtExhibitionGuideModel().getObject()  )));
-		
+		bc.addElement(new HREFBCElement("/ag/guide/" + getArtExhibitionGuideModel().getObject().getId().toString(), getObjectTitle(getArtExhibitionGuideModel().getObject())));
+
 		bc.addElement(new BCElement(getObjectTitle(getModel().getObject())));
-		
-		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle( getModel().getObject()));
-		ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0  border-none bg-body-tertiary");
-		ph.setHeaderCss("mb-4 mt-0 pt-0 pb-4 border-none");
-		ph.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
-		
+
+		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getModel().getObject()));
+		ph.setImageLinkCss("jumbo-img jumbo-md mb-0 mb-lg-0  border bg-none");
+		ph.setHeaderCss("mb-0 mt-0 pt-0 pb-0 border-none");
+		ph.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center  "));
+
 		boolean isPhoto = false;
-		
+
 		ph.setContext(getLabel("guide-content"));
-		
+
 		if (getModel().getObject().getPhoto() != null) {
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 			isPhoto = true;
-		} 
-		 else if (getArtWorkModel().getObject().getPhoto() != null) {
+		} else if (getArtWorkModel().getObject().getPhoto() != null) {
 			ph.setPhotoModel(new ObjectModel<Resource>(getArtWorkModel().getObject().getPhoto()));
 			isPhoto = true;
 		}
@@ -304,11 +295,10 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 			ph.setHeaderCss("mb-0 mt-0 pt-0 pb-4 border-none");
 			ph.setIcon(GuideContent.getIcon());
 		}
-		
+
 		ph.setBreadCrumb(bc);
 		ph.setTagline(Model.of(getArtistStr(getArtWorkModel().getObject())));
 
-		
 		if (getList() != null && getList().size() > 0) {
 			Navigator<GuideContent> nav = new Navigator<GuideContent>("navigator", getCurrent(), getList()) {
 				private static final long serialVersionUID = 1L;
@@ -320,18 +310,15 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 			};
 			bc.setNavigator(nav);
 		}
-		
-		
-		
-		
+
 		return ph;
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 	}
-	
+
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 

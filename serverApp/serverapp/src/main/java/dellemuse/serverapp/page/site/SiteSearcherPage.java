@@ -19,6 +19,7 @@ import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -51,6 +52,10 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 
 	private List<ToolbarItem> list;
 
+	protected List<Language> getSupportedLanguages() {
+		return getModel().getObject().getLanguages();
+	}
+
 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -70,7 +75,7 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 
 		
 		{
-		Set<RoleGeneral> set = ouser.get().getRolesGeneral();
+		Set<RoleGeneral> set = user.getRolesGeneral();
 			if (set!=null) {
 					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
 					if (isAccess)
@@ -82,7 +87,7 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 		{
 			final Long sid = getModel().getObject().getId();
 			
-			Set<RoleSite> set = ouser.get().getRolesSite();
+			Set<RoleSite> set = user.getRolesSite();
 			if (set!=null) {
 				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
 				if (isAccess)

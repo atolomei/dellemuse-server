@@ -763,28 +763,27 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
 	        DateTimeFormatter.ofPattern("M d yyyy", Locale.ENGLISH),
 	        
 	        DateTimeFormatter.ofPattern("M/d/yyyy"),
+
 	        DateTimeFormatter.ofPattern("dd MMM yy", Locale.ENGLISH),
 	        DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH),
-
+	        
+	        DateTimeFormatter.ofPattern("MMM dd yy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH),
+	        
+	        DateTimeFormatter.ofPattern("MMM d yy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH),
+	        
 	        DateTimeFormatter.ofPattern("d MMM yy", Locale.ENGLISH),
    			DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH),
-	        DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH),
-	        DateTimeFormatter.ofPattern("MMMM d yyyy", Locale.ENGLISH)
-	        
-	        
-	        
-	        
-	        
-	        
-	        
-    		
-    		
-    		
+
+
+   			DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("MMMM d yyyy", Locale.ENGLISH),
+   			DateTimeFormatter.ofPattern("d MMMM yy", Locale.ENGLISH),
+	        DateTimeFormatter.ofPattern("MMMM d yy", Locale.ENGLISH)
     		
     		);
 
-    
-    
     
     
     

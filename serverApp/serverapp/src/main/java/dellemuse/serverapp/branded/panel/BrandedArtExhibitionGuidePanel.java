@@ -40,6 +40,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -102,15 +103,20 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 		setUpModel();
 
+		 
 		try {
 			addInfo();
+			
 		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("infoContainer", e));
 		}
-
+ 
+		
 		try {
+			
 			addGuideContents();
+			
 		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("items", e));
@@ -137,9 +143,9 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 		try {
 
-			String intro = getLanguageObjectService().getIntro(getArtExhibitionModel().getObject(), getLocale());
-			IModel<String> m = Model.of(intro != null ? intro : "");
-			infoContainer.add(((new Label("intro", m)).setEscapeModelStrings(false)));
+			//String intro = getLanguageObjectService().getIntro(getArtExhibitionModel().getObject(), getLocale());
+			//IModel<String> m = Model.of(intro != null ? intro : "");
+			//infoContainer.add(((new Label("intro", m)).setEscapeModelStrings(false)));
 
 			/** intro audio guide */
 
@@ -159,6 +165,11 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 				UrlResourceReference resourceReference = new UrlResourceReference(url);
 				Audio audio = new Audio("audioIntro", resourceReference);
 				audioIntroContainer.add(audio);
+				
+				Label aid = new Label("aid", getModel().getObject().getAudioId()!=null?getModel().getObject().getAudioId().toString():"");
+				audioContainer.add(aid);
+				
+				
 			} else {
 				audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));
 			}
@@ -326,7 +337,8 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 			@Override
 			protected IModel<String> getObjectSubtitle() {
-				return BrandedArtExhibitionGuidePanel.this.getObjectSubtitle(getModel());
+				
+				return BrandedArtExhibitionGuidePanel.this.getGuideContentSubtitle(getModel());
 			}
 
 			@Override
@@ -357,11 +369,27 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 	protected IModel<String> getObjectInfo(IModel<GuideContent> model) {
 		if (!model.getObject().isDependencies())
 			model.setObject(super.findGuideContentWithDeps(model.getObject().getId()).get());
-		return Model.of(TextCleaner.clean(getLanguageObjectService().getInfo(model.getObject(), getLocale()), 420));
+		return Model.of(TextCleaner.clean(getLanguageObjectService().getInfo(model.getObject(), getLocale()), ServerConstant.INFO_MAX));
 	}
 
-	protected IModel<String> getObjectSubtitle(IModel<GuideContent> model) {
-		return Model.of(TextCleaner.clean(getLanguageObjectService().getObjectSubtitle(model.getObject(), getLocale()), 280));
+	protected IModel<String> getGuideContentSubtitle(IModel<GuideContent> model) {
+		
+		
+		GuideContent content = null;
+		
+		if (!model.getObject().isDependencies()) {
+			content=getGuideContentDBService().findWithDeps(model.getObject().getId()).get();
+		}
+		else
+			content=model.getObject();
+			
+		ArtExhibitionItem item = content.getArtExhibitionItem();
+
+		if (!item.isDependencies()) {
+				item=getArtExhibitionItemDBService().findWithDeps(item.getId()).get();
+		}
+		String s=getArtistStr(item.getArtwork());
+		return Model.of(TextCleaner.truncate(s, 280));
 	}
 
 	protected String getObjectImageSrc(IModel<GuideContent> model) {
@@ -432,18 +460,20 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		return listToolbar;
 	}
 
+	 
+	
+	
+	
 	private void addGuideContents() {
 
 		this.itemsPanel = new ListPanel<GuideContent>("items") {
 
 			private static final long serialVersionUID = 1L;
 
-			/**
 			@Override
-			protected List<IModel<GuideContent>> filter(List<IModel<GuideContent>> initialList, String filter) {
-				return iFilter(initialList, filter);
-			}**/
-
+			public IModel<String> getItemLabel(IModel<GuideContent> model) {
+				return getObjectTitle(model.getObject());
+			}
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<GuideContent> model, ListPanelMode mode) {
 				return BrandedArtExhibitionGuidePanel.this.getObjectListItemExpandedPanel(model, mode);
@@ -470,6 +500,11 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 					}
 
 					@Override
+					protected IModel<String> getObjectSubtitle() {
+						return BrandedArtExhibitionGuidePanel.this.getGuideContentSubtitle(getModel() );
+					}
+					
+					@Override
 					protected String getImageSrc() {
 						return BrandedArtExhibitionGuidePanel.this.getObjectImageSrc(getModel());
 					}
@@ -481,7 +516,8 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 					@Override
 					protected IModel<String> getInfo() {
-						return BrandedArtExhibitionGuidePanel.this.getObjectInfo(getModel());
+						return null;
+						//return BrandedArtExhibitionGuidePanel.this.getObjectInfo(getModel());
 					}
 
 					@Override
@@ -502,13 +538,19 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 			public List<IModel<GuideContent>> getItems() {
 				return BrandedArtExhibitionGuidePanel.this.getItems();
 			}
+			
+			@Override
+			protected boolean isToolbar() {
+				return false;
+			}
+			
 		};
 		add(itemsPanel);
 
 		itemsPanel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
 		itemsPanel.setLiveSearch(false);
 		itemsPanel.setSettings(true);
-		itemsPanel.setHasExpander(true);
+		itemsPanel.setHasExpander(false);
 	}
 
 	protected void setList(List<IModel<GuideContent>> list) {

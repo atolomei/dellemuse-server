@@ -3,9 +3,10 @@ package dellemuse.serverapp.page;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -22,17 +23,17 @@ import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
-import dellemuse.serverapp.guidecontent.GuideContentEditor;
+import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.User;
- 
+
 import io.odilon.util.Check;
- 
+
 import io.wktui.error.ErrorPanel;
- 
+
 import io.wktui.event.UIEvent;
 import io.wktui.nav.listNavigator.ListNavigator;
 import io.wktui.nav.toolbar.Toolbar;
@@ -56,6 +57,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	private List<IModel<T>> list;
 	private int current = 0;
+
+	private WebMarkupContainer mainMarkupContainer;
+
 	private WebMarkupContainer navigatorContainer;
 	private WebMarkupContainer internalPanelContainer;
 	private int currentIndex = 0;
@@ -67,22 +71,26 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private ObjectMetaEditor<T> metaEditor;
 
 	private String startingTab = null;
-	 
+
 	private Panel pageHeader;
 	private Panel globalSearch;
 
 	protected abstract Optional<T> getObject(Long id);
+
 	protected abstract IModel<String> getPageTitle();
+
 	protected abstract IRequestablePage getObjectPage(IModel<T> iModel, List<IModel<T>> list);
+
 	protected abstract List<INamedTab> getInternalPanels();
+
 	protected abstract List<ToolbarItem> getToolbarItems();
-	 
+
 	protected abstract Panel createHeaderPanel();
 
 	public boolean hasAccessRight(Optional<User> ouser) {
 		return true;
 	}
-	
+
 	public ObjectPage() {
 		super();
 	}
@@ -120,7 +128,16 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	public void setList(List<IModel<T>> siteList) {
 		this.list = siteList;
 	}
+	private ObjectStateEnumSelector oses;
 
+	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
+		this.oses = o;
+	}
+
+	public ObjectStateEnumSelector getObjectStateEnumSelector() {
+		return this.oses;
+	}
+	
 	public void setPageHeaderPanel(Panel panel) {
 		addOrReplace(panel);
 	}
@@ -133,8 +150,6 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	public void onBeforeRender() {
 		super.onBeforeRender();
 
-		if (get("page-header") == null)
-			this.addDefaultPageHeaderPanel();
 	}
 
 	public void setStartTab(String tabName) {
@@ -174,33 +189,50 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		if (getList() != null)
 			getList().forEach(i -> i.detach());
 	}
-	
-	
 
-	
+	public MarkupContainer add(final Component c) {
+		mainMarkupContainer.add(c);
+		return this;
+	}
+
+	public MarkupContainer addOrReplace(final Component c) {
+		mainMarkupContainer.addOrReplace(c);
+		return this;
+	}
+
+	protected IModel<String> getMainClass() {
+		return Model.of("eeeeeeee");
+	}
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
+		mainMarkupContainer = new WebMarkupContainer("mainContainer");
+		mainMarkupContainer.add(AttributeModifier.replace("class", getMainClass()));
+
+		super.addOrReplace(mainMarkupContainer);
+
 		try {
-			
+
 			setUpModel();
-		
+
 		} catch (Exception e) {
 			logger.error(e);
 			addErrorPanels(e);
 			return;
 		}
- 		
-		
-		addGlobalSearch();
-		
-		
-		add(createGlobalTopPanel("top-panel"));
-		add(new GlobalFooterPanel<>("footer-panel"));
 
-	 	this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
+		addGlobalSearch();
+
+		super.add(createGlobalTopPanel("top-panel"));
+		// super.add(new GlobalFooterPanel<>("footer-panel"));
+
+		super.add(new InvisiblePanel("footer-panel"));
+
+		this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
 			private static final long serialVersionUID = 1L;
+
 			public boolean isVisible() {
 				return getToolbarItems() != null && getToolbarItems().size() > 0;
 			}
@@ -218,18 +250,15 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		if (!this.hasAccessRight(getSessionUser())) {
 			this.toolbarContainer.addOrReplace(new InvisiblePanel("toolbarItems"));
 			addOrReplace(new InvisiblePanel("navigatorContainer"));
-			internalPanelContainer.add( new ErrorPanel("internalPanel", getLabel("not-authorized")));
+			internalPanelContainer.add(new ErrorPanel("internalPanel", getLabel("not-authorized")));
 			return;
-		
-		
-		
+
 		}
-		
-		
+
 		addNavigator();
 
 		tabs = getIPanels();
-		
+
 		if (this.startingTab != null) {
 			int tabOrder = getTab(this.startingTab);
 			this.currentIndex = tabOrder;
@@ -243,7 +272,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected Panel createGlobalTopPanel(String id) {
 		return new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get()));
 	}
-	
+
 	protected int getCurrentIndex() {
 		return this.currentIndex;
 	}
@@ -260,28 +289,24 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		return this.metaEditor;
 	}
 
-	
 	protected abstract Panel createSearchPanel();
-	
+
 	protected void addGlobalSearch() {
-		
+
 		try {
 			Panel panel = createSearchPanel();
 			if (panel == null)
 				this.globalSearch = new InvisiblePanel("globalSearch");
 			else
-				this.globalSearch  = panel;
+				this.globalSearch = panel;
 			addOrReplace(this.globalSearch);
 		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("globalSearch", e));
 		}
-		
-		 
+
 	}
 
-	
-	
 	protected void initHeaderPanel() {
 		try {
 			Panel panel = createHeaderPanel();
@@ -289,9 +314,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 				pageHeader = new InvisiblePanel("page-header");
 			else
 				pageHeader = panel;
-			
+
 			addOrReplace(pageHeader);
-			
+
 		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("page-header", e));
@@ -312,8 +337,6 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			throw new IllegalStateException("ObjectModel is null");
 	}
 
- 
-
 	protected int getCurrent() {
 		return this.current;
 	}
@@ -321,7 +344,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected Panel getHeaderPanel() {
 		return this.pageHeader;
 	}
-	
+
 	protected void setCurrent() {
 
 		if (this.getList() == null)
@@ -424,11 +447,11 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected Panel getMetaEditor(String id) {
 		if (this.metaEditor == null) {
 			metaEditor = new ObjectMetaEditor<T>(id, getModel()) {
-				
+
 				public boolean isEditEnabled() {
 					return ObjectPage.this.isMetaEditEnabled();
 				}
-				
+
 			};
 			metaEditor.setLanguage(ObjectPage.this.isLanguage());
 			metaEditor.setAudioAutoGenerate(ObjectPage.this.isAudioAutoGenerate());
@@ -472,7 +495,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		int selected = 0;
 		for (INamedTab tab : tabs) {
 			if (tab.getName().equals(name)) {
-				//logger.debug("Selected title -> " + tab.getTitle().getObject().toString());
+				// logger.debug("Selected title -> " + tab.getTitle().getObject().toString());
 				selected = current;
 				break;
 			}
@@ -546,7 +569,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	}
 
 	private List<INamedTab> getIPanels() {
-		if (ipanels == null)  
+		if (ipanels == null)
 			ipanels = getInternalPanels();
 		return ipanels;
 	}

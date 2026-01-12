@@ -74,6 +74,7 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+		c.setState(a.getState());
 
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
@@ -193,14 +194,28 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 		ArtExhibitionSectionRecord aw = o_aw.get();
 
 		Resource photo = aw.getPhoto();
+		if (photo!=null)
+			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		
+		Resource audio = aw.getAudio();
+		if (audio!=null)
+			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
 
-		if (photo != null)
-			photo.getBucketName();
+		User user = aw.getLastModifiedUser();
+		if (user!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
 
+		
+		if (aw.getParentObject()!=null) {
+			ArtExhibitionSection  c = (ArtExhibitionSection ) aw.getParentObject();
+			aw.setArtExhibitionSection ( getArtExhibitionSectionDBService().findById(c.getId()).get());
+		}
+		
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
+
 
 	@Transactional
 	@Override

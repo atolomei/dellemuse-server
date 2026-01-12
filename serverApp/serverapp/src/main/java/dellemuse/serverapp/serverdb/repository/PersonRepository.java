@@ -32,7 +32,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 public interface PersonRepository extends ListCrudRepository<Person, Long> {
 
 	
-	
+	/*
 	@EntityGraph(attributePaths = {"artworks"})
 	@Query("""
 	    select distinct p
@@ -41,6 +41,7 @@ public interface PersonRepository extends ListCrudRepository<Person, Long> {
 	    where aw.site.id = :siteId order by p.sortlastfirstname
 	""")
 	List<Person> findDistinctPersonsBySiteId(@Param("siteId") Long siteId);
+	*/
 	
 	 /**
 	@Query("""

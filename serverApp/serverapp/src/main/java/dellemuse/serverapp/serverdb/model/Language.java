@@ -8,6 +8,12 @@ import java.util.ResourceBundle;
 
 import dellemuse.model.JsonObject;
 
+
+/**
+ * 
+ *   ISO 639 alpha-2 or alpha-3 language code
+ *  
+ */
 public class Language extends JsonObject implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -16,6 +22,8 @@ public class Language extends JsonObject implements Serializable {
 	static public final String ES = "es";
 	static public final String PT = "pt-BR";
 	static public final String FR = "fr";
+	 
+	
 
 	static private final Map<String, Language> map = new HashMap<String, Language>();
 	static {
@@ -34,7 +42,6 @@ public class Language extends JsonObject implements Serializable {
 			return map;
 	}
 
-	
 	
 	private String languageCode;
 

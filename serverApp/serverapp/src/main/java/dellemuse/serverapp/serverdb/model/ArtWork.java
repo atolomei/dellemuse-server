@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.jpa.events.ArtWorkEventListener;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
@@ -39,9 +40,9 @@ public class ArtWork extends MultiLanguageObject {
 	private Site site;
 
 	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "artwork_person", joinColumns = @JoinColumn(name = "artwork_id"), inverseJoinColumns = @JoinColumn(name = "person_id"))
+	@JoinTable(name = "artwork_artist", joinColumns = @JoinColumn(name = "artwork_id"), inverseJoinColumns = @JoinColumn(name = "artist_id"))
 	@JsonIgnoreProperties("artists")
-	private Set<Person> artists = new HashSet<>();
+	private Set<Artist> artists = new HashSet<>();
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtWorkType.class)
 	@JoinColumn(name = "artworkType_id", nullable = true)
@@ -114,21 +115,25 @@ public class ArtWork extends MultiLanguageObject {
 	}
 
 	public static String getIcon() {
-		return "fa-solid fa-paintbrush";
+		return Icons.ArtWork;
 	}
 
-	public Set<Person> getArtists() {
+	public Set<Artist> getArtists() {
 		return artists;
 	}
 
-	public void addArtist(Person person) {
-		artists.add(person);
-		person.getArtworks().add(this);
+	public void setArtists(Set<Artist> artists) {
+		this.artists = artists;
 	}
 
-	public void removeArtist(Person person) {
-		artists.remove(person);
-		person.getArtworks().remove(this);
+	public void addArtist(Artist a) {
+		artists.add(a);
+		a.getArtworks().add(this);
+	}
+
+	public void removeArtist(Artist a) {
+		artists.remove(a);
+		a.getArtworks().remove(this);
 	}
 
 	public Resource getQrcode() {
@@ -137,10 +142,6 @@ public class ArtWork extends MultiLanguageObject {
 
 	public String getUrl() {
 		return url;
-	}
-
-	public void setArtists(Set<Person> artists) {
-		this.artists = artists;
 	}
 
 	public void setQrcode(Resource qrcode) {
@@ -170,6 +171,47 @@ public class ArtWork extends MultiLanguageObject {
  *                  = ArtWorkArtist.class)
  * @JoinColumn(name = "artwork_id", nullable = true, insertable = true) private
  *                  Set<ArtWorkArtist> awartists = new HashSet<>();
+ *
+ *
+ *
+ * 
+ * 
+ * 
+ *                  select aa.artist_id, p.id, p.lastname, p.name, aw.id,
+ *                  aw.name
+ * 
+ *                  from artist a, artwork_artist aa, site s, artwork aw, person
+ *                  p
+ * 
+ *                  where
+ * 
+ *                  a.id = ap.artist_id and a.person_id = p.id and aw.id =
+ *                  ap.artwork_id and ap.artwork_id = aw.id and s.id=137;
+ * 
+ * 
+ *                  update artwork_artist set artist_id = (select id from artist
+ *                  a where person_id=a.person_id limit 1);
+ * 
+ *                  ALTER TABLE artwork_artist DROP CONSTRAINT
+ *                  primary_key_constraint_name;
+ * 
+ * 
+ * 
+ *                  SELECT constraint_name, table_name, constraint_type FROM
+ *                  information_schema.table_constraints WHERE table_name =
+ *                  'artwork_artist' AND table_schema = 'public';
+ * 
+ * 
+ * 
+ *                  SELECT dellemuse-# constraint_name, dellemuse-# table_name,
+ *                  dellemuse-# constraint_type dellemuse-# FROM dellemuse-#
+ *                  information_schema.table_constraints dellemuse-# WHERE
+ *                  dellemuse-# table_name = 'artwork_artist'
+ *
+ * 
+ * 
+ * 
+ * 
  **/
 
 //public Set<ArtWorkArtist> getAwArtists() {

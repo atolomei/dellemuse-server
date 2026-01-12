@@ -52,7 +52,7 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	@Column(name = "roomStr")
 	@JsonProperty("roomStr")
 	private String roomStr;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
 	@JoinColumn(name = "room_id", nullable = true)
 	@JsonManagedReference
@@ -73,7 +73,7 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	@JsonProperty("QRCode")
 	private String qRCode;
 
- 	@Column(name = "mapurl")
+	@Column(name = "mapurl")
 	@JsonProperty("mapurl")
 	private String mapurl;
 
@@ -83,17 +83,16 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 
 	public ArtExhibitionItem() {
 	}
- 
+
 	@Override
 	public String getObjectClassName() {
 		return ArtExhibitionItem.class.getSimpleName();
 	}
 
-
 	public String getPrefixUrl() {
 		return PrefixUrl.ArtExhibitionItem;
 	}
-	
+
 	public ArtWork getArtWork() {
 		return artwork;
 	}
@@ -133,8 +132,6 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	public void setQRCode(String qCode) {
 		this.qRCode = qCode;
 	}
-
-	 
 
 	public ArtExhibition getArtExhibition() {
 		return artExhibition;
@@ -192,11 +189,9 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 		this.artwork = artwork;
 	}
 
-
 	public void setFloorStr(String floorStr) {
 		this.floorStr = floorStr;
 	}
-
 
 	public void setRoomStr(String roomStr) {
 		this.roomStr = roomStr;

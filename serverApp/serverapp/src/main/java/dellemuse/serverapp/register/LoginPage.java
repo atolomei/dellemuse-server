@@ -51,12 +51,8 @@ import wktui.base.InvisiblePanel;
  * 
  * site foto Info - exhibitions
  * 
- * 
- * 
  * ZoneId -> geografia
  * Locale -> idioma
- * 
- * 
  * 
  */
 
@@ -68,7 +64,6 @@ public class LoginPage extends BasePage {
 
 	static private Logger logger = Logger.getLogger(LoginPage.class.getName());
  
-	
 	private WebMarkupContainer alertContainer;	
 	private AlertPanel<Void> alert;
 
@@ -87,8 +82,6 @@ public class LoginPage extends BasePage {
 	public boolean hasAccessRight(Optional<User> ouser) {
 		return true;
 	}
-	
-	
 	
 	
 	public LoginPage() {
@@ -115,7 +108,7 @@ public class LoginPage extends BasePage {
 		//add(new FeedbackPanel("feedback"));
 		//add(new InvisiblePanel("page-header"));
 		
-		Image image = new Image(
+		/**Image image = new Image(
 			    "logo",
 			    new org.apache.wicket.request.resource.PackageResourceReference(
 			        LoginPage.class,
@@ -123,8 +116,18 @@ public class LoginPage extends BasePage {
 			    )
 			);
 		
-		
 		add(image);
+		**/
+		
+		Image imageBlack = new Image(
+			    "miniLogo",
+			    new org.apache.wicket.request.resource.PackageResourceReference(
+			        LoginPage.class,
+			        "dellemuse-logo-blanco.png"
+			    )
+			);
+		
+		add(imageBlack);
 		
 		
 		alertContainer  = new WebMarkupContainer("alertContainer");
@@ -132,6 +135,7 @@ public class LoginPage extends BasePage {
 		
 		if (isError()) {
 			alert = new  AlertPanel<Void>("alert", AlertPanel.DANGER, getLabel( "username-password-invalid"));
+			
 			alertContainer.add(alert);
 		}
 		else {
@@ -221,9 +225,12 @@ public class LoginPage extends BasePage {
 	    userNameField = new TextField<String>( "username",  new PropertyModel<String>(this, "username"), getLabel("username"));
 	    passwordField = new TextField<String>( "password",  new PropertyModel<String>(this, "password"), getLabel("password"));
 	    
-	    userNameField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control");
-	    passwordField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control");
 	    
+	    userNameField.setTitleCss("row mb-1");
+	    userNameField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control bg-dark text-light");
+
+	    passwordField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control bg-dark text-light");
+	    passwordField.setTitleCss("row mb-1");
 	    
 		SubmitButton<User> buttons = new SubmitButton<User>("buttons-bottom", getForm()) {
 
@@ -238,7 +245,7 @@ public class LoginPage extends BasePage {
 			    	return getLabel("signin");
 			  }
 			  protected String getSaveCss() {
-			        return "btn btn-primary btn-lg";
+			        return "btn  text-light border-light btn-lg";
 			    }
 		};
 		form.add(buttons);

@@ -20,6 +20,7 @@ import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
+import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
@@ -64,8 +65,7 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 	private WebMarkupContainer itemsContainer;
 	private WebMarkupContainer listToolbarContainer;
 	
-	
-	
+
 	
 	private List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
  
@@ -125,7 +125,16 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 	}
 
 	protected IModel<String> getObjectInfo(IModel<GuideContent> model) {
-		return Model.of(TextCleaner.clean( getLanguageObjectService().getInfo(model.getObject(), getLocale()), 600 ) );
+		
+		StringBuilder str = new StringBuilder();
+		str.append( TextCleaner.clean( getLanguageObjectService().getInfo(model.getObject(), getLocale()), 480 ));
+	
+		str.append( "<br/>");
+		str.append( "<b>Audio ID</b>");
+		str.append(model.getObject().getAudioId()!=null? (". "+model.getObject().getAudioId().toString()):". n/a");
+		
+		return Model.of(str.toString());
+	
 	}
 	
 	protected IModel<String> getObjectSubtitle(IModel<GuideContent> model) {
@@ -157,6 +166,8 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 	protected Panel getObjectListItemExpandedPanel(IModel<GuideContent> model, ListPanelMode mode) {
 
 		model.setObject(super.findGuideContentWithDeps(model.getObject().getId()).get());
+		
+
 		
 		return new ObjectListItemExpandedPanel<GuideContent>("expanded-panel", model, mode) {
 
@@ -208,6 +219,19 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 		return this.itemsPanel;
 	}
 
+	protected String getSaveCss() {
+		return "btn btn-outline btn-sm";
+	}
+	
+	protected String getSaveStyle() {
+		return null;
+	}
+	 	
+	
+	/**
+	 * 
+	 * 
+	 */
 	protected void addForm() {
 		
 		this.form = new Form<Void>("form");
@@ -228,10 +252,30 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 			public IModel<String> getLabel() {
 				return  BaseSiteSearcherPanel.this.getLabel("search");
 			}
+			  
+			protected String getSaveCss() {
+			        return BaseSiteSearcherPanel.this.getSaveCss();
+			   }
 		};
+		
+		this.aidField .setCss("form-control text-start text-md-start text-lg-start text-xl-start text-xxl-start");
 		
 		submit.setRowCss("d-inline-block");
 		submit.setColCss("w-100 mt-xxl-0 mt-xl-0 mt-lg-0 mt-md-0 mt-sm-0 mt-xs-0 pt-0");
+		
+		if (getSaveStyle() !=null )
+			submit.setStrStyle(getSaveStyle());
+
+		/**
+		 * 
+		 *     margin-top: 0px;
+    padding-top: 6px;
+    padding-bottom: 5px;
+    border-color: #495057;
+    font-size: 13px;
+    border-radius: 6px;
+    
+		 */
 		
 		this.form.add(submit);
 		this.form.setFormState(FormState.EDIT);
@@ -286,9 +330,14 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 		
 			private static final long serialVersionUID = 1L;
 
-			protected List<IModel<GuideContent>> filter(List<IModel<GuideContent>> initialList, String filter) {
-				return iFilter(initialList, filter);
+			
+			@Override
+			public IModel<String> getItemLabel(IModel<GuideContent> model) {
+				return BaseSiteSearcherPanel.this.getObjectTitle(model);
 			}
+
+			
+			 
 			
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<GuideContent> model, ListPanelMode mode) {

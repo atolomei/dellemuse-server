@@ -70,8 +70,17 @@ public class BrandedSiteSearcherPanel extends BaseSiteSearcherPanel implements I
 		super.addListeners();
 	}
 	
-	 
+	@Override
+	protected String getSaveCss() {
+		return "btn btn-outline btn-sm";
+	}
+	
+	protected String getSaveStyle() {
+		return "margin-top: 0px; padding-top: 6px; padding-bottom: 5px; border-color:#495057; font-size:13px; border-radius:6px;";
+	}
+	
 
+	 
 	@Override
 	protected List<IModel<GuideContent>> generateList() {
 		List<IModel<GuideContent>> list = new ArrayList<IModel<GuideContent>>();

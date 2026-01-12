@@ -16,33 +16,48 @@ import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.Artist;
+import dellemuse.serverapp.serverdb.model.Site;
 import io.wktui.error.ErrorPanel;
 
-public class ArtistArtWorksPanel extends DBModelPanel<Person> {
+public class ArtistArtWorksPanel extends DBModelPanel<Artist> {
 
 	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(ArtistArtWorksPanel.class.getName());
 
+	private IModel<Site> siteModel;
+
 	private List<IModel<ArtWork>> list;
 	private WebMarkupContainer listItemContainer;
 	private ListView<IModel<ArtWork>> listView;
 
-	public ArtistArtWorksPanel(String id, IModel<Person> model) {
+	public ArtistArtWorksPanel(String id, IModel<Artist> model, IModel<Site> siteModel) {
 		super(id, model);
+		this.siteModel=siteModel;
 	}
 
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
-		getModel().setObject(getPersonDBService().findWithDeps( getModel().getObject().getId()).get());
+		getModel().setObject(getArtistDBService().findWithDeps(getModel().getObject().getId()).get());
 		
 		List<IModel<ArtWork>> list = new ArrayList<IModel<ArtWork>>();
+		
 		getModel().getObject().getArtworks().forEach(a -> {
-			list.add(new ObjectModel<ArtWork>(a));
+			
+			if (getSiteModel()==null || (a.getSite().getId().equals( getSiteModel().getObject().getId()))) {
+				list.add(new ObjectModel<ArtWork>(a));
+			}
 		});
 
 		setList(list);
@@ -71,7 +86,7 @@ public class ArtistArtWorksPanel extends DBModelPanel<Person> {
 					}
 				};
 
-				Label la = new Label("title", getObjectTitle( item.getModel().getObject().getObject()) );
+				Label la = new Label("title", getObjectTitle(item.getModel().getObject().getObject()));
 				link.add(la);
 				m.add(link);
 				item.add(m);
@@ -102,6 +117,10 @@ public class ArtistArtWorksPanel extends DBModelPanel<Person> {
 		super.onDetach();
 		if (this.list != null)
 			this.list.forEach(i -> i.detach());
+		
+		if (siteModel != null)
+			siteModel.detach();
+		
 	}
 
 	protected void setList(List<IModel<ArtWork>> list) {

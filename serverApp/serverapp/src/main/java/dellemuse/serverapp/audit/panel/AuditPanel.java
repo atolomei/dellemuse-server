@@ -12,12 +12,13 @@ import org.apache.wicket.model.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
-
+import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemsGuidesPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.service.DelleMuseAuditDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.DateTimeService;
@@ -164,6 +165,11 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 				return list;
 			}
 
+			@Override
+			public IModel<String> getItemLabel(IModel<DelleMuseAudit> model) {
+				return AuditPanel.this.getItemTitle(model);
+			}
+			
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<DelleMuseAudit> model, ListPanelMode mode) {
 				return AuditPanel.this.getObjectListItemExpandedPanel(model, mode);

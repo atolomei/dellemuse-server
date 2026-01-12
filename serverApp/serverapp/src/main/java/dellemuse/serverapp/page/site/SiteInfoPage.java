@@ -26,6 +26,7 @@ import dellemuse.serverapp.page.MultiLanguageObjectPage;
 
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -61,6 +62,11 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	private SiteInfoEditor editor;
 	private List<ToolbarItem> list;
 
+	
+	protected List<Language> getSupportedLanguages() {
+		return getModel().getObject().getLanguages();
+	}
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 

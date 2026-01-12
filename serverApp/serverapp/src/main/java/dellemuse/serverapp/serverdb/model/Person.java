@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.PrefixUrl;
  
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseUserSerializer;
@@ -30,6 +31,14 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Person extends MultiLanguageObject {
 
+	
+
+	public static final String getIcon() {
+		return Icons.Person;
+	}
+	
+	
+	
 	@Column(name = "lastname")
 	private String lastname;
 
@@ -72,6 +81,7 @@ public class Person extends MultiLanguageObject {
 	@JsonProperty("user")
 	private User user;
  	
+	/**
 	@ManyToMany(mappedBy = "artists", fetch = FetchType.LAZY)
     @JsonIgnoreProperties("artists")
     private Set<ArtWork> artworks = new HashSet<>();
@@ -79,6 +89,7 @@ public class Person extends MultiLanguageObject {
     public Set<ArtWork> getArtworks() {
         return artworks;
     }
+	**/
 	
 	public Person() {
 	}
@@ -279,13 +290,7 @@ spring.jpa.properties.hibernate.format_sql=true
 		this.sortlastfirstname = (lastname != null ? lastname.toLowerCase().trim() : "") + (getName() != null ? (" " + getName().toLowerCase().trim()) : "");
 	}
 
-	public static final String getIcon() {
-		return "fa-duotone fa-person";
-	}
-
-	public void setArtworks(Set<ArtWork> artworks) {
-		this.artworks = artworks;
-	}
+	
 
 	
 }

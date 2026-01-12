@@ -12,7 +12,7 @@ public abstract class DelleMuseObjectListItemPanel<T extends DelleMuseObject> ex
 	public DelleMuseObjectListItemPanel(String id, IModel<T> model, ListPanelMode mode) {
 		super(id, model, mode);
 	}
- 
+
 	protected IModel<String> getObjectTitle() {
 		return new Model<String>(getModel().getObject().getDisplayname());
 	}
@@ -25,5 +25,5 @@ public abstract class DelleMuseObjectListItemPanel<T extends DelleMuseObject> ex
 	protected IModel<String> getInfo() {
 		return new Model<String>(getModel().getObject().toJSON());
 	}
-	
+
 }

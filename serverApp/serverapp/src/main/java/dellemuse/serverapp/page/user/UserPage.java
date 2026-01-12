@@ -21,9 +21,13 @@ import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.model.ObjectWithDepModel;
 import dellemuse.serverapp.person.PersonPage;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
@@ -48,6 +52,14 @@ import wktui.base.NamedTab;
 @MountPath("/user/${id}")
 public class UserPage extends ObjectPage<User> {
 
+	public IModel<Person> getPersonModel() {
+		return personModel;
+	}
+
+	public void setPersonModel(IModel<Person> personModel) {
+		this.personModel = personModel;
+	}
+
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(UserPage.class.getName());
@@ -56,6 +68,8 @@ public class UserPage extends ObjectPage<User> {
 	private UserPasswordEditor passwordEditor;
 	private UserEditor editor;
 	private List<ToolbarItem> userMenu = null;
+
+	IModel<Person> personModel;
 
 	
 	protected boolean isMetaEditEnabled() {
@@ -118,6 +132,15 @@ public class UserPage extends ObjectPage<User> {
 	}
 
 	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (getPersonModel()!=null)
+				 getPersonModel().detach();
+	}
+ 
+	
+	@Override
 	protected List<INamedTab> createInternalPanels() {
 
 		List<INamedTab> list = super.createInternalPanels();
@@ -141,6 +164,20 @@ public class UserPage extends ObjectPage<User> {
 		super.onInitialize();
 	}
 
+	@Override
+	protected void setUpModel() {
+		super.setUpModel();
+
+		if (!getModel().getObject().isDependencies()) {
+			Optional<User> o_i = getUserDBService().findWithDeps(getModel().getObject().getId());
+			setModel(new ObjectWithDepModel<User>(o_i.get()));
+		}
+
+		Optional<Person> o = getPersonDBService().getByUserWithDeps( getModel().getObject());
+		if (o.isPresent())
+			setPersonModel( new ObjectModel<Person>(o.get()));
+	}
+	
 	protected void addListeners() {
 		super.addListeners();
 
@@ -235,9 +272,19 @@ public class UserPage extends ObjectPage<User> {
 			bc.addElement(new HREFBCElement("/user/list", getLabel("users")));
 			bc.addElement(new BCElement(new Model<String>(getModel().getObject().getUsername())));
 			JumboPageHeaderPanel<User> ph = new JumboPageHeaderPanel<User>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
-		
 			ph.setHeaderCss("mb-0 pb-2 border-none");
-			ph.setIcon(User.getIcon());
+			if (getPersonModel()!=null) {
+				Person p=getPersonModel().getObject();
+
+				ph.setTagline(Model.of(p.getFirstLastname()));
+				if (p.getPhoto()!=null) {
+					ph.setPhotoModel(new ObjectModel<Resource>(p.getPhoto()));
+				}
+				else
+					ph.setIcon(User.getIcon());
+			}
+			else
+				ph.setIcon(User.getIcon());
 			
 			ph.setBreadCrumb(bc);
 

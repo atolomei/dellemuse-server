@@ -37,6 +37,19 @@ import wktui.base.InvisiblePanel;
  * 
  * 
  * https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
+ * https://shorturl.at/uSRb4
+ * 
+ * 
+ * CHOPIN 
+ * https://dn721908.ca.archive.org/0/items/ChopinFourteenWaltzes/01%20No.%201%20in%20E%20flat%2C%20Op.%2018%20Grande%20valse%20brilliante.mp3
+ * 
+ * 
+ * CANON PACHEBEL
+ * https://dn721806.ca.archive.org/0/items/dm-2530-247/DM%202530%20247%E2%80%A2%282%29%20Pachebel%20J.%2C%20Canon%20et%20gigue%20en%20r%C3%A9%20mineur%20pour%203%20violons%20%26%20bc.mp3
+ * 
+ * 
+ * ALBINONI
+ * https://archive.org/download/dm-2530-247/DM%202530%20247%E2%80%A2%281%29%20Albinoni%20T.%2C%20Adagio%20en%20sol%20mineur.mp3
  * 
  */
 public class Step1AudioStudioEditor extends BaseAudioStudioEditor {

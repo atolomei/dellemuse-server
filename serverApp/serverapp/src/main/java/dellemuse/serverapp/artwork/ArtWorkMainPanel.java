@@ -28,7 +28,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.ArtistArtWorksPanel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
- 
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.Person;
  
 import dellemuse.serverapp.serverdb.model.Site;
@@ -93,9 +93,9 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork>  implements Internal
 		this.editor = new ArtWorkEditor("artworkEditor", getModel());
 		add(this.editor);
 		
-		if (getModel().getObject().getArtists()!=null && getModel().getObject().getArtists().size()>0) {
-			Person person = getModel().getObject().getArtists().iterator().next();
-			add(new ArtistArtWorksPanel("more", new ObjectModel<Person>(person)));
+		if ((getModel().getObject().getArtists()!=null) && (getModel().getObject().getArtists().size()>0)) {
+			Artist a = getModel().getObject().getArtists().iterator().next();
+			add(new ArtistArtWorksPanel("more", new ObjectModel<Artist>(a), null));
 		}
 		else {
 			add(new InvisiblePanel("more"));

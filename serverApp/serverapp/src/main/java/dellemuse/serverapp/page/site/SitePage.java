@@ -54,7 +54,7 @@ import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.listNavigator.ListNavigator;
-import io.wktui.nav.menu.AjaxLinkMenuItem;
+ 
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
@@ -70,9 +70,7 @@ import io.wktui.struct.list.ListPanelMode;
 import wktui.base.InvisiblePanel;
 
 /**
- * 
  * site foto Info - exhibitions
- * 
  */
 
 @MountPath("/site/${id}")
@@ -111,7 +109,6 @@ public class SitePage extends BasePage {
 	private boolean listsLoaded = false;
 
 	private WebMarkupContainer exhibitionsContainer;
-
 	private WebMarkupContainer catalogContainer;
 
 	@Override
@@ -385,7 +382,7 @@ public class SitePage extends BasePage {
 						}
 
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(SitePage.this.getObjectIntro(getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(SitePage.this.getObjectIntro(getModel().getObject(), true).getObject(), ServerConstant.INFO_MAX);
 							return Model.of(str);
 						}
 
@@ -422,7 +419,7 @@ public class SitePage extends BasePage {
 						}
 
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(SitePage.this.getObjectIntro(getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(SitePage.this.getObjectIntro(getModel().getObject(), true).getObject(), ServerConstant.INFO_MAX);
 							return new Model<String>(str);
 						}
 
@@ -438,7 +435,7 @@ public class SitePage extends BasePage {
 
 			panel.setHasExpander(true);
 			this.exhibitionsContainer.add(panel);
-			panel.setListPanelMode(ListPanelMode.TITLE);
+			panel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
 			panel.setLiveSearch(false);
 			panel.setSettings(true);
 
@@ -488,7 +485,7 @@ public class SitePage extends BasePage {
 						}
 
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(getObjectInfo(getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(getObjectIntro(getModel().getObject(), true).getObject(), ServerConstant.INFO_MAX);
 							return new Model<String>(str);
 						}
 
@@ -521,7 +518,7 @@ public class SitePage extends BasePage {
 
 						@Override
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(getObjectInfo(getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(getObjectInfo(getModel().getObject()).getObject(), ServerConstant.INFO_MAX);
 							return new Model<String>(str);
 						}
 
@@ -543,7 +540,7 @@ public class SitePage extends BasePage {
 
 			// panel.setTitle(getLabel("exhibitions-temporary"));
 
-			panel.setListPanelMode(ListPanelMode.TITLE);
+			panel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
 			panel.setLiveSearch(false);
 			panel.setHasExpander(true);
 			panel.setSettings(true);
@@ -593,7 +590,7 @@ public class SitePage extends BasePage {
 						}
 
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(getObjectInfo(getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(getObjectIntro(getModel().getObject(), true).getObject(), ServerConstant.INFO_MAX);
 							return new Model<String>(str);
 						}
 
@@ -630,7 +627,7 @@ public class SitePage extends BasePage {
 						}
 
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(getObjectInfo(getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(getObjectInfo(getModel().getObject()).getObject(), ServerConstant.INFO_MAX);
 							return new Model<String>(str);
 						}
 
@@ -694,7 +691,7 @@ public class SitePage extends BasePage {
 						}
 
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(getObjectInfo(getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(getObjectIntro(getModel().getObject(), true).getObject(), ServerConstant.INFO_MAX);
 							return new Model<String>(str);
 						}
 
@@ -731,7 +728,7 @@ public class SitePage extends BasePage {
 						}
 
 						protected IModel<String> getInfo() {
-							String str = TextCleaner.clean(getObjectInfo(getModel().getObject()).getObject(), 420);
+							String str = TextCleaner.clean(getObjectIntro(getModel().getObject(), true).getObject(), ServerConstant.INFO_MAX);
 							return new Model<String>(str);
 						}
 
@@ -746,7 +743,7 @@ public class SitePage extends BasePage {
 			};
 			this.exhibitionsContainer.add(panel);
 
-			panel.setListPanelMode(ListPanelMode.TITLE);
+			panel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
 			panel.setLiveSearch(false);
 			panel.setHasExpander(true);
 			panel.setSettings(true);
@@ -911,6 +908,7 @@ public class SitePage extends BasePage {
 	}
 
 	private void loadLists() {
+		
 		try {
 
 			SiteDBService db = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
@@ -920,8 +918,16 @@ public class SitePage extends BasePage {
 			listTemporaryPast = new ArrayList<IModel<ArtExhibition>>();
 			listTemporaryComing = new ArrayList<IModel<ArtExhibition>>();
 
-			Iterable<ArtExhibition> la = db.getArtExhibitions(getSiteModel().getObject(), ObjectState.EDITION, ObjectState.PUBLISHED);
+			Iterable<ArtExhibition> la;
 
+			if (getSiteModel().getObject().isSortAlphabetical()) {
+				  la = db.getArtExhibitions(getSiteModel().getObject(), ObjectState.EDITION, ObjectState.PUBLISHED);
+			}
+			else
+			{
+				  la = db.getArtExhibitionsByOrdinal(getSiteModel().getObject(), ObjectState.EDITION, ObjectState.PUBLISHED);
+			}
+			
 			for (ArtExhibition a : la) {
 				if (a.isPermanent())
 					listPermanent.add(new ObjectModel<ArtExhibition>(a));
@@ -1042,8 +1048,14 @@ public class SitePage extends BasePage {
 		return Model.of(getLanguageObjectService().getInfo(s, getLocale()));
 	}
 
-	protected IModel<String> getObjectIntro(MultiLanguageObject s) {
-		return Model.of(getLanguageObjectService().getIntro(s, getLocale()));
+	protected IModel<String> getObjectIntro(MultiLanguageObject s, boolean useInfoIfEmpty) {
+
+		String intro = getLanguageObjectService().getIntro(s, getLocale());
+		
+		if (intro!=null) return Model.of(getLanguageObjectService().getIntro(s, getLocale()));
+	
+		return useInfoIfEmpty ? getObjectInfo(s) : null;
+		
 	}
 
 	private void addHeader() {
@@ -1057,10 +1069,10 @@ public class SitePage extends BasePage {
 
 			ph.setContext(getLabel("site"));
 
-			IModel<String> st = getObjectSubtitle(getSiteModel().getObject());
+		//IModel<String> st = getObjectSubtitle(getSiteModel().getObject());
 
-			if (st.getObject().length() > 0)
-				ph.setTagline(st);
+		//	if (st.getObject().length() > 0)
+		//		ph.setTagline(st);
 
 			if (getSiteModel().getObject().getPhoto() != null)
 				ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));

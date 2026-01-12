@@ -387,6 +387,18 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	
+	@Transactional
+	public List<ArtExhibition> getArtExhibitionsByOrdinal(Site site) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibition> cq = cb.createQuery(ArtExhibition.class);
+		Root<ArtExhibition> root = cq.from(ArtExhibition.class);
+		cq.select(root).where(cb.equal(root.get("site").get("id"), site.getId()));
+		cq.orderBy(cb.asc(root.get("ordinal")));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
 	@Override
 	public String getObjectClassName() {
 		 return ArtExhibition.class.getSimpleName().toLowerCase();

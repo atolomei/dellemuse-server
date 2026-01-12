@@ -71,7 +71,7 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.UPDATE));
 
@@ -95,7 +95,7 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 	 
 
 		c.setLanguage(lang);
-		c.setState(ObjectState.EDITION);
+		c.setState(a.getState());
 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -153,9 +153,7 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 			getAudioStudioDBService().restore(o.get(), by);
 	}
 
-	
-	
-	
+ 	 
 	
 	/**
 	 * 
@@ -230,13 +228,22 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 
 		ArtExhibitionGuideRecord aw = o_aw.get();
 
-		Resource photo = aw.getPhoto();
+	 
 
 		o_aw.get().setArtExhibitionGuide(this.getArtExhibitionGuideDBService().findById(o_aw.get().getParentObject().getId()).get());
 
-		if (photo != null)
-			photo.getBucketName();
+		Resource photo = aw.getPhoto();
+		if (photo!=null)
+			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		
+		Resource audio = aw.getAudio();
+		if (audio!=null)
+			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
 
+		User user = aw.getLastModifiedUser();
+		if (user!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		
 		aw.setDependencies(true);
 
 		return o_aw;

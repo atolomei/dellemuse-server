@@ -32,6 +32,7 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import io.wktui.event.UIEvent;
 import io.wktui.form.FormState;
  
@@ -306,9 +307,11 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 
 			private static final long serialVersionUID = 1L;
 
-			protected List<IModel<User>> filter(List<IModel<User>> initialList, String filter) {
-				return iFilter(initialList, filter);
+			@Override
+			public IModel<String> getItemLabel(IModel<User> model) {
+				return SiteUsersPanel.this.getObjectTitle(model);
 			}
+
 
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<User> model, ListPanelMode mode) {

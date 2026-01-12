@@ -2,7 +2,7 @@ package dellemuse.serverapp.command;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
-import java.util.ConcurrentModificationException;
+ 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -110,7 +110,7 @@ public class CommandService extends BaseService {
 
 		} else {
 			logger.error("Command with key '" + concurrentUniqueKey + "' is already being executed.");
-			throw new ConcurrentModificationException(
+			throw new RuntimeException(
 					"Command with key '" + concurrentUniqueKey + "' is already being executed.");
 		}
 	}

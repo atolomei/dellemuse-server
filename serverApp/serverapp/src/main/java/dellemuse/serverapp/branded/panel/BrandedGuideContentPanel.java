@@ -100,6 +100,10 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 	            UrlResourceReference resourceReference = new UrlResourceReference(url);
 		        Audio audio = new Audio("audio", resourceReference);
 		        audioIntroContainer.add(audio);
+		        
+		    	Label aid = new Label("aid", getModel().getObject().getAudioId()!=null?getModel().getObject().getAudioId().toString():"");
+		    	audioContainer.add(aid);
+				
 			}
 			else {
 			    audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));

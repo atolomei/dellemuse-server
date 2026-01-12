@@ -28,6 +28,7 @@ import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -66,6 +67,11 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 	private ArtExhibitionGuideEditor editor;
 
 	private List<ToolbarItem> list;
+
+	
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
 
  
 	public ArtExhibitionGuidePage() {
@@ -343,10 +349,10 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		else if (getArtExhibitionModel().getObject().getPhoto() != null)
 			header.setPhotoModel(new ObjectModel<Resource>(getArtExhibitionModel().getObject().getPhoto()));
 
-		if (getModel().getObject().getSubtitle() != null)
-			header.setTagline(getObjectSubtitle( getModel().getObject()));
-		else if ( getObjectSubtitle(getArtExhibitionModel().getObject())  != null)
-			header.setTagline(getObjectSubtitle(getArtExhibitionModel().getObject()));
+		//if (getModel().getObject().getSubtitle() != null)
+		//	header.setTagline(getObjectSubtitle( getModel().getObject()));
+		//else if ( getObjectSubtitle(getArtExhibitionModel().getObject())  != null)
+	//		header.setTagline(getObjectSubtitle(getArtExhibitionModel().getObject()));
 
 		this.header.setBreadCrumb(bc);
 

@@ -141,20 +141,9 @@ public class ArtExhibitionItemsGuidesPanel extends DBModelPanel<ArtExhibitionIte
 		this.itemsPanel = new ListPanel<GuideContent>("items") {
 
 			private static final long serialVersionUID = 1L;
-
-			protected List<IModel<GuideContent>> filter(List<IModel<GuideContent>> initialList,
-					String filter) {
-				
-				return iFilter(initialList, filter);
-				/**
-				List<IModel<GuideContent>> list = new ArrayList<IModel<GuideContent>>();
-				final String str = filter.trim().toLowerCase();
-				initialList.forEach(s -> {
-					if (s.getObject().getDisplayname().toLowerCase().contains(str)) {
-						list.add(s);
-					}
-				});
-				return list;*/
+			@Override
+			public IModel<String> getItemLabel(IModel<GuideContent> model) {
+				return ArtExhibitionItemsGuidesPanel.this.getObjectTitle(model.getObject());
 			}
 			
 			@Override

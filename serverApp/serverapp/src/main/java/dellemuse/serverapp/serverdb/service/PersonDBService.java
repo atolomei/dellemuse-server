@@ -148,6 +148,9 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 	
 		Resource photo = aw.getPhoto();
 
+		if (photo!=null)
+			aw.setPhoto( getResourceDBService().findById(photo.getId()).get());
+				
 		User u = aw.getLastModifiedUser();
 		
 		if (u!=null)
@@ -156,11 +159,13 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 		if (photo != null)
 			photo.getBucketName();
 		
+		/**
 		if (aw.getArtworks()!=null && aw.getArtworks().size()>0) {
 			Set<ArtWork> set= new HashSet<ArtWork>();
 			aw.getArtworks().forEach( p -> set.add(getArtWorkDBService().findById( p.getId()).get() ));
 			aw.setArtworks(set);
 		}
+		**/
 		
 		aw.setDependencies(true);
 
@@ -184,6 +189,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
     }
 
 
+    /**
     @Transactional
     public List<ArtWork> getArtWorks(Person person) {
        
@@ -193,6 +199,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
     	return person.getArtworks().stream().collect(Collectors.toList());
     	
      }
+    **/
     
     public List<Person> getByName(String name) {
         return createNameQuery(name).getResultList();
@@ -227,6 +234,17 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         );
         List<Person> list = getEntityManager().createQuery(cq).getResultList();
         return list.stream().findFirst();
+	}
+    
+    
+    @Transactional
+	public Optional<Person> getByUserWithDeps(User o) {
+		Optional<Person> op = getByUser(o);
+		
+		if (op.isEmpty())
+			 return Optional.empty();
+		
+		return this.findWithDeps(op.get().getId());
 	}
 	
     @Transactional
@@ -284,6 +302,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 		return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		 
 	}
+
 
 
 

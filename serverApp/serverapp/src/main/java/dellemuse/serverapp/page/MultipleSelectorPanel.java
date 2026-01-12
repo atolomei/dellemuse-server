@@ -3,19 +3,18 @@ package dellemuse.serverapp.page;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
- 
+
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
- 
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
- 
+
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.LabelAjaxLinkPanel;
@@ -34,12 +33,15 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 	private IModel<String> title;
 
 	protected abstract IModel<String> getObjectSubtitle(IModel<T> model);
+
 	protected abstract String getObjectImageSrc(IModel<T> model);
+
 	protected abstract IModel<String> getObjectInfo(IModel<T> model);
+
 	protected abstract void onClick(IModel<T> model);
+
 	protected abstract void onObjectSelect(IModel<T> model, AjaxRequestTarget target);
 
-	
 	public MultipleSelectorPanel(String id, List<IModel<T>> list) {
 		this(id, list, null);
 	}
@@ -73,7 +75,6 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 			this.list.forEach(i -> i.detach());
 	}
 
-
 	public List<IModel<T>> getList() {
 		return list;
 	}
@@ -88,7 +89,7 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 
 	protected IModel<String> getObjectTitle(IModel<T> model) {
 		if (model.getObject() instanceof MultiLanguageObject) {
-			return super.getObjectTitle( (MultiLanguageObject) model.getObject());
+			return super.getObjectTitle((MultiLanguageObject) model.getObject());
 		}
 		return Model.of(model.getObject().getDisplayname());
 	}
@@ -97,6 +98,7 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 
 		LabelAjaxLinkPanel<T> b = new LabelAjaxLinkPanel<T>("menu", null, model, "fa-duotone fa-plus") {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				onObjectSelect(getModel(), target);
@@ -106,11 +108,10 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 		return b;
 	}
 
-
 	protected IModel<String> getTitle() {
 		return title;
 	}
-	
+
 	protected Panel getObjectListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
 
 		return new ObjectListItemExpandedPanel<T>("expanded-panel", model, mode) {
@@ -133,12 +134,17 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 			}
 		};
 	}
-	
+
 	private void renderPanel() {
 
 		this.listPanel = new ListPanel<T>("items", getList()) {
 
 			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<String> getItemLabel(IModel<T> m) {
+				return MultipleSelectorPanel.this.getObjectTitle(m);
+			}
 
 			@Override
 			protected Panel getListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
@@ -191,5 +197,5 @@ public abstract class MultipleSelectorPanel<T extends DelleMuseObject> extends D
 		this.listPanel.setLiveSearch(true);
 		this.itemsContainer.addOrReplace(this.listPanel);
 	}
-	
+
 }

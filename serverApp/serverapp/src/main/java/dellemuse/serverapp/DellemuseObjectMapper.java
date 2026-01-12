@@ -7,10 +7,10 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class DellemuseObjectMapper extends ObjectMapper {
-	
+
 	private static final long serialVersionUID = 1L;
 
-	public DellemuseObjectMapper () {
+	public DellemuseObjectMapper() {
 		super();
 		registerModule(new JavaTimeModule());
 		configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

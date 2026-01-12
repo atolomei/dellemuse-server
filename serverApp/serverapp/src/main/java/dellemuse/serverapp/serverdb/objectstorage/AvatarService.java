@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.FSUtil;
 import dellemuse.model.util.ThumbnailSize;
- 
+
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.ServiceStatus;
@@ -35,157 +35,137 @@ import jakarta.annotation.PostConstruct;
 @Service
 public class AvatarService extends BaseService implements SystemService {
 
-    static private Logger logger = Logger.getLogger(AvatarService.class.getName());
+	static private Logger logger = Logger.getLogger(AvatarService.class.getName());
 
-    static private Logger startupLogger = Logger.getLogger("StartupLogger");
+	static private Logger startupLogger = Logger.getLogger("StartupLogger");
 
-    @JsonIgnore
-    private final ObjectStorageService objectStorageService;
-    
-    @JsonIgnore
-    private final ResourceDBService resourceDBService;
-    
-    @JsonIgnore
-    private final ResourceThumbnailService  resourceThumbnailService;
-    
-    @JsonIgnore
-    private final UserDBService userDBService;
-    
-    private Map<Long, Long> map = new HashMap<Long, Long>();
+	@JsonIgnore
+	private final ObjectStorageService objectStorageService;
 
-    /**
-     * 
-     * 
-     * @param settings
-     * @param objectStorageService
-     * @param resourceDBService
-     * @param resourceThumbnailService
-     * @param userDBService
-     */
-    public AvatarService(ServerDBSettings settings, ObjectStorageService objectStorageService, ResourceDBService resourceDBService, ResourceThumbnailService  resourceThumbnailService, UserDBService userDBService) {
-        super(settings);
-        this.objectStorageService=objectStorageService;
-        this.resourceDBService=resourceDBService;
-        this.resourceThumbnailService=resourceThumbnailService;
-        this.userDBService=userDBService;
-        
-    }
- 
-    
-    public Optional<String> getDefaultAvatar(User user) {
-    	Long id = user.getId();
-      	long key = id.longValue() % map.size();
-      	
-      	Long rId = map.get(Long.valueOf(key));
-    
-      	Optional<Resource> r = getResourceDBService().findById(rId);
-  
-      	if (r.isEmpty())
-      		return Optional.empty();
-      	
-      	return Optional.of(getPresignedThumbnailSmall(r.get()));
-    }
-    
-    
-    @PostConstruct
-    protected void onInit() {
-    	
-    	try {
-		
-    		if (!getObjectStorageService().existsBucket(ServerConstant.AVATAR_BUCKET) )
-    			getObjectStorageService().createBucket(ServerConstant.AVATAR_BUCKET);
-    		
-    		importFiles();
-    		loadFiles();
-    
-    		setStatus( ServiceStatus.RUNNING);
-            startupLogger.debug("Startup -> " + this.getClass().getSimpleName());
-            
-    	} catch (Exception e) {
+	@JsonIgnore
+	private final ResourceDBService resourceDBService;
+
+	@JsonIgnore
+	private final ResourceThumbnailService resourceThumbnailService;
+
+	@JsonIgnore
+	private final UserDBService userDBService;
+
+	private Map<Long, Long> map = new HashMap<Long, Long>();
+
+	/**
+	 * 
+	 * 
+	 * @param settings
+	 * @param objectStorageService
+	 * @param resourceDBService
+	 * @param resourceThumbnailService
+	 * @param userDBService
+	 */
+	public AvatarService(ServerDBSettings settings, ObjectStorageService objectStorageService, ResourceDBService resourceDBService, ResourceThumbnailService resourceThumbnailService, UserDBService userDBService) {
+		super(settings);
+		this.objectStorageService = objectStorageService;
+		this.resourceDBService = resourceDBService;
+		this.resourceThumbnailService = resourceThumbnailService;
+		this.userDBService = userDBService;
+
+	}
+
+	public Optional<String> getDefaultAvatar(User user) {
+		Long id = user.getId();
+		long key = id.longValue() % map.size();
+
+		Long rId = map.get(Long.valueOf(key));
+
+		Optional<Resource> r = getResourceDBService().findById(rId);
+
+		if (r.isEmpty())
+			return Optional.empty();
+
+		return Optional.of(getPresignedThumbnailSmall(r.get()));
+	}
+
+	@PostConstruct
+	protected void onInit() {
+
+		try {
+
+			if (!getObjectStorageService().existsBucket(ServerConstant.AVATAR_BUCKET))
+				getObjectStorageService().createBucket(ServerConstant.AVATAR_BUCKET);
+
+			importFiles();
+			loadFiles();
+
+			setStatus(ServiceStatus.RUNNING);
+			startupLogger.debug("Startup -> " + this.getClass().getSimpleName());
+
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-    	
-    }
-    
+
+	}
+
 	private void loadFiles() {
-		 
+
 		long index = 0;
-		for (Resource resource:getResourceDBService().getDefaultAvatars()) {
-			map.put(index++, resource.getId());	
+		for (Resource resource : getResourceDBService().getDefaultAvatars()) {
+			map.put(index++, resource.getId());
 		}
-		
+
 		// int cacheDurationSecs = ServerDBConstant.THUMBNAIL_CACHE_DURATION_SECS;
-	    
+
 		/**
-		try {
-		
-			ResultSet<Item<ObjectMetadata>> set = getObjectStorageService().getClient().listObjects(ServerConstant.AVATAR_BUCKET);
+		 * try {
+		 * 
+		 * ResultSet<Item<ObjectMetadata>> set =
+		 * getObjectStorageService().getClient().listObjects(ServerConstant.AVATAR_BUCKET);
+		 * 
+		 * long index = 0;
+		 * 
+		 * while (set.hasNext()) { Item<ObjectMetadata> item = set.next(); if
+		 * (item.isOk()) { ObjectMetadata meta = item.getObject(); String url =
+		 * getObjectStorageService().getClient().getPresignedObjectUrl(meta.getBucketName(),
+		 * meta.getObjectName()); map.put(Long.valueOf(index++), url); } }
+		 * 
+		 * } catch (ODClientException e) { throw new RuntimeException(e); }
+		 **/
+	}
 
-			long index = 0;
+	private void importFiles() {
 
-			while (set.hasNext()) {
-				Item<ObjectMetadata> item = set.next();
-				if (item.isOk()) {
-					ObjectMetadata meta = item.getObject();
-					String url = getObjectStorageService().getClient().getPresignedObjectUrl(meta.getBucketName(), meta.getObjectName());
-					map.put(Long.valueOf(index++), url);
+		File avatarDir = new File(getSettings().getAvatarDir());
+
+		for (File file : avatarDir.listFiles()) {
+
+			if (!file.isDirectory()) {
+
+				if (FSUtil.isImage(file.getName())) {
+
+					String objectName = String.valueOf(getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(file.getName())) + "-" + getResourceDBService().newId());
+
+					try {
+						getObjectStorageService().getClient().putObject(ServerConstant.AVATAR_BUCKET, objectName, file);
+
+						@SuppressWarnings("unused")
+						Resource resource = getResourceDBService().create(ServerConstant.AVATAR_BUCKET, objectName, file.getName(), getMimeType(file.getName()), file.length(), ServerConstant.AVATAR, getUserDBService().findRoot(),
+								file.getName());
+
+						logger.debug("uploaded -> " + file.getName());
+
+						FileUtils.forceDelete(file);
+
+					} catch (ODClientException | IOException e) {
+						logger.error(e, ServerConstant.NOT_THROWN);
+					}
 				}
 			}
-		
-		} catch (ODClientException e) {
-			throw new RuntimeException(e);
 		}
-		**/
 	}
-	 
 
-	
-    private void importFiles() {
-    	
-         
-      	File avatarDir = new File(getSettings().getAvatarDir());
-    	
-    	for ( File file: avatarDir.listFiles()) {
-    		
-    		if (!file.isDirectory()) {
-    			
-    			if (FSUtil.isImage(file.getName())) {
-    					
-					String objectName = String.valueOf(getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(file.getName())) + "-" +  getResourceDBService().newId());
+	private dellemuse.serverapp.serverdb.service.UserDBService getUserDBService() {
+		return userDBService;
+	}
 
-    					try {
-										getObjectStorageService().getClient().putObject(ServerConstant.AVATAR_BUCKET, objectName, file);
-										
-										@SuppressWarnings("unused")
-										Resource resource = getResourceDBService().create(
-							                        ServerConstant.AVATAR_BUCKET, 
-							                        objectName, 
-							                        file.getName(),
-							                        getMimeType(file.getName()), 
-							                        file.length(),
-							                        ServerConstant.AVATAR,
-							                         getUserDBService().findRoot(),
-							                         file.getName());
-										
-										logger.debug("uploaded -> " + file.getName());
-										
-										FileUtils.forceDelete(file);
-		
-								 
-				
-    					} catch (ODClientException | IOException e) {
-								logger.error(e, ServerConstant.NOT_THROWN);
-						}
-    				}
-    		}
-    	}
-    }
-
-    
-    private dellemuse.serverapp.serverdb.service.UserDBService getUserDBService() {
-        return userDBService;
-    }
-    
 	private ResourceDBService getResourceDBService() {
 		return this.resourceDBService;
 	}
@@ -193,49 +173,45 @@ public class AvatarService extends BaseService implements SystemService {
 	private ObjectStorageService getObjectStorageService() {
 		return this.objectStorageService;
 	}
-	
+
 	private String getMimeType(String fileName) {
 
-        if (FSUtil.isImage(fileName)) {
-            String str = FilenameUtils.getExtension(fileName);
+		if (FSUtil.isImage(fileName)) {
+			String str = FilenameUtils.getExtension(fileName);
 
-            if (str.equals("jpg"))
-                return "image/jpeg";
+			if (str.equals("jpg"))
+				return "image/jpeg";
 
-            if (str.equals("jpeg"))
-                return "image/jpeg";
+			if (str.equals("jpeg"))
+				return "image/jpeg";
 
-            return "image/" + str;
-        }
+			return "image/" + str;
+		}
 
-        if (FSUtil.isPdf(fileName))
-            return "application/pdf";
+		if (FSUtil.isPdf(fileName))
+			return "application/pdf";
 
-        if (FSUtil.isVideo(fileName))
-            return "video/" + FilenameUtils.getExtension(fileName);
+		if (FSUtil.isVideo(fileName))
+			return "video/" + FilenameUtils.getExtension(fileName);
 
-        if (FSUtil.isAudio(fileName))
-            return "audio/" + FilenameUtils.getExtension(fileName);
+		if (FSUtil.isAudio(fileName))
+			return "audio/" + FilenameUtils.getExtension(fileName);
 
-        return "";
-    }
+		return "";
+	}
 
-    private String getPresignedThumbnailSmall(Resource photo) {
- 		try {
- 			if (photo.isUsethumbnail()) {
- 				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance()
- 						.getBean(ResourceThumbnailService.class);
- 				String url = service.getPresignedThumbnailUrl(photo, ThumbnailSize.MINI);
- 				return url;
- 			} else {
- 				return getObjectStorageService().getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
- 			}
- 		} catch (Exception e) {
- 			throw new RuntimeException(e);
- 		}
- 	}
-     
+	private String getPresignedThumbnailSmall(Resource photo) {
+		try {
+			if (photo.isUsethumbnail()) {
+				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
+				String url = service.getPresignedThumbnailUrl(photo, ThumbnailSize.MINI);
+				return url;
+			} else {
+				return getObjectStorageService().getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-
-	 
 }

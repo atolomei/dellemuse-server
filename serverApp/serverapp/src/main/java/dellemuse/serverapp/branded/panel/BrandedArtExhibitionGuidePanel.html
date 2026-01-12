@@ -2,7 +2,7 @@
 <wicket:panel>
 
 
-	<div wicket:id="infoContainer" class="border-top pt-4 pb-4 mb-4 border-bottom" style="float: left; width: 100%; padding: 0;">
+	<div wicket:id="infoContainer" class="pt-1 pb-1 mb-1" style="float: left; width: 100%; padding: 0;">
 		<div class="row">
 			<div class="mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
 				<h3>
@@ -10,20 +10,42 @@
 				</h3>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<div class="pb-3 text" wicket:id="intro"></div>
-			</div>
-		</div>
 
 		<div wicket:id="audioContainer" class="row">
 			<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<div wicket:id="intro-audio" class="w-100">
-					<audio wicket:id="audioIntro" controls="controls" class="w-100 mt-2 mb-2">
-					</audio>
+
+				<div class="row">
+					<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<div wicket:id="intro-audio" class="w-100">
+							<audio wicket:id="audioIntro" controls="controls" class="w-100 mt-1 mb-1">
+							</audio>
+						</div>
+					</div>
 				</div>
+
+				<div class="row ">
+					<div class="mt-1 mb-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+
+						<div class="text-center text-md-start">
+							<div class="ms-1 border ps-1 pe-1 pt-1 pb-1" style="display: inline-block;">
+								<i class="ps-1 pe-1 fa-duotone fa-solid fa-headphones"></i><span wicket:id="aid" class="ps-1 pe-1">21</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</div>
+
+		<!-- div class="row">
+			<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<div class="pb-3 text" wicket:id="intro"></div>
+			</div>
+		</div -->
+
+
+
+
 		<div wicket:id="error" />
 	</div>
 
@@ -50,7 +72,7 @@
 		<div class="row">
 			<div class="mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
 				<h3>
-					<wicket:message key="items" />
+					<wicket:message key="artwork-audios" />
 				</h3>
 			</div>
 		</div>

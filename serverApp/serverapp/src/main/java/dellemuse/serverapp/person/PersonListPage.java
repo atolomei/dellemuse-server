@@ -194,7 +194,10 @@ public class PersonListPage extends ObjectListPage<Person> {
 	    bc.addElement(new BCElement( getLabel("persons")));
 	    JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("persons"));
 		ph.setBreadCrumb(bc);
-		ph.setIcon(Person.getIcon()  );
+		ph.setIcon( "fa-duotone fa-solid fa-user-group" );
+		
+		
+		
 		ph.setHeaderCss("mb-0 pb-2 border-none");
 		add(ph);
 	}

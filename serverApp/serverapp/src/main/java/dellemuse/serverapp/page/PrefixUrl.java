@@ -5,9 +5,11 @@ public class PrefixUrl {
 	static public final String User = "user";
 
 	static public final String Person = "person";
+	static public final String Artist = "artist";
 
 	static public final String Institution = "institution";
 	static public final String Site = "site";
+	static public final String SiteArtist = "siteArtist";
 
 	static public final String ArtWork = "artwork";
 	static public final String music = "music";

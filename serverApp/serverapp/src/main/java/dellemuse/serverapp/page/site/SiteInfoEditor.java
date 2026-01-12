@@ -5,28 +5,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.artwork.ArtWorkEditor;
 import dellemuse.serverapp.editor.DBSiteObjectEditor;
-import dellemuse.serverapp.editor.ObjectMetaEditor;
+ 
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
-import dellemuse.serverapp.serverdb.model.ObjectState;
+ 
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -35,8 +39,10 @@ import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
+import io.wktui.form.field.BooleanField;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
+import io.wktui.form.field.MultipleSelectField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import io.wktui.form.field.ZoneIdField;
@@ -53,7 +59,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 
  	private ChoiceField<Language> masterLanguageField;
 
- 	
+	private MultipleSelectField<Language> languagesField;
  	private ZoneIdField zoneIdField;
  	
 	private TextField<String> nameField;
@@ -82,7 +88,14 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 	private boolean uploadedLogo = false;
 
 	
-	 
+	private TextField<String> labelPField;
+	private TextField<String> labelTField;
+
+	private ChoiceField<Boolean> sortAlphabeticallyField;
+	
+	
+	
+	
 	public IModel<Site> getSiteModel() {
 		return getModel();
 	}
@@ -95,6 +108,9 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		super(id, model);
 	}
 
+	private List<IModel<Language>> langSelected;
+	private List<IModel<Language>> langChoices;
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -112,6 +128,27 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 			setLogoModel(new ObjectModel<Resource>(o_r.get()));
 		}
  
+		
+		
+		add(new Label("site-general-info", getLabel("site-general-info", getModel().getObject().getMasterLanguage())));
+
+		
+		
+		langSelected = new ArrayList<IModel<Language>>();
+		langChoices = new ArrayList<IModel<Language>>();
+		
+		Language.getLanguages().forEach((k,v) -> langChoices.add(Model.of(v)));
+		
+
+		List<Language> l_list = getModel().getObject().getLanguages();
+		
+		if (l_list != null && l_list.size() > 0) {
+			l_list.forEach(i ->  {
+				if (!i.getLanguageCode().equals( getModelObject().getMasterLanguage()))
+						langSelected.add(Model.of(i));
+			});
+		}
+		
 		add(new InvisiblePanel("error"));
  	
 		Form<Site> form = new Form<Site>("siteForm", getModel());
@@ -128,21 +165,80 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		// StreamSupport.stream(getInstitutions().spliterator(),
 		// false).collect(Collectors.toList());
 	 
+		languagesField = new MultipleSelectField<Language>("languages", langSelected, getLabel("languages"), langChoices) {
 		
-		zoneIdField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
-		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		subtitleField = new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
-		shortNameField = new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
-		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 8);
-		opensField = new TextAreaField<String>("opens", new PropertyModel<String>(getModel(), "opens"), getLabel("opens"), 8);
-		addressField = new TextAreaField<String>("address", new PropertyModel<String>(getModel(), "address"), getLabel("address"), 3);
-		websiteField = new TextField<String>("website", new PropertyModel<String>(getModel(), "website"), getLabel("website"));
-		mapurlField = new TextField<String>("mapurl", new PropertyModel<String>(getModel(), "mapurl"), getLabel("mapurl"));
-		emailField = new TextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
-		phoneField = new TextAreaField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"), 3);
-		instagramField = new TextField<String>("instagram", new PropertyModel<String>(getModel(), "instagram"), getLabel("instagram"));
-		whatsappField = new TextField<String>("whatsapp", new PropertyModel<String>(getModel(), "whatsapp"), getLabel("whatsapp"));
-		photoField = new FileUploadSimpleField<Void>("photo", getLabel("photo")) {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected IModel<String> getObjectTitle(IModel<Language> model) {
+				return Model.of( model.getObject().getLabel(getUserLocale()) );
+			}
+
+			@Override
+			protected IModel<String> getObjectSubtitle(IModel<Language> model) {
+				return Model.of( model.getObject().getLabel(getUserLocale()) );
+			}
+			
+			@Override
+			protected void onObjectRemove(IModel<Language> model, AjaxRequestTarget target) {
+				langSelected.remove(model);
+				target.add(getForm());
+			}
+		
+			@Override
+			protected void onObjectSelect(IModel<Language> model, AjaxRequestTarget target) {
+				langSelected.add(model);
+				target.add(getForm());
+			}
+		};
+		
+		
+		labelPField 	= new TextField<String>("permanentExhibitionsLabel", new PropertyModel<String>(getModel(), "labelPermanentExhibitions"), getLabel("permanentExhibitionsLabel"));
+		labelTField 	= new TextField<String>("temporaryExhibitionsLabel", new PropertyModel<String>(getModel(), "labelTemporaryExhibitions"), getLabel("temporaryExhibitionsLabel"));
+		
+ 	
+		sortAlphabeticallyField = new ChoiceField<Boolean>("sortAlphabetical", new PropertyModel<Boolean>(getModel(), "sortAlphabetical"), getLabel("sortAlphabetical")) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Boolean>> getChoices() {
+				return new ListModel<Boolean>(b_list);
+			}
+
+			@Override
+			protected String getDisplayValue(Boolean value) {
+				if (value == null)
+					return null;
+				if (value.booleanValue())
+					return getLabel("yes").getObject();
+				return getLabel("no").getObject();
+			}
+		};
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		zoneIdField 	= new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
+		nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		subtitleField 	= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
+		shortNameField 	= new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));
+		infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 8);
+		opensField 		= new TextAreaField<String>("opens", new PropertyModel<String>(getModel(), "opens"), getLabel("opens"), 8);
+		addressField 	= new TextAreaField<String>("address", new PropertyModel<String>(getModel(), "address"), getLabel("address"), 3);
+		websiteField 	= new TextField<String>("website", new PropertyModel<String>(getModel(), "website"), getLabel("website"));
+		mapurlField 	= new TextField<String>("mapurl", new PropertyModel<String>(getModel(), "mapurl"), getLabel("mapurl"));
+		emailField 		= new TextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
+		phoneField 		= new TextAreaField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"), 3);
+		instagramField 	= new TextField<String>("instagram", new PropertyModel<String>(getModel(), "instagram"), getLabel("instagram"));
+		whatsappField 	= new TextField<String>("whatsapp", new PropertyModel<String>(getModel(), "whatsapp"), getLabel("whatsapp"));
+		photoField 		= new FileUploadSimpleField<Void>("photo", getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -213,6 +309,11 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 			}
 		};
 
+		form.add(sortAlphabeticallyField);
+		
+		form.add(labelPField);
+		form.add(labelTField);
+		form.add(languagesField);
 		form.add(masterLanguageField);
 		form.add(nameField);
 		form.add(subtitleField);
@@ -360,21 +461,30 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		logger.debug("updated parts:");
 		getUpdatedParts().forEach(s -> logger.debug(s));
 		logger.debug("saving...");
-		try {
 
-			getModelObject().setLanguage(PARENT_PATH);
-
-			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
-			uploadedPhoto = false;
-			getForm().setFormState(FormState.VIEW);
-			getForm().updateReload();
-			fireScanAll(new ObjectUpdateEvent(target));
-
-		} catch (Exception e) {
-
-			addOrReplace(new SimpleAlertRow<Void>("error", e));
-			logger.error(e);
-
+		if ((getUpdatedParts()!=null) && (getUpdatedParts().size()>0)) {
+			try {
+	
+				if (this.langSelected!=null) {
+					List<Language> la = new ArrayList<Language>();
+					this.langSelected.forEach(l -> la.add(l.getObject()));
+					getModelObject().setLanguages(la);
+				}
+				else
+					getModelObject().setLanguages(null);
+							
+				save(getModelObject(), getSessionUser().get(), getUpdatedParts());
+				uploadedPhoto = false;
+				getForm().setFormState(FormState.VIEW);
+				getForm().updateReload();
+				fireScanAll(new ObjectUpdateEvent(target));
+	
+			} catch (Exception e) {
+	
+				addOrReplace(new SimpleAlertRow<Void>("error", e));
+				logger.error(e);
+	
+			}
 		}
 		target.add(this);
 	}

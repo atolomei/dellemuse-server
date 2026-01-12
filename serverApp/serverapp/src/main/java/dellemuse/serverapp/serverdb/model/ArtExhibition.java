@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
@@ -29,6 +30,11 @@ import jakarta.persistence.Table;
 @Table(name = "artExhibition")
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibition extends MultiLanguageObject {
+
+
+	public static String getIcon() {
+		return Icons.ArtExhibition;
+	}
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Site.class)
 	@JoinColumn(name = "site_id", nullable = true)
@@ -82,10 +88,11 @@ public class ArtExhibition extends MultiLanguageObject {
 	@Column(name = "website")
 	private String website;
 
-	@Override
-	public String getObjectClassName() {
-		return ArtExhibition.class.getSimpleName();
-	}
+	
+	@Column(name = "ordinal")
+	private int ordinal;
+	
+	
 	
 	public ArtExhibition() {
 	}
@@ -101,7 +108,12 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setArtExhibitionStatusType(ArtExhibitionStatusType artExhibitionStatusType) {
 		this.artExhibitionStatusType = artExhibitionStatusType;
 	}
-
+	
+	@Override
+	public String getObjectClassName() {
+		return ArtExhibition.class.getSimpleName();
+	}
+	
 	public Site getSite() {
 		return site;
 	}
@@ -265,7 +277,11 @@ public class ArtExhibition extends MultiLanguageObject {
 		return false;
 	}
 
-	public static String getIcon() {
-		return "fa-solid fa-solid fa-gallery-thumbnails";
+	public int getOrdinal() {
+		return ordinal;
+	}
+
+	public void setOrdinal(int ordinal) {
+		this.ordinal = ordinal;
 	}
 };

@@ -22,8 +22,10 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -71,7 +73,8 @@ public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long>
 	 	c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-				
+		c.setState(ObjectState.EDITION);
+
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		
@@ -92,7 +95,8 @@ public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long>
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-	 
+		c.setState(a.getState());
+
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		
@@ -174,20 +178,30 @@ public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long>
 		ArtWorkRecord aw = o_aw.get();
 		 
 		Resource photo = aw.getPhoto();
-
-	//	User u = aw.getLastModifiedUser();
-	//	if (u!=null)
-	//		u.getDisplayname();
+		if (photo!=null)
+			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
 		
-		if (photo != null)
-			photo.getBucketName();
+		Resource audio = aw.getAudio();
+		if (audio!=null)
+			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
+
+		User user = aw.getLastModifiedUser();
+		if (user!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		
+		if (aw.getParentObject()!=null) {
+			ArtWork c = (ArtWork) aw.getParentObject();
+			aw.setArtwork( getArtWorkDBService().findById(c.getId()).get());
+		}
 		
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
 	
-    @Transactional
+
+
+	@Transactional
     @Override
     public Iterable<ArtWorkRecord> findAllSorted() {
         CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();

@@ -107,6 +107,19 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 	}
 	
 	@Bean
+	CommandLineRunner createSiteArtists() {
+		
+		
+		return args -> {
+			
+			
+			
+		};
+	}
+	
+	
+	
+	@Bean
 	CommandLineRunner init(UserDBService userService, PasswordEncoder encoder) {
 	   
 		return args -> {

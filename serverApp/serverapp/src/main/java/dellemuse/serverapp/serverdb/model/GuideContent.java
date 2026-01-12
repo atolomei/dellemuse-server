@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.PrefixUrl;
  
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
@@ -123,8 +124,9 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 		return false;
 	}
 	
+	
 	public static String getIcon() {
-		return "fa-duotone fa-solid fa-headphones";
+		return Icons.GuideContent;
 	}
 	
 };

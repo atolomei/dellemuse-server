@@ -74,7 +74,7 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		 
-		
+		c.setState(ObjectState.EDITION);
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		
@@ -91,7 +91,8 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 		c.setName(a.getName());
 		 
 		c.setLanguage(lang);
-		
+		c.setState(a.getState());
+
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
@@ -108,7 +109,7 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 		super.save(o);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 		
-
+		
 		Optional<AudioStudio> oa = getAudioStudioDBService().findByGuideContentRecord(o);
 		
 		if (oa.isPresent()) {
@@ -118,18 +119,7 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 		}
 	}
 	
-	/**
-	@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-
-	@Transactional
-	public void delete(GuideContentRecord o) {
-		this.delete(o.getId()); 
-	}
-	**/
+	 
 	
 	
 	
@@ -223,19 +213,26 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 		if (o_aw.isEmpty())
 			return  o_aw;
 		
-		GuideContentRecord aw = o_aw.get();
+		GuideContentRecord gcr = o_aw.get();
 		 
-		Resource photo = aw.getPhoto();
+		Resource photo = gcr.getPhoto();
+		if (photo!=null)
+			gcr.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		
+		Resource audio = gcr.getAudio();
+		if (audio!=null)
+			gcr.setAudio(getResourceDBService().findById(audio.getId()).get());
 
-//		User u = aw.getLastModifiedUser();
+		User user = gcr.getLastModifiedUser();
+		if (user!=null)
+			gcr.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
 		
-//		if (u!=null)
-//			u.getDisplayname();
-		
-		if (photo != null)
-			photo.getBucketName();
-		
-		aw.setDependencies(true);
+		if (gcr.getParentObject()!=null) {
+			GuideContent c = (GuideContent) gcr.getParentObject();
+			gcr.setGuideContent( getGuideContentDBService().findById(c.getId()).get());
+		}
+			
+		gcr.setDependencies(true);
 
 		return o_aw;
 	}

@@ -28,6 +28,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.model.TextCleaner;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
+import wktui.base.InvisiblePanel;
 
 //@AuthorizeInstantiation("USER")
 @WicketHomePage
@@ -78,7 +79,9 @@ public class DellemuseServerAppHomePage extends BasePage {
 		addSites();
 
 		add(new GlobalTopPanel("top-panel", getModel()));
-		add(new GlobalFooterPanel<Void>("footer-panel"));
+		add(new InvisiblePanel("footer-panel"));
+
+		// add(new GlobalFooterPanel<Void>("footer-panel"));
 
 	}
 
@@ -131,16 +134,16 @@ public class DellemuseServerAppHomePage extends BasePage {
 
 			private static final long serialVersionUID = 1L;
 
-			//@Override
-			//protected void setItems(List<IModel<Site>> list) {
-			//	DellemuseServerAppHomePage.this.setList(list);
-			//}
-			
 			@Override
-			public List<IModel<Site>> getItems()  {
-				return  DellemuseServerAppHomePage.this.getList();
+			public IModel<String> getItemLabel(IModel<Site> model) {
+				return DellemuseServerAppHomePage.this.getObjectTitle(model);
 			}
-			
+
+			@Override
+			public List<IModel<Site>> getItems() {
+				return DellemuseServerAppHomePage.this.getList();
+			}
+
 			@Override
 			protected Panel getListItemPanel(IModel<Site> model, ListPanelMode mode) {
 
@@ -180,32 +183,14 @@ public class DellemuseServerAppHomePage extends BasePage {
 				DellemuseServerAppHomePage.this.onClick(model);
 			}
 
-			@Override
-			public IModel<String> getItemLabel(IModel<Site> model) {
-				return new Model<String>(model.getObject().getDisplayname());
-			}
-
-			@Override
-			protected List<IModel<Site>> filter(List<IModel<Site>> initialList, String filter) {
-
-				List<IModel<Site>> list = new ArrayList<IModel<Site>>();
-				final String str = filter.trim().toLowerCase();
-				initialList.forEach(s -> {
-					if (s.getObject().getDisplayname().toLowerCase().contains(str)) {
-						list.add(s);
-					}
-				});
-				return list;
-			}
 		};
 
 		this.panel.setHasExpander(false);
 		add(this.panel);
 	}
 
-	
 	protected void setList(List<IModel<Site>> list) {
-		this.list =list;
-		
+		this.list = list;
+
 	}
 }

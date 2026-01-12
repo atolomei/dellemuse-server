@@ -1,5 +1,69 @@
 
-body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Arial, sans serif; font-size:15px; }
+body.dellemuse {margin:0; padding:0; font-family: Montserrat, Arial, sans serif; font-size:15px; }
+
+
+
+ .dellemuse .branded  .list-group-item .subtitle  {color: var(--bs-body-color);}
+
+.bg-black {background:#000000;}
+ 
+ /**--
+ 
+.branded a {color: #f8f9fa !important;}
+.branded .breadcrumb-item + .breadcrumb-item::before { color:#cccccc; }
+.branded  .text-secondary { color: #eeeeef !important;}
+.branded .form-control {background: inherit; color: white;}
+.branded .form-control::placeholder {background: inherit; color: #cccccc;}
+.branded .border-bottom {border-color: #545454 !important;}
+.branded .border-top {border-color: #545454 !important; }
+.branded .list-group-item {color:inherit;}
+ color:#131414;
+ */ 
+ 
+ /**-- */ 
+
+@media screen and (max-height: 666px) {
+  .height-sm-none {display:none !important;}	
+}
+ 
+@media screen and (max-width: 768px) {
+ .mode-title-image .menuContainer { top:22px; right:22px;}
+ .mode-title-image .menuContainer i {   font-size: 1em;}
+ .mode-title-image .dellemuse .itemMenu .dropdown i {font-size: 1em !important; }
+} 
+
+@media screen and (min-width: 769px) {
+.mode-title-image .menuContainer {top:15px;}
+}
+
+
+.mode-title-image .menuContainer i.titleIcon {display:none;}
+
+
+.expanded .menuContainer  {top:15px;}
+.menuContainer {width:auto; top:10px; right:15px; position:absolute;  z-index:1;}
+
+
+
+ 
+.global-toolbar .navbar-brand {font-size: inherit;}
+.global-toolbar .navbar-brand .titleContainer {text-align:left;}
+
+.global-toolbar .navbar-brand .title {font-weight:bold; text-transform:uppercase; color:#eeeeef; line-height:1.1em;}
+
+.global-toolbar .user .title {display: inline-block; text-transform:lowercase; font-weight:500; margin-bottom:0; font-size:1em; line-height:1.1em;}
+.global-toolbar .user .subtitle { line-height:1.1em; margin-top:0px;}
+
+.global-toolbar .user .titleSubtitleContainer {text-align:right;}
+
+
+.global-toolbar {font-size: 0.85rem;}
+
+.global-toolbar .subtitle 		{   clear:left; font-size: 0.85em; color:#aaaaaa; float:left;};
+.global-toolbar .logo .title 	{text-transform:uppercase; text-align:center; clear:left; font-size: 1em;  margin-bottom:0px; line-height:1em; float:left;}
+ 		
+.pt-x1 {padding-top: 8px;} 
+.pb-x1 {padding-bottom:8px;}
 
 
 
@@ -8,26 +72,18 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 
 .login .fw-bold {font-weight:400 !important;}
 
-.main {min-height: calc(100vh - 117px);}
+/**.main {min-height: calc(100vh - 117px);}*/
 
-.dellemuse .thumbnail {max-width: 100%; max-height: 100%; width: 100%; padding: 0px; border: 1px solid #fcfcfd;}
+.dellemuse .thumbnail {max-width: 100%; max-height: 100%; width: 100%; padding: 0px; border: none;}
 .dellemuse .imageContainer {position: relative; float: left; width: 100%; background: #eeeeef; padding: 0.5em; min-height: 10em;}
-
 
 .dellemuse  .navbar-brand img {max-height:30px; margin-right: 0.5em; float:left;}
 .dellemuse  .navbar-brand  i {color: #eeeeef; margin-top:0; margin-right: 0.5em; height:1em; float:left;}
-<!-- 
+.dellemuse  .breadcrumb {margin-bottom:0;}
 
 
-
- -->
-
-.notoggle .dropdown-toggle::after {
-  display: none;
-}
-
-.notoggle .dropdown-menu {margin-top:2em;}
-
+.notoggle .dropdown-toggle::after {display: none;}
+ 
 
 
 .mode-title {padding:0;}
@@ -35,9 +91,17 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 .dellemuse .list-group-item a.title-link    					{text-decoration: none; color: inherit; }
 .dellemuse .mode-title .list-group-item .expanded   			{padding-bottom:0.75em; }
 .dellemuse .mode-title .list-group-item .expanded a.title-link 	{font-weight:bold; font-size:1.15em;   }
-.dellemuse .list-group-item .subtitle 							{color: inherit; font-size: 1em; font-weight: normal; padding: 0; margin-top: 0.2em;}
+.dellemuse .list-group-item .subtitle 							{
+	     
+    font-weight: normal;
+   font-size:0.9em;
+    margin-top: 0.15em;
+    color: #666666;
+    float: left;
+    margin-bottom: 0.35em;
+}
 
-.dellemuse .mode-title-image .list-group-item a.title-link 		{font-size:1.2em; font-weight: bold;}
+.dellemuse .mode-title-image .list-group-item a.title-link 		{font-size:1.175em; line-height:1.35em; font-weight: bold;}
 .dellemuse .mode-title .list-group-item a.title-link  			{text-decoration: none; color: inherit; font-size: 1em; font-weight: normal; padding: 0;}
 .dellemuse .mode-title .list-group-item .subtitle 				{color: inherit; font-size: 1em; font-weight: normal; padding: 0; margin-top: 0.2em;}
 
@@ -67,16 +131,16 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 
 
 .dellemuse .jumbo-img img 						{width:auto; padding:0; border:none;} 
-.dellemuse .imgReduced .jumbo-img img.thumbnail {max-height: 20em; width: auto; padding: 2px; border: 1px solid #fcfcfd;}
+.dellemuse .imgReduced .jumbo-img img.thumbnail {max-height: 24em; width: auto; padding: 0px; border: none}
 
-.dellemuse .jumbo-sm {max-height:20em;}
+.dellemuse .jumbo-sm {max-height:15em;}
 .dellemuse .jumbo-sm img { max-height:110%;} 
 
-.dellemuse .jumbo-md {max-height:30em;}
-.dellemuse .jumbo-md img {max-height:30em;} 
+.dellemuse .jumbo-md {max-height:24em;}
+.dellemuse .jumbo-md img {max-height:24em;} 
 
-.dellemuse .jumbo-lg {max-height:80em;}
-.dellemuse .jumbo-lg img {max-height:100%;}
+.dellemuse .jumbo-lg {max-height:40em;}
+.dellemuse .jumbo-lg img {max-height:40em;}
 
 
 <!--
@@ -91,7 +155,7 @@ body.dellemuse {margin:0; padding:0; color:#131414; font-family: Montserrat, Ari
 
 .dellemuse-color {color:#dd4508;}
 
-.icon-expander 	{width:2em; float:left;}
+.icon-expander 	{width:2em; float:left; margin-right:0.5em;} 
 .icon-collapsed {width:1em; float:left;}
 .icon-expanded 	{width:1em; float:left;}
 
@@ -105,13 +169,13 @@ a.listItemLink {text-decoration: none; color: inherit;}
 .dellemuse .h1 { font-weight: bold; line-height:1.15em; margin-bottom: 0;}
  
 .dellemuse h2, 
-.dellemuse .h2 { font-weight: bold; margin-bottom: 0.75rem;}
+.dellemuse .h2 { font-weight: bold; margin-bottom: 0.75rem; }
  
 .dellemuse h3, 
-.dellemuse .h3 { font-weight: bold;}
+.dellemuse .h3 { font-weight: bold; margin-bottom: 0.6rem;}
 
 .dellemuse h4, 
-.dellemuse .h4 { font-weight: bold;}
+.dellemuse .h4 { font-weight: bold; margin-bottom: 0.3em;}
 
 .dellemuse .text p:last-child { margin-bottom:0;}
 .dellemuse .text-to-read {line-height: 1.7em; font-size:1.1em;}
@@ -166,14 +230,14 @@ a.listItemLink {text-decoration: none; color: inherit;}
 
 
 .dellemuse h1, 
-.dellemuse .h1 {font-size: calc(1.5rem + 0.45vw);}
+.dellemuse .h1 {font-size: calc(1.45rem + 0.3vw);}
 
 .dellemuse h2, 
-.dellemuse .h2 {font-size: calc(1.12rem + 0.3vw)}
+.dellemuse .h2 {font-size: calc(1.25rem + 0.2vw)}
  
 
 .dellemuse h3, 
-.dellemuse .h3 {font-size: calc(1.0rem + 0.35vw)}
+.dellemuse .h3 {font-size: calc(1.1rem + 0.2vw)}
  
 .dellemuse h4, 
 .dellemuse .h4 {font-size: calc(1.0rem + 0.2vw)}
@@ -186,8 +250,8 @@ a.listItemLink {text-decoration: none; color: inherit;}
 @media (max-width: 768px) {
 	
 .dellemuse .thumbnail {
-	max-width: 100%;
-    max-height: 18em;
+ 
+    max-height: 30em;
     width: auto;
     padding: 0px;	
 }

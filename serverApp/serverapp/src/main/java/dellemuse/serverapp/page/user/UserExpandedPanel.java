@@ -2,6 +2,7 @@ package dellemuse.serverapp.page.user;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -15,6 +16,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
+import dellemuse.serverapp.page.DellemuseServerAppHomePage;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
 
@@ -23,11 +25,12 @@ import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-
+import dellemuse.serverapp.role.RolePage;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 
@@ -51,23 +54,21 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 	static private Logger logger = Logger.getLogger(UserExpandedPanel.class.getName());
 
 	private List<IModel<Role>> userRoles;
-	 
 
 	private FormState state = FormState.VIEW;
 
-	private MultipleSelectorPanel<Role> multipleRoleSeletor;
-	private AjaxLink<Void> add;
-	private AjaxLink<Void> close;
-	private WebMarkupContainer addContainerButtons;
+	// private MultipleSelectorPanel<Role> multipleRoleSeletor;
+	// private AjaxLink<Void> add;
+	// private AjaxLink<Void> close;
+	// private WebMarkupContainer addContainerButtons;
+
 	private ListPanel<Role> userRolesPanel;
 
-	//private WebMarkupContainer listToolbarContainer;
+	// private WebMarkupContainer listToolbarContainer;
+	// private List<ToolbarItem> listToolbar;
 
-	private List<ToolbarItem> listToolbar;
 	private List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
-
-	
-	IModel<Person> pmodel;
+	private IModel<Person> pmodel;
 	private ObjectStateEnumSelector oses;
 
 	public UserExpandedPanel(String id, IModel<User> model) {
@@ -82,14 +83,18 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 		setUpModel();
 		addUserRoles();
 
-		Person person = getPersonDBService().getByUser( getModel().getObject()).get();
-		pmodel = new ObjectModel<Person>(person);
-		
-		add(new Label("name",  pmodel.getObject().getLastFirstname()));
-		add(new Label("email", (pmodel.getObject().getEmail()!=null)? (pmodel.getObject().getEmail()) : "-"));
-		add(new Label("phone", (pmodel.getObject().getPhone()!=null)? (pmodel.getObject().getPhone()) : "-"));
-		
-		
+		Optional<Person> o = getPersonDBService().getByUser(getModel().getObject());
+
+		if (o.isPresent()) {
+			pmodel = new ObjectModel<Person>(o.get());
+			add(new Label("name", pmodel.getObject().getFirstLastname()));
+			add(new Label("email", (pmodel.getObject().getEmail() != null) ? (pmodel.getObject().getEmail()) : "-"));
+			add(new Label("phone", (pmodel.getObject().getPhone() != null) ? (pmodel.getObject().getPhone()) : "-"));
+		} else {
+			add(new Label("name", "-"));
+			add(new Label("email", "-"));
+			add(new Label("phone", "-"));
+		}
 	}
 
 	@Override
@@ -98,11 +103,9 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 		if (this.userRoles != null)
 			this.userRoles.forEach(t -> t.detach());
-		
-		if (pmodel!=null)
-			pmodel.detach();
 
-		 
+		if (pmodel != null)
+			pmodel.detach();
 	}
 
 	@Override
@@ -116,10 +119,6 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 	public ObjectStateEnumSelector getObjectStateEnumSelector() {
 		return this.oses;
-	}
-
-	protected void setList(List<IModel<Role>> list) {
-		this.userRoles = list;
 	}
 
 	public FormState getState() {
@@ -170,7 +169,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
 				loadUserRolesList();
 				event.getTarget().add(UserExpandedPanel.this.userRolesPanel);
-				//event.getTarget().add(UserExpandedPanel.this.listToolbarContainer);
+				// event.getTarget().add(UserExpandedPanel.this.listToolbarContainer);
 			}
 
 			@Override
@@ -213,6 +212,10 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 		return Model.of(str.toString());
 	}
 
+	protected void setList(List<IModel<Role>> list) {
+		this.userRoles = list;
+	}
+
 	private void resetList() {
 		this.userRoles = null;
 	}
@@ -222,8 +225,6 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 		User u = getModel().getObject();
 		getModel().setObject(getUserDBService().findWithDeps(u.getId()).get());
 	}
-
-	 
 
 	private WebMarkupContainer getMenu(IModel<Role> model) {
 		NavDropDownMenu<Role> menu = new NavDropDownMenu<Role>("menu", model, null) {
@@ -236,8 +237,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 		menu.setOutputMarkupId(true);
 
-		menu.setTitleCss
-("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
@@ -265,7 +265,6 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 			}
 		});
 
-		 
 		return menu;
 	}
 
@@ -277,16 +276,16 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 		return this.userRoles;
 	}
 
-	 
-	 
 	private void addUserRoles() {
 
 		this.userRolesPanel = new ListPanel<Role>("userRoles") {
 
 			private static final long serialVersionUID = 1L;
 
-			protected List<IModel<Role>> filter(List<IModel<Role>> initialList, String filter) {
-				return iFilter(initialList, filter);
+			
+			@Override
+			public IModel<String> getItemLabel(IModel<Role> model) {
+				return  UserExpandedPanel.this.getObjectTitle(model);
 			}
 
 			@Override
@@ -318,8 +317,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 					@Override
 					public void onClick() {
-						// setResponsePage(new
-						// ArtExhibitionItemPage(getModel(),UserRolesPanel.this.getItems()));
+						 setResponsePage(new RolePage(getModel()));
 					}
 
 					@Override
@@ -329,8 +327,8 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 					@Override
 					protected WebMarkupContainer getObjectMenu() {
-						return null;	
-						//return UserExpandedPanel.this.getMenu(getModel());
+						return null;
+						// return UserExpandedPanel.this.getMenu(getModel());
 					}
 
 					@Override
@@ -339,7 +337,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 					}
 
 				};
-				
+
 				return panel;
 			}
 
@@ -367,28 +365,25 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 	/**
 	 * 
 	 * 
-	
-	private void addListToolbar() {
-
-		this.listToolbarContainer = new WebMarkupContainer("listToolbarContainer") {
-			private static final long serialVersionUID = 1L;
-		};
-
-		this.listToolbarContainer.setOutputMarkupId(true);
-		add(this.listToolbarContainer);
-
-		List<ToolbarItem> list = getListToolbarItems();
-
-		if (list != null && list.size() > 0) {
-
-			Toolbar toolbarItems = new Toolbar("listToolbar");
-			list.forEach(t -> toolbarItems.addItem(t));
-
-			this.listToolbarContainer.add(toolbarItems);
-
-		} else {
-			this.listToolbarContainer.add(new InvisiblePanel("listToolbar"));
-		}
-	}
- */
+	 * 
+	 * private void addListToolbar() {
+	 * 
+	 * this.listToolbarContainer = new WebMarkupContainer("listToolbarContainer") {
+	 * private static final long serialVersionUID = 1L; };
+	 * 
+	 * this.listToolbarContainer.setOutputMarkupId(true);
+	 * add(this.listToolbarContainer);
+	 * 
+	 * List<ToolbarItem> list = getListToolbarItems();
+	 * 
+	 * if (list != null && list.size() > 0) {
+	 * 
+	 * Toolbar toolbarItems = new Toolbar("listToolbar"); list.forEach(t ->
+	 * toolbarItems.addItem(t));
+	 * 
+	 * this.listToolbarContainer.add(toolbarItems);
+	 * 
+	 * } else { this.listToolbarContainer.add(new InvisiblePanel("listToolbar")); }
+	 * }
+	 */
 }

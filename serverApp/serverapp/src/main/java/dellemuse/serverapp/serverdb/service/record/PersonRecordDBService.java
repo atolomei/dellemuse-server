@@ -20,6 +20,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
@@ -154,24 +155,7 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 	}	
 
 	 
-	/**
-	@Transactional
-	private void deleteResources(Long id) {
-		
-		Optional<PersonRecord> o_aw = super.findWithDeps(id);
-
-		if (o_aw.isEmpty())
-			return;
-		
-		PersonRecord a=o_aw.get();
-		
-		getResourceDBService().delete(a.getPhoto());
-		getResourceDBService().delete(a.getAudio());
-		getResourceDBService().delete(a.getVideo());
-		
-	}
-**/
-	
+ 
 	
 	@Transactional
 	public Optional<PersonRecord> findWithDeps(Long id) {
@@ -183,16 +167,32 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 		
 		PersonRecord aw = o_aw.get();
 		 
-		Resource photo = aw.getPhoto();
+		 
 
 		User u = aw.getLastModifiedUser();
 		
 		if (u!=null)
 			u.getDisplayname();
 		
-		if (photo != null)
-			photo.getBucketName();
+	 
 		
+		
+		Resource photo = aw.getPhoto();
+		if (photo!=null)
+			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		
+		Resource audio = aw.getAudio();
+		if (audio!=null)
+			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
+
+		User user = aw.getLastModifiedUser();
+		if (user!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		
+		if (aw.getParentObject()!=null) {
+			Person c = (Person) aw.getParentObject();
+			aw.setPerson( getPersonDBService().findById(c.getId()).get());
+		}
 		aw.setDependencies(true);
 
 		return o_aw;

@@ -60,7 +60,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	private TextAreaField<String> introField;
 	private TextAreaField<String> specField;
 	private FileUploadSimpleField<Resource> audioField;
-	private ChoiceField<Boolean> audioAutoField;
+
 	private IModel<Resource> audioModel;
 	private boolean uploadedAudio = false;
 	private AjaxLink<R> translate;
@@ -219,6 +219,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			for (FileUpload upload : uploads) {
 				try {
+
 					logger.debug("name -> " + upload.getClientFileName());
 					logger.debug("Size -> " + upload.getSize());
 
@@ -282,10 +283,12 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			if (success) {
 
-				logger.debug(getModelObject().getName());
-				logger.debug(getModelObject().getSubtitle());
-				logger.debug(getModelObject().getIntro());
-				logger.debug(getModelObject().getInfo());
+				/**
+				 * logger.debug(getModelObject().getName());
+				 * logger.debug(getModelObject().getSubtitle());
+				 * logger.debug(getModelObject().getIntro());
+				 * logger.debug(getModelObject().getInfo());
+				 **/
 
 				save(getModelObject(), getSessionUser().get(), AuditKey.TRANSLATE);
 				loadForm();
@@ -343,10 +346,10 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -380,31 +383,16 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		form.add(specField);
 		form.add(opensField);
 
-		/**
-		 * audioAutoField = new ChoiceField<Boolean>("audioAuto", new
-		 * PropertyModel<Boolean>(getModel(), "audioAuto"), getLabel("audioAuto")) {
-		 * 
-		 * private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public IModel<List<Boolean>> getChoices() { return new
-		 *           ListModel<Boolean>(b_list); }
-		 * 
-		 * @Override protected String getDisplayValue(Boolean value) { if (value ==
-		 *           null) return null; if (value.booleanValue()) return
-		 *           getLabel("yes").getObject(); return getLabel("no").getObject(); }
-		 *           };
-		 * 
-		 *           audioAutoField.setVisible(isAudioVisible());
-		 * 
-		 *           form.add(audioAutoField);
-		 **/
-
 		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
 
 			protected boolean processFileUploads(List<FileUpload> uploads) {
 				return ObjectRecordEditor.this.processAudioUpload(uploads);
+			}
+
+			protected void onRemove(AjaxRequestTarget target) {
+				ObjectRecordEditor.this.onRemove(target);
 			}
 
 			public Image getImage() {
@@ -434,6 +422,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 		this.openAudioStudio = new Link<R>("openAudioStudio", getModel()) {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
@@ -441,6 +430,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get())));
 				logger.error("audio studio not created for -> " + getModel().getObject().getDisplayname());
 			}
+
 			@Override
 			public boolean isVisible() {
 				return isAudioStudioEnabled(getModel().getObject());
@@ -474,7 +464,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			public boolean isVisible() {
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -497,10 +487,10 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -515,5 +505,18 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		getForm().add(b_buttons_top);
 		getForm().addOrReplace(new InvisiblePanel("error"));
 
+	}
+
+	protected void onRemove(AjaxRequestTarget target) {
+		try {
+			this.audioModel=null;
+			getModel().getObject().setAudio(null);
+			this.uploadedAudio = false;
+			target.add(this);
+		} catch (Exception e) {
+			loadForm();
+			getForm().addOrReplace(new ErrorPanel("error", e));
+			target.add(this);
+		}
 	}
 }

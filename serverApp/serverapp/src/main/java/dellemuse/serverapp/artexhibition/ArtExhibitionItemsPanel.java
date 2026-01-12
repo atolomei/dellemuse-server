@@ -55,18 +55,17 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	private IModel<Site> siteModel;
 	private FormState state = FormState.VIEW;
 
-	
 	private List<IModel<ArtWork>> list;
 	private List<IModel<ArtExhibitionItem>> selected;
-	
+
 	private MultipleSelectorPanel<ArtWork> multipleSeletor;
 
 	private AjaxLink<Void> add;
 	private AjaxLink<Void> close;
-	
+
 	private WebMarkupContainer addContainerButtons;
 	private WebMarkupContainer listToolbarContainer;
-	
+
 	private ListPanel<ArtExhibitionItem> selectedPanel;
 
 	private List<ToolbarItem> listToolbar;
@@ -74,19 +73,19 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 
 	private ObjectStateEnumSelector oses;
 
-	
-	public ArtExhibitionItemsPanel(String id, IModel<ArtExhibition> model, IModel<Site> siteModel) {
+	public ArtExhibitionItemsPanel(String id, ObjectStateEnumSelector oses, IModel<ArtExhibition> model, IModel<Site> siteModel) {
 		super(id, model);
 		this.siteModel = siteModel;
+		this.oses=oses;
 		setOutputMarkupId(true);
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
+
 		setUpModel();
-		
+
 		addListToolbar();
 		addSelectedPanel();
 		addMultipleSelector();
@@ -242,7 +241,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 
 		list = new ArrayList<IModel<ArtWork>>();
 		getSiteArtWorks(this.siteModel.getObject()).forEach(i -> list.add(new ObjectModel<ArtWork>(i)));
-		 
+
 		return list;
 	}
 
@@ -259,7 +258,6 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 
 		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
- 	 
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionItem>() {
 
@@ -286,7 +284,6 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		});
 		return menu;
 	}
-
 
 	private void addMultipleSelector() {
 
@@ -379,8 +376,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		this.multipleSeletor.setOutputMarkupId(true);
 		this.addContainerButtons.add(this.multipleSeletor);
 	}
-	
-	
+
 	/**
 	 * 
 	 * 
@@ -393,8 +389,9 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 
 			private static final long serialVersionUID = 1L;
 
-			protected List<IModel<ArtExhibitionItem>> filter(List<IModel<ArtExhibitionItem>> initialList, String filter) {
-				return iFilter(initialList, filter);
+			@Override
+			public IModel<String> getItemLabel(IModel<ArtExhibitionItem> model) {
+				return ArtExhibitionItemsPanel.this.getObjectTitle(model.getObject());
 			}
 
 			@Override
@@ -549,4 +546,5 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 			loadList();
 		}
 		return this.selected;
-	}}
+	}
+}

@@ -20,7 +20,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.audiostudio.AudioStudioPage;
-import dellemuse.serverapp.editor.DBObjectEditor;
+
 import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
@@ -152,6 +152,8 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		setUpModel();
 		addAlert();
 
+		add(new Label("audio-guide-info", getLabel("audio-guide-info", getModel().getObject().getMasterLanguage())));
+
 		add(new InvisiblePanel("error"));
 
 		Form<GuideContent> form = new Form<GuideContent>("form");
@@ -194,7 +196,6 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		form.add(audioField);
 
 		audioIdField = new StaticTextField<String>("audioid", new PropertyModel<String>(getModel(), "audioId"), getLabel("audioid"));
-
 		form.add(audioIdField);
 
 		EditButtons<GuideContent> buttons = new EditButtons<GuideContent>("buttons-bottom", getForm(), getModel()) {
@@ -218,10 +219,10 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -245,10 +246,10 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -352,7 +353,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			}
 
 			public String getIconCss() {
-				return "fa-rduotone fa-pen-to-square";
+				return "fa-duotone fa-pen-to-square";
 			}
 
 		};

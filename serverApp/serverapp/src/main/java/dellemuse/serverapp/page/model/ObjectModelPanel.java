@@ -1,7 +1,5 @@
 package dellemuse.serverapp.page.model;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +14,6 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
 import dellemuse.serverapp.command.CommandService;
 import dellemuse.serverapp.elevenlabs.ElevenLabsService;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -24,6 +21,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Identifiable;
 import dellemuse.serverapp.serverdb.model.Institution;
@@ -33,15 +31,14 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
-import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
-import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
+ 
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionSectionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
@@ -103,7 +100,20 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return Model.of(str.toString());
 	}
 	
-
+	
+	protected IModel<String> getObjectSubtitle(MultiLanguageObject o) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getObjectSubtitle(o, getLocale()));
+		return Model.of(str.toString());
+	}
+	
+	protected IModel<String> getObjectInfo(MultiLanguageObject o) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getInfo(o, getLocale()));
+		return Model.of(str.toString());
+	}
+	
+	
 	/** Save --------------------------------------------------------- */
 
 
@@ -161,6 +171,11 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return service.findById(id);
 	}
 
+	public Optional<Artist> getArtist(Long id) {
+		ArtistDBService service = (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
+		return service.findById(id);
+	}
+	
 	/** Iterable */
 
 	protected Iterable<Institution> getInstitutions() {
@@ -173,6 +188,11 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return service.findAllSorted();
 	}
 
+	public Iterable<Artist> getArtists() {
+		ArtistDBService service = (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
+		return service.findAllSorted();
+	}
+	
 	public Iterable<Site> getSites(Institution in) {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 		return service.getSites(in.getId());
@@ -186,14 +206,14 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return getGuideContentDBService().getBySite(s);
 	}
 
-	public Iterable<ArtWork> getArtWorks(Person person) {
-		if (person.isDependencies())
-			person=getPersonDBService().findWithDeps(person.getId()).get();
-		return person.getArtworks();
+	public Iterable<ArtWork> getArtWorks(Artist a) {
+		if (a.isDependencies())
+			a=getArtistDBService().findWithDeps(a.getId()).get();
+		return a.getArtworks();
 	}
 
 	public Iterable<ArtWork> getSiteArtWorks(Site site) {
-		return getSiteDBService().getSiteArtWorks(site, ObjectState.EDITION, ObjectState.APPROVED);
+		return getSiteDBService().getSiteArtWorks(site, ObjectState.EDITION, ObjectState.PUBLISHED);
 	}
 
 	public Iterable<GuideContent> getGuideContens(ArtExhibitionItem o) {
@@ -340,11 +360,11 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 
 		int n = 0;
 	
-		/**for (Person p : aw.getArtists()) {
+		for (Artist a : aw.getArtists()) {
 			if (n++ > 0)
 				info.append(", ");
-			info.append(p.getDisplayname());
-		}*/
+			info.append(a.getFirstLastname());
+		}
 		
 		String str = TextCleaner.truncate(info.toString(), 220);
 		return str;
@@ -630,6 +650,11 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);
 	}
 
+	protected ArtistDBService getArtistDBService() {
+		return (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
+	}
+
+	
 	protected PersonDBService getPersonDBService() {
 		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 	}

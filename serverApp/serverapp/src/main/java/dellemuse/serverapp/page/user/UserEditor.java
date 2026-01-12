@@ -77,6 +77,10 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 		this.localeField = new LocaleField("locale", new PropertyModel<Locale>(getModel(), "locale"), getLabel("locale"));
 		
+		
+		if(getModel().getObject().isRoot())
+			this.nameField.setReadOnly(true);
+		
 		this.form.add(nameField);
 		this.form.add(zoneidField);
 		this.form.add(localeField);

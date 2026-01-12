@@ -19,6 +19,7 @@ import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -50,6 +51,10 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	static private Logger logger = Logger.getLogger(SiteRolesPage.class.getName());
 
 	private List<ToolbarItem> list;
+
+	protected List<Language> getSupportedLanguages() {
+		return getModel().getObject().getLanguages();
+	}
 
 	
 	@Override
