@@ -1,0 +1,20 @@
+package dellemuse.serverapp.icons;
+
+public class Icons {
+
+	public static final String ArtExhibition 		= "fa-solid fa-solid fa-gallery-thumbnails";
+	public static final String ArtExhibitionGuide	= "fa-solid fa-folder-music";
+	public static final String Artist 				= "fa-duotone fa-person";
+	public static final String ArtWork				= "fa-duotone fa-solid fa-paintbrush";
+	public static final String GuideContent			= "fa-duotone fa-solid fa-headphones";
+	public static final String Person				= "fa-duotone fa-solid fa-person-simple";
+	public static final String Site 				= "fa-duotone fa-solid fa-hotel";
+	
+ 
+
+	
+	
+	
+	
+	
+}
