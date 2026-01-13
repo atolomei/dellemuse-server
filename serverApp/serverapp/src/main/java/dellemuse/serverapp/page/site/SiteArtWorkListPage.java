@@ -9,38 +9,37 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.component.IRequestablePage;
+
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.ServerConstant;
+
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
+
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
-import dellemuse.serverapp.page.library.SiteListPage;
+
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Institution;
+
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
+
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+
 import io.odilon.util.Check;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
-import io.wktui.form.FormState;
+
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -69,22 +68,21 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 	private List<ToolbarItem> listToolbar;
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;
 
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
+		User user = ouser.get();
+
+		if (user.isRoot())
 			return true;
-		
+
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
-		
+
 		{
 			Set<RoleGeneral> set = user.getRolesGeneral();
 			if (set != null) {
@@ -107,6 +105,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		return false;
 	}
+
 	public SiteArtWorkListPage() {
 		super();
 		setIsExpanded(true);
@@ -150,18 +149,16 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	}
 
 	/**
-	@Override
-	public IModel<String> getObjectTitle(IModel<ArtWork> model) {
-		StringBuilder str = new StringBuilder();
-		str.append(model.getObject().getDisplayname());
+	 * @Override public IModel<String> getObjectTitle(IModel<ArtWork> model) {
+	 *           StringBuilder str = new StringBuilder();
+	 *           str.append(model.getObject().getDisplayname());
+	 * 
+	 *           if (model.getObject().getState() == ObjectState.DELETED) return new
+	 *           Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+	 * 
+	 *           return Model.of(str.toString()); }
+	 **/
 
-		if (model.getObject().getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
-
-		return Model.of(str.toString());
-	}
-**/
-	
 	@Override
 	public IModel<String> getObjectSubtitle(IModel<ArtWork> model) {
 		return Model.of(getArtistStr(model.getObject()));
@@ -183,8 +180,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		menu.setOutputMarkupId(true);
 
-		menu.setTitleCss
-("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {

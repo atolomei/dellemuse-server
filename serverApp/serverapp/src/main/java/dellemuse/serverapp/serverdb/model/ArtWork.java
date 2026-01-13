@@ -19,6 +19,8 @@ import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -49,6 +51,12 @@ public class ArtWork extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private ArtWorkType artworkType;
 
+	@Column(name = "source")
+	private String source;	
+	
+	@Column(name = "epoch")
+	private String epoch;	
+
 	@Column(name = "year")
 	private int year;
 
@@ -62,6 +70,11 @@ public class ArtWork extends MultiLanguageObject {
 	@Column(name = "url")
 	private String url;
 
+	@Column(name = "objectType")
+	@Enumerated(EnumType.ORDINAL)
+	private ObjectType objectType;
+	
+	
 	public ArtWork() {
 	}
 
@@ -148,6 +161,30 @@ public class ArtWork extends MultiLanguageObject {
 		this.qrcode = qrcode;
 	}
 
+	public String getSource() {
+		return source;
+	}
+
+	public String getEpoch() {
+		return epoch;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public void setEpoch(String epoch) {
+		this.epoch = epoch;
+	}
+
+	public ObjectType getObjectType() {
+		return objectType;
+	}
+
+	public void setObjectType(ObjectType objectType) {
+		this.objectType = objectType;
+	}
+
 };
 
 /**
@@ -171,10 +208,7 @@ public class ArtWork extends MultiLanguageObject {
  *                  = ArtWorkArtist.class)
  * @JoinColumn(name = "artwork_id", nullable = true, insertable = true) private
  *                  Set<ArtWorkArtist> awartists = new HashSet<>();
- *
- *
- *
- * 
+  
  * 
  * 
  *                  select aa.artist_id, p.id, p.lastname, p.name, aw.id,
@@ -213,11 +247,7 @@ public class ArtWork extends MultiLanguageObject {
  * 
  * 
  **/
-
-//public Set<ArtWorkArtist> getAwArtists() {
-//	return this.awartists;
-//}
-
+ 
 /**
  * @ManyToMany(fetch = FetchType.LAZY)
  * @JoinTable(name = "artwork_person", joinColumns = {@JoinColumn(name =

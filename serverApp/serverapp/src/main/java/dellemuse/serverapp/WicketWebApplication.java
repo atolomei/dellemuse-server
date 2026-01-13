@@ -1,8 +1,7 @@
 package dellemuse.serverapp;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
-import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
+ 
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
@@ -13,7 +12,7 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.
 
 import dellemuse.serverapp.page.DellemuseServerAppHomePage;
 import dellemuse.serverapp.register.LoginPage;
-import dellemuse.serverapp.security.config.MyAuthtenticatedWebSession;
+ 
 
 @Component
 public class WicketWebApplication extends WicketBootSecuredWebApplication  {

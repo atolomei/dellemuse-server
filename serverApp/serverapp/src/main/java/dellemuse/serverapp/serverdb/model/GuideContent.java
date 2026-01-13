@@ -20,7 +20,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 /**
- * 
+ *  
+ *  ExhibitionGuide 
+ *  ExhibitionItem
+ *  ExhibitionSection
+ *  Exhibition....
+ *  
+ *  
  */
 @Entity
 @Table(name = "guideContent")

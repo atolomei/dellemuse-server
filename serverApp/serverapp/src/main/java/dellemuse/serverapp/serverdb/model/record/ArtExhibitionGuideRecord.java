@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.AudioStudio;
+ 
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import jakarta.persistence.Entity;

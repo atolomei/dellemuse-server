@@ -641,7 +641,7 @@ public class SitePage extends BasePage {
 			};
 			this.exhibitionsContainer.add(panel);
 
-			panel.setListPanelMode(ListPanelMode.TITLE);
+			panel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
 			panel.setLiveSearch(false);
 			panel.setHasExpander(true);
 			panel.setSettings(true);

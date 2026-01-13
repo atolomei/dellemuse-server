@@ -31,6 +31,9 @@ import dellemuse.serverapp.page.model.ObjectModel;
 
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Artist;
+import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.ObjectType;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -71,6 +74,11 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 	private List<IModel<Artist>> choices;
 	
 
+
+	private TextField<String> sourceField;
+	private TextField<String> epochField;
+	private ChoiceField<ObjectType> objectTypeField;
+	
 	
 	public ArtWorkEditor(String id, IModel<ArtWork> model) {
 		super(id, model);
@@ -111,6 +119,27 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			set.forEach(i -> selected.add(new ObjectModel<Artist>(i)));
 		}
 
+	 
+		this.objectTypeField = new ChoiceField<ObjectType>("objectType", new PropertyModel<ObjectType>(getModel(), "objectType"), getLabel("objectType")) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<ObjectType>> getChoices() {
+				return new ListModel<ObjectType>(getObjectTypes());
+			}
+
+			@Override
+			protected String getDisplayValue(ObjectType value) {
+				if (value == null)
+					return null;
+				return value.getLabel(getLocale());
+			}
+		};
+		form.add(this.objectTypeField);
+		
+		 
+		
 		mArtistField = new MultipleSelectField<Artist>("artists", selected, getLabel("artist"), choices) {
 
 			private static final long serialVersionUID = 1L;
@@ -136,13 +165,25 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 				selected.add(model);
 				target.add(getForm());
 			}
+			
+			@Override
+			public boolean isVisible() {
+				return ArtWorkEditor.this.getModel().getObject().getObjectType()==ObjectType.ARTWORK;
+			}
 		};
 		form.add(mArtistField);
 
-		this.urlField = new TextField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"));
-		this.specField = new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8);
-		this.nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		this.infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20);
+		
+		this.sourceField 	= new TextField<String>("source", new PropertyModel<String>(getModel(), "source"), getLabel("source"));
+		this.epochField 	= new TextField<String>("epoch", new PropertyModel<String>(getModel(), "epoch"), getLabel("epoch"));
+
+		form.add(sourceField);
+		form.add(epochField);
+		
+		this.urlField 	= new TextField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"));
+		this.specField 	= new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8);
+		this.nameField 	= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		this.infoField 	= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20);
 		this.photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
@@ -282,6 +323,10 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		getForm().add(b_buttons_top);
 	}
 
+	protected List<ObjectType> getObjectTypes() {
+		return ObjectType.getValues();
+	}
+
 	public Optional<Artist> getArtist(Long value) {
 		return super.getArtist(value);
 	}
@@ -298,8 +343,10 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 		try {
 
-			if (getUpdatedParts() == null || getUpdatedParts().size() == 0)
+			if (getUpdatedParts() == null || getUpdatedParts().size() == 0) {
+				target.add(this);
 				return;
+			}
 
 			getUpdatedParts().forEach(s -> logger.debug(s));
 
@@ -308,8 +355,10 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 				this.selected.forEach(i-> set.add(i.getObject()));
 				getModel().getObject().setArtists(set);
 			}
-			else
+			else {
 				getModel().getObject().setArtists(null);
+			
+			}
 			
 
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());

@@ -76,8 +76,21 @@ public class BrandedSiteSearcherPanel extends BaseSiteSearcherPanel implements I
 	}
 	
 	protected String getSaveStyle() {
-		return "margin-top: 0px; padding-top: 6px; padding-bottom: 5px; border-color:#495057; font-size:13px; border-radius:6px;";
+		return "margin-top: 0px;"
+				+ "    padding-top: 8px;"
+				+ "    padding-bottom: 5px;"
+				+ "    border-top: none;"
+				+ "    border-bottom: none;"
+				+ "    border-right: none;"
+				+ "    border-left: 1px solid #495057;"
+				+ "    font-size: 13px;"
+				+ "    border-radius: 0 6px 6px 0;"
+				+ "    padding-left: 12px;"
+				+ "    padding-right: 12px;";
 	}
+	
+	
+	
 	
 
 	 

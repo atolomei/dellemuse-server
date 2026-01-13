@@ -3,6 +3,23 @@ package dellemuse.serverapp.serverdb.model;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+
+/**
+ * 
+ * 
+ * 
+ * 
+ * ObjectSource
+ * ------------
+ * 
+ * HumanMadeObject
+ *      ArtWorkObject
+ *      HistoricObject
+ *      
+ * NoHumanMadeObject
+ * 
+ * 
+ */
 public enum ObjectState {
 	
 	DRAFT (0, "draft"),

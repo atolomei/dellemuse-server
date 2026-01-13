@@ -367,11 +367,20 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 	}
 
 	protected IModel<String> getObjectInfo(IModel<GuideContent> model) {
+		
 		if (!model.getObject().isDependencies())
 			model.setObject(super.findGuideContentWithDeps(model.getObject().getId()).get());
-		return Model.of(TextCleaner.clean(getLanguageObjectService().getInfo(model.getObject(), getLocale()), ServerConstant.INFO_MAX));
+		
+		String s=getLanguageObjectService().getIntro(model.getObject(), getLocale());
+		
+		if (s!=null && s.length()>0)
+			return Model.of(TextCleaner.clean(s, ServerConstant.INTRO_MAX));
+		
+		return Model.of(TextCleaner.clean(getLanguageObjectService().getInfo(model.getObject(), getLocale()), ServerConstant.INTRO_MAX));
 	}
 
+	
+	
 	protected IModel<String> getGuideContentSubtitle(IModel<GuideContent> model) {
 		
 		
@@ -516,8 +525,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 					@Override
 					protected IModel<String> getInfo() {
-						return null;
-						//return BrandedArtExhibitionGuidePanel.this.getObjectInfo(getModel());
+						return BrandedArtExhibitionGuidePanel.this.getObjectInfo(getModel());
 					}
 
 					@Override

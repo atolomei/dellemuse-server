@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
+ 
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -24,7 +24,7 @@ import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.editor.DBObjectEditor;
+ 
 import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
@@ -34,9 +34,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
-import dellemuse.serverapp.serverdb.model.security.RoleSite;
+ 
 import dellemuse.serverapp.service.DTFormatter;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
@@ -85,11 +83,7 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 	private IModel<Site> siteModel;
 	private List<ToolbarItem> x_list;
 
-	
-	
-	
-	
-	/**
+ 	/**
 	 * @param id
 	 * @param model
 	 */
@@ -203,8 +197,8 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 		
 	 
 		ordinalield = new NumberField<Integer>("ordinal", new PropertyModel<Integer>(getModel(), "ordinal"), getLabel("ordinal"));
+	
 		form.add(ordinalield);
-		
 		form.add(specField);
 		form.add(locationField);
 		form.add(opensField);

@@ -27,6 +27,7 @@ import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.ObjectType;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -79,7 +80,8 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		c.setState(ObjectState.EDITION);
-
+		c.setObjectType(ObjectType.ARTWORK);
+		
 		
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
 		getRepository().save(c);
@@ -99,7 +101,7 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 		c.setSite(site);
 		c.setMasterLanguage(site.getMasterLanguage());
 		c.setLanguage(site.getLanguage());
-		
+		c.setObjectType(ObjectType.ARTWORK);
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);

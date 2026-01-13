@@ -51,20 +51,20 @@ import jakarta.persistence.Table;
 @Table(name = "Site")
 @JsonInclude(Include.NON_NULL)
 public class Site extends MultiLanguageObject {
-
+	 
 	static List<Language> defaults;
 
 	static {
 		defaults = new ArrayList<Language>();
-		defaults.add(Language.of(Language.EN));
-		defaults.add(Language.of(Language.ES));
-		defaults.add(Language.of(Language.PT));
+		defaults.add( Language.of(Language.EN));
+		defaults.add( Language.of(Language.ES));
+		defaults.add( Language.of(Language.PT));
 	}
 
 	static public List<Language> getDefaultLanguages() {
 		return defaults;
 	}
-
+	
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
 	@JoinColumn(name = "siteType_id", nullable = true)
 	@JsonManagedReference
@@ -126,12 +126,13 @@ public class Site extends MultiLanguageObject {
 	@Column(name = "labelPermanentExhibitions")
 	private String labelPermanentExhibitions;
 
+	
 	@Column(name = "labelTemporaryExhibitions")
 	private String labelTemporaryExhibitions;
 
 	@Column(name = "sortAlphabetical")
 	private boolean sortAlphabetical;
-
+	
 	// Resource
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "logo", nullable = true)
@@ -158,7 +159,8 @@ public class Site extends MultiLanguageObject {
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "languages", columnDefinition = "json")
 	private Map<String, String> languages;
-
+	
+	
 	public Site() {
 	}
 
@@ -345,32 +347,32 @@ public class Site extends MultiLanguageObject {
 	public void setZoneId(ZoneId z) {
 		this.setZoneIdStr(z.getId());
 	}
-
+	
 	public ZoneId getZoneId() {
-
-		if (getZoneIdStr() == null)
+		
+		if (getZoneIdStr()==null)
 			return ZoneId.systemDefault();
-
+		
 		return ZoneId.of(zoneId);
 	}
 
 	public List<Language> getLanguages() {
-		if (this.languages == null) {
+		if (this.languages==null) {
 			return Site.getDefaultLanguages();
 		}
 		List<Language> list = new ArrayList<Language>();
-		this.languages.forEach((k, v) -> list.add(Language.of(k)));
+		this.languages.forEach( (k,v) -> list.add( Language.of(k)));
 		return list;
 	}
-
+	
 	public void setLanguages(List<Language> list) {
-		if (list == null) {
-			this.languages = null;
+		if (list==null) {
+			this.languages=null;
 			return;
 		}
 		Map<String, String> map = new HashMap<String, String>();
-		list.forEach(l -> map.put(l.getLanguageCode(), l.getLanguageCode()));
-		setLanguagesMap(map);
+		list.forEach( l -> map.put(l.getLanguageCode(), l.getLanguageCode()));
+		setLanguagesMap( map );
 	}
 
 	public Map<String, String> getLanguagesMap() {
@@ -397,7 +399,7 @@ public class Site extends MultiLanguageObject {
 		this.labelTemporaryExhibitions = labelTemporaryExhibitions;
 	}
 
-	public boolean isetical() {
+	public boolean isSortAlphabetical() {
 		return sortAlphabetical;
 	}
 
@@ -405,4 +407,5 @@ public class Site extends MultiLanguageObject {
 		this.sortAlphabetical = sortAlphabetical;
 	}
 
+	 
 };

@@ -295,7 +295,7 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 	@Override
 	public void onClick(IModel<ArtExhibition> model) {
-		setResponsePage(new ArtExhibitionPage(model));
+		setResponsePage(new ArtExhibitionPage(model, getList()));
 	}
 
 	@Override

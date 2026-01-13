@@ -228,6 +228,27 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 	}
 	 	
 	
+	public String getIcon() {
+		return "fa-solid fa-magnifying-glass";
+	}
+	
+	public String getIconStyle() {
+		/**return "margin-top: 0px;  padding-top: 5px; padding-bottom: 5px; border-color: #555555;"
+				+ "font-size: 14px; border-radius: 0;"
+				+ " border-top: none;  border-bottom: none;	"
+				+ "border-left: 1px solid #555555; "
+				+ "border-right: none; padding-left: 10px  padding-right: 10px;";
+	*/
+		return null;
+	
+	}
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * 
 	 * 
@@ -249,13 +270,26 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 			protected void onSubmit(AjaxRequestTarget target) {
 				 BaseSiteSearcherPanel.this.onSubmit(target);
 			}
+			
+			public String getIcon() {
+				return BaseSiteSearcherPanel.this.getIcon();	
+				//return  BaseSiteSearcherPanel.this.getLabel("search");
+			}
+
+			public String getIconStyle() {
+				return BaseSiteSearcherPanel.this.getIconStyle();	
+				//return  BaseSiteSearcherPanel.this.getLabel("search");
+			}
+
+			
 			public IModel<String> getLabel() {
-				return  BaseSiteSearcherPanel.this.getLabel("search");
+				return null;	
+				//return  BaseSiteSearcherPanel.this.getLabel("search");
 			}
 			  
 			protected String getSaveCss() {
 			        return BaseSiteSearcherPanel.this.getSaveCss();
-			   }
+			}
 		};
 		
 		this.aidField .setCss("form-control text-start text-md-start text-lg-start text-xl-start text-xxl-start");
@@ -263,19 +297,10 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site>  implemen
 		submit.setRowCss("d-inline-block");
 		submit.setColCss("w-100 mt-xxl-0 mt-xl-0 mt-lg-0 mt-md-0 mt-sm-0 mt-xs-0 pt-0");
 		
+		
 		if (getSaveStyle() !=null )
 			submit.setStrStyle(getSaveStyle());
-
-		/**
-		 * 
-		 *     margin-top: 0px;
-    padding-top: 6px;
-    padding-bottom: 5px;
-    border-color: #495057;
-    font-size: 13px;
-    border-radius: 6px;
-    
-		 */
+ 
 		
 		this.form.add(submit);
 		this.form.setFormState(FormState.EDIT);

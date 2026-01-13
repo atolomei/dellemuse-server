@@ -41,7 +41,7 @@ public class EvictLanguageCacheMLOCommand extends Command {
 	final String objectClassName;
 	final Long  id;
 	
-	//MultiLanguageObject o;
+	 
 
 	public EvictLanguageCacheMLOCommand(String objectClassName, Long id) {
 		this.objectClassName=objectClassName;

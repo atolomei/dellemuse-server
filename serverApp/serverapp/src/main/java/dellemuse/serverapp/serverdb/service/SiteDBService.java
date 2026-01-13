@@ -390,6 +390,26 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	}
 	
 	
+	public Iterable<ArtExhibition> getArtExhibitionsByOrdinal(Site site, ObjectState os1 ) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibition> cq = cb.createQuery(ArtExhibition.class);
+		Root<ArtExhibition> root = cq.from(ArtExhibition.class);
+
+		Predicate p0 = cb.equal(root.get("site").get("id"), site.getId().toString());
+
+		Predicate p1 = cb.equal(root.get("state"), os1);
+				Predicate finalredicate = cb.and(p0, p1);
+
+		cq.select(root).where(finalredicate);
+		cq.orderBy(cb.asc(root.get("ordinal") ));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	
+	
+	
+	}
+	
+	
 	@Transactional
 	public List<ArtExhibitionItem> getSiteArtExhibitionItems(Long siteId) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();

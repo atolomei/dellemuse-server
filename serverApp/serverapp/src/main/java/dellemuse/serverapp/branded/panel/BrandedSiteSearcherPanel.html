@@ -24,9 +24,11 @@
 						<div class="mb-0 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
 							<form class="d-block float-start text-sm-start text-start pt-2 pb-0 ps-0 pe-0"
 								style="display: block; width: 100%;" wicket:id="form">
-								<fieldset style="width: 100%; float: left; display: flex;">
-									<div style="flex: 1; font-size: 0.9em; padding-right: 5px;" wicket:id="aid"></div>
-									<div style="width: auto; font-size: 0.9em;" wicket:id="submit"></div>
+								<fieldset style="width: 100%; float: left; display: block; position:relative">
+									
+									<div style="display:block; flex: 1; font-size: 0.9em; padding-right: 0px;" wicket:id="aid"></div>
+									
+									<div style="top: 0;   width: auto;  position: absolute; right: 0px;  display: inline;" wicket:id="submit"></div>
 								</fieldset>
 							</form>
 						</div>
@@ -55,6 +57,13 @@
 </wicket:panel>
 
 
+
+	<!-- fieldset style="width: 100%; float: left; display: flex;">
+									<div style="flex: 1; font-size: 0.9em; padding-right: 5px;" wicket:id="aid"></div>
+									<div style="width: auto; font-size: 0.9em;" wicket:id="submit"></div>
+								</fieldset 
+	-->
+								
 <!--  wicket:panel>
 	<div wicket:id="listToolbarContainer" class="row">
 		<div class="mt-0 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">

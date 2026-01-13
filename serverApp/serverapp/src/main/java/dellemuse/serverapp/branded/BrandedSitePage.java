@@ -98,36 +98,6 @@ public class BrandedSitePage extends BasePage {
 		return true;
 	}
 
-	protected IModel<String> getObjectTitle(ArtExhibitionGuide o) {
-		StringBuilder str = new StringBuilder();
-		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
-		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
-		return Model.of(str.toString());
-	}
-
-	protected IModel<String> getObjectTitle(ArtExhibition o) {
-		StringBuilder str = new StringBuilder();
-		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
-		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
-		return Model.of(str.toString());
-	}
-
-	
-	
-	protected IModel<String> getObjectSubtitle(ArtExhibition o) {
-		return Model.of(TextCleaner.clean(getLanguageObjectService().getObjectSubtitle(o, getLocale()), ServerConstant.INFO_MAX));
-	}
-
-	protected IModel<String> getObjectInfo(ArtExhibition o) {
-		return Model.of(TextCleaner.clean(getLanguageObjectService().getInfo(o, getLocale()), ServerConstant.INFO_MAX));
-	}
-
-	protected IModel<String> getObjectIntro(ArtExhibition o) {
-		return Model.of(TextCleaner.clean(getLanguageObjectService().getIntro(o, getLocale()), ServerConstant.INTRO_MAX));
-	}
-
 	public BrandedSitePage() {
 		super();
 	}
@@ -180,6 +150,39 @@ public class BrandedSitePage extends BasePage {
 		addExhibitions();
 	}
 
+	
+	protected IModel<String> getObjectTitle(ArtExhibitionGuide o) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+		return Model.of(str.toString());
+	}
+
+	protected IModel<String> getObjectTitle(ArtExhibition o) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+		return Model.of(str.toString());
+	}
+
+	
+	
+	protected IModel<String> getObjectSubtitle(ArtExhibition o) {
+		return Model.of(TextCleaner.clean(getLanguageObjectService().getObjectSubtitle(o, getLocale()), ServerConstant.INFO_MAX));
+	}
+
+	protected IModel<String> getObjectInfo(ArtExhibition o) {
+		return Model.of(TextCleaner.clean(getLanguageObjectService().getInfo(o, getLocale()), ServerConstant.INFO_MAX));
+	}
+
+	protected IModel<String> getObjectIntro(ArtExhibition o) {
+		return Model.of(TextCleaner.clean(getLanguageObjectService().getIntro(o, getLocale()), ServerConstant.INTRO_MAX));
+	}
+
+
+	
 	protected Optional<ArtExhibitionGuide> getArtExhibitionGuide(IModel<ArtExhibition> model) {
 		for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
 			if (g.isOfficial())
@@ -301,6 +304,8 @@ public class BrandedSitePage extends BasePage {
 							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 							if (g.isPresent())
 								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
+							else
+								setResponsePage(new ErrorPage(Model.of("not found")));
 						}
 
 						@Override
@@ -727,6 +732,9 @@ public class BrandedSitePage extends BasePage {
 						Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
 						if (g.isPresent())
 							setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
+						else
+							setResponsePage(new ErrorPage(Model.of("No guide for -> " + getModel().getObject().getDisplayname())));
+									
 					}
 
 					@Override
@@ -862,7 +870,12 @@ public class BrandedSitePage extends BasePage {
 			listTemporaryPast = new ArrayList<IModel<ArtExhibition>>();
 			listTemporaryComing = new ArrayList<IModel<ArtExhibition>>();
 
-			Iterable<ArtExhibition> la = db.getArtExhibitionsByOrdinal(getSiteModel().getObject(), ObjectState.EDITION, ObjectState.PUBLISHED);
+			Iterable<ArtExhibition> la = null;
+			
+			if (getSiteModel().getObject().isSortAlphabetical())
+				la = db.getArtExhibitions(getSiteModel().getObject().getId(),  ObjectState.PUBLISHED);
+			else
+				la = db.getArtExhibitionsByOrdinal(getSiteModel().getObject(),  ObjectState.PUBLISHED);
 
 			for (ArtExhibition a : la) {
 				if (a.isPermanent())
