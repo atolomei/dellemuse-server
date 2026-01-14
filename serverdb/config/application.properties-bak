@@ -1,0 +1,114 @@
+
+# --------------------------------
+#
+# Object Storage
+#
+objectstorage.url=http://localhost
+objectstorage.port=9234
+
+objectstorage.presigned.url=192.168.68.107
+objectstorage.presigned.port=9234
+objectstorage.presigned.isSSL=false
+
+
+# --------------------------------
+#
+# HTTP Server port
+#
+server.port=9876
+accessKey=dellemuse
+secretKey=dellemuse
+
+
+importer.dir=/Users/alejandrotolomei/Documents/dellemuse/importer
+
+
+# Make the application accessible on the given context path (http://localhost:8080/myapp)
+# server.servlet.context-path=/dellemuse
+
+# Enable response compression
+server.compression.enabled=false
+
+# The comma-separated list of mime types that should be compressed
+server.compression.mime-types=text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+
+# Compress the response only if the response size is at least 1KB
+server.compression.min-response-size=1024
+
+
+# Enable HTTP/2 support, if the current environment supports it
+#server.http2.enabled=true
+
+# Maximum time the response should be cached (in seconds) 
+spring.resources.cache.cachecontrol.max-age=120
+
+# The cache must re-validate stale resources with the server. Any expired resources must not be used without re-validating.
+spring.resources.cache.cachecontrol.must-revalidate=true
+
+# Write files to disk if the file size is more than 2000KB.
+spring.servlet.multipart.file-size-threshold=2000KB
+
+# The intermediate disk location where the uploaded files are written
+# spring.servlet.multipart.location=./tmp
+
+logging.config=./config/log4j2.xml
+
+
+server.jetty.accesslog.enabled=true
+server.jetty.accesslog.filename=./logs/jetty-access.log
+
+logging.level.web=ERROR
+
+spring.main.banner-mode=off
+spring.devtools.restart.enabled=true
+
+app.name=Dellemuse
+
+debug=false
+
+spring.security.user.name=postgres
+spring.security.user.password=novamens
+
+#jakarta.persistence.jdbc.url==jdbc:postgresql://localhost:5432/dellemuse
+spring.datasource.url=jdbc:postgresql://localhost:5432/dellemuse
+spring.datasource.username=postgres
+spring.datasource.password=kbee
+
+#spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+#<create | create-drop | update | validate |
+spring.jpa.hibernate.ddl-auto=none
+
+#spring.datasource.schema=kbee   
+
+
+spring.datasource.driver-class-name=org.postgresql.Driver
+#spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+#jakarta.persistence.jdbc.url=
+
+
+management.endpoint.shutdown.enabled=true
+management.endpoints.web.exposure.include=health,info,shutdown
+
+#Log4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+
+spring.security.user.name=postgres
+spring.security.user.password=novamens
+
+spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+spring.jpa.show-sql=false
+spring.jpa.generate-ddl=false
+spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+spring.jpa.hibernate.id.sequence.increment_size_mismatch_strategy=fix
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+
+#<create | create-drop | update | validate |
+spring.jpa.hibernate.ddl-auto=none
+
+#spring.datasource.schema=kbee   
+
+
+
+
