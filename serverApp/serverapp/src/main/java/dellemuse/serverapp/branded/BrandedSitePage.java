@@ -28,6 +28,7 @@ import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.BrandedBasePage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
+import dellemuse.serverapp.page.error.BrandedErrorPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 
@@ -261,11 +262,8 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
-							if (g.isPresent())
-								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
-							else
-								setResponsePage(new ErrorPage(Model.of("not found")));
+							BrandedSitePage.this.goTo( getModel());
+							
 													
 						}
 
@@ -301,11 +299,8 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
-							if (g.isPresent())
-								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
-							else
-								setResponsePage(new ErrorPage(Model.of("not found")));
+							BrandedSitePage.this.goTo( getModel());
+							
 						}
 
 						@Override
@@ -390,9 +385,8 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
-							if (g.isPresent())
-								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
+							BrandedSitePage.this.goTo( getModel());
+							
 						}
 
 						protected IModel<String> getInfo() {
@@ -423,9 +417,8 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
-							if (g.isPresent())
-								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
+							BrandedSitePage.this.goTo( getModel());
+							
 						}
 
 						@Override
@@ -510,9 +503,8 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
-							if (g.isPresent())
-								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
+							BrandedSitePage.this.goTo( getModel());
+							
 						}
 
 						protected IModel<String> getInfo() {
@@ -544,9 +536,9 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
-							if (g.isPresent())
-								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
+							BrandedSitePage.this.goTo( getModel());
+							
+								
 						}
 
 						@Override
@@ -629,9 +621,8 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
-							if (g.isPresent())
-								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
+							BrandedSitePage.this.goTo( getModel());
+							
 						}
 
 						protected IModel<String> getInfo() {
@@ -668,12 +659,7 @@ public class BrandedSitePage extends BasePage {
 
 						@Override
 						public void onClick() {
-							Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(getModel());
-							if (g.isPresent())
-								setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
-							else
-								setResponsePage(new ErrorPage(Model.of("not-found")));
-									
+							BrandedSitePage.this.goTo( getModel());
 						}
 
 						protected IModel<String> getInfo() {
@@ -699,6 +685,16 @@ public class BrandedSitePage extends BasePage {
 			panel.setHasExpander(false);
 			panel.setSettings(true);
 		}
+	}
+
+	protected void goTo(IModel<ArtExhibition> model) {
+		Optional<ArtExhibitionGuide> g = getArtExhibitionGuide(model);
+		if (g.isPresent())
+			setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
+		else {
+			setResponsePage(new BrandedErrorPage( getLabel( "no-audio-guides", model.getObject().getDisplayname()), getSiteModel()));
+		}
+		
 	}
 
 	protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
@@ -733,7 +729,7 @@ public class BrandedSitePage extends BasePage {
 						if (g.isPresent())
 							setResponsePage(new BrandedArtExhibitionGuidePage(new ObjectModel<ArtExhibitionGuide>(g.get())));
 						else
-							setResponsePage(new ErrorPage(Model.of("No guide for -> " + getModel().getObject().getDisplayname())));
+							setResponsePage(new BrandedErrorPage(Model.of("No guide for -> " + getModel().getObject().getDisplayname()), getSiteModel() ));
 									
 					}
 

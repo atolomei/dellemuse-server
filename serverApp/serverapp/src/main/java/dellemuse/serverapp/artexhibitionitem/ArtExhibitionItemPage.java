@@ -408,7 +408,7 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 		//	header.setTagline(Model.of(getArtistStr(getArtWorkModel().getObject())));
 
 		header.setBreadCrumb(bc);
-		add(header);
+		addOrReplace(header);
 
 		if (getList() != null && getList().size() > 0) {
 			Navigator<ArtExhibitionItem> nav = new Navigator<ArtExhibitionItem>("navigator", getCurrent(), getList()) {

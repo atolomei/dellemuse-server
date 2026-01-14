@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -23,6 +23,7 @@ import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.site.SiteArtWorkListPage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 
@@ -89,6 +90,17 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		addListToolbar();
 		addSelectedPanel();
 		addMultipleSelector();
+		
+		
+		add ( new Link<Void>("siteArtworks") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage( new SiteArtWorkListPage( getSiteModel()));
+			}
+			
+		});
 	}
 
 	@Override
@@ -546,5 +558,13 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 			loadList();
 		}
 		return this.selected;
+	}
+
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
 	}
 }

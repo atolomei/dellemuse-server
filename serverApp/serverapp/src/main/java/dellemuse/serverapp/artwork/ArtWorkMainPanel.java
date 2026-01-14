@@ -28,46 +28,47 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.ArtistArtWorksPanel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.ArtWorkType;
 import dellemuse.serverapp.serverdb.model.Artist;
+import dellemuse.serverapp.serverdb.model.ObjectType;
 import dellemuse.serverapp.serverdb.model.Person;
- 
+
 import dellemuse.serverapp.serverdb.model.Site;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
- 
+
 import io.wktui.media.InvisibleImage;
- 
+
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
- 
+
 import wktui.base.InvisiblePanel;
 import wktui.base.LabelPanel;
 
-public class ArtWorkMainPanel extends DBModelPanel<ArtWork>  implements InternalPanel {
+public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
-	 
+
 	static private Logger logger = Logger.getLogger(ArtWorkMainPanel.class.getName());
-			
+
 	private Image qrCode;
-	
+
 	private ArtWorkEditor editor;
-	//private ObjectMetaEditor<ArtWork> metaEditor;
-	
-	
+	// private ObjectMetaEditor<ArtWork> metaEditor;
+
 	private Link<Site> addSite;
 	private ArtistArtWorksPanel more;
 
-	
+	 
 	private WebMarkupContainer qrcodecontainer;
-	
+	private WebMarkupContainer moreContainer;
+
 	private IModel<File> qrFileModel;
-	
+
 	/**
 	 * 
-	 * - ObjectState
-	 * - Record -> translate 
+	 * - ObjectState - Record -> translate
 	 * 
 	 * 
 	 * 
@@ -81,52 +82,57 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork>  implements Internal
 	public ArtWorkEditor getEditor() {
 		return this.editor;
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
+
 		Optional<ArtWork> o_i = getArtWorkDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<ArtWork>(o_i.get()));
-		
-	 	
+
 		this.editor = new ArtWorkEditor("artworkEditor", getModel());
 		add(this.editor);
+
+		boolean isMore = false;
+
+		moreContainer = new WebMarkupContainer("moreContainer");
 		
-		if ((getModel().getObject().getArtists()!=null) && (getModel().getObject().getArtists().size()>0)) {
+		
+		if (	(getModel().getObject().getObjectType() == ObjectType.ARTWORK) && 
+				(getModel().getObject().getArtists() != null) && (getModel().getObject().getArtists().size() > 0)) {
+		
 			Artist a = getModel().getObject().getArtists().iterator().next();
-			add(new ArtistArtWorksPanel("more", new ObjectModel<Artist>(a), null));
+			moreContainer.add(new ArtistArtWorksPanel("more", new ObjectModel<Artist>(a), null));
+			isMore = true;
 		}
-		else {
-			add(new InvisiblePanel("more"));
-		}
-		
-		 qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
-		
-		 add(qrcodecontainer);
-		 
-		 qrcodecontainer.setVisible(getModel().getObject().getQRCode()!=null);
-		 
-		 
+
+		if (!isMore)
+			moreContainer.add(new InvisiblePanel("more"));
+
+		moreContainer.setVisible(isMore);
+		add(moreContainer);
+
+		qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
+		add(qrcodecontainer);
+
+		qrcodecontainer.setVisible(getModel().getObject().getQRCode() != null);
+
 		try {
-			if (getModel().getObject().getQRCode()!=null) {
-				
-					qrFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(
-							getModel().getObject().getQRCode().getBucketName(),
-							getModel().getObject().getQRCode().getObjectName(),
-							getModel().getObject().getQRCode().getName()
-							);
-				
-			
+	
+			if (getModel().getObject().getQRCode() != null) {
+
+				qrFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(getModel().getObject().getQRCode().getBucketName(), getModel().getObject().getQRCode().getObjectName(),
+						getModel().getObject().getQRCode().getName());
+
 				String presignedThumbnail = super.getPresignedThumbnail(getModel().getObject().getQRCode(), ThumbnailSize.MEDIUM);
 				Url url = Url.parse(presignedThumbnail);
 				UrlResourceReference resourceReference = new UrlResourceReference(url);
-				
+
 				Image image = new Image("qrcode", resourceReference);
-				
+
 				qrcodecontainer.add(image);
-				DownloadLink link=new DownloadLink("qr-file-link", getQRFileModel()) {
-				
+				DownloadLink link = new DownloadLink("qr-file-link", getQRFileModel()) {
+
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -135,56 +141,52 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork>  implements Internal
 					}
 				};
 
-				Label f=new Label( "qr-file-name", getModel().getObject().getQRCode().getName());
+				Label f = new Label("qr-file-name", getModel().getObject().getQRCode().getName());
 				link.add(f);
 				qrcodecontainer.add(link);
-				
+
 				add(new InvisiblePanel("noqrcode"));
-				
-			}
-			else {
-				qrcodecontainer.add( new InvisibleImage("qrcode"));
-				qrcodecontainer.add( new InvisiblePanel("qr-file-link"));
-				add( new LabelPanel("noqrcode", getLabel("noqrcode")));
-			
+
+			} else {
+				qrcodecontainer.add(new InvisibleImage("qrcode"));
+				qrcodecontainer.add(new InvisiblePanel("qr-file-link"));
+				add(new LabelPanel("noqrcode", getLabel("noqrcode")));
+
 			}
 		} catch (Exception e) {
-			qrcodecontainer.add( new InvisibleImage("qrcode"));
-			qrcodecontainer.add( new InvisiblePanel("qr-file-link"));
-			add( new ErrorPanel("noqrcode", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
-			
+			qrcodecontainer.add(new InvisibleImage("qrcode"));
+			qrcodecontainer.add(new InvisiblePanel("qr-file-link"));
+			add(new ErrorPanel("noqrcode", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
+
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
 	}
 
-	
-	
-	
 	/**
-	 * media
-	 * qr
+	 * media qr
 	 * 
 	 */
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		
-		if (qrFileModel!=null)
+
+		if (qrFileModel != null)
 			qrFileModel.detach();
 	}
 
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
-		
-	List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		
+
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+
 		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
- 				fire(new MenuAjaxEvent(ServerAppConstant.action_artwork_edit_info, target));
+				fire(new MenuAjaxEvent(ServerAppConstant.action_artwork_edit_info, target));
 			}
+
 			@Override
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
@@ -197,17 +199,15 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork>  implements Internal
 
 	public void onEdit(AjaxRequestTarget target) {
 		getEditor().onEdit(target);
-	//	getMetaEditor().onEdit(target);
+		// getMetaEditor().onEdit(target);
 	}
 
-	//private ObjectMetaEditor<?> getMetaEditor() {
-	//	return this.metaEditor;
-	//}
-	
+	// private ObjectMetaEditor<?> getMetaEditor() {
+	// return this.metaEditor;
+	// }
 
 	private IModel<File> getQRFileModel() {
 		return qrFileModel;
 	}
-
 
 }
