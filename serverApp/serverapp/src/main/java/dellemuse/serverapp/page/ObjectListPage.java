@@ -17,6 +17,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.GlobalTopPanel;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -74,11 +75,18 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		if (model.getObject() instanceof MultiLanguageObject) {
 			StringBuilder str = new StringBuilder();
 			str.append(getLanguageObjectService().getObjectDisplayName(((MultiLanguageObject) model.getObject()), getLocale()));
+			
 			if (model.getObject().getState() == ObjectState.DELETED)
-				str.append(ServerConstant.DELETED_ICON);
+				str.append(Icons.DELETED_ICON);
+		
+
+			if (model.getObject().getState() == ObjectState.EDITION)
+				str.append(Icons.EDITION_ICON);
+			
+			
 			return Model.of(str.toString());
 		}
-		return Model.of(model.getObject().getDisplayname() + ((model.getObject().getState() == ObjectState.DELETED) ? ServerConstant.DELETED_ICON : ""));
+		return Model.of(model.getObject().getDisplayname() + ((model.getObject().getState() == ObjectState.DELETED) ? Icons.DELETED_ICON : ""));
 	}
 
 	protected abstract String getObjectTitleIcon(IModel<T> model);

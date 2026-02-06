@@ -306,8 +306,19 @@ public class UserDBService extends DBService<User, Long> {
         throw new RuntimeException("Database does not have user with name=='root'");
     }
     
+    
+    private User sessionUser;
+    
+    public void setSessionUser( User user) {
+    	this.sessionUser=user;
+    }
+    
     public User getSessionUser() {
-    	return findByUsername("atolomei").get();
+    	if (sessionUser==null) {
+    		return findByUsername("atolomei").get();
+    	}
+    		return this.sessionUser;
+    	 
     	//return findRoot();
     }
  

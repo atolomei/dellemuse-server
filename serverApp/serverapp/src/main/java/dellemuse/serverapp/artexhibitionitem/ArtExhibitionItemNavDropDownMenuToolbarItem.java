@@ -29,13 +29,16 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 
 	private static final long serialVersionUID = 1L;
 
-	public ArtExhibitionItemNavDropDownMenuToolbarItem(String id, IModel< ArtExhibitionItem> model, Align align) {
-		this(id, model, null, align);
+	private IModel<Site> siteModel;
+	
+	public ArtExhibitionItemNavDropDownMenuToolbarItem(String id, IModel< ArtExhibitionItem> model, IModel<Site> siteModel, Align align) {
+		this(id, model, siteModel, null, align);
 		setTitle( getLabel("art-exhibition-item", model.getObject().getDisplayname()) );
 	}
 	
-	public ArtExhibitionItemNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionItem> model, IModel<String> title, Align align) {
+	public ArtExhibitionItemNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionItem> model, IModel<Site> siteModel, IModel<String> title, Align align) {
 		super(id, model, title, align);
+		this.siteModel=siteModel;
 	}
 
 	public Optional<Institution> getInstitution(Long id) {
@@ -44,6 +47,16 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 		return service.findById(id);
 	}
 
+	
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (siteModel!=null)
+			siteModel.detach();
+	}
+	
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -89,7 +102,7 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 		
 		
 		
-		for (Language la: getLanguageService().getLanguages()) {
+		for (Language la: getSiteModel().getObject().getLanguages()) {
 			
 			final String langCode = la.getLanguageCode();
 			
@@ -263,6 +276,14 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 	
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
+	}
+
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
 	}
 
 }

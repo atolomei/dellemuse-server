@@ -59,10 +59,7 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 	static private Logger logger = Logger.getLogger(SiteArtistsListPage.class.getName());
 
 	private StringValue stringValue;
-
 	private IModel<Site> siteModel;
-
-	
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {

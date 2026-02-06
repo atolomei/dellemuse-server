@@ -180,7 +180,7 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 		else
 			name = TextCleaner.truncate(getArtExhibitionModel().getObject().getName(), 24);
 
-		list.add(new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), getLabel("art-exhibition", name), Align.TOP_RIGHT));
+		list.add(new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), getSiteModel(), getLabel("art-exhibition", name), Align.TOP_RIGHT));
 
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Model.of(getSiteModel().getObject().getShortName()), Align.TOP_RIGHT));
 

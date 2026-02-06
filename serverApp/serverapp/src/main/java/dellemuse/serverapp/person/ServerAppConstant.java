@@ -9,11 +9,13 @@ public class ServerAppConstant {
 	static final public String site_action_edit = "site-action-edit";
 
 	static final public String site_page_info 	= "site-panel-info";
+	static final public String site_page_floors	= "site-page-floors";
 	static final public String site_page_search = "site-page-search";
 	static final public String site_page_users  = "site-page-users";
 	static final public String site_page_roles  = "site-page-roles";
 	
-	static final public String siterecord_info = "siterecord-info";
+	static final public String siterecord_info 	= "siterecord-info";
+	static final public String site_floors		= "site-floors";
 	
 	
  	static final public String action_exhibition_info_edit = "exhibition-action-info-edit";

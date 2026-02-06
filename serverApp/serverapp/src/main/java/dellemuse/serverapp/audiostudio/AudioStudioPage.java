@@ -69,55 +69,17 @@ public class AudioStudioPage extends BasePage {
 	private Long mlo_parentObjectId;
 	private String mlo_parentObjectPrefix;
 
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	private boolean isAccesibleVersion =false;
 
-		if (ouser.isEmpty())
-			return false;
- 		
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
-			return true;
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		{
-			Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		{
-		
-			Optional<Site> o = getAudioStudioDBService().getSite( getModel().getObject() );
-			if (o.isEmpty())
-				return true;
-			
-			final Long sid = o.get().getId();
-
-			Set<RoleSite> set = user.getRolesSite();
-			
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		return false;
-	}
 	/**
 	 * @param model
 	 */
-	public AudioStudioPage(IModel<AudioStudio> model) {
+	public AudioStudioPage(IModel<AudioStudio> model, boolean isAccesibleVersion) {
 		super();
 		setModel(model);
+		
+		this.isAccesibleVersion=isAccesibleVersion;
+		
 		Check.requireNonNullArgument(model, "model is null");
 		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
 		setModel(model);
@@ -159,7 +121,7 @@ public class AudioStudioPage extends BasePage {
 		}
 		
 		try {
-			asEditorMainPanel = new AudioStudioEditorMainPanel("editor", getModel(), getParentObjectUrl());
+			asEditorMainPanel = new AudioStudioEditorMainPanel("editor", getModel(), getParentObjectUrl(), this.isAccesibleVersion);
 			add(asEditorMainPanel);
 		} catch (Exception e) {
 			logger.error(e);
@@ -252,5 +214,47 @@ public class AudioStudioPage extends BasePage {
 		return getServerUrl() + "/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString();
 	}
 
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
 
+		if (ouser.isEmpty())
+			return false;
+ 		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+		
+			Optional<Site> o = getAudioStudioDBService().getSite( getModel().getObject() );
+			if (o.isEmpty())
+				return true;
+			
+			final Long sid = o.get().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
 }

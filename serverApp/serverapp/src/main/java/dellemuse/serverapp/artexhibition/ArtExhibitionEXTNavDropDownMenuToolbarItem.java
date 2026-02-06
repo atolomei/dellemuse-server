@@ -8,7 +8,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
-
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
@@ -24,19 +24,32 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 
 	private static final long serialVersionUID = 1L;
 
-	public ArtExhibitionEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibition> model, Align align) {
-		this(id, model, null, align);
+	IModel<Site> siteModel;
+	
+	public ArtExhibitionEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibition> model, IModel<Site> siteModel, Align align) {
+		this(id, model, siteModel, null, align);
 
 		if (model.getObject().getShortname() != null)
 			setTitle(getLabel("art-exhibition-dropdown", model.getObject().getShortname()));
 		else
 			setTitle(getLabel("art-exhibition-dropdown", TextCleaner.truncate(model.getObject().getName(), 24)));
+
+		
 	}
 
-	public ArtExhibitionEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibition> model, IModel<String> title, Align align) {
+	public ArtExhibitionEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibition> model, IModel<Site> siteModel, IModel<String> title, Align align) {
 		super(id, model, title, align);
+		this.siteModel=siteModel;
 	}
 
+	
+	public void onDetach() {
+		super.onDetach();
+
+		if (siteModel!=null)
+			siteModel.detach();
+	}
+	
 	public Optional<Institution> getInstitution(Long id) {
 		return ((InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class)).findById(id);
 	}
@@ -86,7 +99,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			}
 		});
 
-		for (Language la: getLanguageService().getLanguages()) {
+		for (Language la: getSiteModel().getObject().getLanguages()) {
 
 			final String langCode = la.getLanguageCode();
 
@@ -289,7 +302,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			}
 		});
 
-		for (Language la: getLanguageService().getLanguages()) {
+		for (Language la: getSiteModel().getObject().getLanguages()) {
 
 			final String a_langCode = la.getLanguageCode();
 
@@ -325,5 +338,13 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
+	}
+
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
 	}
 }

@@ -194,11 +194,11 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 
 		name = TextCleaner.truncate(getModel().getObject().getName(), 24);
 
-		list.add(new ArtExhibitionItemNavDropDownMenuToolbarItem("item", getModel(), getLabel("art-exhibition-item", name), Align.TOP_RIGHT));
+		list.add(new ArtExhibitionItemNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(), getLabel("art-exhibition-item", name), Align.TOP_RIGHT));
 
 		String ae_name = TextCleaner.truncate(this.getArtExhibitionModel().getObject().getName(), 24);
 
-		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), getLabel("art-exhibition", ae_name), Align.TOP_RIGHT);
+		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), getSiteModel(), getLabel("art-exhibition", ae_name), Align.TOP_RIGHT);
 		ae.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-none d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(ae);
 
@@ -398,15 +398,7 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 			
 		}
 
-		// if (getModel().getObject().getSubtitle()!=null)
-		// header.setTagline(Model.of(getModel().getObject().getSubtitle()));
-		// else if (getArtExhibitionModel().getObject().getSubtitle()!=null)
-
-		// header.setTagline(Model.of(getArtExhibitionModel().getObject().getSubtitle()));
-
-		//if(getArtWorkModel().getObject().getArtists()!=null)
-		//	header.setTagline(Model.of(getArtistStr(getArtWorkModel().getObject())));
-
+ 
 		header.setBreadCrumb(bc);
 		addOrReplace(header);
 

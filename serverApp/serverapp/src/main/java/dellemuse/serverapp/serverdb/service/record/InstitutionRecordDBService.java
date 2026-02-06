@@ -32,6 +32,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
+import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -76,6 +77,13 @@ public class InstitutionRecordDBService extends RecordDBService<InstitutionRecor
 		return c;
 	}
  
+
+	@Transactional
+	public void save(InstitutionRecord o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+	
 	
 	/**
 	 * 

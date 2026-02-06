@@ -14,7 +14,7 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.DellemuseServerAppHomePage;
 import dellemuse.serverapp.page.InternalPanel;
@@ -206,8 +206,13 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 		StringBuilder str = new StringBuilder();
 		str.append(model.getObject().getRoleDisplayName() + " (" + model.getObject().getDisplayClass(getLocale()) + ") ");
 
-		if (model.getObject().getState() == ObjectState.DELETED)
-			str.append(ServerConstant.DELETED_ICON);
+		Role o  = model.getObject();
+		
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
 
 		return Model.of(str.toString());
 	}

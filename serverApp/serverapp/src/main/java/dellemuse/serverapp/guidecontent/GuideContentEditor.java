@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
@@ -46,6 +47,7 @@ import io.wktui.event.UIEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
+import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextAreaField;
@@ -66,10 +68,12 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 	private TextAreaField<String> infoField;
 	private StaticTextField<String> audioIdField;
 	private FileUploadSimpleField<Resource> audioField;
-
+	
 	private IModel<Resource> photoModel;
 	private IModel<Resource> audioModel;
 
+	
+	
 	private boolean uploadedPhoto = false;
 	private boolean uploadedAudio = false;
 
@@ -83,8 +87,24 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 	private String audioMeta;
 
+	
+	private ChoiceField<Boolean> infoAccessibleIsPrimaryField;
+	private ChoiceField<Boolean> onlyAccesibleVersionField;
+	
+	
+	private IModel<Resource> audioAccesibleModel;
+	
+	private FileUploadSimpleField<Resource> audioAccesibleField;
+	
+	private boolean uploadedAccesibleAudio = false;
+	private String audioAccesibleMeta;
 	private Link<GuideContent> openAudioStudio;
 
+	
+	private TextAreaField<String> infoAccesibleField;
+	private Link<GuideContent> openAccesibleAudioStudio;
+
+	
 	private boolean alertInfo = false;
 
 	/**
@@ -99,46 +119,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.siteModel = siteModel;
 	}
 
-	@Override
-	protected void addListeners() {
-		super.addListeners();
-
-		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(SimpleAjaxWicketEvent event) {
-				reloadModel();
-				alertInfo = true;
-				event.getTarget().add(GuideContentEditor.this);
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof ObjectMarkAsDeleteEvent)
-					return true;
-				return false;
-			}
-		});
-
-		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(SimpleAjaxWicketEvent event) {
-				reloadModel();
-				alertInfo = true;
-				event.getTarget().add(GuideContentEditor.this);
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof ObjectRestoreEvent)
-					return true;
-				return false;
-			}
-		});
-	}
+	
 
 	@Override
 	public void onBeforeRender() {
@@ -161,10 +142,117 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		add(form);
 		setForm(form);
 
-		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
-		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("audio-info"), 12);
-		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
+		
+		/** --------------------------------- */
+
+		
+		infoAccesibleField = new TextAreaField<String>("infoAccesible", new PropertyModel<String>(getModel(), "infoAccessible"), getLabel("audio-accesible-info"), 12);
+		form.add(infoAccesibleField);
+
+		audioAccesibleField = new FileUploadSimpleField<Resource>("audioAccesible", getAudioAccesibleModel(), getLabel("audio-accesible")) {
+
+			private static final long serialVersionUID = 1L;
+
+			protected boolean processFileUploads(List<FileUpload> uploads) {
+				return GuideContentEditor.this.processAccesibleAudioUpload(uploads);
+			}
+
+			public Image getImage() {
+				return null;
+			}
+
+			protected String getAudioSrc() {
+
+				if (getAudioAccesibleModel() == null || getAudioAccesibleModel().getObject() == null)
+					return null;
+				return GuideContentEditor.this.getPresignedUrl(getAudioAccesibleModel().getObject());
+			}
+
+			public String getFileName() {
+				
+				if (audioAccesibleMeta == null)
+					audioAccesibleMeta = GuideContentEditor.this.getAudioMeta(getAudioAccesibleModel());
+				return audioAccesibleMeta;
+				
+			}
+		};
+		form.add(audioAccesibleField);
+		
+		
+		this.openAccesibleAudioStudio = new Link<GuideContent>("openAccesibleAudioStudio", getModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
+				if (oa.isPresent())
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), true));
+				else
+					setResponsePage(new ErrorPage(Model.of("No Audio Studio -> " + getModel().getObject().getDisplayname())));
+			}
+
+			public boolean isEnabled() {
+				return true;
+			}
+		};
+
+		Label openAccesibleLabel = new Label("openAccesibleAudioStudioLabel", getLabel("open-audio-studio", getModel().getObject().getDisplayname()));
+		this.openAccesibleAudioStudio.add(openAccesibleLabel);
+		getForm().add(openAccesibleAudioStudio);
+		
+		
+		
+		
+		infoAccessibleIsPrimaryField = new ChoiceField<Boolean>("infoAccessibleIsPrimary", new PropertyModel<Boolean>(getModel(), "infoAccessibleIsPrimary"), getLabel("infoAccessibleIsPrimary")) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Boolean>> getChoices() {
+				return new ListModel<Boolean>(b_list);
+			}
+
+			@Override
+			protected String getDisplayValue(Boolean value) {
+				if (value == null)
+					return null;
+				if (value.booleanValue())
+					return getLabel("infoAccessibleIsPrimary-yes").getObject();
+				return getLabel("infoAccessibleIsPrimary-no").getObject();
+			}
+		};
+		getForm().add(infoAccessibleIsPrimaryField);
+		
+		
+		
+		onlyAccesibleVersionField= new ChoiceField<Boolean>("onlyAccesibleVersion", new PropertyModel<Boolean>(getModel(), "onlyAccesibleVersion"), getLabel("onlyAccesibleVersion")) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Boolean>> getChoices() {
+				return new ListModel<Boolean>(b_list);
+			}
+
+			@Override
+			protected String getDisplayValue(Boolean value) {
+				if (value == null)
+					return null;
+				if (value.booleanValue())
+					return getLabel("yes").getObject();
+				return getLabel("no").getObject();
+			}
+		};
+		
+		getForm().add(onlyAccesibleVersionField);
+		
+		/** --------------------------------- */
+		
+		
+		nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		subtitleField 	= new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
+		infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("audio-info"), 12);
+		audioField	 	= new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -185,8 +273,9 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 			public String getFileName() {
 				if (audioMeta == null)
-					audioMeta = GuideContentEditor.this.getAudioMeta(getAudioModel());
+					audioMeta = GuideContentEditor.this.getAudioMeta(getAudioAccesibleModel());
 				return audioMeta;
+
 			}
 		};
 
@@ -301,9 +390,9 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get())));
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), false ));
 				else
-					setResponsePage(new ErrorPage(Model.of("no audio studio")));
+					setResponsePage(new ErrorPage(Model.of("no audio studio for -> " + getModel().getObject().getDisplayname())));
 			}
 
 			public boolean isEnabled() {
@@ -462,6 +551,11 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		if (audioModel != null)
 			audioModel.detach();
 
+
+		if (audioAccesibleModel != null)
+			audioAccesibleModel.detach();
+
+		
 		if (siteModel != null)
 			siteModel.detach();
 
@@ -507,6 +601,47 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.artWorkModel = new ObjectModel<ArtWork>(artWork);
 	}
 
+	@Override
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+				reloadModel();
+				alertInfo = true;
+				event.getTarget().add(GuideContentEditor.this);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectMarkAsDeleteEvent)
+					return true;
+				return false;
+			}
+		});
+
+		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(SimpleAjaxWicketEvent event) {
+				reloadModel();
+				alertInfo = true;
+				event.getTarget().add(GuideContentEditor.this);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectRestoreEvent)
+					return true;
+				return false;
+			}
+		});
+	}
+	
 	protected boolean processAudioUpload(List<FileUpload> uploads) {
 
 		if (this.uploadedAudio)
@@ -543,6 +678,48 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 		return uploadedAudio;
 	}
+	
+	
+	
+	
+	protected boolean processAccesibleAudioUpload(List<FileUpload> uploads) {
+
+		if (this.uploadedAccesibleAudio)
+			return false;
+
+		if (uploads != null && !uploads.isEmpty()) {
+
+			for (FileUpload upload : uploads) {
+
+				try {
+
+					logger.debug("name -> " + upload.getClientFileName());
+					logger.debug("Size -> " + upload.getSize());
+
+					String bucketName = ServerConstant.MEDIA_BUCKET;
+					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
+
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+
+					setAudioAccesibleModel(new ObjectModel<Resource>(resource));
+					getModel().getObject().setAudioAccessible(resource);
+
+					uploadedAccesibleAudio = true;
+
+				} catch (Exception e) {
+					uploadedAccesibleAudio = false;
+					error("Error saving file: " + e.getMessage());
+				}
+			}
+		} else {
+			info("No file uploaded.");
+			logger.debug("No file uploaded.");
+		}
+
+		return uploadedAccesibleAudio;
+	}
+	
+	
 
 	protected void importArtWorkText(AjaxRequestTarget target) {
 
@@ -580,6 +757,15 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.audioModel = model;
 	}
 
+	
+	protected IModel<Resource> getAudioAccesibleModel() {
+		return this.audioAccesibleModel;
+	}
+
+	protected void setAudioAccesibleModel(ObjectModel<Resource> model) {
+		this.audioAccesibleModel = model;
+	}
+	
 	protected void onSubmit() {
 		logger.debug("");
 		logger.debug("onSubmit");
@@ -703,11 +889,24 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
 		}
 
+				 
 		if (getModel().getObject().getAudio() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
-			setAudioModel(new ObjectModel<Resource>(o_r.get()));
+			if (o_r.isPresent())
+				setAudioModel(new ObjectModel<Resource>(o_r.get()));
 		}
+		
+		
+		if (getModel().getObject().getAudioAccessible() != null) {
+			Optional<Resource> o_a = getResourceDBService().findWithDeps(getModel().getObject().getAudioAccessible().getId());
+			if (o_a.isPresent())
+				setAudioAccesibleModel(new ObjectModel<Resource>(o_a.get()));
+		}
+		
 
+		
+		
+		
 		if (getModel().getObject().getArtExhibitionItem() != null) {
 			Optional<ArtExhibitionItem> o_ae = getArtExhibitionItemDBService().findWithDeps(getModel().getObject().getArtExhibitionItem().getId());
 			setArtExhibitionItemModel(new ObjectModel<ArtExhibitionItem>(o_ae.get()));

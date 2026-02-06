@@ -83,7 +83,12 @@ public class ArtExhibitionRecordDBService extends RecordDBService<ArtExhibitionR
 		return c;
 	}
 
-  
+	@Transactional
+	public void save(ArtExhibitionRecord o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+
 	
 	/**
 	 * 

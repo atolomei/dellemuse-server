@@ -21,16 +21,17 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
-
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 
 import io.wktui.error.ErrorPanel;
@@ -115,9 +116,19 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	public IModel<String> getObjectTitle(IModel<User> model) {
-		if (model.getObject().getState() == ObjectState.DELETED)
-			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-		return new Model<String>(model.getObject().getDisplayname());
+
+		StringBuilder str = new StringBuilder();
+		str.append(model.getObject().getName());
+	
+		User o  = model.getObject();
+		
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+
+		return Model.of(str.toString());
 	}
 
 	@Override
@@ -242,6 +253,69 @@ public class UserListPage extends ObjectListPage<User> {
 			}
 		});
 
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<User>(id) {
+					@Override
+					public boolean isVisible() {
+						return isRoot();
+					}
+				};
+			}
+		});  
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+				return new LinkMenuItem<User>(id) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick( ) {
+						try {
+							getUserDBService().setSessionUser( getModel().getObject() );
+							setResponsePage( new UserListPage());
+						} catch (Exception e) {
+							logger.error(e);
+							setResponsePage ( new ErrorPage (e));
+						}
+					}
+					@Override
+					public boolean isVisible() {
+						return isRoot();
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("impersonate");
+					}
+				};
+
+			}
+		});
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<User>(id);
+			}
+		});  
+		
+		
+		
+		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 
 			private static final long serialVersionUID = 1L;

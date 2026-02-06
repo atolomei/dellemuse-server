@@ -22,16 +22,24 @@ public class Language extends JsonObject implements Serializable {
 	static public final String ES = "es";
 	static public final String PT = "pt-BR";
 	static public final String FR = "fr";
-	 
-	
 
+	
+	static public final String IT = "it";
+	static public final String GER = "ger";
+
+	
+	
 	static private final Map<String, Language> map = new HashMap<String, Language>();
 	static {
 		map.put(PT, new Language(PT));
 		map.put(ES, new Language(ES));
 		map.put(EN, new Language(EN));
 		map.put(FR, new Language(FR));
+		map.put(IT, new Language(IT));
+		map.put(GER, new Language(GER));
 	}
+	
+	
 	static public final Language of(String code) {
 		if (code==null)
 			return null;
@@ -42,6 +50,8 @@ public class Language extends JsonObject implements Serializable {
 			return map;
 	}
 
+	
+	
 	
 	private String languageCode;
 

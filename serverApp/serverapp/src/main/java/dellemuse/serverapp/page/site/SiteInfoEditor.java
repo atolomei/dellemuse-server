@@ -194,8 +194,8 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		};
 		
 		
-		labelPField 	= new TextField<String>("permanentExhibitionsLabel", new PropertyModel<String>(getModel(), "labelPermanentExhibitions"), getLabel("permanentExhibitionsLabel"));
-		labelTField 	= new TextField<String>("temporaryExhibitionsLabel", new PropertyModel<String>(getModel(), "labelTemporaryExhibitions"), getLabel("temporaryExhibitionsLabel"));
+		labelPField	=  new TextField<String>("permanentExhibitionsLabel", new PropertyModel<String>(getModel(), "labelPermanentExhibitions"), getLabel("permanentExhibitionsLabel"));
+		labelTField =  new TextField<String>("temporaryExhibitionsLabel", new PropertyModel<String>(getModel(), "labelTemporaryExhibitions"), getLabel("temporaryExhibitionsLabel"));
 		
  	
 		sortAlphabeticallyField = new ChoiceField<Boolean>("sortAlphabetical", new PropertyModel<Boolean>(getModel(), "sortAlphabetical"), getLabel("sortAlphabetical")) {
@@ -218,11 +218,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		};
 		
 		
-		
-		
-		
-		
-		
+	 	
 		
 		
 		zoneIdField 	= new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
@@ -402,7 +398,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 	}
 
 	protected List<Language> getLanguages() {
-		return getLanguageService().getLanguagesSorted(Locale.ENGLISH);
+		return getLanguageService().getLanguagesSorted( getLocale() );
 	}
 
 	@Override

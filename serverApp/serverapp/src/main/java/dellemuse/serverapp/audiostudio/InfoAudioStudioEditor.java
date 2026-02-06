@@ -23,15 +23,18 @@ public class InfoAudioStudioEditor extends BaseAudioStudioEditor {
 	private StaticTextField<String> nameField;
 	private StaticTextField<String> typeField;
 	private StaticTextField<String> languageField;
+	private StaticTextField<String> versionField;
+
 	private TextAreaField<String> infoField;
 	private Form<AudioStudio> form;
-		
+		 
 	 
-	public InfoAudioStudioEditor(String id, IModel<AudioStudio> model ) {
-		super(id, model );
+	public InfoAudioStudioEditor(String id, IModel<AudioStudio> model, boolean isAccesibleVersion ) {
+		super(id, model, isAccesibleVersion );
 	}
  
-	 
+	
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -48,15 +51,18 @@ public class InfoAudioStudioEditor extends BaseAudioStudioEditor {
 		add(form);
 		setForm(form);
 
-		nameField = new StaticTextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		typeField = new StaticTextField<String>("type", getParentType(), getLabel("type"));
-		languageField = new StaticTextField<String>("language", new PropertyModel<String>(getModel(), "language"), getLabel("language"));
-		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 12) {
+		versionField 	= new StaticTextField<String>("version", getVersion(), getLabel("version"));
+		nameField 		= new StaticTextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		typeField 		= new StaticTextField<String>("type", getParentType(), getLabel("type"));
+		languageField 	= new StaticTextField<String>("language", new PropertyModel<String>(getModel(), "language"), getLabel("language"));
+		infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 12) {
 			private static final long serialVersionUID = 1L;
 			public boolean isEnabled() {
 				return false;
 			};
 		};
+		
+		form.add(versionField);
 		form.add(infoField);
 		form.add(nameField);
 		form.add(typeField);

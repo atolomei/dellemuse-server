@@ -31,6 +31,7 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
@@ -147,23 +148,15 @@ public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long>
 		return list;
 	}
 
-	 
-	@Transactional
-	private void deleteResources(Long id) {
-		
-		Optional<ArtWorkRecord> o_aw = super.findWithDeps(id);
-
-		if (o_aw.isEmpty())
-			return;
-		
-		ArtWorkRecord a=o_aw.get();
-		
-		getResourceDBService().delete(a.getPhoto());
-		getResourceDBService().delete(a.getAudio());
-		getResourceDBService().delete(a.getVideo());
-		
-	}
 	
+	@Transactional
+	public void save(ArtWorkRecord o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+
+	
+	 
 	
 	 
 	
@@ -238,7 +231,23 @@ public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long>
 		super.register(getEntityClass(), this);
 	}
 
-	 
+	@Transactional
+	private void deleteResources(Long id) {
+		
+		Optional<ArtWorkRecord> o_aw = super.findWithDeps(id);
+
+		if (o_aw.isEmpty())
+			return;
+		
+		ArtWorkRecord a=o_aw.get();
+		
+		getResourceDBService().delete(a.getPhoto());
+		getResourceDBService().delete(a.getAudio());
+		getResourceDBService().delete(a.getVideo());
+		
+	}
+	
+
 
 
 }

@@ -43,8 +43,8 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 	 
  
 
-	public Step3AudioStudioEditor(String id, IModel<AudioStudio> model) {
-		super(id, model);
+	public Step3AudioStudioEditor(String id, IModel<AudioStudio> model, boolean isAccesibleVersion) {
+		super(id, model, isAccesibleVersion);
 	}
 
 	@Override

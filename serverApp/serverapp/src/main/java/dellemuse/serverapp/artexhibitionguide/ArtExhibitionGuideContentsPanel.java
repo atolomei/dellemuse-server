@@ -17,6 +17,7 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.artexhibition.ArtExhibitionSectionsPanel;
 import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
 import dellemuse.serverapp.guidecontent.GuideContentPage;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
@@ -200,9 +201,13 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		StringBuilder str = new StringBuilder();
 		str.append(model.getObject().getDisplayname());
 
-		if (model.getObject().getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
-
+		GuideContent o = model.getObject();
+		
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
 		return Model.of(str.toString());
 	}
 

@@ -88,7 +88,10 @@ public class AudioStudio extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private ArtExhibitionSectionRecord artExhibitionSectionRecord;
 
+	
 	/** ---------------------------- **/
+	/**  General
+	 **/
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "audioSpeech", nullable = true)
@@ -105,6 +108,45 @@ public class AudioStudio extends DelleMuseObject {
 	@JsonProperty("audioSpeechMusic")
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource audioSpeechMusic;
+
+	/** ---------------------------- **/
+	/**  Accesible
+	 **/
+
+	 
+	
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "audioSpeechAccesible", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("audioSpeechAccessible")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource audioSpeechAccessible;
+
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "audioSpeechMusicAccesible", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("audioSpeechMusicAccessible")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource audioSpeechMusicAccessible;
+	
+	
+	@Column(name = "audio_speech_accesible_hash")
+	private int audioSpeechAccesibleHash;
+
+	@Column(name = "audio_speech_music_accesible_hash")
+	private int audioSpeechMusicAccesibleHash;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/** ---------------------------- **/
 
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "json_data", columnDefinition = "jsonb")
@@ -124,6 +166,9 @@ public class AudioStudio extends DelleMuseObject {
 	
 	@Column(name = "info")
 	private String info;
+	
+	@Column(name = "infoAccessible")
+	private String infoAccessible;
 	
 	/** ---------------------------- **/
 
@@ -162,6 +207,46 @@ public class AudioStudio extends DelleMuseObject {
 		language = lang;
 	}
 
+	public Resource getAudioSpeechAccessible() {
+		return audioSpeechAccessible;
+	}
+
+
+	public Resource getAudioSpeechMusicAccessible() {
+		return audioSpeechMusicAccessible;
+	}
+
+
+	public int getAudioSpeechAccesibleHash() {
+		return audioSpeechAccesibleHash;
+	}
+
+
+	public int getAudioSpeechMusicAccesibleHash() {
+		return audioSpeechMusicAccesibleHash;
+	}
+
+
+	public void setAudioSpeechAccessible(Resource audioSpeechAccesible) {
+		this.audioSpeechAccessible = audioSpeechAccesible;
+	}
+
+
+	public void setAudioSpeechMusicAccessible(Resource audioSpeechMusicAccesible) {
+		this.audioSpeechMusicAccessible = audioSpeechMusicAccesible;
+	}
+
+
+	public void setAudioSpeechAccesibleHash(int audioSpeechAccesibleHash) {
+		this.audioSpeechAccesibleHash = audioSpeechAccesibleHash;
+	}
+
+
+	public void setAudioSpeechMusicAccesibleHash(int audioSpeechMusicAccesibleHash) {
+		this.audioSpeechMusicAccesibleHash = audioSpeechMusicAccesibleHash;
+	}
+
+
 	public ArtExhibitionGuide getArtExhibitionGuide() {
 		return artExhibitionGuide;
 	}
@@ -185,6 +270,18 @@ public class AudioStudio extends DelleMuseObject {
 	public String getInfo() {
 		return info;
 	}
+	
+	public void setInfo(String info) {
+		this.info = info;
+	}
+
+	public String getInfoAccessible() {
+		return infoAccessible;
+	}
+	
+	public void setInfoAccessible(String info) {
+		this.infoAccessible = info;
+	}
 
 	public void setArtExhibitionGuide(ArtExhibitionGuide artExhibitionGuide) {
 		this.artExhibitionGuide = artExhibitionGuide;
@@ -206,10 +303,7 @@ public class AudioStudio extends DelleMuseObject {
 		this.settings = settings;
 	}
 
-	public void setInfo(String info) {
-		this.info = info;
-	}
-
+	
 	public ArtExhibitionGuideRecord getArtExhibitionGuideRecord() {
 		return artExhibitionGuideRecord;
 	}

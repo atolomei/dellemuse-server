@@ -101,6 +101,14 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 		return c;
 	}
 
+	@Transactional
+	public void save(SiteRecord o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+
+	
+	
 	/**
 	 
 	 * @param a

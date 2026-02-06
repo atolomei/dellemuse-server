@@ -341,7 +341,10 @@ public class ElevenLabsService extends BaseService {
 		voices.put("amanda", 	
 				   new ELVoice("amanda",	 
 						       "oi8rgjIfLgJRsQ6rbZh3", "pt" ,"Amanda Kelly",
-						       "A sweet, feminine, and youthful Brazilian Portuguese voice with a neutral accent. Naturally warm and expressive, she brings a gentle charm to every word. Ideal for narrations, educational content, and conversational dialogue where clarity, softness, and an inviting tone are essential."));
+						       "A sweet, feminine, and youthful Brazilian Portuguese "
+						       + "voice with a neutral accent. Naturally warm and expressive, she brings a gentle charm to every word. "
+						       + "Ideal for narrations, educational content, and conversational dialogue where clarity, softness, and "
+						       + "an inviting tone are essential."));
 
 		 
 		VoiceSettings voiceSettings = new VoiceSettings();
@@ -366,6 +369,39 @@ public class ElevenLabsService extends BaseService {
 				"en" ,
 				"Emily",
 				"Emily"));
+	
+	
+		voices.put("nicola",	
+				new ELVoice("nicola",			
+				"9sKbNSlHXq99bttvf8rRF", 
+				"it" 
+				,"Nicola",
+				"Nicola Loruso",
+				voiceSettings));
+		
+	
+		voices.put("thomas",	
+				new ELVoice("thomas",			
+				"tvFp0BgJPrEXGoDhDIA4", 
+				"dutch" 
+				,"Thomas",
+				"Thomas",
+				voiceSettings));
+	
+		
+		voices.put("leon",	
+				new ELVoice("leon",			
+				"MJ0RnG71ty4LH3dvNfSd", 
+				"ger" 
+				,"Leon",
+				"Leon",
+				voiceSettings));
+		
+		
+	
+	
+	
+	
 	
 	}
 	

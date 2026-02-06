@@ -16,6 +16,7 @@ import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.command.CommandService;
 import dellemuse.serverapp.elevenlabs.ElevenLabsService;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
@@ -95,8 +96,13 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	protected IModel<String> getObjectTitle(MultiLanguageObject o) {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+		
 		return Model.of(str.toString());
 	}
 	

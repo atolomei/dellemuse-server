@@ -24,6 +24,7 @@ import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
@@ -1032,17 +1033,24 @@ public class SitePage extends BasePage {
 		toolbarContainer.add(toolbarItems);
 	}
 
-	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+	public IModel<String> getObjectTitle(MultiLanguageObject o, boolean includeIcon) {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		
+		if (!includeIcon)
+			return Model.of(str.toString());
+		
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+		
+		
 		return Model.of(str.toString());
 	}
 
-	//protected IModel<String> getObjectSubtitle(MultiLanguageObject s) {
-	//	return Model.of(getLanguageObjectService().getObjectSubtitle(s, getLocale()));
-	//}
+	 
 
 	protected IModel<String> getObjectInfo(MultiLanguageObject s) {
 		return Model.of(getLanguageObjectService().getInfo(s, getLocale()));
@@ -1064,15 +1072,11 @@ public class SitePage extends BasePage {
 			BreadCrumb<Void> bc = createBreadCrumb();
 			bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
 			bc.addElement(new BCElement(getObjectTitle(getSiteModel().getObject())));
-			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getSiteModel().getObject()));
+			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getSiteModel().getObject(), false));
 			ph.setBreadCrumb(bc);
 
 			ph.setContext(getLabel("site"));
-
-		//IModel<String> st = getObjectSubtitle(getSiteModel().getObject());
-
-		//	if (st.getObject().length() > 0)
-		//		ph.setTagline(st);
+ 
 
 			if (getSiteModel().getObject().getPhoto() != null)
 				ph.setPhotoModel(new ObjectModel<Resource>(getSiteModel().getObject().getPhoto()));
@@ -1225,5 +1229,4 @@ public class SitePage extends BasePage {
 		};
 		this.catalogContainer.add(linkExhibitions);
 	}
-
 }

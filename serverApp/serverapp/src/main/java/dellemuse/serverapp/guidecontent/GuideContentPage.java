@@ -21,6 +21,7 @@ import dellemuse.serverapp.artexhibition.ArtExhibitionEXTNavDropDownMenuToolbarI
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideEXTNavDropDownMenuToolbarItem;
 
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
+import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
@@ -78,6 +79,32 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	private JumboPageHeaderPanel<GuideContent> header;
 	private List<ToolbarItem> list;
 
+	
+	@Override
+	protected void onEditRecord(AjaxRequestTarget target, String lang) {
+		
+	
+	}
+
+	@Override
+	protected Panel getTranslateRecordEditor(String id, String lang) {
+
+	
+		if (getRecordEditors().containsKey(lang))
+			return getRecordEditors().get(lang);
+
+		IModel<GuideContentRecord> translationRecordModel = getTranslationRecordModel(lang);
+		ObjectRecordEditor<GuideContent, GuideContentRecord> e = new ObjectRecordEditor<GuideContent, GuideContentRecord>(id, getModel(), translationRecordModel);
+
+		e.setIntroVisible(isIntroVisible());
+		e.setSpecVisible(isSpecVisible());
+		e.setOpensVisible(isOpensVisible());
+		e.setAudioVisible(isAudioVisible());
+		e.setInfoVisible(isInfoVisible());
+
+		super.getRecordEditors().put(lang, e);
+		return e;
+	}
 	
 	
 	protected List<Language> getSupportedLanguages() {
@@ -209,6 +236,14 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		this.artWorkModel = artWorkModel;
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
 	protected WebMarkupContainer getEditor(String id) {
 		if (this.editor == null)
 			this.editor = new GuideContentEditor(id, getModel(), getArtExhibitionGuideModel(), getArtExhibitionModel(), getSiteModel());
@@ -382,15 +417,15 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		this.list = new ArrayList<ToolbarItem>();
 
 		/** audio de obra */
-		list.add(new GuideContentNavDropDownMenuToolbarItem("item", getModel(), getLabel("guide-content-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 24)), Align.TOP_RIGHT));
+		list.add(new GuideContentNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(),  getLabel("guide-content-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 24)), Align.TOP_RIGHT));
 
 		/** audio guia */
-		ArtExhibitionGuideEXTNavDropDownMenuToolbarItem ag = new ArtExhibitionGuideEXTNavDropDownMenuToolbarItem("item", getArtExhibitionGuideModel(), Align.TOP_RIGHT);
+		ArtExhibitionGuideEXTNavDropDownMenuToolbarItem ag = new ArtExhibitionGuideEXTNavDropDownMenuToolbarItem("item", getArtExhibitionGuideModel(),getSiteModel(), Align.TOP_RIGHT);
 		ag.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-none d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(ag);
 
 		/** exhibicion */
-		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), Align.TOP_RIGHT);
+		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), getSiteModel(), Align.TOP_RIGHT);
 		ae.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-none d-lg-none d-xl-block d-xxl-block text-md-center"));
 		list.add(ae);
 

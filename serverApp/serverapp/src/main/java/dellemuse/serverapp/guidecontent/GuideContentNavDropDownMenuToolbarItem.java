@@ -7,7 +7,7 @@ import org.apache.wicket.model.IModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
- 
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
@@ -20,10 +20,26 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 	private static final long serialVersionUID = 1L;
 
-	public GuideContentNavDropDownMenuToolbarItem(String id, IModel<GuideContent> model, IModel<String> title, Align align) {
+
+	private IModel<Site> siteModel;
+
+	
+	
+	public GuideContentNavDropDownMenuToolbarItem(String id, IModel<GuideContent> model, IModel<Site> siteModel, IModel<String> title, Align align) {
 		super(id, model, title, align);
+		this.siteModel=siteModel;
 	}
 
+	
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (siteModel!=null)
+			siteModel.detach();
+	}
+	
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -68,7 +84,7 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 			}
 		});
 
-		for (Language la: getLanguageService().getLanguages()) {
+		for (Language la: getSiteModel().getObject().getLanguages()) {
 
 			final String langCode = la.getLanguageCode();
 
@@ -208,6 +224,16 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
+	}
+
+
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
 	}
 
 }

@@ -36,9 +36,10 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(MultiLanguageObjectPage.class.getName());
 
-	private Map<String, ObjectRecordEditor<T, R>> recordEditors = new HashMap<String, ObjectRecordEditor<T, R>>();
+	private Map<String, Panel> recordEditors = new HashMap<String, Panel>();
 
 	private Map<String, IModel<R>> recordModels = new HashMap<String, IModel<R>>();
 
@@ -48,8 +49,8 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 
 	protected abstract R createTranslationRecord(String lang);
 
-	IModel<String> displayName;
-	IModel<String> subtitle;
+	private IModel<String> displayName;
+	private IModel<String> subtitle;
 
 	public MultiLanguageObjectPage() {
 		super();
@@ -70,7 +71,7 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		recordModels.forEach((k, v) -> v.detach());
+		this.recordModels.forEach((k, v) -> v.detach());
 
 	}
 
@@ -213,12 +214,14 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 		return e;
 	}
 
-	protected Map<String, ObjectRecordEditor<T, R>> getRecordEditors() {
+	protected Map<String, Panel> getRecordEditors() {
 		return this.recordEditors;
 	}
 
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
-		getRecordEditors().get(lang).edit(target);
+		
+		if (getRecordEditors().get(lang) instanceof ObjectRecordEditor)
+			((ObjectRecordEditor<?,?>) getRecordEditors().get(lang)).edit(target);
 	}
 
 	protected abstract Class<?> getTranslationClass();

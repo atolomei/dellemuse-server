@@ -13,7 +13,7 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
- 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.DellemuseServerAppHomePage;
 import dellemuse.serverapp.page.InternalPanel;
@@ -164,8 +164,15 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 	protected IModel<String> getObjectTitle(IModel<RoleSite> model) {
 		StringBuilder str = new StringBuilder();
 		str.append(model.getObject().getRoleDisplayName());
-		if (model.getObject().getState() == ObjectState.DELETED)
-			str.append(ServerConstant.DELETED_ICON);
+	
+		RoleSite o  = model.getObject();
+		
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+
 		return Model.of(str.toString());
 	}
 

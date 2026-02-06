@@ -28,6 +28,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
@@ -127,6 +128,13 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 		return c;
     }
     
+    
+	@Transactional
+	public void save(Person o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+
     
     @Transactional
 	public void reloadIfDetached(Person src) {

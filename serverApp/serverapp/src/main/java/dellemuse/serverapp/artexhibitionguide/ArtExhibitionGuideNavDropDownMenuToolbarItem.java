@@ -1,55 +1,54 @@
 package dellemuse.serverapp.artexhibitionguide;
 
-import java.util.Optional;
-
+ 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-
-import dellemuse.serverapp.page.error.ErrorPage;
-import dellemuse.serverapp.page.model.ObjectModel;
+ 
 import dellemuse.serverapp.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
+
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
-import io.wktui.nav.menu.LinkMenuItem;
+ 
 import io.wktui.nav.menu.MenuItemPanel;
-import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
- 
+
 
 public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<ArtExhibitionGuide> {
 
 	private static final long serialVersionUID = 1L;
 
+	private IModel<Site> siteModel;
 	
-	
-	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, Align align) {
-		this(id, model, null, align);
+	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, Align align) {
+		this(id, model, siteModel, null, align);
 		setTitle(getLabel("audio-guide-dropdown",TextCleaner.truncate(getModel().getObject().getName(), 24)));
 	}
 
-	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<String> title, Align align) {
+	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model,  IModel<Site> siteModel, IModel<String> title, Align align) {
 		super(id, model, title, align);
+		this.siteModel=siteModel;
 	}
 
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (siteModel!=null)
+			siteModel.detach();
+	}
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		
-		
-
-		 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+			 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
@@ -64,8 +63,7 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 				}
 			});
 		 
-		 
-		 
+ 		 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
@@ -89,7 +87,7 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 		});
 		
 			
-		for (Language la: getLanguageService().getLanguages()) {
+		for (Language la: getSiteModel().getObject().getLanguages()) {
 			
 			final String langCode = la.getLanguageCode();
 			
@@ -285,6 +283,14 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
+	}
+
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
 	}
 
 }

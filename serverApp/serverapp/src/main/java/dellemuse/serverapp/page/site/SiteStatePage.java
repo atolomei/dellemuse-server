@@ -31,6 +31,7 @@ import dellemuse.model.ResourceModel;
 import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
@@ -154,7 +155,8 @@ public class SiteStatePage extends ObjectPage<Site> {
 				}
 			
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
-					SiteStatePage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
+					SiteStatePage.this.getMetaEditor().onEdit(event.getTarget());
+					
 				}
 			}
 

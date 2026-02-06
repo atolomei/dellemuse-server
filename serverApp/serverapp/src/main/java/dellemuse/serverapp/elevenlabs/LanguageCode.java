@@ -12,7 +12,9 @@ public enum LanguageCode {
 	ES("es"),
 	FR("fr"),
 	IT("it"),
+	GER("ger"),
 	PT("pt"),
+	DUTCH("dutch"),
 	SV("sv");
 		
 	
@@ -39,6 +41,8 @@ public enum LanguageCode {
 		if (lang.equals("it")) return IT;
 		if (lang.equals("pt")) return PT;
 		if (lang.equals("sv")) return SV;
+		if (lang.equals("ger")) return GER;
+		if (lang.equals("dutch")) return DUTCH;
 				
 		return EN;
 	}

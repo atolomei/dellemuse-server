@@ -409,7 +409,6 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<ArtExhibitionItem> model, ListPanelMode mode) {
 				return ArtExhibitionItemsPanel.this.getObjectListItemExpandedPanel(model, mode);
-
 			}
 
 			@Override

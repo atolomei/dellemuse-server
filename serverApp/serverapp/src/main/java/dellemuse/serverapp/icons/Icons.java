@@ -11,10 +11,9 @@ public class Icons {
 	public static final String Site 				= "fa-duotone fa-solid fa-hotel";
 	
  
-
-	
-	
-	
-	
+	static public final String DELETED_ICON = " <i class=\" small text-danger ml-1 fa-solid fa-ban\"></i> ";
+	static public final String EDITION_ICON = " <i class=\" small text-info ml-1 fa-solid  fa-thin fa-pen-circle \" ></i> ";
 	
 }
+
+ 

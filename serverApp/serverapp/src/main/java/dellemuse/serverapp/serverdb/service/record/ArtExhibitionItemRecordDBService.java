@@ -112,7 +112,11 @@ public class ArtExhibitionItemRecordDBService extends RecordDBService<ArtExhibit
 		super.restore(c, deletedBy);
 	}
 
-	 
+	@Transactional
+	public void save(ArtExhibitionItemRecord o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
 	
 	/**
 	 * 

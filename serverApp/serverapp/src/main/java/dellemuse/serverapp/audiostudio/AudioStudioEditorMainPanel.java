@@ -55,14 +55,15 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 	private PillPanel pill3;
 
 	 
-
+	private boolean isAccesibleVersion = false;	
 	
 	/**
 	 * @param id
 	 * @param model
 	 */
-	public AudioStudioEditorMainPanel(String id, IModel<AudioStudio> model, String parentObjectUrl) {
+	public AudioStudioEditorMainPanel(String id, IModel<AudioStudio> model, String parentObjectUrl, boolean isAccesibleVersion) {
 		super(id, model);
+		this.isAccesibleVersion=isAccesibleVersion;
 		this.parentObjectUrl = parentObjectUrl;
 		setOutputMarkupId(true);
 	}
@@ -76,7 +77,6 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		addParentObject();
 
 		addAlert();
-		
 		addInfo();
 		
 		addOrReplace(getPillPanel1());
@@ -207,7 +207,7 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 	
 	protected void addInfo() {
-		this.info = new InfoAudioStudioEditor("info", getModel() );
+		this.info = new InfoAudioStudioEditor("info", getModel(), this.isAccesibleVersion);
 		add(this.info);
 	}
 	
@@ -230,7 +230,7 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 	protected Panel getPill1Editor() {
 		if (this.pillEditor1 == null) {
-			this.pillEditor1 = new Step1AudioStudioEditor("step1", getModel());
+			this.pillEditor1 = new Step1AudioStudioEditor("step1", getModel(), isAccesibleVersion);
 			addOrReplace(this.pillEditor1);
 		}
 		return this.pillEditor1;
@@ -238,7 +238,7 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 	protected Panel getPill2Editor() {
 		if (this.pillEditor2 == null) {
-			this.pillEditor2 = new Step2AudioStudioEditor("step2", getModel());
+			this.pillEditor2 = new Step2AudioStudioEditor("step2", getModel(), isAccesibleVersion);
 			addOrReplace(this.pillEditor2);
 		}
 		return this.pillEditor2;
@@ -246,7 +246,7 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 	protected Panel getPill3Editor() {
 		if (this.pillEditor3 == null) {
-			this.pillEditor3 = new Step3AudioStudioEditor("step3", getModel() );
+			this.pillEditor3 = new Step3AudioStudioEditor("step3", getModel(), isAccesibleVersion );
 			addOrReplace(this.pillEditor3);
 		}
 		return this.pillEditor3;

@@ -752,6 +752,11 @@ public abstract class BasePage extends WebPage {
 		return getArtExhibitionDBService().create("new", site, getUserDBService().findRoot());
 	}
 
+	
+	public boolean isRoot() {
+			return getSessionUser()!=null && getSessionUser().get().isRoot();
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void fireScanAll(UIEvent event) {
 		for (UIEventListener<UIEvent> listener : getBehaviors(UIEventListener.class)) {

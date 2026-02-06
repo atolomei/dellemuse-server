@@ -13,7 +13,7 @@ import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
- 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
@@ -196,16 +196,18 @@ public class InstitutionUsersPanel extends DBModelPanel<Institution> implements 
 		StringBuilder str = new StringBuilder();
 		str.append(model.getObject().getName());
 
-		if (model.getObject().getState() == ObjectState.DELETED)
-			str.append(ServerConstant.DELETED_ICON);
+		User o = model.getObject();
+		
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
 
 		return Model.of(str.toString());
 	}
 	
-	
-	//private void resetList() {
-	//	this.roleUsers = null;
-	//}
+	 
 
 	private void setUpModel() {
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);

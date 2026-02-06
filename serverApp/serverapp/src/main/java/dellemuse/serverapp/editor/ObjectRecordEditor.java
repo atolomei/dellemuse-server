@@ -61,11 +61,15 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	private TextAreaField<String> specField;
 	private FileUploadSimpleField<Resource> audioField;
 
-	private IModel<Resource> audioModel;
-	private boolean uploadedAudio = false;
+	
 	private AjaxLink<R> translate;
 	private Label t_label;
 	private IModel<T> sourceModel;
+	
+	
+	private IModel<Resource> audioModel;
+	private boolean uploadedAudio = false;
+	
 	private Link<R> openAudioStudio;
 
 	private boolean isInfoVisible = false;
@@ -282,14 +286,6 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			boolean success = getTranslationService().translate(getSourceModel().getObject(), getModel().getObject());
 
 			if (success) {
-
-				/**
-				 * logger.debug(getModelObject().getName());
-				 * logger.debug(getModelObject().getSubtitle());
-				 * logger.debug(getModelObject().getIntro());
-				 * logger.debug(getModelObject().getInfo());
-				 **/
-
 				save(getModelObject(), getSessionUser().get(), AuditKey.TRANSLATE);
 				loadForm();
 
@@ -318,17 +314,17 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		return DBService.getDBService(clazz);
 	}
 
-	private void setUpModel() {
+	protected void setUpModel() {
 		@SuppressWarnings("unchecked")
 		Optional<R> o_i = (Optional<R>) getDBService(getModelObject().getClass()).findWithDeps(getModel().getObject().getId());
-		setModel(new ObjectModel<R>(o_i.get()));
+		setModel(new ObjectModel<R>(o_i.get()));	
 		if (getModel().getObject().getAudio() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
 			setAudioModel(new ObjectModel<Resource>(o_r.get()));
 		}
 	}
 
-	private void loadForm() {
+	protected void loadForm() {
 
 		Form<R> form = new Form<R>("form");
 
@@ -392,7 +388,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			}
 
 			protected void onRemove(AjaxRequestTarget target) {
-				ObjectRecordEditor.this.onRemove(target);
+				ObjectRecordEditor.this.onAudioRemove(target);
 			}
 
 			public Image getImage() {
@@ -427,7 +423,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get())));
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), false ));
 				logger.error("audio studio not created for -> " + getModel().getObject().getDisplayname());
 			}
 
@@ -468,6 +464,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
+		
 		form.add(buttons);
 		EditButtons<R> b_buttons_top = new EditButtons<R>("buttons-top", getForm(), getModel()) {
 
@@ -507,7 +504,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 	}
 
-	protected void onRemove(AjaxRequestTarget target) {
+	protected void onAudioRemove(AjaxRequestTarget target) {
 		try {
 			this.audioModel=null;
 			getModel().getObject().setAudio(null);

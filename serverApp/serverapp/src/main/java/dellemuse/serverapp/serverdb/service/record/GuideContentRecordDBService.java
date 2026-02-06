@@ -73,7 +73,7 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		 
+		
 		c.setState(ObjectState.EDITION);
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));

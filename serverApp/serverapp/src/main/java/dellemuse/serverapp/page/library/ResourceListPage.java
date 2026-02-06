@@ -32,6 +32,7 @@ import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
@@ -176,10 +177,19 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 	@Override
 	public IModel<String> getObjectTitle(IModel<Resource> model) {
 		
-		if (model.getObject().getState()==ObjectState.DELETED) 
-			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
+		Resource o = model.getObject();
+		
+		StringBuilder str = new StringBuilder();
+		str.append(model.getObject().getName());
+		
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
 
-		return new Model<String>(model.getObject().getDisplayname());
+
+		return Model.of( str.toString() );
 	}
 
 	@Override

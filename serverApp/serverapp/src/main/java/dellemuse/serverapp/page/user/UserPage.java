@@ -203,6 +203,9 @@ public class UserPage extends ObjectPage<User> {
 				} else if (event.getName().equals(ServerAppConstant.user_panel_roles)) {
 					UserPage.this.togglePanel(ServerAppConstant.user_panel_roles, event.getTarget());
 				}
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+					UserPage.this.getMetaEditor().onEdit(event.getTarget());
+				}
 			}
 
 			@Override

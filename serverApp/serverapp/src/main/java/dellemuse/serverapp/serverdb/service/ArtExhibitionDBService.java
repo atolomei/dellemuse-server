@@ -118,6 +118,8 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		return c;
 	}
 
+	
+	
 	@Transactional	
 	public void save(ArtExhibition o, User user, List<String> updatedParts) {
 		super.save(o);

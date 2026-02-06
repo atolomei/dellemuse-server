@@ -96,6 +96,8 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 
 	private Link<ArtExhibitionGuide> openAudioStudio;
 
+	private ChoiceField<Boolean> accesibleField;
+	
 	private String audioMeta;
 	private boolean alertInfo = false;
 
@@ -126,6 +128,28 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 		add(form);
 		setForm(form);
 
+		
+		accesibleField = new ChoiceField<Boolean>("accesible", new PropertyModel<Boolean>(getModel(), "accessible"), getLabel("guide-type")) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Boolean>> getChoices() {
+				return new ListModel<Boolean>(b_list);
+			}
+
+			@Override
+			protected String getDisplayValue(Boolean value) {
+				if (value == null)
+					return null;
+				if (value.booleanValue())
+					return getLabel("accesible").getObject();
+				return getLabel("general").getObject();
+			}
+		};
+		getForm().add(accesibleField );
+		
+	 	
 		this.nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		this.subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
 		this.infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 12);
@@ -246,12 +270,14 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 
 		this.openAudioStudio = new Link<ArtExhibitionGuide>("openAudioStudio", getModel()) {
 			private static final long serialVersionUID = 1L;
-
+			/**
+			 *  Art Exhibition does not have Accesible audio (it is not needed).
+			 */
 			@Override
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get())));
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), false));
 			}
 
 			public boolean isEnabled() {

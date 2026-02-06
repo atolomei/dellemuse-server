@@ -53,8 +53,8 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 
 	boolean uploadedStep2 = false;
 
-	public Step2AudioStudioEditor(String id, IModel<AudioStudio> model) {
-		super(id, model);
+	public Step2AudioStudioEditor(String id, IModel<AudioStudio> model, boolean isAccesibleVersion) {
+		super(id, model, isAccesibleVersion);
 	}
 
 	@Override
@@ -87,6 +87,12 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 		this.voiceOverlapDurationSec = voiceOverlapDurationSec;
 	}
 
+	//Step2AudioStudioEditor.this.getModel().getObject()
+	//		.setMusicUrl("https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
+ 
+	// musicUrl = "https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3";
+	
+	
 	
 	public void onBeforeRender() {
 		super.onBeforeRender();
@@ -138,9 +144,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 
 				getForm().updateModel();
 
-				//Step2AudioStudioEditor.this.getModel().getObject()
-				//		.setMusicUrl("https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
-
+		
 				String musicUrl = Step2AudioStudioEditor.this.getModel().getObject().getMusicUrl();
 					
 				if (musicUrl==null) {
@@ -153,7 +157,6 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 				if (Step2AudioStudioEditor.this.getModel().getObject().getAudioSpeech() != null) {
 					
 					Long voiceResourceId = Step2AudioStudioEditor.this.getModel().getObject().getAudioSpeech().getId();
-					// musicUrl = "https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3";
 					
 					Integer introDurationSec = Step2AudioStudioEditor.this.getIntroDurationSec();
 					Integer fadeDurationSec = Step2AudioStudioEditor.this.getFadeDurationSec();
@@ -163,11 +166,11 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 					c.execute();
 
 					if (c.isSuccess()) {
-						// save resource music + file
+						 
 						File file = new File(c.getoutputFilePath());
 						step2Upload(file);
 						addStep2MP3();
-						// save(AudioStudioEditor.this.getModel().getObject());
+						 
 					} else {
 
 						String err = c.getErrorMsg();
@@ -303,6 +306,10 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 				Resource resource = createAndUploadFile(inputStream, bucketName, objectName, file.getName(), file.length());
 				setAudioSpeechMusicModel(new ObjectModel<Resource>(resource));
 
+				//setObjectAudioSpeechMusicHash(getHashAudioSpeechMusic());
+				//setObjectAudioSpeechMusic(resource);
+
+				
 				getModel().getObject().setAudioSpeechMusicHash(getHashAudioSpeechMusic());
 				getModel().getObject().setAudioSpeechMusic(resource);
 

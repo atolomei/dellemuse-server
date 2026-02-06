@@ -26,7 +26,8 @@ public enum ObjectType {
 	
 	ARTWORK (0, "artwork"),
 	HUMAN_MADE_OBJECT(1, "human-made-object"),
-	NATURAL_OBJECT(2, "natural-object");
+	BUILDING(2, "building"),
+	NATURAL_OBJECT(3, "natural-object");
 	
 	private final String label;
 	private final int id;
@@ -37,6 +38,7 @@ public enum ObjectType {
 		values = new ArrayList<ObjectType>();
 		
 		values.add(ARTWORK);
+		values.add(BUILDING);
 		values.add(HUMAN_MADE_OBJECT);
 		values.add(NATURAL_OBJECT);
 	}
@@ -69,8 +71,5 @@ public enum ObjectType {
 		return res.getString(this.label);
 	}
 	
-	
-	
-
-	
+	 	
 }

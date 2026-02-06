@@ -621,8 +621,8 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		super.getMetaEditor().edit(target);
 	}
 
-	protected void onEditRecord(AjaxRequestTarget target, String lang) {
-		getRecordEditors().get(lang).edit(target);
-	}
+	//protected void onEditRecord(AjaxRequestTarget target, String lang) {
+	//	getRecordEditors().get(lang).edit(target);
+	//}
 
 }

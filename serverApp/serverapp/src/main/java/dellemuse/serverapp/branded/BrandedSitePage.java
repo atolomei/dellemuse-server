@@ -16,26 +16,26 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.audit.panel.AuditPanel;
+ 
 import dellemuse.serverapp.branded.panel.BrandedGlobalTopPanel;
 import dellemuse.serverapp.branded.panel.BrandedSiteSearcherPanel;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.BrandedBasePage;
+ 
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.error.BrandedErrorPage;
-import dellemuse.serverapp.page.error.ErrorPage;
+ 
 import dellemuse.serverapp.page.model.ObjectModel;
 
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+ 
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -44,7 +44,7 @@ import dellemuse.serverapp.serverdb.model.User;
 
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.language.LanguageObjectService;
+ 
 import io.odilon.util.Check;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -122,7 +122,9 @@ public class BrandedSitePage extends BasePage {
 		getPage().add( new org.apache.wicket.AttributeModifier("class", "branded branded  text-bg-dark sssss"));
 		
 		try {
+			
 			setUpModel();
+			
 		} catch (Exception e) {
 			logger.error(e);
 			addErrorPanels(e);
@@ -133,7 +135,6 @@ public class BrandedSitePage extends BasePage {
 		addSearch();
 
 		add(new BrandedGlobalTopPanel("top-panel", getSiteModel()));
-		//add(new GlobalFooterPanel<>("footer-panel"));
 		add(new InvisiblePanel("footer-panel"));
 
 		
@@ -156,7 +157,13 @@ public class BrandedSitePage extends BasePage {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+
+		
+		
 		return Model.of(str.toString());
 	}
 
@@ -164,7 +171,11 @@ public class BrandedSitePage extends BasePage {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + ServerConstant.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+
 		return Model.of(str.toString());
 	}
 

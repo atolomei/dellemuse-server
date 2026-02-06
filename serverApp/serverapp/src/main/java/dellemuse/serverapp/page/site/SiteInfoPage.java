@@ -30,7 +30,6 @@ import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
@@ -63,10 +62,20 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	private List<ToolbarItem> list;
 
 	
-	protected List<Language> getSupportedLanguages() {
-		return getModel().getObject().getLanguages();
+	public SiteInfoPage() {
+		super();
 	}
-	
+
+	public SiteInfoPage(PageParameters parameters) {
+		super(parameters);
+	}
+
+	public SiteInfoPage(IModel<Site> model) {
+		super(model);
+	}
+
+
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
@@ -105,27 +114,6 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return false;
 	}
 
-	public SiteInfoPage() {
-		super();
-	}
-
-	public SiteInfoPage(PageParameters parameters) {
-		super(parameters);
-	}
-
-	public SiteInfoPage(IModel<Site> model) {
-		super(model);
-	}
-
-	@Override
-	protected Optional<Site> getObject(Long id) {
-		return getSite(id);
-	}
-
-	@Override
-	protected IModel<String> getPageTitle() {
-		return getLabel("info");
-	}
 
 	@Override
 	protected Panel createHeaderPanel() {
@@ -223,6 +211,11 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		}
 	}
 
+	protected List<Language> getSupportedLanguages() {
+		return getModel().getObject().getLanguages();
+	}
+	
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -314,6 +307,16 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 				return false;
 			}
 		});
+	}
+	
+	@Override
+	protected Optional<Site> getObject(Long id) {
+		return getSite(id);
+	}
+
+	@Override
+	protected IModel<String> getPageTitle() {
+		return getLabel("info");
 	}
 
 }

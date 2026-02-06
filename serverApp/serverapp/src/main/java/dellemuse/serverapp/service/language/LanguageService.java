@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.service.base.BaseService;
+import io.odilon.util.Check;
 
 @Service
 public class LanguageService extends BaseService {
@@ -30,6 +31,7 @@ public class LanguageService extends BaseService {
         super(settings);
     
     	languages = new ArrayList<Language>();
+    
     	languages_eng= new ArrayList<Language>();
     	languages_spa= new ArrayList<Language>();
     	languages_pt= new ArrayList<Language>();
@@ -37,12 +39,20 @@ public class LanguageService extends BaseService {
 		languages.add(new Language( Language.ES ));
 		languages.add(new Language( Language.EN ));
 		languages.add(new Language( Language.PT ));
+		languages.add(new Language( Language.IT ));
+		languages.add(new Language( Language.FR ));
+		languages.add(new Language( Language.GER));
+		
 		
 		languages.forEach( l ->  
 			{
 				languages_spa.add(l);
 				languages_eng.add(l);
 				languages_pt.add(l);
+				
+		
+				
+				
 			}		
 		);
 		
@@ -93,15 +103,22 @@ public class LanguageService extends BaseService {
 	
 	public List<Language> getLanguagesSorted(Locale locale) {
 		
+		Check.requireNonNull(locale);
+			
 		if (locale==Locale.ENGLISH)
 			return languages_eng;
+
+		if (locale.getLanguage().startsWith("en"))
+			return languages_eng;
+
 		
-		if (locale==Locale.forLanguageTag(Language.PT))
+		if (locale.getLanguage().startsWith("pt") || locale==Locale.forLanguageTag(Language.PT))
 			return languages_pt;
 
-		if (locale==Locale.forLanguageTag(Language.ES))
+		if (locale.getLanguage().startsWith("es") || locale==Locale.forLanguageTag(Language.ES))
 			return languages_spa;
-
+		
+		
 		throw new RuntimeException("locale not supported -> " + locale.getLanguage().toString() );
 	}
 

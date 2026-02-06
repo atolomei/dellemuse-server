@@ -43,7 +43,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	private WebMarkupContainer frame = new WebMarkupContainer("frame");
 	private WebMarkupContainer ic;
 
-	//private boolean imageAdded = false;
+	 
 	private boolean photoVisible = true;
 	private String headerCss;
 	private String icon;
@@ -209,8 +209,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 
 	private void addImageAndInfo() {
 
-		//imageAdded = true;
-
+		 
 		this.imageContainer = new WebMarkupContainer("imageContainer") {
 			private static final long serialVersionUID = 1L;
 
@@ -262,7 +261,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
 
-		// addIcon();
+		 
 
 		this.iconContainer = new WebMarkupContainer("iconContainer") {
 			private static final long serialVersionUID = 1L;

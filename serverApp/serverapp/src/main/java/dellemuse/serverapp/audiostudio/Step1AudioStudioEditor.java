@@ -74,9 +74,22 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	private Double audioStyle = 0.01;
 
 	private boolean uploadedStep1 = false;
+	
+	 
 
-	public Step1AudioStudioEditor(String id, IModel<AudioStudio> model) {
-		super(id, model);
+
+
+	
+	
+	
+	
+	
+	
+	
+
+	public Step1AudioStudioEditor(String id, IModel<AudioStudio> model, boolean isAccesibleVersion) {
+		super(id, model, isAccesibleVersion);
+		
 	}
 
 	@Override
@@ -92,17 +105,17 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		
 		if (map!=null) {
 			
-			if (map.containsKey("speed")) 
-				speed=Double.valueOf(map.get("speed"));
+			if (map.containsKey(getPrefix()+"speed")) 
+				speed=Double.valueOf(map.get(getPrefix()+"speed"));
 		
-			if (map.containsKey("stability")) 
-				stability =Double.valueOf(map.get("stability"));
+			if (map.containsKey(getPrefix()+"stability")) 
+				stability =Double.valueOf(map.get(getPrefix()+"stability"));
 		
-			if (map.containsKey("similarity")) 
-				similarity =Double.valueOf(map.get("similarity"));
+			if (map.containsKey(getPrefix()+"similarity")) 
+				similarity =Double.valueOf(map.get(getPrefix()+"similarity"));
 
-			if (map.containsKey("audioStyle")) 
-				audioStyle =Double.valueOf(map.get("audioStyle"));
+			if (map.containsKey(getPrefix()+"audioStyle")) 
+				audioStyle =Double.valueOf(map.get(getPrefix()+"audioStyle"));
 		}
 		
 		step1 = new WebMarkupContainer("step1");
@@ -135,9 +148,12 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 				getForm().updateModel();
 
-				if (Step1AudioStudioEditor.this.getModel().getObject().getInfo() != null && Step1AudioStudioEditor.this.getModel().getObject().getInfo().length() == 0) {
+				if (Step1AudioStudioEditor.this.getObjectInfo() != null && 
+					Step1AudioStudioEditor.this.getObjectInfo().length() == 0) {
+
 					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.DANGER, getLabel("step1.no-text"));
 					getForm().addOrReplace(alert);
+				
 				}
 
 				else if (requiresGenerationAudioSpeech()) {
@@ -226,6 +242,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	}
 
 	
+
 	private void addInfo() {
 	
 		if (getAudioSpeechModel() != null && getAudioSpeechModel().getObject() != null) {
@@ -235,54 +252,61 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 				return;
 			}
 		}
-		
 		getForm().addOrReplace(new InvisiblePanel("info"));
-
-		
 	}
 	
 
+	
+	
 	private void step1AudioSpeech() {
 
-		//if (getModel().getObject().getInfo() == null)
-		//	return;
-
-		//if (getModel().getObject().getInfo().length() == 0)
-		//	return;
-
+	 	getModel().getObject().setName(getParentName());
 		
-		getModel().getObject().setName(getParentName());
-		getModel().getObject().setInfo(getParentInfo());
-		
+	 	setObjectInfo(getParentInfo());
 
 		getForm().updateModel();
 		String text = getModel().getObject().getInfo();
 		
 		String language = getModel().getObject().getLanguage();
-		String fileName = normalizeFileName(getParentName()) + "-" + getParentId().toString() + ".mp3";
+		String fileName = normalizeFileName(getParentName()) + "-" + getPrefix() + getParentId().toString() + ".mp3";
 		LanguageCode languageCode = LanguageCode.from(language);
 
 		String dm_voice_id;
 
-		if (languageCode.equals(LanguageCode.ES))
-			dm_voice_id = "mariana";
+		if 		(languageCode.equals(LanguageCode.ES)) 		dm_voice_id = "mariana";
 
-		else if (languageCode.equals(LanguageCode.PT))
-			dm_voice_id = "amanda";
+		else if (languageCode.equals(LanguageCode.PT)) 		dm_voice_id = "amanda";
+		else if (languageCode.equals(LanguageCode.EN))		dm_voice_id = "emily";
+		else if (languageCode.equals(LanguageCode.FR))		dm_voice_id = "emily";
+		else if (languageCode.equals(LanguageCode.IT))		dm_voice_id = "nicola";
+		else if (languageCode.equals(LanguageCode.DUTCH))	dm_voice_id = "thomas";
+		else if (languageCode.equals(LanguageCode.GER))		dm_voice_id = "leon";
+		
+		else												dm_voice_id = "emily";
 
-		else if (languageCode.equals(LanguageCode.EN))
-			dm_voice_id = "emily";
-
-		else
-			dm_voice_id = "emily";
-
+		
+		
 		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id);
 
 		if (ofile.isPresent()) {
 			step1AudioSpeechUpload(ofile.get());
 		}
 	}
-
+	protected void setObjectAudioSpeechHash( int hash) {
+		getModel().getObject().setAudioSpeechHash( hash );
+	}
+	
+	
+	protected void setObjectAudioSpeech( Resource resource) {
+		getModel().getObject().setAudioSpeech(resource);
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param file
+	 * @return
+	 */
 	private boolean step1AudioSpeechUpload(File file) {
 
 		if (this.uploadedStep1)
@@ -298,24 +322,23 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 				Resource resource = createAndUploadFile(inputStream, bucketName, objectName, file.getName(), file.length());
 
 				setAudioSpeechModel(new ObjectModel<Resource>(resource));
-
-				getModel().getObject().setAudioSpeech(resource);
-				getModel().getObject().setAudioSpeechHash(getHashAudioSpeech());
 				
-				logger.debug(("saving AudioStudio -> " + getModel().getObject().getName()));
-
+				setObjectAudioSpeech(resource);
+				setObjectAudioSpeechHash(getHashAudioParameters());
+				
+			
 				Map<String, String> map = getModel().getObject().getSettings();
 				if (map == null)
 					map = new HashMap<String, String>();
 
 				if (getSpeed() != null)
-					map.put("speed", getSpeed().toString());
+					map.put( getPrefix()+"speed", getSpeed().toString());
 				if (getStyle() != null)
-					map.put("style", getStyle().toString());
+					map.put(getPrefix()+"style", getStyle().toString());
 				if (getStability() != null)
-					map.put("stability", getStability().toString());
+					map.put(getPrefix()+"stability", getStability().toString());
 				if (getSimilarity() != null)
-					map.put("similarity", getSimilarity().toString());
+					map.put(getPrefix()+"similarity", getSimilarity().toString());
 
 				getModel().getObject().setSettings(map);
 
@@ -323,10 +346,8 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		
 			}
 			
-
 			uploadedStep1 = true;
-			logger.debug("saved Audio Studio ok -> " + getModel().getObject().toString());
-
+			
 		} catch (Exception e) {
 			uploadedStep1 = false;
 			error("Error saving file: " + e.getMessage());
@@ -334,26 +355,25 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		return uploadedStep1;
 	}
 
-	private boolean requiresGenerationAudioSpeech() {
 
-		if (getModel().getObject().getAudioSpeech() == null)
+
+	
+	
+	protected boolean requiresGenerationAudioSpeech() {
+		if (getObjectAudio() == null)
 			return true;
-
-		logger.debug(getHashAudioSpeech());
-		logger.debug(getModel().getObject().getAudioSpeechHash());
-		
-
-		return (getHashAudioSpeech() != getModel().getObject().getAudioSpeechHash());
+		return (getHashAudioParameters() != getObjectAudioSpeechHash());
 	}
 
-	private int getHashAudioSpeech() {
+
+	
+	
+	private int getHashAudioParameters() {
 
 		StringBuilder str = new StringBuilder();
-		
-		logger.debug(getModel().getObject().getInfo());
 			
-		if (getModel().getObject().getInfo() != null)
-			str.append(getModel().getObject().getInfo().toLowerCase().trim());
+		if (getObjectInfo() != null)
+			str.append(getObjectInfo().toLowerCase().trim());
 		else
 			str.append("");
 		str.append("-");
@@ -364,6 +384,12 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		str.append(getStability().toString());
 		return str.toString().hashCode();
 	}
+	
+	
+	
+	
+	
+	
 
 	private void addStep1MP3() {
 
@@ -378,23 +404,17 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
 			Audio audio = new Audio("audioVoice", resourceReference);
 			this.step1mp3.addOrReplace(audio);
-			
-			//AudioPlayer p=new AudioPlayer ("player", audioUrl);
-			//this.step1mp3.addOrReplace(p);
-					
-			
+		
 			Label am = new Label("audioVoiceMetadata", getAudioMeta(getAudioSpeechModel().getObject()));
 			am.setEscapeModelStrings(false);
 			this.step1mp3.addOrReplace(am);
 		} else {
+			
 			Url url = Url.parse("");
 
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
 			 Audio audio = new Audio("audioVoice", resourceReference);
 			this.step1mp3.addOrReplace(audio);
-
-			//AudioPlayer p=new AudioPlayer ("player", "");
-			//this.step1mp3.addOrReplace(p);
 			
 			Label am = new Label("audioVoiceMetadata", "");
 			am.setEscapeModelStrings(false);
@@ -406,6 +426,9 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	}
 
+	
+	
+	
 	public Double getSimilarity() {
 		return similarity;
 	}

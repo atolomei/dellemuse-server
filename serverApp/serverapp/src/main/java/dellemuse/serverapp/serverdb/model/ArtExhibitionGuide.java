@@ -68,6 +68,11 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 	@Column(name = "ordinal")
 	private int ordinal;
 	
+	
+	@Column(name = "accessible")
+	private boolean accessible;
+	
+	
 	public ArtExhibitionGuide() {
 	}
 
@@ -164,5 +169,13 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 
 	public void setOrdinal(int ordinal) {
 		this.ordinal = ordinal;
+	}
+
+	public boolean isAccessible() {
+		return accessible;
+	}
+
+	public void setAccessible(boolean accesiible) {
+		this.accessible = accesiible;
 	}
 };

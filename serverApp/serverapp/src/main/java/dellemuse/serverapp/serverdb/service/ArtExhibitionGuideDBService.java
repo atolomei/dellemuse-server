@@ -72,6 +72,7 @@ public class ArtExhibitionGuideDBService extends  MultiLanguageObjectDBservice<A
 		c.setName(name);
 	 
 		c.setOfficial(true);
+		c.setAccessible(false);
 		c.setArtExhibition(ex);
 		
 		if (!ex.isDependencies())

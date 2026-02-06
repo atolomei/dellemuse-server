@@ -53,12 +53,11 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 	public void onInitialize() {
 		super.onInitialize();
 		
-		// add(new InvisiblePanel("navbarRight"));
+	 
 		{
 			NavBar<Site> nav = new NavBar<Site>("navbarLeft" , getModel());
 	
-			//nav.add(new AttributeModifier("style", "padding-top:0; padding-bottom:0;"));
-			String logoUrl = getPresignedUrl(getModel().getObject().getLogo());
+		 	String logoUrl = getPresignedUrl(getModel().getObject().getLogo());
 			
 			Url url = Url.parse(logoUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
@@ -73,8 +72,7 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 				}
 			};
 	
-			//logoPanel.add(new AttributeModifier("style", "padding-top:0; padding-bottom:0;"));
-			
+		 	
 			nav.addNoCollapseLeft(logoPanel);
 			add(nav);  
 		}
@@ -82,8 +80,13 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 		
 		{
 			NavBar<Site> nav = new NavBar<Site>("navbarRight" , getModel());
+
+			BrandedAccesibilityPanel b = new BrandedAccesibilityPanel("item",  new ObjectModel<User>(getSessionUser().get()));
+			nav.addNoCollapseLeft(b);
+	
 			LanguagePanel gt = new LanguagePanel("item",  new ObjectModel<User>(getSessionUser().get()));
 			nav.addNoCollapseLeft(gt);
+			
 			add(nav);  
 			
 		}

@@ -1,7 +1,7 @@
 package dellemuse.serverapp.serverdb.service;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -107,6 +107,8 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		if (oa.isPresent()) {
 			oa.get().setName(o.getName());
 			oa.get().setInfo(o.getInfo());
+			oa.get().setInfoAccessible(o.getInfoAccessible());
+			
 			getAudioStudioDBService().save(oa.get());
 		}
 	}
@@ -122,6 +124,7 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE));
 	}
 
+	
 	/**
 	 * guideContent (1) guideContentRecord (n) AudioStudio (1)
 	 * 
@@ -193,15 +196,11 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 		Predicate p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
 		cq.select(root).where(p1);
-
-		// cq.select(root).where(combinedPredicate);
+	 
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-
-	
-	
 	@Transactional
 	public List<GuideContent> getByAudioId(Site site) {
 		
@@ -216,7 +215,6 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-
 
 	@Transactional
 	public List<GuideContent> getByAudioId(Site site, Long aid) {
@@ -239,6 +237,15 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
+	/**
+	 * 
+	 * 
+	 * @param site
+	 * @param aid
+	 * @param os1
+	 * 
+	 * @return
+	 */
 	@Transactional
 	public List<GuideContent> getByAudioId(Site site, Long aid, ObjectState os1) {
 			
@@ -358,15 +365,17 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return GuideContent.class;
 	}
 
-	public GuideContentRecordDBService getGuideContentRecordDBService() {
-		return guideContentRecordDBService;
-	}
-
+	
 	@Override
 	public String getObjectClassName() {
 		return GuideContentRecord.class.getSimpleName().toLowerCase();
 	}
 
+	public GuideContentRecordDBService getGuideContentRecordDBService() {
+		return guideContentRecordDBService;
+	}
+
+	
 	@PostConstruct
 	protected void onInitialize() {
 		super.registerRecordDB(getEntityClass(), getGuideContentRecordDBService());

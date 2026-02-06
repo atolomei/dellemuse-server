@@ -79,9 +79,7 @@ import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
 /**
- * 
  * site foto Info - exhibitions
- * 
  */
 
 @MountPath("/site/floors/${id}")
@@ -158,8 +156,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 
 	protected Panel getEditor(String id) {
 		if (this.editor == null)
-			 
-			this.editor = new ErrorPanel(id, Model.of("not done"));
+			this.editor = new ErrorPanel(id, getLabel("planned"));
 		return this.editor;
 	}
 
@@ -229,6 +226,10 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 					//SiteFloorsPage.this.onEdit(event.getTarget());
 				}
 
+				if (event.getName().equals(ServerAppConstant.site_page_floors)) {
+					SiteFloorsPage.this.togglePanel(ServerAppConstant.site_page_floors, event.getTarget());
+				}
+
 				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
 					SiteFloorsPage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
 				}
@@ -284,7 +285,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 
-		NamedTab tab_1 = new NamedTab(Model.of("editor"), "editor") {
+		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.site_page_floors) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -294,6 +295,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 			}
 		};
 		tabs.add(tab_1);
+		
 
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
@@ -305,6 +307,10 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 			}
 		};
 		tabs.add(audit);
+
+		
+		if (getStartTab() == null)
+			super.setStartTab(ServerAppConstant.site_page_floors);
 
 		return tabs;
 	}

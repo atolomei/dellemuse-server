@@ -135,9 +135,9 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		return false;
 	}
 
-	protected void onEditRecord(AjaxRequestTarget target, String lang) {
-		getRecordEditors().get(lang).edit(target);
-	}
+	//protected void onEditRecord(AjaxRequestTarget target, String lang) {
+	//	getRecordEditors().get(lang).edit(target);
+	//}
 
 	protected void addListeners() {
 		super.addListeners();
@@ -252,9 +252,15 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 			return list;
 
 		list = new ArrayList<ToolbarItem>();
-		list.add(new ArtExhibitionGuideNavDropDownMenuToolbarItem("item", getModel(), getLabel("audio-guide", TextCleaner.truncate(getModel().getObject().getName(), 24)), Align.TOP_RIGHT));
+		list.add(new ArtExhibitionGuideNavDropDownMenuToolbarItem("item", 
+				getModel(), 
+				getSiteModel(),
+				getLabel("audio-guide", TextCleaner.truncate(getModel().getObject().getName(), 24)), Align.TOP_RIGHT));
 
-		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), getLabel("art-exhibition", TextCleaner.truncate(getArtExhibitionModel().getObject().getName(), 24)),
+		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", 
+				getArtExhibitionModel(), 
+				getSiteModel(),
+				getLabel("art-exhibition", TextCleaner.truncate(getArtExhibitionModel().getObject().getName(), 24)),
 				Align.TOP_RIGHT);
 
 		ae.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-block d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));

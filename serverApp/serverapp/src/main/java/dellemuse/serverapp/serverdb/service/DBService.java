@@ -107,11 +107,11 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return getRepository().save(entity);
 	}
 
-	@Transactional
+	/**@Transactional
 	public <S extends T> void save(S o, User user, List<String> updatedParts) {
 		super.save(o);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
-	}
+	}**/
 
 	@Transactional
 	public <S extends T> S save(S entity, User user) {

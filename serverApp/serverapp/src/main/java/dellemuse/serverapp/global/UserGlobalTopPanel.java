@@ -23,6 +23,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.AvatarService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.error.ErrorPanel;
 import io.wktui.media.InvisibleImage;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
@@ -72,16 +73,26 @@ public class UserGlobalTopPanel extends ObjectModelPanel<User> {
 		} else {
 			Optional<Person> o = getPersonDBService().getByUserWithDeps(getModel().getObject());
 			if (o.isPresent()) {
-				Person person = o.get();
-				if (person.getPhoto() != null) {
-					Image image = getThumbnail(person.getPhoto());
-					addOrReplace(image);
-				} else {
+			
+				try {
+					Person person = o.get();
+					if (person.getPhoto() != null) {
+						Image image = getThumbnail(person.getPhoto());
+						addOrReplace(image);
+					} else {
+						addDefaultPhoto();
+					}
+				} catch (Exception e) {
+					//logger.error(e);
+					addOrReplace( new ErrorPanel("image", e));
+				}
+			
+			
+			
+			} else {
 					addDefaultPhoto();
 				}
-			} else {
-				addDefaultPhoto();
-			}
+			
 		}
 
 	}

@@ -36,8 +36,55 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 	private Long parentId;
 	private ObjectState parentState;
 
-	public BaseAudioStudioEditor(String id, IModel<AudioStudio> model) {
+	private boolean isAccesibleVersion;
+	
+	
+	private String prefix = "";
+	
+	
+	protected int getObjectAudioSpeechMusicHash() {
+		return getModel().getObject().getAudioSpeechMusicHash();
+	}
+	
+	
+	
+	
+	protected int getObjectAudioSpeechHash() {
+		return getModel().getObject().getAudioSpeechHash();
+	}
+	
+	protected Resource getObjectAudio() {
+		return getModel().getObject().getAudioSpeech();
+	}
+	
+	
+
+	protected String getObjectInfo() {
+		return  getModel().getObject().getInfo();
+	}
+	
+	
+	protected void setObjectInfo( String info ) {
+		getModel().getObject().setInfo(info);
+	}
+	
+	
+
+	public BaseAudioStudioEditor(String id, IModel<AudioStudio> model, boolean isAccesibleVersion) {
 		super(id, model);
+
+		this.isAccesibleVersion = isAccesibleVersion;
+		prefix = isAccesibleVersion ? "accesible-" : "";
+		
+	}
+
+	protected String getPrefix() {
+		return this.prefix;
+	}
+	
+	
+	public boolean isAccesibleVersion() {
+		return this.isAccesibleVersion;
 	}
 
 	public void onDetach() {
@@ -51,6 +98,10 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 
 		if (this.audioSpeechMusicModel != null)
 			this.audioSpeechMusicModel.detach();
+	}
+
+	public IModel<String> getVersion() {
+		return this.isAccesibleVersion() ? getLabel("accesible") : getLabel("general");
 	}
 
 	/** 
@@ -145,9 +196,9 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 
 		AudioStudioParentObject po = getAudioStudioDBService().findParentObjectWithDeps(getModelObject()).get();
 
-		if (po.getAudio() != null) 
+		if (po.getAudio() != null)
 			parentAudioModel = new ObjectModel<Resource>(po.getAudio());
-	
+
 		parentName = po.getName();
 		parentType = getLabel(po.getClass().getSimpleName().toLowerCase());
 		parentId = po.getId();
@@ -162,7 +213,5 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 		}
 
 	}
-
-	
 
 }

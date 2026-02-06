@@ -23,10 +23,7 @@ public class ServerConstant {
 
 	static public final String SEPARATOR = "---------------------------------";
 	static public final String NOT_THROWN = " not thrown";
-
-	static public final String DELETED_ICON = " <i class=\" small text-danger ml-1 fa-solid fa-ban\"></i> ";
-
-	
+ 	
 	public final static int INFO_MAX = 180;
 	public final static int INTRO_MAX = 180;
 	public final static int GUIDE_CONTENT_INFO = 80;

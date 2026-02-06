@@ -154,7 +154,11 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 		return list;
 	}	
 
-	 
+	@Transactional
+	public void save(PersonRecord o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
  
 	
 	@Transactional

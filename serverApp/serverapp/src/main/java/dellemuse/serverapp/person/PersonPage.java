@@ -379,6 +379,10 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 				else if (event.getName().equals(ServerAppConstant.object_audit)) {
 					PersonPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}
+				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+					PersonPage.this.getMetaEditor().onEdit(event.getTarget());
+				}
+				
 			}
 
 			@Override

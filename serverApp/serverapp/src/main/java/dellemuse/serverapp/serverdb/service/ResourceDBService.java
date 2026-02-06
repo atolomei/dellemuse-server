@@ -80,7 +80,9 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         else 
         	c.setMedia(getMimeType(name));
                
-        c.setUsethumbnail(getMimeType(name).toLowerCase().endsWith("png") || getMimeType(name).toLowerCase().endsWith("jpg") );
+        c.setUsethumbnail(	getMimeType(name).toLowerCase().endsWith("png") || 
+        					getMimeType(name).toLowerCase().endsWith("jpg") || 
+        					getMimeType(name).toLowerCase().endsWith("jpeg"));
         
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());

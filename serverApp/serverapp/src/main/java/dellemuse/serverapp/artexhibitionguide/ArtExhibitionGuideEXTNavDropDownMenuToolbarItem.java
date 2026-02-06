@@ -32,24 +32,30 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 
 	private static final long serialVersionUID = 1L;
 
+	private IModel<Site> siteModel;
 	
-	
-	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, Align align) {
-		this(id, model, null, align);
+	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel,  Align align) {
+		this(id, model, siteModel, null, align);
 		setTitle(getLabel("audio-guide-dropdown",TextCleaner.truncate(getModel().getObject().getName(), 24)));
 	}
 
-	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<String> title, Align align) {
+	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, IModel<String> title, Align align) {
 		super(id, model, title, align);
 	}
 
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (siteModel!=null)
+			siteModel.detach();
+	}
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		
-		
-
-		 
 		 
 	
 		 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
@@ -94,8 +100,8 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 		
  
 		
-		for (Language la: getLanguageService().getLanguages()) {
-			
+		for (Language la: getSiteModel().getObject().getLanguages()) {
+					
 			final String langCode = la.getLanguageCode();
 			
 			if (!langCode.equals(getModel().getObject().getMasterLanguage())) {
@@ -304,6 +310,14 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
+	}
+
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
 	}
 
 }
