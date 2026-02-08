@@ -22,6 +22,7 @@ import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
@@ -66,6 +67,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	private Label t_label;
 	private IModel<T> sourceModel;
 	
+	private IModel<ArtExhibitionGuide> artExhibitionGuideModel;
 	
 	private IModel<Resource> audioModel;
 	private boolean uploadedAudio = false;
@@ -92,6 +94,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		super.onInitialize();
 
 		setUpModel();
+		
 		add(new InvisiblePanel("error"));
 		loadForm();
 	}
@@ -172,6 +175,10 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 		if (audioModel != null)
 			audioModel.detach();
+		
+		if (this.artExhibitionGuideModel!=null)
+			this.artExhibitionGuideModel.detach();
+		
 	}
 
 	public IModel<T> getSourceModel() {
@@ -257,6 +264,14 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		this.audioModel = model;
 	}
 
+	public IModel<ArtExhibitionGuide> getArtExhibitionGuideModel() {
+		return artExhibitionGuideModel;
+	}
+
+	public void setArtExhibitionGuideModel(IModel<ArtExhibitionGuide> artExhibitionGuideModel) {
+		this.artExhibitionGuideModel = artExhibitionGuideModel;
+	}
+
 	protected boolean isIntroVisible() {
 		return this.isIntroVisible;
 	}
@@ -317,11 +332,17 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	protected void setUpModel() {
 		@SuppressWarnings("unchecked")
 		Optional<R> o_i = (Optional<R>) getDBService(getModelObject().getClass()).findWithDeps(getModel().getObject().getId());
-		setModel(new ObjectModel<R>(o_i.get()));	
+		setModel(new ObjectModel<R>(o_i.get()));
+		
 		if (getModel().getObject().getAudio() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
 			setAudioModel(new ObjectModel<Resource>(o_r.get()));
 		}
+
+		
+		
+		
+		
 	}
 
 	protected void loadForm() {
@@ -423,9 +444,9 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), false ));
-				logger.error("audio studio not created for -> " + getModel().getObject().getDisplayname());
-			}
+					openAudioStudio(new ObjectModel<AudioStudio>(oa.get()) );
+				
+				}
 
 			@Override
 			public boolean isVisible() {
@@ -504,6 +525,18 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 	}
 
+	protected void openAudioStudio(ObjectModel<AudioStudio> objectModel) {
+			setResponsePage(new AudioStudioPage(objectModel, isAccesible() ));
+	}
+
+	protected boolean isAccesible() {
+		if (getSourceModel().getObject() instanceof ArtExhibitionGuide) {
+			return ( (ArtExhibitionGuide) getSourceModel().getObject()).isAccessible();
+		}
+		return false;
+	}
+
+	
 	protected void onAudioRemove(AjaxRequestTarget target) {
 		try {
 			this.audioModel=null;

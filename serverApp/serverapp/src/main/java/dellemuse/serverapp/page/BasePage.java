@@ -28,13 +28,14 @@ import org.apache.wicket.request.resource.ResourceReference;
 import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
-
+import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Artist;
+import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
@@ -740,11 +741,20 @@ public abstract class BasePage extends WebPage {
 		str.append(getLanguageObjectService().getObjectSubtitle(o, getLocale()));
 		return Model.of(str.toString());
 	}
+	
+	 
+	
 
-	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+	public IModel<String> getObjectTitle(DelleMuseObject o) {
+		if (o instanceof MultiLanguageObject) {
+			StringBuilder str = new StringBuilder();
+			str.append(getLanguageObjectService().getObjectDisplayName((MultiLanguageObject) o, getLocale()));
+			return Model.of(str.toString());
+		}
 		StringBuilder str = new StringBuilder();
-		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		str.append(o.getName());
 		return Model.of(str.toString());
+		
 	}
 
 	public ArtExhibition createExhibition(Site site) {

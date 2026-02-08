@@ -2,11 +2,14 @@ package dellemuse.serverapp.editor;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
-
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
+import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
@@ -25,6 +28,19 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 		super(id, model, title, align);
 	}
 
+	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+		String s = getLanguageObjectService().getObjectDisplayName(o, getLocale());
+		if (s == null)
+			return null;
+		return Model.of(s);
+	}
+	
+	
+	 
+	public LanguageObjectService getLanguageObjectService() {
+		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
+	}
+	
 	protected void addAudit() {
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<T>() {
@@ -105,6 +121,12 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 	public void onInitialize() {
 		super.onInitialize();
 
+	}
+	
+	
+
+	protected SiteDBService getSiteDBService() {
+		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
 
 	protected LanguageService getLanguageService() {

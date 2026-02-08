@@ -16,6 +16,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -25,6 +26,7 @@ import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
 import io.odilon.util.Check;
 import io.wktui.error.ErrorPanel;
@@ -69,7 +71,7 @@ public class AudioStudioPage extends BasePage {
 	private Long mlo_parentObjectId;
 	private String mlo_parentObjectPrefix;
 
-	private boolean isAccesibleVersion =false;
+	private boolean isAccesibleVersion = false;
 
 	/**
 	 * @param model
@@ -152,11 +154,11 @@ public class AudioStudioPage extends BasePage {
 			bc.addElement(new HREFBCElement("/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString(), Model.of(mlo_parentObjectName + " (" + getLabel("audio-guide").getObject() + ")")));
 			bc.addElement(new BCElement(getLabel("audio-studio-bcrumb", getModel().getObject().getDisplayname())));
 
-			JumboPageHeaderPanel<AudioStudio> h = new JumboPageHeaderPanel<AudioStudio>("page-header", getModel(), 
-					
-					new Model<String>(mlo_parentObjectName)
-					
-					);
+			StringBuilder str = new StringBuilder();
+			str.append(mlo_parentObjectName );
+			str.append( isAccesibleVersion ? Icons.Accesible_jumbo: "" );
+			
+			JumboPageHeaderPanel<AudioStudio> h = new JumboPageHeaderPanel<AudioStudio>("page-header", getModel(), new Model<String>(str.toString()));
 			h.setBreadCrumb(bc);
 			
 			h.setIcon(AudioStudio.getIcon());
@@ -170,6 +172,7 @@ public class AudioStudioPage extends BasePage {
 		addOrReplace(this.header);
 	}
 
+	
 	protected void setUpModel() {
 
 		if (getModel() == null) {
@@ -190,13 +193,13 @@ public class AudioStudioPage extends BasePage {
 
 		AudioStudioParentObject ap = getAudioStudioDBService().findParentObjectWithDeps(getModel().getObject()).get();
 
-		parentObjectName = ap.getName();
+		
+		parentObjectName = getObjectTitle(ap).getObject();
 		parentObjectId = ap.getId();
 		parentObjectPrefix = ap.getPrefixUrl();
 
 		if (ap instanceof TranslationRecord) {
-			
-			mlo_parentObjectName 	= ((TranslationRecord) ap).getParentObject().getName();
+			mlo_parentObjectName 	=  getObjectTitle( ((TranslationRecord) ap).getParentObject() ).getObject();
 			mlo_parentObjectId 		= ((TranslationRecord) ap).getParentObject().getId();
 			mlo_parentObjectPrefix 	= ((TranslationRecord) ap).getParentObject().getPrefixUrl();
 		
@@ -206,9 +209,9 @@ public class AudioStudioPage extends BasePage {
 			mlo_parentObjectId = parentObjectId;
 			mlo_parentObjectPrefix = parentObjectPrefix;
 		}
-		
-		
 	}
+
+	
 	
 	protected String getParentObjectUrl() {
 		return getServerUrl() + "/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString();
@@ -257,4 +260,14 @@ public class AudioStudioPage extends BasePage {
 
 		return false;
 	}
+	
+	private IModel<String> getObjectTitle(AudioStudioParentObject ap) {
+
+		if (ap instanceof MultiLanguageObject) {
+			return getObjectTitle((MultiLanguageObject) ap);
+		}
+		return Model.of(ap.getName());
+	}
+
+	
 }

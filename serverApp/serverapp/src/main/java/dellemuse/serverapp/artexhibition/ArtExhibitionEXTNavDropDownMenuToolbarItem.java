@@ -3,14 +3,17 @@ package dellemuse.serverapp.artexhibition;
 import java.util.Optional;
 
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 
 import io.wktui.model.TextCleaner;
@@ -26,14 +29,26 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 
 	IModel<Site> siteModel;
 	
+	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+		String s = getLanguageObjectService().getObjectDisplayName(o, getLocale());
+		if (s == null)
+			return null;
+		return Model.of(s);
+	}
+	public LanguageObjectService getLanguageObjectService() {
+		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
+	}
+	
+	
+	
 	public ArtExhibitionEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibition> model, IModel<Site> siteModel, Align align) {
 		this(id, model, siteModel, null, align);
 
 		if (model.getObject().getShortname() != null)
 			setTitle(getLabel("art-exhibition-dropdown", model.getObject().getShortname()));
 		else
-			setTitle(getLabel("art-exhibition-dropdown", TextCleaner.truncate(model.getObject().getName(), 24)));
-
+			//setTitle(getLabel("art-exhibition-dropdown", TextCleaner.truncate(model.getObject().getName(), 24)));
+			setTitle( getLabel("art-exhibition-dropdown", getObjectTitle(model.getObject()).getObject() ));
 		
 	}
 
@@ -68,7 +83,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("exhibition-info");
+						return getLabel("art-exhibition-title");
 					}
 				};
 			}
@@ -142,6 +157,42 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			}
 		});
 
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new LinkMenuItem<ArtExhibition>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						ArtExhibitionPage page = new ArtExhibitionPage(getModel());
+						page.setStartTab(ServerAppConstant.exhibition_guides);
+						setResponsePage(page);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("exhibition-guides");
+					}
+				};
+			}
+		});
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibition>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
 			private static final long serialVersionUID = 1L;
@@ -192,29 +243,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			}
 		});
 
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<ArtExhibition> getItem(String id) {
-
-				return new LinkMenuItem<ArtExhibition>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						ArtExhibitionPage page = new ArtExhibitionPage(getModel());
-						page.setStartTab(ServerAppConstant.exhibition_guides);
-						setResponsePage(page);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("exhibition-guides");
-					}
-				};
-			}
-		});
+	
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 

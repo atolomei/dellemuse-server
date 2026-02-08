@@ -19,7 +19,7 @@ import dellemuse.serverapp.artexhibition.ArtExhibitionEXTNavDropDownMenuToolbarI
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -334,7 +334,15 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		bc.addElement(new HREFBCElement("/site/exhibitions/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
 		bc.addElement(new HREFBCElement("/artexhibition/" + getArtExhibitionModel().getObject().getId().toString(), Model.of(getArtExhibitionModel().getObject().getDisplayname() + " (E)")));
 		bc.addElement(new BCElement(getObjectTitle( getModel().getObject())));
-		this.header = new JumboPageHeaderPanel<ArtExhibitionGuide>("page-header", getModel(), getObjectTitle( getModel().getObject()));
+
+		StringBuilder str = new StringBuilder();
+		str.append( getObjectTitle( getModel().getObject() ).getObject() );
+		str.append(  getModel().getObject().isAccessible() ? Icons.Accesible_jumbo: "" );
+		
+		this.header = new JumboPageHeaderPanel<ArtExhibitionGuide>("page-header", getModel(), Model.of ( str.toString() ) );
+		
+		
+		
 		this.header.setContext(getLabel("exhibition-guide"));
 		this.header.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 
@@ -354,7 +362,11 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 			header.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 		else if (getArtExhibitionModel().getObject().getPhoto() != null)
 			header.setPhotoModel(new ObjectModel<Resource>(getArtExhibitionModel().getObject().getPhoto()));
-
+		
+		
+	 
+		
+		
 		//if (getModel().getObject().getSubtitle() != null)
 		//	header.setTagline(getObjectSubtitle( getModel().getObject()));
 		//else if ( getObjectSubtitle(getArtExhibitionModel().getObject())  != null)

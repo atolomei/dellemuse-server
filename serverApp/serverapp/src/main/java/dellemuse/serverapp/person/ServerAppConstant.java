@@ -48,8 +48,8 @@ public class ServerAppConstant {
 
 	
 	
-	static final public String action_object_edit_record = "object-edit-record";
-	static final public String action_object_edit_meta = "object_action_edit_meta";
+	static final public String action_object_edit_record = "action_object-edit-record";
+	static final public String action_object_edit_meta = "action_object_action_edit_meta";
 
 	
 	

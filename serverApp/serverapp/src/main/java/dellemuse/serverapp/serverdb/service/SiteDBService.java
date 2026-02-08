@@ -102,7 +102,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		c.setZoneIdStr( getSettings().getDefaultZoneId().getId());
 
 		
-		c.setLanguages( Site.getDefaultLanguages() );
+		c.setLanguages( Language.getDefaultLanguages() );
 		getRepository().save(c);
 		createSequence(c);
 		
@@ -147,8 +147,8 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		address.ifPresent(c::setAddress);
 		c.setZoneIdStr( getSettings().getDefaultZoneId().getId());
 		
-		c.setLanguages(Site.getDefaultLanguages());
-
+		c.setLanguages( Language.getDefaultLanguages() );
+		
 		c.setLabelPermanentExhibitions( getLabel("collection"));
 		c.setLabelTemporaryExhibitions( getLabel("exhibitions"));
 		

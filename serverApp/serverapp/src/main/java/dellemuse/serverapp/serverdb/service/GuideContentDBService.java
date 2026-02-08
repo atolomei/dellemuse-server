@@ -175,8 +175,17 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
 		Root<GuideContent> root = cq.from(getEntityClass());
-		cq.select(root).where(cb.equal(root.get("artExhibitionItem").get("id"), item.getId()));
-		return getEntityManager().createQuery(cq).getResultList().size() > 0;
+		
+		Predicate p_item 	= cb.equal(root.get("artExhibitionItem").get("id"), item.getId());
+		Predicate p_guide 	= cb.equal(root.get("artExhibitionGuide").get("id"), guide.getId());
+		
+		Predicate combinedPredicate = cb.and(p_item, p_guide);
+		cq.select(root).where(combinedPredicate);
+		
+		List<GuideContent> list = getEntityManager().createQuery(cq).getResultList();
+		
+		
+		return list.size() > 0;
 	}
 
 	@Transactional

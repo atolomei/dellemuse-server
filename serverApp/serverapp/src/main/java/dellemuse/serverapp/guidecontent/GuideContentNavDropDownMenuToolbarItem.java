@@ -55,7 +55,7 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("information");
+						return getLabel("artwork-audio");
 					}
 				};
 			}
@@ -83,6 +83,11 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 				};
 			}
 		});
+		
+		
+		
+		
+		
 
 		for (Language la: getSiteModel().getObject().getLanguages()) {
 
@@ -182,8 +187,8 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 		
 		
 		
-		for (Language la : getLanguageService().getLanguages()) {
-
+		for (Language la: getSiteModel().getObject().getLanguages()) {
+			
 			final String a_langCode = la.getLanguageCode();
 
 			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {

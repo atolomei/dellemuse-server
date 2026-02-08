@@ -272,7 +272,8 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 			}
 		});
 
-		for (Language la : getLanguageService().getLanguages()) {
+		/**
+		for (Lang uage la : getLanguageService().getLan guages()) {
 
 			final String langCode = la.getLanguageCode();
 
@@ -301,7 +302,8 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 					}
 				});
 			}
-		}
+		}**/
+		
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;

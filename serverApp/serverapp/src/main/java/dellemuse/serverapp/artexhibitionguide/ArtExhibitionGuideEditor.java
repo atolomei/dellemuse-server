@@ -277,7 +277,7 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), false));
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getModel().getObject().isAccessible() ));
 			}
 
 			public boolean isEnabled() {

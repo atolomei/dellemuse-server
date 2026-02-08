@@ -87,6 +87,7 @@ public class ArtistArtWorksPanel extends DBModelPanel<Artist> {
 				};
 
 				Label la = new Label("title", getObjectTitle(item.getModel().getObject().getObject()));
+				la.setEscapeModelStrings(false);
 				link.add(la);
 				m.add(link);
 				item.add(m);

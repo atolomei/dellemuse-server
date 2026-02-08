@@ -2,14 +2,17 @@ package dellemuse.serverapp.institution;
 
 import java.io.InputStream;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
@@ -22,12 +25,15 @@ import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
+import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
+import io.wktui.form.field.MultipleSelectField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import io.wktui.form.field.ZoneIdField;
@@ -57,6 +63,13 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 	private IModel<Resource> photoModel;
 	private IModel<Resource> logoModel;
 
+	
+	private ChoiceField<Language> masterLanguageField;
+	private MultipleSelectField<Language> languagesField;
+
+	private List<IModel<Language>> langSelected;
+	private List<IModel<Language>> langChoices;
+	
 	private boolean uploadedPhoto = false;
 	private boolean uploadedLogo = false;
 
@@ -96,6 +109,7 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 			setLogoModel(new ObjectModel<Resource>(o_r.get()));
 		}
 
+		
 		add(new InvisiblePanel("error"));
 
 		this.form = new Form<Institution>("institutionForm", getModel());
@@ -103,8 +117,79 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 		add(this.form);
 		setForm(this.form);
 
-		zoneIdField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
+		
+		
+		
+		
+		langSelected = new ArrayList<IModel<Language>>();
+		langChoices = new ArrayList<IModel<Language>>();
+		
+		Language.getLanguages().forEach((k,v) -> langChoices.add(Model.of(v)));
+		
 
+		List<Language> l_list = getModel().getObject().getLanguages();
+		
+		if (l_list != null && l_list.size() > 0) {
+			l_list.forEach(i ->  {
+				if (!i.getLanguageCode().equals( getModelObject().getMasterLanguage()))
+						langSelected.add(Model.of(i));
+			});
+		}
+		
+	languagesField = new MultipleSelectField<Language>("languages", langSelected, getLabel("languages"), langChoices) {
+		
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected IModel<String> getObjectTitle(IModel<Language> model) {
+				return Model.of( model.getObject().getLabel(getUserLocale()) );
+			}
+
+			@Override
+			protected IModel<String> getObjectSubtitle(IModel<Language> model) {
+				return Model.of( model.getObject().getLabel(getUserLocale()) );
+			}
+			
+			@Override
+			protected void onObjectRemove(IModel<Language> model, AjaxRequestTarget target) {
+				langSelected.remove(model);
+				target.add(getForm());
+			}
+		
+			@Override
+			protected void onObjectSelect(IModel<Language> model, AjaxRequestTarget target) {
+				langSelected.add(model);
+				target.add(getForm());
+			}
+		};
+		
+		form.add(languagesField);
+		
+		
+		this.masterLanguageField = new ChoiceField<Language>("masterlanguage", new PropertyModel<Language>(getModel(), "ML"), getLabel("masterlanguage")) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Language>> getChoices() {
+				return new org.apache.wicket.model.util.ListModel<Language>(getLanguages());
+			}
+
+			@Override
+			protected String getDisplayValue(Language value) {
+				if (value == null)
+					return null;
+				return value.getLabel(getUserLocale());
+			}
+		};
+		
+		form.add(masterLanguageField);
+		
+		
+		
+		
+		zoneIdField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		subtitleField = new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
 		shortNameField = new TextField<String>("shortName", new PropertyModel<String>(getModel(), "shortName"), getLabel("shortName"));

@@ -11,8 +11,15 @@ public class Icons {
 	public static final String Site 				= "fa-duotone fa-solid fa-hotel";
 	
  
-	static public final String DELETED_ICON = " <i class=\" small text-danger ml-1 fa-solid fa-ban\"></i> ";
-	static public final String EDITION_ICON = " <i class=\" small text-info ml-1 fa-solid  fa-thin fa-pen-circle \" ></i> ";
+	public static final String Accesible 			= " <i title=\"accessible\" class=\"text-info   fa-thin fa-universal-access ms-1 me-1\"> </i>";
+
+	public static final String Accesible_jumbo 			= " <i title=\"accessible\" class=\" small text-info fa-thin fa-universal-access ms-0 me-1\"> </i>";
+
+	 
+	
+
+	static public final String DELETED_ICON 		= " <i title=\"deleted\"  class=\" small text-danger ms-1 fa-solid fa-ban\"></i> ";
+	static public final String EDITION_ICON 		= " <i title= \"edition\" class=\" small text-warning ms-1 fa-solid  fa-thin fa-pen-circle \" ></i>";
 	
 }
 

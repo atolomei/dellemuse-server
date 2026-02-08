@@ -286,7 +286,8 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	private void ini() {
 		
 		Label title = new Label("title", getTitle());
-
+		title.setEscapeModelStrings(false);
+		
 		frame.addOrReplace(title);
 
 		addImageAndInfo();

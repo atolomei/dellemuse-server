@@ -2,6 +2,7 @@ package dellemuse.serverapp.editor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
@@ -19,6 +20,7 @@ import dellemuse.serverapp.serverdb.model.AudioStudio;
 
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -93,6 +95,15 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		super.setOutputMarkupId(true);
 	}
 
+	
+	protected Locale getUserLocale() {
+		return getSessionUser().get().getLocale();
+	}
+
+	protected List<Language> getLanguages() {
+		return getLanguageService().getLanguagesSorted( getLocale() );
+	}
+	
 	@Override
 	public boolean isReadOnly() {
 		return readonly;

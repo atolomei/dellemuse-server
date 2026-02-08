@@ -27,6 +27,7 @@ import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -68,6 +69,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 	private TextAreaField<String> infoField;
 	private StaticTextField<String> audioIdField;
 	private FileUploadSimpleField<Resource> audioField;
+	private StaticTextField<String> guideField;
 	
 	private IModel<Resource> photoModel;
 	private IModel<Resource> audioModel;
@@ -145,6 +147,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		
 		/** --------------------------------- */
 
+		/**
 		
 		infoAccesibleField = new TextAreaField<String>("infoAccesible", new PropertyModel<String>(getModel(), "infoAccessible"), getLabel("audio-accesible-info"), 12);
 		form.add(infoAccesibleField);
@@ -245,8 +248,20 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		};
 		
 		getForm().add(onlyAccesibleVersionField);
+		*/
 		
 		/** --------------------------------- */
+		
+		
+		
+		StringBuilder str = new StringBuilder();
+		str.append( getObjectTitle ( getModel().getObject().getArtExhibitionGuide()).getObject() );
+		
+		if (getModel().getObject().getArtExhibitionGuide().isAccessible()) 
+			str.append(Icons.Accesible);
+		
+		
+		guideField 		= new StaticTextField<String>("guide",  Model.of(str.toString()), getLabel("guide"));
 		
 		
 		nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
@@ -279,6 +294,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			}
 		};
 
+		form.add(guideField);
 		form.add(nameField);
 		form.add(subtitleField);
 		form.add(infoField);
@@ -389,8 +405,9 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			@Override
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
-				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), false ));
+				if (oa.isPresent()) {
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getArtExhibitionGuideModel().getObject().isAccessible() ));
+				}
 				else
 					setResponsePage(new ErrorPage(Model.of("no audio studio for -> " + getModel().getObject().getDisplayname())));
 			}

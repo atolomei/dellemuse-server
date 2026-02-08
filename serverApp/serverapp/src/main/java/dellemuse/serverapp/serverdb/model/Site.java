@@ -51,19 +51,9 @@ import jakarta.persistence.Table;
 @Table(name = "Site")
 @JsonInclude(Include.NON_NULL)
 public class Site extends MultiLanguageObject {
-	 
-	static List<Language> defaults;
-
-	static {
-		defaults = new ArrayList<Language>();
-		defaults.add( Language.of(Language.EN));
-		defaults.add( Language.of(Language.ES));
-		defaults.add( Language.of(Language.PT));
-	}
-
-	static public List<Language> getDefaultLanguages() {
-		return defaults;
-	}
+	
+	
+	
 	
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
 	@JoinColumn(name = "siteType_id", nullable = true)
@@ -358,7 +348,7 @@ public class Site extends MultiLanguageObject {
 
 	public List<Language> getLanguages() {
 		if (this.languages==null) {
-			return Site.getDefaultLanguages();
+			return Language.getDefaultLanguages();
 		}
 		List<Language> list = new ArrayList<Language>();
 		this.languages.forEach( (k,v) -> list.add( Language.of(k)));

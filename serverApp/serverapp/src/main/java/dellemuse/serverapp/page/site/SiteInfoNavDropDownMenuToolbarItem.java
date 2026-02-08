@@ -81,7 +81,7 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("information");
+						return getLabel("site-info-record", getModel().getObject().getMasterLanguage());
 						 
 					}
 				};
@@ -92,8 +92,9 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 		
 		
 		
-		for (Language la : getLanguageService().getLanguages()) {
 
+		for (Language la: getModel().getObject().getLanguages()) {
+	
 			final String langCode = la.getLanguageCode();
 
 			if (!getModel().getObject().getMasterLanguage().equals(langCode)) {
@@ -160,7 +161,7 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 		});
 	 	
 		
-		for (Language la : getLanguageService().getLanguages()) {
+		for (Language la: getModel().getObject().getLanguages()) {
 
 			final String a_langCode = la.getLanguageCode();
 

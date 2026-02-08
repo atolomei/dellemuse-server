@@ -23,7 +23,7 @@ public class InfoAudioStudioEditor extends BaseAudioStudioEditor {
 	private StaticTextField<String> nameField;
 	private StaticTextField<String> typeField;
 	private StaticTextField<String> languageField;
-	private StaticTextField<String> versionField;
+	//private StaticTextField<String> versionField;
 
 	private TextAreaField<String> infoField;
 	private Form<AudioStudio> form;
@@ -51,7 +51,9 @@ public class InfoAudioStudioEditor extends BaseAudioStudioEditor {
 		add(form);
 		setForm(form);
 
-		versionField 	= new StaticTextField<String>("version", getVersion(), getLabel("version"));
+		//versionField 	= new StaticTextField<String>("version", getVersion(), getLabel("version"));
+		
+		
 		nameField 		= new StaticTextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		typeField 		= new StaticTextField<String>("type", getParentType(), getLabel("type"));
 		languageField 	= new StaticTextField<String>("language", new PropertyModel<String>(getModel(), "language"), getLabel("language"));
@@ -62,7 +64,7 @@ public class InfoAudioStudioEditor extends BaseAudioStudioEditor {
 			};
 		};
 		
-		form.add(versionField);
+		//form.add(versionField);
 		form.add(infoField);
 		form.add(nameField);
 		form.add(typeField);

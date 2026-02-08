@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
@@ -97,6 +98,10 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 		setUpModel();
 
+		
+		add( new Label( "exhibition-general-info", getLabel("exhibition-general-info", getModel().getObject().getMasterLanguage())));
+		
+		
 		add(new InvisiblePanel("error"));
 
 		Form<ArtExhibition> form = new Form<ArtExhibition>("form");

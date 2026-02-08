@@ -41,6 +41,7 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 
 	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, IModel<String> title, Align align) {
 		super(id, model, title, align);
+		this.siteModel=siteModel;
 	}
 
 
@@ -67,7 +68,7 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 
 						@Override
 						public IModel<String> getLabel() {
-							return getLabel("artexhibitionguide-info");
+							return getLabel("artexhibition-guide-title");
 						}
 					};
 				}
@@ -264,8 +265,8 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 		
 		
 
-		for (Language la : getLanguageService().getLanguages()) {
-
+		for (Language la: getSiteModel().getObject().getLanguages()) {
+			
 			final String a_langCode = la.getLanguageCode();
 
 			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {

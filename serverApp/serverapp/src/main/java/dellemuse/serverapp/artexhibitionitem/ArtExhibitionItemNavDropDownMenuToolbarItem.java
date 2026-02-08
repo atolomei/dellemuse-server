@@ -224,8 +224,8 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 		
 		
 
-		for (Language la : getLanguageService().getLanguages()) {
-
+		for (Language la: getSiteModel().getObject().getLanguages()) {
+			
 			final String a_langCode = la.getLanguageCode();
 
 			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {

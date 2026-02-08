@@ -291,7 +291,7 @@ public class UserListPage extends ObjectListPage<User> {
 					}
 					@Override
 					public boolean isVisible() {
-						return isRoot();
+						return true; // isRoot();
 					}
 
 					@Override

@@ -1,7 +1,13 @@
 package dellemuse.serverapp.serverdb.model;
 
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -100,6 +106,43 @@ public class Institution extends MultiLanguageObject {
 	@JsonProperty("map")
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource map;
+	
+	
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "languages", columnDefinition = "json")
+	private Map<String, String> languages;
+	
+	
+	public List<Language> getLanguages() {
+		if (this.languages==null) {
+			return Language.getDefaultLanguages();
+		}
+		List<Language> list = new ArrayList<Language>();
+		this.languages.forEach( (k,v) -> list.add( Language.of(k)));
+		return list;
+	}
+	
+	public void setLanguages(List<Language> list) {
+		if (list==null) {
+			this.languages=null;
+			return;
+		}
+		Map<String, String> map = new HashMap<String, String>();
+		list.forEach( l -> map.put(l.getLanguageCode(), l.getLanguageCode()));
+		setLanguagesMap( map );
+	}
+
+	public Map<String, String> getLanguagesMap() {
+		return languages;
+	}
+
+	public void setLanguagesMap(Map<String, String> languages) {
+		this.languages = languages;
+	}
+
+	
+	
+	
 
 	public Institution() {
 	}

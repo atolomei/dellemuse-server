@@ -12,18 +12,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.artexhibition.ArtExhibitionSectionsPanel;
-import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemPage;
+ 
 import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
-import dellemuse.serverapp.page.ObjectListItemPanel;
-import dellemuse.serverapp.page.ObjectListPage;
+ 
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
@@ -33,17 +29,14 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
-import dellemuse.serverapp.serverdb.model.ArtWork;
+ 
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Resource;
+ 
 import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
+ 
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
-import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
-import dellemuse.serverapp.serverdb.service.GuideContentDBService;
+ 
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
 import io.wktui.event.UIEvent;
@@ -52,7 +45,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
-import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
+ 
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
@@ -94,7 +87,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		super(id, model);
 		this.siteModel = siteModel;
 		setOutputMarkupId(true);
-
 	}
 
 	@Override
@@ -105,9 +97,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 		addListToolbar();
 		addItems();
-
 		addSelector();
-
 	}
 
 	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
@@ -118,54 +108,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		return this.oses;
 	}
 
-	protected void loadList() {
-
-		this.list = new ArrayList<IModel<GuideContent>>();
-
-		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDTIION_PUBLISHED)
-			getObjects(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
-
-		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
-			getObjects(ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
-
-		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
-			getObjects(ObjectState.EDITION).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
-
-		else if (this.getObjectStateEnumSelector() == null)
-			getObjects().forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
-
-		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.ALL)
-			getObjects().forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
-
-		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
-			getObjects(ObjectState.DELETED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
-
-		this.list.forEach(c -> logger.debug(c.toString()));
-	}
-
-	protected void addListeners() {
-		super.addListeners();
-
-		add(new io.wktui.event.WicketEventListener<ObjectStateSelectEvent>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(ObjectStateSelectEvent event) {
-				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
-				loadList();
-				event.getTarget().add(ArtExhibitionGuideContentsPanel.this.itemsPanel);
-				event.getTarget().add(ArtExhibitionGuideContentsPanel.this.listToolbarContainer);
-			}
-
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof ObjectStateSelectEvent)
-					return true;
-				return false;
-			}
-		});
-
-	}
 
 	@Override
 	public void onDetach() {
@@ -378,6 +320,56 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		return menu;
 	}
 
+	protected void loadList() {
+
+		this.list = new ArrayList<IModel<GuideContent>>();
+
+		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDTIION_PUBLISHED)
+			getObjects(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
+
+		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
+			getObjects(ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
+
+		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
+			getObjects(ObjectState.EDITION).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
+
+		else if (this.getObjectStateEnumSelector() == null)
+			getObjects().forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
+
+		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.ALL)
+			getObjects().forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
+
+		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
+			getObjects(ObjectState.DELETED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
+
+		this.list.forEach(c -> logger.debug(c.toString()));
+	}
+
+	protected void addListeners() {
+		super.addListeners();
+
+		add(new io.wktui.event.WicketEventListener<ObjectStateSelectEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(ObjectStateSelectEvent event) {
+				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
+				loadList();
+				event.getTarget().add(ArtExhibitionGuideContentsPanel.this.itemsPanel);
+				event.getTarget().add(ArtExhibitionGuideContentsPanel.this.listToolbarContainer);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof ObjectStateSelectEvent)
+					return true;
+				return false;
+			}
+		});
+
+	}
+
+	
 	private List<IModel<GuideContent>> getItems() {
 
 		if (this.list == null) {

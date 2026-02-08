@@ -24,6 +24,7 @@ import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -82,7 +83,8 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	
 	@Override
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
-		
+		if (getRecordEditors().get(lang) instanceof ObjectRecordEditor)
+			((ObjectRecordEditor<?,?>) getRecordEditors().get(lang)).edit(target);
 	
 	}
 
@@ -237,12 +239,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	}
 
 	
-	
-	
-	
-	
-	
-	
+	 
 	
 	protected WebMarkupContainer getEditor(String id) {
 		if (this.editor == null)
@@ -486,7 +483,11 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 
 		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
 
-		header = new JumboPageHeaderPanel<GuideContent>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
+		StringBuilder str = new StringBuilder();
+		str.append( getObjectTitle( getModel().getObject() ).getObject() );
+		str.append(  getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.Accesible_jumbo: "" );
+	
+		header = new JumboPageHeaderPanel<GuideContent>("page-header", getModel(), Model.of ( str.toString() ));
 		header.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 		header.setContext(getLabel("guide-content"));
 

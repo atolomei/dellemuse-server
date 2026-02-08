@@ -59,9 +59,13 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		c.setName(name);
 		c.setState(ObjectState.EDITION);
 		
-		c.setMasterLanguage(getSettings().getDefaultMasterLanguage());
-		c.setLanguage(getSettings().getDefaultMasterLanguage());
+		//c.setMasterLanguage(getSettings().getDefaultMasterLanguage());
+		//c.setLanguage(getSettings().getDefaultMasterLanguage());
 
+		c.setMasterLanguage(getDefaultMasterLanguage());
+		c.setLanguage(getDefaultMasterLanguage());
+		c.setLanguages( Language.getDefaultLanguages() );
+		
 		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -88,8 +92,10 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		c.setName(name);
 
 		c.setState(ObjectState.EDITION);
+
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
+		c.setLanguages( Language.getDefaultLanguages() );
 
 		shortName.ifPresent(c::setShortName);
 		address.ifPresent(c::setAddress);

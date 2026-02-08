@@ -1,7 +1,9 @@
 package dellemuse.serverapp.serverdb.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -27,27 +29,58 @@ public class Language extends JsonObject implements Serializable {
 	static public final String IT = "it";
 	static public final String GER = "ger";
 
+	static private Map<String, Language> map;
 	
-	
-	static private final Map<String, Language> map = new HashMap<String, Language>();
-	static {
-		map.put(PT, new Language(PT));
+	static List<Language> defaults;
+
+	static public Map<String, Language> initMap() {
+		Map<String, Language> map = new HashMap<String, Language>();
+				map.put(PT, new Language(PT));
+				
 		map.put(ES, new Language(ES));
 		map.put(EN, new Language(EN));
 		map.put(FR, new Language(FR));
 		map.put(IT, new Language(IT));
 		map.put(GER, new Language(GER));
+	
+		return map;
 	}
+	
+	
+	static {
+		defaults = new ArrayList<Language>();
+		defaults.add( Language.of(Language.EN));
+		defaults.add( Language.of(Language.ES));
+		defaults.add( Language.of(Language.PT));
+	}
+
+	static public List<Language> getDefaultLanguages() {
+		return defaults;
+	}
+	
+	
+	
+
+	
+	
+	
 	
 	
 	static public final Language of(String code) {
 		if (code==null)
 			return null;
+		
+		if (map==null)
+			map=initMap();
+		
 		return map.get(code);
 	}
 	
 	static  public Map<String, Language> getLanguages() { 
-			return map;
+		if (map==null) {
+			map=initMap();
+		}
+		return map;
 	}
 
 	

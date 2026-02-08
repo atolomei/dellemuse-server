@@ -58,9 +58,9 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 	static private Logger logger = Logger.getLogger(SiteInfoEditor.class.getName());
 
  	private ChoiceField<Language> masterLanguageField;
-
 	private MultipleSelectField<Language> languagesField;
- 	private ZoneIdField zoneIdField;
+
+	private ZoneIdField zoneIdField;
  	
 	private TextField<String> nameField;
 	private TextAreaField<String> subtitleField;
@@ -94,11 +94,10 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 	private ChoiceField<Boolean> sortAlphabeticallyField;
 	
 	
+	private List<IModel<Language>> langSelected;
+	private List<IModel<Language>> langChoices;
 	
 	
-	public IModel<Site> getSiteModel() {
-		return getModel();
-	}
 
 	/**
 	 * @param id
@@ -108,9 +107,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		super(id, model);
 	}
 
-	private List<IModel<Language>> langSelected;
-	private List<IModel<Language>> langChoices;
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -217,10 +214,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 			}
 		};
 		
-		
-	 	
-		
-		
+	 		
 		zoneIdField 	= new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 		nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		subtitleField 	= new TextAreaField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"), 4);
@@ -397,10 +391,11 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 
 	}
 
-	protected List<Language> getLanguages() {
-		return getLanguageService().getLanguagesSorted( getLocale() );
-	}
 
+	public IModel<Site> getSiteModel() {
+		return getModel();
+	}
+	
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 
@@ -424,9 +419,6 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		return list;
 	}
 
-	protected Locale getUserLocale() {
-		return getSessionUser().get().getLocale();
-	}
 
 	@Override
 	public void onDetach() {
@@ -451,6 +443,11 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		 
 	}
 
+	
+	
+
+	
+	
 	protected void onSave(AjaxRequestTarget target) {
 
 		logger.debug("onSave");

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -79,6 +80,13 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 	public void onInitialize() {
 		super.onInitialize();
 
+		
+		
+		add(new Label("general-info", getLabel("institution-general-info", getModel().getObject().getMasterLanguage())));
+
+		
+		
+		
 		this.editor = new InstitutionEditor("institutionEditor", getModel());
 		add(this.editor);
 
