@@ -2,34 +2,48 @@ package dellemuse.serverapp.audiostudio;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.ajax.attributes.IAjaxCallListener;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.media.audio.Audio;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.audit.AuditKey;
+import dellemuse.serverapp.elevenlabs.ELVoice;
 import dellemuse.serverapp.elevenlabs.LanguageCode;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Voice;
 import io.wktui.audio.AudioPlayer;
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
+import io.wktui.form.button.EditButtons;
 import io.wktui.form.button.SubmitButton;
+import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.NumberField;
+ 
 import wktui.base.InvisiblePanel;
 
 
@@ -62,7 +76,8 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	private NumberField<Double> styleField;
 	private NumberField<Double> stabilityField;
 	private NumberField<Double> similarityField;
-
+	private ChoiceField<Voice> voicesField;
+	
 	private Form<AudioStudio> form;
 
 	private WebMarkupContainer step1;
@@ -78,12 +93,16 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	 
 
 
+	private IModel<Voice> voiceModel;
 
 	
-	
-	
-	
-	
+	 public void onDetach() {
+		 super.onDetach();
+		 
+		 if (voiceModel!=null)
+			 voiceModel.detach();
+	 }
+
 	
 	
 
@@ -100,6 +119,8 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	private void setup() {
 
+		 
+		
 		
 		Map<String, String> map = getModel().getObject().getSettings();
 		
@@ -129,16 +150,61 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 		step1.add(form);
 
-		speedField = new NumberField<Double>("speed", new PropertyModel<Double>(this, "speed"), getLabel("speed"));
-		similarityField = new NumberField<Double>("similarity", new PropertyModel<Double>(this, "similarity"), getLabel("similarity"));
-		styleField = new NumberField<Double>("style", new PropertyModel<Double>(this, "audioStyle"), getLabel("style"));
-		stabilityField = new NumberField<Double>("stability", new PropertyModel<Double>(this, "stability"), getLabel("stability"));
+		//speedField = new NumberField<Double>("speed", new PropertyModel<Double>(this, "speed"), getLabel("speed"));
+		//similarityField = new NumberField<Double>("similarity", new PropertyModel<Double>(this, "similarity"), getLabel("similarity"));
+		//styleField = new NumberField<Double>("style", new PropertyModel<Double>(this, "audioStyle"), getLabel("style"));
+		//stabilityField = new NumberField<Double>("stability", new PropertyModel<Double>(this, "stability"), getLabel("stability"));
 
-		form.add(speedField);
-		form.add(similarityField);
-		form.add(stabilityField);
-		form.add(styleField);
+		//form.add(speedField);
+		//form.add(similarityField);
+		//form.add(stabilityField);
+		//form.add(styleField);
+		
+ 	voicesField = new ChoiceField<Voice>("voice",  new PropertyModel<Voice>(this, "voice"), getLabel("voice")) {
 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Voice>> getChoices() {
+				return new ListModel<Voice>( getVoiceDBService().getVoices(Step1AudioStudioEditor.this.getModel().getObject().getLanguage()));
+			}
+
+			 
+
+			@Override
+			protected void onComponentTag(ComponentTag tag) {
+			    super.onComponentTag(tag);
+			 }
+			
+			@Override
+			protected String getDisplayValue(Voice value) {
+				try {
+					return value.getName() +  (value.getSex()!=null? (" - " + value.getSex()):"") +  "  ( "+ value.getLanguage() +" - " + value.getLanguageRegion() + " )";
+				}
+				catch (Exception e) {
+					return value.getName();	
+				}
+			}
+		};
+		form.add(voicesField);
+		
+		
+		
+		form.setOutputMarkupId(true);
+		
+		// Comportamiento Ajax
+		voicesField.getInput().add(new AjaxFormComponentUpdatingBehavior("change") {
+            @Override
+            protected void onUpdate(AjaxRequestTarget target) {
+            	addTestVoicePanel( getVoice() );
+                target.add( getForm() );
+            }
+        });
+        
+		
+		
+		addTestVoicePanel( getVoice() );
+	
 		SubmitButton<AudioStudio> sm = new SubmitButton<AudioStudio>("generate", getModel(), getForm()) {
 			
 			private static final long serialVersionUID = 1L;
@@ -164,7 +230,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 					uploadedStep1 = true;
 
 				} else {
-					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.WARNING, getLabel("alredy-generated"));
+					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.SUCCESS, getLabel("alredy-generated"));
 					getForm().addOrReplace(alert);
 					uploadedStep1 = true;
 				}
@@ -205,6 +271,8 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			public String getSaveCss() {
 				return "btn btn-primary btn-md";
 			}
+			
+ 		
 		};
 		
 		form.add(sm);
@@ -243,11 +311,38 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	
 
+	protected void addTestVoicePanel( Voice voice ) {
+		
+		if (voice==null)
+			getForm().addOrReplace( new InvisiblePanel("testVoice") );
+		else {	
+			AudioStudioTestVoicePanel panel = new AudioStudioTestVoicePanel( "testVoice", getModel(), getVoiceModel());
+			getForm().addOrReplace( panel );
+		}
+	}
+
+	
+	/**
+	protected List<Voice> getVoices() {
+		if (vc==null)
+			vc = getElevenLabsService().getVoices( getModel().getObject().getLanguage());
+		
+		vc.sort( new Comparator<ELVoice>() {
+			@Override
+			public int compare(ELVoice o1, ELVoice o2) {
+				return o1.getName().compareToIgnoreCase(o2.getName());
+			}
+		});
+		return vc;
+	}
+	**/
+	
+	
 	private void addInfo() {
 	
 		if (getAudioSpeechModel() != null && getAudioSpeechModel().getObject() != null) {
 			if (!requiresGenerationAudioSpeech() ) {
-				AlertPanel<Void> alert = new AlertPanel<Void>("info", AlertPanel.INFO, getLabel("alredy-generated"));
+				AlertPanel<Void> alert = new AlertPanel<Void>("info", AlertPanel.SUCCESS, getLabel("alredy-generated"));
 				getForm().addOrReplace(alert);
 				return;
 			}
@@ -260,6 +355,15 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	
 	private void step1AudioSpeech() {
 
+
+		if (getVoiceModel()==null || getVoiceModel().getObject()==null) {
+			error("Voice not selected");
+			return;
+		}
+		
+		
+		String dm_voice_id = getVoiceModel().getObject().getVoiceId();
+		
 	 	getModel().getObject().setName(getParentName());
 		
 	 	setObjectInfo(getParentInfo());
@@ -271,19 +375,20 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		String fileName = normalizeFileName(getParentName()) + "-" + getPrefix() + getParentId().toString() + ".mp3";
 		LanguageCode languageCode = LanguageCode.from(language);
 
-		String dm_voice_id;
+		
 
+		/**
 		if 		(languageCode.equals(LanguageCode.ES)) 		dm_voice_id = "mariana";
-
 		else if (languageCode.equals(LanguageCode.PT)) 		dm_voice_id = "amanda";
 		else if (languageCode.equals(LanguageCode.EN))		dm_voice_id = "emily";
 		else if (languageCode.equals(LanguageCode.FR))		dm_voice_id = "emily";
 		else if (languageCode.equals(LanguageCode.IT))		dm_voice_id = "nicola";
 		else if (languageCode.equals(LanguageCode.DUTCH))	dm_voice_id = "thomas";
 		else if (languageCode.equals(LanguageCode.GER))		dm_voice_id = "leon";
-		
 		else												dm_voice_id = "emily";
-
+**/
+	
+		
 		
 		
 		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id);
@@ -326,7 +431,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 				setObjectAudioSpeech(resource);
 				setObjectAudioSpeechHash(getHashAudioParameters());
 				
-			
 				Map<String, String> map = getModel().getObject().getSettings();
 				if (map == null)
 					map = new HashMap<String, String>();
@@ -339,7 +443,10 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 					map.put(getPrefix()+"stability", getStability().toString());
 				if (getSimilarity() != null)
 					map.put(getPrefix()+"similarity", getSimilarity().toString());
-
+				if (getVoiceModel()!=null && getVoiceModel().getObject()!=null) {
+					map.put("voiceid", getVoiceModel().getObject().getVoiceId());
+				}
+				
 				getModel().getObject().setSettings(map);
 
 				getAudioStudioDBService().save(getModel().getObject(), getSessionUser().get(), AuditKey.GENERATE_VOICE);
@@ -360,8 +467,11 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	
 	
 	protected boolean requiresGenerationAudioSpeech() {
+		
 		if (getObjectAudio() == null)
 			return true;
+		
+		
 		return (getHashAudioParameters() != getObjectAudioSpeechHash());
 	}
 
@@ -376,16 +486,20 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			str.append(getObjectInfo().toLowerCase().trim());
 		else
 			str.append("");
+		
 		str.append("-");
 		str.append(getSpeed().toString());
 		str.append("-");
 		str.append(getSimilarity().toString());
 		str.append("-");
 		str.append(getStability().toString());
+		
+		if (getVoiceModel()!=null && getVoiceModel().getObject()!=null) {
+			str.append("-");
+			str.append(getVoiceModel().getObject().getVoiceId());
+		}
 		return str.toString().hashCode();
 	}
-	
-	
 	
 	
 	
@@ -459,6 +573,26 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	public void setAudioStyle(Double audioStyle) {
 		this.audioStyle = audioStyle;
+	}
+
+	public void setVoice(Voice voice) {
+		setVoiceModel( new ObjectModel<Voice>(voice));
+	}
+
+	
+	public Voice getVoice() {
+		if (getVoiceModel()==null)
+			return null;
+		
+		return getVoiceModel().getObject();
+	}
+	
+	public IModel<Voice> getVoiceModel() {
+		return voiceModel;
+	}
+
+	public void setVoiceModel(IModel<Voice> mvoice) {
+		this.voiceModel = mvoice;
 	}
 
 }

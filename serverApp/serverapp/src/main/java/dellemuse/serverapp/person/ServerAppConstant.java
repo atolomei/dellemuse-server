@@ -129,5 +129,10 @@ public class ServerAppConstant {
 	static public final String headphoneIcon = "fa-solid fa-headphones";
 
  
+	/** person */
+	static final public String voice_info 		= "voice-panel-info";
+	static final public String voice_meta	 	= "voice-panel-meta";
+	static final public String voice_audit 		= "voice-panel-audit";
+	
 	
 }

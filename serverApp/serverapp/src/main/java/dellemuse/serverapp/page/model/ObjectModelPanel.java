@@ -47,6 +47,7 @@ import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
+import dellemuse.serverapp.serverdb.service.VoiceDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
@@ -132,7 +133,8 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
 	
-	 
+	
+	
 	/** Deps --------------------------------------------------------- */
 
 	public Optional<ArtWork> findArtWorkWithDeps(Long id) {
@@ -689,6 +691,11 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return (ElevenLabsService) ServiceLocator.getInstance().getBean(ElevenLabsService.class);
 	}
 
+	protected VoiceDBService getVoiceDBService() {
+		return (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
+	}
+
+	
 	/** DBService ------------------------- */
 
 	protected Iterable<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition o) {

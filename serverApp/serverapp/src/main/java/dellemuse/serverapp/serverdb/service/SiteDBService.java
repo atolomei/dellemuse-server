@@ -138,6 +138,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		c.setInstitution(institution);
 		c.setCreated(OffsetDateTime.now());
 
+		c.setAddress(institution.getAddress());
 		c.setState(ObjectState.EDITION);
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
@@ -181,13 +182,20 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		c.setName(in.getName());
 		c.setShortName(in.getShortName());
 		c.setMasterLanguage(in.getMasterLanguage());
+		
 		c.setSubtitle(in.getSubtitle());
 
 		c.setLanguage(in.getLanguage());
 		c.setState(in.getState());
+		
+		c.setLanguages(in.getLanguages() );
+		
+		c.setLabelPermanentExhibitions( getLabel("collection"));
+		c.setLabelTemporaryExhibitions( getLabel("exhibitions"));
+		
 
 		c.setCreated(OffsetDateTime.now());
-		c.setState(ObjectState.EDITION);
+		c.setState(in.getState());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 

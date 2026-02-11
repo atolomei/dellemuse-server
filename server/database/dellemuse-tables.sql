@@ -774,4 +774,40 @@ COMMIT;
 
 
 
+	
+ 
+
+CREATE TABLE elvoice (
+						
+						id					 bigint primary key default nextval('sequence_id'),
+
+						name				 character varying(512) not null,
+						nameKey				 character varying(512),
+
+						title		 		 character varying(1024),
+						titleKey			 character varying(512),
+
+						url	 			     character varying(4096),
+						state			     integer default 3,
+						
+						voiceid				 character varying(512),
+						language		  	 character varying(64) default 'es',
+						languageRegion       character varying(64),
+						comment			 	 text,
+						voiceSettings		 jsonb,	
+						
+						info		 		 text,
+						infoKey 			 character varying(512),
+						
+						draft				 text,
+						
+						audio				 bigint references resource(id) on delete restrict,
+						
+						created				 timestamp with time zone DEFAULT now() not null,
+						lastmodified		 timestamp with time zone DEFAULT now() not null,
+						lastmodifieduser	 bigint references users(id) on delete restrict not null
+						
+						);
+
+
 					

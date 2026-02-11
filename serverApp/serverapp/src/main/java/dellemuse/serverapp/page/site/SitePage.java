@@ -749,9 +749,15 @@ public class SitePage extends BasePage {
 			panel.setHasExpander(true);
 			panel.setSettings(true);
 		}
-
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param model
+	 * @return
+	 */
+	
 	protected WebMarkupContainer getObjectMenu(IModel<ArtExhibition> model) {
 
 		NavDropDownMenu<ArtExhibition> menu = new NavDropDownMenu<ArtExhibition>("menu", model, null) {
@@ -764,8 +770,7 @@ public class SitePage extends BasePage {
 
 		menu.setOutputMarkupId(true);
 
-		menu.setTitleCss
-("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
@@ -850,27 +855,12 @@ public class SitePage extends BasePage {
 						};
 					}
 				});
-
 			}
-
 		}
 
 		return menu;
-
 	}
-
-	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
-		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject())) {
-			return ServerAppConstant.headphoneIcon;
-		}
-		return null;
-	}
-
-	protected void onCreateExhibition() {
-		ArtExhibition ae = createExhibition(getSiteModel().getObject());
-		setResponsePage(new ArtExhibitionPage(new ObjectModel<ArtExhibition>(ae)));
-	}
-
+ 
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -909,7 +899,54 @@ public class SitePage extends BasePage {
 	public void setSiteList(List<IModel<Site>> siteList) {
 		this.siteList = siteList;
 	}
+	
 
+	public IModel<String> getObjectTitle(MultiLanguageObject o, boolean includeIcon) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+		
+		if (!includeIcon)
+			return Model.of(str.toString());
+		
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+		
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+		
+		
+		return Model.of(str.toString());
+	}
+
+	 
+	
+
+	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
+		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject())) {
+			return ServerAppConstant.headphoneIcon;
+		}
+		return null;
+	}
+
+	protected void onCreateExhibition() {
+		ArtExhibition ae = createExhibition(getSiteModel().getObject());
+		setResponsePage(new ArtExhibitionPage(new ObjectModel<ArtExhibition>(ae)));
+	}
+	
+
+	protected IModel<String> getObjectInfo(MultiLanguageObject s) {
+		return Model.of(getLanguageObjectService().getInfo(s, getLocale()));
+	}
+
+	protected IModel<String> getObjectIntro(MultiLanguageObject s, boolean useInfoIfEmpty) {
+
+		String intro = getLanguageObjectService().getIntro(s, getLocale());
+		
+		if (intro!=null) return Model.of(getLanguageObjectService().getIntro(s, getLocale()));
+	
+		return useInfoIfEmpty ? getObjectInfo(s) : null;
+	}
+	
 	private void loadLists() {
 		
 		try {
@@ -1035,38 +1072,7 @@ public class SitePage extends BasePage {
 		toolbarContainer.add(toolbarItems);
 	}
 
-	public IModel<String> getObjectTitle(MultiLanguageObject o, boolean includeIcon) {
-		StringBuilder str = new StringBuilder();
-		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
-		
-		if (!includeIcon)
-			return Model.of(str.toString());
-		
-		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
-		
-		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
-		
-		
-		return Model.of(str.toString());
-	}
 
-	 
-
-	protected IModel<String> getObjectInfo(MultiLanguageObject s) {
-		return Model.of(getLanguageObjectService().getInfo(s, getLocale()));
-	}
-
-	protected IModel<String> getObjectIntro(MultiLanguageObject s, boolean useInfoIfEmpty) {
-
-		String intro = getLanguageObjectService().getIntro(s, getLocale());
-		
-		if (intro!=null) return Model.of(getLanguageObjectService().getIntro(s, getLocale()));
-	
-		return useInfoIfEmpty ? getObjectInfo(s) : null;
-		
-	}
 
 	private void addHeader() {
 

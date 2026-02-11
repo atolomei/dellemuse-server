@@ -76,7 +76,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         c.setLastname(lastname);
         c.setLastnameKey(nameKey(lastname));
          
-        c.setObjectState(ObjectState.EDITION);
+        c.setObjectState(ObjectState.PUBLISHED);
         
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
@@ -110,7 +110,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         o_phone.ifPresent(c::setPhone);
         o_email.ifPresent(c::setEmail);
 
-        c.setObjectState(ObjectState.EDITION);
+        c.setObjectState(ObjectState.PUBLISHED);
         
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
@@ -191,7 +191,30 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         return getEntityManager().createQuery(cq).getResultList();
     }
     
-    
+	@Transactional
+	public Iterable<Person> findAllSorted(ObjectState os) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Person> cq = cb.createQuery(getEntityClass());
+		Root<Person> root = cq.from(getEntityClass());
+		cq.select(root).where(cb.equal(root.get("state"), os));
+		cq.orderBy(cb.asc(root.get("sortlastfirstname")));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	@Transactional
+	public Iterable<Person> findAllSorted(ObjectState os1, ObjectState os2) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Person> cq = cb.createQuery(getEntityClass());
+		Root<Person> root = cq.from(getEntityClass());
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		Predicate p2 = cb.equal(root.get("state"), os2);
+		Predicate combinedPredicate = cb.or(p1, p2);
+		cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(root.get("sortlastfirstname")));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
     public Person create(String name, User createdBy) {
         return create(name, name, createdBy);
     }

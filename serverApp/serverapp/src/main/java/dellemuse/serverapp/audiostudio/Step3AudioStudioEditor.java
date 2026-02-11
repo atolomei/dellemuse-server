@@ -40,8 +40,14 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 	private WebMarkupContainer step3;
 	private WebMarkupContainer step3mp3;
 
-	 
- 
+	/**
+	 * 
+	 *  
+	 *  
+	 * @param id
+	 * @param model
+	 * @param isAccesibleVersion
+	 */
 
 	public Step3AudioStudioEditor(String id, IModel<AudioStudio> model, boolean isAccesibleVersion) {
 		super(id, model, isAccesibleVersion);

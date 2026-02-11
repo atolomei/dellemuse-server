@@ -98,6 +98,20 @@ public class ElevenLabsService extends BaseService {
 	private int port;
 	
 	
+	public List<ELVoice> getVoices(String lang) {
+	
+		List<ELVoice> list = new ArrayList<ELVoice>();
+		
+		voices.forEach( (k,v) -> {
+			if (v.getLanguage().equals(lang))
+					list.add(v);
+		});
+		return list;
+		
+		
+	}
+	
+	
 	/**
 	 * @param settings
 	 * @param lockService
@@ -117,7 +131,7 @@ public class ElevenLabsService extends BaseService {
 	 * @return
 	 */
 	
-	
+	/**
 	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode) {
 
 		
@@ -137,27 +151,34 @@ public class ElevenLabsService extends BaseService {
 		
 		return generate(text, audioFileName, languageCode, dm_voice_id, true);
 	}
+	**/
 	
 	
-	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode, String dm_voice_id) {
-		return generate(text, audioFileName, languageCode, dm_voice_id, true);
+	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode, String vid) {
+		return generate(text, audioFileName, languageCode, vid, true);
 	}
 	
 
-	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode, String dm_voice_id, boolean enableLogging) {
+	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode, String vid, boolean enableLogging) {
 
 		if (text==null || text.length()==0)
 			return Optional.empty();
 		
 		Check.requireNonNullStringArgument(audioFileName, "audioFileName can not be null");
 		Check.requireNonNullArgument(languageCode, "languageCode can not be null");
-		Check.requireNonNullStringArgument(dm_voice_id, "dm_voice_id can not be null");
+		Check.requireNonNullStringArgument(vid, "vid can not be null");
 		
-		if (!getVoices().containsKey(dm_voice_id))
-			throw new IllegalArgumentException("voice not found -> " + dm_voice_id);
 		
-		String voice_id  = getVoices().get(dm_voice_id).getVoiceId();
-		VoiceSettings vs =  getVoices().get(dm_voice_id).getVoiceSettings();
+		//if (!getVoices().containsKey(dm_voice_id))
+		//	throw new IllegalArgumentException("voice not found -> " + dm_voice_id);
+		
+		String voice_id  = vid; // getVoices().get(dm_voice_id).getVoiceId();
+		//VoiceSettings vs =  getVoices().get(dm_voice_id).getVoiceSettings();
+		
+		
+		
+		
+		
 		String output_format = OutputFormat.Opus_48000_192.getName();
 		 
 		String relativePath[] = new String [3];
@@ -199,8 +220,8 @@ public class ElevenLabsService extends BaseService {
 		 rec.text = text;
 		 rec.language_code=languageCode.toString();
 		
-		 if (vs!=null)
-			 rec.voice_settings=vs;
+		 //if (vs!=null)
+			 rec.voice_settings= getDefaultVoiceSettings();
 		 	
 		 List<byte[]> audioChunks = new ArrayList<>();
 	     
@@ -297,6 +318,26 @@ public class ElevenLabsService extends BaseService {
 		 */
 	}
 
+	
+	VoiceSettings voiceSettings;
+	
+	public synchronized VoiceSettings getDefaultVoiceSettings() {
+		
+		if (voiceSettings!=null)
+			return voiceSettings;
+		
+		 voiceSettings = new VoiceSettings();
+		
+		
+		 voiceSettings.speed= Double.valueOf(1.1);
+		 voiceSettings.stability=Double.valueOf(0.91);
+		 voiceSettings.similarity_boost=Double.valueOf(0.48);
+		 voiceSettings.style=Double.valueOf(0.01);
+	
+		 return voiceSettings;
+	}
+
+
 	public String getAPIKey() {
 		return this.apiKey;
 	}
@@ -334,13 +375,36 @@ public class ElevenLabsService extends BaseService {
 		}
 	}
 		
+	
+	/**
+	 * 
+	 * 
+
+	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'), 'amanda', 'oi8rgjIfLgJRsQ6rbZh3', 'pt', 'brazil', 
+	  'A sweet, feminine, and youthful Brazilian Portuguese voice with a neutral accent. Naturally warm and expressive, she brings a gentle charm to every word. Ideal for narrations, educational content, and conversational dialogue where clarity, softness, and an inviting tone are essential.', now(), now(), (select id from users where name='root'));
+	 
+	 
+	 
+	 	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'), 'amanda', 'oi8rgjIfLgJRsQ6rbZh3', 'pt', 'brazil', 
+	  'A sweet, feminine, and youthful Brazilian Portuguese voice with a neutral accent. Naturally warm and expressive, she brings a gentle charm to every word. Ideal for narrations, educational content, and conversational dialogue where clarity, softness, and an inviting tone are essential.', now(), now(), (select id from users where name='root'));
+
+
+
+
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
 	private synchronized void loadVoices() {
 		
 		voices = new ConcurrentHashMap<String, ELVoice>();
 		
 		voices.put("amanda", 	
 				   new ELVoice("amanda",	 
-						       "oi8rgjIfLgJRsQ6rbZh3", "pt" ,"Amanda Kelly",
+						       "oi8rgjIfLgJRsQ6rbZh3", "pt" ,
+						       "brasil",
+						       "Amanda Kelly",
 						       "A sweet, feminine, and youthful Brazilian Portuguese "
 						       + "voice with a neutral accent. Naturally warm and expressive, she brings a gentle charm to every word. "
 						       + "Ideal for narrations, educational content, and conversational dialogue where clarity, softness, and "
@@ -354,28 +418,184 @@ public class ElevenLabsService extends BaseService {
 		 voiceSettings.style=Double.valueOf(0.01);
 		
 		 
-		voices.put("mariana",	
+		 /** spa 
+		  * 
+		  
+		    	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'), 'mariana', '9rvdnhrYoXoUt4igKpBw', 'es', 'latin anmerica',  'Intimate and Assertive.', now(), now(), (select id from users where name='root'));
+
+
+   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'), 'mariana', '9rvdnhrYoXoUt4igKpBw', 'es', 'latin anmerica',  'Intimate and Assertive.', now(), now(), (select id from users where name='root'));
+   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'ernesto', 'TOFW0dONbX4o9MmkxwBB', 'es', 'argentina',  'xplainer & Informative videos - Natural and kind voice. Middle-age man with Spanish peninsular accent', now(), now(), (select id from users where name='root'));
+   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'victor', 'TcMKZRsVE5V7xf6qCp9fF', 'es', 'latin america',  'Calm, Soft and Neutral.', now(), now(), (select id from users where name='root'));
+   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'mario', 'uJOittXFsgvpY3q1g8vB', 'es', 'spain',  'Middle-aged man. Warm, natural voice with a conversational style. Ideal for educational vlogs, podcasts, online training, and clear explanations (finance, tech, lifestyle', now(), now(), (select id from users where name='root'));
+
+	insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'jonathan', 'PIGsltMj3gFMR34aFDI3', 'en', 'american', 
+	 'A calm, trustworthy, confident voice to narrate your story, audiobooks, articles and other media.', now(), now(), (select id from users where name='root'));
+
+
+		 
+		   
+		   
+		   
+		  	insert into voice (id, name, sex, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'tamsin', 'female', 'dAlhI9qAHVIjXuVppzhW', 'en', 'british',  '
+		
+ 
+ 
+ Antoine - E-learning Instructor
+
+Antoine - A male adult voice, composed and formal, with a well-controlled neutral tone. Its timbre resembles that of an actor accustomed to delivering precise and articulate speech
+
+
+insert into voice (id, name, sex, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'antoine', 'male', 'nbiTBaMRdSobTQJDzIWm', 'fr', 
+'france', 'A male adult voice, composed and formal, with a well-controlled neutral tone. Its timbre resembles that of an actor accustomed to delivering precise and articulate speech', now(), now(), (select id from users where name='root'));
+		
+
+		   insert into voice (id, name, sex, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
+		   'Anaïs', 'female', '5OnMHwgTFgvPVwE8jP6B', 'fr', 
+'france', 'Middle aged French female voice. Warm and clear, ideal for podcasting, e-learning and news content.', now(), now(), (select id from users where name='root'));
+
+		   
+		   Anaïs - Instructor
+
+Anaïs - Middle aged French female voice. Warm and clear, ideal for podcasting, e-learning and news content.
+
+
+
+
+
+insert into voice (id, name, sex, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
+		   'Marie Line', 'female', 'u5l0VNCfzO5oqrKTuA1e', 'fr', 
+'france', 'My smiling, calm, and empathetic voice of French origin inspires confidence', now(), now(), (select id from users where name='root'));
+
+
+u5l0VNCfzO5oqrKTuA1e
+
+Marie Line - Energetic and Clear
+
+Marie Line - Narrator - My smiling, calm, and empathetic voice of French origin inspires confidence. The quality of my diction and my recording studio allow me to offer you a very... read more
+
+		  * 
+		  * **/
+
+		 voices.put("mariana",	
 				new ELVoice("mariana",			
 				"9rvdnhrYoXoUt4igKpBw", 
-				"es" 
-				,"Mariana",
+				"es",
+				"latin america",
+				"Mariana",
 				"Mariana -Intimate and Assertive",
 				voiceSettings));
 	
+		
+		voices.put("marcela",	
+				new ELVoice("marcela",			
+				"YM9MbhkdpZ8JR7EP49hA", 
+				"es" ,
+				"spain",
+				"Marcela",
+				"Marcela - A youthful, delicate, friendly, and subtle voice, perfect for writing ebooks, podcasts, and any content for social media or work.",
+				voiceSettings));
+		
+		
+		voices.put("ernesto",	
+				new ELVoice("ernesto",			
+				"TOFW0dONbX4o9MmkxwBB", 
+				"es",
+				"argentina",
+				"Ernesto",
+				"Ernesto T. - Explainer & Informative videos - Natural and kind voice. Middle-age man with Spanish peninsular accent..",
+				voiceSettings));
+		
+		
+		
+		voices.put("victor",	
+				new ELVoice("victor",			
+				"cMKZRsVE5V7xf6qCp9fF", 
+				"es",
+				"latin american",
+				"Victor",
+				" Calm, Soft and Neutral.",
+				voiceSettings));
+
+		
+		voices.put("mario",	
+				new ELVoice("mario",			
+				"uJOittXFsgvpY3q1g8vB", 
+				"es",
+				"spain",
+				"Mario",
+				"Middle-aged man. Warm, natural voice with a conversational style. Ideal for educational vlogs, podcasts, online training, and clear explanations (finance, tech, lifestyle",
+				voiceSettings));
+		
+   /** en **/
+		
+		
+  /**
+   *
+   * 
+   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
+   	  'emily', 'XB0fDUnXU5powFXDhCwa', 'en', 'us',  '', now(), now(), (select id from users where name='root'));
+
+
+	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
+   	  'nicola', '9sKbNSlHXq99bttvf8rRF', 'it', 'italia',  'Nicola Loruso', now(), now(), (select id from users where name='root'));
+
+
+	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
+   	  'thomas', 'tvFp0BgJPrEXGoDhDIA4', 'dutch', 'dutch',  '', now(), now(), (select id from users where name='root'));
+
+	 
+	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
+   	  'leon', 'MJ0RnG71ty4LH3dvNfSd4', 'ger', 'germany',  '', now(), now(), (select id from users where name='root'));
+
+
+	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
+   	  'vincent', 'S9WrLrqYPJzmQyWPWbZ5', 'en', 'us',  'Vincent Sparks - Deep American Voice - Professional American Deep Male English Voiceover. Great for Informative videos.', now(), now(), (select id from users where name='root'));
+
+
+	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
+   	  'nigel', 'l9yjqAhh8GXv7ZJxsLZO', 'en', 'british',  'A distinct, seasoned English male voice that captivates audiences with warmth, clarity, and authenticity.', now(), now(), (select id from users where name='root'));
+
+
+	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
+   	  'shaun', 'lRKCbSROXui75bk1SVpy8', 'en', 'british',  ' ', now(), now(), (select id from users where name='root'));
+
+
+RKCbSROXui75bk1SVpy8
+
+   */
+
+		
 		
 		voices.put("emily",	     
 				new ELVoice("emily",			
 				"XB0fDUnXU5powFXDhCwa", 
 				"en" ,
+				"us",
 				"Emily",
 				"Emily"));
 	
 	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		 /** it **/
+
+		
 		voices.put("nicola",	
 				new ELVoice("nicola",			
 				"9sKbNSlHXq99bttvf8rRF", 
-				"it" 
-				,"Nicola",
+				"it", 
+				"italia",
+				"Nicola",
 				"Nicola Loruso",
 				voiceSettings));
 		
@@ -383,8 +603,9 @@ public class ElevenLabsService extends BaseService {
 		voices.put("thomas",	
 				new ELVoice("thomas",			
 				"tvFp0BgJPrEXGoDhDIA4", 
-				"dutch" 
-				,"Thomas",
+				"dutch",
+				"dutch",
+				"Thomas",
 				"Thomas",
 				voiceSettings));
 	
@@ -392,8 +613,9 @@ public class ElevenLabsService extends BaseService {
 		voices.put("leon",	
 				new ELVoice("leon",			
 				"MJ0RnG71ty4LH3dvNfSd", 
-				"ger" 
-				,"Leon",
+				"ger",
+				"germany",
+				"Leon",
 				"Leon",
 				voiceSettings));
 		

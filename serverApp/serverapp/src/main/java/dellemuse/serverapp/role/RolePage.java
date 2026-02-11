@@ -1,10 +1,8 @@
 package dellemuse.serverapp.role;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -18,17 +16,14 @@ import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 
 import dellemuse.serverapp.page.ObjectPage;
-import dellemuse.serverapp.page.error.ErrorPage;
-import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.person.PersonPage;
+
 import dellemuse.serverapp.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.User;
+
 import dellemuse.serverapp.serverdb.model.security.Role;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
-import io.wktui.event.SimpleWicketEvent;
+
 import io.wktui.event.UIEvent;
 
 import io.wktui.nav.breadcrumb.BCElement;
@@ -37,7 +32,6 @@ import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 
 import io.wktui.nav.toolbar.ToolbarItem;
-import io.wktui.nav.toolbar.ToolbarItem.Align;
 
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
@@ -50,8 +44,6 @@ public class RolePage extends ObjectPage<Role> {
 	static private Logger logger = Logger.getLogger(RolePage.class.getName());
 
 	private RoleUsersPanel rolesPanel;
- 
-	 
 
 	public RolePage() {
 		super();
@@ -74,7 +66,6 @@ public class RolePage extends ObjectPage<Role> {
 
 		List<INamedTab> list = super.createInternalPanels();
 
-		
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
 			private static final long serialVersionUID = 1L;
@@ -102,10 +93,10 @@ public class RolePage extends ObjectPage<Role> {
 
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
- 	 
+
 				if (event.getName().equals(ServerAppConstant.role_panel_info)) {
 					RolePage.this.togglePanel(ServerAppConstant.role_panel_info, event.getTarget());
-					
+
 				} else if (event.getName().equals(ServerAppConstant.object_audit)) {
 					RolePage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}
@@ -119,21 +110,22 @@ public class RolePage extends ObjectPage<Role> {
 			}
 		});
 	}
-	
+
 	protected Panel getRoleUsersPanel(String id) {
 		if (rolesPanel == null)
-			rolesPanel  = new RoleUsersPanel(id, getModel(), true);
-			return (rolesPanel);
+			rolesPanel = new RoleUsersPanel(id, getModel(), true);
+		return (rolesPanel);
 	}
-	
+
 	@Override
 	protected IModel<String> getPageTitle() {
 		return new Model<String>(getModel().getObject().getName());
 	}
 
 	@Override
-	protected Panel createSearchPanel() { return null;}
-	
+	protected Panel createSearchPanel() {
+		return null;
+	}
 
 	@Override
 	protected Panel createHeaderPanel() {
@@ -142,10 +134,8 @@ public class RolePage extends ObjectPage<Role> {
 			BreadCrumb<Void> bc = createBreadCrumb();
 			bc.addElement(new HREFBCElement("/security/roles", getLabel("roles")));
 			bc.addElement(new BCElement(new Model<String>(getModel().getObject().getName())));
-			JumboPageHeaderPanel<Role> ph = new JumboPageHeaderPanel<Role>("page-header", getModel(), 
-					Model.of(getModel().getObject().getRoleDisplayName() + " (" + getModel().getObject().getDisplayClass(getLocale()) + ") ")
-					);
-		
+			JumboPageHeaderPanel<Role> ph = new JumboPageHeaderPanel<Role>("page-header", getModel(), Model.of(getModel().getObject().getRoleDisplayName() + " (" + getModel().getObject().getDisplayClass(getLocale()) + ") "));
+
 			ph.setHeaderCss("mb-0 pb-2 border-none");
 			ph.setIcon(Role.getIcon());
 			ph.setBreadCrumb(bc);
@@ -174,7 +164,6 @@ public class RolePage extends ObjectPage<Role> {
 	protected IRequestablePage getObjectPage(IModel<Role> model, List<IModel<Role>> list) {
 		return new RolePage(model, list);
 	}
- 
 
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Role>(id, getModel());
@@ -182,7 +171,7 @@ public class RolePage extends ObjectPage<Role> {
 
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
-	 return null;
+		return null;
 	}
 
 	@Override
@@ -199,8 +188,7 @@ public class RolePage extends ObjectPage<Role> {
 			}
 		};
 		tabs.add(tab_1);
- 
-		
+
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
 			private static final long serialVersionUID = 1L;
@@ -211,8 +199,7 @@ public class RolePage extends ObjectPage<Role> {
 			}
 		};
 		tabs.add(audit);
-		
-		
+
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.role_panel_info);
 
@@ -221,10 +208,7 @@ public class RolePage extends ObjectPage<Role> {
 
 	@Override
 	protected Optional<Role> getObject(Long id) {
-		 
 		return Optional.empty();
 	}
-
- 
 
 }

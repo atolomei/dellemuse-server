@@ -57,6 +57,7 @@ import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
+import dellemuse.serverapp.serverdb.service.VoiceDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
@@ -534,6 +535,11 @@ public abstract class BasePage extends WebPage {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
 
+	protected VoiceDBService getVoiceDBService() {
+		return (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
+	}
+	
+	
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}

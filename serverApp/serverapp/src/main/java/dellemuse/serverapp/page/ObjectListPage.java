@@ -73,6 +73,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 	protected IModel<String> getObjectTitle(IModel<T> model) {
 		if (model.getObject() instanceof MultiLanguageObject) {
+			
 			StringBuilder str = new StringBuilder();
 			str.append(getLanguageObjectService().getObjectDisplayName(((MultiLanguageObject) model.getObject()), getLocale()));
 			

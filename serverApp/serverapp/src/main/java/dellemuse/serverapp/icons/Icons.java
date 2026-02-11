@@ -10,7 +10,9 @@ public class Icons {
 	public static final String Person				= "fa-duotone fa-solid fa-person-simple";
 	public static final String Site 				= "fa-duotone fa-solid fa-hotel";
 	
- 
+	public static final String Voice 				= "fa-solid fa-head-side-speak";
+
+	
 	public static final String Accesible 			= " <i title=\"accessible\" class=\"text-info   fa-thin fa-universal-access ms-1 me-1\"> </i>";
 
 	public static final String Accesible_jumbo 			= " <i title=\"accessible\" class=\" small text-info fa-thin fa-universal-access ms-0 me-1\"> </i>";

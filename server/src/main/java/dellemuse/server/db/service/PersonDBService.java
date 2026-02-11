@@ -101,6 +101,10 @@ public class PersonDBService extends DBService<Person, Long> {
         return getRepository().save(c);
     }
 
+    
+
+    
+    
     @Transactional
     public List<ArtWork> getArtWorks(Person person) {
         List<ArtWorkArtist> artWorkArtists = entityManager
