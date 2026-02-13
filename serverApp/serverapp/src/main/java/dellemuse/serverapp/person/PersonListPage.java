@@ -40,12 +40,14 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.Voice;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
@@ -144,13 +146,13 @@ public class PersonListPage extends ObjectListPage<Person> {
 			@Override
 			public MenuItemPanel<Person> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Person>(id) {
+				return new LinkMenuItem<Person>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick() {
+						setResponsePage( new PersonPage( getModel(), getList()));
 					}
 
 					@Override
@@ -160,7 +162,43 @@ public class PersonListPage extends ObjectListPage<Person> {
 				};
 			}
 		});
+		
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Person>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getPersonDBService().save(getModel().getObject());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+
+		/**
+		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 
 			private static final long serialVersionUID = 1L;
@@ -184,6 +222,8 @@ public class PersonListPage extends ObjectListPage<Person> {
 				};
 			}
 		});
+		
+		*/
 		return menu;
 	}
 	

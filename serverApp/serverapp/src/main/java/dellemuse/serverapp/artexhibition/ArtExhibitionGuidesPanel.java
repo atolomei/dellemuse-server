@@ -18,11 +18,10 @@ import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.site.BaseSiteSearcherPanel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.GuideContent;
+ 
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.event.MenuAjaxEvent;
@@ -129,9 +128,11 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		service.create(name, getModel().getObject(), getSessionUser().get());
 
 		resetItems();
+		
 		target.add(this.itemsContainer);
 	}
 
+	
 	protected void onCancel(AjaxRequestTarget target) {
 		setState(FormState.VIEW);
 		target.add(this);

@@ -288,7 +288,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 			public String getFileName() {
 				if (audioMeta == null)
-					audioMeta = GuideContentEditor.this.getAudioMeta(getAudioAccesibleModel());
+					audioMeta = GuideContentEditor.this.getAudioMeta(getAudioModel());
 				return audioMeta;
 
 			}
@@ -919,9 +919,6 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			if (o_a.isPresent())
 				setAudioAccesibleModel(new ObjectModel<Resource>(o_a.get()));
 		}
-		
-
-		
 		
 		
 		if (getModel().getObject().getArtExhibitionItem() != null) {

@@ -1,14 +1,18 @@
 package dellemuse.serverapp.artwork;
 
+import java.util.Optional;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.editor.ObjectBaseNavDropDownMenuToolbarItem;
+import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
@@ -20,6 +24,9 @@ public class ArtWorkNavDropDownMenuToolbarItem extends ObjectBaseNavDropDownMenu
 
 	private static final long serialVersionUID = 1L;
 
+	private IModel<Site> siteModel;
+	
+	
 	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(ArtWorkNavDropDownMenuToolbarItem.class.getName());
 
@@ -32,9 +39,40 @@ public class ArtWorkNavDropDownMenuToolbarItem extends ObjectBaseNavDropDownMenu
 	}
 
 	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (siteModel!=null)
+			siteModel.detach();
+	}
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
+
+	
+	private void setUpModel() {
+		 
+		 
+		Optional<Site> o_site = getSiteDBService().findWithDeps(Long.valueOf(getModel().getObject().getSite().getId()));
+		if (o_site.isPresent()) {
+			setSiteModel(new ObjectModel<Site>(o_site.get()));
+		}
+ 
+	}
+	
+	
+	@Override
 	public void onInitialize() {
 		super.onInitialize();
-
+		
+		setUpModel();
+		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
 			private static final long serialVersionUID = 1L;
 
@@ -74,7 +112,7 @@ public class ArtWorkNavDropDownMenuToolbarItem extends ObjectBaseNavDropDownMenu
 			}
 		});
 
-		for (Language la : getLanguageService().getLanguages()) {
+		for (Language la : getSiteModel().getObject().getLanguages()) {
 
 			final String langCode = la.getLanguageCode();
 

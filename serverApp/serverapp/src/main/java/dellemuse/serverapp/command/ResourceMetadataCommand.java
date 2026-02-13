@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +19,7 @@ import dellemuse.model.image.SimpleImageInfo;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
-
+import dellemuse.serverapp.music.Mp3MetadataExtractor;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
@@ -44,6 +46,11 @@ public class ResourceMetadataCommand extends Command {
 	@JsonProperty("mimeType")
 	private String mimeType;
 
+	
+	@JsonProperty("metadata")
+	private Map<String, String> metadata;
+
+	
 	@JsonIgnore
 	ResourceDBService resourceDBService;
 	
@@ -148,34 +155,29 @@ public class ResourceMetadataCommand extends Command {
 		}
 	}
 	
+	File downloadedFile = null;
+	
 	private void processAudio(Resource resource) {
 	 
 	 
-		if (resource.getMedia().contains("audio") && (resource.getDurationMilliseconds()<=0)) {
+		if (resource.getMedia().contains("audio") && (resource.getMeta_json()==null || resource.getDurationMilliseconds()<=0) ) {
 
-			File file = null;
 	
-			try (InputStream is = objectStorageService.getObject(resource.getBucketName(), resource.getObjectName())) {
+			try (InputStream is = getObjectStorageService().getObject(resource.getBucketName(), resource.getObjectName())) {
 	
 				if (is != null) {
 	
-						file = new File(getSettings().getWorkDir(), resource.getName());
+						downloadedFile = new File(getSettings().getWorkDir(), resource.getName());
 						
-						if (getLockService().getFileLock(file.getAbsolutePath()).writeLock().tryLock(30, TimeUnit.SECONDS)) {
+						if (getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().tryLock(30, TimeUnit.SECONDS)) {
 							
 							try {
 								try (InputStream in = objectStorageService.getClient().getObject(resource.getBucketName(),
 										resource.getObjectName())) {
-									Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+									Files.copy(in, downloadedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 								}
 								
-								//long duration = MediaUtil.getAudioDurationMilliseconds(file);
-								//if (duration > 0) {
-								//	resource.setDurationMilliseconds(duration);
-								//	resourceDBService.save(resource);
-								//}
-								
-								int d= MediaUtil.getAudioDurationInSeconds(file);
+			 					int d= MediaUtil.getAudioDurationInSeconds(downloadedFile);
 								
 								if (d > 0) {
 									
@@ -197,8 +199,14 @@ public class ResourceMetadataCommand extends Command {
 										
 									}
 								}
+								
+								if (FilenameUtils.getExtension( downloadedFile .getName()).equals("mp3")) {
+									resource.setMeta_json(Mp3MetadataExtractor.extractMetadata(downloadedFile));
+									logger.debug( resource.getMeta_json());
+								}
+								
 							} finally {
-								getLockService().getFileLock(file.getAbsolutePath()).writeLock().unlock();
+								getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().unlock();
 							}
 						} else {
 							logger.error("lock not working");
@@ -210,11 +218,11 @@ public class ResourceMetadataCommand extends Command {
 					resourceDBService.save(resource);
 					return;
 			} finally {
-				if ((file != null) && file.exists()) {
+				if ((downloadedFile != null) && downloadedFile.exists()) {
 					try {
-						FileUtils.forceDelete(file);
+						FileUtils.forceDelete(downloadedFile);
 					} catch (IOException e) {
-						logger.error(e,  file.getName(), ServerConstant.NOT_THROWN);
+						logger.error(e,  downloadedFile.getName(), ServerConstant.NOT_THROWN);
 					}
 				}
 			}
@@ -229,8 +237,13 @@ public class ResourceMetadataCommand extends Command {
 		this.resourceId = resourceId;
 	}
 
-	public ServerDBSettings getSettings() {
-		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
 
+
+	public ObjectStorageService getObjectStorageService() {
+		return objectStorageService;
+	}
+
+	public void setObjectStorageService(ObjectStorageService objectStorageService) {
+		this.objectStorageService = objectStorageService;
 	}
 }

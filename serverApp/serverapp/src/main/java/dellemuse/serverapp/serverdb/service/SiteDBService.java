@@ -474,7 +474,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	@Transactional
 	public List<Artist> getArtistsBySiteId(Long siteId) {
 		
-			Set<Artist> s= getSiteArtists(siteId);
+		Set<Artist> s= getSiteArtists(siteId);
 		List<Artist> l  = new ArrayList<Artist>();
 		s.forEach(i-> l.add(i));
 		return l;

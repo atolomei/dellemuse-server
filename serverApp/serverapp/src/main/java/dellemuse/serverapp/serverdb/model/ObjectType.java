@@ -25,9 +25,14 @@ import java.util.ResourceBundle;
 public enum ObjectType {
 	
 	ARTWORK (0, "artwork"),
-	HUMAN_MADE_OBJECT(1, "human-made-object"),
+	HUMAN_MADE_HISTORIC_OBJECT(1, "human-made-historical-object"),
 	BUILDING(2, "building"),
-	NATURAL_OBJECT(3, "natural-object");
+	NATURAL_OBJECT(3, "natural-object"),
+	HUMAN_MADE_CRAFT(4, "craft"),
+	HUMAN_MADE_PRODUCT(5, "human-made-product");
+	
+	
+
 	
 	private final String label;
 	private final int id;
@@ -39,8 +44,11 @@ public enum ObjectType {
 		
 		values.add(ARTWORK);
 		values.add(BUILDING);
-		values.add(HUMAN_MADE_OBJECT);
+		values.add(HUMAN_MADE_HISTORIC_OBJECT);
+		values.add(HUMAN_MADE_PRODUCT);
 		values.add(NATURAL_OBJECT);
+		values.add(HUMAN_MADE_CRAFT);
+		
 	}
 
 	

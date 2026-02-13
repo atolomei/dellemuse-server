@@ -57,6 +57,8 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 	
 	public void onDetach() {
 		super.onDetach();
+		
+		if (this.voiceModel!=null)
 			this.voiceModel.detach();
 	}
 
@@ -68,6 +70,9 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 		
 		Optional<AudioStudio> o_a = getAudioStudioDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<>(o_a.get()));
+		
+		Optional<Voice> o_c = getVoiceDBService().findWithDeps(getVoiceModel().getObject().getId());
+		setVoiceModel(new ObjectModel<Voice>(o_c.get()));
 		
 		
 		//Label name = new Label("name", this.voice.getName());
@@ -86,7 +91,7 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 				if (AudioStudioTestVoicePanel.this.test.isVisible()) 
 					AudioStudioTestVoicePanel.this.test.setVisible( false );
 				else
-				AudioStudioTestVoicePanel.this.test.setVisible( true );
+					AudioStudioTestVoicePanel.this.test.setVisible( true );
 				
 				target.add(AudioStudioTestVoicePanel.this);
 			}
@@ -104,17 +109,17 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 		this.test = new WebMarkupContainer("test");
 		this.test.setOutputMarkupId(true);
 
-		if (getModel().getObject().getAudioSpeech() != null) {
+		if (getVoiceModel().getObject().getAudio() != null) {
 
 			// poner Voice en vez de AudioStudio
-			String audioUrl = getPresignedUrl(getModel().getObject().getAudioSpeech());
+			String audioUrl = getPresignedUrl(getVoiceModel().getObject().getAudio());
 
 			Url url = Url.parse(audioUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
 			Audio audio = new Audio("audioVoice", resourceReference);
 			this.test.addOrReplace(audio);
 
-			Label am = new Label("audioMeta", getAudioMeta(getModel().getObject().getAudioSpeech()));
+			Label am = new Label("audioMeta", getAudioMeta(getVoiceModel().getObject().getAudio()));
 			am.setEscapeModelStrings(false);
 			this.test.addOrReplace(am);
 		} else {
@@ -135,6 +140,14 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 		
 		this.test.setVisible(false);
 
+	}
+
+	public IModel<Voice> getVoiceModel() {
+		return voiceModel;
+	}
+
+	public void setVoiceModel(IModel<Voice> voiceModel) {
+		this.voiceModel = voiceModel;
 	}
 
 }

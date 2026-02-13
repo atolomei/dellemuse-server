@@ -27,6 +27,7 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 
@@ -253,6 +254,53 @@ public class UserListPage extends ObjectListPage<User> {
 			}
 		});
 
+		
+		
+		
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new AjaxLinkMenuItem<User>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getUserDBService().save(getModel().getObject());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<User>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+		
 		
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {

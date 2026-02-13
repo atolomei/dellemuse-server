@@ -28,6 +28,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
+import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
@@ -358,6 +359,12 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	protected String getDefaultMasterLanguage() {
 		return getLanguageService().getDefaultLanguage().getLanguageCode();
 	}
+	
+
+	protected ObjectStorageService getObjectStorageService() {
+		return (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
+	}
+	
 
 	protected String nameKey(String name) {
 		if (name == null)

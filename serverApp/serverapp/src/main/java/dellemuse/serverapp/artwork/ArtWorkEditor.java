@@ -59,7 +59,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 	private TextAreaField<String> infoField;
 	private TextAreaField<String> specField;
 	private FileUploadSimpleField<Resource> photoField;
-	//private ChoiceField<Long> artistField;
+	 
 
 	private NumberField<Integer> c_numberField;
 	private IModel<Resource> photoModel;
@@ -72,8 +72,6 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 	private List<IModel<Artist>> selected;
 	private List<IModel<Artist>> choices;
-	
-
 
 	private TextField<String> sourceField;
 	private TextField<String> epochField;
@@ -84,6 +82,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		super(id, model);
 	}
 
+	/**
 	public void setMainArtist(Long id) {
 		mainArtists.add(id);
 	}
@@ -92,7 +91,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		if (mainArtists != null && mainArtists.size() > 0)
 			return mainArtists.get(0);
 		return null;
-	}
+	}**/
 
 	@Override
 	public void onInitialize() {
@@ -103,24 +102,18 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		add(new InvisiblePanel("error"));
 
 		Form<ArtWork> form = new Form<ArtWork>("form");
+		
 		add(form);
 		setForm(form);
 
-		mainArtists = new ArrayList<Long>();
-
-		selected = new ArrayList<IModel<Artist>>();
-		choices = new ArrayList<IModel<Artist>>();
-
-		getArtistDBService().findAllSorted().forEach(a -> choices.add(new ObjectModel<Artist>(a)));
-
 		Set<Artist> set = getModel().getObject().getArtists();
+
 		if (set != null && set.size() > 0) {
-			setMainArtist(set.iterator().next().getId());
+			//setMainArtist(set.iterator().next().getId());
 			set.forEach(i -> selected.add(new ObjectModel<Artist>(i)));
 		}
 
-	 
-		this.objectTypeField = new ChoiceField<ObjectType>("objectType", new PropertyModel<ObjectType>(getModel(), "objectType"), getLabel("objectType")) {
+	 	this.objectTypeField = new ChoiceField<ObjectType>("objectType", new PropertyModel<ObjectType>(getModel(), "objectType"), getLabel("objectType")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -140,7 +133,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		
 		 
 		
-		mArtistField = new MultipleSelectField<Artist>("artists", selected, getLabel("artist"), choices) {
+		mArtistField = new MultipleSelectField<Artist>("artists", selected, getLabel("artist"), getChoices()) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -156,13 +149,13 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			
 			@Override
 			protected void onObjectRemove(IModel<Artist> model, AjaxRequestTarget target) {
-				selected.remove(model);
+				ArtWorkEditor.this.getSelected().remove(model);
 				target.add(getForm());
 			}
 		
 			@Override
 			protected void onObjectSelect(IModel<Artist> model, AjaxRequestTarget target) {
-				selected.add(model);
+				ArtWorkEditor.this.getSelected().add(model);
 				target.add(getForm());
 			}
 			
@@ -171,20 +164,14 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 				return ArtWorkEditor.this.getModel().getObject().getObjectType()==ObjectType.ARTWORK;
 			}
 		};
-		form.add(mArtistField);
-
 		
 		this.sourceField 	= new TextField<String>("source", new PropertyModel<String>(getModel(), "source"), getLabel("source"));
 		this.epochField 	= new TextField<String>("epoch", new PropertyModel<String>(getModel(), "epoch"), getLabel("epoch"));
-
-		form.add(sourceField);
-		form.add(epochField);
-		
-		this.urlField 	= new TextField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"));
-		this.specField 	= new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8);
-		this.nameField 	= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		this.infoField 	= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20);
-		this.photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
+		this.urlField 		= new TextField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"));
+		this.specField 		= new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8);
+		this.nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		this.infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20);
+		this.photoField 	= new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -220,40 +207,14 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 		c_numberField = new NumberField<Integer>("year", new PropertyModel<Integer>(getModel(), "year"), getLabel("year"));
 		
-		/**
-		artistField = new ChoiceField<Long>("artist", new PropertyModel<Long>(this, "mainArtist"), getLabel("artist")) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public IModel<List<Long>> getChoices() {
-				List<Long> list = new ArrayList<Long>();
-				StreamSupport.stream(getArtists().spliterator(), false).collect(Collectors.toList()).forEach(i -> list.add(i.getId()));
-				return new ListModel<Long>(list);
-			}
-
-			@Override
-			protected String getDisplayValue(Long value) {
-
-				if (value == null)
-					return null;
-
-				Optional<Artist> o = getArtist(value);
-
-				if (o.isPresent())
-					return o.get().getPerson().getLastFirstname();
-
-				return "";
-			}
-		};
-		*/
-
+		form.add(mArtistField);
+		form.add(sourceField);
+		form.add(epochField);
 		form.add(urlField);
 		form.add(specField);
 		form.add(nameField);
 		form.add(infoField);
 		form.add(photoField);
-		//form.add(artistField);
 		form.add(c_numberField);
 
 		EditButtons<ArtWork> buttons = new EditButtons<ArtWork>("buttons-bottom", getForm(), getModel()) {
@@ -327,6 +288,14 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		return ObjectType.getValues();
 	}
 
+	public List<IModel<Artist>> getSelected() {
+		return selected;
+	}
+
+	public void setSelected(List<IModel<Artist>> selected) {
+		this.selected = selected;
+	}
+
 	public Optional<Artist> getArtist(Long value) {
 		return super.getArtist(value);
 	}
@@ -350,9 +319,9 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 			getUpdatedParts().forEach(s -> logger.debug(s));
 
-			if (this.selected != null) {
+			if (this.getSelected() != null) {
 				Set<Artist> set = new HashSet<Artist>();
-				this.selected.forEach(i-> set.add(i.getObject()));
+				getSelected().forEach(i-> set.add(i.getObject()));
 				getModel().getObject().setArtists(set);
 			}
 			else {
@@ -360,9 +329,10 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			
 			}
 			
-
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
-			uploadedPhoto = false;
+
+			this.uploadedPhoto = false;
+			
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
 			fireScanAll(new ObjectUpdateEvent(target));
@@ -392,6 +362,14 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
+	public List<IModel<Artist>> getChoices() {
+		return choices;
+	}
+
+	public void setChoices(List<IModel<Artist>> choices) {
+		this.choices = choices;
+	}
+
 	protected IModel<Resource> getPhotoModel() {
 		return this.photoModel;
 	}
@@ -432,7 +410,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 				} catch (Exception e) {
 					uploadedPhoto = false;
-					error("Error saving file: " + e.getMessage());
+					addOrReplace(new SimpleAlertRow<Void>("error", e));
 				}
 			}
 		} else {
@@ -457,7 +435,14 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			Optional<Site> o_s = getSiteDBService().findWithDeps(getModel().getObject().getSite().getId());
 			setSiteModel(new ObjectModel<Site>(o_s.get()));
 		}
+		
+		mainArtists = new ArrayList<Long>();
+		selected = new ArrayList<IModel<Artist>>();
+		choices = new ArrayList<IModel<Artist>>();
+		
+		getArtistDBService().findAllSorted().forEach(a -> choices.add(new ObjectModel<Artist>(a)));
 
+		
 	}
 
 

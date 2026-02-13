@@ -564,7 +564,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			}
 		} catch (Exception e) {
 			logger.error(e);
-			this.navigatorContainer.add(new ErrorPanel("navigator", e));
+			this.navigatorContainer.addOrReplace(new ErrorPanel("navigator", e));
 		}
 	}
 

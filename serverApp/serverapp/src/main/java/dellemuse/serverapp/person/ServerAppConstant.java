@@ -134,5 +134,20 @@ public class ServerAppConstant {
 	static final public String voice_meta	 	= "voice-panel-meta";
 	static final public String voice_audit 		= "voice-panel-audit";
 	
+	static final public String action_voice_edit = "action-voice-edit";
+
+
+	/** music */
+	static final public String music_info 		= "music-panel-info";
+	static final public String music_meta	 	= "music-panel-meta";
+	static final public String music_audit 		= "music-panel-audit";
+	
+	static final public String action_music_edit = "action-music-edit";
+
+	
+	
+	
+	
+	
 	
 }

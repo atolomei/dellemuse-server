@@ -288,6 +288,56 @@ public class SiteListPage extends ObjectListPage<Site> {
 			}
 		});
 
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Site>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getSiteDBService().save(getModel().getObject());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<Site>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+		
+		
+		
+		
+		
+		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;

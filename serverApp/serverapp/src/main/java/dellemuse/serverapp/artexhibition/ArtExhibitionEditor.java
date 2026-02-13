@@ -20,6 +20,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -49,6 +50,8 @@ import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import io.wktui.panel.SimpleHelpPanel;
+import wktui.base.DummyBlockPanel;
 import wktui.base.InvisiblePanel;
 
 /**
@@ -150,6 +153,8 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 			}
 		};
 
+	
+		
 		toField = new TextField<String>("to", new PropertyModel<String>(this, "to"), getLabel("to")) {
 			private static final long serialVersionUID = 1L;
 
@@ -161,6 +166,30 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
 		};
+		
+		fromField.setHelpPanel( new SimpleHelpPanel<>("help") {
+			public IModel<String> getLinkLabel() {
+				return ArtExhibitionEditor.this.getLabel("date-help-label");
+			}
+			
+			public IModel<String> getHelpText() {
+				return ArtExhibitionEditor.this.getLabel("date-format-help");
+			}
+		});
+ 
+		
+		
+		toField.setHelpPanel( new SimpleHelpPanel<>("help") {
+			public IModel<String> getLinkLabel() {
+				return ArtExhibitionEditor.this.getLabel("date-help-label");
+			}
+			
+			public IModel<String> getHelpText() {
+				return ArtExhibitionEditor.this.getLabel("date-format-help");
+			}
+		});
+
+		
 
 		urlField = new TextField<String>("url", new PropertyModel<String>(getModel(), "website"), getLabel("url"));
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));

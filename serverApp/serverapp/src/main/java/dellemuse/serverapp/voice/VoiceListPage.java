@@ -22,6 +22,7 @@ import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.Voice;
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -34,7 +35,7 @@ import io.wktui.error.ErrorPanel;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
- 
+import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
@@ -162,7 +163,7 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 
 					@Override
 					public void onClick () {
-						//setResponsePage( new ElevenLabsVoicePage( getModel() ));
+						setResponsePage( new VoicePage( getModel(), getList() ));
 					}
 
 					@Override
@@ -172,6 +173,56 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 				};
 			}
 		});
+		
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Voice>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Voice> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Voice>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getVoiceDBService().save(getModel().getObject());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+		/**
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Voice>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Voice> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<Voice>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+		**/
+		
+		
+		
+		
 		return menu;
 	}
 	
@@ -217,7 +268,13 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 
 		str.append(model.getObject().getDisplayname());
 
+
 		//String s= Language.of(model.getObject().getLanguage()).getLabel(getLocale());
+		
+		if (model.getObject().getSex()!=null)
+			str.append(" - " + model.getObject().getSex());
+
+		
 		
 		str.append(" ( " + model.getObject().getLanguage() + " - " + model.getObject().getLanguageRegion()+" ) ");
 		
@@ -238,7 +295,7 @@ public class VoiceListPage extends ObjectListPage<Voice> {
  
 	@Override
 	public void onClick(IModel<Voice> model) {
-		// setResponsePage(new ElevenLabsVoicePage(model, getList()));
+		setResponsePage(new VoicePage(model, getList()));
 	}
 
 	@Override

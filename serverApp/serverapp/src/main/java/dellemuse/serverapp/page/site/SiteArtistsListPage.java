@@ -130,14 +130,21 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 
 	@Override
 	public Iterable<Artist> getObjects(ObjectState os1) {
-		throw new RuntimeException("not done");
+		
+		return getObjects();
+
+		
+		//throw new RuntimeException("not done");
 		//SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		//return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1);
 	}
 
 	@Override
 	public Iterable<Artist> getObjects(ObjectState os1, ObjectState os2) {
-		throw new RuntimeException("not done");
+		
+		return getObjects();
+		
+		//throw new RuntimeException("not done");
 		//SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 		//return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1, os2);
 	}

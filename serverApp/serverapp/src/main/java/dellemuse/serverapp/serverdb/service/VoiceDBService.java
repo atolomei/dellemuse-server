@@ -108,9 +108,12 @@ public class VoiceDBService extends DBService<Voice, Long> {
 		User u = aw.getLastModifiedUser();
 
 		if (u != null)
-			u.getDisplayname();
+
+			if (u != null)
+				aw.setLastModifiedUser(getUserDBService().findById(u.getId()).get());
 
 		Resource audio = aw.getAudio();
+
 		if (audio != null) 
 			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
 			
@@ -136,7 +139,12 @@ public class VoiceDBService extends DBService<Voice, Long> {
 		CriteriaQuery<Voice> cq = cb.createQuery(getEntityClass());
 		Root<Voice> root = cq.from(getEntityClass());
 		
-		Predicate p1 = cb.equal(root.get("language"), language);
+		String la= language;
+		
+		if (language.startsWith("pt"))
+			la="pt";
+		
+		Predicate p1 = cb.equal(root.get("language"), la);
 		cq.select(root).where(p1);
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		
@@ -144,6 +152,9 @@ public class VoiceDBService extends DBService<Voice, Long> {
 	
 		
 	}
+	
+	
+	
 	
 	
 	/**

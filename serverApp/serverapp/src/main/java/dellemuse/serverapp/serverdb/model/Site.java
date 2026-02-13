@@ -52,9 +52,6 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Site extends MultiLanguageObject {
 	
-	
-	
-	
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
 	@JoinColumn(name = "siteType_id", nullable = true)
 	@JsonManagedReference

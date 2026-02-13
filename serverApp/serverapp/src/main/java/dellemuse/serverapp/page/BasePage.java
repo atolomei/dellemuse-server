@@ -53,6 +53,7 @@ import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
+import dellemuse.serverapp.serverdb.service.MusicDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -539,6 +540,10 @@ public abstract class BasePage extends WebPage {
 		return (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
 	}
 	
+	
+	protected MusicDBService getMusicDBService() {
+		return (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);
+	}
 	
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);

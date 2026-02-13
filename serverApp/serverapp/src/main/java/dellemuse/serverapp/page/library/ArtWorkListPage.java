@@ -27,6 +27,7 @@ import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.artexhibition.ArtExhibitionItemsPanel;
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
@@ -38,6 +39,7 @@ import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -248,6 +250,55 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 				};
 			}
 		});
+		
+		
+		
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtWork> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtWork>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getArtWorkDBService().save(getModel().getObject());
+						target.add(ArtWorkListPage.this);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtWork> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtWork>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+		
+		
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
 

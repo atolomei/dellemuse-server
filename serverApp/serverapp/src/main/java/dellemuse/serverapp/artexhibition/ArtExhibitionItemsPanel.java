@@ -43,6 +43,7 @@ import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import io.wktui.panel.SimpleHelpPanel;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.InvisiblePanel;
@@ -91,7 +92,14 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		addSelectedPanel();
 		addMultipleSelector();
 		
+		SimpleHelpPanel<Void> s= new SimpleHelpPanel<Void>("helpPanel");
+		add(s);
+	
+		s.setLinkLabel(getLabel("help"));
+		s.setHelpText(getLabel("help-text", "/site/artwork/"+getSiteModel().getObject().getId().toString()));
 		
+		
+				
 		add ( new Link<Void>("siteArtworks") {
 			private static final long serialVersionUID = 1L;
 
@@ -271,6 +279,56 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionItem>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionItem> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibitionItem>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getArtExhibitionItemDBService().save(getModel().getObject());
+						target.add(ArtExhibitionItemsPanel.this);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+		
+		
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionItem>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionItem> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionItem>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+		
+		
+		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionItem>() {
 
 			private static final long serialVersionUID = 1L;

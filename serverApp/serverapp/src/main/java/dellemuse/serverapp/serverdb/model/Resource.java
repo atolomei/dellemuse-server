@@ -1,9 +1,15 @@
 package dellemuse.serverapp.serverdb.model;
 
+import java.util.Map;
+
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.jpa.events.ResourceEventListener;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import jakarta.persistence.Column;
@@ -63,6 +69,11 @@ public class Resource extends DelleMuseObject {
 
 	@Column(name = "language")
 	private String language;
+
+	@JdbcTypeCode(SqlTypes.JSON)
+	@Column(name = "meta_json", columnDefinition = "json")
+	private Map<String, String> meta_json;
+	
 	
 	public String getLanguage() {
 		return this.language;
@@ -161,6 +172,14 @@ public class Resource extends DelleMuseObject {
 		this.width = width;
 	}
 
+	public Map<String, String> getMeta_json() {
+		return meta_json;
+	}
+
+	public void setMeta_json(Map<String, String> meta_json) {
+		this.meta_json = meta_json;
+	}
+
 	public void setHeight(int height) {
 		this.height = height;
 	}
@@ -216,7 +235,7 @@ public class Resource extends DelleMuseObject {
 
 	
 	public static String getIcon() {
-		return "fa-duotone fa-file";
+		return Icons.Resource; //"fa-duotone fa-file";
 	}
 
 	

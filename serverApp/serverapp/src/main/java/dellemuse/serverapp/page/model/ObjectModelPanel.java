@@ -43,6 +43,7 @@ import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
+import dellemuse.serverapp.serverdb.service.MusicDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -695,7 +696,11 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
 	}
 
-	
+
+	protected MusicDBService getMusicDBService() {
+		return (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);
+	}
+
 	/** DBService ------------------------- */
 
 	protected Iterable<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition o) {

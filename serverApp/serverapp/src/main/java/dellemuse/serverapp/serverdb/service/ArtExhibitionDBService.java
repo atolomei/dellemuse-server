@@ -324,6 +324,33 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+
+	
+	@Transactional
+	public List<ArtExhibitionGuide> getArtExhibitionGuides(ArtExhibition exhibition, ObjectState o1, ObjectState o2) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(ArtExhibitionGuide.class);
+		Root<ArtExhibitionGuide> root = cq.from(ArtExhibitionGuide.class);
+		
+		
+		
+		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
+		Predicate p1 = cb.equal(root.get("state"), ObjectState.EDITION);
+		Predicate p2 = cb.equal(root.get("state"), ObjectState.PUBLISHED);
+		Predicate statePredicate = cb.or(p1, p2);
+		Predicate combinedPredicate = cb.and(p0, statePredicate);
+		cq.select(root).where(combinedPredicate);
+		
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
+	
+	
+	
+	
 	@Transactional
 	public List<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition exhibition) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();

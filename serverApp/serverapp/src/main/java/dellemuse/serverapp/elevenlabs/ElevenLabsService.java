@@ -123,6 +123,8 @@ public class ElevenLabsService extends BaseService {
  
 	/**
 	 * 
+	 * VUGQSU6BSEjkbudnJbOj
+	 * 
 	 * 
 	 * @param text
 	 * @param audioFileName
@@ -265,7 +267,18 @@ public class ElevenLabsService extends BaseService {
 	                requestBuilder.header("X-Request-ID", requestId);
 	                
 	                // requestBuilder.header("Accept-Charset", "utf-8");
-	                // requestBuilder.header("Accept-Encoding", "gzip, deflate");
+	                // requestBuilder.header("Accept-Encoding", "gzip, deflate"); cMKZRsVE5V7xf6qCp9fF
+	                
+	                
+	                /**
+	                 * 
+	                 * 
+	                 * 
+	                 * 
+	                 * 
+	                 * LudcwvHIZaqQOcQfVZSY clara
+	                 * 
+	                 */
 	                
 	                requestBuilder.post(body);
 	                
@@ -577,16 +590,7 @@ RKCbSROXui75bk1SVpy8
 	
 	
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	 
 		 /** it **/
 
 		

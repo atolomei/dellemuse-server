@@ -2,6 +2,7 @@ package dellemuse.serverapp.audiostudio;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.media.audio.Audio;
+import org.apache.wicket.model.IDetachable;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -76,10 +78,9 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	private NumberField<Double> styleField;
 	private NumberField<Double> stabilityField;
 	private NumberField<Double> similarityField;
-	private ChoiceField<Voice> voicesField;
 	
+	private ChoiceField<VoiceProxy> voicesField;
 	private Form<AudioStudio> form;
-
 	private WebMarkupContainer step1;
 	private WebMarkupContainer step1mp3;
 
@@ -87,40 +88,311 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	private Double stability = 0.82;
 	private Double speed = 0.9;
 	private Double audioStyle = 0.01;
-
 	private boolean uploadedStep1 = false;
-	
 	 
-
+	private VoiceProxy voiceProxy;
+	private List<VoiceProxy> voiceProxyList;
 
 	private IModel<Voice> voiceModel;
 
 	
-	 public void onDetach() {
-		 super.onDetach();
-		 
-		 if (voiceModel!=null)
-			 voiceModel.detach();
-	 }
+	private Long previousAudioSpeech;
+	
 
+	public class VoiceProxy implements IDetachable  {
+
+		private static final long serialVersionUID = 1L;
+
+		private Long id;
+
+		public VoiceProxy ( Voice v) {
+			this.id=v.getId();
+		}
+	
+		@Override
+		public void detach() {
+			 
+			
+		}
+		
+		public Long getId() { return this.id;}
+		
+		
+	}
+	
 	
 	
 
 	public Step1AudioStudioEditor(String id, IModel<AudioStudio> model, boolean isAccesibleVersion) {
 		super(id, model, isAccesibleVersion);
-		
 	}
 
+	@Override
+	 public void onDetach() {
+		 super.onDetach();
+		 
+		 if (voiceModel!=null)
+			 voiceModel.detach();
+
+	 }
+
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		setup();
 	}
 
-	private void setup() {
 
-		 
+
+	protected void addTestVoicePanel( IModel<Voice> voiceModel ) {
 		
+		if (voiceModel==null)
+			getForm().addOrReplace( new InvisiblePanel("testVoice") );
+		else {	
+			AudioStudioTestVoicePanel panel = new AudioStudioTestVoicePanel( "testVoice", getModel(), voiceModel);
+			getForm().addOrReplace( panel );
+		}
+	}
+
+	
+	 
+	
+	
+	private void addInfo() {
+	
+		if (getAudioSpeechModel() != null && getAudioSpeechModel().getObject() != null) {
+			if (!requiresGenerationAudioSpeech() ) {
+				AlertPanel<Void> alert = new AlertPanel<Void>("info", AlertPanel.SUCCESS, getLabel("alredy-generated"));
+				getForm().addOrReplace(alert);
+				return;
+			}
+		}
+		getForm().addOrReplace(new InvisiblePanel("info"));
+	}
+	
+
+	
+	
+	private void step1AudioSpeech() {
+
+
+		if (getVoiceModel()==null || getVoiceModel().getObject()==null) {
+			error("Voice not selected");
+			return;
+		}
+		
+		
+		String dm_voice_id = getVoiceModel().getObject().getVoiceId();
+		logger.debug( getVoiceModel().getObject().getName()); 
+	 
+			
+		
+		
+		
+		getModel().getObject().setName(getParentName());
+		
+	 	setObjectInfo(getParentInfo());
+
+		getForm().updateModel();
+		String text = getModel().getObject().getInfo();
+		
+		String language = getModel().getObject().getLanguage();
+		String fileName = normalizeFileName(getParentName()) + "-" + getPrefix() + getParentId().toString() + ".mp3";
+		LanguageCode languageCode = LanguageCode.from(language);
+
+		
+
+		/**
+		if 		(languageCode.equals(LanguageCode.ES)) 		dm_voice_id = "mariana";
+		else if (languageCode.equals(LanguageCode.PT)) 		dm_voice_id = "amanda";  cMKZRsVE5V7xf6qCp9fF
+		else if (languageCode.equals(LanguageCode.EN))		dm_voice_id = "emily";
+		else if (languageCode.equals(LanguageCode.FR))		dm_voice_id = "emily";
+		else if (languageCode.equals(LanguageCode.IT))		dm_voice_id = "nicola";
+		else if (languageCode.equals(LanguageCode.DUTCH))	dm_voice_id = "thomas";
+		else if (languageCode.equals(LanguageCode.GER))		dm_voice_id = "leon";
+		else												dm_voice_id = "emily";
+**/
+	
+		
+		
+		
+		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id);
+
+		if (ofile.isPresent()) {
+			step1AudioSpeechUpload(ofile.get());
+		}
+	}
+	protected void setObjectAudioSpeechHash( int hash) {
+		getModel().getObject().setAudioSpeechHash( hash );
+	}
+	
+	
+	protected void setObjectAudioSpeech( Resource resource) {
+		getModel().getObject().setAudioSpeech(resource);
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param file
+	 * @return
+	 */
+	private boolean step1AudioSpeechUpload(File file) {
+
+		if (this.uploadedStep1)
+			return false;
+
+		try {
+
+			String bucketName = ServerConstant.AUDIO_SPEECH_BUCKET;
+			String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(file.getName())) + "-" + String.valueOf(getResourceDBService().newId());
+
+			try (FileInputStream inputStream = new FileInputStream(file)) {
+
+				Resource resource = createAndUploadFile(inputStream, bucketName, objectName, file.getName(), file.length());
+
+				setAudioSpeechModel(new ObjectModel<Resource>(resource));
+				
+				setObjectAudioSpeech(resource);
+				setObjectAudioSpeechHash(getHashAudioParameters());
+				
+				Map<String, String> map = getModel().getObject().getSettings();
+				if (map == null)
+					map = new HashMap<String, String>();
+
+				if (getSpeed() != null)
+					map.put( getPrefix()+"speed", getSpeed().toString());
+				if (getStyle() != null)
+					map.put(getPrefix()+"style", getStyle().toString());
+				if (getStability() != null)
+					map.put(getPrefix()+"stability", getStability().toString());
+				if (getSimilarity() != null)
+					map.put(getPrefix()+"similarity", getSimilarity().toString());
+				if (getVoiceModel()!=null && getVoiceModel().getObject()!=null) {
+					map.put("voiceid", getVoiceModel().getObject().getVoiceId());
+				}
+				
+				getModel().getObject().setSettings(map);
+
+				getAudioStudioDBService().save(getModel().getObject(), getSessionUser().get(), AuditKey.GENERATE_VOICE);
+				
+				// --
+				//if (this.previousAudioSpeech!=null) {
+				//	getResourceDBService().delete(this.previousAudioSpeech);
+				//}
+				// --
+		
+			}
+			
+			uploadedStep1 = true;
+			
+		} catch (Exception e) {
+			uploadedStep1 = false;
+			error("Error saving file: " + e.getMessage());
+		}
+		return uploadedStep1;
+	}
+
+
+
+	
+	
+	protected boolean requiresGenerationAudioSpeech() {
+		
+		if (getObjectAudio() == null)
+			return true;
+		
+		
+		return (getHashAudioParameters() != getObjectAudioSpeechHash());
+	}
+
+
+	
+	
+	
+	public Double getSimilarity() {
+		return similarity;
+	}
+
+	public Double getStability() {
+		return stability;
+	}
+
+	public Double getSpeed() {
+		return speed;
+	}
+
+	public void setSimilarity(Double similarity) {
+		this.similarity = similarity;
+	}
+
+	public void setStability(Double stability) {
+		this.stability = stability;
+	}
+
+	public void setSpeed(Double speed) {
+		this.speed = speed;
+	}
+
+	public Double getAudioStyle() {
+		return audioStyle;
+	}
+
+	public void setAudioStyle(Double audioStyle) {
+		this.audioStyle = audioStyle;
+	}
+
+	public void setVoice(Voice voice) {
+		setVoiceModel( new ObjectModel<Voice>(voice));
+	}
+
+	
+	public Voice getVoice() {
+		if (getVoiceModel()==null)
+			return null;
+		
+		return getVoiceModel().getObject();
+	}
+	
+	public IModel<Voice> getVoiceModel() {
+		return voiceModel;
+	}
+
+	public List<VoiceProxy> getVoiceProxyList() {
+		return voiceProxyList;
+	}
+
+
+	public void setVoiceProxyList(List<VoiceProxy> voiceProxyList) {
+		this.voiceProxyList = voiceProxyList;
+	}
+
+
+	public void setVoiceModel(IModel<Voice> mvoice) {
+		this.voiceModel = mvoice;
+	}
+
+
+	public VoiceProxy getVoiceProxy() {
+		return voiceProxy;
+	}
+
+
+	public void setVoiceProxy(VoiceProxy voiceProxy) {
+		this.voiceProxy = voiceProxy;
+	}
+
+
+	private void setup() {
+		 
+		if (getModel().getObject().getAudioSpeech()!=null) {
+			 previousAudioSpeech =getModel().getObject().getAudioSpeech().getId();
+		}
+	
+		voiceProxyList = new ArrayList<VoiceProxy>();
+		
+		getVoiceDBService().getVoices(Step1AudioStudioEditor.this.getModel().getObject().getLanguage()).forEach( v -> voiceProxyList.add( new VoiceProxy(v))); 
 		
 		Map<String, String> map = getModel().getObject().getSettings();
 		
@@ -160,29 +432,29 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		//form.add(stabilityField);
 		//form.add(styleField);
 		
- 	voicesField = new ChoiceField<Voice>("voice",  new PropertyModel<Voice>(this, "voice"), getLabel("voice")) {
+		
+		voicesField = new ChoiceField<VoiceProxy>("voice", new PropertyModel<VoiceProxy>(this, "voiceProxy"), getLabel("voice")) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public IModel<List<Voice>> getChoices() {
-				return new ListModel<Voice>( getVoiceDBService().getVoices(Step1AudioStudioEditor.this.getModel().getObject().getLanguage()));
+			public IModel<List<VoiceProxy>> getChoices() {
+					return new ListModel<VoiceProxy>(getVoiceProxyList());
 			}
-
-			 
-
+		
 			@Override
 			protected void onComponentTag(ComponentTag tag) {
 			    super.onComponentTag(tag);
 			 }
 			
 			@Override
-			protected String getDisplayValue(Voice value) {
+			protected String getDisplayValue(VoiceProxy mvalue) {
 				try {
+					Voice value = getVoiceDBService().findById(mvalue.getId()).get();
 					return value.getName() +  (value.getSex()!=null? (" - " + value.getSex()):"") +  "  ( "+ value.getLanguage() +" - " + value.getLanguageRegion() + " )";
 				}
 				catch (Exception e) {
-					return value.getName();	
+					return e.getClass().getName();	
 				}
 			}
 		};
@@ -192,18 +464,23 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		
 		form.setOutputMarkupId(true);
 		
-		// Comportamiento Ajax
+		 
 		voicesField.getInput().add(new AjaxFormComponentUpdatingBehavior("change") {
             @Override
             protected void onUpdate(AjaxRequestTarget target) {
-            	addTestVoicePanel( getVoice() );
-                target.add( getForm() );
+            	
+            	if (getVoiceProxy()  != null ) {
+	            	Voice value = getVoiceDBService().findById( getVoiceProxy().getId()).get();
+	            	setVoiceModel( new ObjectModel<Voice>( value) );
+	            	addTestVoicePanel( getVoiceModel() );
+	                target.add( getForm() );
+	            }
             }
         });
         
 		
 		
-		addTestVoicePanel( getVoice() );
+		addTestVoicePanel(null);
 	
 		SubmitButton<AudioStudio> sm = new SubmitButton<AudioStudio>("generate", getModel(), getForm()) {
 			
@@ -214,6 +491,14 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 				getForm().updateModel();
 
+
+				if (Step1AudioStudioEditor.this.getVoiceModel()==null) {
+					error("Voice not selected");
+					uploadedStep1 = false;
+					target.add(getForm());
+					return;
+				}
+				
 				if (Step1AudioStudioEditor.this.getObjectInfo() != null && 
 					Step1AudioStudioEditor.this.getObjectInfo().length() == 0) {
 
@@ -223,11 +508,20 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 				}
 
 				else if (requiresGenerationAudioSpeech()) {
-					step1AudioSpeech();
-					addStep1MP3();
-					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.SUCCESS, getLabel("audio-speech-generated-ok"));
-					getForm().addOrReplace(alert);
-					uploadedStep1 = true;
+
+					try {
+						step1AudioSpeech();
+						addStep1MP3();
+						AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.SUCCESS, getLabel("audio-speech-generated-ok"));
+						getForm().addOrReplace(alert);
+						uploadedStep1 = true;
+					} catch (Exception e) {
+						logger.error(e);
+						AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.SUCCESS, Model.of(e.getClass().getName() + " | " + e.getMessage()));
+						getForm().addOrReplace(alert);
+						uploadedStep1 = false;
+						
+					}
 
 				} else {
 					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.SUCCESS, getLabel("alredy-generated"));
@@ -310,174 +604,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	}
 
 	
-
-	protected void addTestVoicePanel( Voice voice ) {
-		
-		if (voice==null)
-			getForm().addOrReplace( new InvisiblePanel("testVoice") );
-		else {	
-			AudioStudioTestVoicePanel panel = new AudioStudioTestVoicePanel( "testVoice", getModel(), getVoiceModel());
-			getForm().addOrReplace( panel );
-		}
-	}
-
-	
-	/**
-	protected List<Voice> getVoices() {
-		if (vc==null)
-			vc = getElevenLabsService().getVoices( getModel().getObject().getLanguage());
-		
-		vc.sort( new Comparator<ELVoice>() {
-			@Override
-			public int compare(ELVoice o1, ELVoice o2) {
-				return o1.getName().compareToIgnoreCase(o2.getName());
-			}
-		});
-		return vc;
-	}
-	**/
-	
-	
-	private void addInfo() {
-	
-		if (getAudioSpeechModel() != null && getAudioSpeechModel().getObject() != null) {
-			if (!requiresGenerationAudioSpeech() ) {
-				AlertPanel<Void> alert = new AlertPanel<Void>("info", AlertPanel.SUCCESS, getLabel("alredy-generated"));
-				getForm().addOrReplace(alert);
-				return;
-			}
-		}
-		getForm().addOrReplace(new InvisiblePanel("info"));
-	}
-	
-
-	
-	
-	private void step1AudioSpeech() {
-
-
-		if (getVoiceModel()==null || getVoiceModel().getObject()==null) {
-			error("Voice not selected");
-			return;
-		}
-		
-		
-		String dm_voice_id = getVoiceModel().getObject().getVoiceId();
-		
-	 	getModel().getObject().setName(getParentName());
-		
-	 	setObjectInfo(getParentInfo());
-
-		getForm().updateModel();
-		String text = getModel().getObject().getInfo();
-		
-		String language = getModel().getObject().getLanguage();
-		String fileName = normalizeFileName(getParentName()) + "-" + getPrefix() + getParentId().toString() + ".mp3";
-		LanguageCode languageCode = LanguageCode.from(language);
-
-		
-
-		/**
-		if 		(languageCode.equals(LanguageCode.ES)) 		dm_voice_id = "mariana";
-		else if (languageCode.equals(LanguageCode.PT)) 		dm_voice_id = "amanda";
-		else if (languageCode.equals(LanguageCode.EN))		dm_voice_id = "emily";
-		else if (languageCode.equals(LanguageCode.FR))		dm_voice_id = "emily";
-		else if (languageCode.equals(LanguageCode.IT))		dm_voice_id = "nicola";
-		else if (languageCode.equals(LanguageCode.DUTCH))	dm_voice_id = "thomas";
-		else if (languageCode.equals(LanguageCode.GER))		dm_voice_id = "leon";
-		else												dm_voice_id = "emily";
-**/
-	
-		
-		
-		
-		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id);
-
-		if (ofile.isPresent()) {
-			step1AudioSpeechUpload(ofile.get());
-		}
-	}
-	protected void setObjectAudioSpeechHash( int hash) {
-		getModel().getObject().setAudioSpeechHash( hash );
-	}
-	
-	
-	protected void setObjectAudioSpeech( Resource resource) {
-		getModel().getObject().setAudioSpeech(resource);
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @param file
-	 * @return
-	 */
-	private boolean step1AudioSpeechUpload(File file) {
-
-		if (this.uploadedStep1)
-			return false;
-
-		try {
-
-			String bucketName = ServerConstant.AUDIO_SPEECH_BUCKET;
-			String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(file.getName())) + "-" + String.valueOf(getResourceDBService().newId());
-
-			try (FileInputStream inputStream = new FileInputStream(file)) {
-
-				Resource resource = createAndUploadFile(inputStream, bucketName, objectName, file.getName(), file.length());
-
-				setAudioSpeechModel(new ObjectModel<Resource>(resource));
-				
-				setObjectAudioSpeech(resource);
-				setObjectAudioSpeechHash(getHashAudioParameters());
-				
-				Map<String, String> map = getModel().getObject().getSettings();
-				if (map == null)
-					map = new HashMap<String, String>();
-
-				if (getSpeed() != null)
-					map.put( getPrefix()+"speed", getSpeed().toString());
-				if (getStyle() != null)
-					map.put(getPrefix()+"style", getStyle().toString());
-				if (getStability() != null)
-					map.put(getPrefix()+"stability", getStability().toString());
-				if (getSimilarity() != null)
-					map.put(getPrefix()+"similarity", getSimilarity().toString());
-				if (getVoiceModel()!=null && getVoiceModel().getObject()!=null) {
-					map.put("voiceid", getVoiceModel().getObject().getVoiceId());
-				}
-				
-				getModel().getObject().setSettings(map);
-
-				getAudioStudioDBService().save(getModel().getObject(), getSessionUser().get(), AuditKey.GENERATE_VOICE);
-		
-			}
-			
-			uploadedStep1 = true;
-			
-		} catch (Exception e) {
-			uploadedStep1 = false;
-			error("Error saving file: " + e.getMessage());
-		}
-		return uploadedStep1;
-	}
-
-
-
-	
-	
-	protected boolean requiresGenerationAudioSpeech() {
-		
-		if (getObjectAudio() == null)
-			return true;
-		
-		
-		return (getHashAudioParameters() != getObjectAudioSpeechHash());
-	}
-
-
-	
-	
 	private int getHashAudioParameters() {
 
 		StringBuilder str = new StringBuilder();
@@ -542,57 +668,4 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	
 	
-	
-	public Double getSimilarity() {
-		return similarity;
-	}
-
-	public Double getStability() {
-		return stability;
-	}
-
-	public Double getSpeed() {
-		return speed;
-	}
-
-	public void setSimilarity(Double similarity) {
-		this.similarity = similarity;
-	}
-
-	public void setStability(Double stability) {
-		this.stability = stability;
-	}
-
-	public void setSpeed(Double speed) {
-		this.speed = speed;
-	}
-
-	public Double getAudioStyle() {
-		return audioStyle;
-	}
-
-	public void setAudioStyle(Double audioStyle) {
-		this.audioStyle = audioStyle;
-	}
-
-	public void setVoice(Voice voice) {
-		setVoiceModel( new ObjectModel<Voice>(voice));
-	}
-
-	
-	public Voice getVoice() {
-		if (getVoiceModel()==null)
-			return null;
-		
-		return getVoiceModel().getObject();
-	}
-	
-	public IModel<Voice> getVoiceModel() {
-		return voiceModel;
-	}
-
-	public void setVoiceModel(IModel<Voice> mvoice) {
-		this.voiceModel = mvoice;
-	}
-
 }

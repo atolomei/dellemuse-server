@@ -139,7 +139,13 @@ public class AudioStudio extends DelleMuseObject {
 	private int audioSpeechMusicAccesibleHash;
 	
 	
-	
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Music.class)
+	@JoinColumn(name = "music_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("music")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Music music;
 	
 	
 	
@@ -192,6 +198,16 @@ public class AudioStudio extends DelleMuseObject {
 
 		return null;
 	}
+
+	public Music getMusic() {
+		return music;
+	}
+
+
+	public void setMusic(Music music) {
+		this.music = music;
+	}
+
 
 	@Override
 	public String getObjectClassName() {
@@ -262,6 +278,9 @@ public class AudioStudio extends DelleMuseObject {
 	public Resource getAudioSpeechMusic() {
 		return audioSpeechMusic;
 	}
+
+	 
+
 
 	public Map<String, String> getSettings() {
 		return settings;

@@ -22,6 +22,7 @@ import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.model.ObjectWithDepModel;
+import dellemuse.serverapp.page.user.UserNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.person.PersonPage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -110,7 +111,10 @@ public class VoicePage extends ObjectPage<Voice> {
 			public void onEvent(SimpleAjaxWicketEvent event) {
 
 				logger.debug(event.toString());
-
+				if (event.getName().equals(ServerAppConstant.action_voice_edit)) { 
+					VoicePage.this.onEdit(event.getTarget());
+				}
+				
 				/**
 				if (event.getName().equals(ServerAppConstant.Voice_action_edit_info)) { 
 					VoicePage.this.onEdit(event.getTarget());
@@ -197,7 +201,7 @@ public class VoicePage extends ObjectPage<Voice> {
 				};
 				bc.setNavigator(nav);
 			}
-			ph.setContext(getLabel("Voice"));
+			ph.setContext(getLabel("voice"));
 			return (ph);
 
 		} catch (Exception e) {
@@ -229,11 +233,16 @@ public class VoicePage extends ObjectPage<Voice> {
 			return (voiceMenu);
 
 		voiceMenu = new ArrayList<ToolbarItem>();
-		//VoiceNavDropDownMenuToolbarItem menu = new VoiceNavDropDownMenuToolbarItem("item", getModel(), getLabel("Voice"), Align.TOP_RIGHT);
-		//VoiceMenu.add(menu);
+		
+		VoiceNavDropDownToolbarItem vn = new VoiceNavDropDownToolbarItem("item", getModel(), getLabel("voice"), Align.TOP_RIGHT);
+		voiceMenu.add(vn);
 
 		return voiceMenu;
 	}
+	
+	 
+	
+	
 
 	/**
 	@Override

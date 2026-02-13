@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
+import dellemuse.serverapp.serverdb.model.Music;
 import dellemuse.serverapp.serverdb.model.Voice;
 
 /**
@@ -23,6 +24,6 @@ import dellemuse.serverapp.serverdb.model.Voice;
  * 
  */
 @Repository
-public interface ElevenLabsVoiceRepository extends CrudRepository<Voice, Long> {
+public interface MusicRepository extends CrudRepository<Music, Long> {
 
 }

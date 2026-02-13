@@ -200,6 +200,88 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 		form.add(nameField);
 		form.add(subtitleField);
 		form.add(infoField);
+		
+		AjaxLink<Void> importEx =new AjaxLink<Void>("import") {
+
+			public boolean isVisible() {
+				return getForm().getFormState()==FormState.EDIT;
+			}
+			
+			public boolean isEnabled() {
+				return getForm().getFormState()==FormState.EDIT;
+			}
+			
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				
+				String info = getArtExhibitionModel().getObject().getInfo();
+				if (info!=null) {
+					ArtExhibitionGuideEditor.this.getModel().getObject().setInfo(info);
+					ArtExhibitionGuideEditor.this.infoField.setValue(info);
+					ArtExhibitionGuideEditor.this.infoField.updateModel();
+					
+					target.add(ArtExhibitionGuideEditor.this);
+				}
+			}
+		};
+		
+		form.add(importEx);
+		
+
+		WebMarkupContainer w = new WebMarkupContainer("import-from-guide-container")  {
+			
+			public boolean isVisible() {
+				
+				if (!ArtExhibitionGuideEditor.this.getModel().getObject().isAccessible())
+					return false;
+				
+				return getForm().getFormState()==FormState.EDIT;
+				
+			}
+		};
+		
+		
+		form.add(w);
+		
+		
+		AjaxLink<Void> importGuide =new AjaxLink<Void>("import-from-guide") {
+
+			public boolean isVisible() {
+				
+				if (!ArtExhibitionGuideEditor.this.getModel().getObject().isAccessible())
+					return false;
+				
+				return getForm().getFormState()==FormState.EDIT;
+			}
+			
+			public boolean isEnabled() {
+				return getForm().getFormState()==FormState.EDIT;
+			}
+			
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				
+				for ( ArtExhibitionGuide g: getArtExhibitionDBService().getArtExhibitionGuides(getArtExhibitionModel().getObject())) {
+				
+					if ( !g.isAccessible() ) {
+						String info = g.getInfo();
+						if (info!=null) {
+							ArtExhibitionGuideEditor.this.getModel().getObject().setInfo(info);
+							ArtExhibitionGuideEditor.this.infoField.setValue(info);
+							ArtExhibitionGuideEditor.this.infoField.updateModel();
+							
+							target.add(ArtExhibitionGuideEditor.this);
+						}
+					}
+					target.add(ArtExhibitionGuideEditor.this);
+				}
+			}
+		};
+		
+		w.add(importGuide);
+		
+		
+		
 		form.add(audioField);
 
 		EditButtons<ArtExhibitionGuide> buttons = new EditButtons<ArtExhibitionGuide>("buttons-bottom", getForm(), getModel()) {

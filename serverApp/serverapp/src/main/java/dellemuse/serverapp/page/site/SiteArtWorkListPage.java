@@ -20,6 +20,7 @@ import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 
 import dellemuse.serverapp.page.ObjectListPage;
+import dellemuse.serverapp.page.library.ArtWorkListPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 
@@ -207,6 +208,59 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 			}
 		});
 
+		
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtWork> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtWork>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getArtWorkDBService().save(getModel().getObject());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtWork> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtWork>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+		
+		
+		
+		
+		
+		
+		
+		/**
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
 
 			private static final long serialVersionUID = 1L;
@@ -230,6 +284,8 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 				};
 			}
 		});
+		*/
+		
 		return menu;
 	}
 

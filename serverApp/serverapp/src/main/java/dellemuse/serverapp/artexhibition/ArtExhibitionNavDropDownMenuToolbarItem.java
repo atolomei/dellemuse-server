@@ -3,23 +3,30 @@ package dellemuse.serverapp.artexhibition;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.editor.ObjectBaseNavDropDownMenuToolbarItem;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
-
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
+import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.TitleMenuItem;
 
@@ -157,6 +164,67 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends ObjectBaseNavDropDo
 			}
 		});
 
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+				return new TitleMenuItem<ArtExhibition>(id) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("exhibition-guides");
+					}
+				};
+			}
+		});
+		
+		
+		for ( ArtExhibitionGuide g: getArtExhibitionDBService().getArtExhibitionGuides( getModel().getObject(), ObjectState.PUBLISHED, ObjectState.EDITION)) {
+			
+			final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.Accesible : "");
+			
+			final String gid = g.getId().toString();
+					
+			addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+					return new LinkMenuItem<ArtExhibition>(id, getModel()) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick( ) {
+							 setResponsePage ( new RedirectPage("/guide/" + gid) );
+						}
+
+						@Override
+						public IModel<String> getLabel() {
+							return Model.of( agname  );
+						}
+					};
+				}
+			});
+		}
+		
+		
+		
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibition>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
@@ -323,6 +391,10 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends ObjectBaseNavDropDo
 
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
+	}
+
+	protected ArtExhibitionDBService getArtExhibitionDBService() {
+		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 	}
 	
 	private void setUpModel() {

@@ -11,7 +11,12 @@ public class Icons {
 	public static final String Site 				= "fa-duotone fa-solid fa-hotel";
 	
 	public static final String Voice 				= "fa-solid fa-head-side-speak";
-
+	public static final String Music				= "fa-solid fa-music";
+	
+	public static final String Resource				= "fa-duotone fa-file";
+	
+	
+	
 	
 	public static final String Accesible 			= " <i title=\"accessible\" class=\"text-info   fa-thin fa-universal-access ms-1 me-1\"> </i>";
 

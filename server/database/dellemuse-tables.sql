@@ -777,7 +777,7 @@ COMMIT;
 	
  
 
-CREATE TABLE elvoice (
+CREATE TABLE voice (
 						
 						id					 bigint primary key default nextval('sequence_id'),
 
@@ -789,7 +789,8 @@ CREATE TABLE elvoice (
 
 						url	 			     character varying(4096),
 						state			     integer default 3,
-						
+					
+
 						voiceid				 character varying(512),
 						language		  	 character varying(64) default 'es',
 						languageRegion       character varying(64),
@@ -810,4 +811,31 @@ CREATE TABLE elvoice (
 						);
 
 
+	CREATE TABLE music (
+						
+						id					 bigint primary key default nextval('sequence_id'),
+
+						name				 character varying(512) not null,
+
+						url	 			     character varying(4096),
+						state			     integer default 3,
 					
+						info		 		 text,
+						
+						composer 			 bigint references person(id) on delete restrict,
+
+						composerStr			 character varying(512),
+						performerStr		 character varying(512),
+						genreStr			 character varying(512),
+												
+						draft				 text,
+						
+						audio				 bigint references resource(id) on delete restrict,
+						
+						created				 timestamp with time zone DEFAULT now() not null,
+						lastmodified		 timestamp with time zone DEFAULT now() not null,
+						lastmodifieduser	 bigint references users(id) on delete restrict not null
+						
+						);
+
+		

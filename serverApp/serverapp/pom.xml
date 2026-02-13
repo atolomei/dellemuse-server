@@ -38,6 +38,9 @@
 		<jackson-datatype-hibernate6-version>2.19.2</jackson-datatype-hibernate6-version>
 		<jakarta.validation-api-version>3.1.1</jakarta.validation-api-version>
 		<java-version>17</java-version>
+		
+		<jaudiotagger-version>3.0.1</jaudiotagger-version>
+		
 		<junit-jupiter.version>5.3.2</junit-jupiter.version>
 		<junit-version>5.10.2</junit-version>
 		<log4j2-version>2.24.3</log4j2-version>
@@ -312,7 +315,7 @@
 		<dependency>
 		    <groupId>net.jthink</groupId>
 		    <artifactId>jaudiotagger</artifactId>
-		    <version>3.0.1</version>
+		    <version>${jaudiotagger-version}</version>
 		</dependency>
 
 

@@ -28,6 +28,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.object.service.ResourceService;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.odilon.client.error.ODClientException;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -117,7 +118,30 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
    		return o_i;
 
    	}
-    
+
+
+ 	/**
+ 	 @Transactional
+     public  void deleteWithObjects(Long id, User createdBy) {
+
+ 		Optional<Resource> o_i = super.findById(id);
+   		
+   		if (o_i.isEmpty())
+   			return;
+   		
+   		Resource r = o_i.get();
+ 		
+   		try {
+			getObjectStorageService().getClient().deleteObject(r.getBucketName(), r.getObjectName());
+		
+   		} catch (ODClientException e) {
+
+   		} 		 
+ 		 
+ 		 
+ 	 }
+ 	 **/
+ 	
     @Transactional
     public Long newId() {
         return ((Number) getEntityManager().createNativeQuery("SELECT nextval('objectstorage_id')").getSingleResult()).longValue();
@@ -127,10 +151,18 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
 
         String str = name.replaceAll("[^\\x00-\\x7F]|[\\s]+", "-").toLowerCase().trim();
         str=str.replace(",", "");
+        str=str.replace("'", "");
+        str=str.replace(".", "");
+        str=str.replace("&", "");
+        str=str.replace("(", "");        
+        str=str.replace(")", "");        
+        str=str.replace(";", "");        
+
         
-        if (str.length() < 100)
+        
+        if (str.length() < 120)
             return str;
-        return str.substring(0, 100);
+        return str.substring(0, 120);
     }
 
     public String getMimeType(String fileName) {

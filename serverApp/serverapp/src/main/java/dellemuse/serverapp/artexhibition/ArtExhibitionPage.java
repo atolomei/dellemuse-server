@@ -74,6 +74,33 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 	private List<ToolbarItem> list;
 
 	
+
+	public ArtExhibitionPage() {
+		super();
+		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
+	}
+
+	public ArtExhibitionPage(PageParameters parameters) {
+		super(parameters);
+		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
+
+	}
+
+	public ArtExhibitionPage(IModel<ArtExhibition> model) {
+		this(model, null);
+		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
+
+	}
+
+	public ArtExhibitionPage(IModel<ArtExhibition> model, List<IModel<ArtExhibition>> list) {
+		super(model, list);
+		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
+
+	}
+
+	
+	
+
 	protected List<Language> getSupportedLanguages() {
 		return  getSiteModel().getObject().getLanguages();
 	}
@@ -125,30 +152,7 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 
 		return false;
 	}
-
-	public ArtExhibitionPage() {
-		super();
-		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
-	}
-
-	public ArtExhibitionPage(PageParameters parameters) {
-		super(parameters);
-		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
-
-	}
-
-	public ArtExhibitionPage(IModel<ArtExhibition> model) {
-		this(model, null);
-		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
-
-	}
-
-	public ArtExhibitionPage(IModel<ArtExhibition> model, List<IModel<ArtExhibition>> list) {
-		super(model, list);
-		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
-
-	}
-
+	
 	@Override
 	protected Class<?> getTranslationClass() {
 		return ArtExhibitionRecord.class;
@@ -449,8 +453,8 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 			if (getModel().getObject().getPhoto() != null)
 				header.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 
-			// if (getObjectSubtitle(getModel().getObject()) != null)
-			// header.setTagline(getObjectSubtitle(getModel().getObject()));
+			 //if (getObjectSubtitle(getModel().getObject()) != null)
+			//	 header.setTagline(getObjectSubtitle(getModel().getObject()));
 
 			header.setBreadCrumb(bc);
 			return header;

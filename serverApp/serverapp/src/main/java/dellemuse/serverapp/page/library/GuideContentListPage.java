@@ -228,6 +228,70 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 				};
 			}
 		});
+		
+		
+		
+		
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<GuideContent> getItem(String id) {
+
+				return new AjaxLinkMenuItem<GuideContent>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getGuideContentDBService().save(getModel().getObject());
+						GuideContentListPage.this.refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+		
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<GuideContent> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<GuideContent>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		/**
+		
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
 
@@ -251,7 +315,8 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 					}
 				};
 			}
-		});
+		});*/
+		
 		return menu;
 	}
 

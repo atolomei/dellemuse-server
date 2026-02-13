@@ -10,6 +10,8 @@ import dellemuse.model.JsonObject;
 import dellemuse.model.util.RandomIDGenerator;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.elevenlabs.ClientConstant;
+import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
+import dellemuse.serverapp.serverdb.service.MusicDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.LockService;
@@ -127,5 +129,16 @@ public abstract class Command extends JsonObject {
 	protected ResourceDBService getResourceDBService() {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
+	
+	protected MusicDBService getMusicDBService() {
+		return (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);
+	}
 
+	protected ObjectStorageService getObjectStorageService() {
+		return (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
+	}
+	
+	protected ServerDBSettings getSettings() {
+		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
+	}
 }

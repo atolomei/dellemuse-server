@@ -56,21 +56,23 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	private ChoiceField<ObjectState> objectStateField;
 
 	private TextField<String> nameField;
-	private TextField<String> lastnameField;
-	private TextField<String> nicknameField;
+	private TextField<String> voiceIdField;
+	private TextField<String> languageField;
 	private TextField<String> sexField;
-	private TextField<String> addressField;
-	private TextField<String> phoneField;
-	private TextField<String> emailField;
-	private TextField<String> webpageField;
+	private TextField<String> languageRegionField;
 
+	
+	private FileUploadSimpleField<Resource> audioField;
 	private FileUploadSimpleField<Resource> photoField;
 	private IModel<Resource> photoModel;
 
 	private TextAreaField<String> infoField;
 
-	private boolean uploadedPhoto = false;
-
+ 
+	private String audioMeta;
+	private List<ToolbarItem> x_list;
+	
+	
 	/**
 	 * @param id
 	 * @param model
@@ -78,18 +80,64 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	public VoiceEditor(String id, IModel<Voice> model) {
 		super(id, model);
 	}
-
-	@Override
-	public void onInitialize() {
-		super.onInitialize();
+	
+	private void setUpModel() {
 
  		Voice voice = getModel().getObject();
  
 		getModel().setObject( getVoiceDBService().findWithDeps(voice.getId()).get());
+		
+		 
+		if (getModel().getObject().getAudio() != null) {
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
+			if (o_r.isPresent())
+				setAudioModel(new ObjectModel<Resource>(o_r.get()));
+		}
+		
+
+	}
+	
+
+	
+	
+	@Override
+	public List<ToolbarItem> getToolbarItems() {
+
+		if (x_list != null)
+			return x_list;
+
+		x_list = new ArrayList<ToolbarItem>();
+
+		AjaxButtonToolbarItem<Voice> create = new AjaxButtonToolbarItem<Voice>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onCick(AjaxRequestTarget target) {
+				fire(new MenuAjaxEvent(ServerAppConstant.action_voice_edit, target));
+			}
+
+			@Override
+			public IModel<String> getButtonLabel() {
+				return getLabel("edit");
+			}
+		};
+		create.setAlign(Align.TOP_LEFT);
+		x_list.add(create);
+		return x_list;
+	}
+	
+	
+
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
+		setUpModel();
+				
+		
 
 		add(new InvisiblePanel("error"));
 
-		Form<Voice> form = new Form<Voice>("personForm", getModel());
+		Form<Voice> form = new Form<Voice>("voiceForm", getModel());
 		form.setOutputMarkupId(true);
 
 		add(form);
@@ -121,47 +169,59 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		};
 		form.add(objectStateField);
 
-		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
-		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		infoField 	= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
+	
+		nameField 	= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 
-		
-		/**
-		photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
+		audioField 	= new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
 
 			protected boolean processFileUploads(List<FileUpload> uploads) {
-				return VoiceEditor.this.processPhotoUpload(uploads);
+				return VoiceEditor.this.processAudioUpload(uploads);
 			}
 
 			public Image getImage() {
-				if (getPhotoModel() == null)
+				return null;
+			}
+
+			protected String getAudioSrc() {
+
+				if (getAudioModel() == null || getAudioModel().getObject() == null)
 					return null;
-				return VoiceEditor.this.getThumbnail(getPhotoModel().getObject());
+				return VoiceEditor.this.getPresignedUrl(getAudioModel().getObject());
 			}
 
 			public String getFileName() {
-				if (getPhotoModel() == null)
-					return null;
-				return VoiceEditor.this.getPhotoMeta(getPhotoModel().getObject());
+				if (audioMeta == null)
+					audioMeta = VoiceEditor.this.getAudioMeta(getAudioModel());
+				return audioMeta;
 
 			}
-
-			public boolean isThumbnail() {
-				return true;
-			}
-			
-			@Override
-			protected void onRemove(AjaxRequestTarget target) {
-				logger.debug("onRemove");
-			}
-
 		};
-		*/
+
+		
+		voiceIdField  = new TextField<String>("voiceid", new PropertyModel<String>(getModel(), "voiceId"), getLabel("voiceid"));
+		form.add(voiceIdField);
+		
+		languageField = new TextField<String>("language", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		form.add(languageField);
+
+		sexField = new TextField<String>("sex", new PropertyModel<String>(getModel(), "sex"), getLabel("sex"));
+		form.add(sexField);
+
+		
+		languageRegionField  = new TextField<String>("languageRegion", new PropertyModel<String>(getModel(), "languageRegion"), getLabel("languageRegion"));
+		form.add(languageRegionField);
+
+		
+	 
 
 		form.add(nameField);
-		// form.add(photoField);
+		form.add(infoField);
+		form.add(audioField);
 
+		
 		EditButtons<Voice> buttons = new EditButtons<Voice>("buttons", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -227,36 +287,34 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		getForm().add(b_buttons_top);
 	}
 
+	private IModel<Resource> audioModel;
+	private boolean uploadedAudio = false;
+	
+	
+	
 	@Override
 	public void onDetach() {
 		super.onDetach();
 
 		if (this.photoModel != null)
 			this.photoModel.detach();
+		
+		if (this.audioModel!=null)
+			this.audioModel.detach();
+		
 	}
 
-	@Override
-	public List<ToolbarItem> getToolbarItems() {
-
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-
-		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				fire(new MenuAjaxEvent(ServerAppConstant.action_person_edit_info, target));
-			}
-
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("edit");
-			}
-		};
-		create.setAlign(Align.TOP_LEFT);
-		list.add(create);
-		return list;
+	
+	protected IModel<Resource> getAudioModel() {
+		return this.audioModel;
 	}
+
+	protected void setAudioModel(ObjectModel<Resource> model) {
+		this.audioModel = model;
+	}
+	
+	
+	 
 
 	protected void onCancel(AjaxRequestTarget target) {
 		getForm().setFormState(FormState.VIEW);
@@ -273,7 +331,7 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		try {
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 
-			uploadedPhoto = false;
+			uploadedAudio = false;
 
 			getForm().setFormState(FormState.VIEW);
 
@@ -301,14 +359,15 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	}
 
 	
-	/** 
-	protected boolean processPhotoUpload(List<FileUpload> uploads) {
+	protected boolean processAudioUpload(List<FileUpload> uploads) {
 
-		if (this.uploadedPhoto)
+		if (this.uploadedAudio)
 			return false;
 
 		if (uploads != null && !uploads.isEmpty()) {
+
 			for (FileUpload upload : uploads) {
+
 				try {
 
 					logger.debug("name -> " + upload.getClientFileName());
@@ -319,13 +378,13 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 
 					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
 
-					setPhotoModel(new ObjectModel<Resource>(resource));
-					getModel().getObject().setPhoto(resource);
+					setAudioModel(new ObjectModel<Resource>(resource));
+					getModel().getObject().setAudio(resource);
 
-					uploadedPhoto = true;
+					uploadedAudio = true;
 
 				} catch (Exception e) {
-					uploadedPhoto = false;
+					uploadedAudio = false;
 					error("Error saving file: " + e.getMessage());
 				}
 			}
@@ -334,8 +393,7 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 			logger.debug("No file uploaded.");
 		}
 
-		return uploadedPhoto;
+		return uploadedAudio;
 	}
-**/
 	
 }

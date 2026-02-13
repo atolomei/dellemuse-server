@@ -21,6 +21,7 @@ import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.Music;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -38,6 +39,7 @@ import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
+import dellemuse.serverapp.serverdb.service.MusicDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
@@ -268,7 +270,13 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 
 	public void save( Voice modelObject, User user, List<String> updatedParts) {
-		VoiceDBService service = (VoiceDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+		VoiceDBService service = (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
+		service.save(modelObject, user, updatedParts);
+	}
+	
+	
+	public void save( Music modelObject, User user, List<String> updatedParts) {
+		MusicDBService service = (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);
 		service.save(modelObject, user, updatedParts);
 	}
 	
@@ -341,6 +349,7 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	protected String normalizeFileName(String name) {
 		String str = name.replaceAll("[^\\x00-\\x7F]|[\\s]+", "-").toLowerCase().trim();
+		str=str.replace("'", "");
 		str = str.replace(".", "");
 		if (str.length() < 100)
 			return str;
