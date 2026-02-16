@@ -15,10 +15,11 @@ import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.PrefixUrl;
 
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseUserSerializer;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -35,15 +36,24 @@ public class Artist extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseUserSerializer.class)
 	@JsonProperty("person")
 	private Person person;
-	
-	@ManyToMany(mappedBy = "artists", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("artists")
-    private Set<ArtWork> artworks = new HashSet<>();
 
-    public Set<ArtWork> getArtworks() {
-        return artworks;
-    }
- 
+	@ManyToMany(mappedBy = "artists", fetch = FetchType.LAZY)
+	@JsonIgnoreProperties("artists")
+	private Set<ArtWork> artworks = new HashSet<>();
+
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "artist_sites", joinColumns = @JoinColumn(name = "artist_id"), inverseJoinColumns = @JoinColumn(name = "site_id"))
+	@JsonIgnoreProperties("artistSites")
+	private Set<Site> artistSites = new HashSet<>();
+
+	
+	@Column(name = "nickname")
+	private String nickname;
+	
+	public Set<ArtWork> getArtworks() {
+		return artworks;
+	}
+
 	public Artist() {
 	}
 
@@ -60,11 +70,11 @@ public class Artist extends MultiLanguageObject {
 	}
 
 	@Override
- public String getDisplayname() {
-	 if (this.person!=null)
-		 return this.person.getDisplayName();
-	 return null;
- }
+	public String getDisplayname() {
+		if (this.person != null)
+			return this.person.getDisplayName();
+		return null;
+	}
 
 	@Override
 	public String getObjectClassName() {
@@ -106,9 +116,25 @@ public class Artist extends MultiLanguageObject {
 	}
 
 	public String getFirstLastname() {
-		if (this.person==null)
+		if (this.person == null)
 			return null;
 		return this.person.getFirstLastname();
+	}
+
+	public Set<Site> getArtistSites() {
+		return artistSites;
+	}
+
+	public void setArtistSites(Set<Site> artistSites) {
+		this.artistSites = artistSites;
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 
 }

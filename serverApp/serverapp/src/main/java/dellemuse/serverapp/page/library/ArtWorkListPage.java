@@ -60,6 +60,7 @@ import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -127,8 +128,9 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
-		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+
+	 	ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);
 
@@ -186,14 +188,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		return new Model<String>(model.getObject().getInfo());
 	}
 
-	/**
-	@Override
-	public IModel<String> getObjectTitle(IModel<ArtWork> model) {
-		if (model.getObject().getState()==ObjectState.DELETED) 
-			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-		return new Model<String>(model.getObject().getDisplayname());
-	}
-	**/
+	 
 
 	@Override
 	public void onClick(IModel<ArtWork> model) {
@@ -227,6 +222,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 ("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
 
 			private static final long serialVersionUID = 1L;
@@ -234,13 +230,13 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 			@Override
 			public MenuItemPanel<ArtWork> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtWork>(id) {
+				return new LinkMenuItem<ArtWork>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick () {
+						setResponsePage( new ArtWorkPage( getModel(), getList() ));
 					}
 
 					@Override
@@ -250,6 +246,9 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 				};
 			}
 		});
+		
+		
+		
 		
 		
 		
@@ -274,7 +273,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getArtWorkDBService().save(getModel().getObject());
+						getArtWorkDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						target.add(ArtWorkListPage.this);
 					}
 

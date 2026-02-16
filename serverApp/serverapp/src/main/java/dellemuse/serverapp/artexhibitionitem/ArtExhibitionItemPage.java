@@ -101,34 +101,29 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 	private IModel<ArtExhibition> artExhibitionModel;
 	private IModel<ArtWork> artWorkModel;
 
-	 
-
 	private ArtExhibitionItemEditor editor;
 	private JumboPageHeaderPanel<ArtExhibitionItem> header;
 	private List<ToolbarItem> list;
 
 	protected List<Language> getSupportedLanguages() {
-		return  getSiteModel().getObject().getLanguages();
+		return getSiteModel().getObject().getLanguages();
 	}
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;
 
-		
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
+		User user = ouser.get();
+
+		if (user.isRoot())
 			return true;
-		
+
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
-		
 		{
 			Set<RoleGeneral> set = user.getRolesGeneral();
 			if (set != null) {
@@ -152,8 +147,8 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 		{
 			final Long iid = getSiteModel().getObject().getInstitution().getId();
 			Set<RoleInstitution> set = user.getRolesInstitution();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN))));
 				if (isAccess)
 					return true;
 			}
@@ -165,7 +160,7 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 	protected boolean isLanguage() {
 		return false;
 	}
-	
+
 	protected Optional<ArtExhibitionItemRecord> loadTranslationRecord(String lang) {
 		return getArtExhibitionItemRecordDBService().findByArtExhibitionItem(getModel().getObject(), lang);
 	}
@@ -210,7 +205,6 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 		return list;
 	}
 
-	 
 	protected void onEdit(AjaxRequestTarget target) {
 		editor.onEdit(target);
 	}
@@ -223,7 +217,6 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
-				 
 
 				if (event.getName().equals(ServerAppConstant.action_exhibition_item_info_edit)) {
 					ArtExhibitionItemPage.this.onEdit(event.getTarget());
@@ -391,14 +384,12 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 		if (getArtWorkModel().getObject().getPhoto() != null)
 			header.setPhotoModel(new ObjectModel<Resource>(getArtWorkModel().getObject().getPhoto()));
 		else {
-			
-			header.setIcon( ArtExhibition.getIcon());
-			header.setHeaderCss("mb-0 pb-5  pt-0 border-none");
-			
-			
+
+			header.setIcon(ArtExhibition.getIcon());
+			header.setHeaderCss("mb-0 pb-5 pt-0 border-none");
+
 		}
 
- 
 		header.setBreadCrumb(bc);
 		addOrReplace(header);
 
@@ -490,12 +481,11 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 			this.artWorkModel.detach();
 
 	}
-	
+
 	@Override
 	protected Class<?> getTranslationClass() {
 		return ArtExhibitionItemRecord.class;
 	}
-
 
 	@Override
 	protected List<INamedTab> getInternalPanels() {

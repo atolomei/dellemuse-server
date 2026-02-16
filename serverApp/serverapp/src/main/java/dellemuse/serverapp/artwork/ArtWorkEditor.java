@@ -10,7 +10,7 @@ import java.util.stream.StreamSupport;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
@@ -26,7 +26,7 @@ import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
-
+import dellemuse.serverapp.music.MusicEditor;
 import dellemuse.serverapp.page.model.ObjectModel;
 
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -44,6 +44,7 @@ import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.MultipleSelectField;
 import io.wktui.form.field.NumberField;
+import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import wktui.base.InvisiblePanel;
@@ -59,13 +60,12 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 	private TextAreaField<String> infoField;
 	private TextAreaField<String> specField;
 	private FileUploadSimpleField<Resource> photoField;
-	 
 
 	private NumberField<Integer> c_numberField;
 	private IModel<Resource> photoModel;
 
 	private boolean uploadedPhoto = false;
-	private List<Long> mainArtists;
+
 	private IModel<Site> siteModel;
 
 	private MultipleSelectField<Artist> mArtistField;
@@ -76,22 +76,11 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 	private TextField<String> sourceField;
 	private TextField<String> epochField;
 	private ChoiceField<ObjectType> objectTypeField;
-	
-	
+	private StaticTextField<Long> audioIdField;
+
 	public ArtWorkEditor(String id, IModel<ArtWork> model) {
 		super(id, model);
 	}
-
-	/**
-	public void setMainArtist(Long id) {
-		mainArtists.add(id);
-	}
-
-	public Long getMainArtist() {
-		if (mainArtists != null && mainArtists.size() > 0)
-			return mainArtists.get(0);
-		return null;
-	}**/
 
 	@Override
 	public void onInitialize() {
@@ -102,18 +91,30 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		add(new InvisiblePanel("error"));
 
 		Form<ArtWork> form = new Form<ArtWork>("form");
-		
+
 		add(form);
 		setForm(form);
 
-		Set<Artist> set = getModel().getObject().getArtists();
+		AjaxLink<ArtWork> generateAudioId = new AjaxLink<ArtWork>("generateAudioId", getModel()) {
+			private static final long serialVersionUID = 1L;
 
-		if (set != null && set.size() > 0) {
-			//setMainArtist(set.iterator().next().getId());
-			set.forEach(i -> selected.add(new ObjectModel<Artist>(i)));
-		}
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				ArtWorkEditor.this.generateAudioId(target);
+			}
 
-	 	this.objectTypeField = new ChoiceField<ObjectType>("objectType", new PropertyModel<ObjectType>(getModel(), "objectType"), getLabel("objectType")) {
+			@Override
+			public boolean isVisible() {
+				return getModel().getObject().getAudioId() == null;
+			}
+		};
+
+		form.add(generateAudioId);
+
+		audioIdField = new StaticTextField<Long>("audioid", new PropertyModel<Long>(getModel(), "audioId"), getLabel("audioid"));
+		form.add(audioIdField);
+
+		this.objectTypeField = new ChoiceField<ObjectType>("objectType", new PropertyModel<ObjectType>(getModel(), "objectType"), getLabel("objectType")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -130,9 +131,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			}
 		};
 		form.add(this.objectTypeField);
-		
-		 
-		
+
 		mArtistField = new MultipleSelectField<Artist>("artists", selected, getLabel("artist"), getChoices()) {
 
 			private static final long serialVersionUID = 1L;
@@ -146,32 +145,32 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			protected IModel<String> getObjectSubtitle(IModel<Artist> model) {
 				return ArtWorkEditor.this.getObjectSubtitle(model.getObject());
 			}
-			
+
 			@Override
 			protected void onObjectRemove(IModel<Artist> model, AjaxRequestTarget target) {
 				ArtWorkEditor.this.getSelected().remove(model);
 				target.add(getForm());
 			}
-		
+
 			@Override
 			protected void onObjectSelect(IModel<Artist> model, AjaxRequestTarget target) {
 				ArtWorkEditor.this.getSelected().add(model);
 				target.add(getForm());
 			}
-			
+
 			@Override
 			public boolean isVisible() {
-				return ArtWorkEditor.this.getModel().getObject().getObjectType()==ObjectType.ARTWORK;
+				return ArtWorkEditor.this.getModel().getObject().getObjectType() == ObjectType.ARTWORK;
 			}
 		};
-		
-		this.sourceField 	= new TextField<String>("source", new PropertyModel<String>(getModel(), "source"), getLabel("source"));
-		this.epochField 	= new TextField<String>("epoch", new PropertyModel<String>(getModel(), "epoch"), getLabel("epoch"));
-		this.urlField 		= new TextField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"));
-		this.specField 		= new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8);
-		this.nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		this.infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20);
-		this.photoField 	= new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
+
+		this.sourceField = new TextField<String>("source", new PropertyModel<String>(getModel(), "source"), getLabel("source"));
+		this.epochField = new TextField<String>("epoch", new PropertyModel<String>(getModel(), "epoch"), getLabel("epoch"));
+		this.urlField = new TextField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"));
+		this.specField = new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 8);
+		this.nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		this.infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 20);
+		this.photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -206,7 +205,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		};
 
 		c_numberField = new NumberField<Integer>("year", new PropertyModel<Integer>(getModel(), "year"), getLabel("year"));
-		
+
 		form.add(mArtistField);
 		form.add(sourceField);
 		form.add(epochField);
@@ -284,6 +283,15 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		getForm().add(b_buttons_top);
 	}
 
+	protected void generateAudioId(AjaxRequestTarget target) {
+		getArtWorkDBService().generateAudioId(getModel().getObject(), getSessionUser().get());
+		
+		 
+		ArtWorkEditor.this.audioIdField.setValue(getModel().getObject().getAudioId());
+		ArtWorkEditor.this.audioIdField.updateModel();
+		target.add(ArtWorkEditor.this);
+	}
+
 	protected List<ObjectType> getObjectTypes() {
 		return ObjectType.getValues();
 	}
@@ -321,18 +329,17 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 			if (this.getSelected() != null) {
 				Set<Artist> set = new HashSet<Artist>();
-				getSelected().forEach(i-> set.add(i.getObject()));
+				getSelected().forEach(i -> set.add(i.getObject()));
 				getModel().getObject().setArtists(set);
-			}
-			else {
+			} else {
 				getModel().getObject().setArtists(null);
-			
+
 			}
-			
+
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 
 			this.uploadedPhoto = false;
-			
+
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
 			fireScanAll(new ObjectUpdateEvent(target));
@@ -353,8 +360,15 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 		if (siteModel != null)
 			siteModel.detach();
+
+		if (this.selected != null)
+			this.selected.forEach(i -> i.detach());
+
+		if (this.choices != null)
+			this.choices.forEach(i -> i.detach());
+
 	}
-	
+
 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
@@ -362,6 +376,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
+
 	public List<IModel<Artist>> getChoices() {
 		return choices;
 	}
@@ -435,15 +450,17 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			Optional<Site> o_s = getSiteDBService().findWithDeps(getModel().getObject().getSite().getId());
 			setSiteModel(new ObjectModel<Site>(o_s.get()));
 		}
-		
-		mainArtists = new ArrayList<Long>();
+
 		selected = new ArrayList<IModel<Artist>>();
 		choices = new ArrayList<IModel<Artist>>();
-		
-		getArtistDBService().findAllSorted().forEach(a -> choices.add(new ObjectModel<Artist>(a)));
 
-		
+		Set<Artist> set = getModel().getObject().getArtists();
+		if (set != null && set.size() > 0) {
+			set.forEach(i -> selected.add(new ObjectModel<Artist>(i)));
+		}
+
+		getArtistDBService().findAllSorted(getSiteModel().getObject(), ObjectState.PUBLISHED, ObjectState.PUBLISHED).forEach(a -> choices.add(new ObjectModel<Artist>(a)));
+
 	}
-
 
 }

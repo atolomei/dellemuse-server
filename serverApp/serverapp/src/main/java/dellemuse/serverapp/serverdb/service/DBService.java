@@ -25,6 +25,7 @@ import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
@@ -32,7 +33,7 @@ import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
- 
+import dellemuse.serverapp.serverdb.service.record.ArtistRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleGeneralDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleInstitutionDBService;
@@ -183,6 +184,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 	@Transactional
 	public Iterable<T> findAllSorted(ObjectState os) {
+		
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> root = cq.from(getEntityClass());
@@ -191,6 +193,11 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+
+	
+	
+	
+	
 	@Transactional
 	public Iterable<T> findAllSorted(ObjectState os1, ObjectState os2) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -203,6 +210,12 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
+	
+	
+	
+	
+	
+	
 
 	@Transactional
 	public void flush() {
@@ -274,6 +287,13 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return "name";
 	}
 	
+	
+	protected ArtistDBService getArtistDBService() {
+		return (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
+	}
+	
+	
+	
    protected  ArtWorkDBService getArtWorkDBService() {
     	return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 	}
@@ -320,6 +340,13 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
 	}
 
+	
+
+	protected ArtistRecordDBService getArtistRecordDBService() {
+		return (ArtistRecordDBService) ServiceLocator.getInstance().getBean(ArtistRecordDBService.class);
+	}
+	
+	
 	protected GuideContentDBService getGuideContentDBService() {
 		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 	}

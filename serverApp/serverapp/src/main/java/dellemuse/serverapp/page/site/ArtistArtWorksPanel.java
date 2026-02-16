@@ -35,7 +35,7 @@ public class ArtistArtWorksPanel extends DBModelPanel<Artist> {
 
 	public ArtistArtWorksPanel(String id, IModel<Artist> model, IModel<Site> siteModel) {
 		super(id, model);
-		this.siteModel=siteModel;
+		this.siteModel = siteModel;
 	}
 
 	public IModel<Site> getSiteModel() {
@@ -45,17 +45,18 @@ public class ArtistArtWorksPanel extends DBModelPanel<Artist> {
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		getModel().setObject(getArtistDBService().findWithDeps(getModel().getObject().getId()).get());
-		
+
 		List<IModel<ArtWork>> list = new ArrayList<IModel<ArtWork>>();
-		
+
 		getModel().getObject().getArtworks().forEach(a -> {
-			
-			if (getSiteModel()==null || (a.getSite().getId().equals( getSiteModel().getObject().getId()))) {
+
+			if (getSiteModel() == null || (a.getSite().getId().equals(getSiteModel().getObject().getId()))) {
 				list.add(new ObjectModel<ArtWork>(a));
 			}
 		});
@@ -118,10 +119,10 @@ public class ArtistArtWorksPanel extends DBModelPanel<Artist> {
 		super.onDetach();
 		if (this.list != null)
 			this.list.forEach(i -> i.detach());
-		
+
 		if (siteModel != null)
 			siteModel.detach();
-		
+
 	}
 
 	protected void setList(List<IModel<ArtWork>> list) {

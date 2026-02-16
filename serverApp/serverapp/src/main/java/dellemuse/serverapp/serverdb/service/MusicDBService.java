@@ -70,6 +70,7 @@ public class MusicDBService extends DBService<Music, Long> {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		
+		c.setRoyaltyFree(false);
 		c.setState(ObjectState.EDITION);
 		
 		getRepository().save(c);
@@ -133,6 +134,26 @@ public class MusicDBService extends DBService<Music, Long> {
 	}
 
 	
+	@Transactional
+	public Iterable<Music> findRoyaltyFreeSorted(ObjectState os) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Music> cq = cb.createQuery(getEntityClass());
+		Root<Music> root = cq.from(getEntityClass());
+		Predicate p1 = cb.equal(root.get("state"), os);
+		Predicate p2 = cb.equal(root.get("royaltyFree"), true);
+		Predicate combinedPredicate = cb.and(p1, p2);
+		cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		
+		List<Music> list = getEntityManager().createQuery(cq).getResultList();
+		
+		logger.debug(list.size());
+		
+
+		return list;
+	}
+
+
 	
 	
 	/**

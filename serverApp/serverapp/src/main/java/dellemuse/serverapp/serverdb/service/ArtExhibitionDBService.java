@@ -193,10 +193,15 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		}
 
 		Resource photo = a.getPhoto();
+		if (photo!=null)
+			a.setPhoto( getResourceDBService().findById(photo.getId()).get());
 
-		if (photo != null)
-			photo.getBucketName();
 
+		User user = a.getLastModifiedUser();
+		if (user!=null)
+			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		
+		
 		a.setDependencies(true);
 
 		return o;

@@ -17,6 +17,7 @@ import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
@@ -74,8 +75,10 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		if (!guide.isDependencies())
 			guide = getArtExhibitionGuideDBService().findWithDeps(guide.getId()).get();
 
-		ArtExhibition aex = guide.getArtExhibition();
+		if (!item.isDependencies())
+			item = getArtExhibitionItemDBService().findWithDeps(item.getId()).get();
 
+		ArtExhibition aex = guide.getArtExhibition();
 		if (!aex.isDependencies())
 			aex = getArtExhibitionDBService().findWithDeps(aex.getId()).get();
 
@@ -88,6 +91,11 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 
+		if (item.getArtWork().getAudioId() == null) {
+			item.getArtWork().setAudioId(newAudioId(site));
+			getArtWorkDBService().save(item.getArtWork(), getUserDBService().findRoot(), "audioid");
+		}
+
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
@@ -97,10 +105,31 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return c;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param o
+	 * @param user
+	 * @param updatedParts
+	 */
 	@Transactional
 	public void save(GuideContent o, User user, List<String> updatedParts) {
 		super.save(o);
+
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+
+		ArtExhibitionItem item = o.getArtExhibitionItem();
+		if (!item.isDependencies())
+			item = getArtExhibitionItemDBService().findWithDeps(item.getId()).get();
+
+		ArtWork a = item.getArtWork();
+
+		if (a.getAudioId() == null) {
+			Site site = a.getSite();
+			item.getArtWork().setAudioId(newAudioId(site));
+			getArtWorkDBService().save(item.getArtWork(), user, "audioid");
+
+		}
 
 		Optional<AudioStudio> oa = getAudioStudioDBService().findByGuideContent(o);
 
@@ -108,7 +137,7 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 			oa.get().setName(o.getName());
 			oa.get().setInfo(o.getInfo());
 			oa.get().setInfoAccessible(o.getInfoAccessible());
-			
+
 			getAudioStudioDBService().save(oa.get());
 		}
 	}
@@ -124,7 +153,6 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE));
 	}
 
-	
 	/**
 	 * guideContent (1) guideContentRecord (n) AudioStudio (1)
 	 * 
@@ -175,16 +203,15 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
 		Root<GuideContent> root = cq.from(getEntityClass());
-		
-		Predicate p_item 	= cb.equal(root.get("artExhibitionItem").get("id"), item.getId());
-		Predicate p_guide 	= cb.equal(root.get("artExhibitionGuide").get("id"), guide.getId());
-		
+
+		Predicate p_item = cb.equal(root.get("artExhibitionItem").get("id"), item.getId());
+		Predicate p_guide = cb.equal(root.get("artExhibitionGuide").get("id"), guide.getId());
+
 		Predicate combinedPredicate = cb.and(p_item, p_guide);
 		cq.select(root).where(combinedPredicate);
-		
+
 		List<GuideContent> list = getEntityManager().createQuery(cq).getResultList();
-		
-		
+
 		return list.size() > 0;
 	}
 
@@ -205,14 +232,14 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 		Predicate p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
 		cq.select(root).where(p1);
-	 
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
 	@Transactional
 	public List<GuideContent> getByAudioId(Site site) {
-		
+
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
 
@@ -227,25 +254,25 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 	@Transactional
 	public List<GuideContent> getByAudioId(Site site, Long aid) {
-		
-		if (aid==null)
+
+		if (aid == null)
 			return getByAudioId(site);
-		
+
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
 
 		Root<GuideContent> root = cq.from(getEntityClass());
 
-	 	Predicate p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
-		Predicate p2 = cb.equal(root.get("audioId"), aid );
-		
+		Predicate p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
+		Predicate p2 = cb.equal(root.get("audioId"), aid);
+
 		Predicate combinedPredicate = cb.and(p1, p2);
 		cq.select(root).where(combinedPredicate);
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	/**
 	 * 
 	 * 
@@ -257,7 +284,7 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 	 */
 	@Transactional
 	public List<GuideContent> getByAudioId(Site site, Long aid, ObjectState os1) {
-			
+
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
 
@@ -267,15 +294,14 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		Predicate p2;
 		Predicate p3;
 		Predicate combinedPredicate;
-		
+
 		p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
-		
-		if (aid!=null) {
-			p2 = cb.equal(root.get("audioId"), aid );
+
+		if (aid != null) {
+			p2 = cb.equal(root.get("audioId"), aid);
 			p3 = cb.equal(root.get("state"), os1);
 			combinedPredicate = cb.and(p1, p2, p3);
-		}	
-		else {
+		} else {
 			p3 = cb.equal(root.get("state"), os1);
 			combinedPredicate = cb.and(p1, p3);
 		}
@@ -284,28 +310,82 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
-
+	
 	@Transactional
-	public List<GuideContent> getByAudioId(Site site, Long aid, ObjectState os1, ObjectState os2) {
-		
+	public List<GuideContent> getByArtWorkAudioId(Site site, Long aid) {
+
+		if (aid == null)
+			return getByAudioId(site);
+
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
 
 		Root<GuideContent> root = cq.from(getEntityClass());
 
 		Predicate p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
-		
+		Predicate p2 = cb.equal(root.get("artWorkAudioId"), aid);
+
+		Predicate combinedPredicate = cb.and(p1, p2);
+		cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	
+	
+	@Transactional
+	public List<GuideContent> getByArtWorkAudioId(Site site, Long aid, ObjectState os1) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
+
+		Root<GuideContent> root = cq.from(getEntityClass());
+
+		Predicate p1;
+		Predicate p2;
+		Predicate p3;
+		Predicate combinedPredicate;
+
+		p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
+
+		if (aid != null) {
+			p2 = cb.equal(root.get("artWorkAudioId"), aid);
+			p3 = cb.equal(root.get("state"), os1);
+			combinedPredicate = cb.and(p1, p2, p3);
+		} else {
+			p3 = cb.equal(root.get("state"), os1);
+			combinedPredicate = cb.and(p1, p3);
+		}
+		cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
+	
+	
+	
+	@Transactional
+	public List<GuideContent> getByArtWorkAudioId(Site site, Long aid, ObjectState os1, ObjectState os2) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
+
+		Root<GuideContent> root = cq.from(getEntityClass());
+
+		Predicate p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
+
 		Predicate s1 = cb.equal(root.get("state"), os1);
 		Predicate s2 = cb.equal(root.get("state"), os2);
 
 		Predicate statePredicate = cb.or(s1, s2);
 		Predicate combinedPredicate;
-		
-		if (aid!=null) {
-			Predicate paid = cb.equal(root.get("audioId"), aid );
+
+		if (aid != null) {
+			Predicate paid = cb.equal(root.get("artWorkAudioId"), aid);
 			combinedPredicate = cb.and(p1, paid, statePredicate);
-		}
-		else {
+		} else {
 			combinedPredicate = cb.and(p1, statePredicate);
 		}
 
@@ -315,10 +395,43 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	
+	
+	
+
 	@Transactional
+	public List<GuideContent> getByAudioId(Site site, Long aid, ObjectState os1, ObjectState os2) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
+
+		Root<GuideContent> root = cq.from(getEntityClass());
+
+		Predicate p1 = cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), site.getId());
+
+		Predicate s1 = cb.equal(root.get("state"), os1);
+		Predicate s2 = cb.equal(root.get("state"), os2);
+
+		Predicate statePredicate = cb.or(s1, s2);
+		Predicate combinedPredicate;
+
+		if (aid != null) {
+			Predicate paid = cb.equal(root.get("audioId"), aid);
+			combinedPredicate = cb.and(p1, paid, statePredicate);
+		} else {
+			combinedPredicate = cb.and(p1, statePredicate);
+		}
+
+		cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
 	public Long newAudioId(Site site) {
-		String seqName = site.getAudioIdSequencerName();
-		return ((Number) getEntityManager().createNativeQuery("SELECT nextval('" + seqName + "')").getSingleResult()).longValue();
+		return getSiteDBService().newAudioId(site);
+		//String seqName = site.getAudioIdSequencerName();
+		//return ((Number) getEntityManager().createNativeQuery("SELECT nextval('" + seqName + "')").getSingleResult()).longValue();
 	}
 
 	@Transactional
@@ -338,24 +451,28 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 		if (a.getArtExhibitionGuide() != null) {
 			ArtExhibitionGuide g = a.getArtExhibitionGuide();
-			a.setArtExhibitionGuide( getArtExhibitionGuideDBService().findById(g.getId()).get());
+			a.setArtExhibitionGuide(getArtExhibitionGuideDBService().findById(g.getId()).get());
 		}
-		
+
 		if (a.getArtExhibitionItem() != null) {
 			ArtExhibitionItem item = a.getArtExhibitionItem();
-			a.setArtExhibitionItem( getArtExhibitionItemDBService().findById(item.getId()).get());
+			a.setArtExhibitionItem(getArtExhibitionItemDBService().findById(item.getId()).get());
 		}
-		
+
 		if (a.getPhoto() != null) {
-			Resource r=getResourceDBService().findById( a.getPhoto().getId()).get();
+			Resource r = getResourceDBService().findById(a.getPhoto().getId()).get();
 			a.setPhoto(r);
 		}
-		
+
 		if (a.getAudio() != null) {
-			Resource r=getResourceDBService().findById( a.getAudio().getId()).get();
+			Resource r = getResourceDBService().findById(a.getAudio().getId()).get();
 			a.setAudio(r);
 		}
-		
+
+		User user = a.getLastModifiedUser();
+		if (user != null)
+			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+
 		a.setDependencies(true);
 
 		return o;
@@ -374,7 +491,6 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return GuideContent.class;
 	}
 
-	
 	@Override
 	public String getObjectClassName() {
 		return GuideContentRecord.class.getSimpleName().toLowerCase();
@@ -384,7 +500,6 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return guideContentRecordDBService;
 	}
 
-	
 	@PostConstruct
 	protected void onInitialize() {
 		super.registerRecordDB(getEntityClass(), getGuideContentRecordDBService());

@@ -229,7 +229,6 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 		ArtExhibitionGuideRecord aw = o_aw.get();
 
 	 
-
 		o_aw.get().setArtExhibitionGuide(this.getArtExhibitionGuideDBService().findById(o_aw.get().getParentObject().getId()).get());
 
 		Resource photo = aw.getPhoto();

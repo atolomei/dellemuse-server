@@ -155,26 +155,13 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 		Person aw = o_aw.get();
 	
 		Resource photo = aw.getPhoto();
-
 		if (photo!=null)
 			aw.setPhoto( getResourceDBService().findById(photo.getId()).get());
 				
-		User u = aw.getLastModifiedUser();
-		
-		if (u!=null)
-			u.getDisplayname();
-		
-		if (photo != null)
-			photo.getBucketName();
-		
-		/**
-		if (aw.getArtworks()!=null && aw.getArtworks().size()>0) {
-			Set<ArtWork> set= new HashSet<ArtWork>();
-			aw.getArtworks().forEach( p -> set.add(getArtWorkDBService().findById( p.getId()).get() ));
-			aw.setArtworks(set);
-		}
-		**/
-		
+		User user = aw.getLastModifiedUser();
+		if (user!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+
 		aw.setDependencies(true);
 
 		return o_aw;
@@ -243,7 +230,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 
     @Transactional
     public Optional<Person> findByDisplayName(String displayName) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Person> cq = cb.createQuery(Person.class);
         Root<Person> root = cq.from(Person.class);
 
@@ -251,7 +238,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
                 cb.like(cb.lower(root.get("displayname")), "%" + displayName.toLowerCase() + "%")
         );
 
-        List<Person> list = entityManager.createQuery(cq).getResultList();
+        List<Person> list = getEntityManager().createQuery(cq).getResultList();
         return list.stream().findFirst();
     }
 
@@ -260,9 +247,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
     	CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Person> cq = cb.createQuery(Person.class);
         Root<Person> root = cq.from(Person.class);
-        cq.select(root).where(
-                cb.equal(root.get("user").get("id"), u.getId().toString())
-        );
+        cq.select(root).where(cb.equal(root.get("user").get("id"), u.getId().toString()));
         List<Person> list = getEntityManager().createQuery(cq).getResultList();
         return list.stream().findFirst();
 	}
@@ -280,7 +265,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 	
     @Transactional
     public Optional<Person> findByName(String name, Optional<String> lastName) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Person> cq = cb.createQuery(Person.class);
         Root<Person> root = cq.from(Person.class);
         List<Predicate> predicates = new ArrayList<>();
@@ -289,13 +274,13 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         });
         predicates.add(cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
         cq.select(root).where(cb.and(predicates.toArray(new Predicate[0])));
-        List<Person> list = entityManager.createQuery(cq).getResultList();
+        List<Person> list = getEntityManager().createQuery(cq).getResultList();
         return list.stream().findFirst();
     }
 
     @Transactional
     public Optional<Person> findByLastName(String lastName) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         CriteriaQuery<Person> cq = cb.createQuery(Person.class);
         Root<Person> root = cq.from(Person.class);
 
@@ -303,7 +288,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
                 cb.like(cb.lower(root.get("lastname")), "%" + lastName.toLowerCase() + "%")
         );
 
-        List<Person> list = entityManager.createQuery(cq).getResultList();
+        List<Person> list = getEntityManager().createQuery(cq).getResultList();
         return list.stream().findFirst();
     }
 

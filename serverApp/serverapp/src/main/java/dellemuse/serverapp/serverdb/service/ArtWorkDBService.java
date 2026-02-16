@@ -115,8 +115,13 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 
 		return c;
 	}
-
-	
+	 @Transactional	
+	public void save(ArtWork o, User user, String updatedPart) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE,  updatedPart));
+	}
+	 
+	 
 	 @Transactional	
 	public void save(ArtWork o, User user, List<String> updatedParts) {
 		super.save(o);
@@ -158,9 +163,23 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 
  
 
-	@SuppressWarnings("unused")
-	//@EntityGraph(attributePaths = {"artists"})
 	@Transactional
+	public void generateAudioId(ArtWork a, User user) {
+	
+		Site site = getSiteDBService().findById(a.getSite().getId()).get();
+		Long aid = getSiteDBService().newAudioId(site);
+		a.setAudioId(aid);
+		logger.debug("adding audioid to ArtWork -> " + a.getDisplayname());
+		save(a, user, "audioid");
+		
+		getSiteDBService().getSiteArtWorkGuideContents(site.getId(), a).forEach( c -> {
+			c.setArtWorkAudioId(aid);
+			logger.debug("adding audioid to GuideContent -> " + c.getDisplayname());
+			getGuideContentDBService().save(c, user, List.of("audioid"));
+		});
+	}
+ 
+ 	@Transactional
 	public Optional<ArtWork> findWithDeps(Long id) {
 
 		Optional<ArtWork> o_aw = super.findById(id);
@@ -170,31 +189,32 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 
 		ArtWork aw = o_aw.get();
 
-		aw.getSite().getDisplayname();
+		if ( aw.getSite()!=null) {
+			aw.setSite( getSiteDBService().findById( aw.getSite().getId()).get());
+		}
 
 		Set<Artist> set= new HashSet<Artist>();
 		
 		aw.getArtists().forEach( p -> set.add(getArtistDBService().findById( p.getId()).get() ));
 		aw.setArtists(set);
 		
+		
 		Resource photo = aw.getPhoto();
+		if (photo!=null)
+			aw.setPhoto( getResourceDBService().findById(photo.getId()).get());
 
-		User u = aw.getLastModifiedUser();
-
-		if (u != null)
-			u.getDisplayname();
-
-		if (photo != null)
-			photo.getBucketName();
 
 		Resource qrcode = aw.getQRCode();
 
 		if (qrcode != null) {
-			User qu = qrcode.getLastModifiedUser();
-			qrcode.getBucketName();
+			aw.setQrcode(getResourceDBService().findById(photo.getId()).get());
 		}
-		 
 		
+		User user = aw.getLastModifiedUser();
+		if (user!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+
+	
 		aw.setDependencies(true);
 
 		return o_aw;
@@ -286,5 +306,6 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 		super.registerRecordDB(getEntityClass(),getArtWorkRecordDBService());
 		super.register(getEntityClass(), this);
 	}
+
 
 }

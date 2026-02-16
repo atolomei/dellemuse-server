@@ -153,7 +153,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		setForm(form);
 
 		Site site = getModel().getObject();
-		getSiteDBService().reloadIfDetached(site);
+		//getSiteDBService().reloadIfDetached(site);
 		getModel().setObject(site);
 
 		List<Institution> list = new ArrayList<Institution>();

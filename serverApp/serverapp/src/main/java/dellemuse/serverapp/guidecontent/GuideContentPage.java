@@ -485,7 +485,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 
 		StringBuilder str = new StringBuilder();
 		str.append( getObjectTitle( getModel().getObject() ).getObject() );
-		str.append(  getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.Accesible_jumbo: "" );
+		str.append(  getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO: "" );
 	
 		header = new JumboPageHeaderPanel<GuideContent>("page-header", getModel(), Model.of ( str.toString() ));
 		header.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));

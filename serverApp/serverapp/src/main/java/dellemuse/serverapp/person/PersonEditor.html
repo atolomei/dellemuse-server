@@ -2,23 +2,50 @@
 	<form wicket:id="personForm">
 		<fieldset>
 			<div class="row">
-				<div class="mt-2 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+				<div class="mt-2 mb-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
 					<h3>
 						<wicket:message key="general-info" />
 					</h3>
 				</div>
 			</div>
 			<div class="mb-3 mt-0 mr-0" wicket:id="buttons-top"></div>
+
+
+			<div wicket:id="createArtistContainer" class="row">
+					<div class="mt-0 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+						<a wicket:id="createArtist" class="pt-2 pb-2 btn-link" href="#">
+							<wicket:message key="create-artist-profile"/> 
+						</a>
+					</div>
+			</div>
+
+			<!-- div wicket:id="alreadyArtistContainer" class="row">
+					<div class="mt-0 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+						<div class="alert alert-primary">
+						<a wicket:id="alreadyArtist" class="pt-2 pb-2 btn-link" href="#">
+							<span><wicket:message key="already-artist-profile"/> </span>
+						</a>
+						</div>
+					</div>
+			</div -->
+			
+
 			<div class="mb-4" wicket:id="name"></div>
 			<div class="mb-4" wicket:id="lastname"></div>
-			<div class="mb-4" wicket:id="nickname"></div>
-			<div class="mb-4" wicket:id="state"></div>
-			<!-- div class="mb-4" wicket:id="sex"></div -->
+			
+			<div class="mb-4" wicket:id="photo"></div>
+			
+			
+			
+			<!--  div class="mb-4" wicket:id="nickname"></div  -->
+			<!-- div class="mb-4" wicket:id="state"> </div -->
+			<!-- div class="mb-4" wicket:id="sex">  </div  -->
+			
 			<div class="mb-4" wicket:id="address"></div>
 			<div class="mb-4" wicket:id="phone"></div>
 			<div class="mb-4" wicket:id="email"></div>
 			<div class="mb-4" wicket:id="webpage"></div>
-			<div class="mb-4" wicket:id="photo"></div>
+			
 
 			<div style="float: left; width: 100%;" class="mb-4 mt-3 mr-0" wicket:id="buttons"></div>
 		</fieldset>

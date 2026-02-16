@@ -3,7 +3,7 @@ package dellemuse.serverapp.serverdb.service;
 import java.time.OffsetDateTime;
  
 import java.util.HashSet;
- 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
  
@@ -38,9 +38,12 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.ParameterExpression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -72,15 +75,36 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
+
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
-		// for ( Language la:getLanguageService().getLanguages() )
-		// getPersonRecordDBService().create(c, la.getLanguageCode(), createdBy);
+		for ( Language la:getLanguageService().getLanguages() )
+		 getArtistRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
 		return c;
 	}
 
+	
+	@Transactional
+	public void save(Artist o, User user, List<String> updatedParts) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
+	
+	
+    @Transactional
+	public Optional<Artist> getByPerson(Person u) {
+    	CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+        CriteriaQuery<Artist> cq = cb.createQuery(Artist.class);
+        Root<Artist> root = cq.from(Artist.class);
+        cq.select(root).where(cb.equal(root.get("person").get("id"), u.getId().toString()));
+        List<Artist> list = getEntityManager().createQuery(cq).getResultList();
+        return list.stream().findFirst();
+	}
+
+    
+	
 	@Transactional
 	public Optional<Artist> findWithDeps(Long id) {
 
@@ -95,7 +119,21 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 
 		aw.getArtworks().forEach(x -> set.add(getArtWorkDBService().findById(x.getId()).get()));
 		aw.setArtworks(set);
-
+		
+		if (aw.getPerson()!=null)
+			aw.setPerson( getPersonDBService().findById(aw.getPerson().getId()).get());
+		
+		User user = aw.getLastModifiedUser();
+		if (user!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		
+		
+		if (aw.getArtistSites()!=null) {
+			Set<Site> s = new HashSet<Site>();
+			aw.getArtistSites().forEach( b -> s.add(getSiteDBService().findById(b.getId()).get()));
+			aw.setArtistSites(s);
+		}
+		
 		aw.setDependencies(true);
 		return o_aw;
 	}
@@ -110,6 +148,41 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	
+	
+	@Transactional
+	public Iterable<Artist> findAllSorted(Site site, ObjectState os1, ObjectState os2) {
+
+		  CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		    CriteriaQuery<Artist> cq = cb.createQuery(getEntityClass());
+		    Root<Artist> root = cq.from(getEntityClass());
+
+		    Predicate statePredicate = cb.or(
+		        cb.equal(root.get("state"), os1),
+		        cb.equal(root.get("state"), os2)
+		    );
+
+		    // EXISTS subquery instead of JOIN
+		    Subquery<Long> sub = cq.subquery(Long.class);
+		    Root<Artist> subRoot = sub.from(Artist.class);
+		    Join<Artist, Site> subSites = subRoot.join("artistSites");
+
+		    sub.select(subRoot.get("id"))
+		       .where(
+		           cb.equal(subRoot.get("id"), root.get("id")),
+		           cb.equal(subSites.get("id"), site.getId())
+		       );
+
+		    cq.select(root)
+		      .where(cb.and(statePredicate, cb.exists(sub)))
+		      //.orderBy(cb.asc(cb.lower(root.get("name"))));
+		      .orderBy(cb.asc(root.get("person").get("sortlastfirstname")));
+		    
+		    return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
+	
 	@Override
 	protected Class<Artist> getEntityClass() {
 		return Artist.class;

@@ -67,15 +67,17 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 	private TextField<String> nameField;
 	private TextField<String> subtitleField;
 	private TextAreaField<String> infoField;
-	private StaticTextField<String> audioIdField;
+	
+	private StaticTextField<Long> audioIdField;
+	private StaticTextField<Long> artWorkAudioIdField;
+	
 	private FileUploadSimpleField<Resource> audioField;
 	private StaticTextField<String> guideField;
 	
 	private IModel<Resource> photoModel;
 	private IModel<Resource> audioModel;
 
-	
-	
+		
 	private boolean uploadedPhoto = false;
 	private boolean uploadedAudio = false;
 
@@ -258,7 +260,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		str.append( getObjectTitle ( getModel().getObject().getArtExhibitionGuide()).getObject() );
 		
 		if (getModel().getObject().getArtExhibitionGuide().isAccessible()) 
-			str.append(Icons.Accesible);
+			str.append(Icons.ACCESIBLE_ICON);
 		
 		
 		guideField 		= new StaticTextField<String>("guide",  Model.of(str.toString()), getLabel("guide"));
@@ -300,8 +302,15 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		form.add(infoField);
 		form.add(audioField);
 
-		audioIdField = new StaticTextField<String>("audioid", new PropertyModel<String>(getModel(), "audioId"), getLabel("audioid"));
+		audioIdField = new StaticTextField<Long>("audioid", new PropertyModel<Long>(getModel(), "audioId"), getLabel("audioid"));
 		form.add(audioIdField);
+		
+		
+		artWorkAudioIdField = new StaticTextField<Long>("artworkaudioid", new PropertyModel<Long>(getModel(), "artWorkAudioId"), getLabel("artWorkAudioId"));
+		form.add(artWorkAudioIdField);
+		
+	 
+		
 
 		EditButtons<GuideContent> buttons = new EditButtons<GuideContent>("buttons-bottom", getForm(), getModel()) {
 
@@ -895,8 +904,8 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		if (getModel().getObject().getArtExhibitionItem() != null) {
 			Optional<ArtExhibitionItem> o_ai = getArtExhibitionItemDBService().findWithDeps(getModel().getObject().getArtExhibitionItem().getId());
 
-			if (o_ai.get().getArtwork() != null) {
-				Optional<ArtWork> o_aw = getArtWorkDBService().findWithDeps(o_ai.get().getArtwork().getId());
+			if (o_ai.get().getArtWork() != null) {
+				Optional<ArtWork> o_aw = getArtWorkDBService().findWithDeps(o_ai.get().getArtWork().getId());
 				setArtWorkModel(o_aw.get());
 			}
 		}

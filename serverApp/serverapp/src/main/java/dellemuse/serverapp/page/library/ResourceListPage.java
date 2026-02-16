@@ -128,8 +128,8 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 
 			listToolbar = new ArrayList<ToolbarItem>();
 
-			IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
-			ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+			IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+ 	ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 			listToolbar.add(s);
 
@@ -223,6 +223,7 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 (ServerConstant.menuLabelCss);
 		menu.setIconCss(ServerConstant.menuIconCss);
 
+		/**
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Resource>() {
 
 			private static final long serialVersionUID = 1L;
@@ -270,6 +271,8 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 				};
 			}
 		});
+		
+		*/
 		return menu;
 	}
 	

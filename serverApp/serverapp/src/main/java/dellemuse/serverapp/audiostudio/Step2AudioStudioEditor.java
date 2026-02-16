@@ -53,6 +53,11 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 	
 	
 	private TextAreaField<String> musicUrlField;
+
+	private NumberField<Integer> startSecField;
+
+	
+	
 	private NumberField<Integer> introDurationSecField;
 	private NumberField<Integer> fadeDurationSecField;
 	private NumberField<Integer> voiceOverlapDurationSecField;
@@ -62,6 +67,8 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 	private WebMarkupContainer step2;
 	private WebMarkupContainer step2mp3;
 
+	
+	private Integer startSec = Integer.valueOf(0);
 	private Integer introDurationSec = Integer.valueOf(20);
 	private Integer fadeDurationSec = Integer.valueOf(12);
 	private Integer voiceOverlapDurationSec = Integer.valueOf(5);
@@ -69,8 +76,16 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 	private boolean uploadedStep2 = false;
 	
 	private Long music;
+	private List<Long> musicList;
+
 	
-	
+	public List<Long> getMusicList() {
+		if (	musicList!=null)
+			return 	musicList;
+		musicList = new ArrayList<Long>();
+		StreamSupport.stream(getMusicDBService().findRoyaltyFreeSorted(ObjectState.PUBLISHED).spliterator(), false).collect(Collectors.toList()).forEach(i -> musicList.add(i.getId()));
+		return 	musicList;
+	}
 
 	public Step2AudioStudioEditor(String id, IModel<AudioStudio> model, boolean isAccesibleVersion) {
 		super(id, model, isAccesibleVersion);
@@ -79,6 +94,11 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+		
+		
+		
+		
+		
 		setup();
 	}
 
@@ -92,6 +112,14 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 
 	public Integer getVoiceOverlapDurationSec() {
 		return voiceOverlapDurationSec;
+	}
+
+	public Integer getStartSec() {
+		return startSec;
+	}
+
+	public void setStartSec(Integer startSec) {
+		this.startSec = startSec;
 	}
 
 	public void setIntroDurationSec(Integer introDurationSec) {
@@ -116,8 +144,8 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 
 	//Step2AudioStudioEditor.this.getModel().getObject()
 	//		.setMusicUrl("https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3");
- 
-	// musicUrl = "https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3";
+ 	// musicUrl = "https://archive.org/download/LudwigVanBeethovenMoonlightSonataAdagioSostenutogetTune.net/Ludwig_Van_Beethoven_-_Moonlight_Sonata_Adagio_Sostenuto_%28get-tune.net%29.mp3";
+	
 	
 	
 	
@@ -138,7 +166,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 		setForm(form);
 
 		step2.add(form);
-
+	
 		musicUrlField = new TextAreaField<String>("musicUrl", new PropertyModel<String>(getModel(), "musicUrl"), getLabel("musicUrl"), 4);
 	
 		
@@ -153,10 +181,15 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 		});
 		
 		
+		startSecField = new NumberField<Integer>("startSec", new PropertyModel<Integer>(this, "startSec"), getLabel("startSec"));
+		
+		
 		introDurationSecField = new NumberField<Integer>("introDurationSec", new PropertyModel<Integer>(this, "introDurationSec"), getLabel("introDurationSec"));
 		fadeDurationSecField = new NumberField<Integer>("fadeDurationSec", new PropertyModel<Integer>(this, "fadeDurationSec"), getLabel("fadeDurationSec"));
 		voiceOverlapDurationSecField = new NumberField<Integer>("voiceOverlapDurationSec", new PropertyModel<Integer>(this, "voiceOverlapDurationSec"), getLabel("voiceOverlapDurationSec"));
 
+		
+		form.add(startSecField);
 		form.add(musicUrlField);
 		form.add(introDurationSecField);
 		form.add(fadeDurationSecField);
@@ -171,9 +204,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 
 			@Override
 			public IModel<List<Long>> getChoices() {
-				List<Long> list = new ArrayList<Long>();
-				StreamSupport.stream(getMusicDBService().findAllSorted().spliterator(), false).collect(Collectors.toList()).forEach(i -> list.add(i.getId()));
-				return new ListModel<Long>(list);
+				return new ListModel<Long>(getMusicList());
 			}
 
 			@Override
@@ -272,11 +303,13 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 					Integer introDurationSec 		= Step2AudioStudioEditor.this.getIntroDurationSec();
 					Integer fadeDurationSec 		= Step2AudioStudioEditor.this.getFadeDurationSec();
 					Integer voiceOverlapDurationSec = Step2AudioStudioEditor.this.getVoiceOverlapDurationSec();
-
+					Integer startSec 				= Step2AudioStudioEditor.this.getStartSec();
+					
 					IntegrateMusicCommand c = new IntegrateMusicCommand(
 							voiceResourceId, 
 							musicId,
 							musicUrl, 
+							startSec,
 							introDurationSec, 
 							fadeDurationSec, 
 							voiceOverlapDurationSec);
@@ -437,6 +470,12 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 				if (map == null)
 					map = new HashMap<String, String>();
 
+				
+
+				if (getStartSec() != null)
+					map.put("startSec", getStartSec().toString());
+				
+				
 				if (getIntroDurationSec() != null)
 					map.put("introDurationSec", getIntroDurationSec().toString());
 
@@ -474,6 +513,11 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 			str.append(getModel().getObject().getMusicUrl());
 			str.append("-");
 		}
+		
+		str.append(this.getStartSec().toString());
+		str.append("-");
+		
+		
 		str.append(this.getIntroDurationSec().toString());
 		str.append("-");
 		str.append(this.getFadeDurationSec().toString());

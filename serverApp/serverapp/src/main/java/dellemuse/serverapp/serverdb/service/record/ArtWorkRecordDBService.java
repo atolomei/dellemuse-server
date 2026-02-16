@@ -88,7 +88,7 @@ public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long>
 
 		ArtWorkRecord c = new ArtWorkRecord();
 
-		c.setArtwork(a);
+		c.setArtWork(a);
 		c.setName(a.getName());
 	 
 		c.setLanguage(lang);
@@ -118,7 +118,7 @@ public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long>
 		CriteriaQuery<ArtWorkRecord> cq = cb.createQuery(ArtWorkRecord.class);
 		Root<ArtWorkRecord> root = cq.from(ArtWorkRecord.class);
 		
-	     Predicate p1 = cb.equal(root.get("artwork").get("id"), a.getId() );
+	     Predicate p1 = cb.equal(root.get("artWork").get("id"), a.getId() );
 	     Predicate p2 = cb.equal(root.get("language"), lang );
 
 	     Predicate combinedPredicate = cb.and(p1, p2);
@@ -184,7 +184,7 @@ public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long>
 		
 		if (aw.getParentObject()!=null) {
 			ArtWork c = (ArtWork) aw.getParentObject();
-			aw.setArtwork( getArtWorkDBService().findById(c.getId()).get());
+			aw.setArtWork( getArtWorkDBService().findById(c.getId()).get());
 		}
 		
 		aw.setDependencies(true);

@@ -14,6 +14,7 @@ import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -28,14 +29,7 @@ public class DelleMuseAuditDBService extends BaseDBService<DelleMuseAudit, Long>
 	public DelleMuseAuditDBService(CrudRepository<DelleMuseAudit, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
-
-	 
-
-	@Override
-	protected Class<DelleMuseAudit> getEntityClass() {
-		return DelleMuseAudit.class;
-	}
-
+	
 	@Transactional
 	public <S extends DelleMuseAudit> S save(S entity) {
 		entity.setLastModified(OffsetDateTime.now());
@@ -52,14 +46,12 @@ public class DelleMuseAuditDBService extends BaseDBService<DelleMuseAudit, Long>
 
 		DelleMuseAudit aw = o_aw.get();
 
-
-		User u = aw.getLastModifiedUser();
-
-		if (u != null)
-			u.getDisplayname();
+		//User u = aw.getLastModifiedUser();
+		//User user = aw.getLastModifiedUser();
+		//if (user!=null)
+		//	aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
 
 		aw.setDependencies(true);
-
 		return o_aw;
 	}
 	
@@ -95,7 +87,17 @@ public class DelleMuseAuditDBService extends BaseDBService<DelleMuseAudit, Long>
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
-	
+	protected UserDBService getUserDBService() {
+		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
+	}
+	 
+
+	@Override
+	protected Class<DelleMuseAudit> getEntityClass() {
+		return DelleMuseAudit.class;
+	}
+
+
 	
 	
 

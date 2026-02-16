@@ -40,6 +40,9 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 	@Column(name = "masterlanguage")
 	private String masterLanguage;
 
+	@Column(name = "language")
+	private String language;
+	
 	@Column(name = "subtitle")
 	private String subtitle;
 
@@ -91,8 +94,7 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource speechaudio;
 
-	@Column(name = "language")
-	private String language;
+	
 
 	public String getLanguage() {
 		return this.language;

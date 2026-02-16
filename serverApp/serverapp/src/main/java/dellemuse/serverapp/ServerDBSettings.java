@@ -28,6 +28,7 @@ import dellemuse.serverapp.serverdb.model.Language;
 @Configuration
 public class ServerDBSettings {
 
+	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(ServerDBSettings.class.getName());
 
 	private static final OffsetDateTime systemStarted = OffsetDateTime.now();

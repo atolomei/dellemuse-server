@@ -34,8 +34,8 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	@JsonManagedReference
 	@JsonBackReference
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
-	@JsonProperty("artwork")
-	private ArtWork artwork;
+	@JsonProperty("artWork")
+	private ArtWork artWork;
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
 	@JoinColumn(name = "floor_id", nullable = true)
@@ -79,7 +79,11 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 
 	@Column(name = "website")
 	@JsonProperty("website")
-	private String wesite;
+	private String website;
+	
+	@Column(name = "audio_id")
+	private Long audioId;
+
 
 	public ArtExhibitionItem() {
 	}
@@ -93,12 +97,10 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 		return PrefixUrl.ArtExhibitionItem;
 	}
 
-	public ArtWork getArtWork() {
-		return artwork;
-	}
+	 
 
 	public void setArtWork(ArtWork artwork) {
-		this.artwork = artwork;
+		this.artWork = artwork;
 	}
 
 	public Floor getFloor() {
@@ -133,8 +135,24 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 		this.qRCode = qCode;
 	}
 
+	public Long getAudioId() {
+		return audioId;
+	}
+
+	public void setAudioId(Long audioId) {
+		this.audioId = audioId;
+	}
+
 	public ArtExhibition getArtExhibition() {
 		return artExhibition;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
 	}
 
 	public void setArtExhibition(ArtExhibition artExhibition) {
@@ -150,11 +168,11 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	}
 
 	public String getWesite() {
-		return wesite;
+		return website;
 	}
 
 	public void setWesite(String wesite) {
-		this.wesite = wesite;
+		this.website = wesite;
 	}
 
 	public int getExhibitionOrder() {
@@ -165,8 +183,8 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 		this.artExhibitionOrder = exhibitionOrder;
 	}
 
-	public ArtWork getArtwork() {
-		return artwork;
+	public ArtWork getArtWork() {
+		return artWork;
 	}
 
 	public String getFloorStr() {
@@ -186,7 +204,7 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	}
 
 	public void setArtwork(ArtWork artwork) {
-		this.artwork = artwork;
+		this.artWork = artwork;
 	}
 
 	public void setFloorStr(String floorStr) {

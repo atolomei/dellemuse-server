@@ -12,14 +12,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
- 
+
 import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
- 
+
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
@@ -29,14 +29,14 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
- 
+
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
- 
+
 import dellemuse.serverapp.serverdb.model.Site;
- 
+
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
- 
+
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
 import io.wktui.event.UIEvent;
@@ -45,7 +45,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
- 
+
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
@@ -108,7 +108,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		return this.oses;
 	}
 
-
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -144,10 +143,10 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		str.append(model.getObject().getDisplayname());
 
 		GuideContent o = model.getObject();
-		
+
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON);
-		
+
 		if (o.getState() == ObjectState.EDITION)
 			return new Model<String>(str.toString() + Icons.EDITION_ICON);
 		return Model.of(str.toString());
@@ -207,20 +206,16 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 	protected void onObjectRemove(IModel<GuideContent> model, AjaxRequestTarget target) {
 		GuideContent item = model.getObject();
-		// ArtExhibitionGuide ex= getModel().getObject();
 		getGuideContentDBService().delete(item);
 		resetList();
-		target.add(this.itemsPanel);
+		refresh(target);
 	}
 
 	protected void onObjectSelect(IModel<ArtExhibitionItem> model, AjaxRequestTarget target) {
-
 		ArtExhibitionItem item = model.getObject();
-		// ArtExhibition ex= getArtExhibitionModel().getObject();
-
-		super.addItem(getModel().getObject(), item, getUserDBService().findRoot());
+		addItem(getModel().getObject(), item, getUserDBService().findRoot());
 		resetList();
-		target.add(this.itemsPanel);
+		refresh(target);
 	}
 
 	protected void resetList() {
@@ -231,7 +226,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		if (!model.getObject().isDependencies()) {
 			model.setObject(super.findGuideContentWithDeps(model.getObject().getId()).get());
 		}
-		return Model.of(TextCleaner.clean(getInfo(model.getObject()), 420 ));
+		return Model.of(TextCleaner.clean(getInfo(model.getObject()), 420));
 	}
 
 	protected IModel<String> getObjectSubtitle(IModel<GuideContent> model) {
@@ -276,20 +271,49 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			@Override
 			public MenuItemPanel<GuideContent> getItem(String id) {
 
-				return new AjaxLinkMenuItem<GuideContent>(id) {
+				return new io.wktui.nav.menu.LinkMenuItem<GuideContent>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick() {
+						setResponsePage(new GuideContentPage(getModel(), ArtExhibitionGuideContentsPanel.this.getItems()));
 					}
 
 					@Override
 					public IModel<String> getLabel() {
 						return getLabel("open");
 					}
+				};
+			}
+		});
 
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<GuideContent> getItem(String id) {
+
+				return new AjaxLinkMenuItem<GuideContent>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					public boolean isEnabled() {
+						return getModel().getObject().getState() != ObjectState.PUBLISHED;
+					}
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getGuideContentDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get() );
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
 				};
 			}
 		});
@@ -342,7 +366,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
 			getObjects(ObjectState.DELETED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
 
-		this.list.forEach(c -> logger.debug(c.toString()));
+		 
 	}
 
 	protected void addListeners() {
@@ -369,15 +393,10 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 	}
 
-	
 	private List<IModel<GuideContent>> getItems() {
 
-		if (this.list == null) {
-			// this.list = new ArrayList<IModel<GuideContent>>();
-			// super.getGuideContents(getModel().getObject()).forEach(item ->
-			// this.list.add(new ObjectModel<GuideContent>(item)));
-			loadList();
-		}
+		if (this.list == null)
+		 	loadList();
 		return this.list;
 	}
 
@@ -407,8 +426,9 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			return listToolbar;
 
 		listToolbar = new ArrayList<ToolbarItem>();
+ 
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 		listToolbar.add(s);
 		return listToolbar;
@@ -428,7 +448,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			public void onClick(AjaxRequestTarget target) {
 				setState(FormState.EDIT);
 				target.add(addContainerButtons);
-				// target.add(addContainer);
+				 
 
 			}
 
@@ -445,7 +465,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			public void onClick(AjaxRequestTarget target) {
 				setState(FormState.VIEW);
 				target.add(addContainerButtons);
-				// target.add(addContainer);
+				 
 				target.add(multipleSeletor);
 			}
 
@@ -575,16 +595,19 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			public List<IModel<GuideContent>> getItems() {
 				return ArtExhibitionGuideContentsPanel.this.getItems();
 			}
- 
 
 		};
 		add(itemsPanel);
 
-		// panel.setTitle(getLabel("exhibitions-permanent"));
+		 
 		itemsPanel.setListPanelMode(ListPanelMode.TITLE);
 		itemsPanel.setLiveSearch(false);
 		itemsPanel.setSettings(true);
 		itemsPanel.setHasExpander(true);
+	}
+
+	protected void refresh(AjaxRequestTarget target) {
+		target.add(this.itemsPanel);
 	}
 
 	protected void setList(List<IModel<GuideContent>> list) {

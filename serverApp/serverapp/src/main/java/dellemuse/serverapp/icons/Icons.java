@@ -4,7 +4,9 @@ public class Icons {
 
 	public static final String ArtExhibition 		= "fa-solid fa-solid fa-gallery-thumbnails";
 	public static final String ArtExhibitionGuide	= "fa-solid fa-folder-music";
-	public static final String Artist 				= "fa-duotone fa-person";
+
+	public static final String Artist 				= "fa-duotone fa-palette";
+	
 	public static final String ArtWork				= "fa-duotone fa-solid fa-paintbrush";
 	public static final String GuideContent			= "fa-duotone fa-solid fa-headphones";
 	public static final String Person				= "fa-duotone fa-solid fa-person-simple";
@@ -18,9 +20,9 @@ public class Icons {
 	
 	
 	
-	public static final String Accesible 			= " <i title=\"accessible\" class=\"text-info   fa-thin fa-universal-access ms-1 me-1\"> </i>";
+	public static final String ACCESIBLE_ICON 			= " <i title=\"accessible\" class=\"text-info   fa-thin fa-universal-access ms-1 me-1\"> </i>";
 
-	public static final String Accesible_jumbo 			= " <i title=\"accessible\" class=\" small text-info fa-thin fa-universal-access ms-0 me-1\"> </i>";
+	public static final String ACCESIBLE_ICON_JUMBO 			= " <i title=\"accessible\" class=\" small text-info fa-thin fa-universal-access ms-0 me-1\"> </i>";
 
 	 
 	

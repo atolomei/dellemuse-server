@@ -594,12 +594,39 @@ COMMIT;
 
 						
 	
-CREATE TABLE awpe (
-	artwork_id		  bigint references artwork(id),
-	person_id		  bigint references person(id),
-	PRIMARY KEY (artwork_id, person_id)
+CREATE TABLE artist_sites (
+	artist_id		  bigint not null references artist(id) on delete restrict,
+	site_id			  bigint not null references site(id) on delete restrict,
+	PRIMARY KEY (artist_id, site_id)
 );
 
 
+						
+	
+- Records FK key have on delete cascade -> when the parent object is deleted, the record is deleted
+
+
+
+CREATE TABLE artistRecord (
+						id				     bigint primary key default nextval('sequence_id'),
+						language 			 character varying(24) not null,
+						artist_id bigint    references artist(id) on delete cascade, 
+						name				 character varying(512),
+						shortName 			 character varying(64),
+						subtitle		 	 character varying(1024),
+						spec		 		 text,
+						info		 		 text,
+						intro		 		 text,
+						photo				 bigint references resource(id) on delete restrict,
+						video				 bigint references resource(id) on delete restrict,
+						audio				 bigint references resource(id) on delete restrict,
+						usethumbnail 		 boolean default true,
+						created				 timestamp with time zone DEFAULT now() not null,
+						lastmodified		 timestamp with time zone DEFAULT now() not null,
+						lastmodifieduser	 bigint references users(id) on delete restrict not null,
+						draft         		 text
+ 						);
+
+			
 
 

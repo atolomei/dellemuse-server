@@ -3,6 +3,8 @@ package dellemuse.serverapp.person;
 public class ServerAppConstant {
 
 	
+	 static public final String SEPARATOR = "---------------------------------";
+	 
 	/** site */
 
 	static final public String site_action_home = "site-action-home";
@@ -105,7 +107,11 @@ public class ServerAppConstant {
 	static final public String person_meta 			= "person-panel-meta";
 	static final public String person_audit 		= "person-panel-audit";
 	static final public String person_user	 		= "person-page-user";
+	static final public String person_artist	 	= "person-artist";
 	 
+	
+	 
+	
 	static final public String action_person_edit_info = "person-action-edit-info";
 	static final public String action_person_edit_meta = "person-action-edit-meta";
 	 
@@ -145,8 +151,11 @@ public class ServerAppConstant {
 	static final public String action_music_edit = "action-music-edit";
 
 	
-	
-	
+	/** artist */
+	static final public String artist_info 			= "artist-panel-info";
+	static final public String artist_meta	 		= "artist-panel-meta";
+	static final public String artist_audit 		= "artist-panel-audit";
+	static final public String action_artist_edit 	= "action-artist-edit";
 	
 	
 	

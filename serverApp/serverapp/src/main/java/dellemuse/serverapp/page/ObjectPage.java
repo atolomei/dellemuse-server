@@ -35,6 +35,7 @@ import io.odilon.util.Check;
 import io.wktui.error.ErrorPanel;
 
 import io.wktui.event.UIEvent;
+import io.wktui.model.TextCleaner;
 import io.wktui.nav.listNavigator.ListNavigator;
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -226,8 +227,6 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		addGlobalSearch();
 
 		super.add(createGlobalTopPanel("top-panel"));
-		// super.add(new GlobalFooterPanel<>("footer-panel"));
-
 		super.add(new InvisiblePanel("footer-panel"));
 
 		this.toolbarContainer = new WebMarkupContainer("toolbarContainer") {
@@ -299,10 +298,10 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 				this.globalSearch = new InvisiblePanel("globalSearch");
 			else
 				this.globalSearch = panel;
-			addOrReplace(this.globalSearch);
+			mainMarkupContainer.addOrReplace(this.globalSearch);
 		} catch (Exception e) {
 			logger.error(e);
-			addOrReplace(new ErrorPanel("globalSearch", e));
+			mainMarkupContainer.addOrReplace(new ErrorPanel("globalSearch", e));
 		}
 
 	}
@@ -368,20 +367,29 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected void addErrorPanels(Exception e) {
 
 		if (getSessionUser().isPresent())
-			addOrReplace(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
+			super.addOrReplace(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
 		else
-			addOrReplace(new GlobalTopPanel("top-panel"));
+			super.addOrReplace(new GlobalTopPanel("top-panel"));
 
 		addOrReplace(new InvisiblePanel("page-header"));
 		addOrReplace(new InvisiblePanel("toolbarContainer"));
 
 		this.internalPanelContainer = new WebMarkupContainer("internalPanelContainer");
-		addOrReplace(this.internalPanelContainer);
+		mainMarkupContainer.addOrReplace(this.internalPanelContainer);
 
-		this.internalPanelContainer.add(new ErrorPanel("internalPanel", e));
-
-		addOrReplace(new InvisiblePanel("navigatorContainer"));
-		addOrReplace(new GlobalFooterPanel<>("footer-panel"));
+		
+		if (e instanceof java.lang.IllegalStateException) {
+			IModel<String> s = getLabel("object-not-found", stringValue!=null? stringValue.toString():"null");
+			this.internalPanelContainer.addOrReplace(new ErrorPanel("internalPanel", s));
+		}
+		else {
+			this.internalPanelContainer.addOrReplace(new ErrorPanel("internalPanel", e));
+		}
+		
+		mainMarkupContainer.addOrReplace(new InvisiblePanel("globalSearch" ));
+		mainMarkupContainer.addOrReplace(new InvisiblePanel("navigatorContainer"));
+	
+		super.addOrReplace(new InvisiblePanel("footer-panel"));
 	}
 
 	protected void addListeners() {
@@ -495,7 +503,6 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		int selected = 0;
 		for (INamedTab tab : tabs) {
 			if (tab.getName().equals(name)) {
-				// logger.debug("Selected title -> " + tab.getTitle().getObject().toString());
 				selected = current;
 				break;
 			}
@@ -550,7 +557,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 					@Override
 					protected IModel<String> getLabel(IModel<T> model) {
-						return new Model<String>(model.getObject().getDisplayname());
+						return new Model<String>(TextCleaner.truncate( model.getObject().getDisplayname(), 42));
 					}
 
 					@Override

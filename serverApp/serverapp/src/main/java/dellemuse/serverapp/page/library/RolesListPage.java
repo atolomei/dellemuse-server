@@ -52,7 +52,7 @@ public class RolesListPage extends ObjectListPage<Role> {
 	static private Logger logger = Logger.getLogger(RolesListPage.class.getName());
 
 	private List<ToolbarItem> listToolbar;
-	private List<ToolbarItem> mainToolbar;
+ 
 
 	private RoleEnumSelector selected;
 	
@@ -157,7 +157,7 @@ public class RolesListPage extends ObjectListPage<Role> {
 	@Override
 	public IModel<String> getObjectTitle(IModel<Role> model) {
 		if (this.selected==RoleEnumSelector.ALL) {
-			return new Model<String>(model.getObject().getRoleDisplayName() + " (" + model.getObject().getDisplayClass(getLocale()) + ") ");
+			return new Model<String>(model.getObject().getRoleDisplayName() + " <span class=\"text-secondary\"> (" + model.getObject().getDisplayClass(getLocale()) + ") </span> ");
 		}
 		return Model.of(model.getObject().getRoleDisplayName());
 	}
@@ -255,7 +255,9 @@ public class RolesListPage extends ObjectListPage<Role> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(RoleEnumSelector.ALL.getLabel(getLocale()));
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+
+		//IModel<String> selected = Model.of(RoleEnumSelector.ALL.getLabel(getLocale()));
 		RoleListSelector s = new RoleListSelector("item", selected, Align.TOP_LEFT);
 		listToolbar.add(s);
 		

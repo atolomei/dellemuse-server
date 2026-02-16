@@ -97,7 +97,7 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 	private Link<ArtExhibitionGuide> openAudioStudio;
 
 	private ChoiceField<Boolean> accesibleField;
-	
+
 	private String audioMeta;
 	private boolean alertInfo = false;
 
@@ -117,10 +117,8 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 		setUpModel();
 		addAlert();
 
-		add( new Label( "exhibition-guide-general-info", getLabel("exhibition-guide-general-info", getModel().getObject().getMasterLanguage())));
-		
-		
-		
+		add(new Label("exhibition-guide-general-info", getLabel("exhibition-guide-general-info", getModel().getObject().getMasterLanguage())));
+
 		add(new InvisiblePanel("error"));
 
 		Form<ArtExhibitionGuide> form = new Form<ArtExhibitionGuide>("form");
@@ -128,7 +126,6 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 		add(form);
 		setForm(form);
 
-		
 		accesibleField = new ChoiceField<Boolean>("accesible", new PropertyModel<Boolean>(getModel(), "accessible"), getLabel("guide-type")) {
 
 			private static final long serialVersionUID = 1L;
@@ -147,9 +144,8 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 				return getLabel("general").getObject();
 			}
 		};
-		getForm().add(accesibleField );
-		
-	 	
+		getForm().add(accesibleField);
+
 		this.nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		this.subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
 		this.infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 12);
@@ -184,8 +180,8 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 
 			public boolean isThumbnail() {
 				return true;
-			} 
-			
+			}
+
 			@Override
 			protected void onRemove(AjaxRequestTarget target) {
 				logger.debug("onRemove");
@@ -200,76 +196,73 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 		form.add(nameField);
 		form.add(subtitleField);
 		form.add(infoField);
-		
-		AjaxLink<Void> importEx =new AjaxLink<Void>("import") {
+
+		AjaxLink<Void> importEx = new AjaxLink<Void>("import") {
 
 			public boolean isVisible() {
-				return getForm().getFormState()==FormState.EDIT;
+				return getForm().getFormState() == FormState.EDIT;
 			}
-			
+
 			public boolean isEnabled() {
-				return getForm().getFormState()==FormState.EDIT;
+				return getForm().getFormState() == FormState.EDIT;
 			}
-			
+
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				
+
 				String info = getArtExhibitionModel().getObject().getInfo();
-				if (info!=null) {
+				if (info != null) {
 					ArtExhibitionGuideEditor.this.getModel().getObject().setInfo(info);
 					ArtExhibitionGuideEditor.this.infoField.setValue(info);
 					ArtExhibitionGuideEditor.this.infoField.updateModel();
-					
+
 					target.add(ArtExhibitionGuideEditor.this);
 				}
 			}
 		};
-		
-		form.add(importEx);
-		
 
-		WebMarkupContainer w = new WebMarkupContainer("import-from-guide-container")  {
-			
+		form.add(importEx);
+
+		WebMarkupContainer w = new WebMarkupContainer("import-from-guide-container") {
+
 			public boolean isVisible() {
-				
+
 				if (!ArtExhibitionGuideEditor.this.getModel().getObject().isAccessible())
 					return false;
-				
-				return getForm().getFormState()==FormState.EDIT;
-				
+
+				return getForm().getFormState() == FormState.EDIT;
+
 			}
 		};
-		
-		
+
 		form.add(w);
-		
-		
-		AjaxLink<Void> importGuide =new AjaxLink<Void>("import-from-guide") {
+
+		AjaxLink<Void> importGuide = new AjaxLink<Void>("import-from-guide") {
 
 			public boolean isVisible() {
-				
+
 				if (!ArtExhibitionGuideEditor.this.getModel().getObject().isAccessible())
 					return false;
-				
-				return getForm().getFormState()==FormState.EDIT;
+
+				return getForm().getFormState() == FormState.EDIT;
 			}
-			
+
 			public boolean isEnabled() {
-				return getForm().getFormState()==FormState.EDIT;
+				return getForm().getFormState() == FormState.EDIT;
 			}
-			
+
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				
-				for ( ArtExhibitionGuide g: getArtExhibitionDBService().getArtExhibitionGuides(getArtExhibitionModel().getObject())) {
-				
-					if ( !g.isAccessible() ) {
+
+				for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(getArtExhibitionModel().getObject())) {
+
+					if (!g.isAccessible()) {
 						String info = g.getInfo();
-						if (info!=null) {
+						if (info != null) {
 							ArtExhibitionGuideEditor.this.getModel().getObject().setInfo(info);
 							ArtExhibitionGuideEditor.this.infoField.setValue(info);
 							ArtExhibitionGuideEditor.this.infoField.updateModel();
-							
+
 							target.add(ArtExhibitionGuideEditor.this);
 						}
 					}
@@ -277,11 +270,9 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 				}
 			}
 		};
-		
+
 		w.add(importGuide);
-		
-		
-		
+
 		form.add(audioField);
 
 		EditButtons<ArtExhibitionGuide> buttons = new EditButtons<ArtExhibitionGuide>("buttons-bottom", getForm(), getModel()) {
@@ -305,10 +296,10 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -332,10 +323,10 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -352,14 +343,15 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 
 		this.openAudioStudio = new Link<ArtExhibitionGuide>("openAudioStudio", getModel()) {
 			private static final long serialVersionUID = 1L;
+
 			/**
-			 *  Art Exhibition does not have Accesible audio (it is not needed).
+			 * Art Exhibition does not have Accesible audio (it is not needed).
 			 */
 			@Override
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getModel().getObject().isAccessible() ));
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getModel().getObject().isAccessible()));
 			}
 
 			public boolean isEnabled() {
@@ -571,7 +563,7 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 
 		return list;
 	}
-	
+
 	@Override
 	public IModel<Site> getSiteModel() {
 		return siteModel;

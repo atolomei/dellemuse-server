@@ -26,6 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FilenameUtils;
 
 public class IntegrateMusicCommand extends Command {
@@ -49,7 +50,10 @@ public class IntegrateMusicCommand extends Command {
 	private Long musicId;
 	
 	StringBuilder errorMsg = new StringBuilder();
-
+	
+	
+	private Integer startSec = Integer.valueOf(0); 
+	
 	private Integer introDurationSec = Integer.valueOf(20); // seconds of music before voice
 	private Integer fadeDurationSec = Integer.valueOf(12); // duration of fade-out
 	private Integer voiceOverlapDurationSec = Integer.valueOf(5); // duration of fade-out
@@ -59,13 +63,17 @@ public class IntegrateMusicCommand extends Command {
 	private boolean success = false;
 
 	public IntegrateMusicCommand(
+			
 			Long voiceResourceId, 
 			Long musicId,
 			String musicUrl, 
+			Integer startSec, 
 			Integer introDurationSec, 
 			Integer fadeDurationSec, 
 			Integer fadeOverlapDurationSec) {
 
+		
+		this.startSec=startSec;
 		this.musicId=musicId;
 		this.voiceResourceId = voiceResourceId;
 		this.musicUrl = musicUrl;
@@ -88,7 +96,7 @@ public class IntegrateMusicCommand extends Command {
 	
 	// download mp3 from url
 	//
-	private boolean downloadMp3FromUrl(String musicFile) {
+	private boolean downloadMusicFromUrl(String musicFile) {
 
 		try {
 			downloadURL3(this.musicUrl, musicFile);
@@ -105,7 +113,7 @@ public class IntegrateMusicCommand extends Command {
 	
 	// download Resource mp3
 	//
-	private boolean downloadMp3FromMusic(String musicFile) {
+	private boolean downloadAudioFromMusicLibrary(String musicFile) {
 
 		try {
 
@@ -236,20 +244,42 @@ public class IntegrateMusicCommand extends Command {
 			//
 			//
 			
-			String mp3FileName = "music-for-" + this.voiceResourceId.toString() + ".mp3";
-			String musicFile = downloadDir + File.separator + mp3FileName;
 
 			boolean psuccess = false;
 			
+			String musicFile  =null;
+			
 			if (this.musicId!=null) {
-				psuccess = downloadMp3FromMusic(musicFile);
+				
+				Optional<Music> o = getMusicDBService().findWithDeps(this.musicId);
+
+				if (o.isEmpty()) {
+					errorMsg.append("music download error");
+					return;
+				}
+				
+				Resource r = o.get().getAudio();
+				
+				if (r==null) {
+					errorMsg.append("music download error");
+					return;
+				}
+				
+				String ext = FileNameUtils.getExtension( o.get().getName() );
+				String mp3FileName = "music-for-" + this.voiceResourceId.toString() + "." + ext;
+				  musicFile = downloadDir + File.separator + mp3FileName;
+				psuccess = downloadAudioFromMusicLibrary(musicFile);
+
 			}
 			else {
-				psuccess = downloadMp3FromUrl(musicFile);
+
+				String aFileName = "music-for-" + this.voiceResourceId.toString() + FileNameUtils.getExtension(this.musicUrl);
+				  musicFile = downloadDir + File.separator + aFileName;
+				psuccess = downloadMusicFromUrl(musicFile);
 			}
 			
 			if (!psuccess) {
-				errorMsg.append("mp3 download error");
+				errorMsg.append("music download error");
 				return;
 			}
 
@@ -300,11 +330,32 @@ public class IntegrateMusicCommand extends Command {
 			 **/
 
 			String ffmpegPrefix = "/opt/homebrew/bin/ffmpeg";
-			String ffmpegCmd = String.format(
+			
+			/**String ffmpegCmd = String.format(
 					ffmpegPrefix + " -i \"%s\" -i \"%s\" " + "-filter_complex " + "\"[0:a]afade=t=out:st=%d:d=%d[aud1];" + "[1:a]adelay=%d|%d[aud2];" + "[aud1][aud2]amix=inputs=2:duration=shortest[aout]\" " + "-map \"[aout]\" -y \"%s\"",
 					musicFile, downloadDir + File.separator + voiceFileName, fadeStartSec, fadeDurationSec, (introDurationSec - voiceOverlapDurationSec) * 1000, (introDurationSec - voiceOverlapDurationSec) * 1000,
 					downloadDir + File.separator + outputFile);
-
+**/
+			
+			
+			String ffmpegCmd = String.format(
+			        ffmpegPrefix + " -ss %d -i \"%s\" -i \"%s\" "
+			        + "-filter_complex "
+			        + "\"[0:a]afade=t=out:st=%d:d=%d[aud1];"
+			        + "[1:a]adelay=%d|%d[aud2];"
+			        + "[aud1][aud2]amix=inputs=2:duration=shortest[aout]\" "
+			        + "-map \"[aout]\" -y \"%s\"",
+			        startSec, // ← NUEVO parámetro
+			        musicFile,
+			        downloadDir + File.separator + voiceFileName,
+			        fadeStartSec,
+			        fadeDurationSec,
+			        (introDurationSec - voiceOverlapDurationSec) * 1000,
+			        (introDurationSec - voiceOverlapDurationSec) * 1000,
+			        downloadDir + File.separator + outputFile
+			);
+			
+			
 			// Run FFmpeg using ProcessBuilder
 			ProcessBuilder pb = new ProcessBuilder("bash", "-c", ffmpegCmd);
 			pb.inheritIO(); // prints FFmpeg output in console

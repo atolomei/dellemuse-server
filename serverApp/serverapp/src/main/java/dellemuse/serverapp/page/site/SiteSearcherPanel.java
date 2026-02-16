@@ -152,19 +152,20 @@ public class SiteSearcherPanel extends BaseSiteSearcherPanel implements Internal
 		}
 		
 		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDTIION_PUBLISHED)
-			getGuideContentDBService().getByAudioId( getModel().getObject(), l_aid, ObjectState.EDITION, ObjectState.PUBLISHED).forEach(s ->  list.add(new ObjectModel<GuideContent>(s)));
+			getGuideContentDBService().getByArtWorkAudioId( getModel().getObject(), l_aid, ObjectState.EDITION, ObjectState.PUBLISHED).forEach(s ->  list.add(new ObjectModel<GuideContent>(s)));
+			//getGuideContentDBService().getByAudioId( getModel().getObject(), l_aid, ObjectState.EDITION, ObjectState.PUBLISHED).forEach(s ->  list.add(new ObjectModel<GuideContent>(s)));
 	
 		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
-			getGuideContentDBService().getByAudioId( getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> list.add(new ObjectModel<GuideContent>(s)));
+			getGuideContentDBService().getByArtWorkAudioId( getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> list.add(new ObjectModel<GuideContent>(s)));
 		
 		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
-			getGuideContentDBService().getByAudioId( getModel().getObject(), l_aid, ObjectState.EDITION).forEach(s ->  list.add(new ObjectModel<GuideContent>(s)));
+			getGuideContentDBService().getByArtWorkAudioId( getModel().getObject(), l_aid, ObjectState.EDITION).forEach(s ->  list.add(new ObjectModel<GuideContent>(s)));
 	
 		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.ALL)
-			getGuideContentDBService().getByAudioId( getModel().getObject(), l_aid).forEach(s ->  list.add(new ObjectModel<GuideContent>(s)));
+			getGuideContentDBService().getByArtWorkAudioId( getModel().getObject(), l_aid).forEach(s ->  list.add(new ObjectModel<GuideContent>(s)));
 	
 		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
-			getGuideContentDBService().getByAudioId( getModel().getObject(), l_aid, ObjectState.DELETED).forEach(s ->  list.add(new ObjectModel<GuideContent>(s)));
+			getGuideContentDBService().getByArtWorkAudioId( getModel().getObject(), l_aid, ObjectState.DELETED).forEach(s ->  list.add(new ObjectModel<GuideContent>(s)));
 
 		return list;
 	

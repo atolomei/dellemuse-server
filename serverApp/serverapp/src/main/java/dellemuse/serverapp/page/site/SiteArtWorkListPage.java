@@ -34,6 +34,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.Voice;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
 
@@ -210,6 +211,37 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		
 		
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtWork> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtWork>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getArtWorkDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
 
@@ -230,7 +262,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getArtWorkDBService().save(getModel().getObject());
+						getArtWorkDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 
@@ -242,7 +274,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 			}
 		});
 		
-		
+		/**
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
 			private static final long serialVersionUID = 1L;
 
@@ -253,10 +285,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 				};
 			}
 		});
-		
-		
-		
-		
+		**/
 		
 		
 		
@@ -394,7 +423,10 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+
+		
+		// IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);

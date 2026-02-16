@@ -27,6 +27,10 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class Music extends DelleMuseObject {
 
+	@Column(name = "license")
+	private String license;
+
+	
 	@Column(name = "url")
 	private String url;
 	
@@ -36,6 +40,12 @@ public class Music extends DelleMuseObject {
 	
 	@Column(name = "info")
 	private String info;
+		
+	@Column(name = "technical_info")
+	private String technicalInfo;
+	
+	@Column(name = "royaltyFree")
+	private boolean royaltyFree;
 		
 	
 	@JdbcTypeCode(SqlTypes.JSON)
@@ -97,6 +107,30 @@ public class Music extends DelleMuseObject {
 
 	public void setAudio(Resource audio) {
 		this.audio = audio;
+	}
+
+	public String getLicense() {
+		return license;
+	}
+
+	public void setLicense(String license) {
+		this.license = license;
+	}
+
+	public boolean isRoyaltyFree() {
+		return royaltyFree;
+	}
+
+	public void setRoyaltyFree(boolean royaltyFree) {
+		this.royaltyFree = royaltyFree;
+	}
+
+	public String getTechnicalInfo() {
+		return technicalInfo;
+	}
+
+	public void setTechnicalInfo(String technicalInfo) {
+		this.technicalInfo = technicalInfo;
 	}
 
 	

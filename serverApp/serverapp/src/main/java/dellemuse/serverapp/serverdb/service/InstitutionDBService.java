@@ -59,8 +59,7 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		c.setName(name);
 		c.setState(ObjectState.EDITION);
 		
-		//c.setMasterLanguage(getSettings().getDefaultMasterLanguage());
-		//c.setLanguage(getSettings().getDefaultMasterLanguage());
+	 
 
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
@@ -118,8 +117,15 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		return c;
 	}
 	
-	
-	 @Transactional	
+
+	@Transactional	
+	public void save(Institution o, User user, String updatedPart) {
+			super.save(o);
+			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, updatedPart));
+	}
+
+	 
+	@Transactional	
 	public void save(Institution o, User user, List<String> updatedParts) {
 			super.save(o);
 			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));

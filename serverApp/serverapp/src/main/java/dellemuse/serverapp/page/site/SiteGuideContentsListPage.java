@@ -159,7 +159,10 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		//IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+
+		
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);

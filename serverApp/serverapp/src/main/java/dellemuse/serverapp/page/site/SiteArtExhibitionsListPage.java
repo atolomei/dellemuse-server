@@ -235,6 +235,10 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		
 		
 		
+		
+		
+		
+		
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
@@ -255,7 +259,7 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getArtExhibitionDBService().save(getModel().getObject());
+						getArtExhibitionDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 
@@ -269,6 +273,39 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		
 		
 	 
+
+		
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibition>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getArtExhibitionDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
 		
 		
 		
@@ -308,7 +345,7 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 			for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
 
-				final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.Accesible : "");
+				final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.ACCESIBLE_ICON : "");
 				
 				
 				final Long gid = g.getId();

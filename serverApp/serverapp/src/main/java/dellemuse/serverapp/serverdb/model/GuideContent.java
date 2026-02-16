@@ -65,7 +65,6 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	@Column(name = "infoAccessible")
 	private String infoAccessible;
 
-	
 	/**
 	 * true -> la version Accesible solo muestra este content
 	 * false -> la version accesible muestra el primary y este como complementario
@@ -73,7 +72,6 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	@Column(name = "infoAccessibleIsPrimary")
 	private boolean infoAccessibleIsPrimary;
 
-	
 	/**
 	 * true -> este GuideContent se lista unicamente en la version Accesible
 	 * false -> este GuideContent se lista en la version Standard y en la Accesible
@@ -91,17 +89,22 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	private Resource audioAccessible;
 	
 	
-	
 	/**
 	 * 
 	 * CREATE SEQUENCE if not exists audio_id START 1; alter table
-	 * artexhibitionguide add column audio_id bigint; alter table guidecontent add
-	 * column audio_id bigint;
-	 * 
+ 	 * 
 	 */
 	@Column(name = "audio_id")
 	private Long audioId;
 
+	
+	@Column(name = "artwork_audio_id")
+	private Long artWorkAudioId;
+	
+	//@Column(name = "artexhibition_item_audio_id")
+	//private Long artexhibitionItemAudioId;
+
+	
 	public GuideContent() {
 	}
 
@@ -209,5 +212,17 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	public void setAudioAccessible(Resource audioAccesible) {
 		this.audioAccessible = audioAccesible;
 	}
+
+	public Long getArtWorkAudioId() {
+		return artWorkAudioId;
+	}
+
+	public void setArtWorkAudioId(Long artWorkAudioId) {
+		this.artWorkAudioId = artWorkAudioId;
+	}
+ 
+
+ 
+
 	
 };

@@ -228,17 +228,25 @@ public class ArtExhibitionGuideDBService extends  MultiLanguageObjectDBservice<A
 			a.getArtExhibition().getDisplayname();
 
 		if (a.getPublisher() != null)
-			a.getPublisher().getDisplayname();
+			a.setPublisher(getPersonDBService().findById( a.getPublisher().getId() ).get());
 
 		if (a.getGuideContents() != null)
 			a.getGuideContents().size();
 
-		if (a.getPhoto() != null)
-			a.getPhoto().getBucketName();
+		Resource photo = a.getPhoto();
+		if (photo!=null)
+			a.setPhoto( getResourceDBService().findById(photo.getId()).get());
 
-		if (a.getAudio() != null)
-			a.getAudio().getBucketName();
+		Resource audio = a.getAudio();
+		if (audio!=null)
+			a.setAudio( getResourceDBService().findById(audio.getId()).get());
 
+		User user = a.getLastModifiedUser();
+		
+		if (user!=null)
+			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		
+		
 		List<GuideContent> li = new ArrayList<GuideContent>();
 		a.getGuideContents().forEach( c -> {
 			li.add(getGuideContentDBService().findById(c.getId()).get());

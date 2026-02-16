@@ -50,23 +50,6 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	private List<ToolbarItem> listToolbar;
 
 	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		if (ouser.isEmpty())
-			return false;
-		
-		User user = ouser.get();  if (user.isRoot()) return true;
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		Set<RoleGeneral> set =user.getRolesGeneral();
-		if (set==null)
-			return false;
-		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-	}
-	
 	public InstitutionsListPage() {
 		super();
 		super.setIsExpanded(true);
@@ -91,14 +74,32 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-
 		listToolbar.add(s);
 
 		return listToolbar;
 	}
 
+
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  if (user.isRoot()) return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set =user.getRolesGeneral();
+		if (set==null)
+			return false;
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	}
+	
+	
 	protected void onCreate() {
 
 		try {
@@ -189,7 +190,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getInstitutionDBService().save(getModel().getObject());
+						getInstitutionDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 
@@ -201,8 +202,40 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			}
 		});
 		
+
 		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Institution> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Institution>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getInstitutionDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
 		
+		/*
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;
@@ -215,7 +248,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			}
 		});
 		
-		
+		*/
 		
 		
 		

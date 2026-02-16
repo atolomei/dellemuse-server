@@ -26,66 +26,63 @@ import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
- 
 
 public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<ArtExhibitionGuide> {
 
 	private static final long serialVersionUID = 1L;
 
 	private IModel<Site> siteModel;
-	
-	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel,  Align align) {
+
+	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, Align align) {
 		this(id, model, siteModel, null, align);
-		setTitle(getLabel("audio-guide-dropdown",TextCleaner.truncate(getModel().getObject().getName(), 24)));
+		setTitle(getLabel("audio-guide-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 24)));
 	}
 
 	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, IModel<String> title, Align align) {
 		super(id, model, title, align);
-		this.siteModel=siteModel;
+		this.siteModel = siteModel;
 	}
-
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
 
-		if (siteModel!=null)
+		if (siteModel != null)
 			siteModel.detach();
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
-		 
-	
-		 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-					return new TitleMenuItem<ArtExhibitionGuide>(id) {
-						private static final long serialVersionUID = 1L;
 
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("artexhibition-guide-title");
-						}
-					};
-				}
-			});
-		 
-		 
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+				return new TitleMenuItem<ArtExhibitionGuide>(id) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("artexhibition-guide-title");
+					}
+				};
+			}
+		});
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public MenuItemPanel< ArtExhibitionGuide> getItem(String id) {
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
 
 				return new LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick()  {
+					public void onClick() {
 						ArtExhibitionGuidePage page = new ArtExhibitionGuidePage(getModel());
 						page.setStartTab(ServerAppConstant.artexhibitionguide_info);
 						setResponsePage(page);
@@ -98,33 +95,32 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 				};
 			}
 		});
-		
- 
-		
-		for (Language la: getSiteModel().getObject().getLanguages()) {
-					
+
+		for (Language la : getSiteModel().getObject().getLanguages()) {
+
 			final String langCode = la.getLanguageCode();
-			
+
 			if (!langCode.equals(getModel().getObject().getMasterLanguage())) {
-			
+
 				addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-	
+
 					private static final long serialVersionUID = 1L;
-	
+
 					@Override
 					public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-	
-						return new  LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+
+						return new LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
 							private static final long serialVersionUID = 1L;
+
 							@Override
-							public void onClick()  {
-								 
+							public void onClick() {
+
 								ArtExhibitionGuidePage page = new ArtExhibitionGuidePage(getModel());
-								page.setStartTab(ServerAppConstant.object_translation_record_info+"-"+langCode);
+								page.setStartTab(ServerAppConstant.object_translation_record_info + "-" + langCode);
 								setResponsePage(page);
-							
+
 							}
-	
+
 							@Override
 							public IModel<String> getLabel() {
 								return getLabel("artexhibitionguide-record", langCode);
@@ -134,24 +130,7 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 				});
 			}
 		}
-		 
-	
-	
-	
-	
-	addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-		
-		private static final long serialVersionUID = 1L;
 
-		@Override
-		public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-			 
-			return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
-				private static final long serialVersionUID = 1L;
-			};
-		}
-	});
-	
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
@@ -159,15 +138,29 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 			@Override
 			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
 
-				return new  LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
 					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+
+				return new LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick( )  {
-					 	 
+					public void onClick() {
+
 						ArtExhibitionGuidePage page = new ArtExhibitionGuidePage(getModel());
 						page.setStartTab(ServerAppConstant.artexhibitionguide_contents);
 						setResponsePage(page);
-					
+
 					}
 
 					@Override
@@ -177,26 +170,19 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 				};
 			}
 		});
- 
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-				 
+
 				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
 					private static final long serialVersionUID = 1L;
 				};
 			}
 		});
-		
-		
-	
-			 
-
-		
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
@@ -205,10 +191,11 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 			@Override
 			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
 
-				return new  LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+				return new LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick( )  {
+					public void onClick() {
 						ArtExhibitionGuidePage page = new ArtExhibitionGuidePage(getModel());
 						page.setStartTab(ServerAppConstant.object_meta);
 						setResponsePage(page);
@@ -221,24 +208,7 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 				};
 			}
 		});
-		
-		
-		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
-				
-				private static final long serialVersionUID = 1L;
 
-				@Override
-				public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
-					 
-					return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
-						private static final long serialVersionUID = 1L;
-					};
-				}
-			});
-			
-		
-		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
@@ -246,14 +216,28 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 			@Override
 			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
 
-				return new  LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
 					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+
+				return new LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick( )  {
+					public void onClick() {
 						ArtExhibitionGuidePage page = new ArtExhibitionGuidePage(getModel());
 						page.setStartTab(ServerAppConstant.object_audit);
 						setResponsePage(page);
-				}
+					}
 
 					@Override
 					public IModel<String> getLabel() {
@@ -262,15 +246,13 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 				};
 			}
 		});
-		
-		
 
-		for (Language la: getSiteModel().getObject().getLanguages()) {
-			
+		for (Language la : getSiteModel().getObject().getLanguages()) {
+
 			final String a_langCode = la.getLanguageCode();
 
 			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {
-				
+
 				addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 					private static final long serialVersionUID = 1L;
@@ -278,13 +260,13 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 					@Override
 					public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
 
-						return new  LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+						return new LinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
 							private static final long serialVersionUID = 1L;
 
 							@Override
 							public void onClick() {
 								ArtExhibitionGuidePage page = new ArtExhibitionGuidePage(getModel());
-								page.setStartTab(ServerAppConstant.object_audit+"-"+a_langCode);
+								page.setStartTab(ServerAppConstant.object_audit + "-" + a_langCode);
 								setResponsePage(page);
 							}
 
@@ -297,16 +279,7 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 				});
 			}
 		}
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
 	}
 
 	protected LanguageService getLanguageService() {

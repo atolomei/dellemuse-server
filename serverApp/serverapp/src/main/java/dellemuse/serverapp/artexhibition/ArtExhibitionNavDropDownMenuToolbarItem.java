@@ -184,7 +184,7 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends ObjectBaseNavDropDo
 		
 		for ( ArtExhibitionGuide g: getArtExhibitionDBService().getArtExhibitionGuides( getModel().getObject(), ObjectState.PUBLISHED, ObjectState.EDITION)) {
 			
-			final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.Accesible : "");
+			final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.ACCESIBLE_ICON : "");
 			
 			final String gid = g.getId().toString();
 					

@@ -23,6 +23,7 @@ import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.Voice;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -79,7 +80,10 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+
+		
+		// IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);
@@ -176,6 +180,41 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 		
 		
 		
+
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Voice>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Voice> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Voice>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getVoiceDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
+
+		
+		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Voice>() {
 
 			private static final long serialVersionUID = 1L;
@@ -195,7 +234,7 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getVoiceDBService().save(getModel().getObject());
+						getVoiceDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 

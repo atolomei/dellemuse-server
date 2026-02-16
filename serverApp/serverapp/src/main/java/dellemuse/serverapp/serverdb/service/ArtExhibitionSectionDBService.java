@@ -114,6 +114,11 @@ public class ArtExhibitionSectionDBService extends  MultiLanguageObjectDBservice
 		if (photo != null)
 			photo.getBucketName();
 
+		User user = a.getLastModifiedUser();
+		if (user!=null)
+			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+
+		
 		a.setDependencies(true);
 
 		return o;

@@ -2,7 +2,7 @@ package dellemuse.serverapp;
 
 public class DelleMuseServerDBVersion {
 
-	public static final String VERSION = "0.1 beta";
+	 
 	
 	private static String[] brand_char = null;
 	
@@ -19,7 +19,7 @@ public class DelleMuseServerDBVersion {
         brand_char[4] = app[4] + "";
         brand_char[5] = app[5];
         brand_char[6] = "";
-        brand_char[7] = "version: " + VERSION;
+        brand_char[7] = "version: " + DellemuseServerAppVersion.VERSION;
         brand_char[8] = "";
         return brand_char;
     }

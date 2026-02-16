@@ -303,8 +303,9 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 
 		User u = aw.getLastModifiedUser();
 
-		if (u != null)
-			u.getDisplayname();
+		User user = aw.getLastModifiedUser();
+		if (user!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
 
 		Resource audio = aw.getAudioSpeech();
 		if (audio != null) 
@@ -315,10 +316,30 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 			aw.setAudioSpeechMusic(getResourceDBService().findById(s_audio.getId()).get());
 		
 		GuideContent gc = aw.getGuideContent();
+		if (gc!=null) {
+			aw.setGuideContent( getGuideContentDBService().findById(gc.getId()).get() );
+		}
+		
 		ArtExhibitionGuide ae = aw.getArtExhibitionGuide();
+		if (ae!=null) {
+			aw.setArtExhibitionGuide( getArtExhibitionGuideDBService().findById(ae.getId()).get() );
+		}
+		
 		GuideContentRecord gc_r = aw.getGuideContentRecord();
-		ArtExhibitionGuideRecord aeg_r = aw.getArtExhibitionGuideRecord();
+		if ( gc_r!=null) {
+			aw.setGuideContentRecord( getGuideContentRecordDBService().findById(gc_r.getId()).get() );
 
+		}
+		
+		ArtExhibitionGuideRecord aeg_r = aw.getArtExhibitionGuideRecord();
+		if (aeg_r !=null) {
+			aw.setArtExhibitionGuideRecord( getArtExhibitionGuideRecordDBService().findById(aeg_r .getId()).get() );
+
+		}
+		
+		 
+		
+		
 		aw.setDependencies(true);
 
 		return o_aw;

@@ -17,9 +17,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import dellemuse.model.image.SimpleImageInfo;
 import dellemuse.model.logging.Logger;
+import dellemuse.model.util.FSUtil;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
-import dellemuse.serverapp.music.Mp3MetadataExtractor;
+import dellemuse.serverapp.music.AudioFileMetadataExtractor;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
@@ -200,9 +201,10 @@ public class ResourceMetadataCommand extends Command {
 									}
 								}
 								
-								if (FilenameUtils.getExtension( downloadedFile .getName()).equals("mp3")) {
-									resource.setMeta_json(Mp3MetadataExtractor.extractMetadata(downloadedFile));
-									logger.debug( resource.getMeta_json());
+								if (	FSUtil.isAudio( downloadedFile .getName())) {
+									
+										resource.setMeta_json(AudioFileMetadataExtractor.extractMetadata(downloadedFile));
+										logger.debug( resource.getMeta_json());
 								}
 								
 							} finally {

@@ -41,7 +41,7 @@ body.dellemuse {margin:0; padding:0; font-family: Montserrat, Arial, sans serif;
 
 
 .expanded .menuContainer  {top:15px;}
-.menuContainer {width:auto; top:10px; right:15px; position:absolute;  z-index:1;}
+.menuContainer {width:auto; top:10px; right:15px; position:absolute; }
 
 
 
@@ -205,7 +205,7 @@ a.listItemLink {text-decoration: none; color: inherit;}
 .dellemuse .itemMenu .dropdown i 	{color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));  font-size:1.15em;}
 .dellemuse .itemMenu .dropdown-toggle::after {display:none;}
 
-.static-text {min-height: 1.5em; font-style: italic;}
+.static-text {min-height: calc( 1em + 1.5rem ); font-style: italic;}
 
 .pill-selected {border:none;}
 .pill {border-radius: 6px; }

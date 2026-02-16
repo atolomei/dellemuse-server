@@ -430,7 +430,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 			Optional<ArtWork> o_i = getArtWorkDBService().findWithDeps(getModel().getObject().getId());
 			setModel(new ObjectModel<ArtWork>(o_i.get()));
 		}
-
+ 
 		setSiteModel(new ObjectModel<Site>(getModel().getObject().getSite()));
 
 		if (!getSiteModel().getObject().isDependencies()) {

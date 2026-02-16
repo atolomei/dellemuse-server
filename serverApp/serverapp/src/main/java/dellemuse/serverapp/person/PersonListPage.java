@@ -35,6 +35,7 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -64,6 +65,17 @@ public class PersonListPage extends ObjectListPage<Person> {
 	static private Logger logger = Logger.getLogger(PersonListPage.class.getName());
 	private List<ToolbarItem> listToolbar;
 
+	public  PersonListPage() {
+		super();
+		 setIsExpanded(true);
+		 
+	}		
+	
+	public PersonListPage(PageParameters parameters) {
+		 super(parameters);
+		 setIsExpanded(true);
+	}
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		
@@ -86,17 +98,6 @@ public class PersonListPage extends ObjectListPage<Person> {
 		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
 	}
 	
-	public  PersonListPage() {
-		super();
-		 setIsExpanded(true);
-		 
-	}		
-	
-	public PersonListPage(PageParameters parameters) {
-		 super(parameters);
-		 setIsExpanded(true);
-	}
-	 	
 	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
@@ -106,11 +107,14 @@ public class PersonListPage extends ObjectListPage<Person> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
+		{
 		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-
 		listToolbar.add(s);
-
+		}
+		
+		 
+		
 		return listToolbar;
 	}
 
@@ -184,7 +188,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getPersonDBService().save(getModel().getObject());
+						getPersonDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 
@@ -196,6 +200,38 @@ public class PersonListPage extends ObjectListPage<Person> {
 			}
 		});
 		
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Person> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Person>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getPersonDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
 
 		/**
 		
@@ -235,9 +271,6 @@ public class PersonListPage extends ObjectListPage<Person> {
 	    JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("persons"));
 		ph.setBreadCrumb(bc);
 		ph.setIcon( "fa-duotone fa-solid fa-user-group" );
-		
-		
-		
 		ph.setHeaderCss("mb-0 pb-2 border-none");
 		add(ph);
 	}

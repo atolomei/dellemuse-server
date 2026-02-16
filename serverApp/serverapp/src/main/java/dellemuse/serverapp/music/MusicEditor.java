@@ -6,9 +6,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -24,10 +26,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
  
 import org.apache.wicket.model.util.ListModel;
+import org.aspectj.util.FileUtil;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.model.util.FSUtil;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideEditor;
@@ -73,14 +77,49 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 	private ChoiceField<ObjectState> objectStateField;
 
 	private TextField<String> nameField;
+
+	
 	
 	private FileUploadSimpleField<Resource> audioField;
 
 	private TextAreaField<String> infoField;
+	private TextAreaField<String>  urlField;
+	private TextAreaField<String> licenseField;
 
+	
+	private TextAreaField<String> technicalInfoField;
+
+	
+	private ChoiceField<Boolean> royaltyFreeField;
+	
+	
 	private String audioMeta;
 	private List<ToolbarItem> x_list;
 	
+	private static Map<String, String> T_KEYS = new ConcurrentHashMap<String, String>();
+	
+	static  {
+		
+		T_KEYS.put("bitrate", "bitrate");
+		T_KEYS.put("durationSeconds", "durationSeconds");
+		T_KEYS.put("audio format", "audio format");
+		T_KEYS.put("size", "size");
+		T_KEYS.put("format", "format");
+		T_KEYS.put("track", "track");
+		T_KEYS.put("tsampleRate", "sampleRate");
+		T_KEYS.put("audioFormat", "audioFormat");
+	}
+
+	
+private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String>();
+	
+	static  {
+		
+		I_KEYS.put("composer", "composer");
+		I_KEYS.put("year", "year");
+		I_KEYS.put("artist", "artist");
+		I_KEYS.put("album", "album");
+	}
 	
 	/**
 	 * @param id
@@ -89,10 +128,6 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 	public MusicEditor(String id, IModel<Music> model) {
 		super(id, model);
 	}
-	
-	
-
-	
 	
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
@@ -126,8 +161,6 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 	public void onInitialize() {
 		super.onInitialize();
 		setUpModel();
-				
-		
 
 		add(new InvisiblePanel("error"));
 
@@ -163,10 +196,36 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 		};
 		form.add(objectStateField);
 
-		infoField 	= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
-	
-		nameField 	= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+	 
+		royaltyFreeField = new ChoiceField<Boolean>("royaltyfree", new PropertyModel<Boolean>(getModel(), "royaltyFree"), getLabel("royaltyfree")) {
 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Boolean>> getChoices() {
+				return new ListModel<Boolean>(b_list);
+			}
+
+			@Override
+			protected String getDisplayValue(Boolean value) {
+				if (value == null)
+					return null;
+				if (value.booleanValue())
+					return getLabel("yes").getObject();
+				return getLabel("no").getObject();
+			}
+		};
+		getForm().add(royaltyFreeField);
+		
+		
+		infoField 	= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
+		urlField 	= new TextAreaField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"), 3);
+		licenseField = new TextAreaField<String>("license", new PropertyModel<String>(getModel(), "license"), getLabel("license"), 3);
+		
+		technicalInfoField = new TextAreaField<String>("technicalinfo", new PropertyModel<String>(getModel(), "technicalInfo"), getLabel("technicalinfo"), 5);
+		form.add(technicalInfoField);
+		
+		nameField 	= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		audioField 	= new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
@@ -194,13 +253,14 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 			}
 		};
 
-		
-	 
-
+	
 		form.add(nameField);
 		form.add(infoField);
+		
+		form.add(licenseField);
+		form.add(urlField);
+		
 		form.add(audioField);
-
 		
 		AjaxLink<Void> importEx =new AjaxLink<Void>("extract") {
 
@@ -223,28 +283,57 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 					Map<String, String> map = extract(r);
 					
 					if (map!=null) {
+				 
+						String info = map.entrySet().stream()
+							    .filter( e -> I_KEYS.containsKey(e.getKey()))
+								.map(e -> e.getKey()+ ". " + e.getValue())   
+							    .collect(Collectors.joining("\n"));
+
+						MusicEditor.this.getModel().getObject().setInfo(info);
+						MusicEditor.this.infoField.setValue(info);
+						MusicEditor.this.infoField.updateModel();
+					
 						
-					
-					MusicEditor.this.getModel().getObject().setInfo(
-							
-							map.entrySet().stream()
-						    .map(e -> e.getKey() + ": " + e.getValue()) 
-						    .collect(Collectors.joining("\n"))
-						    
-							);
-					MusicEditor.this.infoField.setValue(map.entrySet().stream()
-						    .map(e -> e.getKey() + ": " + e.getValue()) 
-						    .collect(Collectors.joining("\n")));
-					MusicEditor.this.infoField.updateModel();
-				
-					
-					if (map.containsKey("title")) {
-						MusicEditor.this.getModel().getObject().setName(map.get("title"));
-						MusicEditor.this.nameField.setValue(map.get("title"));
-						MusicEditor.this.nameField.updateModel();
-					
-					}
-					
+						
+
+						String t_info = map.entrySet().stream()
+							    .filter( e -> T_KEYS.containsKey(e.getKey()))
+								.map(e -> e.getKey()+ ". " + e.getValue()) 
+							    .collect(Collectors.joining("\n"));
+
+						MusicEditor.this.getModel().getObject().setTechnicalInfo(t_info);
+						MusicEditor.this.technicalInfoField.setValue(t_info);
+						MusicEditor.this.technicalInfoField.updateModel();
+
+						
+						
+						if (map.containsKey("title")) {
+							MusicEditor.this.getModel().getObject().setName(map.get("title").replace("-", " ").replace("_", " "));
+							MusicEditor.this.nameField.setValue(map.get("title"));
+							MusicEditor.this.nameField.updateModel();
+						}
+						if (map.containsKey("copyright")) {
+							MusicEditor.this.getModel().getObject().setLicense(map.get("copyright"));
+							MusicEditor.this.licenseField.setValue(map.get("copyright"));
+							MusicEditor.this.licenseField.updateModel();
+						}
+						if (map.containsKey("url")) {
+							MusicEditor.this.getModel().getObject().setUrl(map.get("url"));
+							MusicEditor.this.urlField.setValue(map.get("url"));
+							MusicEditor.this.urlField.updateModel();
+						}
+						else if (map.containsKey("comment") && map.get("comment").contains("http")) {
+							MusicEditor.this.getModel().getObject().setUrl(map.get("comment"));
+							MusicEditor.this.urlField.setValue(map.get("comment"));
+							MusicEditor.this.urlField.updateModel();
+						}
+						
+						
+						if (MusicEditor.this.getModel().getObject().getUrl()!=null && MusicEditor.this.getModel().getObject().getUrl().toLowerCase().contains("wikimedia.org")) {
+							MusicEditor.this.getModel().getObject().setRoyaltyFree(true);
+							MusicEditor.this.royaltyFreeField.setValue(true);
+							MusicEditor.this.royaltyFreeField.updateModel();
+						}
 				}
 				target.add(MusicEditor.this);
 					
@@ -457,11 +546,12 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 								Files.copy(in, downloadedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 							}
 							
-							if (FilenameUtils.getExtension( downloadedFile .getName()).equals("mp3")) {
-								return Mp3MetadataExtractor.extractMetadata(downloadedFile);
+							if (	FSUtil.isAudio( downloadedFile .getName())) { 	 
+									Map<String, String> m1 = AudioRightsMetadataExtractor.extract(downloadedFile); 
+									Map<String, String> m2 = AudioFileMetadataExtractor.extractMetadata(downloadedFile); 
+									m2.forEach( (k,v) -> m1.put( k,v));
+									return m1; 
 							}
-							
-							
 						} finally {
 							getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().unlock();
 						}
@@ -484,15 +574,6 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 		}
 		
 		return null;
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 	}
 	public ServerDBSettings getSettings() {

@@ -203,7 +203,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
 			getObjects(ObjectState.DELETED).forEach(s -> this.selected.add(new ObjectModel<ArtExhibitionItem>(s)));
 
-		this.selected.forEach(c -> logger.debug(c.toString()));
+		 
 	}
 
 	protected Panel getObjectListItemExpandedPanel(IModel<ArtExhibitionItem> model, ListPanelMode mode) {
@@ -254,6 +254,12 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		this.selected = null;
 	}
 
+	
+	protected void refresh(AjaxRequestTarget target) {
+		target.add(this.selectedPanel);
+	}
+	
+	
 	protected List<IModel<ArtWork>> getArtWorks() {
 
 		if (list != null)
@@ -300,7 +306,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getArtExhibitionItemDBService().save(getModel().getObject());
+						getArtExhibitionItemDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						target.add(ArtExhibitionItemsPanel.this);
 					}
 
@@ -312,6 +318,41 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 			}
 		});
 		
+		
+		
+	
+		
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionItem>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionItem> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibitionItem>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getArtExhibitionItemDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						 refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
 		
 		
 		

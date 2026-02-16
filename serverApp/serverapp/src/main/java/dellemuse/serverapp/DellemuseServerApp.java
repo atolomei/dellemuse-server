@@ -15,6 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.person.ServerAppConstant;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
@@ -28,7 +29,7 @@ public class DellemuseServerApp {
 	static private Logger std_logger = Logger.getLogger("StartupLogger");
 
 	static public String[] cmdArgs = null;
-	static public final String SEPARATOR = "---------------------------------";
+	//static public final String SEPARATOR = "---------------------------------";
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication application = new SpringApplication(DellemuseServerApp.class);
@@ -44,7 +45,7 @@ public class DellemuseServerApp {
 		for (String s : DellemuseServerAppVersion.getAppCharacterName())
 			std_logger.info(s);
 
-		std_logger.info(SEPARATOR);
+		std_logger.info(ServerAppConstant.SEPARATOR);
 		std_logger.info("This software is licensed under the Apache License, Version 2.0");
 		std_logger.info("http://www.apache.org/licenses/LICENSE-2.0");
 
@@ -66,7 +67,7 @@ public class DellemuseServerApp {
 	private void initShutdownMessage() {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				std_logger.info(SEPARATOR);
+				std_logger.info(ServerAppConstant.SEPARATOR);
 				std_logger.info("");
 				std_logger.info("As the roman legionaries used to say when falling in battle");
 				std_logger.info("'Dulce et decorum est pro patria mori'...Shuting down... goodbye.");

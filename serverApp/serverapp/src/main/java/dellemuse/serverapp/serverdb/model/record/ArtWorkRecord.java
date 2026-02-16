@@ -29,8 +29,8 @@ public class ArtWorkRecord extends TranslationRecord {
 	@JsonManagedReference
 	@JsonBackReference
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
-	@JsonProperty("artwork")
-	private ArtWork artwork;
+	@JsonProperty("artWork")
+	private ArtWork artWork;
 
 	public ArtWorkRecord() {
 	}
@@ -41,17 +41,17 @@ public class ArtWorkRecord extends TranslationRecord {
 	}
 
 	
-	public ArtWork getArtwork() {
-		return artwork;
+	public ArtWork getArtWork() {
+		return artWork;
 	}
 
-	public void setArtwork(ArtWork artwork) {
-		this.artwork = artwork;
+	public void setArtWork(ArtWork artwork) {
+		this.artWork = artwork;
 	}
 
 	@Override
 	public MultiLanguageObject getParentObject() {
-		return this.artwork != null ? this.artwork : null;
+		return this.artWork != null ? this.artWork : null;
 	}
 
 	@Override

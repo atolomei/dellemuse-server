@@ -50,6 +50,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionSectionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
@@ -65,6 +66,7 @@ import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBServ
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionSectionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.ArtistRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
@@ -476,6 +478,15 @@ public abstract class BasePage extends WebPage {
 		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
 	}
 
+
+	protected ArtistDBService getArtistDBService() {
+		return (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
+	}
+	
+	protected ArtistRecordDBService getArtistRecordDBService() {
+		return (ArtistRecordDBService) ServiceLocator.getInstance().getBean(ArtistRecordDBService.class);
+	}
+	
 	protected AudioStudioDBService getAudioStudioDBService() {
 		return (AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class);
 	}

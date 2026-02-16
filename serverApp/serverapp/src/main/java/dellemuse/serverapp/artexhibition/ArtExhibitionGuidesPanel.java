@@ -181,6 +181,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	}
 
 	protected IModel<String> getObjectInfo(IModel<ArtExhibitionGuide> model) {
+		
 		return Model.of(getInfo(model.getObject(), false));
 	}
 
@@ -254,7 +255,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 						StringBuilder str = new StringBuilder();
 						str.append(ArtExhibitionGuidesPanel.this.getObjectTitle(getModel().getObject()).getObject());
 						if ( getModel().getObject().isAccessible())  
-							 str.append( Icons.Accesible );
+							 str.append( Icons.ACCESIBLE_ICON );
 						
 						return Model.of( str.toString() );
 					}

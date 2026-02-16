@@ -6,7 +6,8 @@ import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
- 
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
@@ -17,6 +18,7 @@ import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.artist.ArtistCreateEvent;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
@@ -67,6 +69,9 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 	private TextAreaField<String> infoField;
 
+	WebMarkupContainer cac;
+	WebMarkupContainer aac;
+	
 	private boolean uploadedPhoto = false;
 
 	/**
@@ -77,21 +82,25 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		super(id, model);
 	}
 
-	@Override
-	public void onInitialize() {
-		super.onInitialize();
-
+	
+	private void setUpModel() {
+	
+		getModel().setObject( getPersonDBService().findById(getModel().getObject().getId()).get());
+		
 		if (getModel().getObject().getPhoto() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
 		}
+	}
+	
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
 
-		Person person = getModel().getObject();
-		getPersonDBService().reloadIfDetached(person);
-		getModel().setObject(person);
-
+		setUpModel();
+		
 		add(new InvisiblePanel("error"));
-
+	
 		Form<Person> form = new Form<Person>("personForm", getModel());
 		form.setOutputMarkupId(true);
 
@@ -100,6 +109,43 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 		form.setFormState(FormState.VIEW);
 
+		cac = new WebMarkupContainer("createArtistContainer") {
+			public boolean isVisible() {
+				return getArtistDBService().getByPerson(getModel().getObject()).isEmpty();
+			}
+		};
+		
+		
+		AjaxLink<Void> ca =new AjaxLink<Void>("createArtist") {
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				getArtistDBService().create( PersonEditor.this.getModel().getObject(), getRootUser());
+				fireScanAll(new ArtistCreateEvent("create-artist", target));
+			}
+		};
+		form.add(cac);
+		cac.add(ca);
+
+
+		/**
+		aac = new WebMarkupContainer("alreadyArtistContainer") {
+			public boolean isVisible() {
+				return getArtistDBService().getByPerson(getModel().getObject()).isPresent();
+			}
+		};
+		
+		AjaxLink<Void> aa =new AjaxLink<Void>("alreadyArtist") {
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				fire (new SimpleAjaxWicketEvent(ServerAppConstant.person_artist, target));
+			}
+		};
+		form.add(aac);
+		aac.add(aa);
+		**/
+		
+		
+		/**
 		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 
 			private static final long serialVersionUID = 1L;
@@ -123,11 +169,12 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 		};
 		form.add(objectStateField);
-
+		 **/
+		
 		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		lastnameField = new TextField<String>("lastname", new PropertyModel<String>(getModel(), "lastname"), getLabel("lastname"));
-		nicknameField = new TextField<String>("nickname", new PropertyModel<String>(getModel(), "nickname"), getLabel("nickname"));
+		//nicknameField = new TextField<String>("nickname", new PropertyModel<String>(getModel(), "nickname"), getLabel("nickname"));
 		sexField = new TextField<String>("sex", new PropertyModel<String>(getModel(), "sex"), getLabel("sex"));
 		addressField = new TextField<String>("address", new PropertyModel<String>(getModel(), "address"), getLabel("address"));
 		phoneField = new TextField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"));
@@ -151,7 +198,6 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 				if (getPhotoModel() == null)
 					return null;
 				return PersonEditor.this.getPhotoMeta(getPhotoModel().getObject());
-
 			}
 
 			public boolean isThumbnail() {
@@ -162,12 +208,11 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 			protected void onRemove(AjaxRequestTarget target) {
 				logger.debug("onRemove");
 			}
-
 		};
 
 		form.add(nameField);
 		form.add(lastnameField);
-		form.add(nicknameField);
+		//form.add(nicknameField);
 		// form.add(sexField);
 		form.add(addressField);
 		form.add(phoneField);
@@ -256,7 +301,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
 			private static final long serialVersionUID = 1L;
 
-			@Override
+			@Override	
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_person_edit_info, target));
 			}
@@ -337,7 +382,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 				} catch (Exception e) {
 					uploadedPhoto = false;
-					error("Error saving file: " + e.getMessage());
+					addOrReplace(new SimpleAlertRow<Void>("error", e));
 				}
 			}
 		} else {

@@ -17,17 +17,9 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
+ 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
+ 
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
@@ -49,6 +41,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -186,7 +179,7 @@ public class SiteListPage extends ObjectListPage<Site> {
 		
 		listToolbar = new ArrayList<ToolbarItem>();
 	
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel( getLocale() ));
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item",  selected, Align.TOP_LEFT);
 		
 		listToolbar.add(s);
@@ -264,6 +257,35 @@ public class SiteListPage extends ObjectListPage<Site> {
 ("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
+		
+	 
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new LinkMenuItem<Site>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick () {
+						setResponsePage( new SitePage( getModel(), getList() ));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("open");
+					}
+				};
+			}
+		});
+		
+		
+		/**
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -275,19 +297,26 @@ public class SiteListPage extends ObjectListPage<Site> {
 
 					private static final long serialVersionUID = 1L;
 
+					
+					public boolean isVisible() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getSiteDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
+						refresh(target);
 					}
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("open");
+						return getLabel("publish");
 					}
 				};
 			}
 		});
-
+		
 		
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
@@ -302,24 +331,27 @@ public class SiteListPage extends ObjectListPage<Site> {
 					private static final long serialVersionUID = 1L;
 
 					
-					public boolean isEnabled() {
-						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					public boolean isVisible() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
 					}
 				
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getSiteDBService().save(getModel().getObject());
+						getModel().getObject().setState(ObjectState.EDITION);
+						getSiteDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("publish");
+						return getLabel("edit-mode");
 					}
 				};
 			}
 		});
+		
+		*/
+		
 		
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
@@ -333,15 +365,14 @@ public class SiteListPage extends ObjectListPage<Site> {
 			}
 		});
 		
-		
-		
-		
+		 
 		
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
 
+			
 			@Override
 			public MenuItemPanel<Site> getItem(String id) {
 
@@ -349,9 +380,16 @@ public class SiteListPage extends ObjectListPage<Site> {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.DELETED;
+					}
+					
+					
 					@Override
 					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+						getModel().getObject().setState(ObjectState.DELETED);
+						getSiteDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						refresh(target);
 					}
 
 					@Override

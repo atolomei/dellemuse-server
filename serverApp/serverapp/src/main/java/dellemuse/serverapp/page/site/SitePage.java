@@ -112,6 +112,28 @@ public class SitePage extends BasePage {
 	private WebMarkupContainer exhibitionsContainer;
 	private WebMarkupContainer catalogContainer;
 
+	
+	public SitePage() {
+		super();
+	}
+
+	public SitePage(PageParameters parameters) {
+		super(parameters);
+		stringValue = getPageParameters().get("id");
+	}
+
+	public SitePage(IModel<Site> model) {
+		this(model, null);
+	}
+
+	public SitePage(IModel<Site> model, List<IModel<Site>> list) {
+		Check.requireNonNullArgument(model, "model is null");
+		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
+		setSiteModel(model);
+		getPageParameters().add("id", model.getObject().getId().toString());
+		this.setSiteList(list);
+	}
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
@@ -151,35 +173,16 @@ public class SitePage extends BasePage {
 		return false;
 	}
 
-	public SitePage() {
-		super();
-	}
-
-	public SitePage(PageParameters parameters) {
-		super(parameters);
-		stringValue = getPageParameters().get("id");
-	}
-
-	public SitePage(IModel<Site> model) {
-		this(model, null);
-	}
-
-	public SitePage(IModel<Site> model, List<IModel<Site>> list) {
-		Check.requireNonNullArgument(model, "model is null");
-		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
-		setSiteModel(model);
-		getPageParameters().add("id", model.getObject().getId().toString());
-		this.setSiteList(list);
-	}
-
+	
 	protected void addErrorPanels(Exception e) {
 
 		if (getSessionUser().isPresent())
 			addOrReplace(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
 		else
 			addOrReplace(new GlobalTopPanel("top-panel"));
-
-		addOrReplace(new GlobalFooterPanel<>("footer-panel"));
+		
+		addOrReplace(new InvisiblePanel("page-header"));
+		addOrReplace(new InvisiblePanel("footer-panel"));
 		addOrReplace(new InvisiblePanel("brandedSiteContainer"));
 		addOrReplace(new InvisiblePanel("navigatorContainer"));
 		addOrReplace(new InvisiblePanel("exhibitionsContainer"));
@@ -187,7 +190,6 @@ public class SitePage extends BasePage {
 		addOrReplace(new InvisiblePanel("toolbarContainer"));
 		addOrReplace(new InvisiblePanel("siteInfoContainer"));
 		addOrReplace(new InvisiblePanel("securityContainer"));
-
 		SimpleAlertRow<Void> r = new SimpleAlertRow<Void>("error", e);
 		addOrReplace(r);
 	}
@@ -827,7 +829,7 @@ public class SitePage extends BasePage {
 
 			for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
 
-				final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.Accesible : "");
+				final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.ACCESIBLE_ICON : "");
 				
 				
 				final Long gid = g.getId();
@@ -1044,7 +1046,13 @@ public class SitePage extends BasePage {
 					if (o_site.isPresent()) {
 						setSiteModel(new ObjectModel<Site>(o_site.get()));
 					}
+					else
+						throw new IllegalArgumentException("object not found -> " + stringValue.toString());
 				}
+				else {
+					throw new IllegalArgumentException("object not found -> null ");
+				}
+
 			} else {
 				if (!getSiteModel().getObject().isDependencies()) {
 					Optional<Site> o_site = findByIdWithDeps(Long.valueOf(getSiteModel().getObject().getId()));
@@ -1052,6 +1060,8 @@ public class SitePage extends BasePage {
 						setSiteModel(new ObjectModel<Site>(o_site.get()));
 					}
 				}
+				
+				
 			}
 		} catch (Exception e) {
 			throw e;

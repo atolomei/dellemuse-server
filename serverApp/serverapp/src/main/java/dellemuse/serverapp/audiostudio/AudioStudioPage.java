@@ -156,7 +156,7 @@ public class AudioStudioPage extends BasePage {
 
 			StringBuilder str = new StringBuilder();
 			str.append(mlo_parentObjectName );
-			str.append( isAccesibleVersion ? Icons.Accesible_jumbo: "" );
+			str.append( isAccesibleVersion ? Icons.ACCESIBLE_ICON_JUMBO: "" );
 			
 			JumboPageHeaderPanel<AudioStudio> h = new JumboPageHeaderPanel<AudioStudio>("page-header", getModel(), new Model<String>(str.toString()));
 			h.setBreadCrumb(bc);

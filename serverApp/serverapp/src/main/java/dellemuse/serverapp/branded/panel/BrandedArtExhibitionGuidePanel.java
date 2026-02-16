@@ -405,7 +405,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		if (!item.isDependencies()) {
 				item=getArtExhibitionItemDBService().findWithDeps(item.getId()).get();
 		}
-		String s=getArtistStr(item.getArtwork());
+		String s=getArtistStr(item.getArtWork());
 		return Model.of(TextCleaner.truncate(s, 280));
 	}
 
@@ -471,7 +471,11 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		//IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+
+		
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 		listToolbar.add(s);
 		return listToolbar;

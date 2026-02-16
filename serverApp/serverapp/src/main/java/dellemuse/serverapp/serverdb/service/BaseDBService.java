@@ -45,11 +45,7 @@ public abstract class BaseDBService<T, I> extends BaseService implements SystemS
 
 	@JsonIgnore
 	static final private ObjectMapper mapper = new DellemuseObjectMapper();
-
-	// static {
-	// mapper.registerModule(new JavaTimeModule());
-	// mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	// }
+ 
 
 	@JsonIgnore
 	@Autowired

@@ -15,11 +15,13 @@ import dellemuse.model.logging.Logger;
  
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -30,6 +32,7 @@ import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -175,6 +178,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 ("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
 			private static final long serialVersionUID = 1L;
@@ -182,13 +186,13 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 			@Override
 			public MenuItemPanel<ArtExhibition> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtExhibition>(id) {
+				return new LinkMenuItem<ArtExhibition>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick () {
+						setResponsePage( new ArtExhibitionPage( getModel(), getList() ));
 					}
 
 					@Override
@@ -198,7 +202,6 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 				};
 			}
 		});
-		
 		
 		
 		
@@ -222,7 +225,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getArtExhibitionDBService().save(getModel().getObject());
+						getArtExhibitionDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 

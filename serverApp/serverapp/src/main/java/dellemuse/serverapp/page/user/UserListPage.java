@@ -277,7 +277,7 @@ public class UserListPage extends ObjectListPage<User> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getUserDBService().save(getModel().getObject());
+						getUserDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 
@@ -404,7 +404,9 @@ public class UserListPage extends ObjectListPage<User> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+
+		//IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);

@@ -31,6 +31,7 @@ import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.guidecontent.GuideContentPage;
+import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
@@ -59,6 +60,7 @@ import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
@@ -116,8 +118,10 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
-		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+
+		 ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);
 		return listToolbar;
@@ -168,17 +172,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 		return new Model<String>(model.getObject().getInfo());
 	}
 
-	/**
-	@Override
-	public IModel<String> getObjectTitle(IModel<GuideContent> model) {
-
-		if (model.getObject().getState() == ObjectState.DELETED)
-			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-
-		return new Model<String>(model.getObject().getDisplayname());
-	}
-**/
-	
+	 
 	@Override
 	public void onClick(IModel<GuideContent> model) {
 		setResponsePage(new GuideContentPage(model, getList()));
@@ -212,13 +206,13 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 			@Override
 			public MenuItemPanel<GuideContent> getItem(String id) {
 
-				return new AjaxLinkMenuItem<GuideContent>(id) {
+				return new LinkMenuItem<GuideContent>(id) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick () {
+						setResponsePage( new GuideContentPage( getModel(), getList() ));
 					}
 
 					@Override
@@ -253,7 +247,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getGuideContentDBService().save(getModel().getObject());
+						getGuideContentDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						GuideContentListPage.this.refresh(target);
 					}
 

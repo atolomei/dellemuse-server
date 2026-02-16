@@ -22,6 +22,7 @@ import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.Music;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -78,7 +79,10 @@ public class MusicListPage extends ObjectListPage<Music> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		// IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);
@@ -195,7 +199,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getMusicDBService().save(getModel().getObject());
+						getMusicDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						MusicListPage.this.refresh(target);
 					}
 
@@ -206,6 +210,73 @@ public class MusicListPage extends ObjectListPage<Music> {
 				};
 			}
 		});
+		
+		
+
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Music>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Music> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Music>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getMusicDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
+
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Music>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Music> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Music>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.DELETED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.DELETED);
+						getMusicDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						MusicListPage.this.refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+			}
+		});
+		
 		
 		
 		/**

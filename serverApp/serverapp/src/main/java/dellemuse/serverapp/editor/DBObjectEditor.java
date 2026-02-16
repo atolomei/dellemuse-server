@@ -16,6 +16,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -35,6 +36,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
@@ -263,6 +265,13 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		service.save(a, user);
 	}
 
+	
+	public void save(Artist modelObject, User user, List<String> updatedParts) {
+		ArtistDBService service = (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
+		service.save(modelObject, user, updatedParts);
+	}
+	
+	
 	public void save(ArtWork modelObject, User user, List<String> updatedParts) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		service.save(modelObject, user, updatedParts);

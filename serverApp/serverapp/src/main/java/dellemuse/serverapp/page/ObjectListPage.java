@@ -297,6 +297,10 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			this.panel.setSettings(isSettings());
 			this.panel.setTitle(getListPanelLabel());
 			this.panel.setListPanelMode(getListPanelMode());
+			
+			//this.panel.setLiveSearch(true);
+			
+					
 			contentsContainerContainer.add(this.panel);
 
 		} catch (Exception e) {

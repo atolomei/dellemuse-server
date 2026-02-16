@@ -75,6 +75,11 @@ public class ArtWork extends MultiLanguageObject {
 	private ObjectType objectType;
 	
 	
+	@Column(name = "audio_id")
+	private Long audioId;
+	
+	
+	
 	public ArtWork() {
 	}
 
@@ -149,6 +154,14 @@ public class ArtWork extends MultiLanguageObject {
 		a.getArtworks().remove(this);
 	}
 
+	public Long getAudioId() {
+		return audioId;
+	}
+
+	public void setAudioId(Long audioId) {
+		this.audioId = audioId;
+	}
+
 	public Resource getQrcode() {
 		return qrcode;
 	}
@@ -200,7 +213,7 @@ public class ArtWork extends MultiLanguageObject {
 
 /**
  * 
- * @OneToMany( mappedBy = "artwork", cascade = CascadeType.ALL, orphanRemoval =
+ * @OneToMany( mappedBy = "artw ork", cascade = CascadeType.ALL, orphanRemoval =
  * true, fetch = FetchType.LAZY )
  * 
  * 

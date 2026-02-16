@@ -168,7 +168,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		return c;
 	}
 
-	public String getLabel( String key) {
+	public String getLabel(String key) {
 		return key;
 	}
 	
@@ -239,10 +239,15 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	@Transactional
 	public void restore(Site c, User restoredBy) {
 		super.restore(c, restoredBy);
-		 
-	 
 	}
 
+	@Transactional
+	public Long newAudioId(Site site) {
+		String seqName = site.getAudioIdSequencerName();
+		return ((Number) getEntityManager().createNativeQuery("SELECT nextval('" + seqName + "')").getSingleResult()).longValue();
+	}
+	
+	
 	@Transactional
 	public void save(Site site, User user, List<String> updatedParts ) {
 		super.save(site);
@@ -274,18 +279,24 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 		Site site = o_site.get();
 
-		site.setDependencies(true);
 
-		site.getInstitution().getDisplayname();
+		site.setInstitution( getInstitutionDBService().findById( site.getInstitution().getId()).get());
 
 		Resource photo = site.getPhoto();
-
-		if (photo != null)
-			photo.getBucketName();
+		if (photo!=null)
+			site.setPhoto( getResourceDBService().findById(photo.getId()).get());
 
 		Resource logo = site.getLogo();
-		if (logo != null)
-			logo.getBucketName();
+		if (logo!=null)
+			site.setLogo(getResourceDBService().findById(logo.getId()).get());
+
+
+		User user = site.getLastModifiedUser();
+		if (user!=null)
+			site.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+
+
+		site.setDependencies(true);
 
 		return o_site;
 	}
@@ -296,7 +307,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		return s.findById(src.getPhoto().getId());
 	}
 
-	@Transactional
+	/**@Transactional
 	public void reloadIfDetached(Site src) {
 
 		if (!getEntityManager().contains(src)) {
@@ -304,7 +315,8 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 			@SuppressWarnings("unused")
 			Institution i = src.getInstitution();
 		}
-	}
+	}**/
+	
 
 	@Transactional
 	public List<Site> getByName(String name) {
@@ -505,6 +517,23 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	@Transactional
+	public List<GuideContent> getSiteArtWorkGuideContents(Long siteId, ArtWork a) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContent> cq = cb.createQuery(GuideContent.class);
+		Root<GuideContent> root = cq.from(GuideContent.class);
+	
+		Predicate p_site 	= cb.equal(root.get("artExhibitionItem").get("artExhibition").get("site").get("id"), siteId);
+		Predicate p_artwork = cb.equal(root.get("artExhibitionItem").get("artWork").get("id"), a.getId());
+
+		Predicate finalPredicate = cb.and(p_site, p_artwork);
+		cq.select(root).where(finalPredicate);
+		// cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
 	@Transactional
 	public List<GuideContent> getSiteGuideContent(Long siteId, ObjectState os1) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
