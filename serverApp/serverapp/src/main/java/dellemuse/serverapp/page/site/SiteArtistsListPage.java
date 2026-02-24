@@ -5,27 +5,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.ObjectListPage;
-import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.PersonPage;
 import dellemuse.serverapp.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -60,6 +55,30 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 
 	private StringValue stringValue;
 	private IModel<Site> siteModel;
+	
+	private List<ToolbarItem> listToolbar;
+
+	
+	
+	public SiteArtistsListPage() {
+		super();
+		setIsExpanded(true);
+	}
+
+	public SiteArtistsListPage(PageParameters parameters) {
+		super(parameters);
+		stringValue = getPageParameters().get("id");
+		setIsExpanded(true);
+	}
+
+	public SiteArtistsListPage(IModel<Site> siteModel) {
+		super();
+		Check.requireNonNullArgument(siteModel, "siteModel is null");
+
+		setSiteModel(siteModel);
+		getPageParameters().add("id", siteModel.getObject().getId().toString());
+		setIsExpanded(true);
+	}
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -99,67 +118,29 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 
 		return false;
 	}
-	
-	
-	public SiteArtistsListPage() {
-		super();
-		setIsExpanded(true);
-	}
-
-	public SiteArtistsListPage(PageParameters parameters) {
-		super(parameters);
-		stringValue = getPageParameters().get("id");
-		setIsExpanded(true);
-	}
-
-	public SiteArtistsListPage(IModel<Site> siteModel) {
-		super();
-		Check.requireNonNullArgument(siteModel, "siteModel is null");
-
-		setSiteModel(siteModel);
-		getPageParameters().add("id", siteModel.getObject().getId().toString());
-		setIsExpanded(true);
-
-	}
 
 	@Override
 	public Iterable<Artist> getObjects() {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		return service.getArtistsBySiteId(getSiteModel().getObject().getId());
+		return service.getArtistsBySite(getSiteModel().getObject());
 	}
 
 	@Override
 	public Iterable<Artist> getObjects(ObjectState os1) {
-		
 		return getObjects();
-
-		
-		//throw new RuntimeException("not done");
-		//SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		//return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1);
 	}
 
 	@Override
 	public Iterable<Artist> getObjects(ObjectState os1, ObjectState os2) {
-		
 		return getObjects();
-		
-		//throw new RuntimeException("not done");
-		//SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		//return service.getArtistsBySiteId(getSiteModel().getObject().getId(), os1, os2);
 	}
 
 	@Override
 	public IModel<String> getObjectInfo(IModel<Artist> model) {
-		
-		
-		
-		
 		String str = TextCleaner.clean(model.getObject().getPerson().getInfo(), 280);
 		return new Model<String>(str);
 	}
 
- 
 	public IModel<String> getObjectSubtitle(IModel<Artist> model) {
 		if (model.getObject().getPerson().getSubtitle()==null)
 			return null;
@@ -172,6 +153,8 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 		Person person=model.getObject().getPerson();
 		if (person!=null)
 			setResponsePage(new PersonPage( new ObjectModel<Person>(person)));
+		else
+			setResponsePage( new ErrorPage(Model.of("person not found")));
 	}
 
 	@Override
@@ -254,8 +237,7 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 		return getLabel("artists");
 	}
 
-	private List<ToolbarItem> listToolbar;
-
+	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -264,21 +246,31 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+		//IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 
 		
 		//IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
-		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+		//ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
-		listToolbar.add(s);
-
+		//listToolbar.add(s);
+ 
+		
 		return listToolbar;
 	}
 
+	private List<ToolbarItem> mainToolbar;
+	
 	protected List<ToolbarItem> getMainToolbarItems() {
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
-		return list;
+		
+		if (mainToolbar != null)
+			return mainToolbar;
+
+		mainToolbar = new ArrayList<ToolbarItem>();
+		mainToolbar.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
+		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+		
+		return mainToolbar;
+	
 	}
 
 	protected List<ToolbarItem> getToolbarItemsLeft() {

@@ -9,7 +9,8 @@ package dellemuse.serverapp.elevenlabs;
 public enum ModelId {
 
 	
-	Eleven_multilingual_v2("eleven_multilingual_v2");
+	Eleven_multilingual_v2("eleven_multilingual_v2"),
+	Eleven_v3("eleven_v3");
 	
 	private String name;
 	

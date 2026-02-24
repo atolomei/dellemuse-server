@@ -15,6 +15,9 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
@@ -65,23 +68,31 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		super.onInitialize();
 
 	}
+	
+	
+	protected IModel<String> getObjectTitle(IModel<Institution> model) {
+	 
+			
+			StringBuilder str = new StringBuilder();
+			str.append(model.getObject().getName());
+			
+			if (model.getObject().getState() == ObjectState.DELETED)
+				str.append(Icons.DELETED_ICON_HTML);
+		
+
+			if (model.getObject().getState() == ObjectState.EDITION)
+				str.append(Icons.EDITION_ICON_HTML);
+			
+			return Model.of(str.toString());
+		}
+
+	
  
 	@Override
-	protected List<ToolbarItem> getListToolbarItems() {
-
-		if (listToolbar != null)
-			return listToolbar;
-
-		listToolbar = new ArrayList<ToolbarItem>();
-
-		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
-		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-		listToolbar.add(s);
-
-		return listToolbar;
+	public String getHelpKey() {
+		return Help.INSTITUTION_LIST;
 	}
-
-
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		if (ouser.isEmpty())
@@ -131,8 +142,28 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		create.setAlign(Align.TOP_LEFT);
 		mainToolbar.add(create);
 
+		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+		
 		return mainToolbar;
 	}
+	
+
+	@Override
+	protected List<ToolbarItem> getListToolbarItems() {
+
+		if (listToolbar != null)
+			return listToolbar;
+
+		listToolbar = new ArrayList<ToolbarItem>();
+
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+		listToolbar.add(s);
+
+		return listToolbar;
+	}
+
+	
 
 	@Override
 	protected WebMarkupContainer getObjectMenu(IModel<Institution> model) {
@@ -150,7 +181,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 
-				return new LinkMenuItem<Institution>(id) {
+				return new LinkMenuItem<Institution>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -178,12 +209,12 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Institution>(id) {
+				return new AjaxLinkMenuItem<Institution>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
 					
-					public boolean isEnabled() {
+					public boolean isVisible() {
 						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
 					}
 				
@@ -211,12 +242,12 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			@Override
 			public MenuItemPanel<Institution> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Institution>(id) {
+				return new AjaxLinkMenuItem<Institution>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
 					
-					public boolean isEnabled() {
+					public boolean isVisible() {
 						return getModel().getObject().getState()!=ObjectState.EDITION;
 					}
 				
@@ -234,6 +265,40 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 				};
 			}
 		});
+		
+		
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Institution> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Institution>(id, model) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isVisible() {
+						return getModel().getObject().getState()!=ObjectState.DELETED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.DELETED);
+						getInstitutionDBService().save(getModel().getObject(), ObjectState.DELETED.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("delete");
+					}
+				};
+			}
+		});
+		
 		
 		/*
 		
@@ -291,17 +356,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	public IModel<String> getObjectInfo(IModel<Institution> model) {
 		return new Model<String>(TextCleaner.clean(model.getObject().getInfo(), 280));
 	}
-	
-/**
-	@Override
-	public IModel<String> getObjectTitle(IModel<Institution> model) {
-		
-		if (model.getObject().getState()==ObjectState.DELETED) 
-			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-	
-		return new Model<String>(model.getObject().getDisplayname());
-	}
-**/
+ 
 	@Override
 	public void onClick(IModel<Institution> model) {
 		setResponsePage(new InstitutionPage(model, getList()));

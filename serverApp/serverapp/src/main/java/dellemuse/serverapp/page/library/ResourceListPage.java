@@ -183,10 +183,10 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 		str.append(model.getObject().getName());
 		
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 		
 		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
 
 		return Model.of( str.toString() );
@@ -231,7 +231,7 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 			@Override
 			public MenuItemPanel<Resource> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Resource>(id) {
+				return new AjaxLinkMenuItem<Resource>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -255,7 +255,7 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 			@Override
 			public MenuItemPanel<Resource> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Resource>(id) {
+				return new AjaxLinkMenuItem<Resource>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 

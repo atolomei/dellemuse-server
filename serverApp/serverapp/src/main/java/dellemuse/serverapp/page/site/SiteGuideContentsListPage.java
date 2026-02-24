@@ -15,6 +15,7 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
@@ -189,6 +190,11 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 		list.add(create);
 		
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(),   Align.TOP_RIGHT ));
+
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
+	
+		
 		return list;
 	}
 	

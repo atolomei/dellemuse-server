@@ -15,6 +15,8 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
@@ -54,6 +56,9 @@ public class MusicListPage extends ObjectListPage<Music> {
 	private List<ToolbarItem> listToolbar;
 
 	
+	public String getHelpKey() {
+		return Help.MUSIC;
+	}
 	
 	public MusicListPage() {
 		super();
@@ -79,14 +84,12 @@ public class MusicListPage extends ObjectListPage<Music> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		// IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
-		
 		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
-
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-
 		listToolbar.add(s);
 
+		
+		
 		return listToolbar;
 	}
 
@@ -140,7 +143,8 @@ public class MusicListPage extends ObjectListPage<Music> {
 		};
 		create.setAlign(Align.TOP_LEFT);
 		mainToolbar.add(create);
-
+		
+		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
 		return mainToolbar;
 	}
 
@@ -187,7 +191,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 			@Override
 			public MenuItemPanel<Music> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Music>(id) {
+				return new AjaxLinkMenuItem<Music>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -221,7 +225,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 			@Override
 			public MenuItemPanel<Music> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Music>(id) {
+				return new AjaxLinkMenuItem<Music>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -253,7 +257,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 			@Override
 			public MenuItemPanel<Music> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Music>(id) {
+				return new AjaxLinkMenuItem<Music>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -345,20 +349,12 @@ public class MusicListPage extends ObjectListPage<Music> {
 		StringBuilder str = new StringBuilder();
 
 		str.append(model.getObject().getDisplayname());
-
-
- 		/**
-		if (model.getObject().getSex()!=null)
-			str.append(" - " + model.getObject().getSex());
-
-		str.append(" ( " + model.getObject().getLanguage() + " - " + model.getObject().getLanguageRegion()+" ) ");
-		**/
 		
 		if (model.getObject().getState()==ObjectState.DELETED) 
-			str.append(model.getObject().getDisplayname() + Icons.DELETED_ICON);
+			str.append(model.getObject().getDisplayname() + Icons.DELETED_ICON_HTML);
 		
 		if (model.getObject().getState() == ObjectState.EDITION)
-			str.append(Icons.EDITION_ICON);
+			str.append(Icons.EDITION_ICON_HTML);
 		
 	
 		

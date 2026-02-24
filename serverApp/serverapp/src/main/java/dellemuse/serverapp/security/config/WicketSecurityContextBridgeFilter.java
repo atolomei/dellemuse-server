@@ -29,11 +29,52 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
  * (under SPRING_SECURITY_CONTEXT_KEY), restore it to SecurityContextHolder for the request.
  */
 @Component
-//@Order(Ordered.HIGHEST_PRECEDENCE + 10) // adjust ordering if necessary
+//@Order(org.springframework.boot.autoconfigure.security.SecurityProperties.BASIC_AUTH_ORDER - 10) // adjust ordering if necessary
 
-@Order(org.springframework.boot.autoconfigure.security.SecurityProperties.BASIC_AUTH_ORDER - 10) // adjust ordering if necessary
+@Order(SecurityProperties.BASIC_AUTH_ORDER + 10)
+public class WicketSecurityContextBridgeFilter implements Filter {
+
+	static private Logger logger = Logger.getLogger(WicketSecurityContextBridgeFilter.class.getName());
+	
+    @Override
+    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+            throws IOException, ServletException {
+
+        if (req instanceof HttpServletRequest request) {
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                Object sc = session.getAttribute(
+                        HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+                if (sc instanceof SecurityContext securityContext
+                        && securityContext.getAuthentication() != null) {
+                	if (session != null) {
+                	    Object ssc = session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+                	    logger.debug("BRIDGE: sessionId= " +session.getId() + "  , springContextPresent= "+(sc != null?"yes":"no"));
+                	    
+                	    if (ssc instanceof SecurityContext && securityContext.getAuthentication() != null) {
+                	    	logger.debug("BRIDGE: restoring auth: " + securityContext.getAuthentication().getName());
+                	        SecurityContextHolder.setContext(securityContext);
+                	    }
+                	}
+                    SecurityContextHolder.setContext(securityContext);
+                }
+            }
+        }
+
+        try {
+            chain.doFilter(req, res);
+        } finally {
+            //SecurityContextHolder.clearContext();
+        }
+    }
+}
+
+
+
 
 /**
+ * //@Order(Ordered.HIGHEST_PRECEDENCE + 10) // adjust ordering if necessary
+
 public class WicketSecurityContextBridgeFilter implements Filter {
 
 
@@ -83,41 +124,3 @@ public class WicketSecurityContextBridgeFilter implements Filter {
 
 }
 **/
-
-
-public class WicketSecurityContextBridgeFilter implements Filter {
-
-	static private Logger logger = Logger.getLogger(WicketSecurityContextBridgeFilter.class.getName());
-	
-    @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
-            throws IOException, ServletException {
-
-        if (req instanceof HttpServletRequest request) {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                Object sc = session.getAttribute(
-                        HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
-                if (sc instanceof SecurityContext securityContext
-                        && securityContext.getAuthentication() != null) {
-                	if (session != null) {
-                	    Object ssc = session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
-                	    logger.debug("BRIDGE: sessionId= " +session.getId() + "  , springContextPresent= "+(sc != null?"yes":"no"));
-                	    
-                	    if (ssc instanceof SecurityContext && securityContext.getAuthentication() != null) {
-                	    	logger.debug("BRIDGE: restoring auth: " + securityContext.getAuthentication().getName());
-                	        SecurityContextHolder.setContext(securityContext);
-                	    }
-                	}
-                    SecurityContextHolder.setContext(securityContext);
-                }
-            }
-        }
-
-        try {
-            chain.doFilter(req, res);
-        } finally {
-            SecurityContextHolder.clearContext();
-        }
-    }
-}

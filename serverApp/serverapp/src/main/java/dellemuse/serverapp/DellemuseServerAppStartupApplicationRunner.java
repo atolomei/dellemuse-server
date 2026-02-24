@@ -17,9 +17,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.ArtistDBService;
+import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.odilon.client.error.ODClientException;
+import io.odilon.model.ObjectMetadata;
 
 @Component
 public class DellemuseServerAppStartupApplicationRunner implements ApplicationRunner {
@@ -59,6 +64,11 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 
 		startupLogger.info(ServerAppConstant.SEPARATOR);
 
+		
+		ArtistDBService s= getAppContext().getBean(ArtistDBService.class);
+		s.onInitialize();
+		
+		
 		startupLogger.info("Startup at -> " + DateTimeFormatter.RFC_1123_DATE_TIME.format(OffsetDateTime.now()));
 
 		/**
@@ -85,13 +95,34 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 		// g.execute();
 	}
 
+	/**
 	@Bean
-	CommandLineRunner createSiteArtists() {
-
+	CommandLineRunner updateResourcesMetadata() {
+		
 		return args -> {
+			
+			ResourceDBService resourceDBService = ((ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class));
+			ObjectStorageService objectStorageService = ((ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class));
+			
+			resourceDBService.findAll().forEach( item -> {
+				
+				try {
 
+					ObjectMetadata meta = objectStorageService.getClient().getObjectMetadata(item.getBucketName(), item.getObjectName());
+					
+					if (!meta.isPublicAccess()) {
+						meta = objectStorageService.getClient().setPublicAccess(item.getBucketName(), item.getObjectName(), true );
+						logger.debug(item.getBucketName(), item.getObjectName() + " -> " + (meta.isPublicAccess() ? "true" : "false"));
+					}
+					
+					
+				} catch (ODClientException e) {
+					 logger.error(e);
+				}
+			});
 		};
 	}
+	**/
 	
 /**	@Bean
 	CommandLineRunner audioIds() {

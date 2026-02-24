@@ -20,6 +20,7 @@ import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.service.DelleMuseAuditDBService;
+import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.DateTimeService;
 import io.wktui.struct.list.ListPanel;
@@ -119,6 +120,11 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 		return Model.of(model.getObject().getDescription());
 	}
 
+	protected UserDBService getUserDBService() {
+		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
+	}
+	
+	
 	private IModel<String> getItemTitle(IModel<DelleMuseAudit> m) {
 
 		DelleMuseAudit o = m.getObject();
@@ -128,7 +134,7 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 
 		if (o.isDependencies()) {
 			str.append(" - ");
-			str.append(o.getUser().getUsername());
+			str.append( getUserDBService().findById(o.getUser().getId()).get().getUsername());
 		}
 
 		str.append(" - ");
@@ -144,9 +150,7 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 
 	}
 
-	// protected void setItems(List<IModel<DelleMuseAudit>> list) {
-	// this.items=list;
-	// }
+	 
 
 	private void addItems() {
 

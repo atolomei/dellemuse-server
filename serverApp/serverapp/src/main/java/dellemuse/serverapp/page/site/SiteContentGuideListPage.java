@@ -17,6 +17,7 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.guidecontent.GuideContentPage;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
@@ -232,6 +233,9 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 				SiteContentGuideListPage.this.onCreate();
 			}
 		};
+		
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
 		
 		list.add(create);
 		

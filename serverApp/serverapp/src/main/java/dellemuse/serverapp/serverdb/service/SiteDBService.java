@@ -21,6 +21,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Check;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
+import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -483,13 +484,26 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		return ts;
 	}
 
+	
+	/**
+	 * returns Artists that have the Site assigned in their Artist Profile
+	 * 
+	 * @param site
+	 * @return
+	 */
 	@Transactional
-	public List<Artist> getArtistsBySiteId(Long siteId) {
+	public List<Artist> getArtistsBySite(Site site) {
 		
+		/**
 		Set<Artist> s= getSiteArtists(siteId);
 		List<Artist> l  = new ArrayList<Artist>();
 		s.forEach(i-> l.add(i));
 		return l;
+		**/
+		List<Artist> list  = new ArrayList<Artist>();
+		getArtistDBService().findAllSorted(site, ObjectState.EDITION, ObjectState.PUBLISHED).forEach(a -> list.add(a));
+		return list;
+		
 		
 		/**
 		s.forEach(a -> logger.debug(a.getDisplayname()));

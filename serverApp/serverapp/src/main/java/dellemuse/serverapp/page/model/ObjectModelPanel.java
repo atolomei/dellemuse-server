@@ -8,7 +8,11 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Url;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.resource.UrlResourceReference;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
@@ -16,6 +20,7 @@ import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.command.CommandService;
 import dellemuse.serverapp.elevenlabs.ElevenLabsService;
+import dellemuse.serverapp.help.HelpService;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
@@ -32,7 +37,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
- 
+
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
@@ -76,8 +81,21 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 
 	static private Logger logger = Logger.getLogger(ObjectModelPanel.class.getName());
 
+	private IModel<User> sessionUserModel;
+	
+	
 	public ObjectModelPanel(String id, IModel<T> model) {
 		super(id, model);
+	}
+	
+	
+	public void onDetach() {
+		super.onDetach();
+		
+		if (sessionUserModel!=null) {
+			sessionUserModel.detach();
+		}
+
 	}
 
 	protected <S extends Identifiable> List<IModel<S>> iFilter(List<IModel<S>> initialList, String filter) {
@@ -90,51 +108,47 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		});
 		return list;
 	}
-	
-	
+
 	/** Save --------------------------------------------------------- */
 
-	
 	protected IModel<String> getObjectTitle(MultiLanguageObject o) {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
-		
+
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 
 		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
-		
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
+
 		return Model.of(str.toString());
 	}
-	
-	
+
 	protected IModel<String> getObjectSubtitle(MultiLanguageObject o) {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getObjectSubtitle(o, getLocale()));
 		return Model.of(str.toString());
 	}
-	
+
 	protected IModel<String> getObjectInfo(MultiLanguageObject o) {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getInfo(o, getLocale()));
 		return Model.of(str.toString());
 	}
-	
-	
-	/** Save --------------------------------------------------------- */
 
+	/** Save --------------------------------------------------------- */
 
 	public LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
 
-
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
-	
-	
+
+	public HelpService getHelpService() {
+		return (HelpService) ServiceLocator.getInstance().getBean(HelpService.class);
+	}
 	
 	/** Deps --------------------------------------------------------- */
 
@@ -184,7 +198,7 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		ArtistDBService service = (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
 		return service.findById(id);
 	}
-	
+
 	/** Iterable */
 
 	protected Iterable<Institution> getInstitutions() {
@@ -201,7 +215,7 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		ArtistDBService service = (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
 		return service.findAllSorted();
 	}
-	
+
 	public Iterable<Site> getSites(Institution in) {
 		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 		return service.getSites(in.getId());
@@ -217,7 +231,7 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 
 	public Iterable<ArtWork> getArtWorks(Artist a) {
 		if (a.isDependencies())
-			a=getArtistDBService().findWithDeps(a.getId()).get();
+			a = getArtistDBService().findWithDeps(a.getId()).get();
 		return a.getArtworks();
 	}
 
@@ -228,7 +242,6 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	public Iterable<GuideContent> getGuideContens(ArtExhibitionItem o) {
 		return getArtExhibitionItemDBService().getGuideContents(o);
 	}
-
 
 	/**
 	 * 
@@ -266,26 +279,16 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 			if (!photo.isDependencies()) {
 				photo = this.getResourceDBService().findWithDeps(photo.getId()).get();
 			}
-			
-			if (	(photo.getMedia() == null) || 
-					(photo.getMedia().length()==0) ||
-					 photo.getMedia().endsWith("svg+xml") ||
-					 photo.getMedia().endsWith("svg") ||
-					 photo.getMedia().endsWith("webp")) {
-			
-				ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
-				return service.getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
-			
+
+			if ((photo.getMedia() == null) || (photo.getMedia().length() == 0) || photo.getMedia().endsWith("svg+xml") || photo.getMedia().endsWith("svg") || photo.getMedia().endsWith("webp")) {
+					return 	getObjectStorageService().getPublicUrl(photo);
+
 			} else if (photo.isUsethumbnail()) {
 				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
 				String url = service.getPresignedThumbnailUrl(photo, size);
-				// mark("PresignedThumbnailUrl - " + photo.getDisplayname());
 				return url;
 			} else {
-				// mark("PresignedUrl - " + photo.getDisplayname());
-
-				ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
-				return service.getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
+				return 	getObjectStorageService().getPublicUrl(photo);
 			}
 		} catch (Exception e) {
 			logger.error(e);
@@ -299,25 +302,22 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 			if (photo == null)
 				return null;
 
-			if (!photo.isDependencies()) {
+					if (!photo.isDependencies()) {
 				photo = this.getResourceDBService().findWithDeps(photo.getId()).get();
 			}
 
+					
 			if ((photo.getMedia() != null) && (photo.getMedia().endsWith("svg") || photo.getMedia().endsWith("webp"))) {
-				ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
-				return service.getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
+				return getObjectStorageService().getPublicUrl(photo);
 			}
 
 			else if (photo.isUsethumbnail()) {
-				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
-				String url = service.getPresignedThumbnailUrl(photo, ThumbnailSize.SMALL);
-				// mark("PresignedThumbnailUrl - " + photo.getDisplayname());
+				ResourceThumbnailService rservice = (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
+
+				String url = rservice.getPresignedThumbnailUrl(photo, ThumbnailSize.SMALL);
 				return url;
 			} else {
-				// mark("PresignedUrl - " + photo.getDisplayname());
-
-				ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
-				return service.getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
+				return getObjectStorageService().getPublicUrl(photo);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -326,17 +326,12 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 
 	public String getPresignedUrl(Resource resource) {
 		try {
-			
-			if (resource==null)
-				return "";
-		
-			Optional<Integer> urlExpiresInSeconds = Optional.of(360);
-			Optional<Integer> objectCacheExpiresInSeconds = Optional.of(360);
-			String url = getObjectStorageService().getClient().getPresignedObjectUrl(resource.getBucketName(), resource.getObjectName(), urlExpiresInSeconds, objectCacheExpiresInSeconds);
-			
-			logger.debug(url);
 
-			return url;
+			if (resource == null)
+				return "";
+
+			return getObjectStorageService().getPublicUrl(resource);
+
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -368,13 +363,13 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		StringBuilder info = new StringBuilder();
 
 		int n = 0;
-	
+
 		for (Artist a : aw.getArtists()) {
 			if (n++ > 0)
 				info.append(", ");
 			info.append(a.getFirstLastname());
 		}
-		
+
 		String str = TextCleaner.truncate(info.toString(), 220);
 		return str;
 	}
@@ -569,11 +564,22 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return getUserDBService().findRoot();
 	}
 
+	
+	
 	protected Optional<User> getSessionUser() {
-		User user=getUserDBService().getSessionUser();
-		if (user==null)
-			return Optional.empty();
-		return Optional.of(user);
+	
+		if (sessionUserModel!=null)
+			return Optional.of( sessionUserModel.getObject() );
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth == null || !auth.isAuthenticated()) {
+	        return Optional.empty();
+	    }
+	    UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
+	    Optional<User> o_user = service.findByUsername(auth.getName());
+	 	sessionUserModel = new ObjectModel<User>( o_user.get());
+	
+	 	return Optional.of( sessionUserModel.getObject() );
 	}
 
 	
@@ -618,15 +624,15 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	protected RoleSiteDBService getRoleSiteDBService() {
 		return (RoleSiteDBService) ServiceLocator.getInstance().getBean(RoleSiteDBService.class);
 	}
-	
+
 	protected RoleInstitutionDBService getRoleInstitutionDBService() {
 		return (RoleInstitutionDBService) ServiceLocator.getInstance().getBean(RoleInstitutionDBService.class);
 	}
-	
+
 	public AudioStudioDBService getAudioStudioDBService() {
 		return (AudioStudioDBService) ServiceLocator.getInstance().getBean(AudioStudioDBService.class);
 	}
-	
+
 	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
@@ -663,7 +669,6 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
 	}
 
-	
 	protected PersonDBService getPersonDBService() {
 		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 	}
@@ -695,7 +700,6 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	protected VoiceDBService getVoiceDBService() {
 		return (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
 	}
-
 
 	protected MusicDBService getMusicDBService() {
 		return (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);

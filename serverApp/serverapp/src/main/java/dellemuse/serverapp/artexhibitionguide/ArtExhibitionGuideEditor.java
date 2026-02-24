@@ -671,7 +671,7 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize() ,true);
 
 					setPhotoModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setPhoto(resource);
@@ -709,7 +709,7 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setAudioModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setAudio(resource);

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -24,11 +25,15 @@ import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.CssResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
+import dellemuse.serverapp.help.HelpService;
+import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
@@ -44,6 +49,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
@@ -100,6 +106,9 @@ public abstract class BasePage extends WebPage {
 	private static final String XUA_Compatible = "IE=Edge";
 
 	private Map<String, Integer> serverCall;
+	
+	private Boolean generalAdmin = null;
+	
 
 	// 1 Day
 	static private final int COOKIE_DURATION = 86400 * 1;
@@ -159,6 +168,10 @@ public abstract class BasePage extends WebPage {
 	@Override
 	public void onDetach() {
 		super.onDetach();
+		
+		if (sessionUserModel!=null) {
+			sessionUserModel.detach();
+		}
 	}
 
 	public BreadCrumb<Void> createBreadCrumb() {
@@ -444,14 +457,38 @@ public abstract class BasePage extends WebPage {
 
 	/** Session User */
 
+	/**
 	public Optional<User> getSessionUser() {
 		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 		User user = service.getSessionUser();
 		if (user == null)
 			return Optional.empty();
 		return Optional.of(user);
-	}
+	}**/
 
+	
+	IModel<User> sessionUserModel;
+	
+	public Optional<User> getSessionUser()  {
+
+		if (sessionUserModel!=null)
+			return Optional.of( sessionUserModel.getObject() );
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth == null || !auth.isAuthenticated()) {
+	        return Optional.empty();
+	    }
+	    
+	    UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
+		Optional<User> o_user = service.findByUsername(auth.getName());
+				
+		
+		sessionUserModel = new ObjectModel<User>( o_user.get());
+		
+		return Optional.of( sessionUserModel.getObject() );
+	}
+	
+	
 	/** DB Services */
 
 	protected ArtExhibitionDBService getArtExhibitionDBService() {
@@ -547,6 +584,10 @@ public abstract class BasePage extends WebPage {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
 
+	public ObjectStorageService getObjectStorageService() {
+		 return (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
+	}
+	
 	protected VoiceDBService getVoiceDBService() {
 		return (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
 	}
@@ -559,6 +600,11 @@ public abstract class BasePage extends WebPage {
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
+	
+	public HelpService getHelpService() {
+		return (HelpService) ServiceLocator.getInstance().getBean(HelpService.class);
+	}
+	
 
 	protected DateTimeService getDateTimeService() {
 		return (DateTimeService) ServiceLocator.getInstance().getBean(DateTimeService.class);
@@ -750,8 +796,8 @@ public abstract class BasePage extends WebPage {
 				return url;
 			} else {
 				mark("PresignedUrl - " + photo.getDisplayname());
-				ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
-				return service.getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
+				return getObjectStorageService().getPublicUrl(photo);
+
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -763,9 +809,6 @@ public abstract class BasePage extends WebPage {
 		str.append(getLanguageObjectService().getObjectSubtitle(o, getLocale()));
 		return Model.of(str.toString());
 	}
-	
-	 
-	
 
 	public IModel<String> getObjectTitle(DelleMuseObject o) {
 		if (o instanceof MultiLanguageObject) {
@@ -773,20 +816,50 @@ public abstract class BasePage extends WebPage {
 			str.append(getLanguageObjectService().getObjectDisplayName((MultiLanguageObject) o, getLocale()));
 			return Model.of(str.toString());
 		}
+		
 		StringBuilder str = new StringBuilder();
 		str.append(o.getName());
 		return Model.of(str.toString());
-		
 	}
 
 	public ArtExhibition createExhibition(Site site) {
-
 		return getArtExhibitionDBService().create("new", site, getUserDBService().findRoot());
 	}
-
 	
 	public boolean isRoot() {
 			return getSessionUser()!=null && getSessionUser().get().isRoot();
+	}
+	
+	
+	
+	
+	public boolean isGeneralAdmin() {
+		
+		if (generalAdmin!=null)
+			return this.generalAdmin.booleanValue();
+		
+		synchronized (this) {
+			
+			if (getSessionUser().isEmpty()) {
+				this.generalAdmin = Boolean.FALSE;
+				return this.generalAdmin;
+			}
+
+			User user = getSessionUser().get();
+			
+			if (!user.isDependencies()) {
+				user = getUserDBService().findWithDeps(user.getId()).get();
+			}
+
+			Set<RoleGeneral> set = user.getRolesGeneral();
+	
+			if (set == null) {
+				this.generalAdmin= Boolean.FALSE;
+				return this.generalAdmin;
+			}
+			this.generalAdmin = Boolean.valueOf(  set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)) ) );
+			return this.generalAdmin;
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

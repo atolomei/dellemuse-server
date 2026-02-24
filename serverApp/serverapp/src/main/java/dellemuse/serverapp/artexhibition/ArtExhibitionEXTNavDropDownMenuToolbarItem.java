@@ -34,16 +34,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 
 	IModel<Site> siteModel;
 	
-	public IModel<String> getObjectTitle(MultiLanguageObject o) {
-		String s = getLanguageObjectService().getObjectDisplayName(o, getLocale());
-		if (s == null)
-			return null;
-		return Model.of(s);
-	}
-	public LanguageObjectService getLanguageObjectService() {
-		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
-	}
-	
+	 
 	
 	
 	public ArtExhibitionEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibition> model, IModel<Site> siteModel, Align align) {
@@ -52,7 +43,6 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 		if (model.getObject().getShortname() != null)
 			setTitle(getLabel("art-exhibition-dropdown", model.getObject().getShortname()));
 		else
-			//setTitle(getLabel("art-exhibition-dropdown", TextCleaner.truncate(model.getObject().getName(), 24)));
 			setTitle( getLabel("art-exhibition-dropdown", getObjectTitle(model.getObject()).getObject() ));
 		
 	}
@@ -61,8 +51,18 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 		super(id, model, title, align);
 		this.siteModel=siteModel;
 	}
-
 	
+	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+		String s = getLanguageObjectService().getObjectDisplayName(o, getLocale());
+		if (s == null)
+			return null;
+		return Model.of(TextCleaner.truncate(s,20));
+	}
+
+	public LanguageObjectService getLanguageObjectService() {
+		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
+	}
+		
 	public void onDetach() {
 		super.onDetach();
 
@@ -183,7 +183,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 		
 		for (ArtExhibitionGuide g: getArtExhibitionDBService().getArtExhibitionGuides( getModel().getObject(), ObjectState.PUBLISHED, ObjectState.EDITION)) {
 			
-			final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.ACCESIBLE_ICON : "");
+			final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.ACCESIBLE_ICON_HTML : "");
 			
 			final String gid 	= g.getId().toString();
 					

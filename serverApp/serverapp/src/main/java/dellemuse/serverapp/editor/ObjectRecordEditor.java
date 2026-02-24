@@ -1,5 +1,6 @@
 package dellemuse.serverapp.editor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -237,7 +238,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setAudioModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setAudio(resource);
@@ -420,7 +421,13 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 				if (getAudioModel() == null || getAudioModel().getObject() == null)
 					return null;
-				return ObjectRecordEditor.this.getPresignedUrl(getAudioModel().getObject());
+				
+				try {
+					return getObjectStorageService().getPublicUrl(getAudioModel().getObject());
+				} catch (IOException e) {
+					logger.error(e);
+					return null;
+				}
 			}
 
 			public String getFileName() {

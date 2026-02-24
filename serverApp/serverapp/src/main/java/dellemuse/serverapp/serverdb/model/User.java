@@ -196,14 +196,18 @@ public class User extends DelleMuseObject {
 
 		List<String> list = new ArrayList<String>();
 
-		// getRolesGeneral().forEach( r -> list.add(
-		// r.getClass().getSimpleName()+"-"+r.getName()));
-		// getRolesInstitution().forEach( r -> list.add(
-		// r.getClass().getSimpleName()+"-"+r.getInstitution().getId().toString()));
-		// getRolesSite().forEach( r -> list.add(
-		// r.getClass().getSimpleName()+"-"+r.getSite().getId().toString()));
 
-		// list.forEach( r -> logger.debug(r));
+		 list.add("ROLE_USER");
+		 list.add("ROLE_ADMIN");
+		 
+		 getRolesGeneral().forEach( r -> list.add(r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_")+"_"+r.getName().toUpperCase()));
+		 getRolesInstitution().forEach( r -> list.add(
+		 r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_")+"_"+r.getInstitution().getId().toString()));
+		 getRolesSite().forEach( r -> list.add(
+		 r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_")+"_"+r.getSite().getId().toString()));
+
+		 
+		 list.forEach( r -> logger.debug(r));
 		return list;
 	}
 

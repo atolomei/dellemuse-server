@@ -172,7 +172,7 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setAudioModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setAudio(resource);

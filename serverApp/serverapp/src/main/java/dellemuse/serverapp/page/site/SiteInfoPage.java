@@ -121,15 +121,15 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		try {
 			BreadCrumb<Void> bc = createBreadCrumb();
 			bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-			bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), new Model<String>(getModel().getObject().getDisplayname())));
+			bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), getObjectTitle(getModel().getObject())));
 			bc.addElement(new BCElement(getLabel("general-info")));
-			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
+			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), getObjectTitle(getModel().getObject()) );
 			ph.setBreadCrumb(bc);
 
 			ph.setContext(getLabel("site"));
 
 			if (getModel().getObject().getSubtitle() != null)
-				ph.setTagline(Model.of(getModel().getObject().getSubtitle()));
+				ph.setTagline( getObjectSubtitle(getModel().getObject() ));
 
 			if (getModel().getObject().getPhoto() != null)
 				ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));

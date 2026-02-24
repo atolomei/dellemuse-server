@@ -22,7 +22,7 @@ import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Voice;
 import dellemuse.serverapp.serverdb.model.GuideContent;
-
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -132,9 +132,8 @@ public class VoiceDBService extends DBService<Voice, Long> {
 	}
 
 	
-	
 	@Transactional
-	public List<Voice> getVoices(String language) {
+	public List<Voice> getVoices(String language ) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Voice> cq = cb.createQuery(getEntityClass());
 		Root<Voice> root = cq.from(getEntityClass());
@@ -144,8 +143,35 @@ public class VoiceDBService extends DBService<Voice, Long> {
 		if (language.startsWith("pt"))
 			la="pt";
 		
+		
+		
 		Predicate p1 = cb.equal(root.get("language"), la);
 		cq.select(root).where(p1);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		
+		return getEntityManager().createQuery(cq).getResultList();
+	
+		
+	}
+	
+	@Transactional
+	public List<Voice> getVoices(String language, ObjectState os1) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Voice> cq = cb.createQuery(getEntityClass());
+		Root<Voice> root = cq.from(getEntityClass());
+		
+		String la= language;
+		
+		if (language.startsWith("pt"))
+			la="pt";
+		
+		Predicate p_lang = cb.equal(root.get("language"), la);
+		Predicate p_state = cb.equal(root.get("state"), os1);
+
+		Predicate combinedPredicate = cb.and(p_lang, p_state);
+		cq.select(root).where(combinedPredicate);
+		
+		
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		
 		return getEntityManager().createQuery(cq).getResultList();

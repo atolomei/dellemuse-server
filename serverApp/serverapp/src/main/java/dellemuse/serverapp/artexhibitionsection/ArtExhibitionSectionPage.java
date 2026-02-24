@@ -317,7 +317,7 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 
 		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname() + " (Obra)")));
 
-		header = new JumboPageHeaderPanel<ArtExhibitionSection>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
+		header = new JumboPageHeaderPanel<ArtExhibitionSection>("page-header", getModel(), getObjectTitle(getModel().getObject()));
 
 		header.setContext(getLabel("artwork-in-exhibition"));
 

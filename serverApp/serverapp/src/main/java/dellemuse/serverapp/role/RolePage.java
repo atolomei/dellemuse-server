@@ -2,6 +2,7 @@ package dellemuse.serverapp.role;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -18,8 +19,10 @@ import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.ObjectPage;
 
 import dellemuse.serverapp.person.ServerAppConstant;
-
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
@@ -61,6 +64,47 @@ public class RolePage extends ObjectPage<Role> {
 		super(model, list);
 	}
 
+	
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
+
+		if (ouser.get().getId().equals(getModel().getObject().getId()))
+			return true;
+		
+		User user = ouser.get();  if (user.isRoot()) return true;
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
+	
+	
 	@Override
 	protected List<INamedTab> createInternalPanels() {
 

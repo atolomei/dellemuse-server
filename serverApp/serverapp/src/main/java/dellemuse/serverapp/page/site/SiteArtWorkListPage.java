@@ -18,7 +18,8 @@ import dellemuse.model.logging.Logger;
 
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.library.ArtWorkListPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
@@ -26,7 +27,7 @@ import dellemuse.serverapp.page.library.ObjectStateListSelector;
 
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
-
+import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -47,6 +48,7 @@ import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
@@ -69,6 +71,79 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	private IModel<Site> siteModel;
 
 	private List<ToolbarItem> listToolbar;
+	private List<ToolbarItem> mainToolbar;
+	
+	
+
+	public SiteArtWorkListPage() {
+		super();
+		setIsExpanded(true);
+	}
+
+	public SiteArtWorkListPage(PageParameters parameters) {
+		super(parameters);
+		stringValue = getPageParameters().get("id");
+		setIsExpanded(true);
+	}
+
+	public SiteArtWorkListPage(IModel<Site> siteModel) {
+		super();
+		Check.requireNonNullArgument(siteModel, "siteModel is null");
+
+		setSiteModel(siteModel);
+		getPageParameters().add("id", siteModel.getObject().getId().toString());
+		super.setIsExpanded(true);
+	}
+
+	@Override
+	public Iterable<ArtWork> getObjects() {
+		return getArtWorks(getSiteModel().getObject());
+	}
+
+	@Override
+	public Iterable<ArtWork> getObjects(ObjectState os1) {
+		return getArtWorks(getSiteModel().getObject(), os1);
+	}
+
+	@Override
+	public Iterable<ArtWork> getObjects(ObjectState os1, ObjectState os2) {
+		return getArtWorks(getSiteModel().getObject(), os1, os2);
+	}
+
+	@Override
+	public IModel<String> getObjectInfo(IModel<ArtWork> model) {
+		String str = TextCleaner.clean(model.getObject().getInfo(), 280);
+		return new Model<String>(str);
+	}
+
+	@Override
+	public IModel<String> getObjectTitle(IModel<ArtWork> model) {
+
+		StringBuilder str = new StringBuilder();
+		try {
+			
+			str.append(getLanguageObjectService().getObjectDisplayName(model.getObject(), getLocale()));
+	
+			String as = getArtistStr(model.getObject());
+
+			if (as!=null && as.length()>0)		
+				str.append(".<span class=\" ms-2 text-secondary  \">" + as + "</span>");
+		
+		
+			if (model.getObject().getState() == ObjectState.DELETED)
+				str.append(Icons.DELETED_ICON_HTML);
+
+			else if (model.getObject().getState() == ObjectState.EDITION)
+				str.append(Icons.EDITION_ICON_HTML);
+
+
+			
+		} catch (Exception e) {
+			logger.error(e);
+			str.append(e.getClass().getSimpleName() + " " + e.getMessage());
+		}
+		return Model.of(str.toString());
+	}
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -107,60 +182,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		return false;
 	}
-
-	public SiteArtWorkListPage() {
-		super();
-		setIsExpanded(true);
-	}
-
-	public SiteArtWorkListPage(PageParameters parameters) {
-		super(parameters);
-		stringValue = getPageParameters().get("id");
-		setIsExpanded(true);
-
-	}
-
-	public SiteArtWorkListPage(IModel<Site> siteModel) {
-		super();
-		Check.requireNonNullArgument(siteModel, "siteModel is null");
-
-		setSiteModel(siteModel);
-		getPageParameters().add("id", siteModel.getObject().getId().toString());
-		super.setIsExpanded(true);
-	}
-
-	@Override
-	public Iterable<ArtWork> getObjects() {
-		return getArtWorks(getSiteModel().getObject());
-	}
-
-	@Override
-	public Iterable<ArtWork> getObjects(ObjectState os1) {
-		return getArtWorks(getSiteModel().getObject(), os1);
-	}
-
-	@Override
-	public Iterable<ArtWork> getObjects(ObjectState os1, ObjectState os2) {
-		return getArtWorks(getSiteModel().getObject(), os1, os2);
-	}
-
-	@Override
-	public IModel<String> getObjectInfo(IModel<ArtWork> model) {
-		String str = TextCleaner.clean(model.getObject().getInfo(), 280);
-		return new Model<String>(str);
-	}
-
-	/**
-	 * @Override public IModel<String> getObjectTitle(IModel<ArtWork> model) {
-	 *           StringBuilder str = new StringBuilder();
-	 *           str.append(model.getObject().getDisplayname());
-	 * 
-	 *           if (model.getObject().getState() == ObjectState.DELETED) return new
-	 *           Model<String>(str.toString() + ServerConstant.DELETED_ICON);
-	 * 
-	 *           return Model.of(str.toString()); }
-	 **/
-
+	
 	@Override
 	public IModel<String> getObjectSubtitle(IModel<ArtWork> model) {
 		return Model.of(getArtistStr(model.getObject()));
@@ -192,13 +214,13 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 			@Override
 			public MenuItemPanel<ArtWork> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtWork>(id) {
+				return new  LinkMenuItem<ArtWork>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick( ) {
+						setResponsePage( new ArtWorkPage( getModel(), getList()));
 					}
 
 					@Override
@@ -209,9 +231,6 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 			}
 		});
 
-		
-		
-
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
 
 			private static final long serialVersionUID = 1L;
@@ -219,15 +238,14 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 			@Override
 			public MenuItemPanel<ArtWork> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtWork>(id) {
+				return new AjaxLinkMenuItem<ArtWork>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
-					
-					public boolean isEnabled() {
-						return getModel().getObject().getState()!=ObjectState.EDITION;
+					public boolean isVisible() {
+						return getModel().getObject().getState() != ObjectState.EDITION;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.EDITION);
@@ -242,7 +260,7 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 				};
 			}
 		});
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
 
 			private static final long serialVersionUID = 1L;
@@ -250,15 +268,14 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 			@Override
 			public MenuItemPanel<ArtWork> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtWork>(id) {
+				return new AjaxLinkMenuItem<ArtWork>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
-					
-					public boolean isEnabled() {
-						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					public boolean isVisible() {
+						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
@@ -273,48 +290,34 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 				};
 			}
 		});
-		
+
 		/**
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
-			private static final long serialVersionUID = 1L;
+		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() { private
+		 * static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public MenuItemPanel<ArtWork> getItem(String id) { return new
+		 *           io.wktui.nav.menu.SeparatorMenuItem<ArtWork>(id) { private static
+		 *           final long serialVersionUID = 1L; }; } });
+		 **/
 
-			@Override
-			public MenuItemPanel<ArtWork> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<ArtWork>(id) {
-					private static final long serialVersionUID = 1L;
-				};
-			}
-		});
-		**/
-		
-		
-		
 		/**
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public MenuItemPanel<ArtWork> getItem(String id) {
+		 * 
+		 *           return new AjaxLinkMenuItem<ArtWork>(id) {
+		 * 
+		 *           private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
+		 *           }
+		 * 
+		 * @Override public IModel<String> getLabel() { return getLabel("delete"); } };
+		 *           } });
+		 */
 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<ArtWork> getItem(String id) {
-
-				return new AjaxLinkMenuItem<ArtWork>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("delete");
-					}
-				};
-			}
-		});
-		*/
-		
 		return menu;
 	}
 
@@ -394,12 +397,15 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		add(ph);
 	}
 
+
 	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
 
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		if (mainToolbar != null)
+			return mainToolbar;
 
-		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
+		mainToolbar = new ArrayList<ToolbarItem>();
+		mainToolbar.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
@@ -410,9 +416,10 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		};
 		create.setAlign(Align.TOP_LEFT);
 
-		list.add(create);
-
-		return list;
+		mainToolbar.add(create);
+		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+	
+		return mainToolbar;
 	}
 
 	@Override
@@ -425,8 +432,8 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 
-		
-		// IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
+		// IModel<String> selected =
+		// Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);

@@ -88,6 +88,10 @@ public class UserPage extends ObjectPage<User> {
 		super(model, list);
 	}
 
+	 
+	
+	
+	
 	@Override
 	public void onDetach() {
 		super.onDetach();

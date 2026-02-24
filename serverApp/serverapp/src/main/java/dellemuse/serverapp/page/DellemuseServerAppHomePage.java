@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
@@ -30,7 +34,7 @@ import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.InvisiblePanel;
 
-//@AuthorizeInstantiation("USER")
+@AuthorizeInstantiation({"ROLE_USER","ROLE_ADMIN"})
 @WicketHomePage
 @MountPath("/home")
 public class DellemuseServerAppHomePage extends BasePage {
@@ -41,16 +45,45 @@ public class DellemuseServerAppHomePage extends BasePage {
 	private ListPanel<Site> panel;
 	private List<IModel<Site>> list;
 
-	@SuppressWarnings("unused")
+ 
 	static private Logger logger = Logger.getLogger(DellemuseServerAppHomePage.class.getName());
 
 	public DellemuseServerAppHomePage(PageParameters parameters) {
 		super(parameters);
+	
+		logger.debug("WICKET isSignedIn = " +
+			    ((AuthenticatedWebSession)getSession()).isSignedIn());
+		
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		logger.debug("AUTH = " + auth);
+		logger.debug("AUTHORITIES = " + auth.getAuthorities());
+		
+		
+		logger.debug("SESSION=" + getSession().getId());
+		logger.debug("AUTH=" + SecurityContextHolder.getContext().getAuthentication());
+		
+	
 	}
 
 	public DellemuseServerAppHomePage() {
 		super();
+		logger.debug("WICKET isSignedIn = " +
+			    ((AuthenticatedWebSession)getSession()).isSignedIn());
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		logger.debug("AUTH = " + auth);
+		logger.debug("AUTHORITIES = " + auth.getAuthorities());
+
+		logger.debug("SESSION=" + getSession().getId());
+		logger.debug("AUTH=" + SecurityContextHolder.getContext().getAuthentication());
+		
+		
 	}
+	
+	
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -67,11 +100,16 @@ public class DellemuseServerAppHomePage extends BasePage {
 		if (model != null)
 			model.detach();
 	}
+	
+	
+	
+	
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
+	
 		Optional<User> o = super.getSessionUser();
 
 		setModel(new ObjectModel<User>(o.get()));

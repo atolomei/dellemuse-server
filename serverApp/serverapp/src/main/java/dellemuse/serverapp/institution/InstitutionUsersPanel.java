@@ -199,10 +199,10 @@ public class InstitutionUsersPanel extends DBModelPanel<Institution> implements 
 		User o = model.getObject();
 		
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 		
 		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
 		return Model.of(str.toString());
 	}
@@ -239,7 +239,7 @@ public class InstitutionUsersPanel extends DBModelPanel<Institution> implements 
 			@Override
 			public MenuItemPanel<Role> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Role>(id) {
+				return new AjaxLinkMenu Item<Role>(id) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -264,7 +264,7 @@ public class InstitutionUsersPanel extends DBModelPanel<Institution> implements 
 			@Override
 			public MenuItemPanel<Role> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Role>(id) {
+				return new AjaxLinkMenuI tem<Role>(id) {
 
 					private static final long serialVersionUID = 1L;
 

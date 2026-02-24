@@ -414,7 +414,8 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		this.list = new ArrayList<ToolbarItem>();
 
 		/** audio de obra */
-		list.add(new GuideContentNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(),  getLabel("guide-content-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 24)), Align.TOP_RIGHT));
+		list.add(new GuideContentNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(),  getLabel("guide-content-dropdown", 
+				TextCleaner.truncate(getModel().getObject().getName(), 18)), Align.TOP_RIGHT));
 
 		/** audio guia */
 		ArtExhibitionGuideEXTNavDropDownMenuToolbarItem ag = new ArtExhibitionGuideEXTNavDropDownMenuToolbarItem("item", getArtExhibitionGuideModel(),getSiteModel(), Align.TOP_RIGHT);
@@ -481,13 +482,13 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		bc.addElement(new HREFBCElement("/artexhibition/" + getArtExhibitionModel().getObject().getId().toString(), Model.of(getArtExhibitionModel().getObject().getDisplayname() + " (E)")));
 		bc.addElement(new HREFBCElement("/guide/" + getArtExhibitionGuideModel().getObject().getId().toString(), Model.of(getArtExhibitionGuideModel().getObject().getDisplayname() + " (AG)")));
 
-		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
+		bc.addElement(new BCElement(getObjectTitle(getModel().getObject())));
 
 		StringBuilder str = new StringBuilder();
 		str.append( getObjectTitle( getModel().getObject() ).getObject() );
-		str.append(  getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO: "" );
+		str.append(  getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML: "" );
 	
-		header = new JumboPageHeaderPanel<GuideContent>("page-header", getModel(), Model.of ( str.toString() ));
+		header = new JumboPageHeaderPanel<GuideContent>("page-header", getModel(),getObjectTitle(getModel().getObject()));
 		header.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 		header.setContext(getLabel("guide-content"));
 

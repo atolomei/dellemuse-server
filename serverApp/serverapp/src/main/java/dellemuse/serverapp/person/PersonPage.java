@@ -169,7 +169,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	
 	@Override
 	protected IModel<String> getPageTitle() {
-		return new Model<String>(getModel().getObject().getDisplayName());
+		return getObjectTitle(getModel().getObject());
 	}
 
 	@Override

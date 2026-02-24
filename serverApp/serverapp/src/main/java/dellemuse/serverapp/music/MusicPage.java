@@ -30,6 +30,7 @@ import dellemuse.serverapp.serverdb.model.Music;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.Voice;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
@@ -85,7 +86,36 @@ public class MusicPage extends ObjectPage<Music> {
 
 	}
  
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
 
+		 
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+		
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
+	
 
 	@Override
 	public void onInitialize() {

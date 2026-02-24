@@ -14,9 +14,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.elevenlabs.VoiceSettings;
 import dellemuse.serverapp.icons.Icons;
+import dellemuse.serverapp.music.MusicGenre;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
@@ -30,6 +33,9 @@ public class Music extends DelleMuseObject {
 	@Column(name = "license")
 	private String license;
 
+	@Column(name = "genre")
+	@Enumerated(EnumType.ORDINAL)
+	private MusicGenre genre;
 	
 	@Column(name = "url")
 	private String url;
@@ -131,6 +137,14 @@ public class Music extends DelleMuseObject {
 
 	public void setTechnicalInfo(String technicalInfo) {
 		this.technicalInfo = technicalInfo;
+	}
+
+	public MusicGenre getGenre() {
+		return genre;
+	}
+
+	public void setGenre(MusicGenre genre) {
+		this.genre = genre;
 	}
 
 	

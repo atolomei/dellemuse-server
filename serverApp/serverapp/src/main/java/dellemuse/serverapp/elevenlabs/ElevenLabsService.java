@@ -223,7 +223,7 @@ public class ElevenLabsService extends BaseService {
 		 rec.language_code=languageCode.toString();
 		
 		 //if (vs!=null)
-			 rec.voice_settings= getDefaultVoiceSettings();
+			 rec.voice_settings = getDefaultVoiceSettings();
 		 	
 		 List<byte[]> audioChunks = new ArrayList<>();
 	     
@@ -342,7 +342,7 @@ public class ElevenLabsService extends BaseService {
 		 voiceSettings = new VoiceSettings();
 		
 		
-		 voiceSettings.speed= Double.valueOf(1.1);
+		 voiceSettings.speed= Double.valueOf(1.08);
 		 voiceSettings.stability=Double.valueOf(0.91);
 		 voiceSettings.similarity_boost=Double.valueOf(0.48);
 		 voiceSettings.style=Double.valueOf(0.01);

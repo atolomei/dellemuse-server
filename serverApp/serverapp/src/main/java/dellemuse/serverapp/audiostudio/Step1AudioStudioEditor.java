@@ -74,7 +74,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	static private Logger logger = Logger.getLogger(Step1AudioStudioEditor.class.getName());
 
-	private NumberField<Double> speedField;
+	// private NumberField<Double> speedField;
 
 	private NumberField<Double> styleField;
 	private NumberField<Double> stabilityField;
@@ -87,7 +87,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	private Double similarity = 0.53;
 	private Double stability = 0.82;
-	private Double speed = 0.9;
+	private Double speed = 1.4;
 	private Double audioStyle = 0.01;
 	private boolean uploadedStep1 = false;
 
@@ -178,7 +178,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		String text = getModel().getObject().getInfo();
 
 		String language = getModel().getObject().getLanguage();
-		String fileName = normalizeFileName(getParentName()) + "-" + getPrefix() + getParentId().toString() + ".mp3";
+		String fileName = normalizeFileName(getParentName()) + "-" + getParentId().toString() + ".mp3";
 		LanguageCode languageCode = LanguageCode.from(language);
 
 		/**
@@ -225,8 +225,10 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 			try (FileInputStream inputStream = new FileInputStream(file)) {
 
-				Resource resource = createAndUploadFile(inputStream, bucketName, objectName, file.getName(), file.length());
+				Resource resource = createAndUploadFile(inputStream, bucketName, objectName, file.getName(), file.length(), true);
 
+				logger.debug(file.getName());
+				
 				setAudioSpeechModel(new ObjectModel<Resource>(resource));
 
 				setObjectAudioSpeech(resource);
@@ -237,13 +239,13 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 					map = new HashMap<String, String>();
 
 				if (getSpeed() != null)
-					map.put(getPrefix() + "speed", getSpeed().toString());
+					map.put("speed", getSpeed().toString());
 				if (getStyle() != null)
-					map.put(getPrefix() + "style", getStyle().toString());
+					map.put("style", getStyle().toString());
 				if (getStability() != null)
-					map.put(getPrefix() + "stability", getStability().toString());
+					map.put("stability", getStability().toString());
 				if (getSimilarity() != null)
-					map.put(getPrefix() + "similarity", getSimilarity().toString());
+					map.put("similarity", getSimilarity().toString());
 				if (getVoiceModel() != null && getVoiceModel().getObject() != null) {
 					map.put("voiceid", getVoiceModel().getObject().getVoiceId());
 				}
@@ -272,6 +274,8 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		if (getObjectAudio() == null)
 			return true;
 
+		 
+		
 		return (getHashAudioParameters() != getObjectAudioSpeechHash());
 	}
 
@@ -347,23 +351,28 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 		voiceProxyList = new ArrayList<VoiceProxy>();
 
-		getVoiceDBService().getVoices(Step1AudioStudioEditor.this.getModel().getObject().getLanguage()).forEach(v -> voiceProxyList.add(new VoiceProxy(v)));
+		getVoiceDBService().getVoices(Step1AudioStudioEditor.this.getModel().getObject().getLanguage(),  ObjectState.PUBLISHED  ).forEach(v -> voiceProxyList.add(new VoiceProxy(v)));
 
 		Map<String, String> map = getModel().getObject().getSettings();
 
 		if (map != null) {
 
-			if (map.containsKey(getPrefix() + "speed"))
-				speed = Double.valueOf(map.get(getPrefix() + "speed"));
+			if (map.containsKey("speed")) {
+				speed = Double.valueOf(map.get("speed"));
+			}
+			
+			if (speed==null || speed.doubleValue()<0.1)
+				speed=Double.valueOf(1.4);
+			
+			
+			if (map.containsKey("stability"))
+				stability = Double.valueOf(map.get("stability"));
 
-			if (map.containsKey(getPrefix() + "stability"))
-				stability = Double.valueOf(map.get(getPrefix() + "stability"));
+			if (map.containsKey("similarity"))
+				similarity = Double.valueOf(map.get("similarity"));
 
-			if (map.containsKey(getPrefix() + "similarity"))
-				similarity = Double.valueOf(map.get(getPrefix() + "similarity"));
-
-			if (map.containsKey(getPrefix() + "audioStyle"))
-				audioStyle = Double.valueOf(map.get(getPrefix() + "audioStyle"));
+			if (map.containsKey("audioStyle"))
+				audioStyle = Double.valueOf(map.get( "audioStyle"));
 		}
 
 		step1 = new WebMarkupContainer("step1");
@@ -376,7 +385,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 		step1.add(form);
 
-		speedField = new NumberField<Double>("speed", new PropertyModel<Double>(this, "speed"), getLabel("speed"));
+		/** speedField = new NumberField<Double>("speed", new PropertyModel<Double>(this, "speed"), getLabel("speed"));
 
 		speedField.setHelpPanel(new SimpleHelpPanel<>("help") {
 			public IModel<String> getLinkLabel() {
@@ -387,8 +396,10 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 				return Step1AudioStudioEditor.this.getLabel("speed-help");
 			}
 		});
+		*/
+		
 
-		form.add(speedField);
+		//form.add(speedField);
 
 		// similarityField = new NumberField<Double>("similarity", new
 		// PropertyModel<Double>(this, "similarity"), getLabel("similarity"));
@@ -496,16 +507,19 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			@Override
 			public boolean isEnabled() {
 
+				if (Step1AudioStudioEditor.this.getVoiceModel() == null)
+					return false;
+						
 				if (!hasWritePermission())
 					return false;
 
 				if (getParentObjectState() == ObjectState.DELETED)
 					return false;
 
-				if (requiresGenerationAudioSpeech())
+				//if (requiresGenerationAudioSpeech())
 					return true;
 
-				return false;
+				//return false;
 			}
 
 			public IModel<String> getLabel() {

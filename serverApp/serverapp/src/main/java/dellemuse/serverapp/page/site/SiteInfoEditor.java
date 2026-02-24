@@ -438,6 +438,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 
 	protected void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
+		SiteInfoEditor.this.addOrReplace( new InvisiblePanel("error"));
 		target.add(getForm());
 
 		 
@@ -522,7 +523,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setPhotoModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setPhoto(resource);
@@ -553,7 +554,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 					setLogoModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setLogo(resource);
 

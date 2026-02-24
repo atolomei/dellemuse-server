@@ -247,10 +247,10 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 		Role o =  model.getObject();
 		
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 		
 		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
 
 		return Model.of(str.toString());
@@ -324,7 +324,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 			@Override
 			public MenuItemPanel<Role> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Role>(id) {
+				return new AjaxLinkMenuItem<Role>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 

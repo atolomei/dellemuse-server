@@ -376,7 +376,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 	@Override
 	protected Panel createHeaderPanel() {
 
-		ph = new JumboPageHeaderPanel<ArtWork>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
+		ph = new JumboPageHeaderPanel<ArtWork>("page-header", getModel(), getObjectTitle(getModel().getObject() ));
 
 		ph.setImageLinkCss("jumbo-img jumbo-lg mb-2 mb-lg-0 border bg-body-tertiary");
 
@@ -385,7 +385,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(), new Model<String>(getSiteModel().getObject().getDisplayname())));
 		bc.addElement(new HREFBCElement("/site/artwork/" + getSiteModel().getObject().getId().toString(), getLabel("artworks")));
 
-		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getDisplayname())));
+		bc.addElement(new BCElement(getObjectTitle(getModel().getObject() )));
 
 		if (getModel().getObject().getArtists() != null)
 			ph.setTagline(Model.of(getArtistStr(getModel().getObject())));

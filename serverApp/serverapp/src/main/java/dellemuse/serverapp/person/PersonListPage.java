@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.maven.model.Site;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -28,6 +29,8 @@ import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
@@ -57,6 +60,8 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
  
 import io.wktui.struct.list.ListPanelMode;
 
+
+@AuthorizeInstantiation("ROLE_USER")
 @MountPath("/person/list")
 public class PersonListPage extends ObjectListPage<Person> {
 
@@ -70,6 +75,12 @@ public class PersonListPage extends ObjectListPage<Person> {
 		 setIsExpanded(true);
 		 
 	}		
+	
+	public String getHelpKey() {
+		return Help.PERSON_LIST ;
+	}
+	
+	
 	
 	public PersonListPage(PageParameters parameters) {
 		 super(parameters);
@@ -176,7 +187,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 			@Override
 			public MenuItemPanel<Person> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Person>(id) {
+				return new AjaxLinkMenuItem<Person>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -209,7 +220,7 @@ public class PersonListPage extends ObjectListPage<Person> {
 			@Override
 			public MenuItemPanel<Person> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Person>(id) {
+				return new AjaxLinkMenuItem<Person>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -357,6 +368,8 @@ public class PersonListPage extends ObjectListPage<Person> {
 		};
 		create.setAlign(Align.TOP_LEFT);
 		list.add(create);
+		
+		list.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
 		return list;
 	}
 

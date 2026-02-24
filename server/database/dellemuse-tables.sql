@@ -839,3 +839,11 @@ CREATE TABLE voice (
 						);
 
 		
+						
+						
+						-- ------------------------------------------------------------------------------------------------------------------------------
+CREATE TABLE cachedurl (
+						id				bigint primary key not null,
+						url	 			character varying(8192)
+);					
+						

@@ -16,6 +16,8 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.guidecontent.GuideContentPage;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -49,6 +51,8 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 	static private Logger logger = Logger.getLogger(ArtExhibitionListPage.class.getName());
 	
 	private List<ToolbarItem> listToolbar;
+	
+	
 	
 	public ArtExhibitionListPage() {
 		super();
@@ -129,7 +133,6 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 		return null;
 	}
 
-	 
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -151,7 +154,13 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 	
 	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
-		return null;
+
+		
+		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
+		return list;
+
 	}
 
 	protected void addHeaderPanel() {
@@ -213,7 +222,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 			@Override
 			public MenuItemPanel<ArtExhibition> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtExhibition>(id) {
+				return new AjaxLinkMenuItem<ArtExhibition>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -318,7 +327,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 	@Override
 	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
 		if ( getArtExhibitionDBService().isArtExhibitionGuides(model.getObject()) )
-			return ServerAppConstant.headphoneIcon;
+			return Icons.headphoneIcon;
 		else
 			return null;
 	}

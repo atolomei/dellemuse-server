@@ -28,6 +28,7 @@ import dellemuse.serverapp.branded.panel.BrandedGuideContentPanel;
 import dellemuse.serverapp.branded.panel.BrandedSiteSearcherPanel;
 
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
@@ -44,7 +45,7 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
-
+import io.wktui.event.UIEvent;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
@@ -68,6 +69,46 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	private IModel<Site> siteModel;
 	private IModel<ArtWork> artWorkModel;
 
+	private List<IModel<GuideContent>> guideContentSearchList;
+	private List<IModel<ArtExhibitionGuide>> artExhibitionSearchList;
+	
+	
+	public List<IModel<GuideContent>> getGuideContentSearchList() {
+		return guideContentSearchList;
+	}
+
+	public List<IModel<ArtExhibitionGuide>> getArtExhibitionSearchList() {
+		return artExhibitionSearchList;
+	}
+
+	public void setGuideContentSearchList(List<IModel<GuideContent>> guideContentSearchList) {
+		this.guideContentSearchList = guideContentSearchList;
+	}
+
+	public void setArtExhibitionSearchList(List<IModel<ArtExhibitionGuide>> artExhibitionSearchList) {
+		this.artExhibitionSearchList = artExhibitionSearchList;
+	}
+
+	
+	
+	
+	
+	public BrandedGuideContentPage() {
+		super();
+	}
+
+	public BrandedGuideContentPage(PageParameters parameters) {
+		super(parameters);
+	}
+
+	public BrandedGuideContentPage(IModel<GuideContent> model) {
+		this(model, null);
+	}
+
+	public BrandedGuideContentPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {
+		super(model, list);
+	}
+	
 	
 	protected List<Language> getSupportedLanguages() {
 		return  getSiteModel().getObject().getLanguages();
@@ -96,7 +137,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 	@Override
 	protected Panel createSearchPanel() {
-		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel());
+		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList());
 	}
 
 	@Override
@@ -108,7 +149,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		// if (getModel().getObject().getState()==ObjectState.EDITION)
 		// return false;
 
-		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
+		if (getSiteModel().getObject().getState() == ObjectState.EDITION)
 			return false;
 
 		if (getModel().getObject().getState() == ObjectState.DELETED)
@@ -117,21 +158,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return true;
 	}
 
-	public BrandedGuideContentPage() {
-		super();
-	}
-
-	public BrandedGuideContentPage(PageParameters parameters) {
-		super(parameters);
-	}
-
-	public BrandedGuideContentPage(IModel<GuideContent> model) {
-		this(model, null);
-	}
-
-	public BrandedGuideContentPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {
-		super(model, list);
-	}
+	
 
 	public IModel<Site> getSiteModel() {
 		return siteModel;
@@ -233,7 +260,28 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	@Override
 	protected void addListeners() {
 		super.addListeners();
+		
+		add(new io.wktui.event.WicketEventListener<SearchAudioEvent>() {
+			
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SearchAudioEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(SearchAudioEvent event) {
+				BrandedGuideContentPage page = new BrandedGuideContentPage(BrandedGuideContentPage.this.getModel());
+				page.setArtExhibitionSearchList(event.getArtExhibitionGuidesList());
+				page.setGuideContentSearchList(event.getGuideContentsList());
+				setResponsePage( page );
+			}
+		});
+		
+		
 	}
 
 	@Override
@@ -274,7 +322,12 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 		bc.addElement(new BCElement(getObjectTitle(getModel().getObject())));
 
-		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getModel().getObject()));
+		StringBuilder str = new StringBuilder();
+		str.append( getObjectTitle( getModel().getObject() ).getObject() );
+		str.append(  getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML: "" );
+	
+		
+		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), Model.of(str.toString()));
 		ph.setImageLinkCss("jumbo-img jumbo-md mb-0 mb-lg-0  border bg-none");
 		ph.setHeaderCss("mb-0 mt-0 pt-0 pb-0 border-none");
 		ph.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center  "));

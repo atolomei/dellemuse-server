@@ -78,7 +78,7 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 
 	private TextField<String> nameField;
 
-	
+	private ChoiceField<MusicGenre> genreField;
 	
 	private FileUploadSimpleField<Resource> audioField;
 
@@ -216,6 +216,28 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 			}
 		};
 		getForm().add(royaltyFreeField);
+		
+		
+
+		genreField = new ChoiceField<MusicGenre>("genre", new PropertyModel<MusicGenre>(getModel(), "genre"), getLabel("genre")) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<MusicGenre>> getChoices() {
+				return new ListModel<MusicGenre>(MusicGenre.getValues());
+			}
+
+			@Override
+			protected String getDisplayValue(MusicGenre value) {
+				if (value == null)
+					return null;
+				 	return value.getLabel(getLocale());
+				 
+			}
+		};
+		getForm().add(genreField);
+		
 		
 		
 		infoField 	= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
@@ -490,7 +512,7 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setAudioModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setAudio(resource);

@@ -14,9 +14,11 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.model.TextCleaner;
@@ -35,7 +37,7 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 
 	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, Align align) {
 		this(id, model, siteModel, null, align);
-		setTitle(getLabel("audio-guide-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 24)));
+		setTitle(getLabel("audio-guide-dropdown",  getObjectTitle(getModel().getObject()).getObject() ));
 	}
 
 	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, IModel<String> title, Align align) {
@@ -43,6 +45,18 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 		this.siteModel = siteModel;
 	}
 
+	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+		String s = getLanguageObjectService().getObjectDisplayName(o, getLocale());
+		if (s == null)
+			return null;
+		return Model.of(TextCleaner.truncate(s,20));
+	}
+	
+	public LanguageObjectService getLanguageObjectService() {
+		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
+	}
+	
+	
 	@Override
 	public void onDetach() {
 		super.onDetach();

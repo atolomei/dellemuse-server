@@ -134,16 +134,7 @@ public class SiteListPage extends ObjectListPage<Site> {
 		return new Model<String>(TextCleaner.clean(model.getObject().getInfo(), 280));
 	}
 
-	/**
-	@Override
-	public IModel<String> getObjectTitle(IModel<Site> model) {
-		
-		if (model.getObject().getState()==ObjectState.DELETED) 
-			return new Model<String>(model.getObject().getDisplayname() + ServerConstant.DELETED_ICON);
-
-		return new Model<String>(model.getObject().getDisplayname());
-	}
-	**/
+	 
 
 	@Override
 	public void onClick(IModel<Site> model) {
@@ -366,6 +357,38 @@ public class SiteListPage extends ObjectListPage<Site> {
 		});
 		
 		 
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Site>(id, model) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isEnabled() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getSiteDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
+		
 		
 		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {

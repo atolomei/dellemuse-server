@@ -69,6 +69,10 @@ public class Resource extends DelleMuseObject {
 
 	@Column(name = "language")
 	private String language;
+	
+
+	@Column(name = "publicAccess")
+	private boolean publicAccess;
 
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "meta_json", columnDefinition = "json")
@@ -118,6 +122,14 @@ public class Resource extends DelleMuseObject {
 
 	public void setInfo(String info) {
 		this.info = info;
+	}
+
+	public boolean isPublicAccess() {
+		return publicAccess;
+	}
+
+	public void setPublicAccess(boolean publicAccess) {
+		this.publicAccess = publicAccess;
 	}
 
 	public String getInfoKey() {

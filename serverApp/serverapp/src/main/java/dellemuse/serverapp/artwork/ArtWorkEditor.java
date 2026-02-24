@@ -47,6 +47,7 @@ import io.wktui.form.field.NumberField;
 import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
+import io.wktui.panel.SimpleHelpPanel;
 import wktui.base.InvisiblePanel;
 
 public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
@@ -163,6 +164,19 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 				return ArtWorkEditor.this.getModel().getObject().getObjectType() == ObjectType.ARTWORK;
 			}
 		};
+		
+		mArtistField.setHelpPanel( new SimpleHelpPanel<>("help") {
+			public IModel<String> getLinkLabel() {
+				return ArtWorkEditor.this.getLabel("help");
+			}
+			
+			public IModel<String> getHelpText() {
+				return ArtWorkEditor.this.getLabel("artists-help");
+			}
+		});
+		
+		
+		
 
 		this.sourceField = new TextField<String>("source", new PropertyModel<String>(getModel(), "source"), getLabel("source"));
 		this.epochField = new TextField<String>("epoch", new PropertyModel<String>(getModel(), "epoch"), getLabel("epoch"));
@@ -416,7 +430,7 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setPhotoModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setPhoto(resource);

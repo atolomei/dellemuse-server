@@ -177,6 +177,110 @@ public class ArtExhibitionGuideDBService extends  MultiLanguageObjectDBservice<A
 		});
 	}
 	
+	@Transactional
+	public List<ArtExhibitionGuide> getByAudioId(Site site) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(getEntityClass());
+
+		Root<ArtExhibitionGuide> root = cq.from(getEntityClass());
+
+		Predicate p1 = cb.equal(root.get("artExhibition").get("site").get("id"), site.getId());
+		cq.select(root).where(p1);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
+	
+	@Transactional
+	public List<ArtExhibitionGuide> getByAudioId(Site site, Long aid) {
+
+		if (aid == null)
+			return getByAudioId(site);
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(getEntityClass());
+
+		Root<ArtExhibitionGuide> root = cq.from(getEntityClass());
+
+		Predicate p1 = cb.equal(root.get("artExhibition").get("site").get("id"), site.getId());
+		Predicate p2 = cb.equal(root.get("audioId"), aid);
+
+		Predicate combinedPredicate = cb.and(p1, p2);
+		cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	
+	
+	@Transactional
+	public List<ArtExhibitionGuide> getByAudioId(Site site, Long aid, ObjectState os1, ObjectState os2) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(getEntityClass());
+
+		Root<ArtExhibitionGuide> root = cq.from(getEntityClass());
+
+		Predicate p1 = cb.equal(root.get("artExhibition").get("site").get("id"), site.getId());
+
+		Predicate s1 = cb.equal(root.get("state"), os1);
+		Predicate s2 = cb.equal(root.get("state"), os2);
+
+		Predicate statePredicate = cb.or(s1, s2);
+		Predicate combinedPredicate;
+
+		if (aid != null) {
+			Predicate paid = cb.equal(root.get("audioId"), aid);
+			combinedPredicate = cb.and(p1, paid, statePredicate);
+		} else {
+			combinedPredicate = cb.and(p1, statePredicate);
+		}
+
+		cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	
+	
+
+	@Transactional
+	public List<ArtExhibitionGuide> getByAudioId(Site site, Long aid, ObjectState os1) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(getEntityClass());
+
+		Root<ArtExhibitionGuide> root = cq.from(getEntityClass());
+
+		Predicate p1;
+		Predicate p2;
+		Predicate p3;
+		Predicate combinedPredicate;
+
+		p1 = cb.equal(root.get("artExhibition").get("site").get("id"), site.getId());
+
+		if (aid != null) {
+			p2 = cb.equal(root.get("audioId"), aid);
+			p3 = cb.equal(root.get("state"), os1);
+			combinedPredicate = cb.and(p1, p2, p3);
+		} else {
+			p3 = cb.equal(root.get("state"), os1);
+			combinedPredicate = cb.and(p1, p3);
+		}
+		cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
+	
+	
+	
 	
 	@Transactional
     public void removeItem(ArtExhibitionGuide c, GuideContent  item, User removedBy) {

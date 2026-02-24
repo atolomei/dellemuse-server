@@ -145,10 +145,10 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		GuideContent o = model.getObject();
 
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 
 		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 		return Model.of(str.toString());
 	}
 
@@ -295,7 +295,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			@Override
 			public MenuItemPanel<GuideContent> getItem(String id) {
 
-				return new AjaxLinkMenuItem<GuideContent>(id) {
+				return new AjaxLinkMenuItem<GuideContent>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -325,7 +325,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			@Override
 			public MenuItemPanel<GuideContent> getItem(String id) {
 
-				return new AjaxLinkMenuItem<GuideContent>(id) {
+				return new AjaxLinkMenuItem<GuideContent>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -552,7 +552,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 					@Override
 					protected String getTitleIcon() {
 						if (getModel().getObject().getAudio() != null)
-							return ServerAppConstant.headphoneIcon;
+							return Icons.headphoneIcon;
 						else
 							return null;
 					}

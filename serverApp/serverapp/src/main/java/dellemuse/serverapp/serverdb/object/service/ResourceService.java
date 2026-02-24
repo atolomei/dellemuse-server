@@ -38,16 +38,10 @@ public class ResourceService extends BaseObjectService {
         this.objectStorageService = objectStorageService;
     }
 
-    public String getPresignedUrl() {
-        try {
+    public String getPresignedUrl() throws IOException {
             Resource resource = (Resource) getObject();
-            return getObjectStorageService().getClient().getPresignedObjectUrl(resource.getBucketName(), resource.getObjectName());
-        } catch (ODClientException e) {
-            throw new RuntimeException(e);
-        }
+			return getObjectStorageService().getPublicUrl(resource);
     }
-    
-    
     
     
     @Override

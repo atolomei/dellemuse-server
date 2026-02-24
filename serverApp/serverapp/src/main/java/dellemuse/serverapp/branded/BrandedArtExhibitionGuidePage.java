@@ -33,6 +33,7 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import io.wktui.error.ErrorPanel;
+import io.wktui.event.UIEvent;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
@@ -53,41 +54,9 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	private IModel<Site> siteModel;
 	private IModel<ArtExhibition> artExhibitionModel;
 
-	
-	protected List<Language> getSupportedLanguages() {
-		return  getSiteModel().getObject().getLanguages();
-	}
+	private List<IModel<GuideContent>> guideContentSearchList;
+	private List<IModel<ArtExhibitionGuide>> artExhibitionSearchList;
 
-	
-	
-	@Override
-	protected boolean isDarkTheme() {
-		return true;
-	}
-	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-
-		if (getModel().getObject().getState() == ObjectState.DELETED)
-			return false;
-
-		// if (getModel().getObject().getState()==ObjectState.EDITION)
-		// return false;
-
-		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
-			return false;
-
-		if (getModel().getObject().getState() == ObjectState.DELETED)
-			return false;
-
-		return true;
-	}
-
-	protected IModel<String> getMainClass() {
-		return Model.of("branded text-bg-dark");
-	}
-	
-	
 	public BrandedArtExhibitionGuidePage() {
 		super();
 	}
@@ -103,6 +72,62 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	public BrandedArtExhibitionGuidePage(IModel<ArtExhibitionGuide> model, List<IModel<ArtExhibitionGuide>> list) {
 		super(model, list);
 	}
+	
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
+
+	
+	@Override
+	protected void addListeners() {
+		super.addListeners();
+		
+		add(new io.wktui.event.WicketEventListener<SearchAudioEvent>() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SearchAudioEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(SearchAudioEvent event) {
+				BrandedArtExhibitionGuidePage page = new BrandedArtExhibitionGuidePage(BrandedArtExhibitionGuidePage.this.getModel());
+				page.setArtExhibitionSearchList(event.getArtExhibitionGuidesList());
+				page.setGuideContentSearchList(event.getGuideContentsList());
+				setResponsePage( page );
+			}
+		});
+	}
+	
+	
+	@Override
+	protected boolean isDarkTheme() {
+		return true;
+	}
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (getModel().getObject().getState() == ObjectState.DELETED)
+			return false;
+
+		 if (getModel().getObject().getState()==ObjectState.EDITION)
+		 return false;
+
+		
+		return true;
+	}
+
+	protected IModel<String> getMainClass() {
+		return Model.of("branded text-bg-dark");
+	}
+	
+	
+	
 
 	@Override
 	public void onInitialize() {
@@ -112,6 +137,22 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 	public IModel<Site> getSiteModel() {
 		return this.siteModel;
+	}
+
+	public List<IModel<GuideContent>> getGuideContentSearchList() {
+		return guideContentSearchList;
+	}
+
+	public List<IModel<ArtExhibitionGuide>> getArtExhibitionSearchList() {
+		return artExhibitionSearchList;
+	}
+
+	public void setGuideContentSearchList(List<IModel<GuideContent>> guideContentSearchList) {
+		this.guideContentSearchList = guideContentSearchList;
+	}
+
+	public void setArtExhibitionSearchList(List<IModel<ArtExhibitionGuide>> artExhibitionSearchList) {
+		this.artExhibitionSearchList = artExhibitionSearchList;
 	}
 
 	public void setSiteModel(IModel<Site> siteModel) {
@@ -133,7 +174,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 	@Override
 	protected Panel createSearchPanel() {
-		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel());
+		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(),  getGuideContentSearchList(), getArtExhibitionSearchList());
 	}
 
 	@Override
@@ -161,9 +202,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		return false;
 	}
 
-	protected void addListeners() {
-		super.addListeners();
-	}
+	 
 
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {

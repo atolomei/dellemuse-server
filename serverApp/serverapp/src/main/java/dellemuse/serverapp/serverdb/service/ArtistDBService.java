@@ -149,6 +149,36 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 	}
 
 	
+
+	@Transactional
+	public Iterable<Artist> findAllSorted(ObjectState os1) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Artist> cq = cb.createQuery(getEntityClass());
+		Root<Artist> root = cq.from(getEntityClass());
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		cq.select(root).where(p1);
+		cq.orderBy(cb.asc(root.get("person").get("sortlastfirstname")));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	@Transactional
+	public Iterable<Artist> findAllSorted(ObjectState os1, ObjectState os2) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Artist> cq = cb.createQuery(getEntityClass());
+		Root<Artist> root = cq.from(getEntityClass());
+		
+		Predicate p1 = cb.equal(root.get("state"), os1);
+		Predicate p2 = cb.equal(root.get("state"), os2);
+		Predicate combinedPredicate = cb.or(p1, p2);
+		cq.select(root).where(combinedPredicate);
+		
+		cq.orderBy(cb.asc(root.get("person").get("sortlastfirstname")));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
 	
 	@Transactional
 	public Iterable<Artist> findAllSorted(Site site, ObjectState os1, ObjectState os2) {
@@ -193,8 +223,9 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 		return Artist.class.getSimpleName().toLowerCase();
 	}
 
-	@PostConstruct
-	protected void onInitialize() {
+	//@PostConstruct
+	public void onInitialize() {
+		super.registerRecordDB(getEntityClass(), getArtistRecordDBService());
 		super.register(getEntityClass(), this);
 	}
 

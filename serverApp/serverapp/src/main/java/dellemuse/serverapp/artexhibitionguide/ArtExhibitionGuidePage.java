@@ -326,7 +326,7 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 
 		StringBuilder str = new StringBuilder();
 		str.append(getObjectTitle(getModel().getObject()).getObject());
-		str.append(getModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO : "");
+		str.append(getModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML : "");
 
 		this.header = new JumboPageHeaderPanel<ArtExhibitionGuide>("page-header", getModel(), Model.of(str.toString()));
 		this.header.setContext(getLabel("exhibition-guide"));

@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 import dellemuse.model.logging.Logger;
  
@@ -41,23 +43,52 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/signin",
-                    "/studio/**",
-                    "/signin/**",
-                    "/wicket/resource/**",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**"
+                		"/signin",
+                        "/signin/**",
+                        "/wicket/**",
+                        "/wicket/resource/**",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**"
                 ).permitAll()
+                //.anyRequest().authenticated()
+                // ⭐ Let Wicket handle page authorization
                 .anyRequest().permitAll()
-            )
+            		)
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint(customEntryPoint())
             )
+            
+            .securityContext(context -> context
+                    .securityContextRepository(new HttpSessionSecurityContextRepository())
+                    .requireExplicitSave(false)
+                )
+            
+            .sessionManagement(session -> session
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                    .sessionFixation(fix -> fix.migrateSession())
+                )
+
+            .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint(customEntryPoint())
+                )
+            
             .csrf(csrf -> csrf.disable())
             .formLogin(form -> form.disable())
-            .logout(logout -> logout.logoutUrl("/logout").permitAll());
-
+            .logout(logout -> logout
+            	    .logoutUrl("/logout")
+            	    .logoutSuccessUrl("/signin?logout")   // ← change this
+            	    .invalidateHttpSession(true)
+            	    .deleteCookies("JSESSIONID")
+            	    .permitAll()
+            	);
+            
+            	//.logout(logout -> logout.logoutUrl("/logout").permitAll());
+        
+        
+        
+        
+        
         return http.build();
     }
 

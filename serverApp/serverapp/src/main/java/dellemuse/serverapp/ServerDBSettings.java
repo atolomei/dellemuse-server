@@ -82,6 +82,12 @@ public class ServerDBSettings {
 	@NonNull
 	protected int objectStoragePort;
 
+
+	@Value("${objectstorage.isSSL:null}")
+	protected String isObjectStorageSSLStr;
+	protected boolean isObjectStorageSSL;
+	
+	
 	@Value("${objectstorage.presigned.url:null}")
 	protected String objectStoragePresignedUrl;
 
@@ -89,8 +95,7 @@ public class ServerDBSettings {
 	protected int objectStoragePresignedPort;
 
 	@Value("${objectstorage.presigned.isSSL:null}")
-	protected String isSSLStr;
-
+	protected String ispresignedSSLStr;
 	protected boolean isPresignedSSL;
 
 	/** Database */
@@ -119,6 +124,15 @@ public class ServerDBSettings {
 	@Value("${avatar.dir:avatar}")
 	protected String avatarDir;
 
+	
+	
+	@Value("${help.dir:help}")
+	protected String helpDir;
+
+	public String getHelpDir() {
+		return helpDir;
+	}
+	
 	@Value("${work.dir:work}")
 	protected String workDir;
 
@@ -144,6 +158,14 @@ public class ServerDBSettings {
 	@Value("${elevenlabs.api.text.to.speech.servicename:text-to-speech}")
 	private String textToSpeechServiceName;
 
+	
+	@Value("${ffmpeg.dir:null}")
+	private String ffmpegDir;
+	
+	
+	
+	
+	
 	public String getTextToSpeechServiceName() {
 		return this.textToSpeechServiceName;
 	}
@@ -222,10 +244,27 @@ public class ServerDBSettings {
 		if (objectStoragePresignedPort == -1)
 			objectStoragePresignedPort = objectStoragePort;
 
-		if (isSSLStr == null || isSSLStr.equals("null"))
-			isPresignedSSL = this.isHTTPS();
+		if (this.ispresignedSSLStr == null || ispresignedSSLStr.equals("null"))
+			isPresignedSSL = false;
 		else
-			isPresignedSSL = isSSLStr.toLowerCase().trim().equals("true");
+			isPresignedSSL = ispresignedSSLStr.toLowerCase().trim().equals("true");
+		
+		if (this.isObjectStorageSSLStr == null || isObjectStorageSSLStr.equals("null"))
+			isObjectStorageSSL = false;
+		else
+			isObjectStorageSSL = isObjectStorageSSLStr.toLowerCase().trim().equals("true");
+		
+		
+		
+		if (ffmpegDir.equals("null")) {
+			ffmpegDir="";
+		}
+		else {
+			if (!ffmpegDir.endsWith("/")) {
+				ffmpegDir=ffmpegDir+"/";
+			}
+		}
+		
 
 		if (qrcodeQenerationStr == null || qrcodeQenerationStr.equals("null"))
 			qrcodeQeneration = true;
@@ -250,6 +289,9 @@ public class ServerDBSettings {
 		return this.ishttps != null && this.ishttps.toLowerCase().trim().equals("true");
 	}
 
+	
+	
+	
 	public String getImporterBaseDir() {
 		return importerBaseDir;
 	}
@@ -280,6 +322,14 @@ public class ServerDBSettings {
 
 	public int getObjectStoragePort() {
 		return objectStoragePort;
+	}
+	
+	public boolean isObjectStorageSSL() {
+		return this.isObjectStorageSSL;
+	}
+	
+	public boolean isPresignedObjectStorageSSL() {
+		return this.isPresignedSSL;
 	}
 
 	public String getAppName() {
@@ -424,4 +474,11 @@ public class ServerDBSettings {
 	public String getNoReplyEmailAddress() {
 		return "noreply@dellemuse.app";
 	}
+
+	
+	public String getFFmpegDir() {
+		return ffmpegDir;
+	}
+
+
 }

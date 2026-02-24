@@ -28,6 +28,8 @@ import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
@@ -68,6 +70,21 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 	
 	private List<ToolbarItem> listToolbar;
 
+	public String getHelpKey() {
+		return Help.ARTIST_LIST;
+	}
+	
+	public  ArtistListPage() {
+		super();
+		 setIsExpanded(true);
+		 
+	}		
+	
+	public ArtistListPage(PageParameters parameters) {
+		 super(parameters);
+		 setIsExpanded(true);
+	}
+	 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		
@@ -87,20 +104,9 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 		
 		if (set==null)
 			return false;
+		
 		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
 	}
-	
-	public  ArtistListPage() {
-		super();
-		 setIsExpanded(true);
-		 
-	}		
-	
-	public ArtistListPage(PageParameters parameters) {
-		 super(parameters);
-		 setIsExpanded(true);
-	}
-	 	
 	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
@@ -113,9 +119,10 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 		
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-
 		listToolbar.add(s);
 
+	
+		
 		return listToolbar;
 	}
 
@@ -154,7 +161,7 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 			@Override
 			public MenuItemPanel<Artist> getItem(String id) {
 
-				return new LinkMenuItem<Artist>(id) {
+				return new LinkMenuItem<Artist>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -180,12 +187,12 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 			@Override
 			public MenuItemPanel<Artist> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Artist>(id) {
+				return new AjaxLinkMenuItem<Artist>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
 					
-					public boolean isEnabled() {
+					public boolean isVisible() {
 						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
 					}
 				
@@ -213,12 +220,12 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 			@Override
 			public MenuItemPanel<Artist> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Artist>(id) {
+				return new AjaxLinkMenuItem<Artist>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
 					
-					public boolean isEnabled() {
+					public boolean isVisible() {
 						return getModel().getObject().getState()!=ObjectState.EDITION;
 					}
 				
@@ -246,7 +253,7 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 			@Override
 			public MenuItemPanel<Artist> getItem(String id) {
 
-				return new AjaxLinkMenuItem<Artist>(id) {
+				return new AjaxLinkMenuItem<Artist>(id,model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -257,6 +264,11 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 						refresh(target);
 					}
 
+
+					public boolean isVisible() {
+						return getModel().getObject().getState()!=ObjectState.DELETED;
+					}
+					
 					@Override
 					public IModel<String> getLabel() {
 						return getLabel("delete");
@@ -358,14 +370,8 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>() {
-			private static final long serialVersionUID = 1L;
-			protected void onClick() {
-				ArtistListPage.this.onCreate();
-			}
-		};
-		create.setAlign(Align.TOP_LEFT);
-		list.add(create);
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
 		return list;
 	}
 

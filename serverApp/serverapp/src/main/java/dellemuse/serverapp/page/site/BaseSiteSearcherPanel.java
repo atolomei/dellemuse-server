@@ -23,13 +23,14 @@ import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.person.ServerAppConstant;
-
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Site;
 
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
+import io.wktui.form.button.LinkSubmitButton;
 import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.Field;
 
@@ -52,20 +53,29 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 	private Form<Void> form;
 	private String audioId = "";
 	private TextField<String> aidField;
-	private List<IModel<GuideContent>> list;
-	private ListPanel<GuideContent> itemsPanel;
-
-	private WebMarkupContainer itemsContainer;
+	
+	
+	private SearchResultsPanel<GuideContent> results;
+	private WebMarkupContainer itemsGuideContentsContainer;
+	private WebMarkupContainer itemsArtExhibitionGuideContainer;
+	
+ 
+	
 	private WebMarkupContainer listToolbarContainer;
-
 	private List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
 
-	protected abstract void onClick(IModel<GuideContent> model, AjaxRequestTarget target);
 
 	protected abstract List<ToolbarItem> getListToolbarItems();
 
+	
+	/**
 	protected abstract void onClick(IModel<GuideContent> model);
-
+	protected abstract void onClick(IModel<ArtExhibitionGuide> model);
+	protected abstract void onClick(IModel<GuideContent> model, AjaxRequestTarget target);
+	protected abstract void onClick(IModel<ArtExhibitionGuidet> model, AjaxRequestTarget target);  
+    **/
+	
+		
 	public BaseSiteSearcherPanel(String id, IModel<Site> model) {
 		super(id, model);
 
@@ -83,14 +93,26 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+		
 		addListToolbar();
 		addForm();
+		
+		itemsGuideContentsContainer = new WebMarkupContainer("itemsGuideContentContainer");
+		add(itemsGuideContentsContainer);
+		itemsGuideContentsContainer.setVisible(false);
+		itemsGuideContentsContainer.setOutputMarkupId(true);
+		itemsGuideContentsContainer.add(new InvisiblePanel("results"));
+		
+		
+		
+		itemsArtExhibitionGuideContainer = new WebMarkupContainer("itemsArtExhibitionGuideContaine");
+		add(itemsArtExhibitionGuideContainer);
+		itemsArtExhibitionGuideContainer.setVisible(false);
+		itemsArtExhibitionGuideContainer.setOutputMarkupId(true);
+		itemsArtExhibitionGuideContainer.add(new InvisiblePanel("results"));
 
-		itemsContainer = new WebMarkupContainer("itemsContainer");
-		add(itemsContainer);
-		itemsContainer.setVisible(false);
-		itemsContainer.setOutputMarkupId(true);
-
+		
+		
 	}
 
 	@Override
@@ -101,10 +123,11 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		if (this.list != null)
-			this.list.forEach(i -> i.detach());
 	}
 
+	
+	
+	/**
 	public Iterable<GuideContent> getObjects() {
 		return this.getObjects(null, null);
 	}
@@ -118,17 +141,11 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 	}
 
 	protected IModel<String> getObjectInfo(IModel<GuideContent> model) {
-
 		StringBuilder str = new StringBuilder();
 		str.append(TextCleaner.clean(getLanguageObjectService().getInfo(model.getObject(), getLocale()), 480));
-
 		str.append("<br/>");
 		str.append("<b>Audio id</b>");
-//		str.append(model.getObject().getAudioId() != null ? (". " + model.getObject().getAudioId().toString()) : ". n/a");
-
-	
-		str.append(model.getObject().getArtWorkAudioId() != null ? (". " + model.getObject().getArtWorkAudioId().toString()) : ". n/a");
-
+ 		str.append(model.getObject().getArtWorkAudioId() != null ? (". " + model.getObject().getArtWorkAudioId().toString()) : ". n/a");
 		return Model.of(str.toString());
 
 	}
@@ -142,19 +159,18 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 		StringBuilder str = new StringBuilder();
 
 		GuideContent o = model.getObject();
-
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
-
+		str.append(model.getObject().getArtWorkAudioId() != null ? ("  <span class=\"small  text-secondary\"> (" + model.getObject().getArtWorkAudioId().toString() + ") </span>" ) : ". n/a");
 		boolean accesible=getArtExhibitionGuideDBService().findById( o.getArtExhibitionGuide().getId() ).get().isAccessible();
 		
 		if (accesible) {
-			str.append( Icons.ACCESIBLE_ICON );
+			str.append( Icons.ACCESIBLE_ICON_HTML );
 		}
 		if (o.getState() == ObjectState.DELETED)
-				str.append(Icons.DELETED_ICON);
+				str.append(Icons.DELETED_ICON_HTML);
 
 		if (o.getState() == ObjectState.EDITION)
-			str.append(Icons.EDITION_ICON);
+			str.append(Icons.EDITION_ICON_HTML);
 
 		return Model.of(str.toString());
 	}
@@ -200,18 +216,51 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 		return null;
 	}
 
-	protected WebMarkupContainer getItemsContainer() {
-		return this.itemsContainer;
+	protected WebMarkupContainer getItemsGuideContentContainer() {
+		return this.itemsGuideContensContainer;
 	}
 
+	
+	
+	protected WebMarkupContainer getItemsArtExhibitionGuideContainer() {
+		return this.itemsArtExhibitionGuidesContainer;
+	}
+
+	
+	
 	protected void onSubmit(AjaxRequestTarget target) {
 		this.form.updateModel();
 		this.list = null;
+		
 		addItems();
-		this.itemsContainer.setVisible(true);
+
+		this.itemsArtExhibitionGuidesContainer.setVisible(true);
+		this.itemsGuideContensContainer.setVisible(true);
+		
 		target.add(this);
 	}
+**/
+	
+	
+	protected abstract  List<IModel<ArtExhibitionGuide>> generateArtExhibitionGuideList();
+	protected abstract  List<IModel<GuideContent>>		 generateGuideContentList();
+	
+	
+	protected void onSubmit() {
+	
+		 this.form.updateModel();
 
+		 List<IModel<GuideContent>> gc_list			=	generateGuideContentList();
+		 List<IModel<ArtExhibitionGuide>> ag_list	=	generateArtExhibitionGuideList();
+	
+		 loadResultsPage(gc_list, ag_list );
+		
+	}
+	
+	public abstract void loadResultsPage(  List<IModel<GuideContent>> gc_list,  List<IModel<ArtExhibitionGuide>> ag_list);
+	
+	
+	
 	@Override
 	protected void addListeners() {
 		super.addListeners();
@@ -221,9 +270,6 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 		return this.listToolbarContainer;
 	}
 
-	protected Component getItemsPanel() {
-		return this.itemsPanel;
-	}
 
 	protected String getSaveCss() {
 		return "btn btn-outline btn-sm";
@@ -257,12 +303,12 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 		this.aidField.setPlaceHolderLabel(getLabel("search-by-aid"));
 		this.form.add(aidField);
 
-		SubmitButton<Void> submit = new SubmitButton<Void>("submit") {
+		LinkSubmitButton<Void> submit = new LinkSubmitButton<Void>("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target) {
-				BaseSiteSearcherPanel.this.onSubmit(target);
+			protected void onSubmit() {
+				BaseSiteSearcherPanel.this.onSubmit();
 			}
 
 			public String getIcon() {
@@ -301,19 +347,8 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 		});
 	}
 
-	protected List<IModel<GuideContent>> getItems() {
-		if (this.list == null) {
-			this.list = generateList();
-		}
-		return this.list;
-	}
-
-	protected abstract List<IModel<GuideContent>> generateList();
-
-	protected void reloadList() {
-		this.list = generateList();
-	}
-
+ 
+ 
 	protected void addListToolbar() {
 
 		this.listToolbarContainer = new WebMarkupContainer("listToolbarContainer") {
@@ -338,6 +373,16 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 		}
 	}
 
+	
+	// TODO AT REMOVER 
+
+	public WebMarkupContainer getItemsGuideContentContainer() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+	/**
 	protected void addItems() {
 
 		this.itemsPanel = new ListPanel<GuideContent>("items") {
@@ -387,7 +432,7 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 					@Override
 					protected String getTitleIcon() {
 						if (getModel().getObject().getAudio() != null)
-							return ServerAppConstant.headphoneIcon;
+							return Icons.headphoneIcon;
 						else
 							return null;
 					}
@@ -401,8 +446,8 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 			}
 		};
 
-		itemsContainer.addOrReplace(itemsPanel);
-		itemsContainer.setVisible(true);
+		itemsGuideContensContainer.addOrReplace(itemsPanel);
+		itemsGuideContensContainer.setVisible(true);
 
 		itemsPanel.setListPanelMode(ListPanelMode.TITLE);
 		itemsPanel.setLiveSearch(false);
@@ -410,5 +455,7 @@ public abstract class BaseSiteSearcherPanel extends DBModelPanel<Site> implement
 		itemsPanel.setItemMenu(false);
 		itemsPanel.setHasExpander(true);
 	}
+	
+	*/
 
 }

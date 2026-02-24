@@ -32,6 +32,7 @@ import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -320,8 +321,11 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
+		ArtExhibitionEditor.this.addOrReplace( new InvisiblePanel("error"));
+		target.add(this);
 	}
 
+	
 	protected void onSave(AjaxRequestTarget target) {
 
 		getUpdatedParts().forEach(s -> logger.debug(s));
@@ -445,7 +449,7 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setPhotoModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setPhoto(resource);

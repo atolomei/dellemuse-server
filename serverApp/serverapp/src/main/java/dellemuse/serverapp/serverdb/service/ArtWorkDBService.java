@@ -132,7 +132,7 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 	@Transactional
 	public ArtWork addQR(ArtWork aw, String bucketName, String objectName, String name, String media, long size, User createdBy) {
 		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
-		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE, createdBy, name);
+		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE, createdBy, name, true);
 		aw.setQRCode(res);
 		return getRepository().save(aw);
 	}

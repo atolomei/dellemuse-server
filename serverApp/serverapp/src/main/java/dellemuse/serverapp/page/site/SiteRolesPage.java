@@ -16,6 +16,7 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
@@ -128,9 +129,9 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		try {
 			BreadCrumb<Void> bc = createBreadCrumb();
 			bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-			bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), new Model<String>(getModel().getObject().getDisplayname())));
+			bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), getObjectTitle(getModel().getObject())));
 			bc.addElement(new BCElement(getLabel("roles")));
-			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
+			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), getObjectTitle(getModel().getObject()) );
 			ph.setBreadCrumb(bc);
 
 			ph.setContext(getLabel("site"));
@@ -166,9 +167,13 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
+		list.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+		
 		return list;
 	}
 
+	
+	
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 

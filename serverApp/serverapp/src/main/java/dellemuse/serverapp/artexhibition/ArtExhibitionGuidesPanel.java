@@ -12,6 +12,7 @@ import org.apache.wicket.model.Model;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
 import dellemuse.serverapp.icons.Icons;
+import dellemuse.serverapp.music.MusicListPage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
@@ -21,12 +22,14 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
- 
+import dellemuse.serverapp.serverdb.model.Music;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.FormState;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -133,6 +136,11 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	}
 
 	
+	protected void refresh(AjaxRequestTarget target) {
+		target.add(ArtExhibitionGuidesPanel.this);
+	}
+	
+	
 	protected void onCancel(AjaxRequestTarget target) {
 		setState(FormState.VIEW);
 		target.add(this);
@@ -160,13 +168,13 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			@Override
 			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtExhibitionGuide>(id) {
+				return new  LinkMenuItem<ArtExhibitionGuide>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
+					public void onClick( ) {
+						setResponsePage( new ArtExhibitionGuidePage( getModel()));
 					}
 
 					@Override
@@ -176,10 +184,76 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 				};
 			}
 		});
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibitionGuide>(id, model) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isVisible() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getArtExhibitionGuideDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
+						ArtExhibitionGuidesPanel.this.refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibitionGuide>(id, model) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isVisible() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getArtExhibitionGuideDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						ArtExhibitionGuidesPanel.this.refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
+
+		
 
 		return menu;
 	}
 
+	
 	protected IModel<String> getObjectInfo(IModel<ArtExhibitionGuide> model) {
 		
 		return Model.of(getInfo(model.getObject(), false));
@@ -255,7 +329,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 						StringBuilder str = new StringBuilder();
 						str.append(ArtExhibitionGuidesPanel.this.getObjectTitle(getModel().getObject()).getObject());
 						if ( getModel().getObject().isAccessible())  
-							 str.append( Icons.ACCESIBLE_ICON );
+							 str.append( Icons.ACCESIBLE_ICON_HTML );
 						
 						return Model.of( str.toString() );
 					}
@@ -263,7 +337,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 					@Override
 					protected String getTitleIcon() {
 						if (getModel().getObject().getAudio() != null)
-							return ServerAppConstant.headphoneIcon;
+							return Icons.headphoneIcon;
 						else
 							return null;
 					}

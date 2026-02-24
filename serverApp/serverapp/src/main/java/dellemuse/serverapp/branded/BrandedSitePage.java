@@ -35,7 +35,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
- 
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -46,6 +46,8 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
  
 import io.odilon.util.Check;
+import io.wktui.event.SimpleWicketEvent;
+import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
@@ -87,17 +89,9 @@ public class BrandedSitePage extends BasePage {
 	private WebMarkupContainer exhibitionsContainer;
 
 	
-	@Override
-	protected boolean isDarkTheme() {
-		return true;
-	}
+	private List<IModel<GuideContent>> gc_list;
+	private List<IModel<ArtExhibitionGuide>> ag_list;
 	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
-			return false;
-		return true;
-	}
 
 	public BrandedSitePage() {
 		super();
@@ -108,13 +102,22 @@ public class BrandedSitePage extends BasePage {
 		stringValue = getPageParameters().get("id");
 	}
 
+	
 	public BrandedSitePage(IModel<Site> model) {
+		this(model, null, null);
+	}
+
+	public BrandedSitePage(IModel<Site> model, List<IModel<GuideContent>> gc_list,  List<IModel<ArtExhibitionGuide>> ag_list) {
 		Check.requireNonNullArgument(model, "model is null");
 		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
 		setSiteModel(model);
 		getPageParameters().add("id", model.getObject().getId().toString());
+	
+		this.ag_list=ag_list;
+		this.gc_list=gc_list;
 	}
 
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -152,15 +155,32 @@ public class BrandedSitePage extends BasePage {
 		addExhibitions();
 	}
 
+	@Override
+	protected boolean isDarkTheme() {
+		return true;
+	}
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (getSiteModel().getObject().getState() == ObjectState.EDITION)
+			return false;
+		
+		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
+			return false;
+		
+		return true;
+	}
+
 	
 	protected IModel<String> getObjectTitle(ArtExhibitionGuide o) {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 		
 		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
 		
 		
@@ -171,10 +191,10 @@ public class BrandedSitePage extends BasePage {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 		
 		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
 		return Model.of(str.toString());
 	}
@@ -204,7 +224,7 @@ public class BrandedSitePage extends BasePage {
 	}
 
 	protected void addSearch() {
-		this.searcher = new BrandedSiteSearcherPanel("search", getSiteModel());
+		this.searcher = new BrandedSiteSearcherPanel("search", getSiteModel(), gc_list, ag_list);
 		addOrReplace(this.searcher);
 
 	}
@@ -215,6 +235,25 @@ public class BrandedSitePage extends BasePage {
 
 	protected void addListeners() {
 		super.addListeners();
+		
+		add(new io.wktui.event.WicketEventListener<SearchAudioEvent>() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SearchAudioEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(SearchAudioEvent event) {
+				setResponsePage(new BrandedSitePage(event.getModel(), event.getGuideContentsList(), event.getArtExhibitionGuidesList()));
+			}
+		});
+		
+		
 	}
 
 	protected void addExhibitions() {
@@ -833,7 +872,7 @@ public class BrandedSitePage extends BasePage {
 
 	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
 		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject())) {
-			return ServerAppConstant.headphoneIcon;
+			return Icons.headphoneIcon;
 		}
 		return null;
 	}
@@ -960,6 +999,9 @@ public class BrandedSitePage extends BasePage {
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("audio-guides")));
 
+		
+	
+		
 		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getLabel("audio-guides"));
 		ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0  border-none bg-dark");
 		ph.setHeaderCss("mb-2 mt-0 pt-0 pb-2 border-none");

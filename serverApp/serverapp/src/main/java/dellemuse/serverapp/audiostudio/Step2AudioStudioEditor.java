@@ -287,7 +287,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 				
 				
 				if ( (musicId == null) && (musicUrl==null)) {
-					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.DANGER, Model.of("Music id and mp3 URL are empty"));
+					AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.DANGER, getLabel("no-music-selected"));
 					getForm().addOrReplace(alert);
 					target.add(getForm());
 					return;
@@ -459,7 +459,7 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 
 			try (FileInputStream inputStream = new FileInputStream(file)) {
 
-				Resource resource = createAndUploadFile(inputStream, bucketName, objectName, file.getName(), file.length());
+				Resource resource = createAndUploadFile(inputStream, bucketName, objectName, file.getName(), file.length(), true);
 				setAudioSpeechMusicModel(new ObjectModel<Resource>(resource));
 
 				getModel().getObject().setAudioSpeechMusicHash(getHashAudioSpeechMusic());

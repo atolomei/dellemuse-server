@@ -111,6 +111,12 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		AjaxButtonToolbarItem<Voice> create = new AjaxButtonToolbarItem<Voice>() {
 			private static final long serialVersionUID = 1L;
 
+			
+			
+			public boolean isEnabled() {
+				return canEdit();
+				
+			}
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_voice_edit, target));
@@ -127,14 +133,15 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	}
 	
 	
+	protected boolean canEdit() {
+		return true;
+	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		setUpModel();
 				
-		
-
 		add(new InvisiblePanel("error"));
 
 		Form<Voice> form = new Form<Voice>("voiceForm", getModel());
@@ -336,7 +343,9 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 			getForm().setFormState(FormState.VIEW);
 
 			getForm().updateReload();
-
+			
+			target.add(getForm());
+			
 			fireScanAll(new ObjectUpdateEvent(target));
 
 		} catch (Exception e) {
@@ -376,7 +385,7 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setAudioModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setAudio(resource);

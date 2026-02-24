@@ -191,10 +191,10 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 		User o  = model.getObject();
 		
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 		
 		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
 
 		return Model.of(str.toString());

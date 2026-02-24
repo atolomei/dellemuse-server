@@ -1,6 +1,5 @@
 package dellemuse.serverapp.guidecontent;
 
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
 
@@ -20,26 +19,21 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 	private static final long serialVersionUID = 1L;
 
-
 	private IModel<Site> siteModel;
 
-	
-	
 	public GuideContentNavDropDownMenuToolbarItem(String id, IModel<GuideContent> model, IModel<Site> siteModel, IModel<String> title, Align align) {
 		super(id, model, title, align);
-		this.siteModel=siteModel;
+		this.siteModel = siteModel;
 	}
 
-	
 	@Override
 	public void onDetach() {
 		super.onDetach();
 
-		if (siteModel!=null)
+		if (siteModel != null)
 			siteModel.detach();
 	}
-	
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -83,13 +77,8 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 				};
 			}
 		});
-		
-		
-		
-		
-		
 
-		for (Language la: getSiteModel().getObject().getLanguages()) {
+		for (Language la : getSiteModel().getObject().getLanguages()) {
 
 			final String langCode = la.getLanguageCode();
 
@@ -184,15 +173,13 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 				};
 			}
 		});
-		
-		
-		
-		for (Language la: getSiteModel().getObject().getLanguages()) {
-			
+
+		for (Language la : getSiteModel().getObject().getLanguages()) {
+
 			final String a_langCode = la.getLanguageCode();
 
 			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {
-				
+
 				addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
 
 					private static final long serialVersionUID = 1L;
@@ -205,7 +192,7 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 							@Override
 							public void onClick(AjaxRequestTarget target) {
-								fire(new MenuAjaxEvent(ServerAppConstant.object_audit+"-"+a_langCode, target, a_langCode));
+								fire(new MenuAjaxEvent(ServerAppConstant.object_audit + "-" + a_langCode, target, a_langCode));
 							}
 
 							@Override
@@ -217,25 +204,16 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 				});
 			}
 		}
-		
-		
-		
-		
-		
-		
-		
-		
+
 	}
 
 	protected LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
 
-
 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
-
 
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;

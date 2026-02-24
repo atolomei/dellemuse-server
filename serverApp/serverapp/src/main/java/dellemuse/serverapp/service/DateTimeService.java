@@ -661,8 +661,11 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
     	
     	if (locale.getLanguage()==Locale.forLanguageTag("es").getLanguage()) {
        		
-    		String trimmed = input.trim().replaceAll("\\s+", " ").toLowerCase().replace(" de ", " ");
+    		String trimmed = input.trim().replaceAll("\\s+", " ").toLowerCase().replace(" de ", " ").toLowerCase();
 	        
+    		if (trimmed.contains(" sep "))
+    			trimmed=trimmed.replace(" sep ", " sept ");
+    		
 	       for (DateTimeFormatter formatter : FORMATTERS_SPA) {
 	            try {
 	                return LocalDate.parse(trimmed, formatter);
@@ -743,9 +746,15 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
 	        DateTimeFormatter.ofPattern("dd/MM/yy", Locale.forLanguageTag("es")),
 	        DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.forLanguageTag("es")),
 	        
+	        
+	        
 	        DateTimeFormatter.ofPattern("d MMM yy",  Locale.forLanguageTag("es")),
 	        DateTimeFormatter.ofPattern("d MMM yyyy",  Locale.forLanguageTag("es")),
 
+	        DateTimeFormatter.ofPattern("dd MMM yy",  Locale.forLanguageTag("es")),
+	        DateTimeFormatter.ofPattern("dd MMM yyyy",  Locale.forLanguageTag("es")),
+
+	        
 	        DateTimeFormatter.ofPattern("d MMMM yy", Locale.forLanguageTag("es")),
 	        DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("es")),
 

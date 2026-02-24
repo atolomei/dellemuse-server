@@ -175,7 +175,7 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 			@Override
 			public MenuItemPanel<ArtExhibitionSection> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtExhibitionSection>(id) {
+				return new AjaxLinkMenuItem<ArtExhibitionSection>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -200,7 +200,7 @@ public class ArtExhibitionSectionsPanel extends DBModelPanel<ArtExhibition> impl
 			@Override
 			public MenuItemPanel<ArtExhibitionSection> getItem(String id) {
 
-				return new AjaxLinkMenuItem<ArtExhibitionSection>(id) {
+				return new AjaxLinkMenuItem<ArtExhibitionSection>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 

@@ -3,7 +3,9 @@ package dellemuse.serverapp.page;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -26,14 +28,19 @@ import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import io.wktui.error.AlertHelpPanel;
+import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.CloseErrorPanelAjaxEvent;
+import io.wktui.event.HelpAjaxEvent;
 import io.wktui.event.UIEvent;
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
 
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
+import wktui.base.DummyBlockPanel;
 import wktui.base.InvisiblePanel;
 
 /**
@@ -56,6 +63,10 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	private WebMarkupContainer contentsContainerContainer;
 	private WebMarkupContainer errorContainer;
 	private WebMarkupContainer listToolbarContainer;
+	private WebMarkupContainer helpContainer;
+	
+	
+	
 	private Panel errorPanel;
 	private boolean b_expand = false;
 
@@ -78,16 +89,16 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 			str.append(getLanguageObjectService().getObjectDisplayName(((MultiLanguageObject) model.getObject()), getLocale()));
 			
 			if (model.getObject().getState() == ObjectState.DELETED)
-				str.append(Icons.DELETED_ICON);
+				str.append(Icons.DELETED_ICON_HTML);
 		
 
 			if (model.getObject().getState() == ObjectState.EDITION)
-				str.append(Icons.EDITION_ICON);
+				str.append(Icons.EDITION_ICON_HTML);
 			
 			
 			return Model.of(str.toString());
 		}
-		return Model.of(model.getObject().getDisplayname() + ((model.getObject().getState() == ObjectState.DELETED) ? Icons.DELETED_ICON : ""));
+		return Model.of(model.getObject().getDisplayname() + ((model.getObject().getState() == ObjectState.DELETED) ? Icons.DELETED_ICON_HTML : ""));
 	}
 
 	protected abstract String getObjectTitleIcon(IModel<T> model);
@@ -133,6 +144,15 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		
 		if (getObjectStateEnumSelector()==null)
 			setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
+		
+		
+		helpContainer = new WebMarkupContainer("helpContainer");
+		helpContainer.setOutputMarkupId(true);
+		add(helpContainer);
+		helpContainer.add( new InvisiblePanel("help"));
+		//helpContainer.setVisible(false);
+		
+		
 		
 		contentsContainerContainer = new WebMarkupContainer("contentsContainer");
 		contentsContainerContainer.setOutputMarkupId(true);
@@ -334,13 +354,67 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	}
 
 	protected void refresh(AjaxRequestTarget target) {
-		target.add(this.contentsContainerContainer);
-		target.add(this.listToolbarContainer);
+		target.add(this);
+		
+		//target.add(this.contentsContainerContainer);
+		//target.add(this.listToolbarContainer);
 	}
 
+	
+	boolean isHelpVisible = false;
+	
 	protected void addListeners() {
 		super.addListeners();
 
+		add(new io.wktui.event.WicketEventListener<HelpAjaxEvent>() { 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(HelpAjaxEvent event) {
+				if (isHelpVisible) {
+					isHelpVisible=false;
+					helpContainer.get("help").setVisible(false);
+				}
+				else {
+					//helpContainer.setVisible(true);
+					helpContainer.addOrReplace(getHelpPanel("help", getHelpKey(), getLocale().getLanguage() ));
+					isHelpVisible=true;
+				}
+				
+				event.getTarget().add(helpContainer);
+				//refresh( event.getTarget() );
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof HelpAjaxEvent)
+					return true;
+				return false;
+			}
+		});
+
+		
+		
+		
+		add(new io.wktui.event.WicketEventListener<CloseErrorPanelAjaxEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(CloseErrorPanelAjaxEvent event) {
+				setErrorPanel(new InvisiblePanel("error"));
+				refresh(event.getTarget());
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof CloseErrorPanelAjaxEvent)
+					return true;
+				return false;
+			}
+		});
+		
+		
+		
 		add(new io.wktui.event.WicketEventListener<ObjectStateSelectEvent>() {
 			private static final long serialVersionUID = 1L;
 
@@ -378,6 +452,21 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 	}
 
+	
+	public String getHelpKey() {
+		return this.getClass().getSimpleName().toLowerCase();
+	}
+
+	protected Panel getHelpPanel(String id, String key, String lang) {
+		String h=getHelpService().gethelp(key, lang);
+		if (h==null) {
+			h=key + "-" + lang+ " not found";
+		}
+	 	AlertPanel<Void> a = new AlertHelpPanel<>(id, Model.of(h));
+	 	a.add( new org.apache.wicket.AttributeModifier("class", "help"));
+	 	return a;
+	}
+	
 	protected Panel getObjectListItemExpandedPanel(IModel<T> model, ListPanelMode mode) {
 
 		return new ObjectListItemExpandedPanel<T>("expanded-panel", model, mode) {
@@ -401,9 +490,36 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		};
 	}
 
-	public boolean hasAccessRight(Optional<User> optional) {
-		return true;
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser==null)
+			return false;
+		
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get(); 
+		
+		if (user.isRoot()) 
+			return true;
+
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+		
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+		
+		return false;
 	}
+	
+	
 
 	protected void setErrorPanel(Panel panel) {
 		if (!panel.getId().equals("error"))
@@ -489,6 +605,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 		if (list != null && list.size() > 0) {
 			Toolbar toolbarItems = new Toolbar("mainToolbar");
+			toolbarItems.setToolbarCss("navbar pb-1 pt-1 mt-0 mb-0");
 			list.forEach(t -> toolbarItems.addItem(t));
 			this.mainToolbarContainer.add(toolbarItems);
 		} else {
@@ -519,6 +636,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 		if (list != null && list.size() > 0) {
 			Toolbar toolbarItems = new Toolbar("listToolbar");
+			toolbarItems.setToolbarCss("navbar pb-1 pt-1 mt-0 mb-0");
 			list.forEach(t -> toolbarItems.addItem(t));
 			this.listToolbarContainer.add(toolbarItems);
 		} else {

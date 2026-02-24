@@ -15,6 +15,9 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
+import dellemuse.serverapp.music.MusicListPage;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.user.UserExpandedPanel;
 import dellemuse.serverapp.role.RolePage;
@@ -33,7 +36,7 @@ import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
- 
+import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanelMode;
@@ -51,27 +54,19 @@ public class RolesListPage extends ObjectListPage<Role> {
 
 	static private Logger logger = Logger.getLogger(RolesListPage.class.getName());
 
+
+	private List<ToolbarItem> mainToolbar;
 	private List<ToolbarItem> listToolbar;
  
 
 	private RoleEnumSelector selected;
 	
-	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		if (ouser.isEmpty())
-			return false;
-		
-		User user = ouser.get();  if (user.isRoot()) return true;
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
 
-		Set<RoleGeneral> set = user.getRolesGeneral();
-		if (set==null)
-			return false;
-		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	public String getHelpKey() {
+		return Help.ROLES_LIST ;
 	}
+	
+	
 	
 	public RolesListPage() {
 		super();
@@ -169,6 +164,24 @@ public class RolesListPage extends ObjectListPage<Role> {
 	}
 
 	
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  if (user.isRoot()) return true;
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set = user.getRolesGeneral();
+		if (set==null)
+			return false;
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	}
+	
+	
 	@Override
 	public void onClick(IModel<Role> model) {
 		 setResponsePage(new RolePage(model, getList()));
@@ -176,8 +189,8 @@ public class RolesListPage extends ObjectListPage<Role> {
 
 	@Override
 	public IModel<String> getPageTitle() {
-		return null;
-		// return getLabel("roles");
+		//return null;
+		return getLabel("roles");
 	}
 
 	@Override
@@ -208,25 +221,13 @@ public class RolesListPage extends ObjectListPage<Role> {
  	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
 
-		/**
 		if (mainToolbar != null)
 			return mainToolbar;
 
 		mainToolbar = new ArrayList<ToolbarItem>();
-
-		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
-			private static final long serialVersionUID = 1L;
-
-			protected void onClick() {
-				// InstitutionsListPage.this.onCreate();
-			}
-		};
-		create.setAlign(Align.TOP_LEFT);
-		mainToolbar.add(create);
+		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
 
 		return mainToolbar;
-	**/
-		return null;
 	}
 
 	protected void addHeaderPanel() {

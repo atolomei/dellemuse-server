@@ -29,7 +29,6 @@ public class DellemuseServerApp {
 	static private Logger std_logger = Logger.getLogger("StartupLogger");
 
 	static public String[] cmdArgs = null;
-	//static public final String SEPARATOR = "---------------------------------";
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication application = new SpringApplication(DellemuseServerApp.class);

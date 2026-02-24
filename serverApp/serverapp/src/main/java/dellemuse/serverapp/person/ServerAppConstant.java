@@ -132,7 +132,7 @@ public class ServerAppConstant {
 	static final public String role_panel_info 			= "role-panel-info";
 	
 	static public final long DEFAULT_SLEEP_TIME = 1 * 60 * 1000; // 1 minute;
-	static public final String headphoneIcon = "fa-solid fa-headphones";
+	;
 
  
 	/** person */
@@ -157,6 +157,8 @@ public class ServerAppConstant {
 	static final public String artist_audit 		= "artist-panel-audit";
 	static final public String action_artist_edit 	= "action-artist-edit";
 	
+	
+	static final public String help 	= "help";
 	
 	
 }

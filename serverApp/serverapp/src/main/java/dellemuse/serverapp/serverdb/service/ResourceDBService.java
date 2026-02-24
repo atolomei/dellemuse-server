@@ -54,17 +54,17 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
 
     
     @Transactional
-    public Resource create(String objectName, User createdBy) {
-        return create(ServerConstant.MEDIA_BUCKET, objectName, objectName, null, 0, null, createdBy, objectName);
+    public Resource create(String objectName, boolean publicAccess, User createdBy) {
+        return create(ServerConstant.MEDIA_BUCKET, objectName, objectName, null, 0, null, createdBy, objectName, publicAccess);
     }
 
     @Transactional
-    public Resource create(String objectName, String name, long size, User createdBy) {
-        return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, size, null, createdBy, name);
+    public Resource create(String objectName, boolean publicAccess, String name, long size, User createdBy) {
+        return create(ServerConstant.MEDIA_BUCKET, objectName, name, null, size, null, createdBy, name, publicAccess);
     }
     
     @Transactional
-    public Resource create(String bucketName, String objectName, String name, String media, long size, String tag, User createdBy, String fileName) {
+    public Resource create(String bucketName, String objectName, String name, String media, long size, String tag, User createdBy, String fileName, boolean publicAccess) {
       
     	Resource c = new Resource();
         
@@ -74,6 +74,7 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
         c.setFileName(fileName);
         c.setSize(size);
         c.setTag(tag);
+        c.setPublicAccess(publicAccess);
         c.setState( ObjectState.PUBLISHED);
         
         if (media != null)
@@ -202,11 +203,11 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
      * @param fileName
      * @param stream
      */
-    public void upload(String bucketName, String objectName, InputStream stream, String fileName) {
+    public void upload(String bucketName, String objectName, InputStream stream, String fileName, boolean publicAccess ) {
     	try {
 
     		ObjectStorageService service = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
-   			service.putObject(bucketName, objectName,stream,fileName);
+   			service.putObject(bucketName, objectName,stream,fileName, publicAccess);
    			logger.debug("putObject -> b:" + bucketName +"  | o:", objectName + " | f:" + fileName);
 
     	} catch (IOException e) {

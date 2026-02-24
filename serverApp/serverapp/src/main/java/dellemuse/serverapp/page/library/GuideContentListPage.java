@@ -31,6 +31,7 @@ import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
 import dellemuse.serverapp.guidecontent.GuideContentPage;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.institution.InstitutionPage;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
@@ -84,22 +85,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 	private List<ToolbarItem> listToolbar;
 
-	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		if (ouser.isEmpty())
-			return false;
-		
-		User user = ouser.get();  if (user.isRoot()) return true;
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
 
-		Set<RoleGeneral> set = user.getRolesGeneral();
-		if (set==null)
-			return false;
-		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-	}
 	
 	
 	public GuideContentListPage() {
@@ -127,6 +113,23 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 		return listToolbar;
 	}
 
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  if (user.isRoot()) return true;
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set = user.getRolesGeneral();
+		if (set==null)
+			return false;
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	}
+	
 	protected void addHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
@@ -235,7 +238,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 			@Override
 			public MenuItemPanel<GuideContent> getItem(String id) {
 
-				return new AjaxLinkMenuItem<GuideContent>(id) {
+				return new AjaxLinkMenuItem<GuideContent>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -294,7 +297,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 			@Override
 			public MenuItemPanel<GuideContent> getItem(String id) {
 
-				return new AjaxLinkMenuItem<GuideContent>(id) {
+				return new AjaxLinkMen uItem<GuideContent>(id) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -314,10 +317,15 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 		return menu;
 	}
 
+	private List<ToolbarItem> mainToolbar;
+	
 	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
 		
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
+		if (mainToolbar != null)
+			return mainToolbar;
+
+		mainToolbar = new ArrayList<ToolbarItem>();
 		
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
@@ -328,7 +336,9 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 		};
 		create.setAlign(Align.TOP_LEFT);
 
-		return list;
+		
+		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+		return mainToolbar;
 	}
 
 	@Override

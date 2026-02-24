@@ -1,5 +1,6 @@
 package dellemuse.serverapp.security.authentication;
 
+import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.User;
  
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 @Service
 public class DatabaseUserDetailsService extends BaseService implements UserDetailsService {
 	
+	static private Logger logger = Logger.getLogger(DatabaseUserDetailsService .class.getName());
+	
 	private final UserDBService userDBService;
 
     public DatabaseUserDetailsService(UserDBService userDBService, ServerDBSettings settings) {
@@ -32,33 +35,26 @@ public class DatabaseUserDetailsService extends BaseService implements UserDetai
    		if (o_user.isEmpty())
       			throw new  RuntimeException("User not found: " + username);
 
-        User user =   o_user.get();     
-
-        //org.springframework.security.core.userdetails.User retUser;
-        //SimpleGrantedAuthority sa = new SimpleGrantedAuthority("READ");
-        //List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
-        //list.add(sa);
+            
+        User user = getUserDBService().findWithDeps(o_user.get().getId()).get();
         
-        return new org.springframework.security.core.userdetails.User(
+        logger.debug("DB USER = " + user.getUsername());
+        logger.debug("DB PASS = " + user.getPassword());
+        
+        UserDetails ud = new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
                 user.getRolesAsString().stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toSet())
-        );
-        
-        //retUser = new  org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), list);
-        //return retUser;
-        
-        /**
-  		return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                user.getRoles().stream()
                 .map(SimpleGrantedAuthority::new)
-                 .collect(Collectors.toSet())
+                .collect(Collectors.toSet())
         );
-        **/
+        
+        
+        logger.debug(username);
+        ud.getAuthorities().forEach(i-> logger.debug( i.toString()));
+   
+        return ud;
+     
     }
 
 	private UserDBService getUserDBService() {
@@ -68,3 +64,23 @@ public class DatabaseUserDetailsService extends BaseService implements UserDetai
 	
 	
 }
+
+
+
+//retUser = new  org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), list);
+//return retUser;
+
+/**
+	return new org.springframework.security.core.userdetails.User(
+        user.getUsername(),
+        user.getPassword(),
+        user.getRoles().stream()
+        .map(SimpleGrantedAuthority::new)
+         .collect(Collectors.toSet())
+);
+**/
+
+//org.springframework.security.core.userdetails.User retUser;
+//SimpleGrantedAuthority sa = new SimpleGrantedAuthority("READ");
+//List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
+//list.add(sa);

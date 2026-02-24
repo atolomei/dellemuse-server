@@ -51,6 +51,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
+import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
@@ -301,10 +302,10 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		GuideContent o = model.getObject();
 		
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 		
 		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
 		return Model.of(str.toString());
 	}
@@ -361,6 +362,10 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 		};
 	}
+	
+
+	
+	
 
 	protected void onObjectSelect(IModel<ArtExhibitionItem> model, AjaxRequestTarget target) {
 
@@ -438,8 +443,8 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		 * private static final long serialVersionUID = 1L;
 		 * 
 		 * @Override public MenuItemPanel<GuideContent> getItem(String id) {
-		 * 
-		 *           return new AjaxLinkMenuItem<GuideContent>(id) {
+		 *  
+		 *           return new AjaxLi nkMenuItem<GuideContent>(id) {
 		 * 
 		 *           private static final long serialVersionUID = 1L;
 		 * 
@@ -471,9 +476,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		//IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
-
-		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+	 	IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 
 		
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
@@ -510,7 +513,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 					@Override
 					protected String getTitleIcon() {
 						if (getModel().getObject().getAudio() != null)
-							return ServerAppConstant.headphoneIcon;
+							return Icons.headphoneIcon;
 						else
 							return null;
 					}

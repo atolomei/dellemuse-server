@@ -40,8 +40,8 @@ public class DellemuseServerAppPropertiesListener implements ApplicationListener
 		ConfigurableEnvironment environment = event.getEnvironment();
 		Properties props = new Properties();
 		props.put("app.name", "DellemuseServerApp");
-		props.put("spring.servlet.multipart.max-file-size", "100GB");
-		props.put("spring.servlet.multipart.max-request-size", "100GB");
+		props.put("spring.servlet.multipart.max-file-size", "200GB");
+		props.put("spring.servlet.multipart.max-request-size", "200GB");
 		props.put("spring.main.banner-mode", "off");
 		props.put("spring.main.log-startup-info", "false");
 		props.put("server.error.whitelabel.enabled", "false");

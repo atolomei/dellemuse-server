@@ -209,10 +209,10 @@ public class SiteStatePage extends ObjectPage<Site> {
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
 		bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(),
-				new Model<String>(getModel().getObject().getDisplayname())));
+				getObjectTitle(getModel().getObject())));
 		bc.addElement(new BCElement(getLabel("general-info")));
 		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(),
-				new Model<String>(getModel().getObject().getDisplayname()));
+				getObjectTitle(getModel().getObject()));
 		ph.setBreadCrumb(bc);
 
 		ph.setContext(getLabel("site"));

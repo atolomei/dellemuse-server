@@ -17,18 +17,20 @@ public class Icons {
 	
 	public static final String Resource				= "fa-duotone fa-file";
 	
+	static public final String headphoneIcon = "fa-solid fa-headphones";
 	
+	static public final String help = "fa-sharp fa-light fa-circle-question";
 	
-	
-	public static final String ACCESIBLE_ICON 			= " <i title=\"accessible\" class=\"text-info   fa-thin fa-universal-access ms-1 me-1\"> </i>";
+	public static final String ACCESIBLE_ICON_HTML 					= " <i class=\"text-info fa-thin fa-universal-access ms-1 me-1\"></i>";
+	public static final String ACCESIBLE_ICON_JUMBO_HTML 			= " <i class=\"small text-info fa-thin fa-universal-access ms-0 me-1\"></i>";
 
-	public static final String ACCESIBLE_ICON_JUMBO 			= " <i title=\"accessible\" class=\" small text-info fa-thin fa-universal-access ms-0 me-1\"> </i>";
+	// static public final String DELETED_ICON_HTML 		= " <i title=\"deleted\" class=\"" + "small text-danger ms-1 fa-solid fa-ban" + "\"></i>";
+	
+	static public final String EDITION_ICON_HTML 		= "<div class=\"d-inline text-warning small ms-1\"><i title=\"edition\" class=\"fa-solid  fa-thin fa-pen-circle \"></i> </div>";
+	static public final String DELETED_ICON_HTML 		= "<div class=\"d-inline text-danger small ms-1\"> <i title=\"deleted\" class=\"fa-solid  fa-solid fa-ban \"></i> </div>";
 
-	 
 	
 
-	static public final String DELETED_ICON 		= " <i title=\"deleted\"  class=\" small text-danger ms-1 fa-solid fa-ban\"></i> ";
-	static public final String EDITION_ICON 		= " <i title= \"edition\" class=\" small text-warning ms-1 fa-solid  fa-thin fa-pen-circle \" ></i>";
 	
 }
 

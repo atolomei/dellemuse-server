@@ -265,9 +265,9 @@ public class IntegrateMusicCommand extends Command {
 					return;
 				}
 				
-				String ext = FileNameUtils.getExtension( o.get().getName() );
-				String mp3FileName = "music-for-" + this.voiceResourceId.toString() + "." + ext;
-				  musicFile = downloadDir + File.separator + mp3FileName;
+				String ext = FileNameUtils.getExtension( r.getName() );
+				String musicFileName = "music-for-" + this.voiceResourceId.toString() + "." + ext;
+				  musicFile = downloadDir + File.separator + musicFileName;
 				psuccess = downloadAudioFromMusicLibrary(musicFile);
 
 			}
@@ -329,7 +329,10 @@ public class IntegrateMusicCommand extends Command {
 			 *
 			 **/
 
-			String ffmpegPrefix = "/opt/homebrew/bin/ffmpeg";
+			//String ffmpegPrefix = "/opt/homebrew/bin/ffmpeg";
+			
+			String ffmpegPrefix = getSettings().getFFmpegDir() + "ffmpeg";
+			
 			
 			/**String ffmpegCmd = String.format(
 					ffmpegPrefix + " -i \"%s\" -i \"%s\" " + "-filter_complex " + "\"[0:a]afade=t=out:st=%d:d=%d[aud1];" + "[1:a]adelay=%d|%d[aud2];" + "[aud1][aud2]amix=inputs=2:duration=shortest[aout]\" " + "-map \"[aout]\" -y \"%s\"",

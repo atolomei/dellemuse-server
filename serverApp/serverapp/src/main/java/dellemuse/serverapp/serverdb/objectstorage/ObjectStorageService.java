@@ -3,6 +3,8 @@ package dellemuse.serverapp.serverdb.objectstorage;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -14,7 +16,7 @@ import dellemuse.model.util.Constant;
 import dellemuse.model.util.TimerThread;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
-
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.service.base.BaseService;
 import dellemuse.serverapp.service.SystemService;
 import io.odilon.client.ODClient;
@@ -54,6 +56,43 @@ public class ObjectStorageService extends BaseService implements SystemService {
 	public ObjectStorageService(ServerDBSettings settings) {
 		super(settings);
 	}
+	
+	
+	public String getPublicUrl( Resource resource)  throws IOException {
+		try {
+			
+			if (resource.isPublicAccess())
+				return getClient().getPublicObjectUrl(resource.getBucketName(), resource.getObjectName());
+			else
+				return getClient().getPermanentPresignedObjectUrl(resource.getBucketName(), resource.getObjectName());
+		} catch (ODClientException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	/**
+	public String getPresignedStaticUrl( String bucketName, String objectName )  throws IOException {
+		try {
+			return getClient().getPermanentPresignedObjectUrl(bucketName, objectName);
+		} catch (ODClientException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	
+	
+	public String getPublicUrl( String bucketName, String objectName )  throws IOException {
+		try {
+		
+			return getClient().getPublicObjectUrl(bucketName, objectName);
+
+		} catch (ODClientException e) {
+			throw new IOException(e);
+		}
+	}
+**/
+	
+	
 
 	public ResultSet<Item<ObjectMetadata>> listObjects(String bucketName) throws IOException {
 
@@ -65,10 +104,20 @@ public class ObjectStorageService extends BaseService implements SystemService {
 
 	}
 
-	public void putObject(String bucketName, String objectName, InputStream stream, String fileName) throws IOException {
+	public void putObject(String bucketName, String objectName, InputStream stream, String fileName, boolean publicAccess) throws IOException {
 		try {
 			logger.debug("putObject -> " + bucketName + "-" + objectName + " | " + fileName);
-			getClient().putObjectStream(bucketName, objectName, stream, fileName);
+	//		getClient().putObjectStream(bucketName, objectName, stream, fileName );
+			getClient().putObjectStream(
+					bucketName,
+					objectName,
+					stream,
+					Optional.of(fileName),
+					Optional.empty(), 
+					Optional.empty(), 
+					Optional.empty(), 
+					Optional.of( Boolean.valueOf(publicAccess)));
+
 		} catch (ODClientException e) {
 			throw new IOException(e);
 		}
@@ -186,10 +235,28 @@ public class ObjectStorageService extends BaseService implements SystemService {
 
 	private synchronized void connect() {
 
-		this.client = new ODClient(this.endpoint, this.port, this.accessKey, this.secretKey);
+		
+		logger.debug(this.endpoint);
+		logger.debug(this.port);
+		logger.debug(this.accessKey);
+		logger.debug(this.secretKey);
+		logger.debug(getSettings().isObjectStorageSSL());
+			
+
+		
+		this.client = new ODClient(this.endpoint, this.port, this.accessKey, this.secretKey, getSettings().isObjectStorageSSL());
+
 
 		this.client.setPresignedUrl(getSettings().getObjectStoragePresignedUrl(), getSettings().getObjectStoragePresignedPort(), getSettings().isObjectStoragePresignedSSL());
 
+		logger.debug(this.getSettings().getObjectStoragePresignedUrl());
+		logger.debug(getSettings().getObjectStoragePresignedPort());
+		logger.debug(this.accessKey);
+		logger.debug(this.secretKey);
+		logger.debug(getSettings().isObjectStoragePresignedSSL());
+		
+		
+		
 		String ping = this.client.ping();
 
 		if (ping == null || !ping.equals("ok"))

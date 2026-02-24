@@ -16,9 +16,12 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -52,51 +55,9 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 
 	private List<ToolbarItem> list;
 
-	protected List<Language> getSupportedLanguages() {
-		return getModel().getObject().getLanguages();
-	}
+	private List<IModel<GuideContent>> gc_list;
+	private List<IModel<ArtExhibitionGuide>> ag_list;
 
-	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		
-		if (ouser.isEmpty())
-			return false;
-	
-		
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
-			return true;
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		
-		{
-		Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set!=null) {
-					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-					if (isAccess)
-						return true;
-			}
-		}
-		
-		
-		{
-			final Long sid = getModel().getObject().getId();
-			
-			Set<RoleSite> set = user.getRolesSite();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
-				if (isAccess)
-					return true;
-			}
-		}		
-		
-		return false;
-	} 
 	public SiteSearcherPage() {
 		super();
 	}
@@ -109,6 +70,24 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 		super(model);
 	}
 
+	public SiteSearcherPage(IModel<Site> model, List<IModel<GuideContent>> gc_list, List<IModel<ArtExhibitionGuide>> ag_list) {
+		super(model);
+		setOutputMarkupId(true);
+		this.gc_list = gc_list;
+		this.ag_list = ag_list;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (gc_list != null)
+			gc_list.forEach(i -> i.detach());
+
+		if (ag_list != null)
+			ag_list.forEach(i -> i.detach());
+	}
+
 	@Override
 	protected Optional<Site> getObject(Long id) {
 		return getSite(id);
@@ -119,6 +98,48 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 		return getLabel("search");
 	}
 
+	protected List<Language> getSupportedLanguages() {
+		return getModel().getObject().getLanguages();
+	}
+
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get();
+
+		if (user.isRoot())
+			return true;
+
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
+
 	@Override
 	protected Panel createHeaderPanel() {
 
@@ -126,7 +147,7 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 			BreadCrumb<Void> bc = createBreadCrumb();
 			bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
 			bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), new Model<String>(getModel().getObject().getDisplayname())));
-			bc.addElement(new BCElement(getLabel("search-by-aid")));
+			bc.addElement(new BCElement(getLabel("search-by-aid-bcrumb")));
 			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
 			ph.setBreadCrumb(bc);
 
@@ -163,6 +184,8 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
+		list.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+		
 		return list;
 	}
 
@@ -177,7 +200,7 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return new SiteSearcherPanel(panelId, getModel());
+				return new SiteSearcherPanel(panelId, getModel(), gc_list, ag_list);
 			}
 		};
 		tabs.add(tab_1);
@@ -187,8 +210,6 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 
 		return tabs;
 	}
-
-	 
 
 	protected void setUpModel() {
 		super.setUpModel();
@@ -227,7 +248,7 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
-					//SiteSearcherPage.this.onEdit(event.getTarget());
+					// SiteSearcherPage.this.onEdit(event.getTarget());
 				}
 
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
@@ -253,7 +274,7 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
 					}
 				}
- 
+
 			}
 
 			@Override
@@ -282,7 +303,7 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 			}
 		});
 	}
-	
+
 	@Override
 	protected Class<?> getTranslationClass() {
 		return SiteRecord.class;

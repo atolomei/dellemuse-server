@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.pages.RedirectPage;
@@ -34,6 +35,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -55,7 +57,7 @@ import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.listNavigator.ListNavigator;
- 
+import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
@@ -173,6 +175,11 @@ public class SitePage extends BasePage {
 		return false;
 	}
 
+	
+	protected void refresh(AjaxRequestTarget target) {
+		target.add(SitePage.this);
+	}
+	
 	
 	protected void addErrorPanels(Exception e) {
 
@@ -309,6 +316,29 @@ public class SitePage extends BasePage {
 		}
 	}
 
+	@Override
+	public IModel<String> getObjectTitle(DelleMuseObject o) {
+	
+		StringBuilder str = new StringBuilder();
+		
+		
+		if (o instanceof MultiLanguageObject) {
+			str.append(getLanguageObjectService().getObjectDisplayName((MultiLanguageObject) o, getLocale()));
+		}
+		else {
+			str.append(o.getName());
+		}
+		
+		if (o.getState() == ObjectState.DELETED)
+			str.append( Icons.DELETED_ICON_HTML);
+
+		else if (o.getState() == ObjectState.EDITION)
+			str.append( Icons.EDITION_ICON_HTML);
+
+	
+		return Model.of(str.toString());
+	}
+	
 	/*
 	 * ¨*
 	 * 
@@ -326,20 +356,7 @@ public class SitePage extends BasePage {
 		this.exToolbarContainer.setOutputMarkupId(true);
 		this.exhibitionsContainer.add(this.exToolbarContainer);
 
-		/**
-		 * Toolbar toolbarItems = new Toolbar("toolbarItems"); List<ToolbarItem> list =
-		 * new ArrayList<ToolbarItem>();
-		 * 
-		 * ButtonToolbarItem<Site> create = new
-		 * LinkButtonToolbarItem<Site>(getSiteModel(), getLabel("create")) { private
-		 * static final long serialVersionUID = 1L;
-		 * 
-		 * @Override protected void onClick() { SitePage.this.onCreateExhibition(); } };
-		 *           list.add(create);
-		 * 
-		 *           list.forEach(t -> toolbarItems.addItem(t));
-		 *           this.exToolbarContainer.addOrReplace(toolbarItems);
-		 */
+		 
 
 		{
 			ListPanel<ArtExhibition> panel = new ListPanel<>("exhibitionsPermanent", getArtExhibitionsPermanent()) {
@@ -540,9 +557,7 @@ public class SitePage extends BasePage {
 				}
 			};
 			this.exhibitionsContainer.add(panel);
-
-			// panel.setTitle(getLabel("exhibitions-temporary"));
-
+ 
 			panel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
 			panel.setLiveSearch(false);
 			panel.setHasExpander(true);
@@ -667,7 +682,7 @@ public class SitePage extends BasePage {
 
 				@Override
 				protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
-					logger.debug("expand");
+			 
 					return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
 
 						private static final long serialVersionUID = 1L;
@@ -750,6 +765,8 @@ public class SitePage extends BasePage {
 			panel.setLiveSearch(false);
 			panel.setHasExpander(true);
 			panel.setSettings(true);
+			
+			 
 		}
 	}
 
@@ -782,7 +799,7 @@ public class SitePage extends BasePage {
 			@Override
 			public MenuItemPanel<ArtExhibition> getItem(String id) {
 
-				return new LinkMenuItem<ArtExhibition>(id) {
+				return new LinkMenuItem<ArtExhibition>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
@@ -798,7 +815,81 @@ public class SitePage extends BasePage {
 				};
 			}
 		});
+		
+		
+ 
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibition>(id, model) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isVisible() {
+						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getArtExhibitionDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+	
+		
+		
+
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibition>(id, model) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isVisible() {
+						return getModel().getObject().getState()!=ObjectState.EDITION;
+					}
+				
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getArtExhibitionDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit-mode");
+					}
+				};
+			}
+		});
+	 
+		
+		
 		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject())) {
 
 			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
@@ -829,9 +920,7 @@ public class SitePage extends BasePage {
 
 			for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
 
-				final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.ACCESIBLE_ICON : "");
-				
-				
+				final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) +  (g.isAccessible()? Icons.ACCESIBLE_ICON_HTML : "");
 				final Long gid = g.getId();
 
 				menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
@@ -904,18 +993,19 @@ public class SitePage extends BasePage {
 	
 
 	public IModel<String> getObjectTitle(MultiLanguageObject o, boolean includeIcon) {
+		
 		StringBuilder str = new StringBuilder();
+		
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
 		
 		if (!includeIcon)
 			return Model.of(str.toString());
 		
 		if (o.getState() == ObjectState.DELETED)
-			return new Model<String>(str.toString() + Icons.DELETED_ICON);
+			str.append(Icons.DELETED_ICON_HTML);
 		
-		if (o.getState() == ObjectState.EDITION)
-			return new Model<String>(str.toString() + Icons.EDITION_ICON);
-		
+		else if (o.getState() == ObjectState.EDITION)
+			str.append(Icons.EDITION_ICON_HTML);
 		
 		return Model.of(str.toString());
 	}
@@ -925,7 +1015,7 @@ public class SitePage extends BasePage {
 
 	protected String getObjectTitleIcon(IModel<ArtExhibition> model) {
 		if (getArtExhibitionDBService().isArtExhibitionGuides(model.getObject())) {
-			return ServerAppConstant.headphoneIcon;
+			return Icons.headphoneIcon;
 		}
 		return null;
 	}
@@ -1068,6 +1158,9 @@ public class SitePage extends BasePage {
 		}
 	}
 
+	List<ToolbarItem> listItems = new ArrayList<ToolbarItem>();
+
+	
 	private void addToolbar() {
 
 		WebMarkupContainer toolbarContainer = new WebMarkupContainer("toolbarContainer");
@@ -1075,10 +1168,11 @@ public class SitePage extends BasePage {
 
 		Toolbar toolbarItems = new Toolbar("toolbarItems");
 
-		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
+		listItems = new ArrayList<ToolbarItem>();
+		listItems.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
+		
+		listItems.forEach(t -> toolbarItems.addItem(t));
 
-		list.forEach(t -> toolbarItems.addItem(t));
 		toolbarContainer.add(toolbarItems);
 	}
 
@@ -1089,7 +1183,7 @@ public class SitePage extends BasePage {
 		try {
 			BreadCrumb<Void> bc = createBreadCrumb();
 			bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-			bc.addElement(new BCElement(getObjectTitle(getSiteModel().getObject())));
+			bc.addElement(new BCElement(getObjectTitle(getSiteModel().getObject(), false)));
 			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getSiteModel().getObject(), false));
 			ph.setBreadCrumb(bc);
 

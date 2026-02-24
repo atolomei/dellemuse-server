@@ -224,7 +224,6 @@ public class UserDBService extends DBService<User, Long> {
 			user.setRolesSite(set);
 		}
 		
-		//user.getRolesGeneral().forEach(null);
 		user.setDependencies(true);
 		return o_u;
 	}
@@ -307,20 +306,11 @@ public class UserDBService extends DBService<User, Long> {
     }
     
     
-    private User sessionUser;
     
-    public void setSessionUser( User user) {
-    	this.sessionUser=user;
-    }
     
-    public User getSessionUser() {
-    	if (sessionUser==null) {
-    	 	return findRoot();
-    }
-    		return this.sessionUser;
-    	 
-    }
- 
+  
+     
+    
 	public PersonDBService getPersonDBService() {
 		return personDBService;
 	}

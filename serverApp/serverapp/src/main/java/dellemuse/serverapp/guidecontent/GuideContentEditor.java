@@ -260,7 +260,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		str.append( getObjectTitle ( getModel().getObject().getArtExhibitionGuide()).getObject() );
 		
 		if (getModel().getObject().getArtExhibitionGuide().isAccessible()) 
-			str.append(Icons.ACCESIBLE_ICON);
+			str.append(Icons.ACCESIBLE_ICON_HTML);
 		
 		
 		guideField 		= new StaticTextField<String>("guide",  Model.of(str.toString()), getLabel("guide"));
@@ -303,6 +303,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		form.add(audioField);
 
 		audioIdField = new StaticTextField<Long>("audioid", new PropertyModel<Long>(getModel(), "audioId"), getLabel("audioid"));
+		audioIdField.setVisible(false);
 		form.add(audioIdField);
 		
 		
@@ -685,7 +686,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setAudioModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setAudio(resource);
@@ -725,7 +726,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setAudioAccesibleModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setAudioAccessible(resource);
@@ -815,7 +816,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
-					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize());
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setPhotoModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setPhoto(resource);

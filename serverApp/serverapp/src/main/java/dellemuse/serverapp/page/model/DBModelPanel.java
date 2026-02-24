@@ -14,6 +14,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Identifiable;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
@@ -28,6 +29,7 @@ import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
+import io.wktui.model.TextCleaner;
 
 public class DBModelPanel<T> extends ObjectModelPanel<T> {
 
@@ -232,16 +234,41 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 	 * getArtExhibitionItemDBService().getGuideContents(o); }
 	 */
 
-	public Resource createAndUploadFile(InputStream inputStream, String bucketName, String objectName, String fileName, long size) {
+	public Resource createAndUploadFile(InputStream inputStream, String bucketName, String objectName, String fileName, long size, boolean publicAccess) {
 
 		try (InputStream is = inputStream) {
-			getResourceDBService().upload(bucketName, objectName, is, fileName);
+			getResourceDBService().upload(bucketName, objectName, is, fileName, publicAccess);
 			User user = getUserDBService().findRoot();
-			Resource resource = getResourceDBService().create(bucketName, objectName, fileName, getResourceDBService().getMimeType(fileName), size, null, user, fileName);
+			Resource resource = getResourceDBService().create(bucketName, objectName, fileName, getResourceDBService().getMimeType(fileName), size, null, user, fileName, publicAccess);
 			return resource;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	
+	
+	public String getArtistStr(ArtWork aw) {
+
+		if (!aw.isDependencies()) {
+			aw = this.findArtWorkWithDeps(aw.getId()).get();
+		}
+
+		StringBuilder info = new StringBuilder();
+		int n = 0;
+
+		if (aw.getArtists()==null || aw.getArtists().size()==0)
+			return null;
+		
+		for (Artist p : aw.getArtists()) {
+			if (n++ > 0)
+				info.append(", ");
+			info.append(getLanguageObjectService().getPersonFirstLastName(p, getLocale()));
+		}
+
+		String str = TextCleaner.truncate(info.toString(), 220);
+		return str;
+	}
+	
+	
 }

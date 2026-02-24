@@ -36,367 +36,322 @@ import io.odilon.client.error.ODClientException;
 import jakarta.transaction.Transactional;
 import net.coobird.thumbnailator.Thumbnails;
 
-
 @Service
 public class ResourceThumbnailService extends BaseService implements SystemService {
 
-	 private static final Logger logger = Logger.getLogger(ResourceThumbnailService.class.getName());
+	private static final Logger logger = Logger.getLogger(ResourceThumbnailService.class.getName());
 
-	 @Autowired
-	 ObjectStorageService objectStorageService;
-	   
-	 
+	@Autowired
+	ObjectStorageService objectStorageService;
+
 	public ResourceThumbnailService(ServerDBSettings settings) {
 		super(settings);
 	}
 
 	public long getAudioDurationMilliseconds(Resource resource) {
-		
-        File sourceFile = new File(getSettings().getWorkDir(), resource.getName());
-        
-       	try (InputStream in = getObjectStorageService().getClient().getObject(resource.getBucketName(), resource.getObjectName())) {
-                Files.copy(in, sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (ODClientException e) {
-                throw new RuntimeException (e);
-        } catch (IOException e) {
-                throw new RuntimeException (e);
-        }
 
-      	return MediaUtil.getAudioDurationMilliseconds(sourceFile);
-	}
-	
-	
-	  public String getPresignedThumbnailUrl(String bucketName, String objectName, ThumbnailSize size) {
-		  
-		  
-		  final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
-          final String t_object = bucketName+"-"+ String.valueOf(objectName.hashCode()) + "-" + size.getLabel();
-	      
-          int cacheDurationSecs = ServerConstant.THUMBNAIL_CACHE_DURATION_SECS;
-	         
-	         try {
-	             if (getObjectStorageService().getClient().existsObject(t_bucket, t_object)) {
-	                 return getObjectStorageService().getClient().getPresignedObjectUrl(t_bucket, t_object, Optional.of(cacheDurationSecs));
-	             }
-	         } catch (ODClientException e) {
-	             throw new RuntimeException ( e );
-	         } catch (IOException e) {
-	             throw new RuntimeException ( e );
-	         }
-	         
-	         
-	         /** create thumbnail  */
-	         
-	         File sourceFile = new File(getSettings().getWorkDir(), objectName);
+		File sourceFile = new File(getSettings().getWorkDir(), resource.getName());
 
-	         try {
-	             try (InputStream in = getObjectStorageService().getClient().getObject(bucketName, objectName)) {
-	                 Files.copy(in, sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-	             } catch (ODClientException e) {
-	                 throw new RuntimeException (e);
-	             } catch (IOException e) {
-	                 throw new RuntimeException (e);
-	             }
-	             
-	             File thumbnail = null;
-	             try {
-	                 thumbnail = create( Long.valueOf(objectName.hashCode()).longValue(), sourceFile, size);
-	             } catch (IOException e) {
-	                 throw new RuntimeException ( e );
-	             }
-	     
-	             if (thumbnail==null)
-	                 throw new RuntimeException ("thumbnail is null");
-	             
-	             /** save into object storage  */
-	             
-	             try {
-	                 getObjectStorageService().getClient().putObject(t_bucket, t_object, thumbnail);
-	             } catch (ODClientException e) {
-	                 throw new RuntimeException ( e );
-	             }
-	         } finally {
-	             if (sourceFile.exists()) {
-	                 try {
-	                     FileUtils.forceDelete(sourceFile);
-	                 } catch (IOException e) {
-	                         logger.error(e);
-	                 }
-	             }
-	         }
-	         
-	         try {
-				
-	        	 return getObjectStorageService().getClient().getPresignedObjectUrl(t_bucket, t_object, Optional.of(cacheDurationSecs));
-			
-	         } catch (ODClientException e) {
-
-				throw new RuntimeException (e);
-			}
-	  }
-	
-	  
-    public String getPresignedThumbnailUrl(Resource resource, ThumbnailSize size) {
-    	
-    	 final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
-         final String t_object = resource.getBucketName()+"-"+ String.valueOf(resource.getObjectName().hashCode()) + "-" + size.getLabel();
-         int cacheDurationSecs = ServerConstant.THUMBNAIL_CACHE_DURATION_SECS;
-         
-         try {
-             if (getObjectStorageService().getClient().existsObject(t_bucket, t_object)) {
-                 return getObjectStorageService().getClient().getPresignedObjectUrl(t_bucket, t_object, Optional.of(cacheDurationSecs));
-             }
-         } catch (ODClientException e) {
-             throw new RuntimeException ( e );
-         } catch (IOException e) {
-             throw new RuntimeException ( e );
-         }
-         
-         if (!resource.getMedia().startsWith("image")) {
-             throw new IllegalArgumentException( Resource.class.getSimpleName() + " is not image -> id: " + resource.getId().toString()  + " | media: " + resource.getMedia());
-         }
-         
-         /** create thumbnail  */
-         
-         File sourceFile = new File(getSettings().getWorkDir(), resource.getName());
-
-         try {
-             try (InputStream in = getObjectStorageService().getClient().getObject(resource.getBucketName(), resource.getObjectName())) {
-                 Files.copy(in, sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-             } catch (ODClientException e) {
-                 throw new RuntimeException (e);
-             } catch (IOException e) {
-                 throw new RuntimeException (e);
-             }
-             
-             File thumbnail = null;
-             try {
-                 thumbnail = create( resource.getId(), sourceFile, size);
-             } catch (IOException e) {
-                 throw new RuntimeException ( e );
-             }
-     
-             if (thumbnail==null)
-                 throw new RuntimeException ("thumbnail is null | " + sourceFile.getAbsolutePath() );
-             
-             /** save into object storage  */
-             
-             try {
-                 getObjectStorageService().getClient().putObject(t_bucket, t_object, thumbnail);
-             } catch (ODClientException e) {
-                 throw new RuntimeException ( e );
-             }
-         } finally {
-             if (sourceFile.exists()) {
-                 try {
-                     FileUtils.forceDelete(sourceFile);
-                 } catch (IOException e) {
-                         logger.error(e);
-                 }
-             }
-         }
-         
-         try {
-			
-        	 return getObjectStorageService().getClient().getPresignedObjectUrl(t_bucket, t_object, Optional.of(cacheDurationSecs));
-		
-         } catch (ODClientException e) {
-
-			throw new RuntimeException ( e );
+		try (InputStream in = getObjectStorageService().getClient().getObject(resource.getBucketName(), resource.getObjectName())) {
+			Files.copy(in, sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} catch (ODClientException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
-    }
 
-	
-	
-	
+		return MediaUtil.getAudioDurationMilliseconds(sourceFile);
+	}
+
+	/**
+	 * 
+	 * public String getPresignedThumbnailUrl(String bucketName, String objectName,
+	 * ThumbnailSize size) throws IOException {
+	 * 
+	 * 
+	 * final String t_bucket = ServerConstant.THUMBNAIL_BUCKET; final String
+	 * t_object = bucketName+"-"+ String.valueOf(objectName.hashCode()) + "-" +
+	 * size.getLabel();
+	 * 
+	 * int cacheDurationSecs = ServerConstant.THUMBNAIL_CACHE_DURATION_SECS;
+	 * 
+	 * try { if (getObjectStorageService().getClient().existsObject(t_bucket,
+	 * t_object)) { return getObjectStorageService().getPresignedStaticUrl(t_bucket,
+	 * t_object); } } catch (ODClientException e) { throw new RuntimeException ( e
+	 * ); } catch (IOException e) { throw new RuntimeException ( e ); }
+	 * 
+	 * 
+	 * 
+	 * 
+	 * File sourceFile = new File(getSettings().getWorkDir(), objectName);
+	 * 
+	 * try { try (InputStream in =
+	 * getObjectStorageService().getClient().getObject(bucketName, objectName)) {
+	 * Files.copy(in, sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING); }
+	 * catch (ODClientException e) { throw new RuntimeException (e); } catch
+	 * (IOException e) { throw new RuntimeException (e); }
+	 * 
+	 * File thumbnail = null; try { thumbnail = create(
+	 * Long.valueOf(objectName.hashCode()).longValue(), sourceFile, size); } catch
+	 * (IOException e) { throw new RuntimeException ( e ); }
+	 * 
+	 * if (thumbnail==null) throw new RuntimeException ("thumbnail is null");
+	 * 
+	 * 
+	 * 
+	 * try { getObjectStorageService().getClient().putObject(t_bucket, t_object,
+	 * thumbnail); } catch (ODClientException e) { throw new RuntimeException ( e );
+	 * } } finally { if (sourceFile.exists()) { try {
+	 * FileUtils.forceDelete(sourceFile); } catch (IOException e) { logger.error(e);
+	 * } } }
+	 * 
+	 * 
+	 * 
+	 * return getObjectStorageService().getPresignedStaticUrl(t_bucket, t_object);
+	 * 
+	 * 
+	 * }
+	 * 
+	 */
+
+	public String getPresignedThumbnailUrl(Resource resource, ThumbnailSize size) throws IOException {
+
+		final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
+		final String t_object = resource.getBucketName() + "-" + String.valueOf(resource.getObjectName().hashCode()) + "-" + size.getLabel();
+
+		try {
+			if (getObjectStorageService().getClient().existsObject(t_bucket, t_object)) {
+				return getObjectStorageService().getPublicUrl(resource);
+			}
+		} catch (ODClientException e) {
+			throw new IOException(e);
+		}
+
+
+		
+		if (!resource.getMedia().startsWith("image")) {
+			throw new IllegalArgumentException(Resource.class.getSimpleName() + " is not image -> id: " + resource.getId().toString() + " | media: " + resource.getMedia());
+		}
+
+		
+		/** create thumbnail */
+
+		File sourceFile = new File(getSettings().getWorkDir(), resource.getName());
+		try {
+			try (InputStream in = getObjectStorageService().getClient().getObject(resource.getBucketName(), resource.getObjectName())) {
+				Files.copy(in, sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			} catch (ODClientException e) {
+				throw new RuntimeException(e);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+			File thumbnail = null;
+			try {
+				thumbnail = create(resource.getId(), sourceFile, size);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+
+			if (thumbnail == null)
+				throw new RuntimeException("thumbnail is null | " + sourceFile.getAbsolutePath());
+
+			/** save into object storage */
+
+			try {
+			
+				getObjectStorageService().getClient().putObject(t_bucket, t_object, Optional.empty(), Optional.of(Boolean.TRUE), thumbnail);
+				return getObjectStorageService().getClient().getPublicObjectUrl(t_bucket, t_object);
+
+			} catch (ODClientException e) {
+				throw new RuntimeException(e);
+			}
+		} finally {
+			if (sourceFile.exists()) {
+				try {
+					FileUtils.forceDelete(sourceFile);
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			}
+		}
+	}
 
 	public ObjectStorageService getObjectStorageService() {
 		return objectStorageService;
 	}
 
-
 	public void setObjectStorageService(ObjectStorageService objectStorageService) {
 		this.objectStorageService = objectStorageService;
 	}
 
-	
-	
-	
 	private class ThumbnailFrame {
-        public int th_w;
-        public int th_h;
-        public int img_w;
-        public int img_h;
-        public int wo;
-        public int ho;
-        public boolean use_image = false;
-    }
-	
-	
-    static public boolean isGeneralImage(String string) {
-        return string.toLowerCase().matches("^.*\\.(png|jpg|jpeg|gif|bmp|heic)$");
-    }
+		public int th_w;
+		public int th_h;
+		public int img_w;
+		public int img_h;
+		public int wo;
+		public int ho;
+		public boolean use_image = false;
+	}
 
-    static public boolean isImage(String string) {
-        return isGeneralImage(string) || string.toLowerCase().matches("^.*\\.(webp)$");
-    }
+	static public boolean isGeneralImage(String string) {
+		return string.toLowerCase().matches("^.*\\.(png|jpg|jpeg|gif|bmp|heic)$");
+	}
 
-    
-	 public File create(Long id, File file, ThumbnailSize size) throws IOException {
+	static public boolean isImage(String string) {
+		return isGeneralImage(string) || string.toLowerCase().matches("^.*\\.(webp)$");
+	}
 
-	        if (!isImage(file.getName()))
-	            return null;
+	public File create(Long id, File file, ThumbnailSize size) throws IOException {
 
-	        ThumbnailFrame frame = getThumbnailFrame(file, size);
+		if (!isImage(file.getName()))
+			return null;
 
-	        if (frame == null)
-	            return null;
+		ThumbnailFrame frame = getThumbnailFrame(file, size);
 
-	        File thDir = new File(getSettings().getWorkDir() + File.separator + ServerConstant.THUMBNAIL_BUCKET);
-	        String ext = FilenameUtils.getExtension(file.getName());
-	        File fileOut = new File(thDir, String.valueOf(id) + "." + ext);
+		if (frame == null)
+			return null;
 
-	        if (frame.use_image) {
-	        	try (FileOutputStream out = new FileOutputStream(fileOut)) {
-		            Files.copy(file.toPath(), out);
-	        	}
-	            return fileOut;
-	        }
+		File thDir = new File(getSettings().getWorkDir() + File.separator + ServerConstant.THUMBNAIL_BUCKET);
+		String ext = FilenameUtils.getExtension(file.getName());
+		File fileOut = new File(thDir, String.valueOf(id) + "." + ext);
 
-	        try (FileOutputStream out = new FileOutputStream(fileOut)) {
-	            Thumbnails.of(file).size(frame.wo, frame.ho).outputFormat(ext.toLowerCase().equals("png") ? "PNG" : "JPEG")
-	                    .toOutputStream(out);
-	        }
-	        return fileOut;
-	    }
+		if (frame.use_image) {
+			try (FileOutputStream out = new FileOutputStream(fileOut)) {
+				Files.copy(file.toPath(), out);
+			}
+			return fileOut;
+		}
 
-	    /**
-	     * 
-	     * @param srcfile
-	     * @param size
-	     * @return
-	     * @throws IOException
-	     */
+		try (FileOutputStream out = new FileOutputStream(fileOut)) {
+			Thumbnails.of(file).size(frame.wo, frame.ho).outputFormat(ext.toLowerCase().equals("png") ? "PNG" : "JPEG").toOutputStream(out);
+		}
+		return fileOut;
+	}
 
-	    private ThumbnailFrame getThumbnailFrame(File srcfile, ThumbnailSize size) throws IOException {
+	/**
+	 * 
+	 * @param srcfile
+	 * @param size
+	 * @return
+	 * @throws IOException
+	 */
 
-	        ThumbnailFrame ret = new ThumbnailFrame();
+	private ThumbnailFrame getThumbnailFrame(File srcfile, ThumbnailSize size) throws IOException {
 
-	        try {
+		ThumbnailFrame ret = new ThumbnailFrame();
 
-	            String ex = FilenameUtils.getExtension(srcfile.getName()).toLowerCase();
-	            if (ex.equals("webp")) {
-	                ret.use_image = true;
-	                return ret;
-	            }
+		try {
 
-	            if (ex.equals("svg")) {
-	                ret.use_image = true;
-	                return ret;
-	            }
-	            
-	            BufferedImage bimg = ImageIO.read(srcfile);
+			String ex = FilenameUtils.getExtension(srcfile.getName()).toLowerCase();
+			if (ex.equals("webp")) {
+				ret.use_image = true;
+				return ret;
+			}
 
-	            if (bimg == null)
-	                return null;
+			if (ex.equals("svg")) {
+				ret.use_image = true;
+				return ret;
+			}
 
-	            ret.th_w = size.getWidth();
-	            ret.th_h = size.getHeight();
-	            ret.img_w = bimg.getWidth();
-	            ret.img_h = bimg.getHeight();
+			BufferedImage bimg = ImageIO.read(srcfile);
 
-	            // if image is smaller that Thumbnail -> use actual image
-	            if (ret.img_w <= ret.th_w && ret.img_h <= ret.th_h) {
-	                ret.use_image = true;
-	                return ret;
-	            }
+			if (bimg == null)
+				return null;
 
-	            if (ret.th_w != 0 && ret.th_h != 0) {
+			ret.th_w = size.getWidth();
+			ret.th_h = size.getHeight();
+			ret.img_w = bimg.getWidth();
+			ret.img_h = bimg.getHeight();
 
-	                // Si la imagen es más chica que el thumbnail requerido -> devuelve la imagen
-	                //
-	                if (ret.img_w <= ret.th_w && ret.th_h <= ret.img_h) {
-	                    ret.wo = ret.img_w;
-	                    ret.ho = ret.img_h;
-	                    return ret;
-	                }
+			// if image is smaller that Thumbnail -> use actual image
+			if (ret.img_w <= ret.th_w && ret.img_h <= ret.th_h) {
+				ret.use_image = true;
+				return ret;
+			}
 
-	                // Si la imagen es más grande que el thumbnail requerido, recorta
-	                //
+			if (ret.th_w != 0 && ret.th_h != 0) {
 
-	                int delta_w = (ret.img_w - ret.th_w);
-	                int delta_h = (ret.img_h - ret.th_h);
+				// Si la imagen es más chica que el thumbnail requerido -> devuelve la imagen
+				//
+				if (ret.img_w <= ret.th_w && ret.th_h <= ret.img_h) {
+					ret.wo = ret.img_w;
+					ret.ho = ret.img_h;
+					return ret;
+				}
 
-	                if (delta_h < delta_w) {
-	                    ret.ho = ret.th_h;
-	                    ret.wo = (ret.img_h > 0) ? ret.img_w * ret.ho / ret.img_h : (int) (ret.th_w);
-	                } else {
-	                    ret.wo = ret.th_w;
-	                    ret.ho = (ret.img_w > 0) ? ret.img_h * ret.wo / ret.img_w : (int) (ret.th_h);
-	                }
+				// Si la imagen es más grande que el thumbnail requerido, recorta
+				//
 
-	                return ret;
-	            }
+				int delta_w = (ret.img_w - ret.th_w);
+				int delta_h = (ret.img_h - ret.th_h);
 
-	            // Si h es 0
-	            //
-	            else if (ret.th_h == 0 && ret.th_w != 0) {
+				if (delta_h < delta_w) {
+					ret.ho = ret.th_h;
+					ret.wo = (ret.img_h > 0) ? ret.img_w * ret.ho / ret.img_h : (int) (ret.th_w);
+				} else {
+					ret.wo = ret.th_w;
+					ret.ho = (ret.img_w > 0) ? ret.img_h * ret.wo / ret.img_w : (int) (ret.th_h);
+				}
 
-	                int delta_w = (ret.img_w - ret.th_w);
+				return ret;
+			}
 
-	                // Si el ancho del th es mas grande que el ancho de la imagen devuelve la imagen
-	                if (delta_w < 0) {
-	                    ret.ho = ret.img_h;
-	                    ret.wo = ret.img_w;
-	                    return ret;
-	                } else {
+			// Si h es 0
+			//
+			else if (ret.th_h == 0 && ret.th_w != 0) {
 
-	                    // Si el ancho del th es mas chico que el ancho de la imagen resizea
-	                    // proporcional
+				int delta_w = (ret.img_w - ret.th_w);
 
-	                    ret.wo = ret.th_w;
-	                    ret.ho = (ret.img_w > 0) ? ret.img_h * ret.wo / ret.img_w : (int) (ret.img_h);
-	                    if (ret.ho <= 0)
-	                        ret.ho = ret.img_h;
+				// Si el ancho del th es mas grande que el ancho de la imagen devuelve la imagen
+				if (delta_w < 0) {
+					ret.ho = ret.img_h;
+					ret.wo = ret.img_w;
+					return ret;
+				} else {
 
-	                    return ret;
-	                }
-	            }
-	            // Si w es 0
-	            //
-	            else {
+					// Si el ancho del th es mas chico que el ancho de la imagen resizea
+					// proporcional
 
-	                int delta_h = (ret.img_h - ret.th_h);
+					ret.wo = ret.th_w;
+					ret.ho = (ret.img_w > 0) ? ret.img_h * ret.wo / ret.img_w : (int) (ret.img_h);
+					if (ret.ho <= 0)
+						ret.ho = ret.img_h;
 
-	                // Si el alto del th es mas grande que el alto de la imagen devuelve la imagen
-	                //
-	                if (delta_h < 0) {
-	                    ret.ho = ret.img_h;
-	                    ret.wo = ret.img_w;
-	                    return ret;
-	                } else {
+					return ret;
+				}
+			}
+			// Si w es 0
+			//
+			else {
 
-	                    // Si el alto del th es mas chico que el alto de la imagen resizea proporcional
-	                    //
-	                    ret.ho = ret.th_h;
-	                    ret.wo = (ret.img_h > 0) ? ret.img_w * ret.ho / ret.img_h : (int) (ret.img_w);
-	                    if (ret.wo <= 0)
-	                        ret.wo = ret.img_w;
+				int delta_h = (ret.img_h - ret.th_h);
 
-	                    return ret;
-	                }
-	            }
+				// Si el alto del th es mas grande que el alto de la imagen devuelve la imagen
+				//
+				if (delta_h < 0) {
+					ret.ho = ret.img_h;
+					ret.wo = ret.img_w;
+					return ret;
+				} else {
 
-	        } catch (Exception e) {
-	            logger.error(e);
-	            return null;
-	        }
+					// Si el alto del th es mas chico que el alto de la imagen resizea proporcional
+					//
+					ret.ho = ret.th_h;
+					ret.wo = (ret.img_h > 0) ? ret.img_w * ret.ho / ret.img_h : (int) (ret.img_w);
+					if (ret.wo <= 0)
+						ret.wo = ret.img_w;
 
-	    }
-	
-	
-	
-	
-	
-	
+					return ret;
+				}
+			}
+
+		} catch (Exception e) {
+			logger.error(e);
+			return null;
+		}
+
+	}
+
 }

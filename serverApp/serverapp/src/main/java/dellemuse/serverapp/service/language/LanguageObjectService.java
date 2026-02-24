@@ -102,11 +102,8 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		final String value = getCache().getIfPresent(key);
 		
 		if (value!=null) {
- 			 
-			return value;
+ 			return value;
 		}
-	
-		 
 		
 		String displayName;
 
@@ -114,8 +111,14 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		if (lang.equals(o.getMasterLanguage()))
 			displayName = o.getDisplayname();
 		else {
+
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
 
+			if (service==null) {
+				logger.error("RecordDBService not found -> " + o.getClass().getName());
+				return o.getDisplayname();
+			}
+			
 			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
 
 			if (t.isEmpty()) {
@@ -123,7 +126,6 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 			}
 			else {
 				displayName = t.get().getDisplayname();
-
 				if (displayName == null)
 					displayName = o.getDisplayname();
 			}
@@ -136,7 +138,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	}
 	
 	
-
+	@SuppressWarnings("unchecked")
 	public String getObjectSubtitle(MultiLanguageObject o, Locale locale) {
 		
 		final String key = getKey(o, SUBTITLE, locale.getLanguage());
@@ -154,6 +156,13 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		else {
 			
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
+			
+			
+			if (service==null) {
+				logger.error("RecordDBService not found -> " + o.getClass());
+				return o.getSubtitle();
+			}
+			
 			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
 			
 			if (t.isEmpty()) {
@@ -182,6 +191,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	 * @param locale
 	 * @return
 	 */
+	@SuppressWarnings({ "unchecked", "unchecked" })
 	public int compareAudioLanguage(MultiLanguageObject o, Locale locale) {
 
 		Resource r;
@@ -195,8 +205,15 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
 
-			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
 
+			if (service==null) {
+				logger.error("RecordDBService not found -> " + o.getClass());
+				return 0;
+			}
+
+			
+			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
+			
 			if (t.isEmpty())
 				return ((o.getAudio() != null) ? 1 : -1);
 
@@ -209,6 +226,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public Resource getAudio(MultiLanguageObject o, Locale locale) {
 
 		Resource r;
@@ -221,6 +239,13 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
 
+
+			if (service==null) {
+				logger.error("RecordDBService not found -> " + o.getClass());
+				return o.getAudio();
+			}
+
+			
 			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
 
 			if (t.isEmpty())
@@ -234,6 +259,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		return r;
 	}
 
+	@SuppressWarnings("unchecked")
 	public String getIntro(MultiLanguageObject o, Locale locale) {
 
 		
@@ -256,6 +282,13 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		else {
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
 
+			
+			if (service==null) {
+				logger.error("RecordDBService not found -> " + o.getClass());
+				return o.getIntro();
+			}
+			
+			
 			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
 
 			if (t.isEmpty())
@@ -274,6 +307,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		return d;
 	}
 
+	@SuppressWarnings("unchecked")
 	public String getInfo(MultiLanguageObject o, Locale locale) {
 
 		
@@ -294,6 +328,14 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		else {
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
 
+
+			if (service==null) {
+				logger.error("RecordDBService not found -> " + o.getClass());
+				return o.getInfo();
+			}
+			
+			
+			
 			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
 
 			if (t.isEmpty()) {
@@ -323,6 +365,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		return  getPersonFirstLastName(p.getPerson(), locale);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public String getPersonFirstLastName(Person p, Locale locale) {
 
 		final String key = getKey(p, PERSON, locale.getLanguage());
@@ -343,6 +386,13 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		else {
 
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(p.getClass());
+			
+			if (service==null) {
+				logger.error("RecordDBService not found -> " + p.getClass().getName());
+				return p.getFirstLastname();
+			}
+			
+			
 			Optional<PersonRecord> t = (Optional<PersonRecord>) service.findByParentObject(p, lang);
 
 			if (t.isEmpty())

@@ -16,31 +16,14 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class WicketSecurityConfig {
-
-	
 	 @Bean
 	 public AuthenticatedWebSessionConfig authenticatedWebSessionConfig() {
-	 
 		 return new AuthenticatedWebSessionConfig() {
-
 			@Override
 			public Class<? extends AbstractAuthenticatedWebSession> getAuthenticatedWebSessionClass() {
-				// return MyAuthtenticatedWebSession.class;
 				return SecureWebSession.class;
 			}
-	     
-			//@Override
-	        //  public Class<? extends Page> getSignInPageClass() {
-	        //      return LoginPage.class;
-	        //  }
-		 
-		 
-		 };
-	 
-	     
-	 
-	 
+	      };
 	 }
-	 
 	 
 }

@@ -410,12 +410,12 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 					try (InputStream is = upload.getInputStream()) {
 
-						getResourceDBService().upload(bucketName, objectName, upload.getInputStream(), upload.getClientFileName());
+						getResourceDBService().upload(bucketName, objectName, upload.getInputStream(), upload.getClientFileName(), true);
 
 						User user = getUserDBService().findRoot();
 
 						Resource resource = getResourceDBService().create(bucketName, objectName, upload.getClientFileName(), getResourceDBService().getMimeType(upload.getClientFileName()), upload.getSize(), null, user,
-								upload.getClientFileName());
+								upload.getClientFileName(), true);
 
 						setPhotoModel(new ObjectModel<Resource>(resource));
 
@@ -455,11 +455,11 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 
 					try (InputStream is = upload.getInputStream()) {
 
-						getResourceDBService().upload(bucketName, objectName, upload.getInputStream(), upload.getClientFileName());
+						getResourceDBService().upload(bucketName, objectName, upload.getInputStream(), upload.getClientFileName(), true);
 						User user = getUserDBService().findRoot();
 
 						Resource resource = getResourceDBService().create(bucketName, objectName, upload.getClientFileName(), getResourceDBService().getMimeType(upload.getClientFileName()), upload.getSize(), null, user,
-								upload.getClientFileName());
+								upload.getClientFileName(), true);
 
 						setLogoModel(new ObjectModel<Resource>(resource));
 

@@ -114,21 +114,7 @@ public class AvatarService extends BaseService implements SystemService {
 
 		// int cacheDurationSecs = ServerDBConstant.THUMBNAIL_CACHE_DURATION_SECS;
 
-		/**
-		 * try {
-		 * 
-		 * ResultSet<Item<ObjectMetadata>> set =
-		 * getObjectStorageService().getClient().listObjects(ServerConstant.AVATAR_BUCKET);
-		 * 
-		 * long index = 0;
-		 * 
-		 * while (set.hasNext()) { Item<ObjectMetadata> item = set.next(); if
-		 * (item.isOk()) { ObjectMetadata meta = item.getObject(); String url =
-		 * getObjectStorageService().getClient().getPresignedObjectUrl(meta.getBucketName(),
-		 * meta.getObjectName()); map.put(Long.valueOf(index++), url); } }
-		 * 
-		 * } catch (ODClientException e) { throw new RuntimeException(e); }
-		 **/
+	 
 	}
 
 	private void importFiles() {
@@ -144,11 +130,11 @@ public class AvatarService extends BaseService implements SystemService {
 					String objectName = String.valueOf(getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(file.getName())) + "-" + getResourceDBService().newId());
 
 					try {
-						getObjectStorageService().getClient().putObject(ServerConstant.AVATAR_BUCKET, objectName, file);
+						getObjectStorageService().getClient().putObject(ServerConstant.AVATAR_BUCKET, objectName, Optional.empty(), Optional.of(Boolean.TRUE), file);
 
 						@SuppressWarnings("unused")
 						Resource resource = getResourceDBService().create(ServerConstant.AVATAR_BUCKET, objectName, file.getName(), getMimeType(file.getName()), file.length(), ServerConstant.AVATAR, getUserDBService().findRoot(),
-								file.getName());
+								file.getName(), true);
 
 						logger.debug("uploaded -> " + file.getName());
 
@@ -207,7 +193,7 @@ public class AvatarService extends BaseService implements SystemService {
 				String url = service.getPresignedThumbnailUrl(photo, ThumbnailSize.MINI);
 				return url;
 			} else {
-				return getObjectStorageService().getClient().getPresignedObjectUrl(photo.getBucketName(), photo.getObjectName());
+				return getObjectStorageService().getPublicUrl(photo);
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
