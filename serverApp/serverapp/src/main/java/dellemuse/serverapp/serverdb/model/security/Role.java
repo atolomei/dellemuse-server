@@ -6,6 +6,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 
@@ -62,7 +63,7 @@ public abstract class Role extends DelleMuseObject {
 	}
 
 	public static final String getIcon() {
-		return "fa-duotone fa-id-badge";
+		return Icons.Role; 
 	}
 
 };

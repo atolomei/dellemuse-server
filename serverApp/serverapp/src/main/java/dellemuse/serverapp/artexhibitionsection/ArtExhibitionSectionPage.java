@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.image.Image;
@@ -60,6 +61,7 @@ import wktui.base.NamedTab;
  * site foto Info - exhibitions
  * 
  */
+@AuthorizeInstantiation({"ROLE_USER"})
 
 @MountPath("/ArtExhibitionSection/${id}")
 public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibitionSection, ArtExhibitionSectionRecord> {

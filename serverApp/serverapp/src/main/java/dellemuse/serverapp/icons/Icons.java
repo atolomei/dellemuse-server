@@ -16,6 +16,11 @@ public class Icons {
 	public static final String Music				= "fa-solid fa-music";
 	
 	public static final String Resource				= "fa-duotone fa-file";
+	public static final String User				= "fa-duotone fa-solid fa-user";
+	public static final String Role				= "fa-duotone fa-id-badge";
+	
+ 
+	
 	
 	static public final String headphoneIcon = "fa-solid fa-headphones";
 	

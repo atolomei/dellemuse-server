@@ -27,16 +27,43 @@ public class DatabaseUserDetailsService extends BaseService implements UserDetai
         this.userDBService = userDBService;
     }
 
+    
+    private boolean looksLikeEmail(String v) {
+	    return v.contains("@");
+	}
+
+	private boolean looksLikePhone(String v) {
+	    return v.matches("^[0-9+()\\-\\s]{6,20}$");
+	}
+	
+	 
+	
     @Override
-    public UserDetails loadUserByUsername(String username) throws RuntimeException {
+    public UserDetails loadUserByUsername(String identifier) throws RuntimeException {
 
-    	Optional<User> o_user =  getUserDBService().findByUsername(username);
-        		
-   		if (o_user.isEmpty())
-      			throw new  RuntimeException("User not found: " + username);
+    	
+    	//Optional<User> o_user =  getUserDBService().findByEmail(email);
+    	//Optional<User> o_user =	getUserDBService().findByUsernameOrEmailOrPhone(identifier);
+    	//Optional<User> o_user =  getUserDBService().findByUsername(email);
+    	//if (o_user.isEmpty())
+      	//	throw new RuntimeException("User not found  by identifier -> " + identifier);
+    	
+    	Optional<User> oUser;
 
+        if (looksLikeEmail(identifier)) {
+            oUser = userDBService.findByEmail(User.normalizeEmail(identifier));
+        } else if (looksLikePhone(identifier)) {
+            oUser = userDBService.findByPhone(User.normalizePhone(identifier));
+        } else {
+            oUser = userDBService.findByUsernameOrEmailOrPhone(identifier);
+        }
+
+        if (oUser.isEmpty()) {
+        	throw new RuntimeException("User not found  for identifier -> " + identifier);
+        }
+        
             
-        User user = getUserDBService().findWithDeps(o_user.get().getId()).get();
+        User user = getUserDBService().findWithDeps(oUser.get().getId()).get();
         
         logger.debug("DB USER = " + user.getUsername());
         logger.debug("DB PASS = " + user.getPassword());
@@ -50,7 +77,7 @@ public class DatabaseUserDetailsService extends BaseService implements UserDetai
         );
         
         
-        logger.debug(username);
+        logger.debug("Roles for -> " + user.getUsername() + " i. " + identifier);
         ud.getAuthorities().forEach(i-> logger.debug( i.toString()));
    
         return ud;

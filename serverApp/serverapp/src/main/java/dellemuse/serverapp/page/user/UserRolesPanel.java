@@ -242,7 +242,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 	protected IModel<String> getObjectTitle(IModel<Role> model) {
 		StringBuilder str = new StringBuilder();
-		str.append(model.getObject().getRoleDisplayName() + " (" + model.getObject().getDisplayClass(getLocale()) + ") ");
+		str.append(model.getObject().getRoleDisplayName() + "<span class=\"text-secondary\"> (" + model.getObject().getDisplayClass(getLocale()) + ") </span>");
 
 		Role o =  model.getObject();
 		
@@ -272,6 +272,12 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 			return allRoles;
 
 		allRoles = new ArrayList<IModel<Role>>();
+		
+		
+		if (logger.isDebugEnabled()) {
+			getRoleDBService().findAllSorted().forEach(i -> logger.debug(i.getRoleDisplayName()));
+
+		}
 
 		getRoleDBService().findAllSorted().forEach(i -> allRoles.add(new ObjectModel<Role>(i)));
 

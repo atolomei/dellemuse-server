@@ -6,6 +6,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.model.IModel;
 //import org.apache.wicket.markup.html.form.TextField;
@@ -73,10 +74,10 @@ public class LoginPage extends BasePage {
 
 	private Form<User> form;
 
-	private String username = "";
+	private String email = "";
 	private String password = "";
 
-	private TextField<String> userNameField;
+	private TextField<String> emailField;
 	private TextField<String> passwordField;
 
 	private boolean isError = false;
@@ -84,10 +85,6 @@ public class LoginPage extends BasePage {
 	@SpringBean
 	private SavedRequestAwareAuthenticationSuccessHandler successHandler;
 
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		return true;
-	}
 
 	public LoginPage() {
 		super();
@@ -106,13 +103,18 @@ public class LoginPage extends BasePage {
 			if (getPageParameters().get("username") != null) {
 				StringValue s = getPageParameters().get("username");
 				if (!s.isEmpty()) {
-					username = s.toString();
+					email = s.toString();
 				}
 			}
 			
 		}
 	}
 
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		return true;
+	}
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -154,13 +156,13 @@ public class LoginPage extends BasePage {
 
 				 SecureWebSession session = (SecureWebSession) getSession();
 
-				    if (!session.signIn(username, password)) {
-				        logger.error("Invalid username or password -> u." + username);
+				    if (!session.signIn(email, password)) {
+				        logger.error("Invalid username or password -> u." + email);
 				        error("Invalid username or password");
 				        return;
 				    }
 
-				    logger.debug("successful login -> " + username);
+				    logger.debug("successful login -> email. " + email +  " p. " + password);
 
 				    // VERY IMPORTANT → bind Wicket session immediately
 				    getSession().bind();
@@ -187,13 +189,17 @@ public class LoginPage extends BasePage {
 			}
 		};
 
-		userNameField = new TextField<String>("username", new PropertyModel<String>(this, "username"), getLabel("username"));
+		emailField = new TextField<String>("usernameoremail", new PropertyModel<String>(this, "email"), getLabel("username-or-email"));
 		passwordField = new TextField<String>("password", new PropertyModel<String>(this, "password"), getLabel("password"));
-		userNameField.setTitleCss("row mb-1");
-		userNameField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control bg-dark text-light");
+		emailField.setTitleCss("row mb-1");
+		emailField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control bg-dark text-light");
 		passwordField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control bg-dark text-light");
 		passwordField.setTitleCss("row mb-1");
 
+		
+		//form.add(new ExternalLink("googleLogin", "/oauth2/authorization/google"));
+		
+		
 		SubmitButton<User> buttons = new SubmitButton<User>("buttons-bottom", getForm()) {
 			private static final long serialVersionUID = 1L;
 
@@ -210,7 +216,7 @@ public class LoginPage extends BasePage {
 			}
 		};
 		form.add(buttons);
-		form.add(userNameField);
+		form.add(emailField);
 		form.add(passwordField);
 		add(form);
 		edit();
@@ -237,6 +243,22 @@ public class LoginPage extends BasePage {
 
 	private boolean isError() {
 		return this.isError;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 }

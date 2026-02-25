@@ -33,15 +33,7 @@ public class WicketWebApplication extends WicketBootSecuredWebApplication {
 		return SecureWebSession.class;
 	}
 
-	
-	/**
-	@Override
-	public void init() {
-		super.init();
-		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
-	}
-*/
-
+ 
 	@Override
 	public void init() {
 	    super.init();

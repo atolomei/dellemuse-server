@@ -83,15 +83,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 	}
 
 	
-	private void setUpModel() {
 	
-		getModel().setObject( getPersonDBService().findById(getModel().getObject().getId()).get());
-		
-		if (getModel().getObject().getPhoto() != null) {
-			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
-			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
-		}
-	}
 	
 	@Override
 	public void onInitialize() {
@@ -392,5 +384,13 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 		return uploadedPhoto;
 	}
-
+	private void setUpModel() {
+		
+		getModel().setObject( getPersonDBService().findById(getModel().getObject().getId()).get());
+		
+		if (getModel().getObject().getPhoto() != null) {
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
+			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
+		}
+	}
 }

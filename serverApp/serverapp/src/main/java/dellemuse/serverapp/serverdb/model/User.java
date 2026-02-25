@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
@@ -39,14 +40,33 @@ import jakarta.persistence.Table;
 @Table(name = "users")
 @JsonInclude(Include.NON_NULL)
 public class User extends DelleMuseObject {
+	
+	public static String normalizeEmail(String e) {
+		if (e==null)
+			return null;
+		return e.toLowerCase().trim();
+	}
+	
+	public static String normalizePhone(String phone) {
+		if (phone==null)
+			return null;
+	    return phone.replaceAll("[^0-9+]", "");
+	}
+
 
 	static private Logger logger = Logger.getLogger(User.class.getName());
 
+	private String authProvider; // LOCAL, GOOGLE
+	private String providerId;   // google subject id
+	
+	
+	@JsonProperty("email")
+	@Column(name = "email")
+	private String email;
 
-	public static final String getIcon() {
-		return "fa-duotone fa-solid fa-user";
-	}
-
+	@JsonProperty("phone")
+	@Column(name = "phone")
+	private String phone;
 	
 	@JsonProperty("zoneId")
 	@Column(name = "zoneId")
@@ -95,6 +115,22 @@ public class User extends DelleMuseObject {
 		 return this.language;
 	}
 
+	public String getAuthProvider() {
+		return authProvider;
+	}
+
+	public String getProviderId() {
+		return providerId;
+	}
+
+	public void setAuthProvider(String authProvider) {
+		this.authProvider = authProvider;
+	}
+
+	public void setProviderId(String providerId) {
+		this.providerId = providerId;
+	}
+
 	public void setLanguage(String lang) {
 		language = lang;
 	}
@@ -123,6 +159,20 @@ public class User extends DelleMuseObject {
 	public void setZoneId(ZoneId z) {
 		this.setZoneIdStr(z.getId());
 	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	
+	
+	public void setPhone(String phone) {
+		if (phone==null)
+			this.phone = phone;
+		this.phone = normalizePhone(phone);
+	}
+
+
 
 	public ZoneId getZoneId() {
 		if (getZoneIdStr()==null)
@@ -196,9 +246,7 @@ public class User extends DelleMuseObject {
 
 		List<String> list = new ArrayList<String>();
 
-
 		 list.add("ROLE_USER");
-		 list.add("ROLE_ADMIN");
 		 
 		 getRolesGeneral().forEach( r -> list.add(r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_")+"_"+r.getName().toUpperCase()));
 		 getRolesInstitution().forEach( r -> list.add(
@@ -210,6 +258,20 @@ public class User extends DelleMuseObject {
 		 list.forEach( r -> logger.debug(r));
 		return list;
 	}
+
+	public String getEmail() {
+		return email;
+	}
+
+
+
+	public void setEmail(String email) {
+		if (email==null)
+			this.email = email;
+		else
+			this.email=normalizeEmail(email);
+	}
+
 
 	public boolean hasRole(Role r) {
 
@@ -332,8 +394,10 @@ public class User extends DelleMuseObject {
 		return getUsername()!=null && getUsername().equals("root");
 	}
 
-	// public Set<SimpleGrantedAuthority> getRoles() {
-	// return null;
-	// }
+	public static final String getIcon() {
+		return Icons.User;
+	}
+
+
 
 }

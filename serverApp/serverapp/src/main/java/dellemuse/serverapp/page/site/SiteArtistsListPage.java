@@ -14,6 +14,7 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
@@ -59,6 +60,10 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 	private List<ToolbarItem> listToolbar;
 
 	
+
+	public String getHelpKey() {
+		return Help.SITE_ARTIST_LIST;
+	}
 	
 	public SiteArtistsListPage() {
 		super();

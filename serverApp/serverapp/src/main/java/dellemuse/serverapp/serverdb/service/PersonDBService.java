@@ -132,9 +132,15 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 	@Transactional
 	public void save(Person o, User user, List<String> updatedParts) {
 		super.save(o);
+		
+		if (o.getUser()!=null) {
+			User u = getUserDBService().findById(o.getUser().getId()).get();
+			u.setEmail(o.getEmail());
+			u.setPhone(o.getPhone());
+			getUserDBService().save(u);
+		}
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 	}
-
     
     @Transactional
 	public void reloadIfDetached(Person src) {
@@ -157,10 +163,14 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 		Resource photo = aw.getPhoto();
 		if (photo!=null)
 			aw.setPhoto( getResourceDBService().findById(photo.getId()).get());
-				
-		User user = aw.getLastModifiedUser();
+		
+		User user = aw.getUser();
 		if (user!=null)
-			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+			aw.setUser(getUserDBService().findById(user.getId()).get());
+		
+		User luser = aw.getLastModifiedUser();
+		if (luser!=null)
+			aw.setLastModifiedUser(getUserDBService().findById(luser.getId()).get());
 
 		aw.setDependencies(true);
 

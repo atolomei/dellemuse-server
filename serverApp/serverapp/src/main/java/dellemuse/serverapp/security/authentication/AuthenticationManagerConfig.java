@@ -30,16 +30,7 @@ public class AuthenticationManagerConfig {
 	     provider.setPasswordEncoder(passwordEncoder);
 	     return provider;
 	 }
-	 
-/**
-	    @Bean
-	    public DaoAuthenticationProvider authenticationProvider() {
-	        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-	        provider.setUserDetailsService(userDetailsService);
-	        provider.setPasswordEncoder(passwordEncoder);
-	        return provider;
-	    }
-**/
+ 
 	 
 	    @Bean
 	    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -50,8 +41,5 @@ public class AuthenticationManagerConfig {
 	    }
 	
 	    
-	    //@Bean
-		//public PasswordEncoder passwordEncoder() {
-		//    return new BCryptPasswordEncoder();
-	    //	}
+	  
 }

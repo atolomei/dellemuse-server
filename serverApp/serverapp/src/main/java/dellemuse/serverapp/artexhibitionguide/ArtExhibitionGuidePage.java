@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -51,6 +52,9 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
+
+
+@AuthorizeInstantiation({"ROLE_USER"})
 
 @MountPath("/guide/${id}")
 public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitionGuide, ArtExhibitionGuideRecord> {

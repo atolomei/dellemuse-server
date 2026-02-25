@@ -65,7 +65,8 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	private WebMarkupContainer listToolbarContainer;
 	private WebMarkupContainer helpContainer;
 	
-	
+	boolean isHelpVisible = false;
+
 	
 	private Panel errorPanel;
 	private boolean b_expand = false;
@@ -361,7 +362,6 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	}
 
 	
-	boolean isHelpVisible = false;
 	
 	protected void addListeners() {
 		super.addListeners();

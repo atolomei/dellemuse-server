@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -58,6 +59,7 @@ import wktui.base.NamedTab;
  * todate drop not null;
  * </p>
  */
+@AuthorizeInstantiation({"ROLE_USER"})
 
 @MountPath("/artexhibition/${id}")
 public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, ArtExhibitionRecord> {

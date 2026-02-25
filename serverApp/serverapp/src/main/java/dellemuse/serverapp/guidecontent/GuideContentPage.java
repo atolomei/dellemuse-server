@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -24,6 +25,8 @@ import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 
@@ -64,6 +67,7 @@ import wktui.base.NamedTab;
  * site foto Info - exhibitions
  */
 
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/guidecontent/${id}")
 public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, GuideContentRecord> {
 
@@ -80,6 +84,10 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	private JumboPageHeaderPanel<GuideContent> header;
 	private List<ToolbarItem> list;
 
+	
+	public String getHelpKey() {
+		return Help.GUIDE_CONTENT;
+	}
 	
 	@Override
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
@@ -413,6 +421,11 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 
 		this.list = new ArrayList<ToolbarItem>();
 
+		
+		
+		
+		
+		
 		/** audio de obra */
 		list.add(new GuideContentNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(),  getLabel("guide-content-dropdown", 
 				TextCleaner.truncate(getModel().getObject().getName(), 18)), Align.TOP_RIGHT));
@@ -432,6 +445,9 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-none d-lg-none d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
+		list.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+		
+		
 		return this.list;
 	}
 

@@ -31,9 +31,10 @@ import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.User;
 
 import io.odilon.util.Check;
-
+import io.wktui.error.AlertHelpPanel;
+import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
-
+import io.wktui.event.HelpAjaxEvent;
 import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.listNavigator.ListNavigator;
@@ -70,6 +71,10 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private List<INamedTab> tabs;
 	private WebMarkupContainer currentPanel;
 	private ObjectMetaEditor<T> metaEditor;
+	
+	
+	boolean isHelpVisible = false;
+
 
 	private String startingTab = null;
 
@@ -191,6 +196,12 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			getList().forEach(i -> i.detach());
 	}
 
+
+	public String getHelpKey() {
+		return this.getClass().getSimpleName().toLowerCase();
+	}
+	
+	
 	public MarkupContainer add(final Component c) {
 		mainMarkupContainer.add(c);
 		return this;
@@ -205,15 +216,26 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		return Model.of("eeeeeeee");
 	}
 
+	private WebMarkupContainer helpContainer;
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
+		
+		
 		mainMarkupContainer = new WebMarkupContainer("mainContainer");
 		mainMarkupContainer.add(AttributeModifier.replace("class", getMainClass()));
 
 		super.addOrReplace(mainMarkupContainer);
 
+		
+		helpContainer = new WebMarkupContainer("helpContainer");
+		helpContainer.setOutputMarkupId(true);
+		mainMarkupContainer.add(helpContainer);
+		helpContainer.add( new InvisiblePanel("help"));
+
+		
 		try {
 
 			setUpModel();
@@ -450,8 +472,62 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 				return false;
 			}
 		});
+		
+		
+		add(new io.wktui.event.WicketEventListener<HelpAjaxEvent>() { 
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(HelpAjaxEvent event) {
+				if (isHelpVisible) {
+					isHelpVisible=false;
+					helpContainer.get("help").setVisible(false);
+				}
+				else {
+					//helpContainer.setVisible(true);
+					helpContainer.addOrReplace(getHelpPanel("help", getHelpKey(), getLocale().getLanguage() ));
+					isHelpVisible=true;
+				}
+				
+				event.getTarget().add(helpContainer);
+				//refresh( event.getTarget() );
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof HelpAjaxEvent)
+					return true;
+				return false;
+			}
+		});
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 
+	
+	protected Panel getHelpPanel(String id, String key, String lang) {
+		String h=getHelpService().gethelp(key, lang);
+		if (h==null) {
+			h=key + "-" + lang+ " not found";
+		}
+	 	AlertPanel<Void> a = new AlertHelpPanel<>(id, Model.of(h));
+	 	a.add( new org.apache.wicket.AttributeModifier("class", "help"));
+	 	return a;
+	}
+	
+	
+	
+	
 	protected Panel getMetaEditor(String id) {
 		if (this.metaEditor == null) {
 			metaEditor = new ObjectMetaEditor<T>(id, getModel()) {

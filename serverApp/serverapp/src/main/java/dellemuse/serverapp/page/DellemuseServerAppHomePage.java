@@ -34,7 +34,7 @@ import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.InvisiblePanel;
 
-@AuthorizeInstantiation({"ROLE_USER","ROLE_ADMIN"})
+@AuthorizeInstantiation({"ROLE_USER"})
 @WicketHomePage
 @MountPath("/home")
 public class DellemuseServerAppHomePage extends BasePage {

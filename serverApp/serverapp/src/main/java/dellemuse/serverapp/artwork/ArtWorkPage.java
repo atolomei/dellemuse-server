@@ -9,7 +9,7 @@ import java.util.Set;
 
  
 import org.apache.wicket.ajax.AjaxRequestTarget;
- 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
  
 import org.apache.wicket.markup.html.panel.Panel;
@@ -63,6 +63,7 @@ import wktui.base.NamedTab;
 /**
  * site foto Info - exhibitions
  */
+@AuthorizeInstantiation({"ROLE_USER"})
 
 @MountPath("/artwork/${id}")
 public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord> {

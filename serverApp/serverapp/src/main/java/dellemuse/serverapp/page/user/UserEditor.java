@@ -26,6 +26,7 @@ import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.field.LocaleField;
+import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextField;
 import io.wktui.form.field.ZoneIdField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -44,6 +45,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	private ZoneIdField zoneidField;
 	private List<ToolbarItem> list;
 	private LocaleField localeField;
+	private StaticTextField<String> emailField;
 
 	/**
 	 * @param id
@@ -70,6 +72,9 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 		logger.debug("user locale -> " + getModel().getObject().getLocale().getLanguage());
 
+		this.emailField 		= new StaticTextField<String>("email"			, new PropertyModel<String>(getModel(), "email"), getLabel("email"));
+		this.form.add(emailField);
+		
 		this.nameField = new TextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
 		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 		this.localeField = new LocaleField("locale", new PropertyModel<Locale>(getModel(), "locale"), getLabel("locale"));

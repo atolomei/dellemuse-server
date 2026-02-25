@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -16,6 +17,7 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -44,6 +46,8 @@ import wktui.base.NamedTab;
  * site foto Info - exhibitions
  */
 
+@AuthorizeInstantiation({"ROLE_USER"})
+
 @MountPath("/site/roles/${id}")
 public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
@@ -53,6 +57,13 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 	private List<ToolbarItem> list;
 
+	
+
+	public String getHelpKey() {
+		return Help.SITE_ROLES_LIST;
+	}
+	
+	
 	protected List<Language> getSupportedLanguages() {
 		return getModel().getObject().getLanguages();
 	}

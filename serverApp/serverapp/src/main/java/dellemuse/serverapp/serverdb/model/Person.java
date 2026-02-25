@@ -33,11 +33,6 @@ public class Person extends MultiLanguageObject {
 
 	
 
-	public static final String getIcon() {
-		return Icons.Person;
-	}
-	
-	
 	
 	@Column(name = "lastname")
 	private String lastname;
@@ -81,6 +76,13 @@ public class Person extends MultiLanguageObject {
 	@JsonProperty("user")
 	private User user;
  	
+	public static final String getIcon() {
+		return Icons.Person;
+	}
+	
+	
+
+	
 	/**
 	@ManyToMany(mappedBy = "artists", fetch = FetchType.LAZY)
     @JsonIgnoreProperties("artists")

@@ -37,60 +37,68 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @EnableWebSecurity(debug = true)
 public class SecurityConfig {
 
-	static private Logger logger = Logger.getLogger(SecurityConfig.class.getName());@Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	static private Logger logger = Logger.getLogger(SecurityConfig.class.getName()); 
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                		"/signin",
-                        "/signin/**",
-                        "/wicket/**",
-                        "/wicket/resource/**",
-                        "/css/**",
-                        "/js/**",
-                        "/images/**"
-                ).permitAll()
-                //.anyRequest().authenticated()
-                // ⭐ Let Wicket handle page authorization
-                .anyRequest().permitAll()
-            		)
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(customEntryPoint())
-            )
-            
-            .securityContext(context -> context
-                    .securityContextRepository(new HttpSessionSecurityContextRepository())
-                    .requireExplicitSave(false)
-                )
-            
-            .sessionManagement(session -> session
-                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                    .sessionFixation(fix -> fix.migrateSession())
-                )
+	    http
 
-            .exceptionHandling(ex -> ex
-                    .authenticationEntryPoint(customEntryPoint())
-                )
-            
-            .csrf(csrf -> csrf.disable())
-            .formLogin(form -> form.disable())
-            .logout(logout -> logout
-            	    .logoutUrl("/logout")
-            	    .logoutSuccessUrl("/signin?logout")   // ← change this
-            	    .invalidateHttpSession(true)
-            	    .deleteCookies("JSESSIONID")
-            	    .permitAll()
-            	);
-            
-            	//.logout(logout -> logout.logoutUrl("/logout").permitAll());
-        
-        
-        
-        
-        
-        return http.build();
-    }
+	        // ⭐ Request rules
+	        .authorizeHttpRequests(auth -> auth
+	            .requestMatchers(
+	                "/signin",
+	                "/signin/**",
+	                "/oauth2/**",
+	                "/wicket/**",
+	                "/wicket/resource/**",
+	                "/css/**",
+	                "/js/**",
+	                "/images/**"
+	            ).permitAll()
+
+	            // ⭐ Let Wicket handle authorization
+	            .anyRequest().permitAll()
+	        )
+
+	        // ⭐ Redirect to login when authentication is required
+	        .exceptionHandling(ex -> ex
+	            .authenticationEntryPoint(customEntryPoint())
+	        )
+
+	        // ⭐ Session handling
+	        .sessionManagement(session -> session
+	            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+	            .sessionFixation(fix -> fix.migrateSession())
+	        )
+
+	        // ⭐ Persist SecurityContext in HTTP session
+	        .securityContext(context -> context
+	            .securityContextRepository(new HttpSessionSecurityContextRepository())
+	            .requireExplicitSave(false)
+	        )
+
+	        // ⭐ OAuth login (Google etc)
+	        .oauth2Login(oauth -> oauth
+	            .loginPage("/signin")
+	            .defaultSuccessUrl("/home", false)
+	        )
+
+	        // ⭐ Disable Spring login page (Wicket handles UI)
+	        .formLogin(form -> form.disable())
+
+	        .csrf(csrf -> csrf.disable())
+
+	        // ⭐ Logout
+	        .logout(logout -> logout
+	            .logoutUrl("/logout")
+	            .logoutSuccessUrl("/signin?logout")
+	            .invalidateHttpSession(true)
+	            .deleteCookies("JSESSIONID")
+	            .permitAll()
+	        );
+
+	    return http.build();
+	}
 
     @Bean
     public AuthenticationEntryPoint customEntryPoint() {

@@ -576,8 +576,10 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	        return Optional.empty();
 	    }
 	    UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
+	    //Optional<User> o_user = service.findByEmail(auth.getName());
+
 	    Optional<User> o_user = service.findByUsername(auth.getName());
-	 	sessionUserModel = new ObjectModel<User>( o_user.get());
+	    sessionUserModel = new ObjectModel<User>( o_user.get());
 	
 	 	return Optional.of( sessionUserModel.getObject() );
 	}

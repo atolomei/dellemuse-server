@@ -211,28 +211,7 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		str.append(" } ");
 
 		return str.toString();
-
-		/**
-		 * StringWriter stringWriter = new StringWriter();
-		 * 
-		 * try (JsonGenerator generator = factory.createGenerator(stringWriter)) {
-		 * generator.writeStartObject(); generator.writeNumberField("id", getId());
-		 * generator.writeStringField("name", getName());
-		 * generator.writeStringField("title", getTitle()); if (this.getLastModified()
-		 * != null) generator.writeStringField("lastModified",
-		 * df.format(this.getLastModified())); generator.writeEndObject();
-		 * 
-		 * stringWriter.flush(); String jsonString = stringWriter.toString();
-		 * 
-		 * logger.debug(jsonString);
-		 * 
-		 * return jsonString;
-		 * 
-		 * } catch (Exception e) { logger.error(e); return " { \"error\": \"" +
-		 * e.getClass().getName() + (e.getMessage() != null ? (" | " +
-		 * e.getMessage().replace("\"", "'" + "\"")) : "") + " }"; }
-		 **/
-
+ 
 	}
 
 	@Override

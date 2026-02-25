@@ -90,6 +90,10 @@ public class UserDBService extends DBService<User, Long> {
         c.setZoneId( getSettings().getDefaultZoneId() );
         c.setState(ObjectState.PUBLISHED);
 
+        
+        c.setPhone(person.getPhone());
+        c.setEmail(person.getEmail());
+        
         String hash = new BCryptPasswordEncoder().encode("dellemuse");
         c.setPassword(hash);
         // BCrypt.checkpw(plainPassword, hashedPasswordFromDB);
@@ -263,7 +267,79 @@ public class UserDBService extends DBService<User, Long> {
 		return list;	
 	}
 	
+	 @Transactional
+		public Optional<User> findByUsernameOrEmailOrPhone(String value) {
+		    
+		 Optional<User> user_n = findByUsername(value);
+		 if (user_n.isPresent()) 
+		    	return user_n;
+		 
+		 Optional<User> user_e = findByEmail(value);
+		 if (user_e.isPresent()) 
+		    	return user_e;
+
+	 	  return findByPhone(value);
+	}
+	 
+	@Transactional
+	public Optional<User> findByUsernameOrEmail(String value) {
+	    Optional<User> user = findByUsername(value);
+	    if (user.isPresent()) return user;
+
+	    return findByEmail(value);
+	}
+	 
+	 
 	
+
+	 @Transactional
+	public Optional<User> findByPhone(String phone) {
+		
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+        CriteriaQuery<User> criteria = cb.createQuery(getEntityClass());
+        Root<User> root = criteria.from(getEntityClass());
+
+        ParameterExpression<String> nameParam = cb.parameter(String.class);
+        criteria.select(root).where(cb.equal(root.get("phone"), nameParam));
+
+        TypedQuery<User> query =getEntityManager().createQuery(criteria);
+        query.setHint("org.hibernate.cacheable", true);
+        query.setFlushMode(FlushModeType.COMMIT);
+        query.setParameter(nameParam, phone);
+        List<User> users = query.getResultList();
+        if (users != null && !users.isEmpty()) {
+            return Optional.of(users.get(0));
+        }
+        return Optional.empty();
+	}
+	 
+	 
+	
+	 @Transactional
+	public Optional<User> findByEmail(String email) {
+		
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+        CriteriaQuery<User> criteria = cb.createQuery(getEntityClass());
+        Root<User> root = criteria.from(getEntityClass());
+
+        ParameterExpression<String> nameParam = cb.parameter(String.class);
+        criteria.select(root).where(cb.equal(root.get("email"), nameParam));
+
+        TypedQuery<User> query =getEntityManager().createQuery(criteria);
+        query.setHint("org.hibernate.cacheable", true);
+        query.setFlushMode(FlushModeType.COMMIT);
+        query.setParameter(nameParam, email);
+        List<User> users = query.getResultList();
+        if (users != null && !users.isEmpty()) {
+            return Optional.of(users.get(0));
+        }
+        return Optional.empty();
+	}
+	
+
+
+	
+	 @Transactional
 	public Optional<User> findByUsername(String username) {
 		
 			CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();

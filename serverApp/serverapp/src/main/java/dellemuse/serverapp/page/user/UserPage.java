@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -48,6 +49,7 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
+@AuthorizeInstantiation({"ROLE_USER"})
 
 @MountPath("/user/${id}")
 public class UserPage extends ObjectPage<User> {
@@ -88,9 +90,7 @@ public class UserPage extends ObjectPage<User> {
 		super(model, list);
 	}
 
-	 
-	
-	
+	  
 	
 	@Override
 	public void onDetach() {
@@ -212,6 +212,13 @@ public class UserPage extends ObjectPage<User> {
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					UserPage.this.getMetaEditor().onEdit(event.getTarget());
 				}
+				
+				else if (event.getName().equals(ServerAppConstant.user_action_edit_pwd)) {
+					UserPage.this.getPasswordEditor().onEdit(event.getTarget());
+				}
+				
+				
+				
 			}
 
 			@Override
@@ -243,6 +250,11 @@ public class UserPage extends ObjectPage<User> {
 				return false;
 			}
 		});
+	}
+	
+	
+	protected UserPasswordEditor getPasswordEditor() {
+			return this.passwordEditor;
 	}
 
 	@Override

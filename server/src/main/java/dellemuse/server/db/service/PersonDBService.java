@@ -67,6 +67,9 @@ public class PersonDBService extends DBService<Person, Long> {
         c.setCreated(OffsetDateTime.now());
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
+     
+        
+        
         return getRepository().save(c);
     }
 
@@ -98,6 +101,7 @@ public class PersonDBService extends DBService<Person, Long> {
         c.setLastModified(OffsetDateTime.now());
         c.setLastModifiedUser(createdBy);
 
+        
         return getRepository().save(c);
     }
 

@@ -18,6 +18,7 @@ import dellemuse.model.logging.Logger;
 
 import dellemuse.serverapp.artwork.ArtWorkPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.ObjectListPage;
@@ -72,6 +73,13 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
 	private List<ToolbarItem> listToolbar;
 	private List<ToolbarItem> mainToolbar;
+	
+	
+
+	public String getHelpKey() {
+		return Help.SITE_ARTWORK_LIST;
+	}
+	
 	
 	
 

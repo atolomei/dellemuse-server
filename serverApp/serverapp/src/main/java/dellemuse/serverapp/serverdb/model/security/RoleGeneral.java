@@ -77,8 +77,10 @@ public class RoleGeneral extends Role {
 			return false;
 
 		if ((o instanceof RoleGeneral)) {
+			
 			if (((RoleGeneral) o).getId() == null)
 				return false;
+			
 			return ((RoleGeneral) o).getId().equals(getId());
 		}
 

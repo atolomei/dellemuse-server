@@ -9,8 +9,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.artexhibition.ArtExhibitionEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
@@ -27,7 +29,7 @@ import io.wktui.form.button.EditButtons;
 
 import io.wktui.form.field.PasswordField;
 import io.wktui.form.field.StaticTextField;
-
+import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
@@ -35,14 +37,29 @@ import wktui.base.InvisiblePanel;
 
 public class UserPasswordEditor extends DBObjectEditor<User> implements InternalPanel {
 
+	public String getNewPassword() {
+		return newPassword;
+	}
+
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
+	}
+
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(SiteInfoEditor.class.getName());
 
 	private Form<User> form;
 	private StaticTextField<String> nameField;
-	private PasswordField passwordField;
+	private StaticTextField<String> emailField;
+	
+	//private PasswordField passwordField;
 
+	private TextField<String> passwordField;
+
+	
+	private String newPassword;
+	
 	/**
 	 * @param id
 	 * @param model
@@ -59,11 +76,22 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 		this.form = new Form<User>("personForm", getModel());
 		add(this.form);
 
+		newPassword = "";
+		
 		this.form.setFormState(FormState.VIEW);
 
-		this.nameField 		= new StaticTextField<String>("username"	, new PropertyModel<String>(getModel(), "username"), getLabel("username"));
-		this.passwordField 	= new PasswordField("password"				, new PropertyModel<String>(getModel(), "password"), getLabel("new-password"));
+		this.nameField 		= new StaticTextField<String>("username"			, new PropertyModel<String>(getModel(), "username"), getLabel("username"));
+		this.emailField 		= new StaticTextField<String>("email"			, new PropertyModel<String>(getModel(), "email"), getLabel("email"));
+		
+		
+		this.passwordField 	= new TextField<String>("password"					, new PropertyModel<String>( UserPasswordEditor.this, "newPassword"), getLabel("new-password")) {
+			
+			public boolean isEnabled() {
+				return getForm().getFormState()==FormState.EDIT;
+			}
+		};
 
+		this.form.add(emailField);
 		this.form.add(nameField);
 		this.form.add(passwordField);
 
@@ -119,7 +147,7 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
-				fire(new MenuAjaxEvent(ServerAppConstant.site_action_edit, target));
+				fire(new MenuAjaxEvent(ServerAppConstant.user_action_edit_pwd, target));
 			}
 
 			@Override
@@ -147,19 +175,28 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.form.setFormState(FormState.EDIT);
-		target.add(this.form);
+		target.add(this);
 	}
 
 	protected void onSave(AjaxRequestTarget target) {
 
 		try {
 
-			if (getModel().getObject().getPassword() == null)
-				throw new IllegalArgumentException("pwd is null");
+			//if (getModel().getObject().getPassword() == null)
+			//	throw new IllegalArgumentException("pwd is null");
 
+			
+			if (this.getNewPassword()!=null) 
+			{
+		        String hash = new BCryptPasswordEncoder().encode(getNewPassword() );
+				getModel().getObject().setPassword(hash);
+
+				save(getModelObject(), getSessionUser().get(), getUpdatedParts());
+				
+				
+			}
 			this.form.setFormState(FormState.VIEW);
-			target.add(this.form);
-			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
+			target.add(this);
 		
 		} catch (Exception e) {
 			addOrReplace(new SimpleAlertRow<Void>("error", e));
