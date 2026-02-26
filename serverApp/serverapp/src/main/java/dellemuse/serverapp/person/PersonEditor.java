@@ -101,6 +101,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 		form.setFormState(FormState.VIEW);
 
+		/**
 		cac = new WebMarkupContainer("createArtistContainer") {
 			public boolean isVisible() {
 				return getArtistDBService().getByPerson(getModel().getObject()).isEmpty();
@@ -111,13 +112,13 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		AjaxLink<Void> ca =new AjaxLink<Void>("createArtist") {
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				getArtistDBService().create( PersonEditor.this.getModel().getObject(), getRootUser());
+				getArtistDBService().create( Optional.of( PersonEditor.this.getModel().getObject() ), Optional.empty(), getRootUser());
 				fireScanAll(new ArtistCreateEvent("create-artist", target));
 			}
 		};
 		form.add(cac);
 		cac.add(ca);
-
+		 **/
 
 		/**
 		aac = new WebMarkupContainer("alreadyArtistContainer") {

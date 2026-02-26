@@ -31,6 +31,7 @@ import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.record.ArtistRecord;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
@@ -53,6 +54,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	static public final String INFO ="info";
 	static public final String INTRO ="intro";
 	static public final String PERSON ="person";
+	static public final String ARTIST ="artist";
 	
 	
 	static Map<Class<?>, DBService<?, Long>> map = new HashMap<Class<?>, DBService<?, Long>>();
@@ -191,7 +193,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	 * @param locale
 	 * @return
 	 */
-	@SuppressWarnings({ "unchecked", "unchecked" })
+	@SuppressWarnings({ "unchecked"  })
 	public int compareAudioLanguage(MultiLanguageObject o, Locale locale) {
 
 		Resource r;
@@ -360,9 +362,45 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	
 	
 	public String getPersonFirstLastName(Artist p, Locale locale) {
-		if (p==null)
-			return null;
-		return  getPersonFirstLastName(p.getPerson(), locale);
+		
+		final String key = getKey(p, ARTIST, locale.getLanguage());
+		final String value = getCache().getIfPresent(key);
+		 
+		if (value!=null) {
+			return value;
+		}
+		
+		String d;
+
+		String lang = locale.getLanguage();
+		if (lang.equals(p.getMasterLanguage()))
+			d = p.getFirstLastname();
+		else {
+
+			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(p.getClass());
+
+			if (service==null) {
+				logger.error("RecordDBService not found -> " + p.getClass().getName());
+				return p.getFirstLastname();
+			}
+			
+			
+			Optional<ArtistRecord> t = (Optional<ArtistRecord>) service.findByParentObject(p, lang);
+
+			if (t.isEmpty())
+				d= p.getFirstLastname();
+			else {
+				d = t.get().getFirstLastname();
+				
+				if (d == null)
+					d = p.getFirstLastname();
+			}
+		}
+		
+		if (d!=null)
+			getCache().put(key, d); 
+		
+		return d;
 	}
 	
 	@SuppressWarnings("unchecked")

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
-import dellemuse.serverapp.serverdb.model.Person;
+ 
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,6 +34,11 @@ public class ArtistRecord extends TranslationRecord {
 	@JsonProperty("artist")
 	private Artist artist;
 
+	@JsonProperty("lastname")
+	@Column(name = "lastname")
+	private String lastname;
+
+	
 	
 	public ArtistRecord() {
 	}
@@ -43,7 +48,26 @@ public class ArtistRecord extends TranslationRecord {
 		return ArtistRecord.class.getSimpleName();
 	}
 
+	
+	public String getFirstLastname() {
 
+		StringBuilder str = new StringBuilder();
+
+		if (getName() != null) {
+			str.append(getName());
+		}
+
+		if (getLastname() != null && getLastname().length() > 0) {
+			if (str.length() > 0)
+				str.append(" ");
+			str.append(getLastname());
+		}
+		return str.toString();
+	}
+	
+	 
+	
+	
 	public String getTitle() {
 		if (super.getTitle() != null)
 			super.getTitle();
@@ -79,8 +103,8 @@ public class ArtistRecord extends TranslationRecord {
 	}
 
 	
-	public void setArtist(Artist person) {
-		this.artist = person;
+	public void setArtist(Artist a) {
+		this.artist = a;
 	}
 
 	public String getLastFirstname() {
@@ -107,6 +131,13 @@ public class ArtistRecord extends TranslationRecord {
 		return artist;
 	}
 
-	 
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}
+	
+	public String getLastname() {
+		return lastname;
+	}
+
 
 }

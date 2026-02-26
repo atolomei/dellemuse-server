@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -13,6 +14,7 @@ import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.artist.ArtistPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
@@ -39,7 +41,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
- 
+import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanelMode;
@@ -47,6 +49,7 @@ import io.wktui.struct.list.ListPanelMode;
 /**
  * Site Information Exhibitions Artworks Exhibitions
  */
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/site/artists/${id}")
 public class SiteArtistsListPage extends ObjectListPage<Artist> {
 
@@ -58,7 +61,8 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 	private IModel<Site> siteModel;
 	
 	private List<ToolbarItem> listToolbar;
-
+	private List<ToolbarItem> mainToolbar;
+	
 	
 
 	public String getHelpKey() {
@@ -127,7 +131,7 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 	@Override
 	public Iterable<Artist> getObjects() {
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		return service.getArtistsBySite(getSiteModel().getObject());
+		return service.getArtistsByMainSite(getSiteModel().getObject());
 	}
 
 	@Override
@@ -142,24 +146,31 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 
 	@Override
 	public IModel<String> getObjectInfo(IModel<Artist> model) {
-		String str = TextCleaner.clean(model.getObject().getPerson().getInfo(), 280);
+		String str = TextCleaner.clean(model.getObject().getInfo(), 280);
 		return new Model<String>(str);
 	}
 
 	public IModel<String> getObjectSubtitle(IModel<Artist> model) {
 		if (model.getObject().getPerson().getSubtitle()==null)
 			return null;
-		String str = TextCleaner.clean(model.getObject().getPerson().getSubtitle(), 280);
+		String str = TextCleaner.clean(model.getObject().getSubtitle(), 280);
 		return new Model<String>(str);
 	}
 	
 	@Override
 	public void onClick(IModel<Artist> model) {
-		Person person=model.getObject().getPerson();
-		if (person!=null)
-			setResponsePage(new PersonPage( new ObjectModel<Person>(person)));
-		else
-			setResponsePage( new ErrorPage(Model.of("person not found")));
+		
+		
+		setResponsePage( new ArtistPage(model));
+		
+		//Person person=model.getObject().getPerson();
+		//if (person!=null) {
+		//	setResponsePage(new PersonPage( new ObjectModel<Person>(person)));
+		//}
+		//else {
+		//	setResponsePage( new ErrorPage(Model.of("person not found")));
+		//}
+	
 	}
 
 	@Override
@@ -172,17 +183,9 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 		return null;
 	}
 
-	@Override
-	public void onConfigure() {
-		super.onConfigure();
-		logger.debug("on configure");
-	}
+	 
 
-	@Override
-	public void onBeforeRender() {
-		super.onBeforeRender();
-		logger.debug("onBeforeRender");
-	}
+	 
 
 	
 	@Override
@@ -251,19 +254,13 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		//IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
-
-		
-		//IModel<String> selected = Model.of(ObjectStateEnumSelector.ALL.getLabel(getLocale()));
-		//ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-
-		//listToolbar.add(s);
- 
-		
+		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+		listToolbar.add(s);
+ 		
 		return listToolbar;
 	}
 
-	private List<ToolbarItem> mainToolbar;
 	
 	protected List<ToolbarItem> getMainToolbarItems() {
 		
@@ -271,6 +268,18 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 			return mainToolbar;
 
 		mainToolbar = new ArrayList<ToolbarItem>();
+
+		
+		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
+			private static final long serialVersionUID = 1L;
+
+			protected void onClick() {
+				SiteArtistsListPage.this.onCreate();
+			}
+		};
+		create.setAlign(Align.TOP_LEFT);
+		mainToolbar.add( create );
+		
 		mainToolbar.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
 		
@@ -283,6 +292,26 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 	}
 
 
+	protected void onCreate() {
+		
+		try {
+		Artist a = getArtistDBService().create(
+				Optional.empty(), 
+				Optional.of( getSiteModel().getObject()), 
+				getUserDBService().findRoot());
+		
+		
+		IModel<Artist> m = new ObjectModel<Artist>(a);
+		getList().add(m);
+		
+		setResponsePage(new ArtistPage(m, getList()));
+		
+		} catch (Exception e) {
+			logger.error(e);
+			setResponsePage( new ErrorPage(e));
+		}
+	}
+	
 	@Override
 	protected Panel getObjectListItemExpandedPanel(IModel<Artist> model, ListPanelMode mode) {
 		ArtistArtWorksPanel panel = new ArtistArtWorksPanel("expanded-panel", model, getSiteModel());
@@ -292,11 +321,24 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 
 	@Override
 	protected String getObjectImageSrc(IModel<Artist> model) {
-		if (model != null && model.getObject().getPerson().getPhoto() != null) {
-			Resource photo = getResource(model.getObject().getPhoto().getId()).get();
-			return getPresignedThumbnailSmall(photo);
-		}
-		return null;
+		
+		
+		if (model==null)
+			return null;
+		
+		if (model.getObject()==null)
+			return null;
+		
+		if (model.getObject().getPerson()==null)
+			return null;
+		
+		if (model.getObject().getPerson().getPhoto()==null)
+			return null;
+
+	
+		Resource photo = getResource(model.getObject().getPerson().getPhoto().getId()).get();
+		return getPresignedThumbnailSmall(photo);
+	
 	}
 
 	protected void addListeners() {

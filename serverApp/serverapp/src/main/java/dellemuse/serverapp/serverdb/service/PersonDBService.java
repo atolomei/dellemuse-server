@@ -95,6 +95,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
     public Person create(String name, User createdBy, Optional<String> o_lastname, Optional<String> o_sex,
                          Optional<String> o_pid, Optional<String> o_address, Optional<String> o_zip,
                          Optional<String> o_phone, Optional<String> o_email) {
+    	
         Person c = new Person();
         c.setName(name);
         
@@ -165,6 +166,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 			aw.setPhoto( getResourceDBService().findById(photo.getId()).get());
 		
 		User user = aw.getUser();
+		
 		if (user!=null)
 			aw.setUser(getUserDBService().findById(user.getId()).get());
 		

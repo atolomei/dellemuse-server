@@ -34,7 +34,7 @@ public class PersonRecord extends TranslationRecord {
 	private Person person;
 
 	
-	@JsonProperty("person")
+	@JsonProperty("lastname")
 	@Column(name = "lastname")
 	private String lastname;
 	

@@ -29,9 +29,11 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import io.wktui.error.ErrorPanel;
 import io.wktui.model.TextCleaner;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
+import wktui.base.DummyBlockPanel;
 import wktui.base.InvisiblePanel;
 
 @AuthorizeInstantiation({"ROLE_USER"})
@@ -109,18 +111,34 @@ public class DellemuseServerAppHomePage extends BasePage {
 	public void onInitialize() {
 		super.onInitialize();
 
+			try {
+				Optional<User> o = super.getSessionUser();
+		
+				if (o.isEmpty()) {
+					throw new RuntimeException("no session");
+				}
+				
+				setModel(new ObjectModel<User>(o.get()));
+				add(new GlobalTopPanel("top-panel", getModel()));
+				add(new InvisiblePanel("footer-panel"));
+				
+				//if (isRoot())
+					add( new HomeAdminMainPanel("mainPanel", getModel()));
+				//else
+				//	add( new DummyBlockPanel("mainPanel" ));
+						
+				// add(new GlobalFooterPanel<Void>("footer-panel"));
 	
-		Optional<User> o = super.getSessionUser();
-
-		setModel(new ObjectModel<User>(o.get()));
-
-		addSites();
-
-		add(new GlobalTopPanel("top-panel", getModel()));
-		add(new InvisiblePanel("footer-panel"));
-
-		// add(new GlobalFooterPanel<Void>("footer-panel"));
-
+				// addSites();
+				
+				
+			} catch (Exception e) {
+				logger.error(e);
+				
+				add(new InvisiblePanel("top-panel"));
+				add(new InvisiblePanel("footer-panel"));
+				add(new ErrorPanel("mainPanel", e));
+			}
 	}
 
 	public IModel<User> getModel() {

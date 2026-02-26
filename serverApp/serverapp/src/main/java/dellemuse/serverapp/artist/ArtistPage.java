@@ -71,7 +71,6 @@ import wktui.base.NamedTab;
  * 
  */
 @AuthorizeInstantiation({"ROLE_USER"})
-
 @MountPath("/artist/${id}")
 public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 
@@ -183,9 +182,9 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 		bc.addElement(new HREFBCElement("/artist/list", getLabel("artists")));
 		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getFirstLastname())));
 
-		 
+		
 		JumboPageHeaderPanel<Artist> ph = new JumboPageHeaderPanel<Artist>("page-header", getModel(),
-				new Model<String>(getModel().getObject().getName()));
+																			getObjectTitle(getModel().getObject()));
 		ph.setBreadCrumb(bc);
 		
 		 ph.setContext(getLabel("artist-title"));
@@ -355,6 +354,13 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 				if (event.getName().equals(ServerAppConstant.action_person_edit_info)) {
 					ArtistPage.this.onEdit(event.getTarget());
 				}
+				
+				if (event.getName().equals(ServerAppConstant.action_artist_edit)) {
+					ArtistPage.this.onEdit(event.getTarget());
+				}
+				
+				
+				
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
 					ArtistPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
 				}

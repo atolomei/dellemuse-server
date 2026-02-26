@@ -30,9 +30,6 @@ import jakarta.persistence.Table;
 @Table(name = "person")
 @JsonInclude(Include.NON_NULL)
 public class Person extends MultiLanguageObject {
-
-	
-
 	
 	@Column(name = "lastname")
 	private String lastname;
@@ -80,19 +77,6 @@ public class Person extends MultiLanguageObject {
 		return Icons.Person;
 	}
 	
-	
-
-	
-	/**
-	@ManyToMany(mappedBy = "artists", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("artists")
-    private Set<ArtWork> artworks = new HashSet<>();
-
-    public Set<ArtWork> getArtworks() {
-        return artworks;
-    }
-	**/
-	
 	public Person() {
 	}
 
@@ -119,10 +103,10 @@ public class Person extends MultiLanguageObject {
 	 * https://stackoverflow.com/questions/21708339/avoid-jackson-serialization-on-non-fetched-lazy-objects/21760361#21760361
 	 * 
 	 * 
-	 * spring.jpa.open-in-view=false
-spring.jpa.hibernate.ddl-auto=validate
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
+	 * 	spring.jpa.open-in-view=f alse
+		spring.jpa.hibernate.ddl-auto=validate
+		spring.jpa.show-sql=true
+		spring.jpa.properties.hibernate.format_sql=true
 
 	 * 
 	 */
@@ -252,8 +236,6 @@ spring.jpa.properties.hibernate.format_sql=true
 		return str.toString();
 	}
 
-	
-	
 	public String getWebpage() {
 		return webpage;
 	}

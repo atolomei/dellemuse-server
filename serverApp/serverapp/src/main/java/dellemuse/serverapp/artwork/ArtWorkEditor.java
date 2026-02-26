@@ -473,7 +473,9 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			set.forEach(i -> selected.add(new ObjectModel<Artist>(i)));
 		}
 
-		getArtistDBService().findAllSorted(getSiteModel().getObject(), ObjectState.PUBLISHED, ObjectState.PUBLISHED).forEach(a -> choices.add(new ObjectModel<Artist>(a)));
+		getSiteDBService().getArtistsByMainSite(getSiteModel().getObject(), ObjectState.PUBLISHED, ObjectState.EDITION).forEach(a -> choices.add(new ObjectModel<Artist>(a)));
+		
+		// getArtistDBService().findAll .findortedMultiSitesAllSorted(getSiteModel().getObject(), ObjectState.PUBLISHED, ObjectState.PUBLISHED).forEach(a -> choices.add(new ObjectModel<Artist>(a)));
 
 	}
 

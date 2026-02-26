@@ -132,8 +132,14 @@ public class LoginPage extends BasePage {
 
 		if (isError()) {
 			alert = new AlertPanel<Void>("alert", AlertPanel.DANGER, getLabel("username-password-invalid"));
-
+			
+			
+			alert.setAlertTextContainerCss("col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center");
 			alertContainer.add(alert);
+
+		
+			
+		
 		} else {
 			alertContainer.setVisible(false);
 			alertContainer.add(new InvisiblePanel("alert"));
@@ -159,6 +165,9 @@ public class LoginPage extends BasePage {
 				    if (!session.signIn(email, password)) {
 				        logger.error("Invalid username or password -> u." + email);
 				        error("Invalid username or password");
+				        
+				        getPageParameters().set("error", "Invalid username or password");
+				        setResponsePage( new LoginPage( getPageParameters()));
 				        return;
 				    }
 
@@ -185,7 +194,9 @@ public class LoginPage extends BasePage {
 
 			@Override
 			protected void onError() {
-				logger.error("error");
+				  getPageParameters().set("error", "Invalid username or password");
+			        setResponsePage( new LoginPage( getPageParameters()));
+			        return;
 			}
 		};
 

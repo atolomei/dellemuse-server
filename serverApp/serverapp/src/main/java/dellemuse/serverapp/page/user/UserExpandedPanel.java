@@ -317,7 +317,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 					@Override
 					protected String getImageSrc() {
 						return null;
-						// return UserRolesPanel.this.getObjectImageSrc(getModel());
+						//return UserExpandedPanel.this.getObjectImageSrc(getModel());
 					}
 
 					@Override
@@ -365,6 +365,11 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 		userRolesPanel.setSettings(false);
 		userRolesPanel.setHasExpander(false);
 		userRolesPanel.setItemMenu(false);
+	}
+
+	protected String getObjectImageSrc(IModel<Role> model) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**

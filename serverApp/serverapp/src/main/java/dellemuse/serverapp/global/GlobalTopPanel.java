@@ -35,18 +35,14 @@ public class GlobalTopPanel extends ModelPanel<User> {
 	private String srcUrl;
 	
 	private Panel userGlobalTopPanel;
-	//private Panel languagePanel;
-	
-	
+	 
 	public GlobalTopPanel(String id) {
 		this(id, null,  null);
 	}
 	
-	
 	public GlobalTopPanel(String id, IModel<User> model) {
 		super(id, model);
 	}
-	
 	
 	public GlobalTopPanel(String id,  IModel<User> userModel, String srcUrl) {
 		super(id, userModel);

@@ -274,7 +274,9 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 		});
 		return list;
 **/
-		return null;
+		
+		throw new RuntimeException("not done");
+		 
 		
 	}
 

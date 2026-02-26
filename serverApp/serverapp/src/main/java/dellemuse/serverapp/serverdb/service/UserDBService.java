@@ -67,7 +67,7 @@ public class UserDBService extends DBService<User, Long> {
 
     @Transactional
     public User create(String name, User createdBy) {
-        return create(name, null, createdBy);
+        return create(name, Optional.empty(), createdBy);
     }
 
     /**
@@ -76,7 +76,7 @@ public class UserDBService extends DBService<User, Long> {
      * @param createdBy user who creates this User
      */
     @Transactional
-    public User create(String name, Person person, User createdBy) {
+    public User create(String name, Optional<Person> person, User createdBy) {
       
     	User c = new User();
         c.setName(name);
@@ -89,10 +89,6 @@ public class UserDBService extends DBService<User, Long> {
         c.setLastModifiedUser(createdBy);
         c.setZoneId( getSettings().getDefaultZoneId() );
         c.setState(ObjectState.PUBLISHED);
-
-        
-        c.setPhone(person.getPhone());
-        c.setEmail(person.getEmail());
         
         String hash = new BCryptPasswordEncoder().encode("dellemuse");
         c.setPassword(hash);
@@ -101,9 +97,16 @@ public class UserDBService extends DBService<User, Long> {
         getRepository().save(c);
         getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
         
-        if (person != null) {
-            person.setUser(c);
-            getPersonDBService().save(person);
+        if (person.isPresent()) {
+        	c.setPhone(person.get().getPhone());
+            c.setEmail(person.get().getEmail());
+            person.get().setUser(c);
+            getPersonDBService().save(person.get());
+        }
+        
+        else {
+        	getPersonDBService().create(null, name, createdBy);
+        	 getPersonDBService().save(person.get());
         }
         return c;
     }
@@ -114,7 +117,6 @@ public class UserDBService extends DBService<User, Long> {
 			super.save(o);
 			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 	}
-	
 	
 
 	@Transactional
@@ -173,7 +175,7 @@ public class UserDBService extends DBService<User, Long> {
 
 	}
 	
-	 //@Transactional
+	 @Transactional
 	 public Iterable<Role> getUserRoles(User u) {
 
 		List<Role> list = new ArrayList<Role>();
@@ -192,6 +194,36 @@ public class UserDBService extends DBService<User, Long> {
 		
 		return list;
 	}
+	 
+	 
+	 @Transactional
+	 public Iterable<Site> getUserAuthorizedSites(User u) {
+
+		 
+		 if (!u.isDependencies()) {
+			 u=findWithDeps(u.getId()).get();
+		 }
+	
+		 List<Site> list = new ArrayList<Site>();
+
+		u.getRolesInstitution().forEach( r -> 
+		{
+			((RoleInstitution) getRoleDBService().findById(r.getId()).get()).getInstitution().getSites().forEach( s -> 
+				list.add(s));
+		}); 
+	
+		u.getRolesSite().forEach( r -> list.add(r.getSite()) ); 
+		
+		list.sort( new Comparator<Site>() {
+			@Override
+			public int compare(Site o1, Site o2) {
+				return o1.getName().compareToIgnoreCase(o2.getName());
+			}
+		});
+		
+		return list;
+	}
+	 
 	
 	
     @Transactional

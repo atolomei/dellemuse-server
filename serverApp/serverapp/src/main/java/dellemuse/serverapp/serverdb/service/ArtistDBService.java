@@ -62,15 +62,49 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 		super(repository, settings);
 		this.personRecordDBService = personRecordDBService;
 	}
+	
+	@Transactional
+	public Artist create(Site site, User createdBy) {
+		return create( Optional.empty(), Optional.of(site), createdBy);
+		
+		 
+	}
+
+	
 
 	@Transactional
-	public Artist create(Person person, User createdBy) {
+	public Artist create(Optional<Person> operson, Optional<Site> osite, User createdBy) {
+	
 		Artist c = new Artist();
-		c.setPerson(person);
 
-		c.setMasterLanguage(person.getMasterLanguage());
-		c.setLanguage(person.getLanguage());
+		if (operson.isPresent()) {
+			c.setPerson(operson.get());
+			c.setMasterLanguage(operson.get().getMasterLanguage());
+			c.setLanguage(operson.get().getLanguage());
+			c.setName(operson.get().getName());
+			c.setLastname(operson.get().getLastname());
+		}
 
+		if (osite.isPresent()) {
+			c.setSite(osite.get());
+			c.setMasterLanguage(osite.get().getMasterLanguage());
+			c.setLanguage(osite.get().getLanguage());
+			
+			if (c.getLastname()==null) 
+				c.setLastname("artist " + osite.get().getName());
+			}
+
+		if (c.getMasterLanguage()==null) {
+			c.setMasterLanguage(this.getDefaultMasterLanguage());
+		}
+
+		if (c.getLanguage()==null) {
+			c.setLanguage(this.getDefaultMasterLanguage());
+		}
+		
+		if (c.getLastname()==null) 
+			c.setLastname("new");
+		
 		c.setObjectState(ObjectState.PUBLISHED);
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -127,6 +161,9 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 		if (user!=null)
 			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
 		
+		if (aw.getSite()!=null) {
+			aw.setSite(getSiteDBService().findById(aw.getSite().getId()).get());
+		}
 		
 		if (aw.getArtistSites()!=null) {
 			Set<Site> s = new HashSet<Site>();
@@ -140,31 +177,29 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 
 	@Transactional
 	public Iterable<Artist> findAllSorted() {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Artist> cq = cb.createQuery(getEntityClass());
 		Root<Artist> root = cq.from(getEntityClass());
-		cq.orderBy(cb.asc(root.get("person").get("sortlastfirstname")));
-
+		cq.orderBy(cb.asc(root.get("sortlastfirstname")));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-
 	
 
 	@Transactional
 	public Iterable<Artist> findAllSorted(ObjectState os1) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Artist> cq = cb.createQuery(getEntityClass());
 		Root<Artist> root = cq.from(getEntityClass());
 		Predicate p1 = cb.equal(root.get("state"), os1);
 		cq.select(root).where(p1);
-		cq.orderBy(cb.asc(root.get("person").get("sortlastfirstname")));
+		cq.orderBy(cb.asc(root.get("sortlastfirstname")));
 
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
 	@Transactional
 	public Iterable<Artist> findAllSorted(ObjectState os1, ObjectState os2) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Artist> cq = cb.createQuery(getEntityClass());
 		Root<Artist> root = cq.from(getEntityClass());
 		
@@ -173,15 +208,37 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 		Predicate combinedPredicate = cb.or(p1, p2);
 		cq.select(root).where(combinedPredicate);
 		
-		cq.orderBy(cb.asc(root.get("person").get("sortlastfirstname")));
+		cq.orderBy(cb.asc(root.get("sortlastfirstname")));
 
 		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	@Transactional
+	public Iterable<Artist> findSiteAllSorted(Site site, ObjectState os1, ObjectState os2) {
+
+		  CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		    CriteriaQuery<Artist> cq = cb.createQuery(getEntityClass());
+		    Root<Artist> root = cq.from(getEntityClass());
+
+		    Predicate statePredicate = cb.or(
+		        cb.equal(root.get("state"), os1),
+		        cb.equal(root.get("state"), os2)
+		    );
+
+			Predicate sitePredicate = cb.equal(root.get("site").get("id"), String.valueOf(site.getId()));
+
+			Predicate finalPredicate = cb.and(statePredicate, sitePredicate);
+
+			cq.select(root).where(finalPredicate);
+			cq.orderBy(cb.asc(cb.lower(root.get("sortlastfirstname"))));
+		    		    
+		    return getEntityManager().createQuery(cq).getResultList();
 	}
 	
 	
 	
 	@Transactional
-	public Iterable<Artist> findAllSorted(Site site, ObjectState os1, ObjectState os2) {
+	public Iterable<Artist> findortedMultiSitesAllSorted(Site site, ObjectState os1, ObjectState os2) {
 
 		  CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		    CriteriaQuery<Artist> cq = cb.createQuery(getEntityClass());
@@ -206,7 +263,7 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 		    cq.select(root)
 		      .where(cb.and(statePredicate, cb.exists(sub)))
 		      //.orderBy(cb.asc(cb.lower(root.get("name"))));
-		      .orderBy(cb.asc(root.get("person").get("sortlastfirstname")));
+		      .orderBy(cb.asc(root.get("sortlastfirstname")));
 		    
 		    return getEntityManager().createQuery(cq).getResultList();
 	}

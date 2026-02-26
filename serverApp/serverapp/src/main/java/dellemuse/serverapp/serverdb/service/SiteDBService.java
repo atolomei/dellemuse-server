@@ -333,7 +333,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		cq.select(root).where(cb.equal(cb.lower(root.get("shortName")), name.toLowerCase()));
 		cq.orderBy(cb.asc(root.get("id")));
 
-		List<Site> list = this.entityManager.createQuery(cq).getResultList();
+		List<Site> list = this.getEntityManager().createQuery(cq).getResultList();
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
 	}
 
@@ -462,28 +462,50 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	 */
 
 	@Transactional
-	public Set<Artist> getSiteArtists(Long siteId) {
+	public List<Artist> getArtistsByMainSite(Site site) {
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-		CriteriaQuery<ArtWork> cq = cb.createQuery(ArtWork.class);
+		CriteriaQuery<Artist> cq = cb.createQuery(Artist.class);
 
-		Root<ArtWork> root = cq.from(ArtWork.class);
-		cq.select(root).where(cb.equal(root.get("site").get("id"), siteId));
-
-		List<ArtWork> list = getEntityManager().createQuery(cq).getResultList();
-
-		TreeSet<Artist> ts = new TreeSet<>( new Comparator<Artist>() {
-			@Override
-			public int compare(Artist o1, Artist o2) {
-			 return o1.getDisplayname().compareToIgnoreCase(o2.getDisplayname());
-			}
-		});
+		Root<Artist> root = cq.from(Artist.class);
+		cq.select(root).where(cb.equal(root.get("site").get("id"), site.getId()));
+		cq.orderBy(cb.asc(root.get("sortlastfirstname")));
 		
-		list.forEach( e -> e.getArtists().forEach(a -> ts.add(a)));
-
-		return ts;
+		List<Artist> list = getEntityManager().createQuery(cq).getResultList();
+		return list;
 	}
+	
+	
+	@Transactional
+	public List<Artist> getArtistsByMainSite(Site site, ObjectState o1, ObjectState o2) {
 
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Artist> cq = cb.createQuery(Artist.class);
+
+		Root<Artist> root = cq.from(Artist.class);
+
+		
+
+	    Predicate statePredicate = cb.or(
+	        cb.equal(root.get("state"), o1),
+	        cb.equal(root.get("state"), o2)
+	    );
+
+	    
+		Predicate sitePredicate = cb.equal(root.get("site").get("id"), String.valueOf(site.getId()));
+		Predicate finalPredicate = cb.and(statePredicate, sitePredicate);
+
+		cq.select(root).where(finalPredicate);
+	
+		cq.orderBy(cb.asc(root.get("sortlastfirstname")));
+		
+		List<Artist> list = getEntityManager().createQuery(cq).getResultList();
+		return list;
+	}
+	
+
+	
+	
 	
 	/**
 	 * returns Artists that have the Site assigned in their Artist Profile
@@ -492,32 +514,15 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	 * @return
 	 */
 	@Transactional
-	public List<Artist> getArtistsBySite(Site site) {
-		
-		/**
-		Set<Artist> s= getSiteArtists(siteId);
-		List<Artist> l  = new ArrayList<Artist>();
-		s.forEach(i-> l.add(i));
-		return l;
-		**/
+	public List<Artist> getArtistsBySecondarySite(Site site) {
 		List<Artist> list  = new ArrayList<Artist>();
-		getArtistDBService().findAllSorted(site, ObjectState.EDITION, ObjectState.PUBLISHED).forEach(a -> list.add(a));
+		getArtistDBService().findortedMultiSitesAllSorted(site, ObjectState.EDITION, ObjectState.PUBLISHED).forEach(a -> list.add(a));
 		return list;
-		
-		
-		/**
-		s.forEach(a -> logger.debug(a.getDisplayname()));
-		
-		List<Artist> list = getArtistRepository().findDistinctArtistsBySiteId(siteId);
-		
-		return list;
-**/
 		
 	}
 
 
 	public boolean isDetached(Site entity) {
-		
 		return !getEntityManager().contains(entity);
 	}
 
@@ -542,8 +547,6 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 		Predicate finalPredicate = cb.and(p_site, p_artwork);
 		cq.select(root).where(finalPredicate);
-		// cq.orderBy(cb.asc(cb.lower(root.get("name"))));
-		
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	

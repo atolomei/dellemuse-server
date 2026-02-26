@@ -47,6 +47,7 @@ import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.odilon.util.Check;
+import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
@@ -218,19 +219,29 @@ public class SitePage extends BasePage {
 			return;
 		}
 
-		add(new InvisiblePanel("error"));
-
-		setCurrent();
-		addHeader();
-
-		add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
-		add(new GlobalFooterPanel<>("footer-panel"));
+		
+		
 
 		if (!hasAccessRight(getSessionUser())) {
-			SimpleAlertRow<Void> r = new SimpleAlertRow<Void>("error");
-			r.setText(getLabel("not-authorized"));
-			addOrReplace(r);
+			addOrReplace(new InvisiblePanel("top-panel"));
+			addOrReplace(new InvisiblePanel("footer-panel"));
 
+			SimpleAlertRow<Void> r;
+			
+			if (getSessionUser().isEmpty()) {
+				r = new SimpleAlertRow<Void>("error");
+				r.setAlertType(AlertPanel.INFO);
+				r.setText(Model.of("no session please sign in"));
+			}
+			else {
+				r = new SimpleAlertRow<Void>("error");
+				r.setAlertType(AlertPanel.WARNING);
+				r.setText(getLabel("not-authorized"));
+			}
+			
+			addOrReplace(r);
+			
+			addOrReplace(new InvisiblePanel("page-header"));
 			addOrReplace(new InvisiblePanel("brandedSiteContainer"));
 			addOrReplace(new InvisiblePanel("navigatorContainer"));
 			addOrReplace(new InvisiblePanel("exhibitionsContainer"));
@@ -240,6 +251,15 @@ public class SitePage extends BasePage {
 			addOrReplace(new InvisiblePanel("securityContainer"));
 			return;
 		}
+
+		add(new InvisiblePanel("error"));
+
+		setCurrent();
+		addHeader();
+
+		add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
+		add(new GlobalFooterPanel<>("footer-panel"));
+
 
 		addSiteInfo();
 		addCatalog();

@@ -142,19 +142,14 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	public void onInitialize() {
 		super.onInitialize();
 
-		
 		if (getObjectStateEnumSelector()==null)
 			setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
-		
 		
 		helpContainer = new WebMarkupContainer("helpContainer");
 		helpContainer.setOutputMarkupId(true);
 		add(helpContainer);
 		helpContainer.add( new InvisiblePanel("help"));
-		//helpContainer.setVisible(false);
-		
-		
-		
+	 	
 		contentsContainerContainer = new WebMarkupContainer("contentsContainer");
 		contentsContainerContainer.setOutputMarkupId(true);
 		add(contentsContainerContainer);
@@ -171,10 +166,15 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		contentsContainerContainer.add(errorContainer);
 
 		try {
-			add(new GlobalTopPanel("top-panel", new ObjectModel<User>(getSessionUser().get())));
-			// super.add(new GlobalFooterPanel<>("footer-panel"));
+			
+			Optional<User> ou=getSessionUser();
+			
+			if (ou.isPresent())
+				add(new GlobalTopPanel("top-panel", new ObjectModel<User>(ou.get())));
+			else
+				add(new InvisiblePanel("top-panel"));
 			add(new InvisiblePanel("footer-panel"));
-
+			
 		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("top-panel", e));

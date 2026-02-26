@@ -34,7 +34,8 @@ import dellemuse.serverapp.security.config.ImpersonationService;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-
+import dellemuse.serverapp.serverdb.model.Person;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
@@ -200,7 +201,22 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	protected String getObjectImageSrc(IModel<User> model) {
+		
+		
+		Optional<Person> ouser = getPersonDBService().getByUser(model.getObject());
+		
+		if (ouser.isEmpty())
+			return null;
+	
+		if ( ouser.get().getPhoto()!=null) {
+			
+			Optional<Resource> or = getResourceDBService().findById( ouser.get().getPhoto().getId());
+			if (or.isPresent()) {
+				return super.getPresignedThumbnailSmall(or.get());
+			}
+		}
 		return null;
+	
 	}
 
 	@Override

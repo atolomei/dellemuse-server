@@ -14,7 +14,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
-
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
 import org.apache.wicket.model.util.ListModel;
@@ -64,8 +64,10 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 	private ChoiceField<ObjectState> objectStateField;
 	private TextField<String> nicknameField;
 	private TextAreaField<String> infoField;
-	private MultipleSelectField<Site> mSiteField;
+	// private MultipleSelectField<Site> mSiteField;
 
+	private StaticTextField<String> siteField;
+	
 	private List<IModel<Site>> selected;
 	private List<IModel<Site>> choices;
 
@@ -85,21 +87,17 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 		
 		selected = new ArrayList<IModel<Site>>();
 		choices = new ArrayList<IModel<Site>>();
-
 		
 		
 		Set<Site> set = getModel().getObject().getArtistSites();
 		if (set != null && set.size() > 0) {
 		 	set.forEach(i -> selected.add(new ObjectModel<Site>(i)));
-
-		 	
 		 	selected.sort( new Comparator<IModel<Site>> () {
 				@Override
 				public int compare(IModel<Site> o1, IModel<Site>  o2) {
 					return o1.getObject().getName().compareToIgnoreCase(o2.getObject().getName());
 				}
 		 	});
-		
 		}
 		getSiteDBService().findAllSorted(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(a -> choices.add(new ObjectModel<Site>(a)));
 	}
@@ -121,8 +119,13 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 		form.setFormState(FormState.VIEW);
 		
 		
-		form.add(new StaticTextField<String>("name", new PropertyModel<String>(getModel(), "firstLastname"), getLabel("name") ));
+		
+		form.add(new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name") ));
+		form.add(new TextField<String>("lastname", new PropertyModel<String>(getModel(), "lastname"), getLabel("lastname") ));
 
+		
+		
+/**
 		mSiteField = new MultipleSelectField<Site>("sites", getSelected(), getLabel("sites"), getChoices()) {
 
 			private static final long serialVersionUID = 1L;
@@ -152,7 +155,8 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 		};
 		form.add(mSiteField);
 		
-
+*/
+		
 		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 
 			private static final long serialVersionUID = 1L;
@@ -177,6 +181,11 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 
 		form.add(objectStateField);
 
+		siteField = new StaticTextField<String>("site", Model.of( getModel().getObject().getSite().getName()), getLabel("site"));
+		form.add(siteField);
+
+		
+		
 		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
 		nicknameField = new TextField<String>("nickname", new PropertyModel<String>(getModel(), "nickname"), getLabel("nickname"));
 
@@ -319,14 +328,22 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 				return;
 			}
 			
+			/**
 			if (this.getSelected() != null) {
 				Set<Site> set = new HashSet<Site>();
 				getSelected().forEach(i-> set.add(i.getObject()));
 				getModel().getObject().setArtistSites(set);
+				
+				Optional<Site> optional = set.stream().findFirst();
+				    if (optional.isPresent()) {
+				        Site retrieved = optional.get();
+						getModel().getObject().setSite(retrieved);
+				    }
 			}
 			else {
 				getModel().getObject().setArtistSites(null);
 			}
+			**/
 			
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 

@@ -225,6 +225,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	
 	}
 
+	/**
 	protected Panel getArtistEditor(String id) {
 		Optional<Artist> a =getArtistDBService().getByPerson(getModel().getObject());
 		if ( a.isEmpty() ) {
@@ -236,6 +237,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		}
 		return this.artistEditor;
 	}
+	**/
 	
 	@Override
 	protected IRequestablePage getObjectPage(IModel<Person> model, List<IModel<Person>> list) {
@@ -285,7 +287,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		});
 
 		
-		
+		/**
 		Optional<Artist> a = getArtistDBService().getByPerson(getModel().getObject());
 		
 		if (a.isPresent()) {
@@ -323,7 +325,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 			});
 			
 		}
-		
+		**/
 		
 		User user= PersonPage.this.getModel().getObject().getUser();
 		
@@ -543,6 +545,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		};
 		tabs.add(tab_1);
 		
+		/**
 		NamedTab tab_2 = new NamedTab(Model.of("artist"), ServerAppConstant.person_artist) {
 			private static final long serialVersionUID = 1L;
 
@@ -552,7 +555,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 			}
 		};
 		tabs.add(tab_2);
-		
+		**/
 		
 
 		if (getStartTab()==null)
