@@ -91,6 +91,40 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         return c;
     }
 
+    
+
+    @Transactional
+    public Person create(String name,  String lastname, User user, User createdBy) {
+
+    	Person c = new Person();
+        
+    	c.setName(name);
+        
+    	c.setUser( user );
+        
+        c.setMasterLanguage(getDefaultMasterLanguage());
+        c.setLanguage(getDefaultMasterLanguage());
+        
+        c.setLastname(lastname);
+        c.setLastnameKey(nameKey(lastname));
+         
+        c.setObjectState(ObjectState.PUBLISHED);
+        
+        c.setCreated(OffsetDateTime.now());
+        c.setLastModified(OffsetDateTime.now());
+        c.setLastModifiedUser(createdBy);
+        
+ 		getRepository().save(c);
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+
+		for ( Language la:getLanguageService().getLanguages() )
+			getPersonRecordDBService().create(c, la.getLanguageCode(),  createdBy);
+		
+        return c;
+    }
+
+    
+    
     @Transactional
     public Person create(String name, User createdBy, Optional<String> o_lastname, Optional<String> o_sex,
                          Optional<String> o_pid, Optional<String> o_address, Optional<String> o_zip,

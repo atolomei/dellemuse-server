@@ -1,33 +1,16 @@
 package dellemuse.serverapp.serverdb.service.security;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 
-import org.apache.wicket.Component;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
-import dellemuse.serverapp.audit.AuditKey;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.AuditAction;
-import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
-import dellemuse.serverapp.serverdb.model.Institution;
-
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
@@ -80,7 +63,6 @@ public class RoleDBService extends DBService<Role, Long> {
 		CriteriaQuery<Role> cq = cb.createQuery(getEntityClass());
 		Root<Role> root = cq.from(getEntityClass());
 		cq.select(root);
-		
 		
 		Iterable<Role> it = getEntityManager().createQuery(cq).getResultList();
 

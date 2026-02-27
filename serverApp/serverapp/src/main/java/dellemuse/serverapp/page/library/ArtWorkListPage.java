@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -75,6 +76,7 @@ import io.wktui.struct.list.ListPanelMode;
  * 
  */
 
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/artwork/list")
 public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 
@@ -93,6 +95,13 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		super(parameters);
 	}
 
+	
+	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		if (ouser.isEmpty())

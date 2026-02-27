@@ -44,7 +44,7 @@ public class HelpButtonToolbarItem extends AjaxButtonToolbarItem<String> {
 
 	@Override
 	protected void onCick(AjaxRequestTarget target) {
-		fire(new   HelpAjaxEvent(ServerAppConstant.help, target));
+		fire(new HelpAjaxEvent(ServerAppConstant.help, target));
 		
 	}
 	

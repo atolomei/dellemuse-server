@@ -20,6 +20,8 @@ import dellemuse.serverapp.artexhibition.ArtExhibitionEXTNavDropDownMenuToolbarI
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 
@@ -55,7 +57,6 @@ import wktui.base.NamedTab;
 
 
 @AuthorizeInstantiation({"ROLE_USER"})
-
 @MountPath("/guide/${id}")
 public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitionGuide, ArtExhibitionGuideRecord> {
 
@@ -92,6 +93,11 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		super(model, list);
 	}
 
+
+	public String getHelpKey() {
+		return Help.ARTEXHIBITION_GUIDE_INFO;
+	}
+	
 	public IModel<Site> getSiteModel() {
 		return this.siteModel;
 	}
@@ -239,6 +245,9 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 	protected void onGuideCreate(AjaxRequestTarget target) {
 	}
 
+	
+	
+	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 
@@ -261,6 +270,12 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 
 		list.add(site);
+		
+		
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
+		
+		
 		return list;
 	}
 

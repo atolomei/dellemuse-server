@@ -20,6 +20,8 @@ import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
@@ -131,6 +133,12 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 	}
 
+
+	public String getHelpKey() {
+		return Help.INSTITUTION_INFO;
+	}
+	
+	
 	@Override
 	protected boolean isLanguage() {
 		return false;
@@ -457,6 +465,11 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 
 		list.add(menu);
 
+		
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
+		
+		
 		return list;
 	}
 

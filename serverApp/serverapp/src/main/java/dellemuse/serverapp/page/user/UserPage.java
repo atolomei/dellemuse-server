@@ -49,8 +49,8 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
-@AuthorizeInstantiation({"ROLE_USER"})
 
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/user/${id}")
 public class UserPage extends ObjectPage<User> {
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -46,6 +47,7 @@ import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/voice/list")
 public class VoiceListPage extends ObjectListPage<Voice> {
 
@@ -56,13 +58,6 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 	private List<ToolbarItem> mainToolbar;
 	private List<ToolbarItem> listToolbar;
 
-	
-	private Boolean isCreate = Boolean.valueOf(false);
-	
-	public String getHelpKey() {
-		return Help.VOICES;
-	}
-	
 	
 	public VoiceListPage() {
 		super();
@@ -80,6 +75,17 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 
 	}
  
+	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	
+	public String getHelpKey() {
+		return Help.VOICES;
+	}
+	
+	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -102,6 +108,10 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 		if (ouser.isEmpty())
 			return false;
 		
+		return true;
+		
+		/**
+
 		User user = ouser.get();  
 
 		if (user.isRoot()) 
@@ -118,12 +128,36 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 		isCreate = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)));
 		
 		return isCreate || (set.stream().anyMatch((p ->   p.getKey().equals(RoleGeneral.AUDIT) )));
+		 */
+	
 	}
 	
 
 	
-	public boolean canCreate() {
-		return isCreate;
+	public boolean isAdmin() {
+
+			if (isRoot())
+				return true;
+	
+			return isGeneralAdmin();
+
+			
+			/**		
+			User user = getSessionUser().get();
+			
+			if (!user.isDependencies()) {
+				user = getUserDBService().findWithDeps(user.getId()).get();
+			}
+			
+			Set<RoleGeneral> set = getSessionUser().get().getRolesGeneral();
+			
+			if (set==null)
+				return false;
+	
+			isAdmin = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)));
+		}
+		return isAdmin;
+		*/
 	}
 	
 	
@@ -150,18 +184,20 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
 
-			public boolean isEnabled() {
-				return canCreate();
+			public boolean isVisible() {
+				return isAdmin();
 			}
-			
-			
+
+			public boolean isEnabled() {
+				return isAdmin();
+			}
+
 			protected void onClick() {
 				VoiceListPage.this.onCreate();
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
 		mainToolbar.add(create);
-
 		
 		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
 		mainToolbar.add(h);

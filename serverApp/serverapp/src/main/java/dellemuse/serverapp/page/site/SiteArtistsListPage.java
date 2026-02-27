@@ -273,6 +273,14 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
 
+			public boolean isEnabled() {
+				return canEdit();
+			}
+
+			public boolean isVisible() {
+				return canEdit();
+			}
+			
 			protected void onClick() {
 				SiteArtistsListPage.this.onCreate();
 			}

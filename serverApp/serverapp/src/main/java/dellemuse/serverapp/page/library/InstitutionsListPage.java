@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -43,6 +44,7 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 
 @MountPath("/institution/list")
+@AuthorizeInstantiation({"ROLE_USER"})
 public class InstitutionsListPage extends ObjectListPage<Institution> {
 
 	private static final long serialVersionUID = 1L;
@@ -140,6 +142,14 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
 
+			public boolean isEnabled() {
+				return canEdit();
+			}
+
+			public boolean isVisible() {
+				return canEdit();
+			}
+			
 			protected void onClick() {
 				InstitutionsListPage.this.onCreate();
 			}

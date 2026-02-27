@@ -54,7 +54,6 @@ import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
 @AuthorizeInstantiation({"ROLE_USER"})
-
 @MountPath("/music/${id}")
 public class MusicPage extends ObjectPage<Music> {
 
@@ -96,6 +95,9 @@ public class MusicPage extends ObjectPage<Music> {
 		if (ouser.isEmpty())
 			return false;
 
+		return true;
+		
+		/**
 		 
 		
 		User user = ouser.get();  
@@ -117,9 +119,11 @@ public class MusicPage extends ObjectPage<Music> {
 		}
 
 		return false;
+		*/
+	
 	}
 	
-
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();

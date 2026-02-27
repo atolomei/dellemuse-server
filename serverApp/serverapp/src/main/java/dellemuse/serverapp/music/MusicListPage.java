@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -45,6 +46,7 @@ import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/music/list")
 public class MusicListPage extends ObjectListPage<Music> {
 
@@ -56,9 +58,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 	private List<ToolbarItem> listToolbar;
 
 	
-	public String getHelpKey() {
-		return Help.MUSIC;
-	}
+	
 	
 	public MusicListPage() {
 		super();
@@ -70,12 +70,22 @@ public class MusicListPage extends ObjectListPage<Music> {
 		super.setIsExpanded(true);
 	}
 
+	
+	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 	}
  
+	public String getHelpKey() {
+		return Help.MUSIC;
+	}
+	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -96,6 +106,13 @@ public class MusicListPage extends ObjectListPage<Music> {
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 	
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		return true;
+
+		/**
 		if (ouser.isEmpty())
 			return false;
 		
@@ -112,6 +129,8 @@ public class MusicListPage extends ObjectListPage<Music> {
 		if (set==null)
 			return false;
 		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+*/
+	
 	}
 	
 	protected void onCreate() {
@@ -140,6 +159,15 @@ public class MusicListPage extends ObjectListPage<Music> {
 			protected void onClick() {
 				MusicListPage.this.onCreate();
 			}
+			
+			public boolean isEnabled() {
+				return canEdit();
+			}
+
+			public boolean isVisible() {
+				return canEdit();
+			}
+		
 		};
 		create.setAlign(Align.TOP_LEFT);
 		mainToolbar.add(create);

@@ -484,13 +484,13 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 					helpContainer.get("help").setVisible(false);
 				}
 				else {
-					//helpContainer.setVisible(true);
+					 
 					helpContainer.addOrReplace(getHelpPanel("help", getHelpKey(), getLocale().getLanguage() ));
 					isHelpVisible=true;
 				}
 				
 				event.getTarget().add(helpContainer);
-				//refresh( event.getTarget() );
+				 
 			}
 
 			@Override

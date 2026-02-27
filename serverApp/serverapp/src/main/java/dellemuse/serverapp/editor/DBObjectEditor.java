@@ -3,6 +3,7 @@ package dellemuse.serverapp.editor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
@@ -32,6 +33,7 @@ import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
@@ -90,26 +92,58 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 	private boolean readonly = false;
 	private List<String> updatedParts = new ArrayList<String>();
 
-	
+	private Boolean generalAdmin = null;
+
+	public boolean isGeneralAdmin() {
+
+		if (generalAdmin != null)
+			return this.generalAdmin.booleanValue();
+
+		synchronized (this) {
+
+			if (getSessionUser().isEmpty()) {
+				this.generalAdmin = Boolean.FALSE;
+				return this.generalAdmin;
+			}
+			 
+			User user = getSessionUser().get();
+
+			if (!user.isDependencies()) {
+				user = getUserDBService().findWithDeps(user.getId()).get();
+			}
+
+			Set<RoleGeneral> set = user.getRolesGeneral();
+
+			if (set == null) {
+				this.generalAdmin = Boolean.FALSE;
+				return this.generalAdmin;
+			}
+			this.generalAdmin = Boolean.valueOf(set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN))));
+			return this.generalAdmin;
+		}
+	}
+
+	public boolean isRoot() {
+		return getSessionUser() != null && getSessionUser().get().isRoot();
+	}
+
 	public boolean hasWritePermission() {
 		return true;
 	}
-	
-	
+
 	public DBObjectEditor(String id, IModel<T> model) {
 		super(id, model);
 		super.setOutputMarkupId(true);
 	}
 
-	
 	protected Locale getUserLocale() {
 		return getSessionUser().get().getLocale();
 	}
 
 	protected List<Language> getLanguages() {
-		return getLanguageService().getLanguagesSorted( getLocale() );
+		return getLanguageService().getLanguagesSorted(getLocale());
 	}
-	
+
 	@Override
 	public boolean isReadOnly() {
 		return readonly;
@@ -265,31 +299,26 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		service.save(a, user);
 	}
 
-	
 	public void save(Artist modelObject, User user, List<String> updatedParts) {
 		ArtistDBService service = (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
 		service.save(modelObject, user, updatedParts);
 	}
-	
-	
+
 	public void save(ArtWork modelObject, User user, List<String> updatedParts) {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		service.save(modelObject, user, updatedParts);
 	}
 
-
-	public void save( Voice modelObject, User user, List<String> updatedParts) {
+	public void save(Voice modelObject, User user, List<String> updatedParts) {
 		VoiceDBService service = (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
 		service.save(modelObject, user, updatedParts);
 	}
-	
-	
-	public void save( Music modelObject, User user, List<String> updatedParts) {
+
+	public void save(Music modelObject, User user, List<String> updatedParts) {
 		MusicDBService service = (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);
 		service.save(modelObject, user, updatedParts);
 	}
-	
-	
+
 	public void save(ArtExhibitionItem modelObject, User user, List<String> updatedParts) {
 		ArtExhibitionItemDBService service = (ArtExhibitionItemDBService) ServiceLocator.getInstance().getBean(ArtExhibitionItemDBService.class);
 		service.save(modelObject, user, updatedParts);
@@ -358,7 +387,7 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	protected String normalizeFileName(String name) {
 		String str = name.replaceAll("[^\\x00-\\x7F]|[\\s]+", "-").toLowerCase().trim();
-		str=str.replace("'", "");
+		str = str.replace("'", "");
 		str = str.replace(".", "");
 		if (str.length() < 100)
 			return str;

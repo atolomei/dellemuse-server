@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -42,7 +43,7 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.struct.list.ListPanelMode;
 
  
-
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/exhibition/list")
 public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 

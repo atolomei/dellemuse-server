@@ -75,8 +75,7 @@ import wktui.base.NamedTab;
  * site foto Info - exhibitions
  * 
  */
-@AuthorizeInstantiation({"ROLE_USER"})
-
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/site/state/${id}")
 public class SiteStatePage extends ObjectPage<Site> {
 
@@ -86,6 +85,24 @@ public class SiteStatePage extends ObjectPage<Site> {
 
 	private SiteInfoEditor editor;
 
+
+
+	public SiteStatePage() {
+		super();
+	}
+
+	public SiteStatePage(PageParameters parameters) {
+		super(parameters);
+	}
+
+	public SiteStatePage(IModel<Site> model) {
+		super(model);
+	}
+
+	@Override
+	protected Panel createSearchPanel() {
+		return null;
+	}
 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -93,7 +110,9 @@ public class SiteStatePage extends ObjectPage<Site> {
 		if (ouser.isEmpty())
 			return false;
 
-		User user = ouser.get();  if (user.isRoot()) return true;
+		User user = ouser.get();
+		if (user.isRoot())
+			return true;
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
@@ -121,44 +140,30 @@ public class SiteStatePage extends ObjectPage<Site> {
 		return false;
 	}
 	
-	public SiteStatePage() {
-		super();
-	}
-
-	public SiteStatePage(PageParameters parameters) {
-		super(parameters);
-	}
-
-	public SiteStatePage(IModel<Site> model) {
-		super(model);
-	}
-
-	@Override
-	protected Panel createSearchPanel() { return null;}
 
 	protected void addListeners() {
 		super.addListeners();
 
 		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.site_action_edit)) {
-					//SiteStatePage.this.onEdit(event.getTarget());
+					// SiteStatePage.this.onEdit(event.getTarget());
 				}
-			
+
 				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
 					SiteStatePage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					SiteStatePage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
-			
+
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					SiteStatePage.this.getMetaEditor().onEdit(event.getTarget());
-					
+
 				}
 			}
 
@@ -170,13 +175,13 @@ public class SiteStatePage extends ObjectPage<Site> {
 			}
 		});
 
-	
 		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
 				if (event.getName().equals(ServerAppConstant.site_action_home)) {
-					setResponsePage( new SitePage( getModel(), getList()));
+					setResponsePage(new SitePage(getModel(), getList()));
 				}
 			}
 
@@ -187,11 +192,9 @@ public class SiteStatePage extends ObjectPage<Site> {
 				return false;
 			}
 		});
-	
-	}
- 
 
-	
+	}
+
 	@Override
 	protected Optional<Site> getObject(Long id) {
 		return getSite(id);
@@ -202,30 +205,25 @@ public class SiteStatePage extends ObjectPage<Site> {
 		return getLabel("info");
 	}
 
-	
-
-
 	@Override
 	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
-		bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(),
-				getObjectTitle(getModel().getObject())));
+		bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), getObjectTitle(getModel().getObject())));
 		bc.addElement(new BCElement(getLabel("general-info")));
-		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(),
-				getObjectTitle(getModel().getObject()));
+		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), getObjectTitle(getModel().getObject()));
 		ph.setBreadCrumb(bc);
 
 		ph.setContext(getLabel("site"));
 
-		if (getModel().getObject().getSubtitle()!=null)
-			ph.setTagline( Model.of( getModel().getObject().getSubtitle()));
-		
+		if (getModel().getObject().getSubtitle() != null)
+			ph.setTagline(Model.of(getModel().getObject().getSubtitle()));
+
 		if (getModel().getObject().getPhoto() != null)
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
 
-		return(ph);
+		return (ph);
 	}
 
 	@Override
@@ -239,78 +237,51 @@ public class SiteStatePage extends ObjectPage<Site> {
 		return this.editor;
 	}
 
- 
-
 	protected List<ToolbarItem> getToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		
-	/**
-		AjaxButtonToolbarItem<Site> create = new AjaxButtonToolbarItem<Site>() {
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				SiteInfoPage.this.togglePanel(PANEL_EDITOR, target);
-				SiteInfoPage.this.onEdit(target);
-			}
+		/**
+		 * AjaxButtonToolbarItem<Site> create = new AjaxButtonToolbarItem<Site>() {
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override protected void onCick(AjaxRequestTarget target) {
+		 *           SiteInfoPage.this.togglePanel(PANEL_EDITOR, target);
+		 *           SiteInfoPage.this.onEdit(target); }
+		 * 
+		 * @Override public IModel<String> getButtonLabel() { return getLabel("edit"); }
+		 *           };
+		 * 
+		 *           create.setAlign(Align.TOP_LEFT); list.add(create);
+		 * 
+		 * 
+		 * 
+		 *           AjaxButtonToolbarItem<Person> audit = new
+		 *           AjaxButtonToolbarItem<Person>() { private static final long
+		 *           serialVersionUID = 1L;
+		 * 
+		 * @Override protected void onCick(AjaxRequestTarget target) {
+		 *           SiteInfoPage.this.togglePanel(PANEL_AUDIT, target); }
+		 * @Override public IModel<String> getButtonLabel() { return getLabel("audit");
+		 *           } }; audit.setAlign(Align.TOP_RIGHT); list.add(audit);
+		 */
 
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("edit");
-			}
-		};
-		
-		create.setAlign(Align.TOP_LEFT);
-		list.add(create);
+		list.add(new SiteNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT));
 
-		
-
-		AjaxButtonToolbarItem<Person> audit = new AjaxButtonToolbarItem<Person>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onCick(AjaxRequestTarget target) {
-				SiteInfoPage.this.togglePanel(PANEL_AUDIT, target);
-			}
-			@Override
-			public IModel<String> getButtonLabel() {
-				return getLabel("audit");
-			}
-		};
-		audit.setAlign(Align.TOP_RIGHT);
-		list.add(audit);
-		*/
-		
-		
-		list.add(new SiteNavDropDownMenuToolbarItem("item", getModel(),  Align.TOP_RIGHT ));
-		
 		return list;
 	}
-	
-	 
+
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Site>(id, getModel());
 	}
-	
+
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
-		
-		/**
-		NamedTab tab_1=new NamedTab(Model.of("editor"), ServerAppConstant.object_meta) {
-		 
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getEditor(panelId);
-			}
-		};
-		tabs.add(tab_1);
-	*/	
-		NamedTab audit=new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
-			 
+	 
+		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -319,15 +290,13 @@ public class SiteStatePage extends ObjectPage<Site> {
 			}
 		};
 		tabs.add(audit);
-		
-		
-		if (getStartTab()==null)
+
+		if (getStartTab() == null)
 			super.setStartTab(ServerAppConstant.object_meta);
-		
+
 		return tabs;
 	}
 
- 
 	protected void setUpModel() {
 		super.setUpModel();
 
@@ -349,6 +318,10 @@ public class SiteStatePage extends ObjectPage<Site> {
 	public void onDetach() {
 		super.onDetach();
 	}
- 
 
+	@Override
+	protected boolean isLanguage() {
+		return false;
+	}
+	
 }

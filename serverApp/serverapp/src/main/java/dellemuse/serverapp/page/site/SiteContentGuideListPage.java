@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -46,6 +47,7 @@ import io.wktui.struct.list.ListPanelMode;
  * Artworks
  * Exhibitions
  */
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/site/guidecontents/${id}")
 public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 
@@ -228,7 +230,17 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Model.of(getSiteModel().getObject().getShortName()), Align.TOP_RIGHT ) );
 	
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
+			
 			private static final long serialVersionUID = 1L;
+			
+			public boolean isEnabled() {
+				return canEdit();
+			}
+
+			public boolean isVisible() {
+				return canEdit();
+			}
+			
 			protected void onClick() {
 				SiteContentGuideListPage.this.onCreate();
 			}

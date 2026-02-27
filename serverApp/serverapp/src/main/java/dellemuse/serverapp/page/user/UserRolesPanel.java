@@ -188,28 +188,10 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 		} else
 			user = getModel().getObject();
 
+		
 		getUserDBService().getUserRoles(user).forEach(s -> this.userRoles.add(new ObjectModel<Role>(s)));
 
-		/**
-		 * if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
-		 * getObjects(ObjectState.PUBLISHED).forEach(s -> this.userRoles.add(new
-		 * ObjectModel<Role>(s)));
-		 * 
-		 * if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
-		 * getObjects(ObjectState.EDITION).forEach(s -> this.userRoles.add(new
-		 * ObjectModel<Role>(s)));
-		 * 
-		 * else if (this.getObjectStateEnumSelector() == null) getObjects().forEach(s ->
-		 * this.userRoles.add(new ObjectModel<Role>(s)));
-		 * 
-		 * else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.ALL)
-		 * getObjects().forEach(s -> this.userRoles.add(new
-		 * ObjectModel<ArtExhibitionItem>(s)));
-		 * 
-		 * else if (this.getObjectStateEnumSelector() ==
-		 * ObjectStateEnumSelector.DELETED) getObjects(ObjectState.DELETED).forEach(s ->
-		 * this.userRoles.add(new ObjectModel<Role>(s)));
-		 **/
+		 
 
 		this.userRoles.forEach(c -> logger.debug(c.getObject().toString()));
 

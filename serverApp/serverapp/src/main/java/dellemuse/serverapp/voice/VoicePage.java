@@ -51,11 +51,11 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
-@AuthorizeInstantiation({"ROLE_USER"})
 
+
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/voice/${id}")
 public class VoicePage extends ObjectPage<Voice> {
-
 	 
 	private static final long serialVersionUID = 1L;
 
@@ -88,10 +88,14 @@ public class VoicePage extends ObjectPage<Voice> {
 		if (ouser.isEmpty())
 			return false;
 
-		User user = ouser.get(); 
+		//User user = ouser.get(); 
 		
-		if (user.isRoot()) 
-			return true;
+		//if (user.isRoot()) 
+		//	return true;
+		
+		return true;
+		
+		/**
 		
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
@@ -109,6 +113,7 @@ public class VoicePage extends ObjectPage<Voice> {
 		 
 
 		return false;
+		*/
 	}
 
 

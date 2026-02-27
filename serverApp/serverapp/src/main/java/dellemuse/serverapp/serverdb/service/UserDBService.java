@@ -49,7 +49,6 @@ import jakarta.transaction.Transactional;
 @Service
 public class UserDBService extends DBService<User, Long> {
 
-    @SuppressWarnings("unused")
     static private Logger logger = Logger.getLogger(UserDBService.class.getName());
 
     private final PersonDBService personDBService;
@@ -78,37 +77,36 @@ public class UserDBService extends DBService<User, Long> {
     @Transactional
     public User create(String name, Optional<Person> person, User createdBy) {
       
-    	User c = new User();
-        c.setName(name);
-        c.setUsername(name);
+    	User user = new User();
+    	user.setName(name);
+    	user.setUsername(name);
 
-        c.setLanguage(getDefaultMasterLanguage());
+    	user.setLanguage(getDefaultMasterLanguage());
 	
-    	c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        c.setZoneId( getSettings().getDefaultZoneId() );
-        c.setState(ObjectState.PUBLISHED);
+    	user.setCreated(OffsetDateTime.now());
+    	user.setLastModified(OffsetDateTime.now());
+    	user.setLastModifiedUser(createdBy);
+    	user.setZoneId( getSettings().getDefaultZoneId() );
+    	user.setState(ObjectState.PUBLISHED);
         
         String hash = new BCryptPasswordEncoder().encode("dellemuse");
-        c.setPassword(hash);
+        user.setPassword(hash);
         // BCrypt.checkpw(plainPassword, hashedPasswordFromDB);
        
-        getRepository().save(c);
-        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+        getRepository().save(user);
+        getDelleMuseAuditDBService().save(DelleMuseAudit.of(user, createdBy,  AuditAction.CREATE));
         
         if (person.isPresent()) {
-        	c.setPhone(person.get().getPhone());
-            c.setEmail(person.get().getEmail());
-            person.get().setUser(c);
+        	user.setPhone(person.get().getPhone());
+        	user.setEmail(person.get().getEmail());
+            person.get().setUser(user);
             getPersonDBService().save(person.get());
         }
         
         else {
-        	getPersonDBService().create(null, name, createdBy);
-        	 getPersonDBService().save(person.get());
+        	getPersonDBService().create(null, name, user, createdBy);
         }
-        return c;
+        return user;
     }
 
 
@@ -175,12 +173,14 @@ public class UserDBService extends DBService<User, Long> {
 
 	}
 	
+	
+ 
+	 
 	 @Transactional
-	 public Iterable<Role> getUserRoles(User u) {
+	 public List<Role> getUserRoles(User u) {
 
 		List<Role> list = new ArrayList<Role>();
 
-		// if (u.isDe)
 		u.getRolesGeneral().forEach( r -> list.add(r));
 		u.getRolesInstitution().forEach( r -> list.add(r)); 
 		u.getRolesSite().forEach( r -> list.add(r)); 
@@ -188,7 +188,7 @@ public class UserDBService extends DBService<User, Long> {
 		list.sort( new Comparator<Role>() {
 			@Override
 			public int compare(Role o1, Role o2) {
-				return o1.getName().compareToIgnoreCase(o2.getName());
+				return o1.getRoleDisplayName().compareToIgnoreCase(o2.getRoleDisplayName());
 			}
 		});
 		
@@ -282,6 +282,8 @@ public class UserDBService extends DBService<User, Long> {
 	public Iterable<User> getSiteUsers(Site site) {
 		Set<User> list = new HashSet<User>();
 		getRoleSiteDBService().findBySite(site).forEach( r -> {
+			
+			logger.debug(r.getRoleDisplayName());
 					r.getUsers().forEach( u -> list.add(u));
 		});
 		return list;	

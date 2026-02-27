@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.model.IModel;
@@ -19,6 +20,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.ObjectListPage;
@@ -59,6 +61,7 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
  * 
  * Site Information Exhibitions Artworks Exhibitions
  */
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/site/exhibitions/${id}")
 public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
@@ -89,6 +92,13 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		getPageParameters().add("id", siteModel.getObject().getId().toString());
 		setSiteModel(siteModel);
 	}
+	
+
+
+	public String getHelpKey() {
+		return Help.SITE_ARTEXHIBITION_LIST;
+	}
+	
 
 	protected IModel<String> getTitleLabel() {
 		return getLabel("exhibitions");
@@ -173,6 +183,14 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
 
+			public boolean isEnabled() {
+				return canEdit();
+			}
+
+			public boolean isVisible() {
+				return canEdit();
+			}
+			
 			protected void onClick() {
 				SiteArtExhibitionsListPage.this.onCreate();
 			}

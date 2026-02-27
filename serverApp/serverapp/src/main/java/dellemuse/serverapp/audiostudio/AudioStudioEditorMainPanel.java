@@ -2,25 +2,33 @@ package dellemuse.serverapp.audiostudio;
 
 import java.util.Optional;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.guidecontent.GuideContentEditor;
+import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.ObjectState;
+import io.wktui.error.AlertHelpPanel;
 import io.wktui.error.AlertPanel;
- 
+import io.wktui.event.HelpAjaxEvent;
 import io.wktui.event.UIEvent;
+import io.wktui.model.TextCleaner;
+import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import wktui.base.InvisiblePanel;
 
 /**
@@ -54,7 +62,9 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 	private PillPanel pill2;
 	private PillPanel pill3;
 
-	 
+	private WebMarkupContainer helpContainer;
+
+	boolean isHelpVisible = false;
 	private boolean isAccesibleVersion = false;	
 	
 	/**
@@ -68,6 +78,10 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		setOutputMarkupId(true);
 	}
 
+	
+  
+
+	
 	
 	@Override
 	public void onInitialize() {
@@ -88,6 +102,25 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		addOrReplace(new InvisiblePanel("step3"));
 
 		cssSelected();
+		
+		helpContainer = new WebMarkupContainer("helpContainer");
+		helpContainer.setOutputMarkupId(true);
+		add(helpContainer);
+		helpContainer.add(new InvisiblePanel("help"));
+		
+		
+		AjaxLink<Void> h=new AjaxLink<Void> ( "help") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				fire(new HelpAjaxEvent(ServerAppConstant.help, target));
+			}
+		};
+		add(h);
+	
+
+		
+		
 	}
 	
 	
@@ -112,9 +145,50 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 	}
 
 
+	public String getHelpKey() {
+		return Help.AUDIO_STUDIO;
+	}
+	
+	protected Panel getHelpPanel(String id, String key, String lang) {
+		String h = getHelpService().gethelp(key, lang);
+		if (h == null) {
+			h = key + "-" + lang + " not found";
+		}
+		AlertPanel<Void> a = new AlertHelpPanel<>(id, Model.of(h));
+		a.add(new org.apache.wicket.AttributeModifier("class", "help"));
+		return a;
+	}
+	
+	
 	protected void addListeners() {
 		super.addListeners();
 
+		add(new io.wktui.event.WicketEventListener<HelpAjaxEvent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onEvent(HelpAjaxEvent event) {
+				if (isHelpVisible) {
+					isHelpVisible = false;
+					helpContainer.get("help").setVisible(false);
+				} else {
+					helpContainer.addOrReplace(getHelpPanel("help", getHelpKey(), getLocale().getLanguage()));
+					isHelpVisible = true;
+				}
+				event.getTarget().add(helpContainer);
+			}
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof HelpAjaxEvent)
+					return true;
+				return false;
+			}
+		});
+	 	
+		
+		
+		
 		add(new io.wktui.event.WicketEventListener<AudioStudioAjaxEvent>() {
 		
 			private static final long serialVersionUID = 1L;
@@ -367,7 +441,7 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 			}
 		};
 
-		Label parentObject = new Label("parent", getParentName() + " (" + getParentType().getObject() + ")");
+		Label parentObject = new Label("parent", TextCleaner.truncate(getParentName(), 18) + " (" + getParentType().getObject() + ")");
 		li.add(parentObject);
 		add(li);
 

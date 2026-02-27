@@ -58,55 +58,6 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	private List<ToolbarItem> list;
 
 	
-
-	public String getHelpKey() {
-		return Help.SITE_ROLES_LIST;
-	}
-	
-	
-	protected List<Language> getSupportedLanguages() {
-		return getModel().getObject().getLanguages();
-	}
-
-	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		
-		if (ouser.isEmpty())
-			return false;
-	
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
-			return true;
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-		
-		{
-		Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set!=null) {
-					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-					if (isAccess)
-						return true;
-			}
-		}
-		
-		
-		{
-			final Long sid = getModel().getObject().getId();
-			
-			Set<RoleSite> set = user.getRolesSite();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
-				if (isAccess)
-					return true;
-			}
-		}		
-		
-		return false;
-	} 
 	public SiteRolesPage() {
 		super();
 	}
@@ -161,6 +112,58 @@ public class SiteRolesPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		}
 	}
 
+	
+
+
+	public String getHelpKey() {
+		return Help.SITE_ROLES_LIST;
+	}
+	
+	
+	protected List<Language> getSupportedLanguages() {
+		return getModel().getObject().getLanguages();
+	}
+
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
+	
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+		
+		{
+		Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set!=null) {
+					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+					if (isAccess)
+						return true;
+			}
+		}
+		
+		
+		{
+			final Long sid = getModel().getObject().getId();
+			
+			Set<RoleSite> set = user.getRolesSite();
+			if (set!=null) {
+				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}		
+		
+		return false;
+	} 
+	
 	@Override
 	protected IRequestablePage getObjectPage(IModel<Site> iModel, List<IModel<Site>> list2) {
 		return new SitePage(iModel, list2);

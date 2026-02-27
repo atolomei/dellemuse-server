@@ -45,7 +45,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	private ZoneIdField zoneidField;
 	private List<ToolbarItem> list;
 	private LocaleField localeField;
-	private StaticTextField<String> emailField;
+	// private StaticTextField<String> emailField;
 
 	/**
 	 * @param id
@@ -72,8 +72,12 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 		logger.debug("user locale -> " + getModel().getObject().getLocale().getLanguage());
 
-		this.emailField 		= new StaticTextField<String>("email"			, new PropertyModel<String>(getModel(), "email"), getLabel("email"));
-		this.form.add(emailField);
+		
+		// this.emailField = new StaticTextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
+
+		
+		
+		// this.form.add(emailField);
 		
 		this.nameField = new TextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
 		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
@@ -177,7 +181,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 	protected void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
-		target.add(getForm());
+		target.add(this);
 	}
 
 	protected void onSave(AjaxRequestTarget target) {

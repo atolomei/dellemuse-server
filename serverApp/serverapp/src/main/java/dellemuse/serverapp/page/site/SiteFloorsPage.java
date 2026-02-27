@@ -83,7 +83,6 @@ import wktui.base.NamedTab;
  * site foto Info - exhibitions
  */
 @AuthorizeInstantiation({"ROLE_USER"})
-
 @MountPath("/site/floors/${id}")
 public class SiteFloorsPage extends ObjectPage<Site> {
 

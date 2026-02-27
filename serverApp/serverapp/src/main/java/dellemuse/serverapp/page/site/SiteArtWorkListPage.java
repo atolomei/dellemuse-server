@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -60,6 +61,7 @@ import io.wktui.struct.list.ListPanelMode;
 /**
  * Site Information Exhibitions Artworks Exhibitions
  */
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/site/artwork/${id}")
 public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 
@@ -416,8 +418,17 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		mainToolbar.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
+			
 			private static final long serialVersionUID = 1L;
 
+			public boolean isEnabled() {
+				return canEdit();
+			}
+
+			public boolean isVisible() {
+				return canEdit();
+			}
+			
 			protected void onClick() {
 				SiteArtWorkListPage.this.onCreate();
 			}

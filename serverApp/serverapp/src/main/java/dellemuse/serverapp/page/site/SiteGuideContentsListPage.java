@@ -181,6 +181,16 @@ public class SiteGuideContentsListPage extends ObjectListPage<GuideContent> {
 
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
+			
+			
+			public boolean isEnabled() {
+				return canEdit();
+			}
+
+			public boolean isVisible() {
+				return canEdit();
+			}
+			
 			protected void onClick() {
 				SiteGuideContentsListPage.this.onCreate();
 			}

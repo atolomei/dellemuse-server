@@ -7,8 +7,6 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Ann
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.springframework.stereotype.Component;
-import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
-
 import com.giffing.wicket.spring.boot.starter.app.WicketBootSecuredWebApplication;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.security.SecureWebSession;
 
@@ -33,19 +31,14 @@ public class WicketWebApplication extends WicketBootSecuredWebApplication {
 		return SecureWebSession.class;
 	}
 
- 
 	@Override
 	public void init() {
-	    super.init();
+		super.init();
 
-	    getComponentInstantiationListeners()
-	        .add(new SpringComponentInjector(this));
+		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
 
-	    // ⭐ Enable Wicket page authorization
-	    getSecuritySettings().setAuthorizationStrategy(
-	        new AnnotationsRoleAuthorizationStrategy(this)
-	    );
+		// ⭐ Enable Wicket page authorization
+		getSecuritySettings().setAuthorizationStrategy(new AnnotationsRoleAuthorizationStrategy(this));
 	}
-	
-	
+
 }

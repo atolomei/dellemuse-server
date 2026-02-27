@@ -85,7 +85,7 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 	private String to;
 
 	private IModel<Site> siteModel;
-	private List<ToolbarItem> x_list;
+	private List<ToolbarItem> toolbarList;
 
  	/**
 	 * @param id
@@ -390,14 +390,15 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 
-		if (x_list != null)
-			return x_list;
+		if (toolbarList != null)
+			return toolbarList;
 
-		x_list = new ArrayList<ToolbarItem>();
+		toolbarList = new ArrayList<ToolbarItem>();
 
 		AjaxButtonToolbarItem<ArtExhibition> create = new AjaxButtonToolbarItem<ArtExhibition>() {
 			private static final long serialVersionUID = 1L;
 
+			
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_exhibition_info_edit, target));
@@ -409,8 +410,8 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
-		x_list.add(create);
-		return x_list;
+		toolbarList.add(create);
+		return toolbarList;
 	}
 
 	@Override

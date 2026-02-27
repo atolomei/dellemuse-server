@@ -29,6 +29,8 @@ import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
  
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SiteNavDropDownMenuToolbarItem;
@@ -79,63 +81,6 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 	private ArtWorkMainPanel editor;
 	private List<ToolbarItem> list;
 
-	
-	protected List<Language> getSupportedLanguages() {
-		return  getSiteModel().getObject().getLanguages();
-	}
-
-	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		
-		if (ouser.isEmpty())
-			return false;
-		
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
-			return true;
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		{
-			Set<RoleGeneral> set = user.getRolesGeneral();
-		
-			if (set!=null) {
-					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-					if (isAccess)
-						return true;
-			}
-		}
-		
-		{
-			final Long sid = getSiteModel().getObject().getId();
-			
-			Set<RoleSite> set = user.getRolesSite();
-	
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
-				if (isAccess)
-					return true;
-			}
-		}		
-		
-		{
-			final Long iid = getSiteModel().getObject().getInstitution().getId();
-		
-			Set<RoleInstitution> set = user.getRolesInstitution();
-			
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
-				if (isAccess)
-					return true;
-			}
-		}
-		
-		return false;
-	}
 	
 	
 	public ArtWorkPage() {
@@ -201,6 +146,63 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		return true;
 	}
 
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
+
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+		
+			if (set!=null) {
+					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+					if (isAccess)
+						return true;
+			}
+		}
+		
+		{
+			final Long sid = getSiteModel().getObject().getId();
+			
+			Set<RoleSite> set = user.getRolesSite();
+	
+			if (set!=null) {
+				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}		
+		
+		{
+			final Long iid = getSiteModel().getObject().getInstitution().getId();
+		
+			Set<RoleInstitution> set = user.getRolesInstitution();
+			
+			if (set!=null) {
+				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+				if (isAccess)
+					return true;
+			}
+		}
+		
+		return false;
+	}
+	
 	@Override
 	protected Class<?> getTranslationClass() {
 		return ArtWorkRecord.class;
@@ -318,6 +320,11 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		return new Model<String>(getModel().getObject().getName());
 	}
 
+	public String getHelpKey() {
+		return Help.ARTWORK_INFO;
+	}
+	
+	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 
@@ -335,6 +342,10 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
+	
+		
 		return list;
 
 	}

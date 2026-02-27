@@ -31,7 +31,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.audiostudio.AudioStudioParentObject;
 import dellemuse.serverapp.help.HelpService;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -94,9 +93,6 @@ public abstract class BasePage extends WebPage {
 
 	static private Logger logger = Logger.getLogger(BasePage.class.getName());
 
-	static private IModel<String> model_xtitle;
-	static private String xtitle;
-	static private IModel<String> xdescription;
 	static private String xfavicon;
 	static private String xlanguage;
 	static private String xrobots;
@@ -108,25 +104,12 @@ public abstract class BasePage extends WebPage {
 	private Map<String, Integer> serverCall;
 	
 	private Boolean generalAdmin = null;
-	
 
 	// 1 Day
 	static private final int COOKIE_DURATION = 86400 * 1;
 
-	// public static JavaScriptResourceReference
-	// getJavaScriptPopperResourceReference() {
-	// return new JavaScriptResourceReference(BasePage.class,"popper.min.js");
-	// }
-
-	// public static JavaScriptResourceReference
-	// getJavaScriptKbeeResourceReference() {
-	// return new JavaScriptResourceReference(BasePage.class, "kbee.js");
-	// }
 
 	static {
-		// xfavicon =
-		// PropertiesFactory.getInstance("kbee").getProperties().getProperty("com.novamens.content.web.favicon",
-		// "/images/favicon.gif");
 		xlanguage = "English";
 		xrobots = "NOINDEX, NOFOLLOW";
 		xrating = "General";
@@ -263,8 +246,6 @@ public abstract class BasePage extends WebPage {
 
 			@Override
 			public String getObject() {
-				// return "width=device-width, initial-scale=1.0, minimum-scale=1.0,
-				// user-scalable=yes";
 				return "width=device-width, initial-scale=1, shrink-to-fit=no";
 
 			}
@@ -300,22 +281,7 @@ public abstract class BasePage extends WebPage {
 
 		if (XUA_Compatible != null)
 			setPageXUACompatible(XUA_Compatible);
-
-		/**
-		 * WebMarkupContainer html = new WebMarkupContainer("html"); //
-		 * html.add(AttributeModifier.replace("lang", getPageLanguage())); //
-		 * html.add(AttributeModifier.replace("dir", isRtl() ? "rtl" : "ltr")); //
-		 * html.add(AttributeModifier.append("class", "base-page"));
-		 * 
-		 * html.add(AttributeModifier.replace( "data-bs-theme", new IModel<String>() {
-		 * 
-		 * private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public String getObject() { return isDarkTheme() ? "dark" : null; }
-		 *           } )); super.add(html);
-		 **/
-
-	}
+ 	}
 
 	protected boolean isDarkTheme() {
 
@@ -455,17 +421,7 @@ public abstract class BasePage extends WebPage {
 		return model;
 	}
 
-	/** Session User */
-
-	/**
-	public Optional<User> getSessionUser() {
-		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
-		User user = service.getSessionUser();
-		if (user == null)
-			return Optional.empty();
-		return Optional.of(user);
-	}**/
-
+ 
 	
 	IModel<User> sessionUserModel;
 	
@@ -482,10 +438,7 @@ public abstract class BasePage extends WebPage {
 	    if  (auth.getName().equals("anonymousUser"))
 	    	return Optional.empty();
 		
-
 	    UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
-		//Optional<User> o_user = service.findByEmail(auth.getName());
-
 		Optional<User> o_user = service.findByUsername(auth.getName());
 
 		if (o_user==null || o_user.isEmpty())
@@ -839,8 +792,6 @@ public abstract class BasePage extends WebPage {
 	}
 	
 	
-	
-	
 	public boolean isGeneralAdmin() {
 		
 		if (generalAdmin!=null)
@@ -921,6 +872,10 @@ public abstract class BasePage extends WebPage {
 			}
 		}
 		return handled;
+	}
+
+	public boolean canEdit() {
+		return false;
 	}
 
 }

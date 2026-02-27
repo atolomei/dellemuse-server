@@ -21,7 +21,8 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -76,6 +77,9 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	}
 
 
+	public String getHelpKey() {
+		return Help.SITE_INFO;
+	}
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -167,7 +171,11 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT);
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
-
+		
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
+		
+		
 		return list;
 	}
 

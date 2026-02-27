@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.maven.model.Site;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -61,6 +62,7 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
  
 import io.wktui.struct.list.ListPanelMode;
 
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/artist/list")
 public class ArtistListPage extends ObjectListPage<Artist> {
 
@@ -74,12 +76,20 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 		return Help.ARTIST_LIST;
 	}
 	
+	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	
+	
 	public  ArtistListPage() {
 		super();
 		 setIsExpanded(true);
 		 
 	}		
 	
+	 
 	public ArtistListPage(PageParameters parameters) {
 		 super(parameters);
 		 setIsExpanded(true);
@@ -193,6 +203,10 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 
 					
 					public boolean isVisible() {
+						
+						if (!canEdit())
+							return false;
+						
 						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
 					}
 				
@@ -226,6 +240,8 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 
 					
 					public boolean isVisible() {
+						if (!canEdit())
+							return false;
 						return getModel().getObject().getState()!=ObjectState.EDITION;
 					}
 				
@@ -266,6 +282,9 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 
 
 					public boolean isVisible() {
+						if (!canEdit())
+							return false;
+					
 						return getModel().getObject().getState()!=ObjectState.DELETED;
 					}
 					

@@ -64,6 +64,12 @@ public class RolesListPage extends ObjectListPage<Role> {
 	private RoleEnumSelector selected;
 	
 
+	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	
 	public String getHelpKey() {
 		return Help.ROLES_LIST ;
 	}

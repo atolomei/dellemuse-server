@@ -17,6 +17,7 @@ import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -46,8 +47,7 @@ import wktui.base.NamedTab;
 /**
  * site foto Info - exhibitions
  */
-@AuthorizeInstantiation({"ROLE_USER"})
-
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/site/search/${id}")
 public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
@@ -99,6 +99,12 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 	protected IModel<String> getPageTitle() {
 		return getLabel("search");
 	}
+	
+	
+	public String getHelpKey() {
+		return Help.SITE_SEARCH;
+	}
+
 
 	protected List<Language> getSupportedLanguages() {
 		return getModel().getObject().getLanguages();
@@ -186,8 +192,8 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
-		list.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
-		
+		list.add(new HelpButtonToolbarItem("item", Align.TOP_RIGHT));
+
 		return list;
 	}
 

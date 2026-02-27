@@ -76,6 +76,13 @@ public class PersonListPage extends ObjectListPage<Person> {
 		 
 	}		
 	
+	
+	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	
 	public String getHelpKey() {
 		return Help.PERSON_LIST ;
 	}
@@ -362,6 +369,15 @@ public class PersonListPage extends ObjectListPage<Person> {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>() {
 			private static final long serialVersionUID = 1L;
+	
+			public boolean isEnabled() {
+				return canEdit();
+			}
+
+			public boolean isVisible() {
+				return canEdit();
+			}
+			
 			protected void onClick() {
 				PersonListPage.this.onCreate();
 			}

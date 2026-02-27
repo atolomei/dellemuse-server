@@ -6,13 +6,13 @@ import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
- 
+
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
- 
+
 import org.apache.wicket.model.PropertyModel;
- 
+
 import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
@@ -21,23 +21,16 @@ import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.Voice;
 import io.wktui.event.MenuAjaxEvent;
-import io.wktui.event.SimpleAjaxWicketEvent;
-import io.wktui.event.SimpleWicketEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
-import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
@@ -61,18 +54,14 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	private TextField<String> sexField;
 	private TextField<String> languageRegionField;
 
-	
 	private FileUploadSimpleField<Resource> audioField;
-	private FileUploadSimpleField<Resource> photoField;
 	private IModel<Resource> photoModel;
 
 	private TextAreaField<String> infoField;
 
- 
 	private String audioMeta;
-	private List<ToolbarItem> x_list;
-	
-	
+	private List<ToolbarItem> toolbarList;
+
 	/**
 	 * @param id
 	 * @param model
@@ -80,43 +69,31 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	public VoiceEditor(String id, IModel<Voice> model) {
 		super(id, model);
 	}
-	
-	private void setUpModel() {
-
- 		Voice voice = getModel().getObject();
- 
-		getModel().setObject( getVoiceDBService().findWithDeps(voice.getId()).get());
-		
-		 
-		if (getModel().getObject().getAudio() != null) {
-			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
-			if (o_r.isPresent())
-				setAudioModel(new ObjectModel<Resource>(o_r.get()));
-		}
-		
-
-	}
-	
 
 	
-	
+
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 
-		if (x_list != null)
-			return x_list;
+		if (toolbarList != null)
+			return toolbarList;
 
-		x_list = new ArrayList<ToolbarItem>();
+		toolbarList = new ArrayList<ToolbarItem>();
 
 		AjaxButtonToolbarItem<Voice> create = new AjaxButtonToolbarItem<Voice>() {
 			private static final long serialVersionUID = 1L;
 
-			
-			
 			public boolean isEnabled() {
 				return canEdit();
-				
+
 			}
+			
+			public boolean isVisible() {
+				return canEdit();
+
+			}
+			
+
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_voice_edit, target));
@@ -128,20 +105,19 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
-		x_list.add(create);
-		return x_list;
+		toolbarList.add(create);
+		return toolbarList;
 	}
-	
-	
+
 	protected boolean canEdit() {
-		return true;
+		return isRoot() || isGeneralAdmin();
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		setUpModel();
-				
+
 		add(new InvisiblePanel("error"));
 
 		Form<Voice> form = new Form<Voice>("voiceForm", getModel());
@@ -176,11 +152,11 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		};
 		form.add(objectStateField);
 
-		infoField 	= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
-	
-		nameField 	= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
 
-		audioField 	= new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
+		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+
+		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -207,28 +183,22 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 			}
 		};
 
-		
-		voiceIdField  = new TextField<String>("voiceid", new PropertyModel<String>(getModel(), "voiceId"), getLabel("voiceid"));
+		voiceIdField = new TextField<String>("voiceid", new PropertyModel<String>(getModel(), "voiceId"), getLabel("voiceid"));
 		form.add(voiceIdField);
-		
+
 		languageField = new TextField<String>("language", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		form.add(languageField);
 
 		sexField = new TextField<String>("sex", new PropertyModel<String>(getModel(), "sex"), getLabel("sex"));
 		form.add(sexField);
 
-		
-		languageRegionField  = new TextField<String>("languageRegion", new PropertyModel<String>(getModel(), "languageRegion"), getLabel("languageRegion"));
+		languageRegionField = new TextField<String>("languageRegion", new PropertyModel<String>(getModel(), "languageRegion"), getLabel("languageRegion"));
 		form.add(languageRegionField);
-
-		
-	 
 
 		form.add(nameField);
 		form.add(infoField);
 		form.add(audioField);
 
-		
 		EditButtons<Voice> buttons = new EditButtons<Voice>("buttons", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -247,10 +217,10 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -275,10 +245,10 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -296,22 +266,19 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 
 	private IModel<Resource> audioModel;
 	private boolean uploadedAudio = false;
-	
-	
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
 
 		if (this.photoModel != null)
 			this.photoModel.detach();
-		
-		if (this.audioModel!=null)
+
+		if (this.audioModel != null)
 			this.audioModel.detach();
-		
+
 	}
 
-	
 	protected IModel<Resource> getAudioModel() {
 		return this.audioModel;
 	}
@@ -319,9 +286,6 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	protected void setAudioModel(ObjectModel<Resource> model) {
 		this.audioModel = model;
 	}
-	
-	
-	 
 
 	protected void onCancel(AjaxRequestTarget target) {
 		getForm().setFormState(FormState.VIEW);
@@ -343,9 +307,9 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 			getForm().setFormState(FormState.VIEW);
 
 			getForm().updateReload();
-			
+
 			target.add(getForm());
-			
+
 			fireScanAll(new ObjectUpdateEvent(target));
 
 		} catch (Exception e) {
@@ -367,7 +331,6 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		this.photoModel = model;
 	}
 
-	
 	protected boolean processAudioUpload(List<FileUpload> uploads) {
 
 		if (this.uploadedAudio)
@@ -403,6 +366,21 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		}
 
 		return uploadedAudio;
+	}
+
+	
+	private void setUpModel() {
+
+		Voice voice = getModel().getObject();
+
+		getModel().setObject(getVoiceDBService().findWithDeps(voice.getId()).get());
+
+		if (getModel().getObject().getAudio() != null) {
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
+			if (o_r.isPresent())
+				setAudioModel(new ObjectModel<Resource>(o_r.get()));
+		}
+
 	}
 	
 }

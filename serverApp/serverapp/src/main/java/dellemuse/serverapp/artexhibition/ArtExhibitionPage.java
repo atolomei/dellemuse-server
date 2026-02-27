@@ -19,7 +19,8 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -100,8 +101,10 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 
 	}
 
-	
-	
+
+	public String getHelpKey() {
+		return Help.ARTEXHIBITION_INFO;
+	}
 
 	protected List<Language> getSupportedLanguages() {
 		return  getSiteModel().getObject().getLanguages();
@@ -334,6 +337,11 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
+		
+
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
+		
 		return list;
 	}
 

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -33,6 +34,7 @@ import io.wktui.error.ErrorPanel;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import wktui.base.InvisiblePanel;
 
 /**
  * 
@@ -46,12 +48,12 @@ import io.wktui.nav.breadcrumb.HREFBCElement;
  *
  * ----- Eleven Multilingual v2 Speed Stability Similarity boost Style -----
  */
-
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/studio/${id}")
 public class AudioStudioPage extends BasePage {
 
 	private static final long serialVersionUID = 1L;
-	 
+
 	static private Logger logger = Logger.getLogger(AudioStudioPage.class.getName());
 
 	private IModel<AudioStudio> model;
@@ -79,9 +81,9 @@ public class AudioStudioPage extends BasePage {
 	public AudioStudioPage(IModel<AudioStudio> model, boolean isAccesibleVersion) {
 		super();
 		setModel(model);
-		
-		this.isAccesibleVersion=isAccesibleVersion;
-		
+
+		this.isAccesibleVersion = isAccesibleVersion;
+
 		Check.requireNonNullArgument(model, "model is null");
 		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
 		setModel(model);
@@ -98,7 +100,7 @@ public class AudioStudioPage extends BasePage {
 		super.onInitialize();
 
 		try {
-			
+
 			setUpModel();
 
 			if (getModel() == null) {
@@ -115,13 +117,16 @@ public class AudioStudioPage extends BasePage {
 			addOrReplace(new ErrorPanel("footer-panel", e));
 		}
 
-		addHeaderPanel();
 		
+
 		if (!this.hasAccessRight(getSessionUser())) {
-			add( new ErrorPanel("editor", getLabel("not-authorized")));
+			add(new ErrorPanel("editor", getLabel("not-authorized")));
+			add(new InvisiblePanel("page-header"));
 			return;
 		}
 		
+		addHeaderPanel();
+
 		try {
 			asEditorMainPanel = new AudioStudioEditorMainPanel("editor", getModel(), getParentObjectUrl(), this.isAccesibleVersion);
 			add(asEditorMainPanel);
@@ -155,12 +160,12 @@ public class AudioStudioPage extends BasePage {
 			bc.addElement(new BCElement(getLabel("audio-studio-bcrumb", getModel().getObject().getDisplayname())));
 
 			StringBuilder str = new StringBuilder();
-			str.append(mlo_parentObjectName );
-			str.append( isAccesibleVersion ? Icons.ACCESIBLE_ICON_JUMBO_HTML: "" );
-			
+			str.append(mlo_parentObjectName);
+			str.append(isAccesibleVersion ? Icons.ACCESIBLE_ICON_JUMBO_HTML : "");
+
 			JumboPageHeaderPanel<AudioStudio> h = new JumboPageHeaderPanel<AudioStudio>("page-header", getModel(), new Model<String>(str.toString()));
 			h.setBreadCrumb(bc);
-			
+
 			h.setIcon(AudioStudio.getIcon());
 			h.setContext(getLabel("audio-studio"));
 			h.setHeaderCss("mb-0 pb-2 border-none");
@@ -172,7 +177,6 @@ public class AudioStudioPage extends BasePage {
 		addOrReplace(this.header);
 	}
 
-	
 	protected void setUpModel() {
 
 		if (getModel() == null) {
@@ -193,18 +197,17 @@ public class AudioStudioPage extends BasePage {
 
 		AudioStudioParentObject ap = getAudioStudioDBService().findParentObjectWithDeps(getModel().getObject()).get();
 
-		
 		parentObjectName = getObjectTitle(ap).getObject();
 		parentObjectId = ap.getId();
 		parentObjectPrefix = ap.getPrefixUrl();
 
 		if (ap instanceof TranslationRecord) {
-			mlo_parentObjectName 	=  getObjectTitle( ((TranslationRecord) ap).getParentObject() ).getObject();
-			mlo_parentObjectId 		= ((TranslationRecord) ap).getParentObject().getId();
-			mlo_parentObjectPrefix 	= ((TranslationRecord) ap).getParentObject().getPrefixUrl();
-		
+			mlo_parentObjectName = getObjectTitle(((TranslationRecord) ap).getParentObject()).getObject();
+			mlo_parentObjectId = ((TranslationRecord) ap).getParentObject().getId();
+			mlo_parentObjectPrefix = ((TranslationRecord) ap).getParentObject().getPrefixUrl();
+
 		} else {
-			
+
 			mlo_parentObjectName = parentObjectName;
 			mlo_parentObjectId = parentObjectId;
 			mlo_parentObjectPrefix = parentObjectPrefix;
@@ -212,22 +215,17 @@ public class AudioStudioPage extends BasePage {
 	}
 
 	
-	
-	protected String getParentObjectUrl() {
-		return getServerUrl() + "/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString();
-	}
-
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;
- 		
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
+
+		User user = ouser.get();
+
+		if (user.isRoot())
 			return true;
-		
+
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
@@ -242,16 +240,16 @@ public class AudioStudioPage extends BasePage {
 		}
 
 		{
-		
-			Optional<Site> o = getAudioStudioDBService().getSite( getModel().getObject() );
-			
+
+			Optional<Site> o = getAudioStudioDBService().getSite(getModel().getObject());
+
 			if (o.isEmpty())
 				return true;
-			
+
 			final Long sid = o.get().getId();
 
 			Set<RoleSite> set = user.getRolesSite();
-			
+
 			if (set != null) {
 				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
 				if (isAccess)
@@ -261,7 +259,11 @@ public class AudioStudioPage extends BasePage {
 
 		return false;
 	}
-	
+
+	protected String getParentObjectUrl() {
+		return getServerUrl() + "/" + mlo_parentObjectPrefix + "/" + mlo_parentObjectId.toString();
+	}
+
 	private IModel<String> getObjectTitle(AudioStudioParentObject ap) {
 
 		if (ap instanceof MultiLanguageObject) {
@@ -270,5 +272,4 @@ public class AudioStudioPage extends BasePage {
 		return Model.of(ap.getName());
 	}
 
-	
 }

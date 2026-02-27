@@ -34,6 +34,7 @@ public class BrandedAccesibilityPanel extends ObjectModelPanel<User> {
 	
 	public BrandedAccesibilityPanel(String id, IModel<User> model) {
 		super(id, model);
+		this.setOutputMarkupId(true);
 	}
 	
 	

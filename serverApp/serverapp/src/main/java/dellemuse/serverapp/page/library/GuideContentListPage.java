@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -76,6 +77,7 @@ import io.wktui.struct.list.ListPanelMode;
  * 
  */
 
+@AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/guidecontent/list")
 public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
@@ -330,6 +332,14 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
 
+			public boolean isEnabled() {
+				return canEdit();
+			}
+
+			public boolean isVisible() {
+				return canEdit();
+			}
+			
 			protected void onClick() {
 				GuideContentListPage.this.onCreate();
 			}

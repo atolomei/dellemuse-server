@@ -149,6 +149,17 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
 			}
+			
+			@Override
+			public boolean isVisible() {
+				return isRoot() || isGeneralAdmin();
+				
+			}
+			
+			@Override
+			public boolean isEnabled() {
+				return isRoot() || isGeneralAdmin();
+			}
 		};
 		create.setAlign(Align.TOP_LEFT);
 		x_list.add(create);

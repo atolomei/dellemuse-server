@@ -67,7 +67,7 @@ import wktui.base.NamedTab;
  * site foto Info - exhibitions
  */
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/guidecontent/${id}")
 public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, GuideContentRecord> {
 
@@ -83,92 +83,6 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	private GuideContentEditor editor;
 	private JumboPageHeaderPanel<GuideContent> header;
 	private List<ToolbarItem> list;
-
-	
-	public String getHelpKey() {
-		return Help.GUIDE_CONTENT;
-	}
-	
-	@Override
-	protected void onEditRecord(AjaxRequestTarget target, String lang) {
-		if (getRecordEditors().get(lang) instanceof ObjectRecordEditor)
-			((ObjectRecordEditor<?,?>) getRecordEditors().get(lang)).edit(target);
-	
-	}
-
-	@Override
-	protected Panel getTranslateRecordEditor(String id, String lang) {
-
-	
-		if (getRecordEditors().containsKey(lang))
-			return getRecordEditors().get(lang);
-
-		IModel<GuideContentRecord> translationRecordModel = getTranslationRecordModel(lang);
-		ObjectRecordEditor<GuideContent, GuideContentRecord> e = new ObjectRecordEditor<GuideContent, GuideContentRecord>(id, getModel(), translationRecordModel);
-
-		e.setIntroVisible(isIntroVisible());
-		e.setSpecVisible(isSpecVisible());
-		e.setOpensVisible(isOpensVisible());
-		e.setAudioVisible(isAudioVisible());
-		e.setInfoVisible(isInfoVisible());
-
-		super.getRecordEditors().put(lang, e);
-		return e;
-	}
-	
-	
-	protected List<Language> getSupportedLanguages() {
-		return  getSiteModel().getObject().getLanguages();
-	}
-
-	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-
-		if (ouser.isEmpty())
-			return false;
-
-		User user = ouser.get();
-
-		if (user.isRoot())
-			return true;
-
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		{
-			Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		{
-			final Long sid = getSiteModel().getObject().getId();
-
-			Set<RoleSite> set = user.getRolesSite();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		{
-			final Long iid = getSiteModel().getObject().getInstitution().getId();
-			Set<RoleInstitution> set = user.getRolesInstitution();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN))));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		return false;
-	}
 
 	public GuideContentPage() {
 		super();
@@ -246,9 +160,88 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		this.artWorkModel = artWorkModel;
 	}
 
-	
-	 
-	
+	public String getHelpKey() {
+		return Help.GUIDE_CONTENT_INFO;
+	}
+
+	@Override
+	protected void onEditRecord(AjaxRequestTarget target, String lang) {
+		if (getRecordEditors().get(lang) instanceof ObjectRecordEditor)
+			((ObjectRecordEditor<?, ?>) getRecordEditors().get(lang)).edit(target);
+
+	}
+
+	@Override
+	protected Panel getTranslateRecordEditor(String id, String lang) {
+
+		if (getRecordEditors().containsKey(lang))
+			return getRecordEditors().get(lang);
+
+		IModel<GuideContentRecord> translationRecordModel = getTranslationRecordModel(lang);
+		ObjectRecordEditor<GuideContent, GuideContentRecord> e = new ObjectRecordEditor<GuideContent, GuideContentRecord>(id, getModel(), translationRecordModel);
+
+		e.setIntroVisible(isIntroVisible());
+		e.setSpecVisible(isSpecVisible());
+		e.setOpensVisible(isOpensVisible());
+		e.setAudioVisible(isAudioVisible());
+		e.setInfoVisible(isInfoVisible());
+
+		super.getRecordEditors().put(lang, e);
+		return e;
+	}
+
+	protected List<Language> getSupportedLanguages() {
+		return getSiteModel().getObject().getLanguages();
+	}
+
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get();
+
+		if (user.isRoot())
+			return true;
+
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long iid = getSiteModel().getObject().getInstitution().getId();
+			Set<RoleInstitution> set = user.getRolesInstitution();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
+
 	protected WebMarkupContainer getEditor(String id) {
 		if (this.editor == null)
 			this.editor = new GuideContentEditor(id, getModel(), getArtExhibitionGuideModel(), getArtExhibitionModel(), getSiteModel());
@@ -421,17 +414,11 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 
 		this.list = new ArrayList<ToolbarItem>();
 
-		
-		
-		
-		
-		
 		/** audio de obra */
-		list.add(new GuideContentNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(),  getLabel("guide-content-dropdown", 
-				TextCleaner.truncate(getModel().getObject().getName(), 18)), Align.TOP_RIGHT));
+		list.add(new GuideContentNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(), getLabel("guide-content-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 18)), Align.TOP_RIGHT));
 
 		/** audio guia */
-		ArtExhibitionGuideEXTNavDropDownMenuToolbarItem ag = new ArtExhibitionGuideEXTNavDropDownMenuToolbarItem("item", getArtExhibitionGuideModel(),getSiteModel(), Align.TOP_RIGHT);
+		ArtExhibitionGuideEXTNavDropDownMenuToolbarItem ag = new ArtExhibitionGuideEXTNavDropDownMenuToolbarItem("item", getArtExhibitionGuideModel(), getSiteModel(), Align.TOP_RIGHT);
 		ag.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-none d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(ag);
 
@@ -445,9 +432,8 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-none d-lg-none d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
-		list.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
-		
-		
+		list.add(new HelpButtonToolbarItem("item", Align.TOP_RIGHT));
+
 		return this.list;
 	}
 
@@ -501,10 +487,10 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		bc.addElement(new BCElement(getObjectTitle(getModel().getObject())));
 
 		StringBuilder str = new StringBuilder();
-		str.append( getObjectTitle( getModel().getObject() ).getObject() );
-		str.append(  getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML: "" );
-	
-		header = new JumboPageHeaderPanel<GuideContent>("page-header", getModel(),getObjectTitle(getModel().getObject()));
+		str.append(getObjectTitle(getModel().getObject()).getObject());
+		str.append(getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML : "");
+
+		header = new JumboPageHeaderPanel<GuideContent>("page-header", getModel(), getObjectTitle(getModel().getObject()));
 		header.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 		header.setContext(getLabel("guide-content"));
 
