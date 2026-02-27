@@ -61,6 +61,19 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	 * public void setUserLocale( IModel<Locale> locale) { mlocale=Model.of(); }
 	 **/
 
+	public boolean hasWritePermission() {
+
+		if (getSessionUser().get().getId().equals( getModel().getObject().getId()) )
+			return true;
+		
+		if( (getModel().getObject().getUsername()!=null) && getModel().getObject().getUsername().equals("root"))
+				return isRoot();
+		
+		return isGeneralAdmin();
+	
+	}
+		
+		
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -80,6 +93,12 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		// this.form.add(emailField);
 		
 		this.nameField = new TextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
+		
+		
+		if(getModel().getObject().getUsername()!=null && getModel().getObject().getUsername().equals("root")) {
+			this.nameField.setReadOnly(true);
+		}
+		
 		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 		this.localeField = new LocaleField("locale", new PropertyModel<Locale>(getModel(), "locale"), getLabel("locale"));
 

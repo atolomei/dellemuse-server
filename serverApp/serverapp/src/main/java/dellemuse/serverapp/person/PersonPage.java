@@ -86,6 +86,11 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	private List<ToolbarItem> list;
 
 	
+
+	public boolean isLanguage() {
+		return false;
+	}
+	
 	public PersonPage() {
 		super();
 	}
@@ -135,7 +140,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 		if (ouser.isEmpty())
 			return false;
 	
-		{
+		 
 			
 			User user = ouser.get();  
 			
@@ -153,8 +158,17 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 					if (isAccess)
 						return true;
 			}
-		}
 	
+		
+		Optional<Person> op = getPersonDBService().getByUser( user );
+		
+		if (op.isEmpty())
+			return false;
+		
+		
+		if (op.get().getId().equals( getModel().getObject().getId()))
+					return true;
+		
 		return false;
 	}
 	

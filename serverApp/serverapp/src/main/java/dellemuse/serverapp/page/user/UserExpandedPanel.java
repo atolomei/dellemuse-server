@@ -57,15 +57,11 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 	private FormState state = FormState.VIEW;
 
-	// private MultipleSelectorPanel<Role> multipleRoleSeletor;
-	// private AjaxLink<Void> add;
-	// private AjaxLink<Void> close;
-	// private WebMarkupContainer addContainerButtons;
+	 
 
 	private ListPanel<Role> userRolesPanel;
 
-	// private WebMarkupContainer listToolbarContainer;
-	// private List<ToolbarItem> listToolbar;
+	 
 
 	private List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
 	private IModel<Person> pmodel;
@@ -204,7 +200,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 	protected IModel<String> getObjectTitle(IModel<Role> model) {
 		StringBuilder str = new StringBuilder();
-		str.append(model.getObject().getRoleDisplayName() + " (" + model.getObject().getDisplayClass(getLocale()) + ") ");
+		str.append(model.getObject().getRoleDisplayName() + " <span class=\"text-secondary\">(" + model.getObject().getDisplayClass(getLocale()) + ")</span> ");
 
 		Role o  = model.getObject();
 		
@@ -221,9 +217,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 		this.userRoles = list;
 	}
 
-	private void resetList() {
-		this.userRoles = null;
-	}
+	 
 
 	private void setUpModel() {
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);

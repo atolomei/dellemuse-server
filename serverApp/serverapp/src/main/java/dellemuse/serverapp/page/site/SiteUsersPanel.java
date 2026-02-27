@@ -1,6 +1,7 @@
 package dellemuse.serverapp.page.site;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -158,6 +159,13 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 			site = getModel().getObject();
 			
 		getUserDBService().getSiteUsers( site ).forEach( u -> users.add( new ObjectModel<User>(u)) );
+		
+		this.users.sort( new Comparator<IModel<User>>() {
+			@Override
+			public int compare(IModel<User> o1, IModel<User> o2) {
+			 	return o1.getObject().getUsername().compareToIgnoreCase(o2.getObject().getUsername());
+			}
+		});
 	}
  	
 	/**

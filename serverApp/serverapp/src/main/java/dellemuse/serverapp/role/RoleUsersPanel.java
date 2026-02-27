@@ -1,6 +1,7 @@
 package dellemuse.serverapp.role;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -173,6 +174,18 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		} else
 			role = getModel().getObject();
 		role.getUsers().forEach(s -> this.roleUsers.add(new ObjectModel<User>(s)));
+		
+		
+		this.roleUsers.sort( new Comparator<IModel<User>>() {
+			@Override
+			public int compare(IModel<User> o1, IModel<User> o2) {
+				 return o1.getObject().getUsername().compareToIgnoreCase(o2.getObject().getUsername());
+			}
+		});
+		
+		
+		
+		
 	}
 
 	protected IModel<String> getObjectTitle(IModel<User> model) {
@@ -196,55 +209,7 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		Role u = getModel().getObject();
 		getModel().setObject(getRoleDBService().findWithDeps(u).get());
 	}
-
-	/**
-	 * private WebMarkupContainer getMenu(IModel<Role> model) {
-	 * NavDropDownMenu<Role> menu = new NavDropDownMenu<Role>("menu", model, null) {
-	 * private static final long serialVersionUID = 1L;
-	 * 
-	 * public boolean isVisible() { return true; } };
-	 * 
-	 * menu.setOutputMarkupId(true);
-	 * 
-	 * menu.setTitleCss ("d-block-inline d-sm-block-inline d-md-block-inline
-	 * d-lg-none d-xl-none d-xxl-none ps-1 pe-1"); menu.setIconCss("fa-solid
-	 * fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline
-	 * d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
-	 * 
-	 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
-	 * 
-	 * private static final long serialVersionUID = 1L;
-	 * 
-	 * @Override public MenuItemPanel<Role> getItem(String id) {
-	 * 
-	 *           return new AjaxLinkMenuItem<Role>(id) {
-	 * 
-	 *           private static final long serialVersionUID = 1L;
-	 * 
-	 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
-	 *           }
-	 * 
-	 * @Override public IModel<String> getLabel() { return getLabel("open"); }
-	 * 
-	 *           }; } });
-	 * 
-	 *           menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
-	 * 
-	 *           private static final long serialVersionUID = 1L;
-	 * 
-	 * @Override public MenuItemPanel<Role> getItem(String id) {
-	 * 
-	 *           return new AjaxLinkMenuItem<Role>(id) {
-	 * 
-	 *           private static final long serialVersionUID = 1L;
-	 * 
-	 * @Override public void onClick(AjaxRequestTarget target) {
-	 *           RoleUsersPanel.this.onObjectRemove(getModel(), target); }
-	 * 
-	 * @Override public IModel<String> getLabel() { return getLabel("remove"); } };
-	 *           } }); return menu; }
-	 */
-
+ 
 	/**
 	 * 
 	 * 
