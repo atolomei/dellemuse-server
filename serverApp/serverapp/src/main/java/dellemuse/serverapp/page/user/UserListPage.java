@@ -238,6 +238,10 @@ public class UserListPage extends ObjectListPage<User> {
 		ButtonCreateToolbarItem<User> create = new ButtonCreateToolbarItem<>("item") {
 			private static final long serialVersionUID = 1L;
 
+			
+			
+			
+			
 			protected void onClick() {
 				UserListPage.this.onCreate();
 			}
