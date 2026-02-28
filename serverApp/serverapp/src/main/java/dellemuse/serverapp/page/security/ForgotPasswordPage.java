@@ -1,4 +1,4 @@
-package dellemuse.serverapp.register;
+package dellemuse.serverapp.page.security;
 
  
 import java.util.Optional;

@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -14,11 +15,15 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebResponse;
 import org.apache.wicket.util.value.IValueMap;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artwork.ArtWorkPage;
+import dellemuse.serverapp.branded.LangEvent;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageService;
@@ -27,6 +32,7 @@ import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavBar;
 import io.wktui.nav.menu.NavDropDownMenu;
+import jakarta.servlet.http.Cookie;
 import wktui.base.InvisiblePanel;
 import wktui.base.LabelLinkPanel;
 import wktui.base.ModelPanel;
@@ -41,28 +47,37 @@ public class LanguagePanel extends ModelPanel<User> {
 	private List<Language> languages;
 	private Language lang;
 	
+	IModel<Site> siteModel;
+	
+	
 	public LanguagePanel(String id) {
-		this(id, null);
+		this(id, null, null);
 	}
 	
-	public LanguagePanel(String id, IModel<User> model) {
+	public LanguagePanel(String id, IModel<User> model, IModel<Site> siteModel) {
 		super(id, model);
+		this.siteModel=siteModel;
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
+		
+		
+		if (siteModel!=null)
+			siteModel.detach();
+	
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-
-		setLanguage(Language.of(getModel().getObject().getLocale().getLanguage()));
+			
+		this.languages = new ArrayList<Language>();
+		this.languages.add(Language.of( siteModel.getObject().getMasterLanguage()));
+		this.languages.addAll(siteModel.getObject().getLanguages());
 		
-	 
-		languages = getLanguageService().getLanguagesSorted(getModel().getObject().getLocale());
-		 
+		setLanguage(Language.of(getLocale().getLanguage()));
 
 		this.selector = new DropDownChoice<Language>("languages", getChoices()) {
 
@@ -116,13 +131,27 @@ public class LanguagePanel extends ModelPanel<User> {
 				return LanguagePanel.this.getDisplayValue(value);
 			};
 		});
+		
+		
+		// ✅ listen for changes and set cookie
+		selector.add(new org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior("change") {
 
-		// if (getModel().getObject()!=null)
-		// setValue( ChoiceField.this.getDisplayValue(getModel().getObject()));
-
+		    @Override
+		    protected void onUpdate(AjaxRequestTarget target) {
+		        Language selectedLanguage = selector.getModelObject();
+		        if (selectedLanguage != null) {
+		            Cookie cookie = new Cookie("lang", selectedLanguage.getLanguageCode());
+		            cookie.setPath("/");
+		            cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
+		            ((WebResponse) RequestCycle.get().getResponse())
+		                    .addCookie(cookie);
+		            getSession().setLocale( Locale.forLanguageTag(selectedLanguage.getLanguageCode()));
+		            fire( new LangEvent("lang", selectedLanguage.getLanguageCode()));
+		        }
+		    }
+		});
 		add(selector);
 	}
-
 	
 	public Language getLanguage() {
 		return this.lang;

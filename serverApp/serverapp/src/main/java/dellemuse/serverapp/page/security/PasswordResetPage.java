@@ -1,4 +1,4 @@
-package dellemuse.serverapp.register;
+package dellemuse.serverapp.page.security;
 
  
 import java.util.Optional;
@@ -56,13 +56,13 @@ import wktui.base.InvisiblePanel;
  * 
  */
 
-//@WicketSignInPage
-//@MountPath("/signin")
-public class LoginPage2 extends BasePage {
+ 
+@MountPath("/resetpassword")
+public class PasswordResetPage extends BasePage {
 
 	private static final long serialVersionUID = 1L;
 
-	static private Logger logger = Logger.getLogger(LoginPage2.class.getName());
+	static private Logger logger = Logger.getLogger(PasswordResetPage.class.getName());
  
 	private WebMarkupContainer alertContainer;	
 	private AlertPanel<Void> alert;
@@ -77,29 +77,22 @@ public class LoginPage2 extends BasePage {
 
 	private boolean isError = false;
 	
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		return true;
 	}
 	
-	
-	public LoginPage2() {
+	public PasswordResetPage() {
 		super();
 	}
-	public LoginPage2(PageParameters parameters) {
+	public PasswordResetPage(PageParameters parameters) {
 		super(parameters);
 		if (getPageParameters()!=null) {
 			isError=(getPageParameters().get("error")!=null && getPageParameters().get("error").toString().length()>1);
 			username=getPageParameters().get("username").toString();
 		}
 	}
-	
-	// store the Spring SecurityContext under the standard key
-	//httpSession.setAttribute(
-	//    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-	//    SecurityContextHolder.getContext()
-	//);
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -107,27 +100,12 @@ public class LoginPage2 extends BasePage {
 		if (getSession().isTemporary()) {
 	        getSession().bind(); //   fuerza creación temprana de sesión
 	    }
-	 	
-		//add(new GlobalTopPanel("top-panel"));
-		//add(new GlobalFooterPanel<Void>("footer-panel"));
-		//add(new FeedbackPanel("feedback"));
-		//add(new InvisiblePanel("page-header"));
-		
-		/**Image image = new Image(
-			    "logo",
-			    new org.apache.wicket.request.resource.PackageResourceReference(
-			        LoginPage.class,
-			        "dellemuse-logo-blanco.png"
-			    )
-			);
-		
-		add(image);
-		**/
+	  
 		
 		Image imageBlack = new Image(
 			    "miniLogo",
 			    new org.apache.wicket.request.resource.PackageResourceReference(
-			        LoginPage2.class,
+			        PasswordResetPage.class,
 			        "dellemuse-logo-blanco.png"
 			    )
 			);
@@ -165,81 +143,43 @@ public class LoginPage2 extends BasePage {
 	
 					SecureWebSession session = (SecureWebSession) getSession();
 	       
-					if (session.signIn(username, password)) {
+	                if (session.signIn(username, password)) {
  	       
 	                	ServletWebRequest servletRequest = (ServletWebRequest) RequestCycle.get().getRequest();
 	                	HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest.getContainerRequest();
 	                	WebResponse webResponse = (WebResponse) RequestCycle.get().getResponse();
 	                    HttpServletResponse httpServletResponse = (HttpServletResponse) webResponse.getContainerResponse();
 	                	HttpSession httpSession = httpServletRequest.getSession(true); // create if missing
+	                	// store the Spring SecurityContext under the standard key
+	                	httpSession.setAttribute(
+	                	    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+	                	    SecurityContextHolder.getContext()
+	                	);
 	                	
-	                	// --- Redirección ---
-	        	        try {
-	        	            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	        	            // Intenta usar SavedRequest de Spring Security primero
-	        	        } catch (Exception e) {
-	        	            // fallback Wicket: continueToOriginalDestination
-	        	            try {
-	        	                continueToOriginalDestination();
-	                            String url = urlFor(getApplication().getHomePage(), null).toString();
-	                            RequestCycle.get().scheduleRequestHandlerAfterCurrent(
-	                                new  RedirectRequestHandler(url)
-	                            );
-	        	            	
-	        	            } catch (Exception ex) {
-	        	                // fallback final al HomePage
-	        	                String url = urlFor(getApplication().getHomePage(), null).toString();
-	        	                RequestCycle.get().scheduleRequestHandlerAfterCurrent(
-	        	                        new RedirectRequestHandler(url)
-	        	                );
-	        	            }
-	        	        }
-
-	        	        isError = false;
-	   
-	        	        logger.debug("LOGIN: sessionId= "+ httpSession.getId()  + " springContextPresent=" +
+	                	logger.debug("LOGIN: sessionId= "+ httpSession.getId()  + " springContextPresent=" +
 	                		    (httpSession.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY
 	                		    ) != null));
-	                	
+	                	isError = false;
+
+	                	completeLogin();
+		                    
 	                } else {
 	                	logger.debug("Invalid username or password");
 	                	PageParameters parameters = new PageParameters();
 	                	parameters.add("error", "invalid-username-or-password");
 	                	parameters.add("username", username);
 		              	isError = true;
-		            	setResponsePage( new LoginPage2(parameters));
+		            	setResponsePage( new PasswordResetPage(parameters));
 	                    error("Invalid username or password.");
 	                }
 	            }
-				
-				
 				@Override
 				protected void onError()
 				{
 					logger.debug("dedd");
 					
-
-                	/**
-                	ServletWebResponse webResponse = (ServletWebResponse) RequestCycle.get().getResponse();
-                	HttpServletResponse httpResponse = webResponse.getContainerResponse();
-                	try {
-						httpResponse.flushBuffer();
-					} catch (IOException e) {
-						logger.error(e);
-					} **/
-                	 	
-               
-                	
-                	//logger.debug("Sign in -> " + username +" | " + password);
-                	//logger.debug("login session id: " + httpSession.getId());
-                	
-                	/**
-                	Enumeration<String> names = httpSession.getAttributeNames();
-                	while (names.hasMoreElements()) {
-                	    String n = names.nextElement();
-                	    logger.debug("attr: " + n);
-                	}
-                	**/
+ 
+                 
 
 				}
 	    
@@ -284,32 +224,7 @@ public class LoginPage2 extends BasePage {
 	private boolean isError() {
 		return this.isError;
 	}
-	
-	/**
-	 private void authenticateUser(String username, String password) {
-	        try {
-	            Authentication authentication =
-	                authenticationManager.authenticate(
-	                    new UsernamePasswordAuthenticationToken(username, password)
-	                );
-	            SecureWebSession wsession = (SecureWebSession) getSession();
-	          
-	            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-	            // 2️⃣ Persist to HTTP session
-	            HttpServletRequest request =
-	                ((ServletWebRequest) RequestCycle.get().getRequest()).getContainerRequest();
-	            HttpSession session = request.getSession(true);
-	            session.setAttribute(
-	                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-	                SecurityContextHolder.getContext()
-	            );
-	        
-	        } catch (Exception ex) {
-	            error("Invalid username or password");
-	        }
-	    }
-	 */
+	 
 	
 
 	private Form<User> getForm() {
@@ -337,7 +252,7 @@ public class LoginPage2 extends BasePage {
 	
 	   private void completeLogin() {
 
-		   // --- Integrar Spring Security ---
+	        // --- Integrar Spring Security ---
 	        ServletWebRequest servletRequest = (ServletWebRequest) RequestCycle.get().getRequest();
 	        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest.getContainerRequest();
 	        WebResponse webResponse = (WebResponse) RequestCycle.get().getResponse();
@@ -370,7 +285,6 @@ public class LoginPage2 extends BasePage {
 	                );
 	            }
 	        }
-
 	        isError = false;
 	    }
 	

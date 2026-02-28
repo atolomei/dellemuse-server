@@ -149,7 +149,7 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 		this.nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
 		this.subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
 		this.infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 12);
-		this.audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
+		this.audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio-intro")) {
 
 			private static final long serialVersionUID = 1L;
 

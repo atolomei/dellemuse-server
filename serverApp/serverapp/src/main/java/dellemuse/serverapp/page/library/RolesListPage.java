@@ -175,10 +175,15 @@ public class RolesListPage extends ObjectListPage<Role> {
 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
+		
 		if (ouser.isEmpty())
 			return false;
 		
-		User user = ouser.get();  if (user.isRoot()) return true;
+		User user = ouser.get(); 
+		
+		if (user.isRoot()) 
+			return true;
+		
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
@@ -186,6 +191,7 @@ public class RolesListPage extends ObjectListPage<Role> {
 		Set<RoleGeneral> set = user.getRolesGeneral();
 		if (set==null)
 			return false;
+		
 		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
 	}
 	
@@ -266,7 +272,7 @@ public class RolesListPage extends ObjectListPage<Role> {
 
 		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 
-		//IModel<String> selected = Model.of(RoleEnumSelector.ALL.getLabel(getLocale()));
+		 
 		RoleListSelector s = new RoleListSelector("item", selected, Align.TOP_LEFT);
 		listToolbar.add(s);
 		

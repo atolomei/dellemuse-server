@@ -24,8 +24,6 @@ public class Language extends JsonObject implements Serializable {
 	static public final String ES = "es";
 	static public final String PT = "pt-BR";
 	static public final String FR = "fr";
-
-	
 	static public final String IT = "it";
 	static public final String GER = "ger";
 
@@ -60,6 +58,7 @@ public class Language extends JsonObject implements Serializable {
 	
 	
 	
+	
 
 	
 	
@@ -82,9 +81,6 @@ public class Language extends JsonObject implements Serializable {
 		}
 		return map;
 	}
-
-	
-	
 	
 	private String languageCode;
 

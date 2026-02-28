@@ -2,6 +2,7 @@ package dellemuse.serverapp.branded;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -10,6 +11,8 @@ import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
@@ -37,6 +40,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -59,7 +63,7 @@ import io.wktui.nav.menu.TitleMenuItem;
 
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
-
+import jakarta.servlet.http.Cookie;
 import wktui.base.InvisiblePanel;
 
 /**
@@ -104,10 +108,17 @@ public class BrandedSitePage extends BasePage {
 
 	
 	public BrandedSitePage(IModel<Site> model) {
-		this(model, null, null);
+		this(model, null, null, null);
 	}
 
+	private String lang;
+	
+	
 	public BrandedSitePage(IModel<Site> model, List<IModel<GuideContent>> gc_list,  List<IModel<ArtExhibitionGuide>> ag_list) {
+		this(model, gc_list, ag_list, null);
+	}
+	
+	public BrandedSitePage(IModel<Site> model, List<IModel<GuideContent>> gc_list,  List<IModel<ArtExhibitionGuide>> ag_list, String lang) {
 		Check.requireNonNullArgument(model, "model is null");
 		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
 		setSiteModel(model);
@@ -115,14 +126,37 @@ public class BrandedSitePage extends BasePage {
 	
 		this.ag_list=ag_list;
 		this.gc_list=gc_list;
+		this.lang=lang;
 	}
 
+	
+	protected void setLanguage() {
+		if (lang!=null) {
+		    getSession().setLocale( Locale.forLanguageTag(lang));
+		}
+		else {
+			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+			Cookie cookie = request.getCookie("lang");
+	
+			if (cookie != null) {
+			    String value = cookie.getValue();
+			    getSession().setLocale( Locale.forLanguageTag(value));
+			    
+			}
+			else if (getSessionUser().isEmpty()) {
+				Language la=Language.of( getSiteModel().getObject().getMasterLanguage());
+				String code=la.getLanguageCode();
+				getSession().setLocale(Locale.forLanguageTag(code));
+			}
+		}
+		
+	}
 	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-
-		getPage().add( new org.apache.wicket.AttributeModifier("class", "branded branded  text-bg-dark sssss"));
+	
+		getPage().add( new org.apache.wicket.AttributeModifier("class", "branded branded  text-bg-dark"));
 		
 		try {
 			
@@ -133,7 +167,9 @@ public class BrandedSitePage extends BasePage {
 			addErrorPanels(e);
 			return;
 		}
-
+		
+		setLanguage();
+		
 		addHeader();
 		addSearch();
 
@@ -236,6 +272,26 @@ public class BrandedSitePage extends BasePage {
 	protected void addListeners() {
 		super.addListeners();
 		
+
+		add(new io.wktui.event.WicketEventListener<LangEvent>() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof LangEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(LangEvent event) {
+			
+				setResponsePage(new BrandedSitePage(BrandedSitePage.this.getSiteModel(), gc_list, ag_list, event.getLang()));
+			}
+		});
+
+
 		add(new io.wktui.event.WicketEventListener<SearchAudioEvent>() {
 			
 			private static final long serialVersionUID = 1L;
@@ -864,7 +920,9 @@ public class BrandedSitePage extends BasePage {
 
 		addOrReplace(new GlobalFooterPanel<>("footer-panel"));
 		addOrReplace(new InvisiblePanel("exhibitionsContainer"));
-		addOrReplace(new InvisiblePanel("searchContainer"));
+		addOrReplace(new GlobalFooterPanel<>("page-header"));
+
+		addOrReplace(new InvisiblePanel("search"));
 
 		SimpleAlertRow<Void> r = new SimpleAlertRow<Void>("error", e);
 		addOrReplace(r);
@@ -980,6 +1038,11 @@ public class BrandedSitePage extends BasePage {
 					if (o_site.isPresent()) {
 						setSiteModel(new ObjectModel<Site>(o_site.get()));
 					}
+					else 
+						throw new RuntimeException("site id not found -> " + stringValue.toString());
+				}
+				else {
+					throw new RuntimeException("site id is null ");
 				}
 			} else {
 				if (!getSiteModel().getObject().isDependencies()) {

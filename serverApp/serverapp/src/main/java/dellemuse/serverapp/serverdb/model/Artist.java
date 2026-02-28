@@ -93,6 +93,12 @@ public class Artist extends MultiLanguageObject {
 		  return getLastFirstname(); 
 	}
 
+	
+	@JsonIgnore
+	public String getTitle() {
+		return getFirstLastname();
+	}
+	
 	@Override
 	public String getObjectClassName() {
 		return Artist.class.getSimpleName();

@@ -225,16 +225,16 @@ public class SiteSearcherPanel extends DBModelPanel<Site> implements InternalPan
 		 this.form.updateModel();
 
 		 gc_list = generateGuideContentList();
-		 if (gc_list!=null && gc_list.size()==1) {
+		 if (gc_list!=null && gc_list.size()==1 && (getAudioId()!=null)) {
 				setResponsePage( new GuideContentPage( gc_list.get(0)));
 				return;
 		 }
 
 		ag_list	= generateArtExhibitionGuideList();
-		if (ag_list!=null && ag_list.size()==1) {
+		if (ag_list!=null && ag_list.size()==1 && (getAudioId()!=null)) {
 			 setResponsePage( new ArtExhibitionGuidePage( ag_list.get(0)));
 			 return;
-		 }
+		}
 	
 		setResponsePage(new SiteSearcherPage( getModel(), gc_list, ag_list));
 	}

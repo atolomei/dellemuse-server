@@ -5,7 +5,7 @@ package dellemuse.serverapp.security.config;
 import com.giffing.wicket.spring.boot.context.security.AuthenticatedWebSessionConfig;
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.security.SecureWebSession;
 
-import dellemuse.serverapp.register.LoginPage;
+import dellemuse.serverapp.page.security.LoginPage;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;

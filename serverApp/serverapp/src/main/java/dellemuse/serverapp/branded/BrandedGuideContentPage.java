@@ -2,6 +2,7 @@ package dellemuse.serverapp.branded;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -13,6 +14,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.component.IRequestablePage;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.UrlResourceReference;
 import org.wicketstuff.annotation.mount.MountPath;
@@ -51,6 +54,7 @@ import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.toolbar.ToolbarItem;
+import jakarta.servlet.http.Cookie;
 import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
@@ -90,7 +94,26 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	}
 
 	
+	private String lang;
 	
+	protected void setLanguage() {
+		if (lang!=null) {
+		    getSession().setLocale(Locale.forLanguageTag(lang));
+		}
+		else {
+			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+			Cookie cookie = request.getCookie("lang");
+			if (cookie != null) {
+			    String value = cookie.getValue();
+			    getSession().setLocale( Locale.forLanguageTag(value));
+			}
+			else if (getSessionUser().isEmpty()) {
+				Language la=Language.of( getSiteModel().getObject().getMasterLanguage());
+				String code=la.getLanguageCode();
+				getSession().setLocale(Locale.forLanguageTag(code));
+			}
+		}
+	}
 	
 	
 	public BrandedGuideContentPage() {
@@ -102,11 +125,12 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	}
 
 	public BrandedGuideContentPage(IModel<GuideContent> model) {
-		this(model, null);
+		this(model, null, null);
 	}
 
-	public BrandedGuideContentPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {
+	public BrandedGuideContentPage(IModel<GuideContent> model, List<IModel<GuideContent>> list, String lang) {
 		super(model, list);
+		this.lang=lang;
 	}
 	
 	
@@ -261,6 +285,30 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	protected void addListeners() {
 		super.addListeners();
 		
+		
+
+		add(new io.wktui.event.WicketEventListener<LangEvent>() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof LangEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(LangEvent event) {
+			
+				setResponsePage(
+						new BrandedGuideContentPage(
+								BrandedGuideContentPage.this.getModel(), 
+								BrandedGuideContentPage.this.getList(), 
+								event.getLang()));
+			}
+		});
+		
 		add(new io.wktui.event.WicketEventListener<SearchAudioEvent>() {
 			
 			private static final long serialVersionUID = 1L;
@@ -300,7 +348,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 	@Override
 	protected IRequestablePage getObjectPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {
-		return new BrandedGuideContentPage(model, list);
+		return new BrandedGuideContentPage(model, list,null);
 	}
 
 	@Override
@@ -358,7 +406,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 				@Override
 				public void navigate(int current) {
-					setResponsePage(new BrandedGuideContentPage(getList().get(current), getList()));
+					setResponsePage(new BrandedGuideContentPage(getList().get(current), getList(), null) );
 				}
 			};
 			bc.setNavigator(nav);
@@ -370,6 +418,8 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+		setLanguage();
+
 	}
 
 	@Override

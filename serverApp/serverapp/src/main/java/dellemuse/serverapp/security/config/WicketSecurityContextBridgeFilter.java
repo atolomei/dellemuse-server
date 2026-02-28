@@ -18,7 +18,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.register.LoginPage;
+import dellemuse.serverapp.page.security.LoginPage;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

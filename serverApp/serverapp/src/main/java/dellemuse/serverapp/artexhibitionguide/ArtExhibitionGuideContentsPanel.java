@@ -29,7 +29,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 
@@ -138,12 +138,27 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		this.artExhibitionModel = artExhibitionModel;
 	}
 
-	public IModel<String> getObjectTitle(IModel<GuideContent> model) {
+	public IModel<String> getObjectTitle(GuideContent o) {
+
 		StringBuilder str = new StringBuilder();
-		str.append(model.getObject().getDisplayname());
+		
 
-		GuideContent o = model.getObject();
+		str.append(o.getDisplayname());
 
+		
+		/**
+		getArtExhibitionItem();
+		
+		ArtWork a=o.getArtExhibitionItem().getArtWork();
+		
+		if (a!=null) {
+			String s = getArtistStr(a);
+			if (s!=null) {
+				str.append("<span class=\"text-secondary\">" + s + "</span>");
+			}
+		}
+		**/
+		
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 

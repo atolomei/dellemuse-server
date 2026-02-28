@@ -87,7 +87,19 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		b_state.add(ObjectState.DELETED);
 		b_state.add(ObjectState.PUBLISHED);
 	}
+	
+	
+	static public final List<Locale> locales = new ArrayList<Locale>();
 
+	static {
+		locales.add(Locale.ENGLISH);
+		locales.add(Locale.forLanguageTag("es"));
+	}
+	
+	public List<Locale> getSuppportedLocales() {
+		return locales;
+	}
+	
 	private Form<T> form;
 	private boolean readonly = false;
 	private List<String> updatedParts = new ArrayList<String>();

@@ -11,14 +11,16 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.artexhibition.ArtExhibitionEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 
 import dellemuse.serverapp.page.site.SiteInfoEditor;
+import dellemuse.serverapp.person.PersonEditor;
 import dellemuse.serverapp.person.ServerAppConstant;
-
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.event.MenuAjaxEvent;
 
@@ -32,6 +34,7 @@ import io.wktui.form.field.ZoneIdField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import io.wktui.panel.SimpleHelpPanel;
 import wktui.base.InvisiblePanel;
 
 public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
@@ -42,9 +45,13 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 	private Form<User> form;
 	private TextField<String> nameField;
+	
 	private ZoneIdField zoneidField;
 	private List<ToolbarItem> list;
+	
 	private LocaleField localeField;
+	
+	
 	// private StaticTextField<String> emailField;
 
 	/**
@@ -85,11 +92,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 		logger.debug("user locale -> " + getModel().getObject().getLocale().getLanguage());
 
-		
 		// this.emailField = new StaticTextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
-
-		
-		
 		// this.form.add(emailField);
 		
 		this.nameField = new TextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
@@ -100,8 +103,30 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		}
 		
 		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
-		this.localeField = new LocaleField("locale", new PropertyModel<Locale>(getModel(), "locale"), getLabel("locale"));
+		this.localeField = new LocaleField("locale", new PropertyModel<Locale>(getModel(), "locale"), getLabel("locale")) {
+			public List<Locale> getLocales() {
+				return getSuppportedLocales();
+			}
+		};
 
+
+		this.localeField.setHelpPanel( new SimpleHelpPanel<>("help") {
+			public IModel<String> getLinkLabel() {
+				return UserEditor.this.getLabel("locale-help-label");
+			}
+			
+			public IModel<String> getHelpText() {
+				return UserEditor.this.getLabel("locale-text-help");
+			}
+		});
+		
+		
+		
+		
+		
+		
+		
+		
 		if (getModel().getObject().isRoot())
 			this.nameField.setReadOnly(true);
 
@@ -145,6 +170,44 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 			}
 		};
 
+		
+		EditButtons<User> b_buttons_top = new EditButtons<User>("buttons-top", getForm(), getModel()) {
+
+			private static final long serialVersionUID = 1L;
+
+			public void onEdit(AjaxRequestTarget target) {
+				UserEditor.this.onEdit(target);
+			}
+
+			public void onCancel(AjaxRequestTarget target) {
+				UserEditor.this.onCancel(target);
+			}
+
+			public void onSave(AjaxRequestTarget target) {
+				UserEditor.this.onSave(target);
+			}
+
+			@Override
+			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+				
+				return getForm().getFormState() == FormState.EDIT;
+			}
+
+			protected String getSaveClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
+
+			protected String getCancelClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
+		};
+
+		getForm().add(b_buttons_top);
+		
+		
 		this.form.add(buttons);
 	}
 

@@ -1,6 +1,7 @@
 package dellemuse.serverapp.branded;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -9,6 +10,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.component.IRequestablePage;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.annotation.mount.MountPath;
 
@@ -39,7 +42,7 @@ import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 
 import io.wktui.nav.toolbar.ToolbarItem;
-
+import jakarta.servlet.http.Cookie;
 import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
@@ -66,11 +69,12 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	}
 
 	public BrandedArtExhibitionGuidePage(IModel<ArtExhibitionGuide> model) {
-		this(model, null);
+		this(model, null,null);
 	}
 
-	public BrandedArtExhibitionGuidePage(IModel<ArtExhibitionGuide> model, List<IModel<ArtExhibitionGuide>> list) {
+	public BrandedArtExhibitionGuidePage(IModel<ArtExhibitionGuide> model, List<IModel<ArtExhibitionGuide>> list, String lang) {
 		super(model, list);
+		this.lang=lang;
 	}
 	
 	protected List<Language> getSupportedLanguages() {
@@ -78,9 +82,58 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	}
 
 	
+	private String lang;
+	
+	
+	protected void setLanguage() {
+		if (lang!=null) {
+		    getSession().setLocale( Locale.forLanguageTag(lang));
+		}
+		else {
+			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+			Cookie cookie = request.getCookie("lang");
+	
+			if (cookie != null) {
+			    String value = cookie.getValue();
+			    getSession().setLocale( Locale.forLanguageTag(value));
+			    
+			}
+			else if (getSessionUser().isEmpty()) {
+				Language la=Language.of( getSiteModel().getObject().getMasterLanguage());
+				String code=la.getLanguageCode();
+				getSession().setLocale(Locale.forLanguageTag(code));
+			}
+		}
+		
+	}
+	
+	
 	@Override
 	protected void addListeners() {
 		super.addListeners();
+		
+		add(new io.wktui.event.WicketEventListener<LangEvent>() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof LangEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(LangEvent event) {
+			
+				setResponsePage(
+						new BrandedArtExhibitionGuidePage(
+								BrandedArtExhibitionGuidePage.this.getModel(), 
+								BrandedArtExhibitionGuidePage.this.getList(), 
+								event.getLang()));
+			}
+		});
+		
 		
 		add(new io.wktui.event.WicketEventListener<SearchAudioEvent>() {
 			
@@ -132,7 +185,9 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-
+		setLanguage();
+		
+		
 	}
 
 	public IModel<Site> getSiteModel() {
@@ -298,7 +353,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 	@Override
 	protected IRequestablePage getObjectPage(IModel<ArtExhibitionGuide> model, List<IModel<ArtExhibitionGuide>> list) {
-		return new BrandedArtExhibitionGuidePage(model, list);
+		return new BrandedArtExhibitionGuidePage(model, list,null);
 	}
 
 	@Override

@@ -222,13 +222,10 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	public void onInitialize() {
 		super.onInitialize();
 
-		
-		
 		mainMarkupContainer = new WebMarkupContainer("mainContainer");
 		mainMarkupContainer.add(AttributeModifier.replace("class", getMainClass()));
 
 		super.addOrReplace(mainMarkupContainer);
-
 		
 		helpContainer = new WebMarkupContainer("helpContainer");
 		helpContainer.setOutputMarkupId(true);

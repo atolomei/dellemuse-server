@@ -535,7 +535,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 					@Override
 					public void onClick() {
-						setResponsePage(new BrandedGuideContentPage(getModel(), BrandedArtExhibitionGuidePanel.this.getItems()));
+						setResponsePage(new BrandedGuideContentPage(getModel(), BrandedArtExhibitionGuidePanel.this.getItems(), null));
 					}
 
 					@Override

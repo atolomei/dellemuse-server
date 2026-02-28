@@ -39,8 +39,8 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 	}
 	
 	
-	public BrandedGlobalTopPanel(String id,  IModel<Site> userModel, String srcUrl) {
-		super(id, userModel);
+	public BrandedGlobalTopPanel(String id,  IModel<Site> sModel, String srcUrl) {
+		super(id, sModel);
 		this.srcUrl=srcUrl;
 	}
 
@@ -81,11 +81,17 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 		{
 			NavBar<Site> nav = new NavBar<Site>("navbarRight" , getModel());
 
-			BrandedAccesibilityPanel b = new BrandedAccesibilityPanel("item",  new ObjectModel<User>(getSessionUser().get()));
-			nav.addNoCollapseLeft(b);
-	
-			LanguagePanel gt = new LanguagePanel("item",  new ObjectModel<User>(getSessionUser().get()));
-			nav.addNoCollapseLeft(gt);
+			if (getSessionUser().isPresent()) {
+				nav.addNoCollapseLeft(new BrandedAccesibilityPanel("item",  new ObjectModel<User>(getSessionUser().get())));
+				LanguagePanel gt = new LanguagePanel("item",  new ObjectModel<User>(getSessionUser().get()), getModel() );
+				nav.addNoCollapseLeft(gt);
+				
+			}
+			else {
+				nav.addNoCollapseLeft(new BrandedAccesibilityPanel("item",   null));
+				LanguagePanel gt = new LanguagePanel("item",  null, getModel() );
+				nav.addNoCollapseLeft(gt);
+			}
 			
 			add(nav);  
 			

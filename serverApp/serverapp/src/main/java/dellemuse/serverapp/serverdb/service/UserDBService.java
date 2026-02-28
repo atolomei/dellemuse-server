@@ -204,7 +204,7 @@ public class UserDBService extends DBService<User, Long> {
 			 u=findWithDeps(u.getId()).get();
 		 }
 	
-		 List<Site> list = new ArrayList<Site>();
+		 Set<Site> list = new HashSet<Site>();
 
 		u.getRolesInstitution().forEach( r -> 
 		{
@@ -213,14 +213,15 @@ public class UserDBService extends DBService<User, Long> {
 		}); 
 	
 		u.getRolesSite().forEach( r -> list.add(r.getSite()) ); 
-		
+
+		/**
 		list.sort( new Comparator<Site>() {
 			@Override
 			public int compare(Site o1, Site o2) {
 				return o1.getName().compareToIgnoreCase(o2.getName());
 			}
 		});
-		
+		**/
 		return list;
 	}
 	 
@@ -388,7 +389,7 @@ public class UserDBService extends DBService<User, Long> {
 	        query.setFlushMode(FlushModeType.COMMIT);
 	        query.setParameter(nameParam, username);
 	        List<User> users = query.getResultList();
-	        if (users != null && !users.isEmpty()) {
+	        if ( (users != null) && (!users.isEmpty())) {
 	            return Optional.of(users.get(0));
 	        }
 	        return Optional.empty();

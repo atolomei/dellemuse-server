@@ -82,11 +82,13 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 		
 		try {
 			
-			Resource res=getLanguageObjectService().getAudio(getModel().getObject(), getLocale());
+			Resource res = getLanguageObjectService().getAudio(getModel().getObject(), getLocale());
 			
 			if (res!=null) {
 				
-				int c=getLanguageObjectService().compareAudioLanguage(getModel().getObject(), getLocale());
+				int c=getLanguageObjectService().compareAudioLanguage( 
+						getModel().getObject(), getLocale()
+				);
 			
 				if (c!=0) {
 				        infoContainer.addOrReplace( new AlertPanel<Void>("error", AlertPanel.INFO, getLabel("audio-other", 

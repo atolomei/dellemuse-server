@@ -11,7 +11,7 @@ import com.giffing.wicket.spring.boot.starter.app.WicketBootSecuredWebApplicatio
 import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.spring.security.SecureWebSession;
 
 import dellemuse.serverapp.page.DellemuseServerAppHomePage;
-import dellemuse.serverapp.register.LoginPage;
+import dellemuse.serverapp.page.security.LoginPage;
 
 @Component
 public class WicketWebApplication extends WicketBootSecuredWebApplication {

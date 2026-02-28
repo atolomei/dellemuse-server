@@ -53,6 +53,7 @@ public class DellemuseServerAppHomePage extends BasePage {
 	public DellemuseServerAppHomePage(PageParameters parameters) {
 		super(parameters);
 	
+		/**
 		logger.debug("WICKET isSignedIn = " +
 			    ((AuthenticatedWebSession)getSession()).isSignedIn());
 		
@@ -65,12 +66,14 @@ public class DellemuseServerAppHomePage extends BasePage {
 		
 		logger.debug("SESSION=" + getSession().getId());
 		logger.debug("AUTH=" + SecurityContextHolder.getContext().getAuthentication());
-		
+		**/
 	
 	}
 
 	public DellemuseServerAppHomePage() {
 		super();
+		
+		/**
 		logger.debug("WICKET isSignedIn = " +
 			    ((AuthenticatedWebSession)getSession()).isSignedIn());
 		
@@ -81,7 +84,7 @@ public class DellemuseServerAppHomePage extends BasePage {
 
 		logger.debug("SESSION=" + getSession().getId());
 		logger.debug("AUTH=" + SecurityContextHolder.getContext().getAuthentication());
-		
+		**/
 		
 	}
 	
@@ -103,10 +106,6 @@ public class DellemuseServerAppHomePage extends BasePage {
 			model.detach();
 	}
 	
-	
-	
-	
-
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -122,22 +121,16 @@ public class DellemuseServerAppHomePage extends BasePage {
 				add(new GlobalTopPanel("top-panel", getModel()));
 				add(new InvisiblePanel("footer-panel"));
 				
-				//if (isRoot())
+				if (isRoot() || isGeneralAdmin())
 					add( new HomeAdminMainPanel("mainPanel", getModel()));
-				//else
-				//	add( new DummyBlockPanel("mainPanel" ));
-						
-				// add(new GlobalFooterPanel<Void>("footer-panel"));
-	
-				// addSites();
-				
+				else
+					add( new HomeSiteUserMainPanel("mainPanel", getModel()));
 				
 			} catch (Exception e) {
 				logger.error(e);
-				
-				add(new InvisiblePanel("top-panel"));
-				add(new InvisiblePanel("footer-panel"));
-				add(new ErrorPanel("mainPanel", e));
+				addOrReplace(new InvisiblePanel("top-panel"));
+				addOrReplace(new InvisiblePanel("footer-panel"));
+				addOrReplace(new ErrorPanel("mainPanel", e));
 			}
 	}
 

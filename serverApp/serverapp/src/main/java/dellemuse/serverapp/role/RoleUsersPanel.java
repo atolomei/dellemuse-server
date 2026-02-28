@@ -3,6 +3,7 @@ package dellemuse.serverapp.role;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -28,7 +29,7 @@ import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 
 import dellemuse.serverapp.serverdb.model.ObjectState;
-
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
@@ -193,6 +194,13 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		str.append(model.getObject().getName());
 		
 		User o  = model.getObject();
+		
+		
+		Optional<Person> op = getPersonDBService().getByUser(o);
+		
+		if (op.isPresent()) {
+				str.append(" <span class=\"text-secondary\"> - " + op.get().getFirstLastname()+ " </span>");
+		}
 		
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
