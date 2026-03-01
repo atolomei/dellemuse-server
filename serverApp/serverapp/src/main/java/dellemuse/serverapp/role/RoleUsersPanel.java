@@ -199,7 +199,7 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		Optional<Person> op = getPersonDBService().getByUser(o);
 		
 		if (op.isPresent()) {
-				str.append(" <span class=\"text-secondary\"> - " + op.get().getFirstLastname()+ " </span>");
+				str.append(" <span class=\"text-secondary small\"> ( " + op.get().getFirstLastname()+ " ) </span>");
 		}
 		
 		if (o.getState() == ObjectState.DELETED)

@@ -12,6 +12,7 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.
 
 import dellemuse.serverapp.page.DellemuseServerAppHomePage;
 import dellemuse.serverapp.page.security.LoginPage;
+import io.wktui.media.AudioPlayerDemoPage;
 
 @Component
 public class WicketWebApplication extends WicketBootSecuredWebApplication {
@@ -39,6 +40,9 @@ public class WicketWebApplication extends WicketBootSecuredWebApplication {
 
 		// ⭐ Enable Wicket page authorization
 		getSecuritySettings().setAuthorizationStrategy(new AnnotationsRoleAuthorizationStrategy(this));
+
+		// Mount demo page for testing the custom AudioPlayer
+		mountPage("/audio-player-demo", AudioPlayerDemoPage.class);
 	}
 
 }

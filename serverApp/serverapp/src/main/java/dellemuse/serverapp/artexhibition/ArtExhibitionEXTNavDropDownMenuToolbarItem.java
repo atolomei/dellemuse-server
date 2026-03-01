@@ -174,7 +174,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("exhibition-guides");
+						return getLabel("exhibition-guides-title");
 					}
 				};
 			}

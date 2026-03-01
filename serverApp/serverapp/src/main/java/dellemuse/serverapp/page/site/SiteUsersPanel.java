@@ -201,7 +201,7 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 		
 		Optional<Person> op = getPersonDBService().getByUser(model.getObject());
 		if (op.isPresent()) {
-			str.append(" <span class=\"text-secondary\">( " + op.get().getFirstLastname()+ " ) </span>");
+			str.append(" <span class=\"text-secondary small\">. " + op.get().getFirstLastname()+ "  </span>");
 		}
 		
 		User o  = model.getObject();

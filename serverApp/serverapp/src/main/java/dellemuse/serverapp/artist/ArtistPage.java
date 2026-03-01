@@ -25,6 +25,8 @@ import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -83,6 +85,7 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 	private List<ToolbarItem> list;
 
 	
+	
 	public ArtistPage() {
 		super();
 	}
@@ -99,6 +102,11 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 		super(model, list);
 	}
 
+
+	public String getHelpKey() {
+		return Help.ARTIST_INFO;
+	}
+		
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -327,6 +335,9 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 			}
 		});
 	 
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
+		
 	 
 		
 	 	list.add(menu);
@@ -358,8 +369,6 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 				if (event.getName().equals(ServerAppConstant.action_artist_edit)) {
 					ArtistPage.this.onEdit(event.getTarget());
 				}
-				
-				
 				
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
 					ArtistPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());

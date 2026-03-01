@@ -23,7 +23,7 @@ public class Help {
 
 	public static final String SITE_INFO = "site-info";
 	public static final String SITE_USERS = "site-users";
-
+	public static final String SITE_LIST =  "site-list";
 
 	public static final String GUIDE_CONTENT_INFO = "guide-content-info";
 
@@ -44,5 +44,5 @@ public class Help {
 	
 	public static final String AUDIO_STUDIO =  "audio-studio";
 	
-
+	public static final String ARTIST_INFO =  "artist-info";
 }

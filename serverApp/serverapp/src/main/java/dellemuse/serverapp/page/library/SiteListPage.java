@@ -23,6 +23,8 @@ import dellemuse.model.logging.Logger;
  
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.global.PageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectListPage;
@@ -62,27 +64,10 @@ public class SiteListPage extends ObjectListPage<Site> {
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(SiteListPage.class.getName());
-
 	
 	private List<ToolbarItem> mainToolbar;
 	private List<ToolbarItem> listToolbar;
 	
-	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		if (ouser.isEmpty())
-			return false;
-		
-		User user = ouser.get();  if (user.isRoot()) return true;
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		Set<RoleGeneral> set = user.getRolesGeneral();
-		if (set==null)
-			return false;
-		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-	} 
 	
 	public SiteListPage() {
 		super();
@@ -106,29 +91,59 @@ public class SiteListPage extends ObjectListPage<Site> {
 		 return this.getObjects(os1, null);
 	}
 
+	public String getHelpKey() {
+		return Help.SITE_LIST;
+	}
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		
+		return true;
+		/**
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set = user.getRolesGeneral();
+		if (set==null)
+			return false;
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+	**/
+		
+	} 
+
 	
 	@Override
 	public Iterable<Site> getObjects(ObjectState os1, ObjectState os2) {
 
 		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 
-		if (os1==null && os2==null)
-			return service.findAllSorted();
-	
-		if (os2==null)
-			return service.findAllSorted(os1);
-
-		if (os1==null)
-			return service.findAllSorted(os2);
+		if (isRoot() || isGeneralAdmin()) {
+			
+			if (os1==null && os2==null)
+				return service.findAllSorted();
 		
-		return service.findAllSorted(os1, os2);
+			if (os2==null)
+				return service.findAllSorted(os1);
+	
+			if (os1==null)
+				return service.findAllSorted(os2);
+			
+			return service.findAllSorted(os1, os2);
+		} else {
+			 return getUserDBService().getUserAuthorizedSites(getSessionUser().get());
+		}
 	}
 
-	
-	
-	
-	
-	
 	
 	
 	@Override
@@ -175,6 +190,9 @@ public class SiteListPage extends ObjectListPage<Site> {
 		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 		ObjectStateListSelector s = new ObjectStateListSelector("item",  selected, Align.TOP_LEFT);
 		
+		
+		listToolbar.add(new HelpButtonToolbarItem("item", Align.TOP_RIGHT));
+
 		listToolbar.add(s);
 		
 		return listToolbar;

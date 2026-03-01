@@ -129,7 +129,14 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 		
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+	
 		listToolbar.add(s);
+		
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		listToolbar.add(h);
+
+		
+		
 
 	
 		
@@ -389,8 +396,6 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
-		list.add(h);
 		return list;
 	}
 

@@ -49,8 +49,7 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 
 	protected abstract R createTranslationRecord(String lang);
 
-	// private IModel<String> displayName;
-	// private IModel<String> subtitle;
+	 
 
 	public MultiLanguageObjectPage() {
 		super();

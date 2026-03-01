@@ -149,7 +149,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 			String as = getArtistStr(a);
 			
 			if (as!=null && as.length()>0)
-				str.append("<span class=\" text-secondary ms-2 me-2 small \">(" + as + ") </span>");
+				str.append("<span class=\" text-secondary me-2 small \">. " + as + "</span>");
 		
 			
 			if (model.getObject().getState() == ObjectState.DELETED)

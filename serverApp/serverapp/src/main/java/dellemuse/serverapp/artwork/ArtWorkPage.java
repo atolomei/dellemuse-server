@@ -66,7 +66,6 @@ import wktui.base.NamedTab;
  * site foto Info - exhibitions
  */
 @AuthorizeInstantiation({"ROLE_USER"})
-
 @MountPath("/artwork/${id}")
 public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord> {
 
@@ -99,6 +98,19 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		super(model, list);
 	}
 
+	
+	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
+
+	public String getHelpKey() {
+		return Help.ARTWORK_INFO;
+	}
+
+	
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -168,7 +180,6 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 
 		{
 			Set<RoleGeneral> set = user.getRolesGeneral();
-		
 			if (set!=null) {
 					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
 					if (isAccess)
@@ -178,9 +189,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		
 		{
 			final Long sid = getSiteModel().getObject().getId();
-			
 			Set<RoleSite> set = user.getRolesSite();
-	
 			if (set!=null) {
 				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
 				if (isAccess)
@@ -190,16 +199,13 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		
 		{
 			final Long iid = getSiteModel().getObject().getInstitution().getId();
-		
 			Set<RoleInstitution> set = user.getRolesInstitution();
-			
 			if (set!=null) {
 				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
 				if (isAccess)
 					return true;
 			}
 		}
-		
 		return false;
 	}
 	
@@ -320,9 +326,6 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		return new Model<String>(getModel().getObject().getName());
 	}
 
-	public String getHelpKey() {
-		return Help.ARTWORK_INFO;
-	}
 	
 	
 	@Override

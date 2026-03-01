@@ -68,12 +68,10 @@ public class RolesListPage extends ObjectListPage<Role> {
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
 	}
-
 	
 	public String getHelpKey() {
 		return Help.ROLES_LIST ;
 	}
-	
 	
 	
 	public RolesListPage() {

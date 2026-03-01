@@ -82,10 +82,12 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 		this.nameField 		= new StaticTextField<String>("username"			, new PropertyModel<String>(getModel(), "username"), getLabel("username"));
 		this.emailField 		= new StaticTextField<String>("email"			, new PropertyModel<String>(getModel(), "email"), getLabel("email"));
-		
-		
 		this.passwordField 	= new TextField<String>("password"					, new PropertyModel<String>( UserPasswordEditor.this, "newPassword"), getLabel("new-password")) {
-			
+
+			public boolean isVisible() {
+				return getForm().getFormState()==FormState.EDIT;
+			}
+
 			public boolean isEnabled() {
 				return getForm().getFormState()==FormState.EDIT;
 			}

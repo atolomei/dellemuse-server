@@ -10,7 +10,6 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
- 
 
 import jakarta.annotation.PostConstruct;
 import dellemuse.model.logging.Logger;
@@ -82,12 +81,10 @@ public class ServerDBSettings {
 	@NonNull
 	protected int objectStoragePort;
 
-
 	@Value("${objectstorage.isSSL:null}")
 	protected String isObjectStorageSSLStr;
 	protected boolean isObjectStorageSSL;
-	
-	
+
 	@Value("${objectstorage.presigned.url:null}")
 	protected String objectStoragePresignedUrl;
 
@@ -124,15 +121,13 @@ public class ServerDBSettings {
 	@Value("${avatar.dir:avatar}")
 	protected String avatarDir;
 
-	
-	
 	@Value("${help.dir:help}")
 	protected String helpDir;
 
 	public String getHelpDir() {
 		return helpDir;
 	}
-	
+
 	@Value("${work.dir:work}")
 	protected String workDir;
 
@@ -158,14 +153,9 @@ public class ServerDBSettings {
 	@Value("${elevenlabs.api.text.to.speech.servicename:text-to-speech}")
 	private String textToSpeechServiceName;
 
-	
 	@Value("${ffmpeg.dir:null}")
 	private String ffmpegDir;
-	
-	
-	
-	
-	
+
 	public String getTextToSpeechServiceName() {
 		return this.textToSpeechServiceName;
 	}
@@ -248,23 +238,19 @@ public class ServerDBSettings {
 			isPresignedSSL = false;
 		else
 			isPresignedSSL = ispresignedSSLStr.toLowerCase().trim().equals("true");
-		
+
 		if (this.isObjectStorageSSLStr == null || isObjectStorageSSLStr.equals("null"))
 			isObjectStorageSSL = false;
 		else
 			isObjectStorageSSL = isObjectStorageSSLStr.toLowerCase().trim().equals("true");
-		
-		
-		
+
 		if (ffmpegDir.equals("null")) {
-			ffmpegDir="";
-		}
-		else {
+			ffmpegDir = "";
+		} else {
 			if (!ffmpegDir.endsWith("/")) {
-				ffmpegDir=ffmpegDir+"/";
+				ffmpegDir = ffmpegDir + "/";
 			}
 		}
-		
 
 		if (qrcodeQenerationStr == null || qrcodeQenerationStr.equals("null"))
 			qrcodeQeneration = true;
@@ -289,9 +275,6 @@ public class ServerDBSettings {
 		return this.ishttps != null && this.ishttps.toLowerCase().trim().equals("true");
 	}
 
-	
-	
-	
 	public String getImporterBaseDir() {
 		return importerBaseDir;
 	}
@@ -323,11 +306,11 @@ public class ServerDBSettings {
 	public int getObjectStoragePort() {
 		return objectStoragePort;
 	}
-	
+
 	public boolean isObjectStorageSSL() {
 		return this.isObjectStorageSSL;
 	}
-	
+
 	public boolean isPresignedObjectStorageSSL() {
 		return this.isPresignedSSL;
 	}
@@ -464,7 +447,7 @@ public class ServerDBSettings {
 	}
 
 	public long getFileCacheMaxCapacity() {
-	 	return 100000;
+		return 100000;
 	}
 
 	public long getLanguageCacheDurationMinutes() {
@@ -475,10 +458,8 @@ public class ServerDBSettings {
 		return "noreply@dellemuse.app";
 	}
 
-	
 	public String getFFmpegDir() {
 		return ffmpegDir;
 	}
-
 
 }

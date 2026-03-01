@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.util.BannerUtil;
 import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
@@ -41,8 +42,18 @@ public class DellemuseServerApp {
 	public void onInitialize() {
 		std_logger.info("");
 
-		for (String s : DellemuseServerAppVersion.getAppCharacterName())
+		//for (String s : DellemuseServerAppVersion.getAppCharacterName())
+		//	std_logger.info(s);
+		
+		
+		for (String s :  BannerUtil.generateBanner(DellemuseServerAppVersion.DELLEMUSE))
 			std_logger.info(s);
+		
+				 
+		std_logger.info("");
+		
+		std_logger.info("version: " + DellemuseServerAppVersion.VERSION);
+		
 
 		std_logger.info(ServerAppConstant.SEPARATOR);
 		std_logger.info("This software is licensed under the Apache License, Version 2.0");
