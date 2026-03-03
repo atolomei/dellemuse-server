@@ -91,7 +91,7 @@ public class BrandedSitePage extends BasePage {
 	private boolean listsLoaded = false;
 
 	private WebMarkupContainer exhibitionsContainer;
-
+	private String lang;
 	
 	private List<IModel<GuideContent>> gc_list;
 	private List<IModel<ArtExhibitionGuide>> ag_list;
@@ -111,7 +111,7 @@ public class BrandedSitePage extends BasePage {
 		this(model, null, null, null);
 	}
 
-	private String lang;
+	
 	
 	
 	public BrandedSitePage(IModel<Site> model, List<IModel<GuideContent>> gc_list,  List<IModel<ArtExhibitionGuide>> ag_list) {
@@ -206,6 +206,10 @@ public class BrandedSitePage extends BasePage {
 			return false;
 		
 		return true;
+	}
+	
+	protected IModel<String> getMainClass() {
+		return Model.of("branded text-bg-dark");
 	}
 
 	

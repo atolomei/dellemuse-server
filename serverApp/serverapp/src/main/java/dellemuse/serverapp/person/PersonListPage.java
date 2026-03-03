@@ -76,11 +76,26 @@ public class PersonListPage extends ObjectListPage<Person> {
 		 
 	}		
 	
-	
 	@Override
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
 	}
+	
+	@Override
+	public boolean canCreate() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
+	@Override
+	public boolean canWrite(Person m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
+	public boolean canDelete(Person m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
 
 	
 	public String getHelpKey() {

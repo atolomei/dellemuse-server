@@ -58,8 +58,6 @@ public class MusicListPage extends ObjectListPage<Music> {
 	private List<ToolbarItem> listToolbar;
 
 	
-	
-	
 	public MusicListPage() {
 		super();
 		super.setIsExpanded(true);
@@ -70,11 +68,28 @@ public class MusicListPage extends ObjectListPage<Music> {
 		super.setIsExpanded(true);
 	}
 
-	
 	@Override
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
 	}
+	
+	@Override
+	public boolean canCreate() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
+	@Override
+	public boolean canWrite(Music m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
+	public boolean canDelete(Music m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	
+	
 	
 	@Override
 	public void onInitialize() {

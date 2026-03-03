@@ -84,6 +84,79 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	private JumboPageHeaderPanel<GuideContent> header;
 	private List<ToolbarItem> list;
 
+	
+
+	public boolean canCreate() {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+	}
+
+	public boolean canRead(GuideContent o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canWrite(GuideContent o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canDelete(GuideContent o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+	
 	public GuideContentPage() {
 		super();
 	}

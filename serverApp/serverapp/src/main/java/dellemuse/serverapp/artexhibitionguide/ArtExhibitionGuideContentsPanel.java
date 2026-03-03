@@ -223,6 +223,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		GuideContent item = model.getObject();
 		getGuideContentDBService().delete(item);
 		resetList();
+		addItems();
 		refresh(target);
 	}
 
@@ -235,6 +236,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 	protected void resetList() {
 		this.list = null;
+		loadList();
 	}
 
 	protected IModel<String> getObjectInfo(IModel<GuideContent> model) {
@@ -261,7 +263,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 		aList = new ArrayList<IModel<ArtExhibitionItem>>();
 		super.getArtExhibitionItems(this.getArtExhibitionModel().getObject()).forEach(i -> aList.add(new ObjectModel<ArtExhibitionItem>(i)));
-		;
+		 
 		return aList;
 	}
 
@@ -366,10 +368,10 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDTIION_PUBLISHED)
 			getObjects(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
 
-		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
+		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.PUBLISHED)
 			getObjects(ObjectState.PUBLISHED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
 
-		if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
+		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.EDITION)
 			getObjects(ObjectState.EDITION).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
 
 		else if (this.getObjectStateEnumSelector() == null)
@@ -381,9 +383,15 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		else if (this.getObjectStateEnumSelector() == ObjectStateEnumSelector.DELETED)
 			getObjects(ObjectState.DELETED).forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
 
-		 
+		else
+			getObjects().forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
+		
+		 list.forEach( i -> logger.debug("GuideContent " + i.getObject().getId() + " - " + i.getObject().getDisplayname() + " - " + i.getObject().getState()));
+	
+	
 	}
 
+	
 	protected void addListeners() {
 		super.addListeners();
 
@@ -612,7 +620,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			}
 
 		};
-		add(itemsPanel);
+		addOrReplace(itemsPanel);
 
 		 
 		itemsPanel.setListPanelMode(ListPanelMode.TITLE);

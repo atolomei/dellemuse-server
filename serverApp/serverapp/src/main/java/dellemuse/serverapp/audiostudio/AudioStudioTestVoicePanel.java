@@ -75,9 +75,6 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 		Optional<Voice> o_c = getVoiceDBService().findWithDeps(getVoiceModel().getObject().getId());
 		setVoiceModel(new ObjectModel<Voice>(o_c.get()));
 		
-		
-		 
-
 		Label info = new Label("info", this.voiceModel.getObject().getInfo());
 		add(info);
 
@@ -93,12 +90,8 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 				target.add(AudioStudioTestVoicePanel.this);
 			}
 		};
-
-		
 		add(test);
 		addTest(); 
-
-		
 	}
 
 	private void addTest() {

@@ -86,6 +86,21 @@ public class ResourceListPage extends ObjectListPage<Resource> {
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
 	}
+	
+	@Override
+	public boolean canCreate() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
+	@Override
+	public boolean canWrite(Resource m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
+	public boolean canDelete(Resource m) {
+		return isRoot() || isGeneralAdmin();
+	}
 
 	
 	@Override

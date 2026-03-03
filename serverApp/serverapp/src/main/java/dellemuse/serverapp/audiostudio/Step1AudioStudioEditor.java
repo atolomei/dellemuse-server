@@ -3,17 +3,16 @@ package dellemuse.serverapp.audiostudio;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Comparator;
+ 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
-import org.apache.wicket.Component;
+ 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
-import org.apache.wicket.ajax.attributes.IAjaxCallListener;
+ 
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.ComponentTag;
@@ -30,22 +29,23 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.artexhibition.ArtExhibitionEditor;
+ 
 import dellemuse.serverapp.audit.AuditKey;
-import dellemuse.serverapp.elevenlabs.ELVoice;
+ 
 import dellemuse.serverapp.elevenlabs.LanguageCode;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Voice;
-import io.wktui.audio.AudioPlayer;
+ 
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.NumberField;
+import io.wktui.media.AudioPlayer;
 import io.wktui.panel.SimpleHelpPanel;
 import wktui.base.InvisiblePanel;
 
@@ -609,7 +609,12 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 			Url url = Url.parse(audioUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			Audio audio = new Audio("audioVoice", resourceReference);
+			
+			
+			//Audio audio = new Audio("audioVoice", resourceReference);
+			AudioPlayer audio = new AudioPlayer("audioVoice", resourceReference);
+			audio.setIncludeDownloadMenu(false);
+			
 			this.step1mp3.addOrReplace(audio);
 
 			Label am = new Label("audioVoiceMetadata", getAudioMeta(getAudioSpeechModel().getObject()));
@@ -620,9 +625,12 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			Url url = Url.parse("");
 
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			Audio audio = new Audio("audioVoice", resourceReference);
-			this.step1mp3.addOrReplace(audio);
+			
+			//Audio audio = new Audio("audioVoice", resourceReference);
 
+			//this.step1mp3.addOrReplace(audio);
+			this.step1mp3.addOrReplace( new InvisiblePanel("audioVoice"));
+			
 			Label am = new Label("audioVoiceMetadata", "");
 			am.setEscapeModelStrings(false);
 			this.step1mp3.addOrReplace(am);

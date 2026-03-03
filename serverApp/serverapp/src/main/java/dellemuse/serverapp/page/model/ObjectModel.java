@@ -50,7 +50,7 @@ public class ObjectModel<T extends DelleMuseObject> implements IModel<T> {
 		if (this.detached) {
 			
 			if (this.id==null)
-				throw new RuntimeException("id: " +id +(getObjectClass()!=null ? (" | class:"+getObjectClass().getName()) : " | no class"));
+				throw new RuntimeException("id is null: " +id +(getObjectClass()!=null ? (" | class:"+getObjectClass().getName()) : " | no class"));
 			
 			 // DBService<?,Long> service = DBService.getDBService(getObjectClass());
 			 // Optional<?> o =	service.findById(getId());

@@ -203,21 +203,7 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		title.setEscapeModelStrings(false);
 		titleLink.add(title);
 
-		// if (menu!=null) {
-		// title.add(new AttributeModifier("class", "me-4"));
-		// }
-
-		/**
-		 * WebMarkupContainer ti = new WebMarkupContainer("titleIcon") { private static
-		 * final long serialVersionUID = 1L;
-		 * 
-		 * public boolean isVisible() { return (getTitleIcon() != null); } };
-		 * 
-		 * ti.add(new org.apache.wicket.AttributeModifier("class", " d-none d-md-block
-		 * d-lg-block d-xl-block d-xxl-block float-none ps-2 pe-2 titleIcon " +
-		 * (getTitleIcon() != null ? getTitleIcon() : ""))); add(ti);
-		 * 
-		 **/
+		 
 
 		if (getObjectSubtitle() != null) {
 			WebMarkupContainer subtitleContainer = new WebMarkupContainer("subtitle-container");

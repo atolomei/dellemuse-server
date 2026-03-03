@@ -6,8 +6,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.7</version>	
-		
+		<version>3.5.7</version>
+
 		<!--  3.3.4  -->
 	</parent>
 
@@ -19,7 +19,7 @@
 	<url>https://odilon.io/dellemuse</url>
 
 	<description>
-		Dellemuse Server App 
+		Dellemuse Server App
 	</description>
 
 	<properties>
@@ -27,10 +27,11 @@
 		<commons-io-version>2.19.0</commons-io-version>
 		<commons-logging-version>1.3.5</commons-logging-version>
 		<commons-validator.version>1.8.0</commons-validator.version>
-		
+
 		<dellemuse-client-version>0.1-beta</dellemuse-client-version>
 		<dellemuse-model-version>0.1-beta</dellemuse-model-version>
-		<disruptor-version>3.4.4</disruptor-version> 			<!--  01 /2024 version 4.0.0 did not work with LogManager  -->
+		<disruptor-version>3.4.4</disruptor-version> 			<!--  01 /2024 version 4.0.0
+		did not work with LogManager  -->
 		<dropwizard-metrics-version>4.2.25</dropwizard-metrics-version>
 		<google-cloud-translate-version>2.77.0</google-cloud-translate-version>
 		<hibernate-core-version>6.4.4.Final</hibernate-core-version>
@@ -38,9 +39,9 @@
 		<jackson-datatype-hibernate6-version>2.19.2</jackson-datatype-hibernate6-version>
 		<jakarta.validation-api-version>3.1.1</jakarta.validation-api-version>
 		<java-version>17</java-version>
-		
+
 		<jaudiotagger-version>3.0.1</jaudiotagger-version>
-		
+
 		<junit-jupiter.version>5.3.2</junit-jupiter.version>
 		<junit-version>5.10.2</junit-version>
 		<log4j2-version>2.24.3</log4j2-version>
@@ -55,6 +56,9 @@
 		<odilon-client-version>1.16</odilon-client-version>
 		<oswego-version>1.3.4</oswego-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		
+		
+		<spring-boot-starter-version>4.0.0</spring-boot-starter-version>
 		<tomcat-dbcp-version>11.0.6</tomcat-dbcp-version>  <!-- 4/2025 -->
 		<wicket-version>10.0.0</wicket-version>
 		<wktui-version>0.1-beta</wktui-version>
@@ -69,14 +73,14 @@
 	</developers>
 
 	<repositories>
-	 	<repository>
+		<repository>
 			<id>my-local-repo</id>
 			<!-- url>file://${basedir}/nonstandardlib/</ url -->
 			<url>~/.m2/repository</url>
 		</repository>
 	</repositories>
 
-	
+
 	<dependencies>
 
 		<!-- s. DB  ============================================================  -->
@@ -93,13 +97,22 @@
 			<artifactId>dellemuse-serverdb</artifactId>
   			<version>0.1-beta</version>
 		    <scope>system</scope>
-		    <systemPath>/Users/alejandrotolomei/eclipse-workspace/dellemuse-server/serverdb/target/dellemuse-serverdb-0.1-beta.jar</systemPath>
+		<systemPath>/Users/alejandrotolomei/eclipse-workspace/dellemuse-server/serverdb/target/dellemuse-serverdb-0.1-beta.jar</systemPath>
 		</ dependency -->
 
+<!-- Source: https://mvnrepository.com/artifact/io.sentry/sentry-spring-boot-starter -->
+<!--dependency>
+    <groupId>io.sentry</groupId>
+    <artifactId>sentry-spring-boot-starter</artifactId>
+    <version>8.33.0</version>
+    <scope>compile</scope>
+<dependency -->
+
+	 
 
 
 		<!-- s. LOGGING ========================================================  -->
-	
+
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
@@ -133,7 +146,7 @@
 			<artifactId>log4j-spring-boot</artifactId>
 		</dependency>
 
-	   <!-- =================================================================  -->
+		<!-- =================================================================  -->
 
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -183,7 +196,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
-			
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -203,7 +216,7 @@
 			<groupId>org.hibernate.validator</groupId>
 			<artifactId>hibernate-validator</artifactId>
 		</dependency>
-		
+
 		<!--  =========  External  =========================   -->
 		<dependency>
 			<groupId>oswego</groupId>
@@ -239,7 +252,7 @@
 			<artifactId>hibernate-entitymanager</artifactId>
 			<version>${hibernate-entitymanager-version}</version>
 		</dependency>
-		
+
 		<!-- ODILON
 		======================================================  -->
 
@@ -248,37 +261,34 @@
 			<artifactId>odilon-client</artifactId>
 			<version>${odilon-client-version}</version>
 		</dependency>
-		
-		
 
 
-<!-- CAFFEINE
-		======================================================  -->
-
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-    		<artifactId>spring-boot-starter-oauth2-client</artifactId>
-	</dependency>
-		
-		
-		
 		<!-- CAFFEINE
 		======================================================  -->
 
 		<dependency>
-		  <groupId>com.github.ben-manes.caffeine</groupId>
-		  <artifactId>caffeine</artifactId>
-		  <!-- version -> we use the one provided by Spring --> 
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
 		</dependency>
-		
+
+
+		<!-- CAFFEINE
+		======================================================  -->
+
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<!-- version -> we use the one provided by Spring -->
+		</dependency>
+
 		<!-- jackson Hibernate
 	    =======================================================  -->
 
-			<dependency>
-			    <groupId>com.fasterxml.jackson.datatype</groupId>
-			    <artifactId>jackson-datatype-hibernate6</artifactId>
-			    <!-- managed 2.18.3 -->
-			</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-hibernate6</artifactId>
+			<!-- managed 2.18.3 -->
+		</dependency>
 
 
 		<!-- DELLEMUSE MODEL
@@ -291,7 +301,7 @@
 		</dependency>
 
 
-	<!-- Thumbnail ================================================  -->
+		<!-- Thumbnail ================================================  -->
 
 		<dependency>
 			<groupId>net.coobird</groupId>
@@ -300,50 +310,50 @@
 		</dependency>
 
 		<dependency>
-			    <groupId>com.googlecode.soundlibs</groupId>
-			    <artifactId>mp3spi</artifactId>
-			    <version>1.9.5.4</version>
+			<groupId>com.googlecode.soundlibs</groupId>
+			<artifactId>mp3spi</artifactId>
+			<version>1.9.5.4</version>
 		</dependency>
 
 		<dependency>
-			    <groupId>com.googlecode.soundlibs</groupId>
-			    <artifactId>jlayer</artifactId>
-			    <version>1.0.1.4</version>
-		</dependency>
-	
-		<dependency>
-				    <groupId>com.google.zxing</groupId>
-				    <artifactId>core</artifactId>
-				    <version>3.3.0</version>
+			<groupId>com.googlecode.soundlibs</groupId>
+			<artifactId>jlayer</artifactId>
+			<version>1.0.1.4</version>
 		</dependency>
 
 		<dependency>
-				    <groupId>com.google.zxing</groupId>
-				    <artifactId>javase</artifactId>
-				    <version>3.3.0</version>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>3.3.0</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/net.jthink/jaudiotagger -->
-	
+
 		<dependency>
-		    <groupId>net.jthink</groupId>
-		    <artifactId>jaudiotagger</artifactId>
-		    <version>${jaudiotagger-version}</version>
+			<groupId>net.jthink</groupId>
+			<artifactId>jaudiotagger</artifactId>
+			<version>${jaudiotagger-version}</version>
 		</dependency>
 
 
-			<dependency>
-			  <groupId>org.apache.tika</groupId>
-			  <artifactId>tika-core</artifactId>
-			  <version>3.2.3</version>
-			</dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>3.2.3</version>
+		</dependency>
 
 
-<dependency>
-  <groupId>org.apache.tika</groupId>
-  <artifactId>tika-parsers-standard-package</artifactId>
-  <version>3.2.3</version>
-</dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers-standard-package</artifactId>
+			<version>3.2.3</version>
+		</dependency>
 
 		<!-- s. WICKET  SPRING
 		====================================================  -->
@@ -367,12 +377,12 @@
 
 
 		<dependency>
-        	<groupId>org.apache.wicket</groupId>
-        	<artifactId>wicket-auth-roles</artifactId>
-       		 <version>${wicket-version}</version> <!-- Use the appropriate version -->
-	    </dependency>
-	    
- 		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-auth-roles</artifactId>
+			<version>${wicket-version}</version> <!-- Use the appropriate version -->
+		</dependency>
+
+		<dependency>
 			<groupId>org.wicketstuff</groupId>
 			<artifactId>wicketstuff-annotation</artifactId>
 			<version>${wicket-version}</version>
@@ -383,25 +393,28 @@
 			<artifactId>wktui</artifactId>
 			<version>${wktui-version}</version>
 		</dependency>
-		
-	<dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>libraries-bom</artifactId>
-      <version>26.70.0</version>
-        <type>pom</type>
-    </dependency>
-		
-		
-	<dependency>
-	    <groupId>com.google.cloud</groupId>
-	    <artifactId>google-cloud-translate</artifactId>
-	    <version>${google-cloud-translate-version}</version>
-	</dependency>
+
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>libraries-bom</artifactId>
+			<version>26.70.0</version>
+			<type>pom</type>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-translate</artifactId>
+			<version>${google-cloud-translate-version}</version>
+		</dependency>
+
+ 
+
 
 		<!-- s. TEST ====================================================  -->
 
 		<!-- exclude junit 4 -->
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -417,7 +430,7 @@
 		<!-- e. TEST ====================================================  -->
 
 		<!-- junit 5 -->
-		
+
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>

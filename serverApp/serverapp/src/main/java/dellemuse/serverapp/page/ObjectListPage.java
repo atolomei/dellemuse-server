@@ -57,11 +57,12 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	private WebMarkupContainer listToolbarContainer;
 	private WebMarkupContainer helpContainer;
 
-	boolean isHelpVisible = false;
-
 	private Panel errorPanel;
-	private boolean b_expand = false;
 
+	private boolean b_expand = false;
+	private  boolean isHelpVisible = false;
+	
+	
 	private ObjectStateEnumSelector oses;
 
 	protected abstract void addHeaderPanel();
@@ -73,23 +74,7 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 	public abstract Iterable<T> getObjects(ObjectState os1, ObjectState os2);
 
 	protected abstract IModel<String> getObjectInfo(IModel<T> model);
-
-	protected IModel<String> getObjectTitle(IModel<T> model) {
-		if (model.getObject() instanceof MultiLanguageObject) {
-
-			StringBuilder str = new StringBuilder();
-			str.append(getLanguageObjectService().getObjectDisplayName(((MultiLanguageObject) model.getObject()), getLocale()));
-
-			if (model.getObject().getState() == ObjectState.DELETED)
-				str.append(Icons.DELETED_ICON_HTML);
-
-			if (model.getObject().getState() == ObjectState.EDITION)
-				str.append(Icons.EDITION_ICON_HTML);
-
-			return Model.of(str.toString());
-		}
-		return Model.of(model.getObject().getDisplayname() + ((model.getObject().getState() == ObjectState.DELETED) ? Icons.DELETED_ICON_HTML : ""));
-	}
+	
 
 	protected abstract String getObjectTitleIcon(IModel<T> model);
 
@@ -103,6 +88,8 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 
 	protected abstract List<ToolbarItem> getListToolbarItems();
 
+	
+	
 	public ObjectListPage() {
 		super();
 	}
@@ -316,6 +303,91 @@ public abstract class ObjectListPage<T extends DelleMuseObject> extends BasePage
 		}
 	}
 
+	public boolean canCreate() {
+
+		logger.error(this.getClass().getName() + " must override canCreate ");
+		
+			if (getSessionUser().isEmpty())
+				 return false;
+			 
+			 if (isRoot())
+				 return true;
+			 
+			 if (isGeneralAdmin())	
+				 return true;
+					 
+			return false;
+	}
+
+	
+	public boolean canRead(T o) {
+	
+		logger.error(this.getClass().getName() + " must override canRead -> " + o);
+		
+		if (getSessionUser().isEmpty())
+			 return false;
+		 
+		 if (isRoot())
+			 return true;
+		 
+		 if (isGeneralAdmin())	
+			 return true;
+				 
+		return false;
+
+	}
+	
+	public boolean canWrite(T o) {
+		logger.error(this.getClass().getName() + " must override canWrite -> " + o);
+	 	
+		if (getSessionUser().isEmpty())
+			 return false;
+		 
+		 if (isRoot())
+			 return true;
+		 
+		 if (isGeneralAdmin())	
+			 return true;
+				 
+		return false;
+
+	}
+
+	public boolean canDelete(T o) {
+	
+		logger.error(this.getClass().getName() + " must override canDelete -> " + o);
+		
+		if (getSessionUser().isEmpty())
+			 return false;
+		 
+		 if (isRoot())
+			 return true;
+		 
+		 if (isGeneralAdmin())	
+			 return true;
+				 
+		return false;
+
+	}
+	
+	
+	protected IModel<String> getObjectTitle(IModel<T> model) {
+		if (model.getObject() instanceof MultiLanguageObject) {
+
+			StringBuilder str = new StringBuilder();
+			str.append(getLanguageObjectService().getObjectDisplayName(((MultiLanguageObject) model.getObject()), getLocale()));
+
+			if (model.getObject().getState() == ObjectState.DELETED)
+				str.append(Icons.DELETED_ICON_HTML);
+
+			if (model.getObject().getState() == ObjectState.EDITION)
+				str.append(Icons.EDITION_ICON_HTML);
+
+			return Model.of(str.toString());
+		}
+		return Model.of(model.getObject().getDisplayname() + ((model.getObject().getState() == ObjectState.DELETED) ? Icons.DELETED_ICON_HTML : ""));
+	}
+	
 	@Override
 	public void onDetach() {
 		super.onDetach();

@@ -49,10 +49,10 @@ public class WicketSecurityContextBridgeFilter implements Filter {
                         && securityContext.getAuthentication() != null) {
                 	if (session != null) {
                 	    Object ssc = session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
-                	    logger.debug("BRIDGE: sessionId= " +session.getId() + "  , springContextPresent= "+(sc != null?"yes":"no"));
+                	    //logger.debug("BRIDGE: sessionId= " +session.getId() + "  , springContextPresent= "+(sc != null?"yes":"no"));
                 	    
                 	    if (ssc instanceof SecurityContext && securityContext.getAuthentication() != null) {
-                	    	logger.debug("BRIDGE: restoring auth: " + securityContext.getAuthentication().getName());
+                	    	//logger.debug("BRIDGE: restoring auth: " + securityContext.getAuthentication().getName());
                 	        SecurityContextHolder.setContext(securityContext);
                 	    }
                 	}

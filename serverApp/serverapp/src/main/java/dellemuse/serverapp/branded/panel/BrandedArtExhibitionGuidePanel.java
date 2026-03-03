@@ -57,6 +57,7 @@ import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.UIEvent;
 import io.wktui.form.FormState;
+import io.wktui.media.AudioPlayer;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
@@ -165,7 +166,14 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 				String as = getPresignedUrl(getModel().getObject().getAudio());
 				Url url = Url.parse(as);
 				UrlResourceReference resourceReference = new UrlResourceReference(url);
-				Audio audio = new Audio("audioIntro", resourceReference);
+			
+				
+				//Audio audio = new Audio("audioIntro", resourceReference);
+				//audioIntroContainer.add(audio);
+				
+				
+				AudioPlayer audio = new AudioPlayer("audioIntro", resourceReference);
+				audio.setIncludeDownloadMenu(false);
 				audioIntroContainer.add(audio);
 				
 				Label aid = new Label("aid", getModel().getObject().getAudioId()!=null?getModel().getObject().getAudioId().toString():"");

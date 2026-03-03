@@ -49,6 +49,8 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
@@ -78,6 +80,7 @@ import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
+import dellemuse.serverapp.service.SecurityAuthorizationService;
 import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.UIEvent;
@@ -104,7 +107,10 @@ public abstract class BasePage extends WebPage {
 	private Map<String, Integer> serverCall;
 	
 	private Boolean generalAdmin = null;
+	private Boolean generalAudit = null;
 
+	private IModel<User> sessionUserModel;
+	
 	// 1 Day
 	static private final int COOKIE_DURATION = 86400 * 1;
 
@@ -180,6 +186,10 @@ public abstract class BasePage extends WebPage {
 		super.onAfterRender();
 	}
 
+	
+	
+	
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -423,7 +433,7 @@ public abstract class BasePage extends WebPage {
 
  
 	
-	IModel<User> sessionUserModel;
+
 	
 	public Optional<User> getSessionUser()  {
 
@@ -560,6 +570,10 @@ public abstract class BasePage extends WebPage {
 	
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
+	}
+	
+	public SecurityAuthorizationService getSecurityAuthorizationService() {
+		return (SecurityAuthorizationService) ServiceLocator.getInstance().getBean(SecurityAuthorizationService.class);
 	}
 	
 	public HelpService getHelpService() {
@@ -787,8 +801,137 @@ public abstract class BasePage extends WebPage {
 		return getArtExhibitionDBService().create("new", site, getUserDBService().findRoot());
 	}
 	
+	
+	
 	public boolean isRoot() {
-			return getSessionUser()!=null && getSessionUser().get().isRoot();
+		return getSessionUser()!=null && getSessionUser().get().isRoot();
+	}
+	
+	/**
+	 * 
+	 * @param site
+	 * @return
+	 */
+
+	public boolean isInstitutionAdmin(Institution in) {
+	 return getSecurityAuthorizationService().isInstitutionAdmin(getSessionUser(), in);
+	}
+	
+	
+	public boolean isGeneralAdminOrAudit() {
+		 return getSecurityAuthorizationService().isGeneralAdminOrAudit(getSessionUser());
+	}
+
+	public boolean isInstitutionAdminOrAudit(Institution in) {
+		 return getSecurityAuthorizationService().isInstitutionAdminOrAudit(getSessionUser(), in);
+	}
+
+	
+	public boolean isSiteAdminOrEditor(Site site) {
+		if (site==null)
+			return false;
+		return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), site);
+	
+	}
+	
+	public boolean isSiteAdminOrEditor(ArtExhibition in) {
+		if (in==null || in.getSite()==null)
+			return false;
+		if (!in.isDependencies())
+			return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), 
+					getArtExhibitionDBService().findWithDeps(in.getId()).get().getSite());
+		else
+			return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), in.getSite());
+	}
+
+	public boolean isSiteAdmin (ArtExhibition in) {
+		if (in==null || in.getSite()==null)
+			return false;
+		if (!in.isDependencies())
+			return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), 
+					getArtExhibitionDBService().findWithDeps(in.getId()).get().getSite());
+		else
+			return getSecurityAuthorizationService().isSiteAdmin(getSessionUser(), in.getSite());
+
+	}
+	
+	/**
+	 * @param site
+	 * @return
+	 */
+
+	public boolean isSiteEditor(Site site) {
+
+		if (site==null)
+			return false;
+		
+		Optional<User> ou = getSessionUser();
+		
+		if (ou.isEmpty())
+			return false;
+		
+		User user = ou.get();
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+		
+		return user.getRolesSite().stream().filter(ia -> ia.getKey().equals(RoleSite.EDITOR) && ia.getSite().getId().equals(site.getId())).findAny().isPresent();
+	}
+	
+	/**
+	 * 
+	 * @param site
+	 * @return
+	 */
+	public boolean isSiteAdmin(Site site) {
+
+		if (site==null)
+			return false;
+		
+		Optional<User> ou = getSessionUser();
+		
+		if (ou.isEmpty())
+			return false;
+		
+		User user = ou.get();
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+		
+		return user.getRolesSite().stream().filter(ia -> ia.getKey().equals(RoleSite.ADMIN) && ia.getSite().getId().equals(site.getId())).findAny().isPresent();
+	}
+
+	
+	
+	public boolean isGeneralAudit() {
+		
+		if (generalAudit!=null)
+			return this.generalAudit.booleanValue();
+		
+		synchronized (this) {
+			
+			if (getSessionUser().isEmpty()) {
+				this.generalAudit = Boolean.FALSE;
+				return this.generalAudit;
+			}
+
+			User user = getSessionUser().get();
+			
+			if (!user.isDependencies()) {
+				user = getUserDBService().findWithDeps(user.getId()).get();
+			}
+
+			Set<RoleGeneral> set = user.getRolesGeneral();
+	
+			if (set == null) {
+				this.generalAudit= Boolean.FALSE;
+				return this.generalAudit;
+			}
+			this.generalAudit = Boolean.valueOf(  set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.AUDIT)) ) );
+			return this.generalAudit;
+		}
 	}
 	
 	

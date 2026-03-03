@@ -107,9 +107,80 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 	private JumboPageHeaderPanel<ArtExhibitionItem> header;
 	private List<ToolbarItem> list;
 
-	protected List<Language> getSupportedLanguages() {
-		return getSiteModel().getObject().getLanguages();
+
+	
+	 
+	public boolean canCreate() {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
 	}
+
+	public boolean canRead(ArtExhibitionItem o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canWrite(ArtExhibitionItem o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canDelete(ArtExhibitionItem o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+	
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -163,6 +234,11 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 		return false;
 	}
 
+
+	protected List<Language> getSupportedLanguages() {
+		return getSiteModel().getObject().getLanguages();
+	}
+	
 	protected Optional<ArtExhibitionItemRecord> loadTranslationRecord(String lang) {
 		return getArtExhibitionItemRecordDBService().findByArtExhibitionItem(getModel().getObject(), lang);
 	}

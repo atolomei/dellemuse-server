@@ -31,7 +31,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -76,8 +76,81 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 	private List<ToolbarItem> listToolbar;
 	private List<ToolbarItem> mainToolbar;
 	
-	
 
+	
+	public boolean canCreate() {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+	}
+
+	public boolean canRead(ArtWork o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canWrite(ArtWork o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canDelete(ArtWork o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+	
+	
+	
 	public String getHelpKey() {
 		return Help.SITE_ARTWORK_LIST;
 	}

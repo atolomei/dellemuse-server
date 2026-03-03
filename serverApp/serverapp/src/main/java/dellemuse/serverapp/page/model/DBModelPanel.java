@@ -35,6 +35,7 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(DBModelPanel.class.getName());
 
 	public DBModelPanel(String id, IModel<T> model) {
@@ -246,8 +247,6 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 		}
 	}
 
-	
-	
 	public String getArtistStr(ArtWork aw) {
 
 		if (!aw.isDependencies()) {
@@ -257,9 +256,9 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 		StringBuilder info = new StringBuilder();
 		int n = 0;
 
-		if (aw.getArtists()==null || aw.getArtists().size()==0)
+		if (aw.getArtists() == null || aw.getArtists().size() == 0)
 			return null;
-		
+
 		for (Artist p : aw.getArtists()) {
 			if (n++ > 0)
 				info.append(", ");
@@ -269,6 +268,5 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 		String str = TextCleaner.truncate(info.toString(), 220);
 		return str;
 	}
-	
-	
+
 }

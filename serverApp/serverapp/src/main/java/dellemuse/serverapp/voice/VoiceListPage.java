@@ -58,6 +58,26 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 	private List<ToolbarItem> mainToolbar;
 	private List<ToolbarItem> listToolbar;
 
+	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
+	@Override
+	public boolean canCreate() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
+	@Override
+	public boolean canWrite(Voice m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
+	public boolean canDelete(Voice m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
 	
 	public VoiceListPage() {
 		super();
@@ -74,12 +94,7 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 		super.onInitialize();
 
 	}
- 
-	@Override
-	public boolean canEdit() {
-		return isRoot() || isGeneralAdmin();
-	}
-
+  
 	
 	public String getHelpKey() {
 		return Help.VOICES;
@@ -104,32 +119,9 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-	
 		if (ouser.isEmpty())
 			return false;
-		
 		return true;
-		
-		/**
-
-		User user = ouser.get();  
-
-		if (user.isRoot()) 
-			return true;
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		Set<RoleGeneral> set =user.getRolesGeneral();
-		if (set==null)
-			return false;
-		
-		isCreate = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)));
-		
-		return isCreate || (set.stream().anyMatch((p ->   p.getKey().equals(RoleGeneral.AUDIT) )));
-		 */
-	
 	}
 	
 

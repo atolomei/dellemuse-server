@@ -38,6 +38,7 @@ import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.ObjectState;
@@ -75,6 +76,26 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 	public String getHelpKey() {
 		return Help.ARTIST_LIST;
 	}
+	
+	@Override
+	public boolean canRead(Artist in) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (isGeneralAdminOrAudit())
+			return true;
+
+		return false;
+	}
+	
 	
 	@Override
 	public boolean canEdit() {

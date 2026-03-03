@@ -64,6 +64,82 @@ public class SiteContentGuideListPage extends ObjectListPage<GuideContent> {
 //		return new SiteNavDropDownMenuToolbarItem("submenu", getSiteModel(), Model.of(getSiteModel().getObject().getShortName(), Align.TOP_RIGHT ));//
 	// }
 
+
+
+	
+	public boolean canCreate() {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+	}
+
+	public boolean canRead(GuideContent o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canWrite(GuideContent o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canDelete(GuideContent o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+	
+	
+	
 	
 	protected IModel<String> getTitleLabel() {
 		return getLabel("guide-contents");

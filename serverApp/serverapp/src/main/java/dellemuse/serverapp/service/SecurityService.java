@@ -25,11 +25,7 @@ public class SecurityService extends BaseService {
         return getUserDBService().findRoot();
     }
 
-    public User getSessionUser() {
-        return getUserDBService().findRoot();
-    }
-
-    
+     
     protected UserDBService getUserDBService() {
         return userDBService;
     }

@@ -95,6 +95,25 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		super(parameters);
 	}
 
+	@Override
+	public boolean canRead(ArtWork in) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (isGeneralAdminOrAudit())
+			return true;
+
+		return false;
+	}
+	
 	
 	@Override
 	public boolean canEdit() {

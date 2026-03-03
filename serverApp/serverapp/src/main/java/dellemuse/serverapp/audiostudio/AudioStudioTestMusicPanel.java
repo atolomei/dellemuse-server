@@ -30,6 +30,7 @@ import dellemuse.serverapp.serverdb.model.Voice;
 import io.wktui.error.AlertPanel;
 
 import io.wktui.event.UIEvent;
+import io.wktui.media.AudioPlayer;
 import wktui.base.InvisiblePanel;
 
 /**
@@ -122,19 +123,24 @@ public class AudioStudioTestMusicPanel extends DBModelPanel<AudioStudio> {
 
 			Url url = Url.parse(audioUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			Audio audio = new Audio("audioMusic", resourceReference);
+			
+			//Audio audio = new Audio("audioMusic", resourceReference);
+			AudioPlayer audio = new AudioPlayer("audioMusic", resourceReference);
+			audio.setIncludeDownloadMenu(false);
 			this.test.addOrReplace(audio);
 
+			
+			
 			Label am = new Label("audioMeta", getAudioMeta(getMusicModel().getObject().getAudio()));
 			am.setEscapeModelStrings(false);
 			this.test.addOrReplace(am);
 		} else {
 
-			Url url = Url.parse("");
-
-			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			Audio audio = new Audio("audioVoice", resourceReference);
-			this.test.addOrReplace(audio);
+			//Url url = Url.parse("");
+			//UrlResourceReference resourceReference = new UrlResourceReference(url);
+			// Audio audio = new Audio("audioVoice", resourceReference);
+			
+			this.test.addOrReplace( new InvisiblePanel("audioMusic") );
 
 			Label am = new Label("audioMeta", "");
 			am.setEscapeModelStrings(false);

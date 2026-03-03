@@ -30,7 +30,7 @@ import dellemuse.serverapp.serverdb.model.Site;
  
 import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
- 
+import io.wktui.media.AudioPlayer;
 import io.wktui.model.TextCleaner;
  
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -100,7 +100,11 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 		        String as =  getPresignedUrl(getModel().getObject().getAudio());
 		        Url url = Url.parse(as);
 	            UrlResourceReference resourceReference = new UrlResourceReference(url);
-		        Audio audio = new Audio("audio", resourceReference);
+		        
+	            
+	        	AudioPlayer audio = new AudioPlayer("audio", resourceReference);
+				audio.setIncludeDownloadMenu(false);
+	            //Audio audio = new Audio("audio", resourceReference);
 		        audioIntroContainer.add(audio);
 		        
 		    	Label aid = new Label("aid", getModel().getObject().getArtWorkAudioId()!=null ? getModel().getObject().getArtWorkAudioId().toString() : "");

@@ -69,6 +69,22 @@ public class RolesListPage extends ObjectListPage<Role> {
 		return isRoot() || isGeneralAdmin();
 	}
 	
+	@Override
+	public boolean canCreate() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
+	@Override
+	public boolean canWrite(Role m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
+	public boolean canDelete(Role m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	
 	public String getHelpKey() {
 		return Help.ROLES_LIST ;
 	}

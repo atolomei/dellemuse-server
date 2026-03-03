@@ -29,6 +29,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.error.ErrorPanel;
@@ -55,6 +56,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	private List<ToolbarItem> listToolbar;
 
 	
+	
 	public InstitutionsListPage() {
 		super();
 		super.setIsExpanded(true);
@@ -70,25 +72,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		super.onInitialize();
 
 	}
-	
-	
-	protected IModel<String> getObjectTitle(IModel<Institution> model) {
-	 
-			
-			StringBuilder str = new StringBuilder();
-			str.append(model.getObject().getName());
-			
-			if (model.getObject().getState() == ObjectState.DELETED)
-				str.append(Icons.DELETED_ICON_HTML);
-		
 
-			if (model.getObject().getState() == ObjectState.EDITION)
-				str.append(Icons.EDITION_ICON_HTML);
-			
-			return Model.of(str.toString());
-		}
-
-	
  
 	@Override
 	public String getHelpKey() {
@@ -111,11 +95,89 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		}
 
 		Set<RoleGeneral> set =user.getRolesGeneral();
+
 		if (set==null)
 			return false;
 		
 		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
 	}
+	
+	
+	
+	@Override
+	public boolean canRead(Institution in) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (isGeneralAdminOrAudit())
+			return true;
+
+	 	
+		if (isInstitutionAdminOrAudit(in))
+			return true;
+		
+		return false;
+	}
+
+	
+	
+	@Override
+	public boolean canWrite(Institution in) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set =user.getRolesGeneral();
+		if (set==null)
+			return false;
+		
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) ));
+		
+	}
+	
+	@Override
+	public boolean canCreate() {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set =user.getRolesGeneral();
+		if (set==null)
+			return false;
+		
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)));
+	}
+	
 	
 	
 	protected void onCreate() {
@@ -143,11 +205,11 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			private static final long serialVersionUID = 1L;
 
 			public boolean isEnabled() {
-				return canEdit();
+				return canCreate();
 			}
 
 			public boolean isVisible() {
-				return canEdit();
+				return canCreate();
 			}
 			
 			protected void onClick() {
@@ -200,6 +262,15 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isEnabled() {
+						return canRead(model.getObject());
+					}
+
+					public boolean isVisible() {
+						return canRead(model.getObject());
+					}
+					
+					
 					@Override
 					public void onClick () {
 						setResponsePage( new InstitutionPage( getModel() ));
@@ -315,21 +386,7 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		});
 		
 		
-		/*
-		
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Institution> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<Institution>(id) {
-					private static final long serialVersionUID = 1L;
-				};
-			}
-		});
-		
-		*/
-		
+		 
 		
 		
 		
@@ -392,6 +449,22 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		super.onDetach();
 	}
 
+	
+	protected IModel<String> getObjectTitle(IModel<Institution> model) {
+	 
+			StringBuilder str = new StringBuilder();
+			str.append(model.getObject().getName());
+			
+			if (model.getObject().getState() == ObjectState.DELETED)
+				str.append(Icons.DELETED_ICON_HTML);
+	
+			if (model.getObject().getState() == ObjectState.EDITION)
+				str.append(Icons.EDITION_ICON_HTML);
+			
+			return Model.of(str.toString());
+		}
+	
+	
 	@Override
 	protected String getObjectImageSrc(IModel<Institution> model) {
 		if (model.getObject().getPhoto() != null) {

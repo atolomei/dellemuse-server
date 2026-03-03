@@ -288,7 +288,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 				return GuideContentEditor.this.getPresignedUrl(getAudioModel().getObject());
 			}
 
-			public String getFileName() {
+			public String getAudioMetadata() {
 				if (audioMeta == null)
 					audioMeta = GuideContentEditor.this.getAudioMeta(getAudioModel());
 				return audioMeta;

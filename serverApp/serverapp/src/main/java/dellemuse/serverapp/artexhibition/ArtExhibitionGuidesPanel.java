@@ -146,6 +146,16 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		target.add(this);
 	}
 
+	
+	protected boolean canRead(ArtExhibitionGuide object) {
+		return true;
+	}
+	protected boolean canWrite(ArtExhibitionGuide object) {
+		return true;
+	}
+
+
+	
 	protected WebMarkupContainer getMenu(IModel<ArtExhibitionGuide> model) {
 
 		NavDropDownMenu<ArtExhibitionGuide> menu = new NavDropDownMenu<ArtExhibitionGuide>("menu", model, null) {
@@ -178,6 +188,18 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 					}
 
 					@Override
+					public boolean isVisible() {
+						return ArtExhibitionGuidesPanel.this.canRead(getModel().getObject());
+					}
+					
+
+					@Override
+					public boolean isEnabled() {
+						return ArtExhibitionGuidesPanel.this.canRead(getModel().getObject());
+					}
+					
+					
+					@Override
 					public IModel<String> getLabel() {
 						return getLabel("open");
 					}
@@ -198,6 +220,10 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 					
 					public boolean isVisible() {
+						
+						if (!ArtExhibitionGuidesPanel.this.canWrite(getModel().getObject()))
+							return false;
+						
 						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
 					}
 				
@@ -230,6 +256,12 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 					
 					public boolean isVisible() {
+						
+						
+						if (!ArtExhibitionGuidesPanel.this.canWrite(getModel().getObject()))
+							return false;
+					
+						
 						return getModel().getObject().getState()!=ObjectState.EDITION;
 					}
 				

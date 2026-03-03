@@ -430,7 +430,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 				}
 			}
 
-			public String getFileName() {
+			public String getAudioMetadata() {
 				if (getAudioModel() != null || getAudioModel().getObject() == null)
 					return ObjectRecordEditor.this.getAudioMeta(getAudioModel().getObject());
 				return null;

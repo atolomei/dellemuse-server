@@ -87,6 +87,24 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 	private List<ToolbarItem> listToolbar;
 
+	@Override
+	public boolean canRead(GuideContent in) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (isGeneralAdminOrAudit())
+			return true;
+
+		return false;
+	}
 
 	
 	

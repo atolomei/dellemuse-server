@@ -31,6 +31,7 @@ import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -73,10 +74,80 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 
 	private List<ToolbarItem> list;
 
-	protected List<Language> getSupportedLanguages() {
-		return getSiteModel().getObject().getLanguages();
+	
+	
+	 
+	public boolean canCreate() {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
 	}
 
+	public boolean canRead(ArtExhibitionGuide o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canWrite(ArtExhibitionGuide o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canDelete(ArtExhibitionGuide o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+	
 	public ArtExhibitionGuidePage() {
 		super();
 	}
@@ -113,6 +184,11 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		if (this.siteModel != null)
 			this.siteModel.detach();
 	}
+	
+	protected List<Language> getSupportedLanguages() {
+		return getSiteModel().getObject().getLanguages();
+	}
+
 
 	@Override
 	protected Optional<ArtExhibitionGuideRecord> loadTranslationRecord(String lang) {

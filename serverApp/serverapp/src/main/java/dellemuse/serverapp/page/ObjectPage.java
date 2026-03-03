@@ -75,6 +75,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	
 	boolean isHelpVisible = false;
 
+	private ObjectStateEnumSelector oses;
 
 	private String startingTab = null;
 
@@ -93,10 +94,48 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	protected abstract Panel createHeaderPanel();
 
+	
 	public boolean hasAccessRight(Optional<User> ouser) {
 		return true;
 	}
 
+	public boolean canRead() {
+		return true;
+	}
+	
+	public boolean canWrite(T o) {
+		logger.error(this.getClass().getName() + " must override canWrite -> " + o);
+	 	
+		if (getSessionUser().isEmpty())
+			 return false;
+		 
+		 if (isRoot())
+			 return true;
+		 
+		 if (isGeneralAdmin())	
+			 return true;
+				 
+		return false;
+
+	}
+
+	public boolean canDelete(T o) {
+	
+		logger.error(this.getClass().getName() + " must override canDelete -> " + o);
+		
+		if (getSessionUser().isEmpty())
+			 return false;
+		 
+		 if (isRoot())
+			 return true;
+		 
+		 if (isGeneralAdmin())	
+			 return true;
+				 
+		return false;
+
+	}
+	
 	public ObjectPage() {
 		super();
 	}
@@ -119,6 +158,10 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		getPageParameters().add("id", model.getObject().getId().toString());
 	}
 
+	
+
+	
+	
 	public IModel<T> getModel() {
 		return this.model;
 	}
@@ -134,8 +177,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	public void setList(List<IModel<T>> siteList) {
 		this.list = siteList;
 	}
-	private ObjectStateEnumSelector oses;
-
+	
 	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
 		this.oses = o;
 	}

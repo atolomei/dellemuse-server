@@ -27,7 +27,7 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
 import io.wktui.form.button.SubmitButton;
- 
+import io.wktui.media.AudioPlayer;
 import wktui.base.InvisiblePanel;
 
 public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
@@ -204,8 +204,12 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 			String audioUrl = getPresignedUrl(getAudioSpeechMusicModel().getObject());
 			Url url = Url.parse(audioUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			Audio audio = new Audio("audioVoiceMusic", resourceReference);
+			//Audio audio = new Audio("audioVoiceMusic", resourceReference);
 
+			//Audio audio = new Audio("audioVoiceMusic", resourceReference);
+			AudioPlayer audio = new AudioPlayer("audioVoiceMusic", resourceReference);
+			audio.setIncludeDownloadMenu(false);
+			
 			this.step3mp3.addOrReplace(audio);
 
 			Label am = new Label("audioVoiceMusicMetadata", getAudioMeta(getAudioSpeechMusicModel().getObject()));
@@ -215,8 +219,10 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 
 			Url url = Url.parse("");
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			Audio audio = new Audio("audioVoiceMusic", resourceReference);
-			this.step3mp3.addOrReplace(audio);
+			//Audio audio = new Audio("audioVoiceMusic", resourceReference);
+			//this.step3mp3.addOrReplace(audio);
+			this.step3mp3.addOrReplace( new InvisiblePanel("audioVoiceMusic"));
+			
 			Label am = new Label("audioVoiceMusicMetadata", "");
 			am.setEscapeModelStrings(false);
 			this.step3mp3.addOrReplace(am);

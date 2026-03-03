@@ -83,16 +83,16 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		AjaxButtonToolbarItem<Voice> create = new AjaxButtonToolbarItem<Voice>() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			public boolean isEnabled() {
 				return canEdit();
 
 			}
 			
+			@Override
 			public boolean isVisible() {
 				return canEdit();
-
 			}
-			
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
@@ -164,10 +164,12 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 				return VoiceEditor.this.processAudioUpload(uploads);
 			}
 
+			@Override
 			public Image getImage() {
 				return null;
 			}
 
+			@Override
 			protected String getAudioSrc() {
 
 				if (getAudioModel() == null || getAudioModel().getObject() == null)
@@ -175,7 +177,8 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 				return VoiceEditor.this.getPresignedUrl(getAudioModel().getObject());
 			}
 
-			public String getFileName() {
+			@Override
+			public String getAudioMetadata() {
 				if (audioMeta == null)
 					audioMeta = VoiceEditor.this.getAudioMeta(getAudioModel());
 				return audioMeta;

@@ -261,6 +261,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 		ArtExhibition ex = getModel().getObject();
 
 		super.removeItem(ex, item, getUserDBService().findRoot());
+
 		resetSelected();
 		target.add(this.selectedPanel);
 	}

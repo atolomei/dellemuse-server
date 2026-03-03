@@ -34,6 +34,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.security.config.ImpersonationService;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Music;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -76,6 +77,26 @@ public class UserListPage extends ObjectListPage<User> {
 		return Help.USER_LIST ;
 	}
 	
+	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
+	@Override
+	public boolean canCreate() {
+		return isRoot() || isGeneralAdmin();
+	}
+	
+	@Override
+	public boolean canWrite(User m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
+	public boolean canDelete(User m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
 	
 	public UserListPage() {
 		super();
@@ -88,10 +109,7 @@ public class UserListPage extends ObjectListPage<User> {
 	}
 
 	
-	@Override
-	public boolean canEdit() {
-		return isRoot() || isGeneralAdmin();
-	}
+	 
 
 	
 	public ImpersonationService getImpersonationService() {

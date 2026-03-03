@@ -61,7 +61,7 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
  * 
  * Site Information Exhibitions Artworks Exhibitions
  */
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/site/exhibitions/${id}")
 public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
@@ -74,6 +74,77 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 	private List<ToolbarItem> listToolbar;
 	private List<ToolbarItem> mainToolbar;
+
+	public boolean canCreate() {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+	}
+
+	public boolean canRead(ArtExhibition o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canWrite(ArtExhibition o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canDelete(ArtExhibition o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
 
 	public SiteArtExhibitionsListPage() {
 		super();
@@ -92,13 +163,10 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		getPageParameters().add("id", siteModel.getObject().getId().toString());
 		setSiteModel(siteModel);
 	}
-	
-
 
 	public String getHelpKey() {
 		return Help.SITE_ARTEXHIBITION_LIST;
 	}
-	
 
 	protected IModel<String> getTitleLabel() {
 		return getLabel("exhibitions");
@@ -169,7 +237,6 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		return false;
 	}
 
-
 	protected List<ToolbarItem> getMainToolbarItems() {
 
 		if (mainToolbar != null)
@@ -179,18 +246,17 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 		mainToolbar.add(new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Align.TOP_RIGHT));
 
-
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
 
 			public boolean isEnabled() {
-				return canEdit();
+				return canCreate();
 			}
 
 			public boolean isVisible() {
-				return canEdit();
+				return canCreate();
 			}
-			
+
 			protected void onClick() {
 				SiteArtExhibitionsListPage.this.onCreate();
 			}
@@ -198,14 +264,11 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 		create.setAlign(Align.TOP_LEFT);
 		mainToolbar.add(create);
 
-		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+		mainToolbar.add(new HelpButtonToolbarItem("item", Align.TOP_RIGHT));
 
 		return mainToolbar;
 	}
 
-
-	
-	
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -264,6 +327,10 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isEnabled() {
+						return canRead(model.getObject());
+					}
+
 					@Override
 					public void onClick() {
 						setResponsePage(new ArtExhibitionPage(model, getList()));
@@ -289,7 +356,7 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 					private static final long serialVersionUID = 1L;
 
 					public boolean isEnabled() {
-						return getModel().getObject().getState() != ObjectState.PUBLISHED;
+						return canWrite(model.getObject()) && getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
 
 					@Override
@@ -318,8 +385,9 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 					private static final long serialVersionUID = 1L;
 
+					@Override
 					public boolean isEnabled() {
-						return getModel().getObject().getState() != ObjectState.EDITION;
+						return canWrite(model.getObject()) && getModel().getObject().getState() != ObjectState.EDITION;
 					}
 
 					@Override
@@ -385,6 +453,11 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 							@Override
 							public void onClick() {
 								setResponsePage(new RedirectPage("/guide/" + gid));
+							}
+
+							@Override
+							public boolean isEnabled() {
+								return canRead(model.getObject());
 							}
 
 							@Override
@@ -480,6 +553,7 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 			setResponsePage(new ErrorPage(e));
 		}
 	}
+
 	@Override
 	protected void addListeners() {
 		super.addListeners();

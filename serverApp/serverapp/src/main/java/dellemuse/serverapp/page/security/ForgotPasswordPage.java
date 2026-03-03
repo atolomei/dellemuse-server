@@ -19,10 +19,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,14 +33,15 @@ import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.service.PersonDBService;
+import dellemuse.serverapp.serverdb.service.UserDBService;
+import dellemuse.serverapp.service.EmailService;
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.Field;
 import io.wktui.form.field.TextField;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import wktui.base.InvisiblePanel;
 
 /**
@@ -75,6 +72,14 @@ public class ForgotPasswordPage extends BasePage {
 
 	private boolean isError = false;
 	
+	@SpringBean
+	private UserDBService userDBService;
+	
+	@SpringBean
+	private PersonDBService personDBService;
+	
+	@SpringBean
+	private EmailService emailService;
 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -111,14 +116,12 @@ public class ForgotPasswordPage extends BasePage {
 		add(alertContainer);
 		
 		if (isError()) {
-			alert = new  AlertPanel<Void>("alert", AlertPanel.DANGER, getLabel( "username-password-invalid"));
-			
-			alertContainer.add(alert);
-		}
-		else {
-			alertContainer.setVisible(false);
-			alertContainer.add( new InvisiblePanel("alert"));
-		}
+			alert = new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel( "username-password-invalid"));
+            alertContainer.add(alert);
+        } else {
+             alertContainer.setVisible(false);
+             alertContainer.add( new InvisiblePanel("alert"));
+         }
 		 
 	    form = new Form<User>("loginForm") {
 	    	
@@ -127,59 +130,59 @@ public class ForgotPasswordPage extends BasePage {
 				@Override
 				protected void onInitialize() {
 				    super.onInitialize();
-				    if (getSession().isTemporary()) {
-				        getSession().bind(); // fuerza la creación de la sesión Wicket
-				    }
 				}
 				 
 				@Override
 	            protected void onSubmit() {
 	
-					SecureWebSession session = (SecureWebSession) getSession();
-	       
-	                if (session.signIn(username, password)) {
- 	       
-	                	ServletWebRequest servletRequest = (ServletWebRequest) RequestCycle.get().getRequest();
-	                	HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest.getContainerRequest();
-	                	WebResponse webResponse = (WebResponse) RequestCycle.get().getResponse();
-	                    HttpServletResponse httpServletResponse = (HttpServletResponse) webResponse.getContainerResponse();
-	                	HttpSession httpSession = httpServletRequest.getSession(true); // create if missing
-	                	// store the Spring SecurityContext under the standard key
-	                	httpSession.setAttribute(
-	                	    HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-	                	    SecurityContextHolder.getContext()
-	                	);
-	                	
-	                	logger.debug("LOGIN: sessionId= "+ httpSession.getId()  + " springContextPresent=" +
-	                		    (httpSession.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY
-	                		    ) != null));
-	                	isError = false;
-
-	                	completeLogin();
-		                    
-	                } else {
-	                	logger.debug("Invalid username or password");
-	                	PageParameters parameters = new PageParameters();
-	                	parameters.add("error", "invalid-username-or-password");
-	                	parameters.add("username", username);
-		              	isError = true;
-		            	setResponsePage( new ForgotPasswordPage(parameters));
-	                    error("Invalid username or password.");
-	                }
-	            }
+					// lookup user by username/email/phone
+					Optional<User> ou = userDBService.findByUsernameOrEmailOrPhone(username);
+					if (ou.isPresent()) {
+						User u = ou.get();
+						// get person email
+						Optional<dellemuse.serverapp.serverdb.model.Person> op = personDBService.getByUser(u);
+						String email = null;
+						String personName = u.getUsername();
+						if (op.isPresent()) {
+							personName = op.get().getDisplayname();
+							email = op.get().getEmail();
+						}
+						if (email==null || email.trim().isEmpty()) {
+							// fallback to user's email field
+							email = u.getEmail();
+						}
+						if (email!=null && email.trim().length()>0) {
+							String link = RequestCycle.get().urlFor(ResetPasswordPage.class, new PageParameters().add("user", u.getUsername())).toString();
+							String subject = "Reset your password";
+							String body = "Hello " + personName + "\n\nPlease follow the link to reset your password:\n" + link + "\n\nIf you didn't request this, ignore this email.";
+							emailService.sendEmail(email, subject, body);
+							// show confirmation
+							getPageParameters().set("sent", "true");
+							setResponsePage(ForgotPasswordPage.class, getPageParameters());
+							
+							return;
+						} else {
+							// no email found
+							error("No email associated with user");
+							return;
+						}
+					} else {
+						// no user found
+						error("No user found with that username/email/phone");
+						return;
+					}
+	
+				}
 				@Override
 				protected void onError()
 				{
-					logger.debug("dedd");
 				}
 	    
 	    };
 	    
 	    userNameField = new TextField<String>( "username",  new PropertyModel<String>(this, "username"), getLabel("username"));
-	    
 	    userNameField.setTitleCss("row mb-1");
 	    userNameField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control bg-dark text-light");
-	 
 	    
 		SubmitButton<User> buttons = new SubmitButton<User>("buttons-bottom", getForm()) {
 
@@ -187,7 +190,9 @@ public class ForgotPasswordPage extends BasePage {
 
 			@Override
 			public void onSubmit(AjaxRequestTarget target) {
-				logger.debug("error");
+	
+			
+			
 			}
 			  public IModel<String> getLabel() {
 			    	return getLabel("signin");
@@ -220,58 +225,11 @@ public class ForgotPasswordPage extends BasePage {
 		getForm().visitChildren(Field.class, new IVisitor<Field<?>, Void>() {
 			@Override
 			public void component(Field<?> field, IVisit<Void> visit) {
-				// if (focus==null) {
-				// target.focusComponent(field.getInput());
-				// focus = field;
-				// }
 				field.editOn();
 
 			}
 		});
 	}
 
-	@SpringBean
-    private SavedRequestAwareAuthenticationSuccessHandler successHandler;
-	
-	
-	   private void completeLogin() {
-
-	        // --- Integrar Spring Security ---
-	        ServletWebRequest servletRequest = (ServletWebRequest) RequestCycle.get().getRequest();
-	        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest.getContainerRequest();
-	        WebResponse webResponse = (WebResponse) RequestCycle.get().getResponse();
-	        HttpServletResponse httpServletResponse = (HttpServletResponse) webResponse.getContainerResponse();
-
-	        // --- Redirección ---
-	        try {
-	            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	            // Intenta usar SavedRequest de Spring Security primero
-	            successHandler.onAuthenticationSuccess(httpServletRequest, httpServletResponse, auth);
-	            
-	            logger.debug("successHandler");
-	            
-	            
-	        } catch (Exception e) {
-	            // fallback Wicket: continueToOriginalDestination
-	            try {
-	                
-	                continueToOriginalDestination();
-                    String url = urlFor(getApplication().getHomePage(), null).toString();
-                    RequestCycle.get().scheduleRequestHandlerAfterCurrent(
-                        new  RedirectRequestHandler(url)
-                    );
-	            	
-	            } catch (Exception ex) {
-	                // fallback final al HomePage
-	                String url = urlFor(getApplication().getHomePage(), null).toString();
-	                RequestCycle.get().scheduleRequestHandlerAfterCurrent(
-	                        new RedirectRequestHandler(url)
-	                );
-	            }
-	        }
-
-	        isError = false;
-	    }
-	
+	 
 }
-

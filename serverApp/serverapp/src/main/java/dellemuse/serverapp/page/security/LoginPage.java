@@ -48,6 +48,7 @@ import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.Field;
+import io.wktui.form.field.PasswordField;
 import io.wktui.form.field.TextField;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -78,7 +79,7 @@ public class LoginPage extends BasePage {
 	private String password = "";
 
 	private TextField<String> emailField;
-	private TextField<String> passwordField;
+	private PasswordField passwordField;
 
 	private boolean isError = false;
 
@@ -131,8 +132,7 @@ public class LoginPage extends BasePage {
 		add(alertContainer);
 
 		if (isError()) {
-			alert = new AlertPanel<Void>("alert", AlertPanel.DANGER, getLabel("username-password-invalid"));
-			
+			alert = new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel("username-password-invalid"));
 			
 			alert.setAlertTextContainerCss("col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center");
 			alertContainer.add(alert);
@@ -201,7 +201,7 @@ public class LoginPage extends BasePage {
 		};
 
 		emailField = new TextField<String>("usernameoremail", new PropertyModel<String>(this, "email"), getLabel("username-or-email"));
-		passwordField = new TextField<String>("password", new PropertyModel<String>(this, "password"), getLabel("password"));
+		passwordField = new PasswordField("password", new PropertyModel<String>(this, "password"), getLabel("password"));
 		emailField.setTitleCss("row mb-1");
 		emailField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control bg-dark text-light");
 		passwordField.setCss("text-center text-lg-center text-md-center text-sm-center text-xl-center textl-xxl-center form-control bg-dark text-light");

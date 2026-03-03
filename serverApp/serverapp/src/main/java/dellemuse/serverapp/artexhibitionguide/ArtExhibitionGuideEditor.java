@@ -168,7 +168,7 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 				return ArtExhibitionGuideEditor.this.getPresignedUrl(getAudioModel().getObject());
 			}
 
-			public String getFileName() {
+			public String getAudioMetadata() {
 
 				if (getAudioModel() != null || getAudioModel().getObject() == null) {
 					if (audioMeta == null)

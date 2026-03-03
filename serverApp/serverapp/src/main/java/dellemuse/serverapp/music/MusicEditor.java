@@ -278,7 +278,8 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 				return MusicEditor.this.getPresignedUrl(getAudioModel().getObject());
 			}
 
-			public String getFileName() {
+			@Override
+			public String getAudioMetadata() {
 				if (audioMeta == null)
 					audioMeta = MusicEditor.this.getAudioMeta(getAudioModel());
 				return audioMeta;

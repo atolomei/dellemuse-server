@@ -76,6 +76,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	private List<IModel<GuideContent>> guideContentSearchList;
 	private List<IModel<ArtExhibitionGuide>> artExhibitionSearchList;
 	
+	private String lang;
 	
 	public List<IModel<GuideContent>> getGuideContentSearchList() {
 		return guideContentSearchList;
@@ -93,29 +94,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		this.artExhibitionSearchList = artExhibitionSearchList;
 	}
 
-	
-	private String lang;
-	
-	protected void setLanguage() {
-		if (lang!=null) {
-		    getSession().setLocale(Locale.forLanguageTag(lang));
-		}
-		else {
-			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
-			Cookie cookie = request.getCookie("lang");
-			if (cookie != null) {
-			    String value = cookie.getValue();
-			    getSession().setLocale( Locale.forLanguageTag(value));
-			}
-			else if (getSessionUser().isEmpty()) {
-				Language la=Language.of( getSiteModel().getObject().getMasterLanguage());
-				String code=la.getLanguageCode();
-				getSession().setLocale(Locale.forLanguageTag(code));
-			}
-		}
-	}
-	
-	
+
 	public BrandedGuideContentPage() {
 		super();
 	}
@@ -254,6 +233,31 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return true;
 	}
 
+	
+	protected void setLanguage() {
+		if (lang!=null) {
+		    getSession().setLocale(Locale.forLanguageTag(lang));
+		}
+		else {
+			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+			Cookie cookie = request.getCookie("lang");
+			if (cookie != null) {
+			    String value = cookie.getValue();
+			    getSession().setLocale( Locale.forLanguageTag(value));
+			}
+			else if (getSessionUser().isEmpty()) {
+				Language la=Language.of( getSiteModel().getObject().getMasterLanguage());
+				String code=la.getLanguageCode();
+				getSession().setLocale(Locale.forLanguageTag(code));
+			}
+		}
+	}
+	
+	protected IModel<String> getMainClass() {
+		return Model.of("branded text-bg-dark");
+	}
+
+	
 	protected void setUpModel() {
 		super.setUpModel();
 

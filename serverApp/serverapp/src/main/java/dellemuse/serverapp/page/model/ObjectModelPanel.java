@@ -69,6 +69,7 @@ import dellemuse.serverapp.serverdb.service.security.RoleInstitutionDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleSiteDBService;
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
+import dellemuse.serverapp.service.SecurityAuthorizationService;
 import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import dellemuse.serverapp.service.language.TranslationService;
@@ -82,6 +83,26 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	static private Logger logger = Logger.getLogger(ObjectModelPanel.class.getName());
 
 	private IModel<User> sessionUserModel;
+	
+	
+	protected boolean canDelete(T object) {
+		return true;
+	}
+
+	
+	protected boolean canCreate(T object) {
+		return true;
+	}
+
+	
+	protected boolean canWrite(T object) {
+		return true;
+	}
+
+	
+	protected boolean canRead(T object) {
+		return true;
+	}
 	
 	
 	public ObjectModelPanel(String id, IModel<T> model) {
@@ -141,6 +162,12 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	public LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
+	
+	
+	public SecurityAuthorizationService getSecurityAuthorizationService() {
+		return (SecurityAuthorizationService) ServiceLocator.getInstance().getBean(SecurityAuthorizationService.class);
+	}
+	
 
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
@@ -786,7 +813,7 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 			str.append(" - " + NumberFormatter.formatFileSize(resource.getSize()));
 		}
 
-		str.append("<br/>");
+		str.append(" - ");
 		str.append(getLabel("manually-uploaded", resource.getLastModifiedUser().getName(), getDateTimeService().timeElapsed(resource.getLastModified())).getObject());
 
 		return str.toString();
