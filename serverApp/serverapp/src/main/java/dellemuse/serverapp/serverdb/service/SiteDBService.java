@@ -40,6 +40,8 @@ import dellemuse.serverapp.serverdb.model.RoomType;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.repository.ArtistRepository;
 import dellemuse.serverapp.serverdb.repository.PersonRepository;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -86,6 +88,27 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		this.siteRecordDBService = siteRecordDBService;
 	}
 
+
+	@Transactional
+	public Set<Site> getWriteAuthorizedSites(User user) {
+
+		Set<Site> sites= new HashSet<Site>();
+		
+		user.getRolesInstitution().forEach ( r ->
+				{
+					Institution i = r.getInstitution();
+					List<Site> ls = i.getSites();
+					ls.forEach( s -> sites.add(s));
+				}
+		);
+				
+		user.getRolesSite().stream().filter(ia -> (ia.getKey().equals(RoleSite.ADMIN) || ia.getKey().equals(RoleSite.EDITOR))).forEach ( r -> sites.add(r.getSite()));
+		return sites;
+	}
+
+	
+	
+	
 	@Transactional
  	public Site create(String name, User createdBy) {
 
@@ -376,6 +399,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 	@Transactional
 	public Iterable<ArtExhibition> getArtExhibitions(Long siteId, ObjectState os1, ObjectState os2) {
+		
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibition> cq = cb.createQuery(ArtExhibition.class);
 		Root<ArtExhibition> root = cq.from(ArtExhibition.class);

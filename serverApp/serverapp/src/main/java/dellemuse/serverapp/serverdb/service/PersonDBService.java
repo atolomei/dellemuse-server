@@ -172,6 +172,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 			User u = getUserDBService().findById(o.getUser().getId()).get();
 			u.setEmail(o.getEmail());
 			u.setPhone(o.getPhone());
+        	user.setSortLastFirstname(o.getSortLastFirstname());
 			getUserDBService().save(u);
 		}
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
@@ -219,8 +220,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Person> cq = cb.createQuery(getEntityClass());
         Root<Person> root = cq.from(getEntityClass());
-        cq.orderBy(cb.asc(root.get("sortlastfirstname")));
-        
+        cq.orderBy(cb.asc(root.get("sortLastFirstname")));
         return getEntityManager().createQuery(cq).getResultList();
     }
     
@@ -230,7 +230,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 		CriteriaQuery<Person> cq = cb.createQuery(getEntityClass());
 		Root<Person> root = cq.from(getEntityClass());
 		cq.select(root).where(cb.equal(root.get("state"), os));
-		cq.orderBy(cb.asc(root.get("sortlastfirstname")));
+		cq.orderBy(cb.asc(root.get("sortLastFirstname")));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
@@ -243,7 +243,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 		Predicate p2 = cb.equal(root.get("state"), os2);
 		Predicate combinedPredicate = cb.or(p1, p2);
 		cq.select(root).where(combinedPredicate);
-		cq.orderBy(cb.asc(root.get("sortlastfirstname")));
+		cq.orderBy(cb.asc(root.get("sortLastFirstname")));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 	
@@ -253,17 +253,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
     }
 
 
-    /**
-    @Transactional
-    public List<ArtWork> getArtWorks(Person person) {
-       
-    	if (!person.isDependencies()) {
-    		person = findWithDeps( person.getId()).get();
-    	}
-    	return person.getArtworks().stream().collect(Collectors.toList());
-    	
-     }
-    **/
+   
     
     public List<Person> getByName(String name) {
         return createNameQuery(name).getResultList();

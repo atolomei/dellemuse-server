@@ -76,6 +76,9 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 	public void onDetach() {
 		super.onDetach();
 
+		if (getModel()!=null)
+			getModel().detach();
+		 
 		if (getPhotoModel() != null)
 			getPhotoModel().detach();
 
@@ -220,6 +223,14 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 			}
 		};
 
+		
+		 if (getImageContainerCss() != null) {
+			 this.imageContainer.add(new AttributeModifier("class", getImageContainerCss()));
+		 }
+					
+		
+	
+		
 		this.imageContainer.setOutputMarkupId(true);
 
 		frame.addOrReplace(this.imageContainer);
@@ -283,6 +294,21 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 
 	}
 	
+	
+	String imageContainerCss;
+	
+	
+	public void setImageContainerCss(String css) {
+		this.imageContainerCss = css;
+		if (this.imageContainer != null) {
+			this.imageContainer.add(new AttributeModifier("class", getImageContainerCss()));
+		}
+	}
+	
+	public String getImageContainerCss() {
+		return imageContainerCss;
+	}
+
 	private void ini() {
 		
 		Label title = new Label("title", getTitle());

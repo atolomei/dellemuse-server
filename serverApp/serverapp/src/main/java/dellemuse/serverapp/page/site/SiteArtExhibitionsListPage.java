@@ -323,10 +323,14 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 			@Override
 			public MenuItemPanel<ArtExhibition> getItem(String id) {
 
-				return new LinkMenuItem<ArtExhibition>(id) {
+				return new LinkMenuItem<ArtExhibition>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isVisible() {
+						return canRead(model.getObject());
+					}
+					
 					public boolean isEnabled() {
 						return canRead(model.getObject());
 					}
@@ -355,6 +359,11 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isVisible() {
+						return canWrite(model.getObject()) && getModel().getObject().getState() != ObjectState.PUBLISHED;
+					}
+
+					
 					public boolean isEnabled() {
 						return canWrite(model.getObject()) && getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
@@ -385,6 +394,11 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isVisible() {
+						return canWrite(model.getObject()) && getModel().getObject().getState() != ObjectState.EDITION;
+					}
+
+					
 					@Override
 					public boolean isEnabled() {
 						return canWrite(model.getObject()) && getModel().getObject().getState() != ObjectState.EDITION;
@@ -446,13 +460,17 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 					@Override
 					public MenuItemPanel<ArtExhibition> getItem(String id) {
 
-						return new LinkMenuItem<ArtExhibition>(id) {
+						return new LinkMenuItem<ArtExhibition>(id, model) {
 
 							private static final long serialVersionUID = 1L;
 
 							@Override
 							public void onClick() {
 								setResponsePage(new RedirectPage("/guide/" + gid));
+							}
+
+							public boolean isVisible() {
+								return canRead(model.getObject());
 							}
 
 							@Override

@@ -104,44 +104,24 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 	private boolean readonly = false;
 	private List<String> updatedParts = new ArrayList<String>();
 
-	private Boolean generalAdmin = null;
-
-	public boolean isGeneralAdmin() {
-
-		if (generalAdmin != null)
-			return this.generalAdmin.booleanValue();
-
-		synchronized (this) {
-
-			if (getSessionUser().isEmpty()) {
-				this.generalAdmin = Boolean.FALSE;
-				return this.generalAdmin;
-			}
-			 
-			User user = getSessionUser().get();
-
-			if (!user.isDependencies()) {
-				user = getUserDBService().findWithDeps(user.getId()).get();
-			}
-
-			Set<RoleGeneral> set = user.getRolesGeneral();
-
-			if (set == null) {
-				this.generalAdmin = Boolean.FALSE;
-				return this.generalAdmin;
-			}
-			this.generalAdmin = Boolean.valueOf(set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN))));
-			return this.generalAdmin;
-		}
-	}
-
-	public boolean isRoot() {
-		return getSessionUser() != null && getSessionUser().get().isRoot();
-	}
-
+	
 	public boolean hasWritePermission() {
 		return true;
 	}
+	
+	public boolean isSiteAdminOrEditor(Site site) {
+		if (site==null)
+			return false;
+		return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), site);
+	}
+	
+	public boolean isSiteAdmin (Site site) {
+		if (site==null)
+			return false;
+		return getSecurityAuthorizationService().isSiteAdmin (getSessionUser(), site);
+	}
+	
+	
 
 	public DBObjectEditor(String id, IModel<T> model) {
 		super(id, model);

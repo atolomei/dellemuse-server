@@ -2,8 +2,10 @@ package dellemuse.serverapp.page.site;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -115,6 +117,9 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 		listToolbar.add(s);
 		return listToolbar;
 	*/
+	
+		
+		
 		
 	}
 
@@ -152,6 +157,9 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 
 		this.users = new ArrayList<IModel<User>>();
 	 
+		
+		Set<IModel<User>> set = new HashSet<IModel<User>>();
+		
 		Site site;
 		
 		if (!getModel().getObject().isDependencies()) {
@@ -160,12 +168,16 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 		else
 			site = getModel().getObject();
 			
-		getUserDBService().getSiteUsers( site ).forEach( u -> users.add( new ObjectModel<User>(u)) );
+		getUserDBService().getSiteUsers( site ).forEach( u -> set.add( new ObjectModel<User>(u)) );
+		getUserDBService().getInstitutionUsers( site.getInstitution() ).forEach( u -> set.add( new ObjectModel<User>(u)) );
+		
+		
+		this.users.addAll(set);
 		
 		this.users.sort( new Comparator<IModel<User>>() {
 			@Override
 			public int compare(IModel<User> o1, IModel<User> o2) {
-			 	return o1.getObject().getUsername().compareToIgnoreCase(o2.getObject().getUsername());
+				 return o1.getObject().getSortLastFirstname().compareToIgnoreCase(o2.getObject().getSortLastFirstname());
 			}
 		});
 	}
@@ -196,13 +208,12 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 	protected IModel<String> getObjectTitle(IModel<User> model) {
 		
 		StringBuilder str = new StringBuilder();
-		str.append(model.getObject().getName());
-	
 		
 		Optional<Person> op = getPersonDBService().getByUser(model.getObject());
 		if (op.isPresent()) {
-			str.append(" <span class=\"text-secondary small\">. " + op.get().getFirstLastname()+ "  </span>");
+			str.append( op.get().getLastFirstname() );
 		}
+		str.append(" <span class=\"text-secondary small\">. " + model.getObject().getName() + "  </span>");
 		
 		User o  = model.getObject();
 		
@@ -361,7 +372,7 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 
 					@Override
 					public void onClick() {
-						  setResponsePage(new UserPage(getModel()));
+						  setResponsePage(new SiteUserPage(SiteUsersPanel.this.getModel(), getModel()));
 					}
 
 					 

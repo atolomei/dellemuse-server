@@ -21,7 +21,7 @@ import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
-import dellemuse.serverapp.global.GlobalFooterPanel;
+ 
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -71,9 +71,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private List<INamedTab> tabs;
 	private WebMarkupContainer currentPanel;
 	private ObjectMetaEditor<T> metaEditor;
-	
-	
-	boolean isHelpVisible = false;
+	private WebMarkupContainer helpContainer;
+
+	private boolean isHelpVisible = false;
 
 	private ObjectStateEnumSelector oses;
 
@@ -81,17 +81,13 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	private Panel pageHeader;
 	private Panel globalSearch;
+	
 
 	protected abstract Optional<T> getObject(Long id);
-
 	protected abstract IModel<String> getPageTitle();
-
 	protected abstract IRequestablePage getObjectPage(IModel<T> iModel, List<IModel<T>> list);
-
 	protected abstract List<INamedTab> getInternalPanels();
-
 	protected abstract List<ToolbarItem> getToolbarItems();
-
 	protected abstract Panel createHeaderPanel();
 
 	
@@ -258,7 +254,6 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		return Model.of("eeeeeeee");
 	}
 
-	private WebMarkupContainer helpContainer;
 	
 	@Override
 	public void onInitialize() {
@@ -394,7 +389,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		}
 
 		if (getModel() == null)
-			throw new IllegalStateException("ObjectModel is null");
+			throw new IllegalStateException("object is null");
 	}
 
 	protected int getCurrent() {

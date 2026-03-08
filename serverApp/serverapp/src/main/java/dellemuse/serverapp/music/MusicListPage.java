@@ -127,31 +127,13 @@ public class MusicListPage extends ObjectListPage<Music> {
 		
 		return true;
 
-		/**
-		if (ouser.isEmpty())
-			return false;
-		
-		User user = ouser.get();  
-
-		if (user.isRoot()) 
-			return true;
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		Set<RoleGeneral> set =user.getRolesGeneral();
-		if (set==null)
-			return false;
-		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-*/
-	
+	 
 	}
 	
 	protected void onCreate() {
 
 		try {
-			Music in = getMusicDBService().create("new", getUserDBService().findRoot());
+			Music in = getMusicDBService().create("new", getSessionUser().get());
 			setResponsePage(new  MusicPage(new ObjectModel<Music>(in), getList()));
 
 		} catch (Exception e) {
@@ -176,11 +158,11 @@ public class MusicListPage extends ObjectListPage<Music> {
 			}
 			
 			public boolean isEnabled() {
-				return canEdit();
+				return canCreate();
 			}
 
 			public boolean isVisible() {
-				return canEdit();
+				return canCreate();
 			}
 		
 		};
@@ -207,10 +189,14 @@ public class MusicListPage extends ObjectListPage<Music> {
 			@Override
 			public MenuItemPanel<Music> getItem(String id) {
 
-				return new LinkMenuItem<Music>(id) {
+				return new LinkMenuItem<Music>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isEnabled() {
+						return canRead( model.getObject());
+					}
+					
 					@Override
 					public void onClick () {
 						setResponsePage( new MusicPage( getModel(), getList() ));
@@ -238,8 +224,10 @@ public class MusicListPage extends ObjectListPage<Music> {
 
 					private static final long serialVersionUID = 1L;
 
-					
+					@Override
 					public boolean isEnabled() {
+						if (!canWrite( model.getObject()))
+							return false;
 						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
 					}
 				
@@ -274,7 +262,9 @@ public class MusicListPage extends ObjectListPage<Music> {
 
 					
 					public boolean isEnabled() {
-						return getModel().getObject().getState()!=ObjectState.EDITION;
+						if (!canWrite( model.getObject()))
+							return false;
+						return model.getObject().getState()!=ObjectState.EDITION;
 					}
 				
 					@Override
@@ -306,6 +296,8 @@ public class MusicListPage extends ObjectListPage<Music> {
 
 					
 					public boolean isEnabled() {
+						if (!canWrite( model.getObject()))
+							return false;
 						return getModel().getObject().getState()!=ObjectState.DELETED;
 					}
 				
@@ -325,27 +317,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 		});
 		
 		
-		
-		/**
-		
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Music>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Music> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<Music>(id) {
-					private static final long serialVersionUID = 1L;
-				};
-			}
-		});
-		
-		
-		*/
-		
-		
-		
-		
-		
+		 
 		
 		
 		return menu;
@@ -399,10 +371,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 		if (model.getObject().getState() == ObjectState.EDITION)
 			str.append(Icons.EDITION_ICON_HTML);
 		
-	
-		
-		
-		
+	 	
 		return Model.of( str.toString());
 	
 	

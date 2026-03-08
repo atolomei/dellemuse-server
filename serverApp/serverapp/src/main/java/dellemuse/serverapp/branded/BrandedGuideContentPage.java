@@ -149,15 +149,16 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		if (getModel().getObject().getState() == ObjectState.DELETED)
 			return false;
 
-		// if (getModel().getObject().getState()==ObjectState.EDITION)
-		// return false;
-
 		if (getSiteModel().getObject().getState() == ObjectState.EDITION)
 			return false;
 
 		if (getModel().getObject().getState() == ObjectState.DELETED)
 			return false;
 
+		
+		if ( !getSiteModel().getObject().isPublicPortalEnabled() )
+			return false;
+		
 		return true;
 	}
 
@@ -369,7 +370,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("audio-guides")));
+		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
 		bc.addElement(new HREFBCElement("/ag/guide/" + getArtExhibitionGuideModel().getObject().getId().toString(), getObjectTitle(getArtExhibitionGuideModel().getObject())));
 
 		bc.addElement(new BCElement(getObjectTitle(getModel().getObject())));
@@ -381,6 +382,10 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		
 		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), Model.of(str.toString()));
 		ph.setImageLinkCss("jumbo-img jumbo-md mb-0 mb-lg-0  border bg-none");
+
+		
+		ph.setImageContainerCss("row mt-3 mb-1 text-center");
+		
 		ph.setHeaderCss("mb-0 mt-0 pt-0 pb-0 border-none");
 		ph.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center  "));
 

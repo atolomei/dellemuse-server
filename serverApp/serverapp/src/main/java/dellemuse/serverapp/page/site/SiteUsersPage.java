@@ -19,6 +19,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
+import dellemuse.serverapp.music.MusicListPage;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
@@ -37,6 +38,7 @@ import io.wktui.event.UIEvent;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
+import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.INamedTab;
@@ -55,47 +57,6 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 	private List<ToolbarItem> list;
 
-	protected List<Language> getSupportedLanguages() {
-		return getModel().getObject().getLanguages();
-	}
-
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-
-		if (ouser.isEmpty())
-			return false;
-
-		User user = ouser.get();
-
-		if (user.isRoot())
-			return true;
-
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-
-		{
-			Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		{
-			final Long sid = getModel().getObject().getId();
-
-			Set<RoleSite> set = user.getRolesSite();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		return false;
-	}
 
 	public SiteUsersPage() {
 		super();
@@ -107,6 +68,11 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 	public SiteUsersPage(IModel<Site> model) {
 		super(model);
+	}
+
+	@Override
+	public String getHelpKey() {
+		return Help.SITE_USERS;
 	}
 
 	@Override
@@ -152,10 +118,119 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	}
 
 
-	public String getHelpKey() {
-		return Help.SITE_USERS;
+
+	protected List<Language> getSupportedLanguages() {
+		return getModel().getObject().getLanguages();
 	}
 
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get();
+
+		if (user.isRoot())
+			return true;
+
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		return false;
+	}
+	
+	public boolean canCreate() {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdmin(getModel().getObject()))
+			return true;
+
+		return false;
+	}
+
+	public boolean canRead(User o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canWrite(User o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdmin(getModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canDelete(User o) {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdmin(getModel().getObject()))
+			return true;
+
+		return false;
+
+	}
 	
 	
 	protected List<ToolbarItem> getToolbarItems() {
@@ -165,6 +240,47 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 		list = new ArrayList<ToolbarItem>();
 
+		
+		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
+			private static final long serialVersionUID = 1L;
+
+			protected void onClick() {
+				SiteUsersPage.this.onCreate();
+			}
+			
+			public boolean isEnabled() {
+				return canCreate();
+			}
+
+			public boolean isVisible() {
+				return canCreate();
+			}
+		
+		};
+		create.setAlign(Align.TOP_LEFT);
+		list.add(create);
+		
+		/**
+		ButtonCreateToolbarItem<Void> addExisting = new ButtonCreateToolbarItem<Void>("item") {
+			private static final long serialVersionUID = 1L;
+
+			protected void onClick() {
+				SiteUsersPage.this.onCreate();
+			}
+			
+			public boolean isEnabled() {
+				return canCreate();
+			}
+
+			public boolean isVisible() {
+				return canCreate();
+			}
+		
+		};
+		create.setAlign(Align.TOP_LEFT);
+		list.add(addExisting);
+		**/
+		
 		/** site */
 		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT);
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
@@ -178,6 +294,16 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return list;
 	}
 
+	
+	
+	protected void onCreate() {
+		
+		setResponsePage( new SiteUserPage( getModel(), null));
+		// TODO AT
+		
+	}
+
+	
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 

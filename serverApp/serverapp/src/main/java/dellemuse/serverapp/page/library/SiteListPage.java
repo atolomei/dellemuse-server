@@ -278,10 +278,16 @@ public class SiteListPage extends ObjectListPage<Site> {
 	protected void onCreate() {
 
 		try {
+			
+			if (!canCreate()) {
+				throw new RuntimeException("not authorized");
+			}
+			
 			Site in = getSiteDBService().create("new", getUserDBService().findRoot());
 			IModel<Site> m = new ObjectModel<Site>(in);
 			getList().add(m);
 			setResponsePage(new SitePage(m, getList()));
+
 		} catch (Exception e) {
 			logger.error(e);
 			setResponsePage(new ErrorPage(e));
@@ -344,10 +350,14 @@ public class SiteListPage extends ObjectListPage<Site> {
 			@Override
 			public MenuItemPanel<Site> getItem(String id) {
 
-				return new LinkMenuItem<Site>(id) {
+				return new LinkMenuItem<Site>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isEnabled() {
+						return canRead(model.getObject());
+					}
+					
 					@Override
 					public void onClick() {
 						setResponsePage(new SitePage(getModel(), getList()));
@@ -434,8 +444,14 @@ public class SiteListPage extends ObjectListPage<Site> {
 
 					private static final long serialVersionUID = 1L;
 
+					
+					public boolean isVisible() {
+						return canWrite(model.getObject()) && (model.getObject().getState() != ObjectState.EDITION);
+					}
+					
+					
 					public boolean isEnabled() {
-						return getModel().getObject().getState() != ObjectState.EDITION;
+						return canWrite(model.getObject()) && (model.getObject().getState() != ObjectState.EDITION);
 					}
 
 					@Override
@@ -463,10 +479,15 @@ public class SiteListPage extends ObjectListPage<Site> {
 				return new AjaxLinkMenuItem<Site>(id) {
 
 					private static final long serialVersionUID = 1L;
-
-					public boolean isEnabled() {
-						return getModel().getObject().getState() != ObjectState.DELETED;
+					public boolean isVisible() {
+						return canWrite(model.getObject()) && (model.getObject().getState() != ObjectState.DELETED);
 					}
+					
+					
+					public boolean isEnabled() {
+						return canWrite(model.getObject()) && (model.getObject().getState() != ObjectState.DELETED);
+					}
+
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {

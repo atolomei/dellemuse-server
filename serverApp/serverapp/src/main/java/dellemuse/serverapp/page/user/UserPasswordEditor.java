@@ -60,6 +60,23 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 	
 	private String newPassword;
 	
+	
+
+	public boolean hasWritePermission() {
+	
+		
+		if (isRoot())
+			return true;
+		
+		if (isGeneralAdmin())
+			return true;
+		
+		//if (isSiteAdmin())
+		//	return true;
+		
+		return false;
+	}
+	
 	/**
 	 * @param id
 	 * @param model
@@ -89,6 +106,10 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 			}
 
 			public boolean isEnabled() {
+				
+				if (!hasWritePermission())
+					return false;
+				
 				return getForm().getFormState()==FormState.EDIT;
 			}
 		};
@@ -144,7 +165,7 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 
-		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
+		AjaxButtonToolbarItem<Person> cchangePwd = new AjaxButtonToolbarItem<Person>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -153,12 +174,21 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 			}
 
 			@Override
+			public boolean isVisible() {
+				
+					if (hasWritePermission())
+						return true;
+					
+					return false;
+			}
+			
+			@Override
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
 			}
 		};
-		create.setAlign(Align.TOP_LEFT);
-		list.add(create);
+		cchangePwd.setAlign(Align.TOP_LEFT);
+		list.add(cchangePwd);
 		return list;
 	}
 
@@ -170,12 +200,13 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 		this.form = form;
 	}
 
-	protected void onCancel(AjaxRequestTarget target) {
+	public void onCancel(AjaxRequestTarget target) {
 		this.form.setFormState(FormState.VIEW);
 		target.add(this.form);
 	}
 
-	protected void onEdit(AjaxRequestTarget target) {
+	
+	public void onEdit(AjaxRequestTarget target) {
 		this.form.setFormState(FormState.EDIT);
 		target.add(this);
 	}
@@ -184,8 +215,7 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 		try {
 
-			//if (getModel().getObject().getPassword() == null)
-			//	throw new IllegalArgumentException("pwd is null");
+			 
 
 			
 			if (this.getNewPassword()!=null) 

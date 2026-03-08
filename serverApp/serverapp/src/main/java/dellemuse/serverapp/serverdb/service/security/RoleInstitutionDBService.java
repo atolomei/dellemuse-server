@@ -108,12 +108,22 @@ public class RoleInstitutionDBService extends DBService<RoleInstitution, Long> {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<RoleInstitution> cq = cb.createQuery(getEntityClass());
 		Root<RoleInstitution> root = cq.from(getEntityClass());
-	
 		cq.select(root).where(cb.equal(root.get("institution").get("id"), i.getId()));
-		
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
+	
+	@Transactional
+	public Iterable<RoleInstitution> findByInstitution(Long id) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<RoleInstitution> cq = cb.createQuery(getEntityClass());
+		Root<RoleInstitution> root = cq.from(getEntityClass());
+		cq.select(root).where(cb.equal(root.get("institution").get("id"),  id));
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
 	
 	@Transactional
 	public Iterable<RoleInstitution> findAllSorted() {

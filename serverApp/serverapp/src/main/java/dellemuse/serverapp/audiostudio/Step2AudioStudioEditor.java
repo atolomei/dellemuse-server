@@ -52,12 +52,8 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 	
 	private ChoiceField<Long> musicField;
 	
-	
 	private TextAreaField<String> musicUrlField;
-
 	private NumberField<Integer> startSecField;
-
-	
 	
 	private NumberField<Integer> introDurationSecField;
 	private NumberField<Integer> fadeDurationSecField;
@@ -70,9 +66,9 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 
 	
 	private Integer startSec = Integer.valueOf(0);
-	private Integer introDurationSec = Integer.valueOf(20);
-	private Integer fadeDurationSec = Integer.valueOf(12);
-	private Integer voiceOverlapDurationSec = Integer.valueOf(5);
+	private Integer introDurationSec = Integer.valueOf(18);
+	private Integer fadeDurationSec = Integer.valueOf(6);
+	private Integer voiceOverlapDurationSec = Integer.valueOf(3);
 
 	private boolean uploadedStep2 = false;
 	

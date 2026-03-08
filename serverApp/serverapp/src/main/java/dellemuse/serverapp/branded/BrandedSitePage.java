@@ -180,9 +180,17 @@ public class BrandedSitePage extends BasePage {
 		add(new InvisiblePanel("error"));
 
 		if (!hasAccessRight(getSessionUser())) {
+		
+			addOrReplace( new InvisiblePanel("page-header"));
+			addOrReplace( new InvisiblePanel("top-panel"));
+			
+			addOrReplace( new InvisiblePanel("search"));
+			
 			SimpleAlertRow<Void> r = new SimpleAlertRow<Void>("error");
 			r.setText(getLabel("not-authorized"));
-			add(r);
+			addOrReplace(r);
+		
+			
 			addOrReplace(new InvisiblePanel("exhibitionsContainer"));
 			addOrReplace(new InvisiblePanel("searchContainer"));
 			return;
@@ -203,6 +211,9 @@ public class BrandedSitePage extends BasePage {
 			return false;
 		
 		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
+			return false;
+		
+		if ( !getSiteModel().getObject().isPublicPortalEnabled() )
 			return false;
 		
 		return true;
@@ -1064,12 +1075,12 @@ public class BrandedSitePage extends BasePage {
 	private void addHeader() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("audio-guides")));
+		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
 
 		
 	
 		
-		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getLabel("audio-guides"));
+		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getLabel("exhibitions"));
 		ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0  border-none bg-dark");
 		ph.setHeaderCss("mb-2 mt-0 pt-0 pb-2 border-none");
 

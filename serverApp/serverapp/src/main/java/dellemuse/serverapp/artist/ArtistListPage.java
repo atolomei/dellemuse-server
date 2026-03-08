@@ -103,6 +103,69 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 	}
 
 	
+	@Override
+	public boolean canCreate() {
+
+		Optional<User> ouser = getSessionUser();
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get();
+
+		if (user.isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+		
+		return false;
+	}
+	
+	
+ 
+	
+	@Override
+	public boolean canWrite(Artist a) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+
+		if (isGeneralAdmin())
+			return true;
+		
+		return false;
+	}
+	
+
+	@Override
+	public boolean canDelete(Artist a) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (isGeneralAdminOrAudit())
+			return true;
+
+		return false;
+	}
+
+	
 	
 	public  ArtistListPage() {
 		super();
@@ -203,6 +266,10 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isVisible() {
+						return canRead(getModel().getObject());
+					}
+					
 					@Override
 					public void onClick() {
 						setResponsePage( new ArtistPage( getModel(), getList()));
@@ -232,7 +299,7 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 					
 					public boolean isVisible() {
 						
-						if (!canEdit())
+						if (!canWrite(model.getObject()))
 							return false;
 						
 						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
@@ -268,8 +335,10 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 
 					
 					public boolean isVisible() {
-						if (!canEdit())
+						
+						if (!canWrite(model.getObject()))
 							return false;
+						
 						return getModel().getObject().getState()!=ObjectState.EDITION;
 					}
 				
@@ -310,7 +379,8 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 
 
 					public boolean isVisible() {
-						if (!canEdit())
+						
+						if (!canWrite(model.getObject()))
 							return false;
 					
 						return getModel().getObject().getState()!=ObjectState.DELETED;

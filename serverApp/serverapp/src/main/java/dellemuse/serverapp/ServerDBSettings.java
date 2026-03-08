@@ -141,7 +141,7 @@ public class ServerDBSettings {
 
 	/** -------------------------------------- **/
 
-	@Value("${elevenlabs.api.key:sk_1d73569ea735c3013edd9bb49a6a652839942590f45944d7}")
+	@Value("${elevenlabs.api.key:null}")
 	protected String elevenLabsAPIKey;
 
 	@Value("${elevenlabs.api.host:api.elevenlabs.io}")
@@ -155,14 +155,6 @@ public class ServerDBSettings {
 
 	@Value("${ffmpeg.dir:null}")
 	private String ffmpegDir;
-
-	public String getTextToSpeechServiceName() {
-		return this.textToSpeechServiceName;
-	}
-
-	public String getElevenLabsAPIHost() {
-		return elevenLabsAPIHost;
-	}
 
 	@Value("${audio.cache.dir:audioCache}")
 	private String audioDir;
@@ -179,6 +171,30 @@ public class ServerDBSettings {
 	/** -------------------------------------- **/
 	@Value("${server.language:es}")
 	protected String defaultLanguage;
+	
+	
+	/** EMAIL (MAILGUN) ------------------------------------------- */
+	
+	@Value("${email.mailgun.api.key:null}")
+	protected String emailApiKey;
+
+	@Value("${email.mailgun.domain:null}")
+	protected String emailDomain;
+
+	@Value("${email.mailgun.baseurl:null}")
+	protected String emailBaseurl;
+
+	
+	@Value("${email.mailgun.from:null}")
+	protected String emailFrom;
+
+	
+	@Value("${email.sender.enabled:false}")
+	protected String emailEnabledStr;
+	
+	
+
+	
 
 	public ServerDBSettings() {
 	}
@@ -458,8 +474,54 @@ public class ServerDBSettings {
 		return "noreply@dellemuse.app";
 	}
 
+	public String getEmailApiKey() {
+		return emailApiKey;
+	}
+
+	public String getEmailDomain() {
+		return emailDomain;
+	}
+
+	public String getEmailBaseurl() {
+		return emailBaseurl;
+	}
+
+	public String getEmailFrom() {
+		return emailFrom;
+	}
+
+	public void setEmailApiKey(String emailApiKey) {
+		this.emailApiKey = emailApiKey;
+	}
+
+	public void setEmailDomain(String emailDomain) {
+		this.emailDomain = emailDomain;
+	}
+
+	public void setEmailBaseurl(String emailBaseurl) {
+		this.emailBaseurl = emailBaseurl;
+	}
+
+	public void setEmailFrom(String emailFrom) {
+		this.emailFrom = emailFrom;
+	}
+
 	public String getFFmpegDir() {
 		return ffmpegDir;
 	}
+	public boolean isEmailSenderEnabled() {
+		return this.emailEnabledStr!=null && this.emailEnabledStr.toLowerCase().trim().equals("true");
+	}
+	
 
+	public String getTextToSpeechServiceName() {
+		return this.textToSpeechServiceName;
+	}
+
+	public String getElevenLabsAPIHost() {
+		return elevenLabsAPIHost;
+	}
+
+	
 }
+

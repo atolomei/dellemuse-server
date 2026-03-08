@@ -50,29 +50,7 @@ public class UserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<User
 		});
 
 		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<User> getItem(String id) {
-
-				return new  LinkMenuItem<User>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						fire(new SimpleWicketEvent(ServerAppConstant.user_panel_person));
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("person");
-					}
-				};
-			}
-		});
-		
+	
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 
@@ -119,6 +97,41 @@ public class UserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<User
 				};
 			}
 		});
+		
+		
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<User>(id);
+			}
+		});
+
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new  LinkMenuItem<User>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						fire(new SimpleWicketEvent(ServerAppConstant.user_panel_person));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("person");
+					}
+				};
+			}
+		});
+		
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 			private static final long serialVersionUID = 1L;

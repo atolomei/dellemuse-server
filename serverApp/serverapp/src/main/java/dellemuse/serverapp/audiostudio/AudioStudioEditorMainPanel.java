@@ -89,7 +89,8 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 		setUpModel();
 		addParentObject();
-
+		addBottomParentObject();
+		
 		addAlert();
 		addInfo();
 		
@@ -446,4 +447,29 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		add(li);
 
 	}
+
+
+	private void addBottomParentObject() {
+
+		Link<Void> li = new Link<Void>("b-parent-link") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new RedirectPage(getParentObjectUrl()));
+			}
+
+			public boolean isVisible() {
+				return getParentObjectUrl() != null;
+			}
+		};
+
+		Label parentObject = new Label("b-parent", TextCleaner.truncate(getParentName(), 18) + " (" + getParentType().getObject() + ")");
+		li.add(parentObject);
+		add(li);
+
+	}
+	
 }
+
+

@@ -60,7 +60,7 @@ public class Person extends MultiLanguageObject {
 
 	@JsonIgnore
 	@Column(name = "sortlastfirstname")
-	private String sortlastfirstname;
+	private String sortLastFirstname;
 
 	@Column(name = "webpage")
 	private String webpage;
@@ -271,7 +271,15 @@ public class Person extends MultiLanguageObject {
 	}
 
 	private void generateSortName() {
-		this.sortlastfirstname = (lastname != null ? lastname.toLowerCase().trim() : "") + (getName() != null ? (" " + getName().toLowerCase().trim()) : "");
+		this.sortLastFirstname = (lastname != null ? lastname.toLowerCase().trim() : "") + (getName() != null ? (" " + getName().toLowerCase().trim()) : "");
+	}
+
+	public String getSortLastFirstname() {
+		return sortLastFirstname;
+	}
+
+	public void setSortLastFirstname(String sortLastFirstName) {
+		this.sortLastFirstname = sortLastFirstName;
 	}
 
 	

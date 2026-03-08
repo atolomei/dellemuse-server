@@ -37,6 +37,9 @@ public abstract class Role extends DelleMuseObject {
 	public Role() {
 	}
 
+	public  String getKey() {
+		return Role.class.getSimpleName();
+	}
 	@Override
 	public String getObjectClassName() {
 		return Role.class.getSimpleName();

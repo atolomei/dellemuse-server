@@ -75,22 +75,17 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 	static private Logger logger = Logger.getLogger(SiteInfoEditor.class.getName());
 
 	private ChoiceField<ObjectState> objectStateField;
-
 	private TextField<String> nameField;
-
 	private ChoiceField<MusicGenre> genreField;
-	
 	private FileUploadSimpleField<Resource> audioField;
-
 	private TextAreaField<String> infoField;
 	private TextAreaField<String>  urlField;
 	private TextAreaField<String> licenseField;
-
-	
 	private TextAreaField<String> technicalInfoField;
-
-	
 	private ChoiceField<Boolean> royaltyFreeField;
+
+	private IModel<Resource> audioModel;
+	private boolean uploadedAudio = false;
 	
 	
 	private String audioMeta;
@@ -444,10 +439,7 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 		getForm().add(b_buttons_top);
 	}
 
-	private IModel<Resource> audioModel;
-	private boolean uploadedAudio = false;
-	
-	
+
 	
 	@Override
 	public void onDetach() {
@@ -549,7 +541,7 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 
  		Music Music = getModel().getObject();
  
-		getModel().setObject( getMusicDBService().findWithDeps(Music.getId()).get());
+		getModel().setObject(getMusicDBService().findWithDeps(Music.getId()).get());
 		
 		 
 		if (getModel().getObject().getAudio() != null) {
@@ -557,10 +549,7 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 			if (o_r.isPresent())
 				setAudioModel(new ObjectModel<Resource>(o_r.get()));
 		}
-		
-
 	}
-	
 	
 	private  Map<String, String> extract(Resource resource) {
 		

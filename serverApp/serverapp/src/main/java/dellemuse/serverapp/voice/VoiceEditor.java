@@ -61,6 +61,9 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 
 	private String audioMeta;
 	private List<ToolbarItem> toolbarList;
+	
+	private IModel<Resource> audioModel;
+	private boolean uploadedAudio = false;
 
 	/**
 	 * @param id
@@ -267,8 +270,6 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		getForm().add(b_buttons_top);
 	}
 
-	private IModel<Resource> audioModel;
-	private boolean uploadedAudio = false;
 
 	@Override
 	public void onDetach() {

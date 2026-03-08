@@ -141,23 +141,17 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	public IModel<String> getObjectTitle(GuideContent o) {
 
 		StringBuilder str = new StringBuilder();
-		
-
 		str.append(o.getDisplayname());
 
 		
-		/**
-		getArtExhibitionItem();
-		
-		ArtWork a=o.getArtExhibitionItem().getArtWork();
-		
+		ArtExhibitionItem item = getArtExhibitionItemDBService().findWithDeps(o.getArtExhibitionItem().getId()).get();
+		ArtWork a=item.getArtWork();
 		if (a!=null) {
 			String s = getArtistStr(a);
 			if (s!=null) {
-				str.append("<span class=\"text-secondary\">" + s + "</span>");
+				str.append(". <span class=\"small text-secondary\">" + s + "</span>");
 			}
 		}
-		**/
 		
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);

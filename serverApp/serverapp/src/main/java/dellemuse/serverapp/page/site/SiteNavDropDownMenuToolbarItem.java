@@ -403,7 +403,8 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 
 					@Override
 					public void onClick() {
-						setResponsePage(new BrandedSitePage(getModel()));
+						setResponsePage(new SitePublishedPortalPage(getModel()));
+						//setResponsePage(new BrandedSitePage(getModel()));
 					}
 
 					@Override

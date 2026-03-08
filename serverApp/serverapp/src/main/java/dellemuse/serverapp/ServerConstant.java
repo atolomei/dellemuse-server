@@ -2,6 +2,9 @@ package dellemuse.serverapp;
 
 public class ServerConstant {
 
+	static public final String AG = "ag";
+	
+	
 	static public final String AVATAR = "avatar";
 	static public final String AVATAR_BUCKET = "avatar";
 	static public final String MEDIA_BUCKET = "media";
@@ -28,5 +31,9 @@ public class ServerConstant {
 	public final static int INTRO_MAX = 180;
 	public final static int GUIDE_CONTENT_INFO = 80;
 	 
+	static public final int ONE_DAY_MINUTES = 24 * 60 * 1;
+	static public final int ONE_DAY_MILISECONDS = 1 * 24 * 60 * 60 * 1000;
+	static public final int ONE_HOUR_MILISECONDS = 1 * 60 * 60 * 1000;
+
 	
 }

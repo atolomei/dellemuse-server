@@ -39,8 +39,6 @@ public class WicketWebApplication extends WicketBootSecuredWebApplication {
 
 		// ⭐ Enable Wicket page authorization
 		getSecuritySettings().setAuthorizationStrategy(new AnnotationsRoleAuthorizationStrategy(this));
-
-		// Mount demo page for testing the custom AudioPlayer
 	}
 
 }

@@ -29,7 +29,6 @@ import dellemuse.serverapp.serverdb.model.Voice;
 import io.wktui.error.AlertPanel;
 
 import io.wktui.event.UIEvent;
-import io.wktui.media.AudioPlayer;
 import wktui.base.InvisiblePanel;
 
 /**
@@ -75,6 +74,9 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 		Optional<Voice> o_c = getVoiceDBService().findWithDeps(getVoiceModel().getObject().getId());
 		setVoiceModel(new ObjectModel<Voice>(o_c.get()));
 		
+		
+		 
+
 		Label info = new Label("info", this.voiceModel.getObject().getInfo());
 		add(info);
 
@@ -90,8 +92,12 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 				target.add(AudioStudioTestVoicePanel.this);
 			}
 		};
+
+		
 		add(test);
 		addTest(); 
+
+		
 	}
 
 	private void addTest() {
@@ -103,14 +109,10 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 
 			// poner Voice en vez de AudioStudio
 			String audioUrl = getPresignedUrl(getVoiceModel().getObject().getAudio());
+
 			Url url = Url.parse(audioUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			// use Wicket's Audio component
-		
-			AudioPlayer audio = new AudioPlayer("audioVoice", resourceReference);
-			audio.setIncludeDownloadMenu(false);
-			
-			//Audio audio = new Audio("audioVoice", resourceReference);
+			Audio audio = new Audio("audioVoice", resourceReference);
 			this.test.addOrReplace(audio);
 
 			Label am = new Label("audioMeta", getAudioMeta(getVoiceModel().getObject().getAudio()));
@@ -121,7 +123,6 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 			Url url = Url.parse("");
 
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			// show an empty Wicket Audio player
 			Audio audio = new Audio("audioVoice", resourceReference);
 			this.test.addOrReplace(audio);
 

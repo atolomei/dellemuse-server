@@ -3,7 +3,6 @@ package dellemuse.serverapp.voice;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
@@ -52,11 +51,10 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/voice/${id}")
 public class VoicePage extends ObjectPage<Voice> {
-	 
+
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(VoicePage.class.getName());
@@ -64,7 +62,6 @@ public class VoicePage extends ObjectPage<Voice> {
 	private VoiceEditor editor;
 	private List<ToolbarItem> voiceMenu = null;
 
-	 
 	public VoicePage() {
 		super();
 	}
@@ -81,51 +78,39 @@ public class VoicePage extends ObjectPage<Voice> {
 		super(model, list);
 	}
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-		
+
 		if (ouser.isEmpty())
 			return false;
 
-		//User user = ouser.get(); 
-		
-		//if (user.isRoot()) 
-		//	return true;
-		
+		// User user = ouser.get();
+
+		// if (user.isRoot())
+		// return true;
+
 		return true;
-		
+
 		/**
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-		
-		{
-			Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		 
-
-		return false;
-		*/
+		 * 
+		 * if (!user.isDependencies()) { user =
+		 * getUserDBService().findWithDeps(user.getId()).get(); }
+		 * 
+		 * { Set<RoleGeneral> set = user.getRolesGeneral(); if (set != null) { boolean
+		 * isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)
+		 * || p.getKey().equals(RoleGeneral.AUDIT))); if (isAccess) return true; } }
+		 * 
+		 * 
+		 * 
+		 * return false;
+		 */
 	}
 
-
-	
-	
 	@Override
 	public void onDetach() {
 		super.onDetach();
 
 	}
- 
-
 
 	@Override
 	public void onInitialize() {
@@ -141,7 +126,7 @@ public class VoicePage extends ObjectPage<Voice> {
 			setModel(new ObjectWithDepModel<Voice>(o_i.get()));
 		}
 	}
-	
+
 	protected void addListeners() {
 		super.addListeners();
 
@@ -152,29 +137,31 @@ public class VoicePage extends ObjectPage<Voice> {
 			public void onEvent(SimpleAjaxWicketEvent event) {
 
 				logger.debug(event.toString());
-				if (event.getName().equals(ServerAppConstant.action_voice_edit)) { 
+				if (event.getName().equals(ServerAppConstant.action_voice_edit)) {
 					VoicePage.this.onEdit(event.getTarget());
 				}
-				
+
 				/**
-				if (event.getName().equals(ServerAppConstant.Voice_action_edit_info)) { 
-					VoicePage.this.onEdit(event.getTarget());
-					
-				} else if (event.getName().equals(ServerAppConstant.Voice_panel_info)) {
-					VoicePage.this.togglePanel(ServerAppConstant.Voice_panel_info, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.Voice_panel_password)) {
-					VoicePage.this.togglePanel(ServerAppConstant.Voice_panel_password, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
-					VoicePage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.object_audit)) {
-					VoicePage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.Voice_panel_roles)) {
-					VoicePage.this.togglePanel(ServerAppConstant.Voice_panel_roles, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
-					VoicePage.this.getMetaEditor().onEdit(event.getTarget());
-				}
-				*/
+				 * if (event.getName().equals(ServerAppConstant.Voice_action_edit_info)) {
+				 * VoicePage.this.onEdit(event.getTarget());
+				 * 
+				 * } else if (event.getName().equals(ServerAppConstant.Voice_panel_info)) {
+				 * VoicePage.this.togglePanel(ServerAppConstant.Voice_panel_info,
+				 * event.getTarget()); } else if
+				 * (event.getName().equals(ServerAppConstant.Voice_panel_password)) {
+				 * VoicePage.this.togglePanel(ServerAppConstant.Voice_panel_password,
+				 * event.getTarget()); } else if
+				 * (event.getName().equals(ServerAppConstant.object_meta)) {
+				 * VoicePage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+				 * } else if (event.getName().equals(ServerAppConstant.object_audit)) {
+				 * VoicePage.this.togglePanel(ServerAppConstant.object_audit,
+				 * event.getTarget()); } else if
+				 * (event.getName().equals(ServerAppConstant.Voice_panel_roles)) {
+				 * VoicePage.this.togglePanel(ServerAppConstant.Voice_panel_roles,
+				 * event.getTarget()); } else if
+				 * (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+				 * VoicePage.this.getMetaEditor().onEdit(event.getTarget()); }
+				 */
 			}
 
 			@Override
@@ -190,7 +177,7 @@ public class VoicePage extends ObjectPage<Voice> {
 
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
-				 
+
 			}
 
 			@Override
@@ -256,7 +243,6 @@ public class VoicePage extends ObjectPage<Voice> {
 		return new VoicePage(model, list);
 	}
 
-	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}
@@ -264,8 +250,6 @@ public class VoicePage extends ObjectPage<Voice> {
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Voice>(id, getModel());
 	}
-	
-	
 
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
@@ -274,54 +258,42 @@ public class VoicePage extends ObjectPage<Voice> {
 			return (voiceMenu);
 
 		voiceMenu = new ArrayList<ToolbarItem>();
-		
+
 		VoiceNavDropDownToolbarItem vn = new VoiceNavDropDownToolbarItem("item", getModel(), getLabel("voice"), Align.TOP_RIGHT);
 		voiceMenu.add(vn);
 
 		return voiceMenu;
 	}
-	
-	 
-	
-	
 
 	/**
-	@Override
-	protected List<INamedTab> createInternalPanels() {
+	 * @Override protected List<INamedTab> createInternalPanels() {
+	 * 
+	 *           List<INamedTab> list = super.createInternalPanels();
+	 * 
+	 *           NamedTab editor = new NamedTab(Model.of("editor"),
+	 *           ServerAppConstant.voice_info) {
+	 * 
+	 *           private static final long serialVersionUID = 1L;
+	 * 
+	 * @Override public WebMarkupContainer getPanel(String panelId) { return
+	 *           getEditor(panelId); } };
+	 * 
+	 *           NamedTab audit = new NamedTab(Model.of("audit"),
+	 *           ServerAppConstant.object_audit) {
+	 * 
+	 *           private static final long serialVersionUID = 1L;
+	 * 
+	 * @Override public WebMarkupContainer getPanel(String panelId) { return
+	 *           getAuditPanel(panelId); } };
+	 * 
+	 *           list.add(audit); return list; }
+	 */
 
-		List<INamedTab> list = super.createInternalPanels();
-
-		NamedTab editor = new NamedTab(Model.of("editor"), ServerAppConstant.voice_info) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getEditor(panelId);
-			}
-		};
-		
-		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getAuditPanel(panelId);
-			}
-		};
-
-		list.add(audit);
-		return list;
-	}
-	*/
-	
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 
-		 
 		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.voice_info) {
 			private static final long serialVersionUID = 1L;
 
@@ -331,8 +303,7 @@ public class VoicePage extends ObjectPage<Voice> {
 			}
 		};
 		tabs.add(tab_1);
- 
-		
+
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
 			private static final long serialVersionUID = 1L;
@@ -343,8 +314,7 @@ public class VoicePage extends ObjectPage<Voice> {
 			}
 		};
 		tabs.add(audit);
-		
-		
+
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.voice_info);
 
@@ -352,7 +322,7 @@ public class VoicePage extends ObjectPage<Voice> {
 	}
 
 	@Override
-	protected Panel createSearchPanel() { 
+	protected Panel createSearchPanel() {
 		return null;
 	}
 

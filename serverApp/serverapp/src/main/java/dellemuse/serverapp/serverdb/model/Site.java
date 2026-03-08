@@ -147,6 +147,9 @@ public class Site extends MultiLanguageObject {
 	@Column(name = "languages", columnDefinition = "json")
 	private Map<String, String> languages;
 	
+	@Column(name = "publicPortalEnabled")
+	private boolean publicPortalEnabled;
+	
 	
 	public Site() {
 	}
@@ -189,6 +192,14 @@ public class Site extends MultiLanguageObject {
 
 	public Resource getLogo() {
 		return logo;
+	}
+
+	public boolean isPublicPortalEnabled() {
+		return publicPortalEnabled;
+	}
+
+	public void setPublicPortalEnabled(boolean publicPortalEnabled) {
+		this.publicPortalEnabled = publicPortalEnabled;
 	}
 
 	public void setLogo(Resource logo) {

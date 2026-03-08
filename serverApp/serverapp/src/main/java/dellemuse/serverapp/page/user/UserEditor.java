@@ -27,6 +27,7 @@ import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
+import io.wktui.form.field.BooleanField;
 import io.wktui.form.field.LocaleField;
 import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextField;
@@ -48,8 +49,9 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	
 	private ZoneIdField zoneidField;
 	private List<ToolbarItem> list;
-	
 	private LocaleField localeField;
+	private BooleanField emailValidatedField;
+	private BooleanField phoneValidatedField;
 	
 	
 	// private StaticTextField<String> emailField;
@@ -76,8 +78,17 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		if( (getModel().getObject().getUsername()!=null) && getModel().getObject().getUsername().equals("root"))
 				return isRoot();
 		
-		return isGeneralAdmin();
-	
+		if (isGeneralAdmin())
+			return true;
+		
+		//if (isGeneralAdmin( getModel().getObject() ))
+		//	return false;
+		
+		
+		return false;
+
+					
+					
 	}
 		
 		
@@ -127,12 +138,17 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		
 		
 		
+		this.emailValidatedField = new BooleanField("emailValidated", new PropertyModel<Boolean>(getModel(), "emailValidated"), getLabel("emailValidated"));
+		this.phoneValidatedField = new BooleanField("phoneValidated", new PropertyModel<Boolean>(getModel(), "phoneValidated"), getLabel("phoneValidated"));
+
 		if (getModel().getObject().isRoot())
 			this.nameField.setReadOnly(true);
 
 		this.form.add(nameField);
 		this.form.add(zoneidField);
 		this.form.add(localeField);
+		this.form.add(emailValidatedField);
+		this.form.add(phoneValidatedField);
 
 		this.form.setFormState(FormState.VIEW);
 
@@ -272,9 +288,19 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 			this.form.setFormState(FormState.VIEW);
 			target.add(this.form);
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
+
+            // ----------------------
+            // if not validated
+            // sendEmail to validate email person ?
+            //
+            // ----------------------
+
+			
 			getForm().updateReload();
 			fireScanAll(new ObjectUpdateEvent(target));
 
+			
+			
 		} catch (Exception e) {
 
 			addOrReplace(new SimpleAlertRow<Void>("error", e));

@@ -59,6 +59,7 @@ import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.ResourceThumbnailService;
+import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
@@ -157,7 +158,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 
 	protected Panel getEditor(String id) {
 		if (this.editor == null)
-			this.editor = new ErrorPanel(id, getLabel("planned"));
+			this.editor = new AlertPanel<>(id, AlertPanel.WARNING, getLabel("planned"));
 		return this.editor;
 	}
 

@@ -42,6 +42,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -95,6 +96,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 		super(parameters);
 	}
 
+	
 	@Override
 	public boolean canRead(ArtWork in) {
 		
@@ -115,6 +117,73 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 	}
 	
 	
+	 
+
+	
+	@Override
+	public boolean canCreate() {
+
+		Optional<User> ouser = getSessionUser();
+
+		if (ouser.isEmpty())
+			return false;
+
+		User user = ouser.get();
+
+		if (user.isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+		
+		return false;
+	}
+	
+	
+ 
+	
+	@Override
+	public boolean canWrite(ArtWork a) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+
+		if (isGeneralAdmin())
+			return true;
+		
+		return false;
+	}
+	
+
+	@Override
+	public boolean canDelete(ArtWork a) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (isGeneralAdminOrAudit())
+			return true;
+
+		return false;
+	}
+
+	
+	
 	@Override
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
@@ -123,6 +192,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
+		
 		if (ouser.isEmpty())
 			return false;
 
@@ -258,6 +328,13 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 
 					private static final long serialVersionUID = 1L;
 
+					
+					public boolean isEnabled() {
+						if (!canRead(model.getObject()))
+								return false;
+						return true;
+					}
+					
 					@Override
 					public void onClick() {
 						setResponsePage(new ArtWorkPage(getModel(), getList()));
@@ -282,7 +359,12 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 
 					private static final long serialVersionUID = 1L;
 
+					
 					public boolean isEnabled() {
+
+						if (!canWrite(model.getObject()))
+								return false;
+								
 						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
 
@@ -311,25 +393,7 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 				};
 			}
 		});
-
-		/**
-		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
-		 * 
-		 * private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public MenuItemPanel<ArtWork> getItem(String id) {
-		 * 
-		 *           return new AjaxLinkMenuItem<ArtWork>(id, model) {
-		 * 
-		 *           private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
-		 *           }
-		 * 
-		 * @Override public IModel<String> getLabel() { return getLabel("delete"); } };
-		 *           } });
-		 */
-
+ 
 		return menu;
 	}
 
@@ -359,6 +423,10 @@ public class ArtWorkListPage extends ObjectListPage<ArtWork> {
 	protected void onCreate() {
 
 		try {
+			
+			if (!canCreate())
+				throw new RuntimeException(getLabel("no-permission").getObject());
+			
 			ArtWork in = getArtWorkDBService().create("new", getUserDBService().findRoot());
 			IModel<ArtWork> m = new ObjectModel<ArtWork>(in);
 			getList().add(m);

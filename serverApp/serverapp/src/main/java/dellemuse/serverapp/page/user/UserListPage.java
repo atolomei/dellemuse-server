@@ -187,16 +187,14 @@ public class UserListPage extends ObjectListPage<User> {
 	public IModel<String> getObjectTitle(IModel<User> model) {
 
 		StringBuilder str = new StringBuilder();
-		
-		
-		str.append(model.getObject().getName());
-
 
 		Optional<Person> op = getPersonDBService().getByUser(model.getObject());
 		if (op.isPresent()) {
-			str.append(" <span class=\"text-secondary\">( " + op.get().getFirstLastname()+ " ) </span>");
+			str.append(op.get().getLastFirstname());
 		}
-	
+
+		str.append(" <span class=\"text-secondary\">( " +model.getObject().getUsername()+ " ) </span>");
+
 		
 		User o = model.getObject();
 

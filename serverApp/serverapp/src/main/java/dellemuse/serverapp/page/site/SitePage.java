@@ -113,6 +113,21 @@ public class SitePage extends BasePage {
 	private WebMarkupContainer exhibitionsContainer;
 	private WebMarkupContainer catalogContainer;
 
+	
+	private boolean canRead(ArtExhibition object) {
+	
+		if (isRoot())
+			return true;
+		
+		if (isGeneralAdmin())
+			return true;
+		
+		//if (isSiteAdminOrEditor(object.getSite()))
+		//	return true;
+		
+		return false;
+	}
+	
 	public SitePage() {
 		super();
 	}
@@ -173,6 +188,8 @@ public class SitePage extends BasePage {
 		return false;
 	}
 
+	
+	
 	protected void refresh(AjaxRequestTarget target) {
 		target.add(SitePage.this);
 	}
@@ -804,8 +821,18 @@ public class SitePage extends BasePage {
 					private static final long serialVersionUID = 1L;
 
 					public boolean isVisible() {
+						
+						if (!canRead(model.getObject()))
+							return false;
+						
 						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
+
+					
+
+					
+
+
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
@@ -1200,7 +1227,9 @@ public class SitePage extends BasePage {
 
 			@Override
 			public void onClick() {
-				setResponsePage(new BrandedSitePage(getSiteModel()));
+				setResponsePage(new SitePublishedPortalPage(getSiteModel()));
+
+				// setResponsePage(new BrandedSitePage(getSiteModel()));
 			}
 		};
 		brandedSiteContainer.add(u);

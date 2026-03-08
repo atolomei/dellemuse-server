@@ -35,7 +35,7 @@ import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
-import dellemuse.serverapp.service.EmailService;
+ 
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
@@ -78,8 +78,8 @@ public class ForgotPasswordPage extends BasePage {
 	@SpringBean
 	private PersonDBService personDBService;
 	
-	@SpringBean
-	private EmailService emailService;
+	//@SpringBean
+	//private EmailService emailService;
 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -152,10 +152,10 @@ public class ForgotPasswordPage extends BasePage {
 							email = u.getEmail();
 						}
 						if (email!=null && email.trim().length()>0) {
-							String link = RequestCycle.get().urlFor(ResetPasswordPage.class, new PageParameters().add("user", u.getUsername())).toString();
-							String subject = "Reset your password";
-							String body = "Hello " + personName + "\n\nPlease follow the link to reset your password:\n" + link + "\n\nIf you didn't request this, ignore this email.";
-							emailService.sendEmail(email, subject, body);
+							//String link = RequestCycle.get().urlFor(ResetPasswordPage.class, new PageParameters().add("user", u.getUsername())).toString();
+							//String subject = "Reset your password";
+							//String body = "Hello " + personName + "\n\nPlease follow the link to reset your password:\n" + link + "\n\nIf you didn't request this, ignore this email.";
+							//emailService.sendEmail(email, subject, body);
 							// show confirmation
 							getPageParameters().set("sent", "true");
 							setResponsePage(ForgotPasswordPage.class, getPageParameters());
@@ -171,7 +171,18 @@ public class ForgotPasswordPage extends BasePage {
 						error("No user found with that username/email/phone");
 						return;
 					}
-	
+
+					/**
+					 * 
+		SecurityService service = ServiceLocator.getService(SecurityService.class);
+		String token = service.nextSecureToken();
+		service.addToken(person.getProfile(UserProfile.class).getUser(), token);
+		String url = getServerUrl(person.getDomain()) +"/passwordrecovery?key=" + token;
+		
+		logger.debug(url);
+		emaillogger.debug(url);
+					 */
+					
 				}
 				@Override
 				protected void onError()

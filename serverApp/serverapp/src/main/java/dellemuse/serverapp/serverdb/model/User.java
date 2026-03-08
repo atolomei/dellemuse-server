@@ -59,6 +59,19 @@ public class User extends DelleMuseObject {
 	private String authProvider; // LOCAL, GOOGLE
 	private String providerId;   // google subject id
 	
+	@JsonProperty("sortlastfirstname")
+	@Column(name = "sortlastfirstname")
+	private String sortLastFirstname;
+
+	
+	@JsonProperty("emailValidated")
+	@Column(name = "emailValidated")
+	private String emailValidated;
+	
+	@JsonProperty("phoneValidated")
+	@Column(name = "phoneValidated")
+	private String phoneValidated;
+
 	
 	@JsonProperty("email")
 	@Column(name = "email")
@@ -173,6 +186,14 @@ public class User extends DelleMuseObject {
 	}
 
 
+
+	public String getSortLastFirstname() {
+		return sortLastFirstname;
+	}
+
+	public void setSortLastFirstname(String sortLastFirstname) {
+		this.sortLastFirstname = sortLastFirstname;
+	}
 
 	public ZoneId getZoneId() {
 		if (getZoneIdStr()==null)
@@ -396,6 +417,14 @@ public class User extends DelleMuseObject {
 
 	public static final String getIcon() {
 		return Icons.User;
+	}
+
+	public String getPhoneValidated() {
+		return phoneValidated;
+	}
+
+	public void setPhoneValidated(String phoneValidated) {
+		this.phoneValidated = phoneValidated;
 	}
 
 

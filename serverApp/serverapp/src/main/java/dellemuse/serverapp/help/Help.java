@@ -24,7 +24,9 @@ public class Help {
 	public static final String SITE_INFO = "site-info";
 	public static final String SITE_USERS = "site-users";
 	public static final String SITE_LIST =  "site-list";
+	public static final String SITE_PORTAL = "site-portal";
 
+	
 	public static final String GUIDE_CONTENT_INFO = "guide-content-info";
 
 	
@@ -45,4 +47,14 @@ public class Help {
 	public static final String AUDIO_STUDIO =  "audio-studio";
 	
 	public static final String ARTIST_INFO =  "artist-info";
+	
+	public static final String USER_INFO = "user-info";
+	
+
+	public static final String SITE_USER_INFO = "site-user-info";
+	public static final String CANDIDATES = "candidate-list";
+	public static final String CANDIDATE = "candidate-info";
+
+	
+	
 }

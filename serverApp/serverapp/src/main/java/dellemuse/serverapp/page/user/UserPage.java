@@ -18,7 +18,8 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -73,6 +74,12 @@ public class UserPage extends ObjectPage<User> {
 
 	IModel<Person> personModel;
 
+	
+	public String getHelpKey() {
+		return Help.USER_INFO;
+	}
+
+	
 	
 	public UserPage() {
 		super();
@@ -355,6 +362,10 @@ public class UserPage extends ObjectPage<User> {
 		UserNavDropDownMenuToolbarItem menu = new UserNavDropDownMenuToolbarItem("item", getModel(), getLabel("user"), Align.TOP_RIGHT);
 		userMenu.add(menu);
 
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		userMenu.add(h);
+		
+	
 		return userMenu;
 	}
 

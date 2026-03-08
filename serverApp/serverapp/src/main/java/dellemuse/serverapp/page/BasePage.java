@@ -59,6 +59,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionSectionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
+import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
@@ -81,6 +82,7 @@ import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.SecurityAuthorizationService;
+import dellemuse.serverapp.service.SecurityService;
 import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.UIEvent;
@@ -539,9 +541,17 @@ public abstract class BasePage extends WebPage {
 		return (PersonRecordDBService) ServiceLocator.getInstance().getBean(PersonRecordDBService.class);
 	}
 
+
 	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
+	 
+	protected CandidateDBService getCandidateDBService() {
+		return (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
+	}
+	
+	
+	
 
 	protected SiteRecordDBService getSiteRecordDBService() {
 		return (SiteRecordDBService) ServiceLocator.getInstance().getBean(SiteRecordDBService.class);
@@ -561,6 +571,10 @@ public abstract class BasePage extends WebPage {
 	
 	protected VoiceDBService getVoiceDBService() {
 		return (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
+	}
+	
+	protected SecurityService getSecurityService() {
+		return (SecurityService) ServiceLocator.getInstance().getBean(SecurityService.class);
 	}
 	
 	
@@ -831,7 +845,6 @@ public abstract class BasePage extends WebPage {
 		if (site==null)
 			return false;
 		return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), site);
-	
 	}
 	
 	public boolean isSiteAdminOrEditor(ArtExhibition in) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.model.IModel;
 
@@ -29,6 +30,7 @@ import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
+import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import io.wktui.model.TextCleaner;
 
 public class DBModelPanel<T> extends ObjectModelPanel<T> {
@@ -267,6 +269,42 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 
 		String str = TextCleaner.truncate(info.toString(), 220);
 		return str;
+	}
+
+	
+	private Boolean generalAdmin = null;
+
+	public boolean isGeneralAdmin() {
+
+		if (generalAdmin != null)
+			return this.generalAdmin.booleanValue();
+
+		synchronized (this) {
+
+			if (getSessionUser().isEmpty()) {
+				this.generalAdmin = Boolean.FALSE;
+				return this.generalAdmin;
+			}
+			 
+			User user = getSessionUser().get();
+
+			if (!user.isDependencies()) {
+				user = getUserDBService().findWithDeps(user.getId()).get();
+			}
+
+			Set<RoleGeneral> set = user.getRolesGeneral();
+
+			if (set == null) {
+				this.generalAdmin = Boolean.FALSE;
+				return this.generalAdmin;
+			}
+			this.generalAdmin = Boolean.valueOf(set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN))));
+			return this.generalAdmin;
+		}
+	}
+
+	public boolean isRoot() {
+		return getSessionUser() != null && getSessionUser().get().isRoot();
 	}
 
 }

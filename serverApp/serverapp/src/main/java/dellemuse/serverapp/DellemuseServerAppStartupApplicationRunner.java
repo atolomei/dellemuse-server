@@ -16,10 +16,13 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
+ 
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ArtistDBService;
+import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -29,7 +32,7 @@ import io.odilon.model.ObjectMetadata;
 @Component
 public class DellemuseServerAppStartupApplicationRunner implements ApplicationRunner {
 
-	@SuppressWarnings("unused")
+	 
 	static private Logger logger = Logger.getLogger(DellemuseServerAppStartupApplicationRunner.class.getName());
 	static private Logger startupLogger = Logger.getLogger("StartupLogger");
 
@@ -42,7 +45,44 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 	public DellemuseServerAppStartupApplicationRunner(ApplicationContext appContext) {
 		this.appContext = appContext;
 	}
+	
+	
+	/**@Bean
+	CommandLineRunner testEmail() {
+	
+		return args -> {
+	
+			try {	
+				
+				EmailSender sender = new EmailSender();
+				
+				sender.send("atolomei@novamens.com", "testing mail gun", "done with the help of copilot");
 
+				logger.debug("Email sent successfully");
+				
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		};
+	}**/
+	
+	
+
+	@Bean
+	CommandLineRunner cleanUpDrafts() {
+	
+		return args -> {
+	
+			try {	
+			CandidateDBService s = ((CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class));
+			logger.debug( "Deleted drafts -> " + s.deleteDrafts());
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		};
+	}
+	
+	
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 

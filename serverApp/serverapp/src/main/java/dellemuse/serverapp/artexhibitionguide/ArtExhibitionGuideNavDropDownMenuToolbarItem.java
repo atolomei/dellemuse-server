@@ -28,14 +28,7 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 	
 	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, Align align) {
 		this(id, model, siteModel, null, align);
-		
-		
-		setTitle(getLabel("audio-guide-dropdown",TextCleaner.truncate(
-				
-				getModel().getObject().getName()
-				
-				
-				, 24)));
+		setTitle(getLabel("audio-guide-dropdown",TextCleaner.truncate(getModel().getObject().getName(), 24)));
 	}
 
 	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model,  IModel<Site> siteModel, IModel<String> title, Align align) {

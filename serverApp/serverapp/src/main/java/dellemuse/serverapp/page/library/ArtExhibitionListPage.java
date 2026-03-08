@@ -98,6 +98,53 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 		return false;
 	}
 	
+	@Override
+	public boolean canWrite(ArtExhibition in) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (isGeneralAdminOrAudit())
+			return true;
+
+	 	if (isSiteAdminOrEditor(in))
+			return true;
+		
+		return false;
+	}
+	
+
+	@Override
+	public boolean canDelete(ArtExhibition in) {
+		
+		Optional<User> ouser = getSessionUser();
+		
+		if (ouser.isEmpty())
+			return false;
+		
+		User user = ouser.get();  
+		
+		if (user.isRoot()) 
+			return true;
+		
+		if (isGeneralAdminOrAudit())
+			return true;
+
+	 	if (isSiteAdminOrEditor(in))
+			return true;
+		
+		return false;
+	}
+
+	
+	
 	
 	
 
@@ -237,10 +284,13 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 			@Override
 			public MenuItemPanel<ArtExhibition> getItem(String id) {
 
-				return new LinkMenuItem<ArtExhibition>(id) {
+				return new LinkMenuItem<ArtExhibition>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isEnabled() {
+						return canRead( model.getObject());
+					}
 					@Override
 					public void onClick() {
 						setResponsePage(new ArtExhibitionPage(getModel(), getList()));
@@ -266,6 +316,10 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 					private static final long serialVersionUID = 1L;
 
 					public boolean isEnabled() {
+						
+						if (!canWrite( model.getObject())) 
+								return false;
+						
 						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
 
@@ -294,29 +348,7 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 				};
 			}
 		});
-
-		/**
-		 * 
-		 * 
-		 * 
-		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
-		 * 
-		 * private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public MenuItemPanel<ArtExhibition> getItem(String id) {
-		 * 
-		 *           return new AjaxLinkMenuItem<ArtExhibition>(id) {
-		 * 
-		 *           private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
-		 *           }
-		 * 
-		 * @Override public IModel<String> getLabel() { return getLabel("delete"); } };
-		 *           } });
-		 * 
-		 */
-
+ 
 		return menu;
 	}
 
@@ -330,10 +362,16 @@ public class ArtExhibitionListPage extends ObjectListPage<ArtExhibition> {
 
 	protected void onCreate() {
 		try {
+		
+			if (!canCreate()) {
+				throw new RuntimeException("no permission");
+			}
+				
 			ArtExhibition in = getArtExhibitionDBService().create("new", getUserDBService().findRoot());
 			IModel<ArtExhibition> m = new ObjectModel<ArtExhibition>(in);
 			getList().add(m);
 			setResponsePage(new ArtExhibitionPage(m, getList()));
+			
 		} catch (Exception e) {
 			logger.error(e);
 			setResponsePage(new ErrorPage(e));

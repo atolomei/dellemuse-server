@@ -346,11 +346,11 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 			private static final long serialVersionUID = 1L;
 
 			public boolean isEnabled() {
-				return canEdit();
+				return canCreate();
 			}
 
 			public boolean isVisible() {
-				return canEdit();
+				return canCreate();
 			}
 			
 			protected void onClick() {

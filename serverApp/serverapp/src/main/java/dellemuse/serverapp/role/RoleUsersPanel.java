@@ -180,7 +180,7 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		this.roleUsers.sort( new Comparator<IModel<User>>() {
 			@Override
 			public int compare(IModel<User> o1, IModel<User> o2) {
-				 return o1.getObject().getUsername().compareToIgnoreCase(o2.getObject().getUsername());
+				 return o1.getObject().getSortLastFirstname().compareToIgnoreCase(o2.getObject().getSortLastFirstname());
 			}
 		});
 		
@@ -190,17 +190,19 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 	}
 
 	protected IModel<String> getObjectTitle(IModel<User> model) {
+
 		StringBuilder str = new StringBuilder();
-		str.append(model.getObject().getName());
 		
 		User o  = model.getObject();
-		
 		
 		Optional<Person> op = getPersonDBService().getByUser(o);
 		
 		if (op.isPresent()) {
-				str.append(" <span class=\"text-secondary small\"> ( " + op.get().getFirstLastname()+ " ) </span>");
+			 str.append( op.get().getLastFirstname() );
 		}
+
+		str.append(" <span class=\"text-secondary small\"> ( " + model.getObject().getName() + " ) </span>");
+		
 		
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);

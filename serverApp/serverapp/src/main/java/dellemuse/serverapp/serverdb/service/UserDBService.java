@@ -97,6 +97,7 @@ public class UserDBService extends DBService<User, Long> {
         getDelleMuseAuditDBService().save(DelleMuseAudit.of(user, createdBy,  AuditAction.CREATE));
         
         if (person.isPresent()) {
+        	user.setSortLastFirstname(person.get().getSortLastFirstname());
         	user.setPhone(person.get().getPhone());
         	user.setEmail(person.get().getEmail());
             person.get().setUser(user);
@@ -109,7 +110,11 @@ public class UserDBService extends DBService<User, Long> {
         return user;
     }
 
-
+    @Transactional
+	public Optional<User> findById(Long id) {
+		return getRepository().findById(id);
+	}
+    
 	@Transactional	
 	public void save(User o, User user, List<String> updatedParts) {
 			super.save(o);
@@ -282,13 +287,18 @@ public class UserDBService extends DBService<User, Long> {
 	@Transactional
 	public Iterable<User> getSiteUsers(Site site) {
 		Set<User> list = new HashSet<User>();
+		
 		getRoleSiteDBService().findBySite(site).forEach( r -> {
 			
 			logger.debug(r.getRoleDisplayName());
 					r.getUsers().forEach( u -> list.add(u));
 		});
+
+		
 		return list;	
 	}
+	
+
 	
 	
 	 
@@ -372,7 +382,44 @@ public class UserDBService extends DBService<User, Long> {
 	}
 	
 
+		@Transactional
+		public Iterable<User> findAllSorted() {
+			CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+			CriteriaQuery<User> cq = cb.createQuery(getEntityClass());
+			Root<User> root = cq.from(getEntityClass());
+			cq.orderBy(cb.asc(cb.lower(root.get("sortLastFirstname"))));
+			return getEntityManager().createQuery(cq).getResultList();
+		}
 
+		@Transactional
+		public Iterable<User> findAllSorted(ObjectState os) {
+			
+			CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+			CriteriaQuery<User> cq = cb.createQuery(getEntityClass());
+			Root<User> root = cq.from(getEntityClass());
+			cq.select(root).where(cb.equal(root.get("state"), os));
+			cq.orderBy(cb.asc(cb.lower(root.get("sortLastFirstname"))));
+			return getEntityManager().createQuery(cq).getResultList();
+		}
+
+
+		
+		
+		
+		
+		@Transactional
+		public Iterable<User> findAllSorted(ObjectState os1, ObjectState os2) {
+			CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+			CriteriaQuery<User> cq = cb.createQuery(getEntityClass());
+			Root<User> root = cq.from(getEntityClass());
+			Predicate p1 = cb.equal(root.get("state"), os1);
+			Predicate p2 = cb.equal(root.get("state"), os2);
+			Predicate combinedPredicate = cb.or(p1, p2);
+			cq.select(root).where(combinedPredicate);
+			cq.orderBy(cb.asc(cb.lower(root.get("sortLastFirstname"))));
+			return getEntityManager().createQuery(cq).getResultList();
+		}
+		
 	
 	 @Transactional
 	public Optional<User> findByUsername(String username) {

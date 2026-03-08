@@ -10,14 +10,21 @@ public class ServerAppConstant {
 	static final public String site_action_home = "site-action-home";
 	static final public String site_action_edit = "site-action-edit";
 
+	static final public String site_page_portal	= "site-page-portal";
+	
 	static final public String site_page_info 	= "site-panel-info";
 	static final public String site_page_floors	= "site-page-floors";
 	static final public String site_page_search = "site-page-search";
 	static final public String site_page_users  = "site-page-users";
+	static final public String site_page_user	= "site-page-user";
 	static final public String site_page_roles  = "site-page-roles";
 	
 	static final public String siterecord_info 	= "siterecord-info";
 	static final public String site_floors		= "site-floors";
+	
+	static final public String site_portal_action_edit		= "site_portal_action_edit";
+	
+	
 	
 	
  	static final public String action_exhibition_info_edit = "exhibition-action-info-edit";
@@ -161,6 +168,13 @@ public class ServerAppConstant {
 	
 	
 	static final public String help 	= "help";
+
+	public static final String site_user_editor = "site-user-editor";
+	//public static final String  site_user_roles = "site-user-roles";
+
+	public static final String candidate_info = "candidate-info";
+
+	public static final String action_candidate_edit = "candidate-action-edit";
 	
 	
 }

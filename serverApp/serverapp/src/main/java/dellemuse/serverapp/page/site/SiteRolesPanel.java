@@ -1,7 +1,10 @@
 package dellemuse.serverapp.page.site;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -52,8 +55,8 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 
 	static private Logger logger = Logger.getLogger(SiteRolesPanel.class.getName());
 
-	private List<IModel<RoleSite>> roles;
- 	private ListPanel<RoleSite> rolesPanel;
+	private List<IModel<Role>> roles;
+ 	private ListPanel<Role> rolesPanel;
 	private WebMarkupContainer listToolbarContainer;
 
 	// private List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
@@ -96,7 +99,7 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 		return this.oses;
 	}
 
-	protected void setList(List<IModel<RoleSite>> list) {
+	protected void setList(List<IModel<Role>> list) {
 		this.roles = list;
 	}
 
@@ -140,7 +143,7 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 
 	}
 
-	 protected List<IModel<RoleSite>> getUsers() {
+	 protected List<IModel<Role>> getRoles() {
 		 if (this.roles==null)
 			 load();
 		 return this.roles;
@@ -148,7 +151,9 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 	 
 	protected synchronized void load() {
 
-		this.roles = new ArrayList<IModel<RoleSite>>();
+		this.roles = new ArrayList<IModel<Role>>();
+	 
+		Set<Role> set = new HashSet<Role>();
 	 
 		Site site;
 		
@@ -158,14 +163,34 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 		else
 			site = getModel().getObject();
 			
-		getRoleSiteDBService().findBySite(site).forEach( u -> roles.add( new ObjectModel<RoleSite>(u)) );
-	}
- 	
-	protected IModel<String> getObjectTitle(IModel<RoleSite> model) {
-		StringBuilder str = new StringBuilder();
-		str.append(model.getObject().getRoleDisplayName());
+		getRoleSiteDBService().findBySite(site).forEach( u -> set.add(u) );
 	
-		RoleSite o  = model.getObject();
+		
+		Long id= site.getInstitution().getId();
+		
+		getRoleInstitutionDBService().findByInstitution(id).forEach( u -> set.add( u));
+		
+		set.forEach( r -> roles.add( new ObjectModel<Role>( r )));
+		
+		roles.sort( new Comparator<IModel<Role>>() {
+			@Override
+			public int compare(IModel<Role> o1, IModel<Role> o2) {
+			 	return getObjectTitle(o1).getObject().compareToIgnoreCase(getObjectTitle(o2).getObject());
+			}
+		});
+	}
+
+	
+	protected IModel<String> getObjectTitle(IModel<Role> model) {
+		StringBuilder str = new StringBuilder();
+		Role o  = model.getObject();
+
+		
+		str.append(o.getRoleDisplayName());
+		
+		str.append( " <span class=\"text-secondary\"> (" + model.getObject().getDisplayClass(getLocale()) + ") </span> ");
+	
+		
 		
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
@@ -285,18 +310,18 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 	
 	private void addRolesPanel() {
 
-		this.rolesPanel = new ListPanel<RoleSite>("roles") {
+		this.rolesPanel = new ListPanel<Role>("roles") {
 
 			private static final long serialVersionUID = 1L;
 
 			
 			@Override
-			public IModel<String> getItemLabel(IModel<RoleSite> model) {
+			public IModel<String> getItemLabel(IModel<Role> model) {
 				return SiteRolesPanel.this.getObjectTitle(model);
 			}
 
 			@Override
-			protected WebMarkupContainer getListItemExpandedPanel(IModel<RoleSite> model, ListPanelMode mode) {
+			protected WebMarkupContainer getListItemExpandedPanel(IModel<Role> model, ListPanelMode mode) {
 				
 				IModel<Role> m=new ObjectModel<Role>( model.getObject());
 				
@@ -317,9 +342,9 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 			}
 
 			@Override
-			protected Panel getListItemPanel(IModel<RoleSite> model) {
+			protected Panel getListItemPanel(IModel<Role> model) {
 
-				DelleMuseObjectListItemPanel<RoleSite> panel = new DelleMuseObjectListItemPanel<RoleSite>("row-element", model, getListPanelMode()) {
+				DelleMuseObjectListItemPanel<Role> panel = new DelleMuseObjectListItemPanel<Role>("row-element", model, getListPanelMode()) {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -347,8 +372,8 @@ public class SiteRolesPanel extends DBModelPanel<Site> implements InternalPanel 
 			}
 
 			@Override
-			public List<IModel<RoleSite>> getItems() {
-				return SiteRolesPanel.this.getUsers();
+			public List<IModel<Role>> getItems() {
+				return SiteRolesPanel.this.getRoles();
 			}
 		};
 		add(rolesPanel);
