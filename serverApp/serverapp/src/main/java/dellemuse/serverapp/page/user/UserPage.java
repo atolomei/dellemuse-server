@@ -283,7 +283,7 @@ public class UserPage extends ObjectPage<User> {
 	
 	protected Panel getUserRolesPanel(String id) {
 		if (rolesPanel == null)
-			rolesPanel = new UserRolesPanel(id, getModel());
+			rolesPanel = new UserRolesPanel(id, getModel(),null, false);
 		return (rolesPanel);
 	}
 	

@@ -10,11 +10,17 @@ import dellemuse.model.JsonObject;
 import dellemuse.model.util.RandomIDGenerator;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.elevenlabs.ClientConstant;
+import dellemuse.serverapp.email.EmailService;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
+import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
+import dellemuse.serverapp.serverdb.service.PersistentTokenDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
+import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.LockService;
+import dellemuse.serverapp.service.SecurityService;
 
 public abstract class Command extends JsonObject {
 
@@ -126,19 +132,40 @@ public abstract class Command extends JsonObject {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
 	}
 
+	protected EmailService getEmailService() {
+		return (EmailService) ServiceLocator.getInstance().getBean(EmailService.class);
+	}
+
 	protected ResourceDBService getResourceDBService() {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
-	
+
+	protected SecurityService getSecurityService() {
+		return (SecurityService) ServiceLocator.getInstance().getBean(SecurityService.class);
+	}
+
 	protected MusicDBService getMusicDBService() {
 		return (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);
+	}
+
+	protected CandidateDBService getCandidateDBService() {
+		return (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
+	}
+
+	protected PersistentTokenDBService getPersistentTokenDBServiceDBService() {
+		return (PersistentTokenDBService) ServiceLocator.getInstance().getBean(PersistentTokenDBService.class);
 	}
 
 	protected ObjectStorageService getObjectStorageService() {
 		return (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
 	}
-	
+
 	protected ServerDBSettings getSettings() {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
 	}
+
+	protected User getRootUser() {
+		return ((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class)).findRoot();
+	}
+
 }

@@ -4,19 +4,23 @@ import dellemuse.model.logging.Logger;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
+import dellemuse.serverapp.candidate.CandidateValidateEmailCommand;
 import dellemuse.serverapp.command.CommandService;
 import dellemuse.serverapp.command.QRCodeGenerationCommand;
- 
+import dellemuse.serverapp.command.ResourceMetadataCommand;
 import dellemuse.serverapp.serverdb.model.ArtWork;
- 
+import dellemuse.serverapp.serverdb.model.Candidate;
+import dellemuse.serverapp.serverdb.model.CandidateStatus;
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
 
 
-public class ArtWorkEventListener {
+public class CandidateEventListener {
 
-	static private Logger logger = Logger.getLogger( ArtWorkEventListener.class.getName());
+	static private Logger logger = Logger.getLogger( CandidateEventListener.class.getName());
 	
 	@PrePersist
     public void prePersist(Object entidad) {
@@ -27,23 +31,37 @@ public class ArtWorkEventListener {
     	
     	logger.debug("postUpdate");    
 
-    	ArtWork a = (ArtWork) o;
-    	getCommandService().run(new QRCodeGenerationCommand(a.getId()));
+    	Candidate c = (Candidate) o;
+
+    	if (c.isEmailValidated())
+    		return;
+    	
+    	if (c.getValidationEmailSent()!=null)
+			return;
+    	
+    	if (c.getStatus()!=CandidateStatus.SUBMITTED)
+    		return;
+    	
+    	logger.debug("Scheduling email validation for candidate -> : "+ c.getDisplayname());
+    	
+    	getCommandService().run(new CandidateValidateEmailCommand(c.getId()));
+
+    	
+    
+    
     }
     
     @PostPersist
     public void postPersist(Object o) {
     	logger.debug("postPersist");    
-    	//ArtWork a = (ArtWork) o;
-    	//getCommandService().run(new QRCodeGenerationCommand(a.getId()));
     }
 
     protected CommandService getCommandService() {
 		return (CommandService) ServiceLocator.getInstance().getBean(CommandService.class);
 	}
 	
-    protected ArtWorkDBService getArtWorkDBService() {
-    	ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+    protected CandidateDBService getCandidateDBService() {
+    	CandidateDBService service = (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
     	return service;
     }
 	

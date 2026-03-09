@@ -1,6 +1,7 @@
 package dellemuse.serverapp.page.user;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,9 +27,9 @@ import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.role.RolePage;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-
+import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
@@ -72,6 +73,8 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 	private ObjectStateEnumSelector oses;
 
+	private IModel<Site> siteModel;
+	
 	/**
 	 * 
 	 * quien puede cambiar pwd, editar datos de un user.
@@ -86,8 +89,11 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 	 * @param model
 	 * 
 	 */
-	public UserRolesPanel(String id, IModel<User> model) {
+	public UserRolesPanel(String id, IModel<User> model, IModel<Site> siteModel, boolean siteContext) {
 		super(id, model);
+		this.siteContext = siteContext;
+		this.siteModel=siteModel;
+		
 		setOutputMarkupId(true);
 	}
 
@@ -96,6 +102,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 		super.onInitialize();
 
 		setUpModel();
+		
 		addListToolbar();
 		addUserRoles();
 		addSelector();
@@ -104,6 +111,9 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 	@Override
 	public void onDetach() {
 		super.onDetach();
+
+		if (siteModel!=null)
+			siteModel.detach();
 
 		if (this.userRoles != null)
 			this.userRoles.forEach(t -> t.detach());
@@ -123,6 +133,22 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 	public ObjectStateEnumSelector getObjectStateEnumSelector() {
 		return this.oses;
+	}
+
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public boolean isSiteContext() {
+		return siteContext;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
+
+	public void setSiteContext(boolean siteContext) {
+		this.siteContext = siteContext;
 	}
 
 	protected void setList(List<IModel<Role>> list) {
@@ -190,11 +216,14 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 	}
 
+	
+	
+	private boolean siteContext = false;
+	
+	
 	protected synchronized void loadUserRolesList() {
 
 		this.userRoles = new ArrayList<IModel<Role>>();
-
-	 
 
 		User user;
 
@@ -203,10 +232,27 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 		} else
 			user = getModel().getObject();
 
-		
-		getUserDBService().getUserRoles(user).forEach(s -> this.userRoles.add(new ObjectModel<Role>(s)));
 
-		 
+		final Long iid = getSiteModel().getObject().getInstitution().getId();
+		
+		if (this.isSiteContext()) {
+			getUserDBService().getUserRoles(user).forEach(s -> 
+			{
+				if (s instanceof RoleInstitution) {
+					if (((RoleInstitution) s).getInstitution().getId().equals(iid))
+						this.userRoles.add(new ObjectModel<Role>(s));	
+					}
+				 
+				else if (s instanceof RoleSite) {
+					if (s.getId().equals(getSiteModel().getObject().getId()))
+						this.userRoles.add(new ObjectModel<Role>(s));	
+				}
+			});
+		}
+		else {
+			getUserDBService().getUserRoles(user).forEach(s -> this.userRoles.add(new ObjectModel<Role>(s)));
+		}
+	
 
 		this.userRoles.forEach(c -> logger.debug(c.getObject().toString()));
 
@@ -259,10 +305,14 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 	private void setUpModel() {
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
+
 		User u = getModel().getObject();
 		getModel().setObject(getUserDBService().findWithDeps(u.getId()).get());
+		
+		setSessionUser(getUserDBService().findWithDeps(getSessionUser().get().getId()).get());
 	}
 
+	
 	private List<IModel<Role>> getAllRoles() {
 
 		if (allRoles != null)
@@ -270,31 +320,58 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 		allRoles = new ArrayList<IModel<Role>>();
 		
+		Set<IModel<Role>> set =new HashSet<IModel<Role>>();
 		
-		if (logger.isDebugEnabled()) {
-			getRoleDBService().findAllSorted().forEach(i -> logger.debug(i.getRoleDisplayName()));
-
-		}
+		//if (logger.isDebugEnabled()) {
+		//	getRoleDBService().findAllSorted().forEach(i -> logger.debug(i.getRoleDisplayName()));
+		//
+		//}
 		
 		
 		if (isRoot() || isGeneralAdmin())
-			getRoleDBService().findAllSorted().forEach(i -> allRoles.add(new ObjectModel<Role>(i)));
+			getRoleDBService().findAllSorted().forEach(i -> set.add(new ObjectModel<Role>(i)));
 
 		else {
 
-			// TODO AT
+			
+			// todos los roles que puede tener
 			//
-			getSessionUser().get().getRolesInstitution().forEach(r -> {
-					getRoleDBService().findAllSorted().forEach(i -> allRoles.add(new ObjectModel<Role>(i)));
-			});
+			//
+			//
+			//
 			
-			getSessionUser().get().getRolesSite().forEach(r -> {
-				getRoleDBService().findAllSorted().forEach(i -> allRoles.add(new ObjectModel<Role>(i)));
-			});
+			User user = getSessionUser().get();
 			
+			if (!user.isDependencies()) {
+				user = getUserDBService().findWithDeps(user.getId()).get();
+			}
+			
+			user.getRolesInstitution().forEach(r -> {
+				
+					RoleInstitution ri = getRoleInstitutionDBService().findWithDeps(r.getId()).get();
+			
+					set.add(new ObjectModel<Role>(ri));
+					
+					
+					Institution in = getInstitutionDBService().findWithDeps(ri.getInstitution().getId()).get();
+					
+					
+					List<Site> sites = in.getSites();
+				
+					for (Site site: sites) {
+						Iterable<RoleSite> siteRoles = getRoleSiteDBService().findBySite(site);
+					
+						for (RoleSite sr : siteRoles) {
+							RoleSite rsite = getRoleSiteDBService().findWithDeps(sr.getId()).get();
+							set.add(new ObjectModel<Role>(rsite));
+						}
+					}
+			});
 		}
 		
+		allRoles.addAll(set);
 		return allRoles;
+		
 	}
 
 	private WebMarkupContainer getMenu(IModel<Role> model) {
@@ -347,6 +424,12 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 					private static final long serialVersionUID = 1L;
 
+					
+					public boolean isVisible() {
+						return true;
+					}
+					
+					
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						UserRolesPanel.this.onObjectRemove(getModel(), target);
@@ -379,7 +462,6 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 		this.add = new AjaxLink<Void>("add") {
 			private static final long serialVersionUID = 1L;
-
 
 			
 			public boolean isEnabled() {
@@ -492,11 +574,13 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 		if (isGeneralAdmin())
 			return true;
 		
-	//	Set<RoleInstitution> ri = getSessionUser().get().getRolesInstitution().stream().filter(r -> r.getKey.equals(Role.I)().getId() == getModel().getObject().getInstitution().getId()).collect(java.util.stream.Collectors.toSet());
-	//	if (ri!=null && ri.size()>0)
-	//		return true;
+		User user = getSessionUser().get();
 		
-		Set<RoleSite> rs = getSessionUser().get().getRolesSite();
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+		
+		Set<RoleSite> rs = user.getRolesSite();
 		if (rs!=null && rs.size()>0)
 			return true;
 	

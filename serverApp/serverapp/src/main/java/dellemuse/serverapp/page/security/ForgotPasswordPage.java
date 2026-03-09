@@ -1,6 +1,7 @@
 package dellemuse.serverapp.page.security;
 
  
+import java.time.OffsetDateTime;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -32,6 +33,8 @@ import dellemuse.serverapp.DellemuseServer;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.BasePage;
+import dellemuse.serverapp.serverdb.ServerDBConstant;
+import dellemuse.serverapp.serverdb.model.PersistentToken;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
@@ -137,28 +140,78 @@ public class ForgotPasswordPage extends BasePage {
 	
 					// lookup user by username/email/phone
 					Optional<User> ou = userDBService.findByUsernameOrEmailOrPhone(username);
+					
 					if (ou.isPresent()) {
+					
 						User u = ou.get();
 						// get person email
 						Optional<dellemuse.serverapp.serverdb.model.Person> op = personDBService.getByUser(u);
+						
 						String email = null;
 						String personName = u.getUsername();
+						
 						if (op.isPresent()) {
 							personName = op.get().getDisplayname();
 							email = op.get().getEmail();
 						}
+						
+						
 						if (email==null || email.trim().isEmpty()) {
 							// fallback to user's email field
 							email = u.getEmail();
 						}
+						
+						
+						
 						if (email!=null && email.trim().length()>0) {
+						
+							
+							
+					    	String tokenValue = getSecurityService().nextSecureToken();
+					    	 
+					    	PersistentToken token = getPersistentTokenDBServiceDBService().create(
+									u.getId().toString(), 
+									User.class.getSimpleName(), 
+									tokenValue,
+									OffsetDateTime.now().plusDays(1) );
+					    	
+					    	Long tid = null;
+					    
+					    	try {
+					    		
+					    		tid = token.getId();
+					    		
+					    		String from = getServerDBSettings().getEmailFrom();
+					    		String to = u.getEmail();
+					    		
+					    		String subject = "DelleMuse - password reset"; 
+					    		String text = "please click the following link to validate your email address: " + getServerDBSettings().getEmailValidationServer() + "/password-reset?token=" +u.getId().toString()+"-"+tokenValue;
+					    		
+					    		String sendEmail= getEmailService().send(from, to, subject, text);
+					    	
+					    		logger.debug("Email sent response -> " + sendEmail);
+					    		
+					    	} catch (Exception e) {
+					    		if (tid!=null)
+					    			getPersistentTokenDBServiceDBService().findById(tid).ifPresent(t -> getPersistentTokenDBServiceDBService().delete(t));
+					    		logger.error(e);
+							}
+							
+							
+							
+							
+							
 							//String link = RequestCycle.get().urlFor(ResetPasswordPage.class, new PageParameters().add("user", u.getUsername())).toString();
 							//String subject = "Reset your password";
 							//String body = "Hello " + personName + "\n\nPlease follow the link to reset your password:\n" + link + "\n\nIf you didn't request this, ignore this email.";
 							//emailService.sendEmail(email, subject, body);
 							// show confirmation
+							
+							
+							
 							getPageParameters().set("sent", "true");
 							setResponsePage(ForgotPasswordPage.class, getPageParameters());
+							
 							
 							return;
 						} else {

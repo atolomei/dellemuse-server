@@ -64,6 +64,7 @@ public class CandidateOnboardPage extends BasePage {
 	
     public CandidateOnboardPage() {
         super();
+        
         this.slang=Locale.getDefault().getLanguage();
         this.setOutputMarkupId(true);
     
@@ -111,7 +112,7 @@ public class CandidateOnboardPage extends BasePage {
 	public void onInitialize() {
 		 super.onInitialize();
 
-		 getSession().setLocale( Locale.forLanguageTag(slang));
+		 getSession().setLocale(Locale.forLanguageTag(slang));
 		 
 		 logger.debug( getSession().getLocale().getLanguage() );
 		 

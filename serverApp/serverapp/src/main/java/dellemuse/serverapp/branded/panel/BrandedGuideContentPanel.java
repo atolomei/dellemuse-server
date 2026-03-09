@@ -104,8 +104,7 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 	            
 	        	AudioPlayer audio = new AudioPlayer("audio", resourceReference);
 				audio.setIncludeDownloadMenu(false);
-	            //Audio audio = new Audio("audio", resourceReference);
-		        audioIntroContainer.add(audio);
+	            audioIntroContainer.add(audio);
 		        
 		    	Label aid = new Label("aid", getModel().getObject().getArtWorkAudioId()!=null ? getModel().getObject().getArtWorkAudioId().toString() : "");
 		    	audioContainer.add(aid);

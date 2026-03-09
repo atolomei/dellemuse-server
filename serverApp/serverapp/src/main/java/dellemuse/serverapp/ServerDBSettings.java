@@ -55,7 +55,7 @@ public class ServerDBSettings {
 	@Value("${trafficTokens:10}")
 	protected int maxTrafficTokens;
 
-	@Value("${server.qr:https://dellemuse.app/qrcode/artwork/}")
+	@Value("${server.qr:https://dellemuse.kbee.io/qrcode/artwork/}")
 	protected String qrurl;
 
 	/** -------------------------------------- **/
@@ -193,8 +193,12 @@ public class ServerDBSettings {
 	protected String emailEnabledStr;
 	
 	
-
+	@Value("${email.validation.server:http://localhost:8099}")
+	protected String emailValidationServer;
 	
+	public String getEmailValidationServer() {
+		return emailValidationServer;
+	}
 
 	public ServerDBSettings() {
 	}

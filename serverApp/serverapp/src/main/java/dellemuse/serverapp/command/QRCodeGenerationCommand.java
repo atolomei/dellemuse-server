@@ -109,9 +109,7 @@ public class QRCodeGenerationCommand extends Command {
 	  
 
 
-	private User getRootUser() {
-		return ((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class)).findRoot();
-	}
+	 
 
 	public Long getArtWorkId() {
 		return this.artworkId;

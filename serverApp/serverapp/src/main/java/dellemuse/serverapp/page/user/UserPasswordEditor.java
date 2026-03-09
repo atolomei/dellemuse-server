@@ -51,7 +51,7 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 	private Form<User> form;
 	private StaticTextField<String> nameField;
-	private StaticTextField<String> emailField;
+	//private StaticTextField<String> emailField;
 	
 	//private PasswordField passwordField;
 
@@ -71,8 +71,10 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 		if (isGeneralAdmin())
 			return true;
 		
-		//if (isSiteAdmin())
-		//	return true;
+		
+		if(getSessionUser().isPresent() && getModelObject().getId().equals(getSessionUser().get().getId()))
+			return true;
+		
 		
 		return false;
 	}
@@ -98,7 +100,7 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 		this.form.setFormState(FormState.VIEW);
 
 		this.nameField 		= new StaticTextField<String>("username"			, new PropertyModel<String>(getModel(), "username"), getLabel("username"));
-		this.emailField 		= new StaticTextField<String>("email"			, new PropertyModel<String>(getModel(), "email"), getLabel("email"));
+		//this.emailField 		= new StaticTextField<String>("email"			, new PropertyModel<String>(getModel(), "email"), getLabel("email"));
 		this.passwordField 	= new TextField<String>("password"					, new PropertyModel<String>( UserPasswordEditor.this, "newPassword"), getLabel("new-password")) {
 
 			public boolean isVisible() {
@@ -114,7 +116,7 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 			}
 		};
 
-		this.form.add(emailField);
+		//this.form.add(emailField);
 		this.form.add(nameField);
 		this.form.add(passwordField);
 

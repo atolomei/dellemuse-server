@@ -3,6 +3,7 @@ package dellemuse.serverapp.serverdb.service;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -171,18 +172,29 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 
 		Institution i = o_i.get();
 
-		i.setDependencies(true);
-
+		List<Site> sites = new ArrayList<Site>();
+		
+		i.getSites().forEach( site ->  getSiteDBService().findById(site.getId()).ifPresent(s -> sites.add(s)) );
+		
+		i.setSites(sites);
+		
 		Resource photo = i.getPhoto();
-
-		if (photo != null)
-			photo.getBucketName();
+		if (photo!=null)
+			i.setPhoto( getResourceDBService().findById(photo.getId()).get());
 
 		Resource logo = i.getLogo();
+		if (logo!=null)
+			i.setLogo(getResourceDBService().findById(logo.getId()).get());
 
-		if (logo != null)
-			logo.getBucketName();
 
+		User user = i.getLastModifiedUser();
+		if (user!=null)
+			i.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+
+
+		i.setDependencies(true);
+
+		
 		return o_i;
 	}
 

@@ -8,6 +8,11 @@ public class Icons {
 	public static final String Artist = "fa-duotone fa-palette";
 
 	public static final String ArtWork = "fa-duotone fa-solid fa-paintbrush";
+	public static final String Candidate = "fa-duotone fa-solid fa-building-circle-check";
+	
+	
+	
+	
 	public static final String GuideContent = "fa-duotone fa-solid fa-headphones";
 	public static final String Person = "fa-duotone fa-solid fa-person-simple";
 	public static final String Site = "fa-duotone fa-solid fa-hotel";

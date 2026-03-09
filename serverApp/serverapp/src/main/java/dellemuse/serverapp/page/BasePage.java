@@ -31,6 +31,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import dellemuse.model.DelleMuseModelObject;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
+import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.email.EmailService;
 import dellemuse.serverapp.help.HelpService;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -63,6 +65,7 @@ import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
+import dellemuse.serverapp.serverdb.service.PersistentTokenDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -517,6 +520,11 @@ public abstract class BasePage extends WebPage {
 		return (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);
 	}
 
+	protected EmailService getEmailService() {
+		return (EmailService) ServiceLocator.getInstance().getBean(EmailService.class);
+	}
+	
+	
 	protected InstitutionDBService getInstitutionDBService() {
 		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 	}
@@ -594,7 +602,18 @@ public abstract class BasePage extends WebPage {
 		return (HelpService) ServiceLocator.getInstance().getBean(HelpService.class);
 	}
 	
+ 
+	
 
+	protected PersistentTokenDBService getPersistentTokenDBServiceDBService() {
+		return (PersistentTokenDBService) ServiceLocator.getInstance().getBean(PersistentTokenDBService.class);
+	}
+
+	
+	protected  ServerDBSettings getServerDBSettings() {
+		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
+	}
+	
 	protected DateTimeService getDateTimeService() {
 		return (DateTimeService) ServiceLocator.getInstance().getBean(DateTimeService.class);
 	}

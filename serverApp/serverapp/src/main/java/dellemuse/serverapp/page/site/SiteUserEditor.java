@@ -28,6 +28,7 @@ import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
+import io.wktui.form.field.BooleanField;
 import io.wktui.form.field.LocaleField;
 import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextField;
@@ -51,7 +52,9 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 	private List<ToolbarItem> list;
 	
 	private LocaleField localeField;
-	
+	private BooleanField emailValidatedField;
+	private BooleanField phoneValidatedField;
+
 	 private StaticTextField<String> emailField;
 
 	
@@ -152,9 +155,14 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 		if (getModel().getObject().isRoot())
 			this.nameField.setReadOnly(true);
 
+		this.emailValidatedField = new BooleanField("emailValidated", new PropertyModel<Boolean>(getModel(), "emailValidated"), getLabel("emailValidated"));
+		this.phoneValidatedField = new BooleanField("phoneValidated", new PropertyModel<Boolean>(getModel(), "phoneValidated"), getLabel("phoneValidated"));
+
 		this.form.add(nameField);
 		this.form.add(zoneidField);
 		this.form.add(localeField);
+		this.form.add(emailValidatedField);
+		this.form.add(phoneValidatedField);
 
 		this.form.setFormState(FormState.VIEW);
 

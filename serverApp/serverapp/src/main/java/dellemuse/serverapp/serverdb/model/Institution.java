@@ -83,8 +83,8 @@ public class Institution extends MultiLanguageObject {
 	@Column(name = "zoneid")
 	private String zoneId;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = Site.class)
-	@JoinColumn(name = "institution_id", nullable = true, insertable = false)
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.DETACH, targetEntity = Site.class)
+	@JoinColumn(name = "institution_id", nullable = false, insertable =false)
 	@JsonSerialize(using = DelleMuseListIdSerializer.class)
 	@JsonManagedReference
 	@JsonBackReference

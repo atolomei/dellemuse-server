@@ -9,6 +9,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import dellemuse.model.JsonObject;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity
@@ -16,8 +20,11 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class PersistentToken extends JsonObject  {
 
-    @JsonProperty("id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "token_id")
+	@SequenceGenerator(name = "token_id", sequenceName = "token_id", allocationSize = 1)
+	@JsonProperty("id")
+	private Long id;
 	  
 	@Column(name = "entity")
 	private String entity;
@@ -28,13 +35,40 @@ public class PersistentToken extends JsonObject  {
 	@Column(name = "token")
 	private String token;
 	
+	@Column(name = "created")
 	@JsonProperty("created")
 	private OffsetDateTime created;
 	
+	@Column(name = "expires")
 	@JsonProperty("expires")
 	private OffsetDateTime expires;
 
 	public PersistentToken() {
+	}
+
+	public Long getId() { return id; }
+	public void setId(Long id) { this.id = id; }
+
+	public String getEntity() { return entity; }
+	public void setEntity(String entity) { this.entity = entity; }
+
+	 
+
+	public String getToken() { return token; }
+	public void setToken(String token) { this.token = token; }
+
+	public OffsetDateTime getCreated() { return created; }
+	public void setCreated(OffsetDateTime created) { this.created = created; }
+
+	public OffsetDateTime getExpires() { return expires; }
+	public void setExpires(OffsetDateTime expires) { this.expires = expires; }
+
+	public String getEntityClass() {
+		return object;
+	}
+
+	public void setEntityClass(String entityClass) {
+		this.object = entityClass;
 	}
 
 }

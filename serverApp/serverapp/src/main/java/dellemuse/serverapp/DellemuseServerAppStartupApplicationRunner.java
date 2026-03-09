@@ -23,6 +23,7 @@ import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
+import dellemuse.serverapp.serverdb.service.PersistentTokenDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -69,15 +70,29 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 	
 
 	@Bean
+	CommandLineRunner deleteExpiredTokens() {
+	
+		return args -> {
+	
+			try {	
+				PersistentTokenDBService s = ((PersistentTokenDBService) ServiceLocator.getInstance().getBean(PersistentTokenDBService.class));
+			logger.debug( "Token expired deleted -> " + s.deleteExpired());
+			} catch (Exception e) {
+				logger.error(e, ServerConstant.NOT_THROWN);
+			}
+		};
+	}
+	
+	@Bean
 	CommandLineRunner cleanUpDrafts() {
 	
 		return args -> {
 	
 			try {	
 			CandidateDBService s = ((CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class));
-			logger.debug( "Deleted drafts -> " + s.deleteDrafts());
+			logger.debug( "Candidate drafts deleted -> " + s.deleteDrafts());
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error(e, ServerConstant.NOT_THROWN);
 			}
 		};
 	}

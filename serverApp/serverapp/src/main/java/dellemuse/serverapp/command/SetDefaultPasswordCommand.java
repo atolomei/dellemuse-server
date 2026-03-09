@@ -66,9 +66,7 @@ public class SetDefaultPasswordCommand extends Command {
 		return ((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class));
 	}
 
-	private User getRootUser() {
-		return ((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class)).findRoot();
-	}
+ 
 
 	protected ServerDBSettings getSettings() {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);

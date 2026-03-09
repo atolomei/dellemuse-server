@@ -49,8 +49,6 @@ public class ResourceEventListener {
     public void postPersist(Object o) {
     	logger.debug("postPersist");    
     	Resource resource = (Resource) o;
-
-    	
     	getCommandService().run(new ResourceMetadataCommand(resource.getId()));
     }
 

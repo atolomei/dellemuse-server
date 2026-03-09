@@ -596,6 +596,10 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	}
 
 	
+	protected void setSessionUser( User user ) {
+		 sessionUserModel = new ObjectModel<User>(user);
+	}
+	
 	
 	protected Optional<User> getSessionUser() {
 	

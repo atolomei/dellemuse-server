@@ -224,7 +224,7 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 	protected UserRolesPanel getUserRolesdEditor(String id) {
 		if (this.reditor == null)
-			this.reditor = new UserRolesPanel(id, getUserModel() );
+			this.reditor = new UserRolesPanel(id, getUserModel(), getModel(), true );
 		return this.reditor;
 	}
 

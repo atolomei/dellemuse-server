@@ -31,7 +31,7 @@ public class SecurityService extends BaseService {
 
 	@SuppressWarnings("unused")
 	private class SecurityRecord {
-		@SuppressWarnings("unused")
+	 
 		public String token;
 		public String parameter;
 		public String user_id;

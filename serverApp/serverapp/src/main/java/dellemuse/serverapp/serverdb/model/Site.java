@@ -67,7 +67,7 @@ public class Site extends MultiLanguageObject {
 	}
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
-	@JoinColumn(name = "institution_id", nullable = true)
+	@JoinColumn(name = "institution_id", nullable = false)
 	@JsonManagedReference
 	@JsonBackReference
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)

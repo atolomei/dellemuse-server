@@ -1,5 +1,6 @@
 package dellemuse.serverapp.serverdb.model;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.hibernate.annotations.Fetch;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseUserSerializer;
@@ -57,6 +59,13 @@ public class Candidate extends DelleMuseObject {
     @Column(name = "contactreferences")
   	private String references;
 
+
+    @Column(name = "validationEmailSent")
+  	private  OffsetDateTime validationEmailSent;
+
+    
+    
+    
 	public String getDisplayname() {
 		return (getInstitutionName() != null) ? getInstitutionName() : "null";
 	}
@@ -173,6 +182,14 @@ public class Candidate extends DelleMuseObject {
 		this.references = references;
 	}
 
+	public OffsetDateTime getValidationEmailSent() {
+		return validationEmailSent;
+	}
+
+	public void setValidationEmailSent(OffsetDateTime validationEmailSent) {
+		this.validationEmailSent = validationEmailSent;
+	}
+
 	public void setStatus(CandidateStatus status) {
 		this.status = status;
 	}
@@ -186,7 +203,7 @@ public class Candidate extends DelleMuseObject {
 	}
 
 	public static String getIcon() {
-		return "fa-duotone fa-solid fa-building-circle-check";
+		return Icons.Candidate; // "fa-duotone fa-solid fa-building-circle-check";
 	}
 
 };
