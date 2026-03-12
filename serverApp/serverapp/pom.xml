@@ -291,6 +291,16 @@
 		</dependency>
 
 
+	<!-- Freemaker
+	    =======================================================  -->
+
+				<dependency>
+				  <groupId>org.freemarker</groupId>
+				  <artifactId>freemarker</artifactId>
+				  
+				</dependency>
+
+
 		<!-- DELLEMUSE MODEL
 		===========================================================  -->
 

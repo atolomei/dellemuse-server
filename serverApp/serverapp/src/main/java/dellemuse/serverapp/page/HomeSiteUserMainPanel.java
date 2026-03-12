@@ -8,6 +8,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.help.WelcomePanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
@@ -21,6 +22,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
+import wktui.base.InvisiblePanel;
 
 public class HomeSiteUserMainPanel extends DBModelPanel<User> implements InternalPanel {
 
@@ -38,7 +40,18 @@ public class HomeSiteUserMainPanel extends DBModelPanel<User> implements Interna
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-
+		
+		 
+		if (getSessionUser().isPresent()) {
+			if (getSessionUser().get().isShowWelcome()) {
+				 add(new WelcomePanel("welcomePanel", new ObjectModel<User>(getSessionUser().get())));
+			}
+			else
+				add(new InvisiblePanel("welcomePanel"));
+		}
+		else
+			add(new InvisiblePanel("welcomePanel"));
+	
 		addSites();
 	}
 

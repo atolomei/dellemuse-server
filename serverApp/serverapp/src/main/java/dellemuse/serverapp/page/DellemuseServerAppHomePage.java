@@ -4,27 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import com.giffing.wicket.spring.boot.context.scan.WicketHomePage;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.artexhibition.ArtExhibitionGuidesPanel;
-import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideContentsPanel;
-import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -33,7 +26,6 @@ import io.wktui.error.ErrorPanel;
 import io.wktui.model.TextCleaner;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
-import wktui.base.DummyBlockPanel;
 import wktui.base.InvisiblePanel;
 
 @AuthorizeInstantiation({"ROLE_USER"})
@@ -125,6 +117,13 @@ public class DellemuseServerAppHomePage extends BasePage {
 					add( new HomeAdminMainPanel("mainPanel", getModel()));
 				else
 					add( new HomeSiteUserMainPanel("mainPanel", getModel()));
+				
+				if (!getSessionUser().isEmpty()) {
+					if (!getSessionUser().get().isInitialSigninDone()) {
+						logger.debug("initial signin not done, redirecting to user editor");
+						//setResponsePage(new UserPage( new ObjectModel<User>( getSessionUser().get()), true) );
+					}
+				}
 				
 			} catch (Exception e) {
 				logger.error(e);

@@ -1,42 +1,48 @@
 <wicket:panel>
 
-	 	<section class="container main">
-				<div class="mt-4 mb-5" style="float: left; width: 100%; padding: 0;">
-				<div class="row">
-					<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
-						<h4>
-							<wicket:message key="sites" />
-						</h4>
-					</div>
-				</div>
-				
-			<div class="row">
-					<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
-						<div style="float: left; width: 100%;" wicket:id="siteList"></div>
-					</div>
-				</div>
-			</div>
+	<section class="container main">
 
+		<div class="mt-4 mb-4" wicket:id="welcomePanel" />
+
+
+
+		<div class="mt-4 mb-5" style="float: left; width: 100%; padding: 0;">
 
 			<div class="row">
 				<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
 					<h4>
-							Recursos
-				</h4>
+						<wicket:message key="sites" />
+					</h4>
 				</div>
 			</div>
-
-
 
 			<div class="row">
-				<div class="mt-0 mb-5 col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
-					<ul class="list-group">
-						<li class="list-group-item"><a href="/voice/list/"><wicket:message key="voices"/></a></li>
-						<li class="list-group-item"><a href="/music/list/"><wicket:message key="music"/></a></li>
-					</ul>
+				<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
+					<div style="float: left; width: 100%;" wicket:id="siteList"></div>
 				</div>
 			</div>
-		</section>
+		</div>
 
 
-	</wicket:panel>
+		<div class="row">
+			<div class="col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
+				<h4>
+					<wicket:message key="resources" />
+				</h4>
+			</div>
+		</div>
+
+
+
+		<div class="row">
+			<div class="mt-0 mb-5 col-xxl-12 col-xl-12 col-lg-12 c col-md-12 col-sm-12">
+				<ul class="list-group">
+					<li class="list-group-item"><a href="/voice/list/"><wicket:message key="voices" /></a></li>
+					<li class="list-group-item"><a href="/music/list/"><wicket:message key="music" /></a></li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+
+</wicket:panel>

@@ -97,29 +97,7 @@ public class MusicPage extends ObjectPage<Music> {
 
 		return true;
 		
-		/**
-		 
-		
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
-			return true;
-		
-		if (!user.isDependencies()) {
-			user = getUserDBService().findWithDeps(user.getId()).get();
-		}
-		
-		{
-			Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set != null) {
-				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
-				if (isAccess)
-					return true;
-			}
-		}
-
-		return false;
-		*/
+	 
 	
 	}
 	
@@ -153,25 +131,6 @@ public class MusicPage extends ObjectPage<Music> {
 					MusicPage.this.onEdit(event.getTarget());
 				}
 				
-				/**
-				if (event.getName().equals(ServerAppConstant.Music_action_edit_info)) { 
-					MusicPage.this.onEdit(event.getTarget());
-					
-				} else if (event.getName().equals(ServerAppConstant.Music_panel_info)) {
-					MusicPage.this.togglePanel(ServerAppConstant.Music_panel_info, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.Music_panel_password)) {
-					MusicPage.this.togglePanel(ServerAppConstant.Music_panel_password, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
-					MusicPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.object_audit)) {
-					MusicPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.Music_panel_roles)) {
-					MusicPage.this.togglePanel(ServerAppConstant.Music_panel_roles, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
-					MusicPage.this.getMetaEditor().onEdit(event.getTarget());
-				}
-				*/
 			}
 
 			@Override
@@ -279,45 +238,12 @@ public class MusicPage extends ObjectPage<Music> {
 	}
 	
 	 
-	
-	
-
-	/**
-	@Override
-	protected List<INamedTab> createInternalPanels() {
-
-		List<INamedTab> list = super.createInternalPanels();
-
-		NamedTab editor = new NamedTab(Model.of("editor"), ServerAppConstant.voice_info) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getEditor(panelId);
-			}
-		};
-		
-		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getAuditPanel(panelId);
-			}
-		};
-
-		list.add(audit);
-		return list;
-	}
-	*/
+	 
 	
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
-
 		 
 		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.voice_info) {
 			private static final long serialVersionUID = 1L;
@@ -328,7 +254,6 @@ public class MusicPage extends ObjectPage<Music> {
 			}
 		};
 		tabs.add(tab_1);
- 
 		
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 

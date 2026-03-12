@@ -18,8 +18,11 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.command.CommandService;
 import dellemuse.serverapp.elevenlabs.ElevenLabsService;
+import dellemuse.serverapp.email.EmailService;
+import dellemuse.serverapp.email.EmailTemplateService;
 import dellemuse.serverapp.help.HelpService;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -50,6 +53,7 @@ import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
+import dellemuse.serverapp.serverdb.service.PersistentTokenDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
@@ -74,6 +78,7 @@ import dellemuse.serverapp.service.SecurityAuthorizationService;
 import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import dellemuse.serverapp.service.language.TranslationService;
+import io.odilon.model.ObjectMetadata;
 import io.wktui.model.TextCleaner;
 import wktui.base.ModelPanel;
 
@@ -84,37 +89,39 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	static private Logger logger = Logger.getLogger(ObjectModelPanel.class.getName());
 
 	private IModel<User> sessionUserModel;
-	
-	
+
 	protected boolean canDelete(T object) {
 		return true;
 	}
 
-	
 	protected boolean canCreate(T object) {
 		return true;
 	}
 
-	
 	protected boolean canWrite(T object) {
 		return true;
 	}
 
-	
 	protected boolean canRead(T object) {
 		return true;
 	}
-	
-	
+
+	public boolean isInstitutionAdmin(Institution in) {
+		return getSecurityAuthorizationService().isInstitutionAdmin(getSessionUser(), in);
+	}
+
+	public boolean isInstitutionAdminOrAudit(Institution in) {
+		return getSecurityAuthorizationService().isInstitutionAdminOrAudit(getSessionUser(), in);
+	}
+
 	public ObjectModelPanel(String id, IModel<T> model) {
 		super(id, model);
 	}
-	
-	
+
 	public void onDetach() {
 		super.onDetach();
-		
-		if (sessionUserModel!=null) {
+
+		if (sessionUserModel != null) {
 			sessionUserModel.detach();
 		}
 
@@ -163,15 +170,30 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	public LanguageService getLanguageService() {
 		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
-	
+
 	protected CandidateDBService getCandidateDBService() {
 		return (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
 	}
+
+	protected EmailService getEmailService() {
+		return (EmailService) ServiceLocator.getInstance().getBean(EmailService.class);
+	}
+
+	protected EmailTemplateService getEmailTemplateService() {
+		return (EmailTemplateService) ServiceLocator.getInstance().getBean(EmailTemplateService.class);
+	}
+	
+	protected PersistentTokenDBService getPersistentTokenDBServiceDBService() {
+		return (PersistentTokenDBService) ServiceLocator.getInstance().getBean(PersistentTokenDBService.class);
+	}
+
+	protected  ServerDBSettings getServerDBSettings() {
+		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
+	} 
 	
 	public SecurityAuthorizationService getSecurityAuthorizationService() {
 		return (SecurityAuthorizationService) ServiceLocator.getInstance().getBean(SecurityAuthorizationService.class);
 	}
-	
 
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
@@ -180,7 +202,7 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	public HelpService getHelpService() {
 		return (HelpService) ServiceLocator.getInstance().getBean(HelpService.class);
 	}
-	
+
 	/** Deps --------------------------------------------------------- */
 
 	public Optional<ArtWork> findArtWorkWithDeps(Long id) {
@@ -312,14 +334,25 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 			}
 
 			if ((photo.getMedia() == null) || (photo.getMedia().length() == 0) || photo.getMedia().endsWith("svg+xml") || photo.getMedia().endsWith("svg") || photo.getMedia().endsWith("webp")) {
-					return 	getObjectStorageService().getPublicUrl(photo);
+				return getObjectStorageService().getPublicUrl(photo);
 
 			} else if (photo.isUsethumbnail()) {
+				
+				
+				
 				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
 				String url = service.getPresignedThumbnailUrl(photo, size);
 				return url;
+			
 			} else {
-				return 	getObjectStorageService().getPublicUrl(photo);
+				
+				ObjectMetadata meta = getObjectStorageService().getClient().getObjectMetadata(photo.getBucketName(), photo.getObjectName());
+				
+				if (!meta.isPublicAccess()) {
+					logger.debug("Setting public access true to " + photo.getBucketName() + "/" + photo.getObjectName());
+					getObjectStorageService().getClient().setPublicAccess(photo.getBucketName(), photo.getObjectName(), true);
+				}
+				return getObjectStorageService().getPublicUrl(photo);
 			}
 		} catch (Exception e) {
 			logger.error(e);
@@ -333,11 +366,10 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 			if (photo == null)
 				return null;
 
-					if (!photo.isDependencies()) {
+			if (!photo.isDependencies()) {
 				photo = this.getResourceDBService().findWithDeps(photo.getId()).get();
 			}
 
-					
 			if ((photo.getMedia() != null) && (photo.getMedia().endsWith("svg") || photo.getMedia().endsWith("webp"))) {
 				return getObjectStorageService().getPublicUrl(photo);
 			}
@@ -595,35 +627,34 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return getUserDBService().findRoot();
 	}
 
-	
-	protected void setSessionUser( User user ) {
-		 sessionUserModel = new ObjectModel<User>(user);
+	protected void setSessionUser(User user) {
+		sessionUserModel = new ObjectModel<User>(user);
 	}
+
+	
 	
 	
 	protected Optional<User> getSessionUser() {
-	
-		if (sessionUserModel!=null)
-			return Optional.of( sessionUserModel.getObject() );
-		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	    if (auth == null || !auth.isAuthenticated()) {
-	        return Optional.empty();
-	    }
-	    UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
-	     
 
-	    Optional<User> o_user = service.findByUsername(auth.getName());
-	    
-	    if (o_user==null || o_user.isEmpty())
-	    	return Optional.empty();
-	    
-	    sessionUserModel = new ObjectModel<User>( o_user.get());
-	
-	 	return Optional.of( sessionUserModel.getObject() );
+		if (sessionUserModel != null)
+			return Optional.of(sessionUserModel.getObject());
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth == null || !auth.isAuthenticated()) {
+			return Optional.empty();
+		}
+		UserDBService service = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
+
+		Optional<User> o_user = service.findByUsername(auth.getName());
+
+		if (o_user == null || o_user.isEmpty())
+			return Optional.empty();
+
+		sessionUserModel = new ObjectModel<User>(o_user.get());
+
+		return Optional.of(sessionUserModel.getObject());
 	}
 
-	
 	/** DBService ------------------------- */
 
 	protected InstitutionDBService getInstitutionDBService() {

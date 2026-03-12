@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -17,10 +18,12 @@ import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.DellemuseServer;
 import dellemuse.serverapp.audiostudio.Step3AudioStudioEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
+import dellemuse.serverapp.email.EmailTemplateService;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SiteInfoEditor;
@@ -196,13 +199,24 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
             CandidateDBService service = (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
             service.save(getModelObject(), String.join(", ",   getUpdatedParts()), getRootUser());
  
-            // ----------------------
-            //
-            // sendEmail to validate email person
-            //
-            // ----------------------
+
+            String personName= getModelObject().getPersonName() + " " + getModelObject().getPersonLastname();
             
-            getForm().setFormState(FormState.VIEW);
+            String from = getServerDBSettings().getEmailFrom();
+    		String to = getModel().getObject().getEmail();
+    		
+    		String subject= getLabel( "candidate-submit-form" ).getObject();
+    		
+        	String text= getEmailTemplateService().render(EmailTemplateService.PASSWORD_RESET, 
+    				Map.of(
+    			    "application",  DellemuseServer.APPNAME,
+    			    "personName",   personName));
+
+    		String sendEmail= getEmailService().send(from, to, subject, text);
+    	
+    		logger.debug("Email sent response -> " + sendEmail);
+
+    	    getForm().setFormState(FormState.VIEW);
             getForm().updateReload();
             
             addOrReplace( new AlertPanel<Void>("success", AlertPanel.SUCCESS, getLabel("submitted-ok")));

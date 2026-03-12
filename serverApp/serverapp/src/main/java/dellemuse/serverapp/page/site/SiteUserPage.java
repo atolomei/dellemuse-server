@@ -71,7 +71,7 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	private IModel<User> userModel;
 	
 
-	StringValue sv;
+	private StringValue sv;
 
 	
 	private PersonEditor personEditor;
@@ -79,20 +79,17 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	private UserPasswordEditor pwdeditor;
 	private SiteUserEditor editor;
 	private UserRolesPanel reditor;
+	
 
 	public SiteUserPage(PageParameters parameters) {
 		super(parameters);
 		if (getPageParameters()!=null)
 			sv = getPageParameters().get("userid");
-	
 	}
- 
-	
+ 	
 	public SiteUserPage() {
 		super();
 	}
-
-	
 	
 	public SiteUserPage(IModel<Site> model, IModel<User> userModel) {
 		super(model);

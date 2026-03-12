@@ -1,5 +1,6 @@
 package dellemuse.serverapp;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
- 
+import dellemuse.serverapp.email.EmailService;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
@@ -29,11 +30,12 @@ import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.odilon.client.error.ODClientException;
 import io.odilon.model.ObjectMetadata;
+import io.odilon.model.list.Item;
+import io.odilon.model.list.ResultSet;
 
 @Component
 public class DellemuseServerAppStartupApplicationRunner implements ApplicationRunner {
 
-	 
 	static private Logger logger = Logger.getLogger(DellemuseServerAppStartupApplicationRunner.class.getName());
 	static private Logger startupLogger = Logger.getLogger("StartupLogger");
 
@@ -46,58 +48,110 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 	public DellemuseServerAppStartupApplicationRunner(ApplicationContext appContext) {
 		this.appContext = appContext;
 	}
-	
-	
-	/**@Bean
-	CommandLineRunner testEmail() {
-	
-		return args -> {
-	
-			try {	
-				
-				EmailSender sender = new EmailSender();
-				
-				sender.send("atolomei@novamens.com", "testing mail gun", "done with the help of copilot");
 
-				logger.debug("Email sent successfully");
-				
+
+/**
+	  @Bean CommandLineRunner testEmail() {
+	  
+	        return args -> {
+	  
+	        try {
+	  
+	        	EmailService s = ((EmailService) ServiceLocator.getInstance().getBean(EmailService.class));
+
+	        	
+	        String ret=s.send("atolomei@novamens.com", "testing mail gun"," testing production url mail gun");
+	  
+	        logger.debug(ret);
+	  
+	        } catch (Exception e) { logger.error(e); } }; }
+	**/ 
+/**
+	@Bean
+	CommandLineRunner odilonpublicaccess() {
+
+		return args -> {
+
+			try {
+
+				ObjectStorageService s = ((ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class));
+
+				s.getClient().listBuckets().forEach(b -> {
+					
+					logger.debug("Bucket: " + b.getName());
+
+					ResultSet<Item<ObjectMetadata>> r;
+					try {
+
+						r = s.listObjects(b.getName());
+
+						while (r.hasNext()) {
+							Item<ObjectMetadata> o = r.next();
+
+							if (o.isOk()) {
+
+								try {
+
+									ObjectMetadata m = o.getObject();
+
+									// logger.debug(m.getBucketName() + "/" + m.getObjectName() + " -> " + (m.isPublicAccess() ? "public" : "private"));
+
+									
+									if (!m.isPublicAccess()) {
+										s.getClient().setPublicAccess(m.getBucketName(), m.getObjectName(), true);
+										logger.debug(m.getBucketName() + "/" + m.getObjectName() + " -> public access enabled ");
+
+									}
+								} catch (ODClientException e) {
+									logger.error(e);
+								}
+							}
+						}
+
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				});
+
 			} catch (Exception e) {
-				logger.error(e);
+				logger.error(e, ServerConstant.NOT_THROWN);
 			}
 		};
-	}**/
+	}
+*/
 	
 	
-
+	
 	@Bean
 	CommandLineRunner deleteExpiredTokens() {
-	
+
 		return args -> {
-	
-			try {	
+
+			try {
 				PersistentTokenDBService s = ((PersistentTokenDBService) ServiceLocator.getInstance().getBean(PersistentTokenDBService.class));
-			logger.debug( "Token expired deleted -> " + s.deleteExpired());
+				logger.debug("Token expired deleted -> " + s.deleteExpired());
 			} catch (Exception e) {
 				logger.error(e, ServerConstant.NOT_THROWN);
 			}
 		};
 	}
-	
+
 	@Bean
 	CommandLineRunner cleanUpDrafts() {
-	
+
 		return args -> {
-	
-			try {	
-			CandidateDBService s = ((CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class));
-			logger.debug( "Candidate drafts deleted -> " + s.deleteDrafts());
+
+			try {
+				CandidateDBService s = ((CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class));
+				logger.debug("Candidate drafts deleted -> " + s.deleteDrafts());
 			} catch (Exception e) {
 				logger.error(e, ServerConstant.NOT_THROWN);
 			}
 		};
 	}
-	
-	
+
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 
@@ -119,11 +173,9 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 
 		startupLogger.info(ServerAppConstant.SEPARATOR);
 
-		
-		ArtistDBService s= getAppContext().getBean(ArtistDBService.class);
+		ArtistDBService s = getAppContext().getBean(ArtistDBService.class);
 		s.onInitialize();
-		
-		
+
 		startupLogger.info("Startup at -> " + DateTimeFormatter.RFC_1123_DATE_TIME.format(OffsetDateTime.now()));
 
 		/**
@@ -151,51 +203,48 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 	}
 
 	/**
-	@Bean
-	CommandLineRunner updateResourcesMetadata() {
-		
-		return args -> {
-			
-			ResourceDBService resourceDBService = ((ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class));
-			ObjectStorageService objectStorageService = ((ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class));
-			
-			resourceDBService.findAll().forEach( item -> {
-				
-				try {
+	 * @Bean CommandLineRunner updateResourcesMetadata() {
+	 * 
+	 *       return args -> {
+	 * 
+	 *       ResourceDBService resourceDBService = ((ResourceDBService)
+	 *       ServiceLocator.getInstance().getBean(ResourceDBService.class));
+	 *       ObjectStorageService objectStorageService = ((ObjectStorageService)
+	 *       ServiceLocator.getInstance().getBean(ObjectStorageService.class));
+	 * 
+	 *       resourceDBService.findAll().forEach( item -> {
+	 * 
+	 *       try {
+	 * 
+	 *       ObjectMetadata meta =
+	 *       objectStorageService.getClient().getObjectMetadata(item.getBucketName(),
+	 *       item.getObjectName());
+	 * 
+	 *       if (!meta.isPublicAccess()) { meta =
+	 *       objectStorageService.getClient().setPublicAccess(item.getBucketName(),
+	 *       item.getObjectName(), true ); logger.debug(item.getBucketName(),
+	 *       item.getObjectName() + " -> " + (meta.isPublicAccess() ? "true" :
+	 *       "false")); }
+	 * 
+	 * 
+	 *       } catch (ODClientException e) { logger.error(e); } }); }; }
+	 **/
 
-					ObjectMetadata meta = objectStorageService.getClient().getObjectMetadata(item.getBucketName(), item.getObjectName());
-					
-					if (!meta.isPublicAccess()) {
-						meta = objectStorageService.getClient().setPublicAccess(item.getBucketName(), item.getObjectName(), true );
-						logger.debug(item.getBucketName(), item.getObjectName() + " -> " + (meta.isPublicAccess() ? "true" : "false"));
-					}
-					
-					
-				} catch (ODClientException e) {
-					 logger.error(e);
-				}
-			});
-		};
-	}
-	**/
-	
-/**	@Bean
-	CommandLineRunner audioIds() {
-
-		return args -> {
-	
-			
-			UserDBService userDBService = (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
-			ArtWorkDBService artWorkDBService = ((ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class));
-			
-			artWorkDBService.findAll().forEach( a-> {
-				logger.debug(a.getDisplayname() );
-				artWorkDBService.generateAudioId( a, userDBService.findRoot() );
-			});
-		};
-	}
-	**/
-	
+	/**
+	 * @Bean CommandLineRunner audioIds() {
+	 * 
+	 *       return args -> {
+	 * 
+	 * 
+	 *       UserDBService userDBService = (UserDBService)
+	 *       ServiceLocator.getInstance().getBean(UserDBService.class);
+	 *       ArtWorkDBService artWorkDBService = ((ArtWorkDBService)
+	 *       ServiceLocator.getInstance().getBean(ArtWorkDBService.class));
+	 * 
+	 *       artWorkDBService.findAll().forEach( a-> {
+	 *       logger.debug(a.getDisplayname() ); artWorkDBService.generateAudioId( a,
+	 *       userDBService.findRoot() ); }); }; }
+	 **/
 
 	@Bean
 	CommandLineRunner init(UserDBService userService, PasswordEncoder encoder) {

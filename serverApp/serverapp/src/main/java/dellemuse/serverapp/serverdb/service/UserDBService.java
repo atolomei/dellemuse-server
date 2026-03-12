@@ -98,6 +98,7 @@ public class UserDBService extends DBService<User, Long> {
         
         if (person.isPresent()) {
         	user.setSortLastFirstname(person.get().getSortLastFirstname());
+        	user.setFirstLastname(person.get().getFirstLastname());
         	user.setPhone(person.get().getPhone());
         	user.setEmail(person.get().getEmail());
             person.get().setUser(user);

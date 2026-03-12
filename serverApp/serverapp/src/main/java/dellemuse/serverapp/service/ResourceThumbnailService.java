@@ -33,6 +33,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.base.BaseService;
 import dellemuse.serverapp.serverdb.util.MediaUtil;
 import io.odilon.client.error.ODClientException;
+import io.odilon.model.ObjectMetadata;
 import jakarta.transaction.Transactional;
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -118,17 +119,38 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 
 		final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
 		final String t_object = resource.getBucketName() + "-" + String.valueOf(resource.getObjectName().hashCode()) + "-" + size.getLabel();
-
+ 
 		try {
+			
 			if (getObjectStorageService().getClient().existsObject(t_bucket, t_object)) {
-				return getObjectStorageService().getPublicUrl(resource);
+				
+				ObjectMetadata meta = getObjectStorageService().getClient().getObjectMetadata(t_bucket, t_object);
+				if (!meta.isPublicAccess())
+					getObjectStorageService().getClient().setPublicAccess(t_bucket, t_object, true);
+				
+				
+				if (resource.getSize()<meta.getLength()) {
+	
+					logger.debug("thumbnail already exists but is smaller than original resource, returning original resource public url");
+					
+					ObjectMetadata meta2 = getObjectStorageService().getClient().getObjectMetadata(resource.getBucketName(), resource.getObjectName());
+
+					if (!meta2.isPublicAccess())
+						getObjectStorageService().getClient().setPublicAccess(resource.getBucketName(), resource.getObjectName(), true);
+					
+					return getObjectStorageService().getClient().getPublicObjectUrl(resource.getBucketName(), resource.getObjectName());
+				}
+				
+				
+				logger.debug ( meta.toString());
+				return getObjectStorageService().getClient().getPublicObjectUrl(t_bucket, t_object);
+				
 			}
 		} catch (ODClientException e) {
 			throw new IOException(e);
 		}
 
-
-		
+ 	
 		if (!resource.getMedia().startsWith("image")) {
 			throw new IllegalArgumentException(Resource.class.getSimpleName() + " is not image -> id: " + resource.getId().toString() + " | media: " + resource.getMedia());
 		}
@@ -160,6 +182,10 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 
 			try {
 			
+				logger.debug("-------- generated thumbnail ------- ");
+				logger.debug("src file  -> " + sourceFile.getName() + " size -> " + sourceFile.length()/1000 + " KB ");
+				logger.debug("thumbnail -> " + thumbnail.getName() + " size -> " + thumbnail.length()/1000 + " KB ");
+				
 				getObjectStorageService().getClient().putObject(t_bucket, t_object, Optional.empty(), Optional.of(Boolean.TRUE), thumbnail);
 				return getObjectStorageService().getClient().getPublicObjectUrl(t_bucket, t_object);
 
@@ -221,12 +247,16 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 			try (FileOutputStream out = new FileOutputStream(fileOut)) {
 				Files.copy(file.toPath(), out);
 			}
+			
+			logger.debug(file.getAbsolutePath() + " thumbnail size -> " + file.length()/1000 + "KB ");
 			return fileOut;
 		}
 
 		try (FileOutputStream out = new FileOutputStream(fileOut)) {
 			Thumbnails.of(file).size(frame.wo, frame.ho).outputFormat(ext.toLowerCase().equals("png") ? "PNG" : "JPEG").toOutputStream(out);
 		}
+
+		logger.debug(file.getAbsolutePath() + " thumbnail size -> " + file.length()/1000 + "KB ");
 		return fileOut;
 	}
 

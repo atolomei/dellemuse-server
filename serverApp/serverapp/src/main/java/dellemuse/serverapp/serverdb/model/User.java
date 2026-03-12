@@ -58,20 +58,35 @@ public class User extends DelleMuseObject {
 
 	private String authProvider; // LOCAL, GOOGLE
 	private String providerId;   // google subject id
+
+	
+
+	@JsonProperty("showWelcome")
+	@Column(name = "showWelcome")
+	private boolean showWelcome;
+	
+	@JsonProperty("initialsignindone")
+	@Column(name = "initialsignindone")
+	private boolean initialSigninDone;
+
+	
 	
 	@JsonProperty("sortlastfirstname")
 	@Column(name = "sortlastfirstname")
 	private String sortLastFirstname;
+	
+	@JsonProperty("firstlastname")
+	@Column(name = "firstlastname")
+	private String firstLastname;
 
 	
 	@JsonProperty("emailValidated")
 	@Column(name = "emailValidated")
-	private String emailValidated;
+	private boolean emailValidated;
 	
 	@JsonProperty("phoneValidated")
 	@Column(name = "phoneValidated")
-	private String phoneValidated;
-
+	private boolean phoneValidated;
 	
 	@JsonProperty("email")
 	@Column(name = "email")
@@ -140,12 +155,44 @@ public class User extends DelleMuseObject {
 		this.authProvider = authProvider;
 	}
 
+	public boolean isPhoneValidated() {
+		return phoneValidated;
+	}
+
+	public void setPhoneValidated(boolean phoneValidated) {
+		this.phoneValidated = phoneValidated;
+	}
+
 	public void setProviderId(String providerId) {
 		this.providerId = providerId;
 	}
 
+	public boolean isShowWelcome() {
+		return showWelcome;
+	}
+
+	public boolean isInitialSigninDone() {
+		return initialSigninDone;
+	}
+
+	public void setShowWelcome(boolean showWelcome) {
+		this.showWelcome = showWelcome;
+	}
+
+	public void setInitialSigninDone(boolean initialSigninDone) {
+		this.initialSigninDone = initialSigninDone;
+	}
+
 	public void setLanguage(String lang) {
 		language = lang;
+	}
+
+	public String getFirstLastname() {
+		return firstLastname;
+	}
+
+	public void setFirstLastname(String firstLastname) {
+		this.firstLastname = firstLastname;
 	}
 
 	public String getUsername() {
@@ -154,6 +201,14 @@ public class User extends DelleMuseObject {
 
 	public void setUsername(String username) {
 		setName(username);
+	}
+
+	public boolean isEmailValidated() {
+		return emailValidated;
+	}
+
+	public void setEmailValidated(boolean emailValidated) {
+		this.emailValidated = emailValidated;
 	}
 
 	public String getDisplayname() {
@@ -419,13 +474,7 @@ public class User extends DelleMuseObject {
 		return Icons.User;
 	}
 
-	public String getPhoneValidated() {
-		return phoneValidated;
-	}
-
-	public void setPhoneValidated(String phoneValidated) {
-		this.phoneValidated = phoneValidated;
-	}
+	 
 
 
 

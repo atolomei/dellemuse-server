@@ -55,7 +55,8 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 	private BooleanField emailValidatedField;
 	private BooleanField phoneValidatedField;
 
-	 private StaticTextField<String> emailField;
+	private StaticTextField<String> firstLastnameField;
+	private StaticTextField<String> emailField;
 
 	
 	private IModel<Site> siteModel;
@@ -157,8 +158,10 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 
 		this.emailValidatedField = new BooleanField("emailValidated", new PropertyModel<Boolean>(getModel(), "emailValidated"), getLabel("emailValidated"));
 		this.phoneValidatedField = new BooleanField("phoneValidated", new PropertyModel<Boolean>(getModel(), "phoneValidated"), getLabel("phoneValidated"));
+		this.firstLastnameField  = new StaticTextField<String>("firstLastname", new PropertyModel<String>(getModel(), "firstLastname"), getLabel("firstLastname"));
 
 		this.form.add(nameField);
+		this.form.add(firstLastnameField);
 		this.form.add(zoneidField);
 		this.form.add(localeField);
 		this.form.add(emailValidatedField);

@@ -125,7 +125,7 @@ public class UserGlobalTopPanel extends ObjectModelPanel<User> {
 
 					@Override
 					public void onClick() {
-						setResponsePage(new UserPage(UserGlobalTopPanel.this.getModel()));
+						setResponsePage(new UserPage(UserGlobalTopPanel.this.getModel(), true));
 					}
 
 					@Override
@@ -163,7 +163,7 @@ public class UserGlobalTopPanel extends ObjectModelPanel<User> {
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("person");
+						return getLabel("personal-info");
 					}
 
 					@Override

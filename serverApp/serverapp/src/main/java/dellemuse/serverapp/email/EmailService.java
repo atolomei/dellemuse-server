@@ -71,8 +71,17 @@ public class EmailService extends BaseService implements SystemService  {
         params.put("from",    from);
         params.put("to",      to);
         params.put("subject", subject);
-        params.put("text",    text);
 
+        params.put("html",    text);
+
+       // params.put("text",    text);
+   
+        
+        String formBody = buildFormBody(params);
+        
+        logger.debug("Mailgun request body -> " + formBody);
+     
+        
         
         if (getSettings().isEmailSenderEnabled()) {
 			logger.info("Sending email to " + to + " with subject '" + subject + "'");
@@ -81,7 +90,7 @@ public class EmailService extends BaseService implements SystemService  {
 			return "{\"message\": \"Email sender is disabled.\"}";
 		}
         
-        String formBody = buildFormBody(params);
+        
         String basicAuth = buildBasicAuth("api", getSettings().getEmailApiKey());
         
         HttpRequest request = HttpRequest.newBuilder()

@@ -8,7 +8,7 @@ import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -75,6 +75,10 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 	private IModel<Site> siteModel;
 	
+	
+	private boolean siteContext = false;
+
+	
 	/**
 	 * 
 	 * quien puede cambiar pwd, editar datos de un user.
@@ -102,6 +106,12 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 		super.onInitialize();
 
 		setUpModel();
+		
+		WebMarkupContainer nameContainer = new WebMarkupContainer("nameContainer");
+		nameContainer.setVisible( isSiteContext() );
+		add(nameContainer);
+		Label name = new Label("name", getModel().map(u -> u.getFirstLastname()));
+		nameContainer.add(name);
 		
 		addListToolbar();
 		addUserRoles();
@@ -218,9 +228,6 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 	
 	
-	private boolean siteContext = false;
-	
-	
 	protected synchronized void loadUserRolesList() {
 
 		this.userRoles = new ArrayList<IModel<Role>>();
@@ -233,10 +240,31 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 			user = getModel().getObject();
 
 
-		final Long iid = getSiteModel().getObject().getInstitution().getId();
 		
 		if (this.isSiteContext()) {
-			getUserDBService().getUserRoles(user).forEach(s -> 
+
+			final Long iid = getSiteModel().getObject().getInstitution().getId();
+			
+			getUserDBService().getUserRoles(user).forEach(s -> logger.debug("role: " +  s.getRoleDisplayName() + " (" + s.getDisplayClass(getLocale()) + ")") );
+
+			user.getRolesInstitution().forEach(r -> {
+				RoleInstitution ri = getRoleInstitutionDBService().findWithDeps(r.getId()).get();
+				if (ri.getInstitution().getId().equals(iid)) {
+					this.userRoles.add(new ObjectModel<Role>(ri));
+				}
+
+			});
+
+			user.getRolesSite().forEach(r -> {
+				RoleSite rs = getRoleSiteDBService().findWithDeps(r.getId()).get();
+				if (rs.getSite().getId().equals(getSiteModel().getObject().getId())) {
+					this.userRoles.add(new ObjectModel<Role>(rs));
+				}
+
+			});
+			
+			/**
+			.forEach(s -> 
 			{
 				if (s instanceof RoleInstitution) {
 					if (((RoleInstitution) s).getInstitution().getId().equals(iid))
@@ -248,6 +276,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 						this.userRoles.add(new ObjectModel<Role>(s));	
 				}
 			});
+			*/
 		}
 		else {
 			getUserDBService().getUserRoles(user).forEach(s -> this.userRoles.add(new ObjectModel<Role>(s)));
@@ -328,18 +357,27 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 		//}
 		
 		
-		if (isRoot() || isGeneralAdmin())
-			getRoleDBService().findAllSorted().forEach(i -> set.add(new ObjectModel<Role>(i)));
-
+		//
+		if (!isSiteContext(	)) {
+		
+			if (isRoot() || isGeneralAdmin())
+				getRoleDBService().findAllSorted().forEach(i -> set.add(new ObjectModel<Role>(i)));
+				
+		}
 		else {
-
 			
-			// todos los roles que puede tener
-			//
-			//
-			//
-			//
+			if (getSiteModel()==null || getSiteModel().getObject()==null) {
+				logger.error("site model is null");
+				return allRoles;
+			}
 			
+			Site site = getSiteModel().getObject();
+			Institution institution = getInstitutionDBService().findWithDeps(site.getInstitution().getId()).get();
+			
+			getRoleInstitutionDBService().findByInstitution(institution.getId()).forEach(r -> set.add(new ObjectModel<Role>(r)));
+			getRoleSiteDBService().findBySite(site).forEach(r -> set.add(new ObjectModel<Role>(r)));
+			
+			/**
 			User user = getSessionUser().get();
 			
 			if (!user.isDependencies()) {
@@ -349,24 +387,19 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 			user.getRolesInstitution().forEach(r -> {
 				
 					RoleInstitution ri = getRoleInstitutionDBService().findWithDeps(r.getId()).get();
-			
 					set.add(new ObjectModel<Role>(ri));
-					
-					
 					Institution in = getInstitutionDBService().findWithDeps(ri.getInstitution().getId()).get();
 					
-					
 					List<Site> sites = in.getSites();
-				
 					for (Site site: sites) {
 						Iterable<RoleSite> siteRoles = getRoleSiteDBService().findBySite(site);
-					
 						for (RoleSite sr : siteRoles) {
 							RoleSite rsite = getRoleSiteDBService().findWithDeps(sr.getId()).get();
 							set.add(new ObjectModel<Role>(rsite));
 						}
 					}
-			});
+			});*/
+			
 		}
 		
 		allRoles.addAll(set);
@@ -399,6 +432,11 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 					private static final long serialVersionUID = 1L;
 
+					@Override
+					public boolean isVisible() {
+						return !isSiteContext() && (isRoot() || isGeneralAdmin()) ;
+					}
+					
 					@Override
 					public void onClick() {
 						setResponsePage( new RolePage( getModel()));
@@ -466,6 +504,9 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 			
 			public boolean isEnabled() {
 				
+				if (!isSiteContext() && !(isRoot() || isGeneralAdmin()) )
+					return false;
+				
 				if (!canAddRoles())
 					return false;
 				
@@ -480,7 +521,10 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 			}
 
 			public boolean isVisible() {
-					
+				
+				if (!isSiteContext() && !(isRoot() || isGeneralAdmin()) )
+					return false;
+				
 				if (!canAddRoles())
 					return false;
 				
@@ -628,7 +672,8 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 					@Override
 					public void onClick() {
-						  setResponsePage(new RolePage(getModel()));
+						if(!isSiteContext() && (isRoot() || isGeneralAdmin()))  
+							  setResponsePage(new RolePage(getModel()));
 					}
 
 					@Override

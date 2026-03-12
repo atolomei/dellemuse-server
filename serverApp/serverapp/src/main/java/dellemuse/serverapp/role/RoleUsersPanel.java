@@ -267,7 +267,7 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 
 					@Override
 					public void onClick() {
-						setResponsePage(new UserPage(getModel()));
+						setResponsePage(new UserPage(getModel(), false));
 					}
 
 					@Override

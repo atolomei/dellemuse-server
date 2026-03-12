@@ -135,6 +135,7 @@ public class BrandedSitePage extends BasePage {
 		    getSession().setLocale( Locale.forLanguageTag(lang));
 		}
 		else {
+			
 			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
 			Cookie cookie = request.getCookie("lang");
 	

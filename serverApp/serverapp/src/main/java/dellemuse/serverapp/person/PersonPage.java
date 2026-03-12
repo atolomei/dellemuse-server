@@ -196,7 +196,11 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(new HREFBCElement("/person/list", getLabel("persons")));
+		
+		if (isRoot() || isGeneralAdmin() ) {
+			bc.addElement(new HREFBCElement("/person/list", getLabel("persons")));
+
+		}
 		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getFirstLastname())));
 
 		 
@@ -518,7 +522,9 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 					User user= PersonPage.this.getModel().getObject().getUser();
 					
 					if (user!=null) {
-						setResponsePage(new UserPage(new ObjectModel<User>( user)));
+						
+						boolean isMyAccount= getSessionUser().get().getId().equals( user.getId() );
+						setResponsePage(new UserPage(new ObjectModel<User>( user),  isMyAccount));
 					}
 					else
 						setResponsePage(new ErrorPage(Model.of("user not found for person -> " + PersonPage.this.getModel().getObject().getDisplayname())));

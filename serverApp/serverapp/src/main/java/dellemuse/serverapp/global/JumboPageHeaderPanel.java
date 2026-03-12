@@ -251,6 +251,7 @@ public class JumboPageHeaderPanel<T> extends DBModelPanel<T> {
 		String presignedThumbnail = null;
 
 		try {
+			
 			if (getPhotoModel() != null && getPhotoModel().getObject() != null) {
 				presignedThumbnail = getPresignedThumbnail(getPhotoModel().getObject(), ThumbnailSize.W980);
 			}

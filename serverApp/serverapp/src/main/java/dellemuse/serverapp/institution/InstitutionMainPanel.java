@@ -16,7 +16,7 @@ import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemsGuidesPanel;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
- 
+import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
@@ -58,9 +58,20 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 
 		List<ToolbarItem> list = new ArrayList<ToolbarItem>();
 
-		AjaxButtonToolbarItem<Institution> create = new AjaxButtonToolbarItem<Institution>() {
+		AjaxButtonToolbarItem<Institution> edit = new AjaxButtonToolbarItem<Institution>() {
 			private static final long serialVersionUID = 1L;
 
+			
+			public boolean isVisible() {
+				if (isRoot() || isGeneralAdmin())
+					return true;
+				
+				if (isInstitutionAdmin( InstitutionMainPanel.this.getModel().getObject() ))
+					return true;
+				
+				return false;
+			}
+			
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_institution_edit, target));
@@ -71,8 +82,8 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 				return getLabel("edit");
 			}
 		};
-		create.setAlign(Align.TOP_LEFT);
-		list.add(create);
+		edit.setAlign(Align.TOP_LEFT);
+		list.add(edit);
 		return list;
 	}
 
@@ -169,6 +180,18 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 		this.addSite = new Link<Site>("addSite", null) {
 			private static final long serialVersionUID = 1L;
 
+			
+			public boolean isVisible() {
+				if (isRoot() || isGeneralAdmin())
+					return true;
+				
+				if (isInstitutionAdmin( InstitutionMainPanel.this.getModel().getObject() ))
+					return true;
+				
+				return false;
+			}
+			
+			
 			@Override
 			public void onClick() {
 				InstitutionMainPanel.this.addSite();
@@ -192,16 +215,27 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 
 	protected void addSite() {
 		
-		SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
-		Site site;
 		
-		if (getSiteList().size() == 0)
-			site = service.create(getModel().getObject(), getUserDBService().findRoot());
-		else
-			site = service.create(getModel().getObject().getName() + " " + String.valueOf(getSiteList().size()), getUserDBService().findRoot());
-		
-		IModel<Site> m = new ObjectModel<Site>(site);
-		getSiteList().add(m);
-		setResponsePage(new SitePage(m, getSiteList()));
+		if (isInstitutionAdmin( InstitutionMainPanel.this.getModel().getObject() ) || isRoot() || isGeneralAdmin() ) {
+			
+			SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+			Site site;
+			
+			if (getSiteList().size() == 0)
+				site = service.create(getModel().getObject(), getUserDBService().findRoot());
+			else
+				site = service.create(getModel().getObject().getName() + " " + String.valueOf(getSiteList().size()), getUserDBService().findRoot());
+			
+			IModel<Site> m = new ObjectModel<Site>(site);
+			getSiteList().add(m);
+			setResponsePage(new SitePage(m, getSiteList()));
+		} else {
+
+			
+			logger.warn("Unauthorized access to add site", ServerConstant.NOT_THROWN);
+			
+			setResponsePage(new ErrorPage(Model.of("not authorized")));
+			return;
+		}
 	}
 }

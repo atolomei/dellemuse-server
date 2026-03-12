@@ -9,6 +9,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
+import dellemuse.model.logging.Logger;
+import io.wktui.error.ErrorPanel;
 import io.wktui.event.UIEvent;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
@@ -19,6 +21,8 @@ import wktui.base.ModelPanel;
 
 public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 
+	static private Logger logger = Logger.getLogger(ObjectListItemPanel.class.getName());
+	
 	private static final long serialVersionUID = 1L;
 
 	private IModel<String> subtitle;
@@ -93,30 +97,43 @@ public abstract class ObjectListItemPanel<T> extends ModelPanel<T> {
 		} else {
 			this.imageLink.addOrReplace(new InvisiblePanel("icon"));
 		}
-
+		
+	
 		if (isImageVisible()) {
-			String imageSrc = getImageSrc();
+			
+			try {
+	
+			
 
-			if (imageSrc != null) {
-				Url url = Url.parse(imageSrc);
-				UrlResourceReference resourceReference = new UrlResourceReference(url);
-				this.image = new Image("image", resourceReference);
-
-				this.imageLink.addOrReplace(image);
-
-			} else {
-				this.imageLink.addOrReplace(new InvisiblePanel("image"));
-				this.imageLink.setVisible(false);
-			}
-
-			WebMarkupContainer noimage = new WebMarkupContainer("noimage") {
-				private static final long serialVersionUID = 1L;
-
-				public boolean isVisible() {
-					return !imageLink.isVisible();
+				
+				String imageSrc = getImageSrc();
+	
+				if (imageSrc != null) {
+					Url url = Url.parse(imageSrc);
+					UrlResourceReference resourceReference = new UrlResourceReference(url);
+					this.image = new Image("image", resourceReference);
+	
+					this.imageLink.addOrReplace(image);
+	
+				} else {
+					this.imageLink.addOrReplace(new InvisiblePanel("image"));
+					this.imageLink.setVisible(false);
 				}
-			};
-			this.imageContainer.addOrReplace(noimage);
+	
+				WebMarkupContainer noimage = new WebMarkupContainer("noimage") {
+					private static final long serialVersionUID = 1L;
+	
+					public boolean isVisible() {
+						return !imageLink.isVisible();
+					}
+				};
+				this.imageContainer.addOrReplace(noimage);
+			
+			} catch (Exception e) {
+				logger.error(e);
+				this.imageLink.setVisible(false);
+				this.imageContainer.addOrReplace(new ErrorPanel("noimage", e));
+			}
 		}
 
 	}

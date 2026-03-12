@@ -1324,6 +1324,9 @@ public class SitePage extends BasePage {
 	private void addNavigator() {
 
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
+		this.navigatorContainer.add(new  org.apache.wicket.AttributeModifier("class", "text-bg-light container-fluid border-top"));
+		
+		
 		add(this.navigatorContainer);
 
 		this.navigatorContainer.setVisible(getSiteList() != null && getSiteList().size() > 0);

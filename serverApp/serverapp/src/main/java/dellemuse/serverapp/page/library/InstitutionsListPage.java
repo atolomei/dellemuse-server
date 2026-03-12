@@ -71,6 +71,11 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	public void onInitialize() {
 		super.onInitialize();
 
+		User user = getSessionUser().orElse(null);
+		if (user != null && !user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).orElse(null);
+			setSessionUser(user);
+		}
 	}
 
  
@@ -99,7 +104,16 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 		if (set==null)
 			return false;
 		
-		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+		if (set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) )))
+			return true;
+		
+		if (!user.getRolesInstitution().isEmpty())
+			return true;
+		
+		return false;
+		
+					
+		
 	}
 	
 	
@@ -403,25 +417,59 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 	@Override
 	public Iterable<Institution> getObjects(ObjectState os1, ObjectState os2) {
 
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
-
-		if (os1==null && os2==null)
-			return service.findAllSorted();
-	
-		if (os2==null)
-			return service.findAllSorted(os1);
-
-		if (os1==null)
-			return service.findAllSorted(os2);
 		
-		return service.findAllSorted(os1, os2);
+		if (isRoot() || isGeneralAdminOrAudit()) {
+		
+			InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
+	
+			if (os1==null && os2==null)
+				return service.findAllSorted();
+		
+			if (os2==null)
+				return service.findAllSorted(os1);
+	
+			if (os1==null)
+				return service.findAllSorted(os2);
+			
+			return service.findAllSorted(os1, os2);
+		}
+		else {
+			List<Institution> list = new ArrayList<Institution>();
+
+			if (!getSessionUser().get().isDependencies())
+				setSessionUser(getUserDBService().findWithDeps(getSessionUser().get().getId()).get());
+			
+			getSessionUser().get().getRolesInstitution().stream().forEach(r -> {
+			
+				if (os1==null && os2==null) {
+					list.add(r.getInstitution());
+				}
+				else if (os1!=null && r.getState()==os1)
+					list.add(r.getInstitution());
+				else if (os2!=null && r.getState()==os2)
+					list.add(r.getInstitution());
+			});
+			return list;
+		}
 	}
 
 	@Override
 	public Iterable<Institution> getObjects() {
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
-	 
-		return service.findAllSorted();
+		if (isRoot() || isGeneralAdminOrAudit()) {
+			
+			InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
+			return service.findAllSorted();
+		}
+		else {
+			
+			List<Institution> list = new ArrayList<Institution>();
+			getSessionUser().get().getRolesInstitution().stream().forEach(r -> {
+				list.add(r.getInstitution());
+			});
+			return list;
+			
+		}
+	
 	}
 
 	@Override

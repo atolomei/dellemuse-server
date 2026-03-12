@@ -209,7 +209,7 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	public void onClick(IModel<User> model) {
-		setResponsePage(new UserPage(model, getList()));
+		setResponsePage(new UserPage(model, getList(), false ));
 	}
 
 	@Override
@@ -308,7 +308,7 @@ public class UserListPage extends ObjectListPage<User> {
 			User in = getUserDBService().create("new", getUserDBService().findRoot());
 			IModel<User> m = new ObjectModel<User>(in);
 			getList().add(m);
-			setResponsePage(new UserPage(m, getList()));
+			setResponsePage(new UserPage(m, getList(), false));
 
 		} catch (Exception e) {
 			logger.error(e);
@@ -340,7 +340,7 @@ public class UserListPage extends ObjectListPage<User> {
 
 					@Override
 					public void onClick() {
-						setResponsePage(new UserPage(model));
+						setResponsePage(new UserPage(model, getList(), false));
 					}
 
 					@Override

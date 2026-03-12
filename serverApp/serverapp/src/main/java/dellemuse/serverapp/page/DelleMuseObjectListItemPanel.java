@@ -12,27 +12,22 @@ public abstract class DelleMuseObjectListItemPanel<T extends DelleMuseObject> ex
 
 	private static final long serialVersionUID = 1L;
 
-	 
-	
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
-	
+
 	public DelleMuseObjectListItemPanel(String id, IModel<T> model, ListPanelMode mode) {
 		super(id, model, mode);
 	}
 
 	protected IModel<String> getObjectTitle() {
 
-		//StringBuilder str = new StringBuilder();
-		
 		if (getModel().getObject() instanceof MultiLanguageObject) {
 			String s = getLanguageObjectService().getObjectDisplayName((MultiLanguageObject) getModel().getObject(), getLocale());
 			if (s == null)
 				return null;
 			return Model.of(s);
-		}
-		else
+		} else
 			return new Model<String>(getModel().getObject().getDisplayname());
 	}
 

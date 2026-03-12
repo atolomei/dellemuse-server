@@ -185,6 +185,10 @@ a.listItemLink {text-decoration: none; color: inherit;}
 .dellemuse h4, 
 .dellemuse .h4 { font-weight: bold; margin-bottom: 0.3em;}
 
+
+.dellemuse h4.alert-heading {font-size: 1em; margin-bottom: 0.5em;}
+
+
 .dellemuse .text p:last-child { margin-bottom:0;}
 .dellemuse .text-to-read {line-height: 1.7em; font-size:1.1em;}
 .dellemuse .list-group-item p {margin:0em;}

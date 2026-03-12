@@ -91,6 +91,29 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected abstract Panel createHeaderPanel();
 
 	
+	public ObjectPage() {
+		super();
+	}
+
+	public ObjectPage(PageParameters parameters) {
+		super(parameters);
+		stringValue = getPageParameters().get("id");
+	}
+
+	public ObjectPage(IModel<T> model) {
+		setModel(model);
+		getPageParameters().add("id", model.getObject().getId().toString());
+	}
+
+	public ObjectPage(IModel<T> model, List<IModel<T>> list) {
+		Check.requireNonNullArgument(model, "model is null");
+		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
+		setModel(model);
+		setList(list);
+		getPageParameters().add("id", model.getObject().getId().toString());
+	}
+
+	
 	public boolean hasAccessRight(Optional<User> ouser) {
 		return true;
 	}
@@ -132,27 +155,6 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	}
 	
-	public ObjectPage() {
-		super();
-	}
-
-	public ObjectPage(PageParameters parameters) {
-		super(parameters);
-		stringValue = getPageParameters().get("id");
-	}
-
-	public ObjectPage(IModel<T> model) {
-		setModel(model);
-		getPageParameters().add("id", model.getObject().getId().toString());
-	}
-
-	public ObjectPage(IModel<T> model, List<IModel<T>> list) {
-		Check.requireNonNullArgument(model, "model is null");
-		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
-		setModel(model);
-		setList(list);
-		getPageParameters().add("id", model.getObject().getId().toString());
-	}
 
 	
 
@@ -658,6 +660,10 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
 		add(this.navigatorContainer);
 
+		this.navigatorContainer.add(new  org.apache.wicket.AttributeModifier("class",  (isDarkTheme()  ? "" : "text-bg-light") +" container-fluid border-top"));
+
+		
+		
 		try {
 			this.navigatorContainer.setVisible(getList() != null && getList().size() > 0);
 

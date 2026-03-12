@@ -59,6 +59,14 @@ import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
+/**
+ * 
+ * gracias por registrarte en Dellemuse.
+ * El proximo paso es validar tu dirección de correo electrónico
+ * haz click en el siguiente enlace:
+ * 
+ */
+
 @MountPath("/candval/${token}")
 public class CandidateValidateEmailPage extends BasePage {
 	 
@@ -105,6 +113,12 @@ public class CandidateValidateEmailPage extends BasePage {
 		
 		String token = getPageParameters().get("token").toString();
 		
+		if (token.length()==0) {
+			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 0")));
+			return;
+		}
+		
+		
 		String arr[] = token.split("-");
 		
 		if (arr.length!=2) {
@@ -115,7 +129,6 @@ public class CandidateValidateEmailPage extends BasePage {
 		
 		String candidateIdStr = arr[0];
 		String tokenValue = arr[1];			
-		
 		
 		Iterable<PersistentToken> opt = getPersistentTokenDBServiceDBService().findByToken(tokenValue);
 

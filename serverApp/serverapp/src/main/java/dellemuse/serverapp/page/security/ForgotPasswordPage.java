@@ -2,6 +2,7 @@ package dellemuse.serverapp.page.security;
 
  
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -30,6 +31,7 @@ import com.giffing.wicket.spring.boot.starter.configuration.extensions.external.
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseServer;
+import dellemuse.serverapp.email.EmailTemplateService;
 import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.BasePage;
@@ -40,6 +42,7 @@ import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
  
 import io.wktui.error.AlertPanel;
+import io.wktui.error.ErrorPanel;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.SubmitButton;
@@ -81,13 +84,6 @@ public class ForgotPasswordPage extends BasePage {
 	@SpringBean
 	private PersonDBService personDBService;
 	
-	//@SpringBean
-	//private EmailService emailService;
-	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		return true;
-	}
 	
 	
 	public ForgotPasswordPage() {
@@ -115,16 +111,19 @@ public class ForgotPasswordPage extends BasePage {
 		
 		add(imageBlack);
 		
-		alertContainer  = new WebMarkupContainer("alertContainer");
-		add(alertContainer);
+		add( new InvisiblePanel("alert") );
 		
-		if (isError()) {
-			alert = new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel( "username-password-invalid"));
-            alertContainer.add(alert);
-        } else {
-             alertContainer.setVisible(false);
-             alertContainer.add( new InvisiblePanel("alert"));
-         }
+		
+		//alertContainer  = new WebMarkupContainer("alertContainer");
+		//add(alertContainer);
+		
+		//if (isError()) {
+		//	alert = new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel( "username-password-invalid"));
+        //    alertContainer.add(alert);
+        //} else {
+        //     alertContainer.setVisible(false);
+        //     alertContainer.add( new InvisiblePanel("alert"));
+        // }
 		 
 	    form = new Form<User>("loginForm") {
 	    	
@@ -138,103 +137,7 @@ public class ForgotPasswordPage extends BasePage {
 				@Override
 	            protected void onSubmit() {
 	
-					// lookup user by username/email/phone
-					Optional<User> ou = userDBService.findByUsernameOrEmailOrPhone(username);
 					
-					if (ou.isPresent()) {
-					
-						User u = ou.get();
-						// get person email
-						Optional<dellemuse.serverapp.serverdb.model.Person> op = personDBService.getByUser(u);
-						
-						String email = null;
-						String personName = u.getUsername();
-						
-						if (op.isPresent()) {
-							personName = op.get().getDisplayname();
-							email = op.get().getEmail();
-						}
-						
-						
-						if (email==null || email.trim().isEmpty()) {
-							// fallback to user's email field
-							email = u.getEmail();
-						}
-						
-						
-						
-						if (email!=null && email.trim().length()>0) {
-						
-							
-							
-					    	String tokenValue = getSecurityService().nextSecureToken();
-					    	 
-					    	PersistentToken token = getPersistentTokenDBServiceDBService().create(
-									u.getId().toString(), 
-									User.class.getSimpleName(), 
-									tokenValue,
-									OffsetDateTime.now().plusDays(1) );
-					    	
-					    	Long tid = null;
-					    
-					    	try {
-					    		
-					    		tid = token.getId();
-					    		
-					    		String from = getServerDBSettings().getEmailFrom();
-					    		String to = u.getEmail();
-					    		
-					    		String subject = "DelleMuse - password reset"; 
-					    		String text = "please click the following link to validate your email address: " + getServerDBSettings().getEmailValidationServer() + "/password-reset?token=" +u.getId().toString()+"-"+tokenValue;
-					    		
-					    		String sendEmail= getEmailService().send(from, to, subject, text);
-					    	
-					    		logger.debug("Email sent response -> " + sendEmail);
-					    		
-					    	} catch (Exception e) {
-					    		if (tid!=null)
-					    			getPersistentTokenDBServiceDBService().findById(tid).ifPresent(t -> getPersistentTokenDBServiceDBService().delete(t));
-					    		logger.error(e);
-							}
-							
-							
-							
-							
-							
-							//String link = RequestCycle.get().urlFor(ResetPasswordPage.class, new PageParameters().add("user", u.getUsername())).toString();
-							//String subject = "Reset your password";
-							//String body = "Hello " + personName + "\n\nPlease follow the link to reset your password:\n" + link + "\n\nIf you didn't request this, ignore this email.";
-							//emailService.sendEmail(email, subject, body);
-							// show confirmation
-							
-							
-							
-							getPageParameters().set("sent", "true");
-							setResponsePage(ForgotPasswordPage.class, getPageParameters());
-							
-							
-							return;
-						} else {
-							// no email found
-							error("No email associated with user");
-							return;
-						}
-					} else {
-						// no user found
-						error("No user found with that username/email/phone");
-						return;
-					}
-
-					/**
-					 * 
-		SecurityService service = ServiceLocator.getService(SecurityService.class);
-		String token = service.nextSecureToken();
-		service.addToken(person.getProfile(UserProfile.class).getUser(), token);
-		String url = getServerUrl(person.getDomain()) +"/passwordrecovery?key=" + token;
-		
-		logger.debug(url);
-		emaillogger.debug(url);
-					 */
 					
 				}
 				@Override
@@ -255,7 +158,99 @@ public class ForgotPasswordPage extends BasePage {
 			@Override
 			public void onSubmit(AjaxRequestTarget target) {
 	
+				
+				if (username==null || username.trim().isEmpty()) {
+					ForgotPasswordPage.this.addOrReplace(new AlertPanel<Void>("alert", AlertPanel.WARNING, null, null, null, getLabel("enter-username-email-phone")));
+					target.add(ForgotPasswordPage.this);
+					return;
+				}
+				
+				// lookup user by username/email/phone
+				Optional<User> ou = getUserDBService().findByUsernameOrEmailOrPhone(username);
+				
+				if (ou.isPresent()) {
+				
+					User u = ou.get();
+					// get person email
+					Optional<dellemuse.serverapp.serverdb.model.Person> op = getPersonDBService().getByUser(u);
+					
+					String email = null;
+					String personName = u.getFirstLastname();
+					
+					if (op.isPresent()) {
+						personName = op.get().getName()!=null? op.get().getName() : op.get().getFirstLastname();
+						email = op.get().getEmail();
+					}
+					
+					if (email==null || email.trim().isEmpty()) {
+						// fallback to user's email field
+						email = u.getEmail();
+					}
+					
+					
+					if (email!=null && email.trim().length()>0) {
+					
+						String tokenValue = getSecurityService().nextSecureToken();
+				    	 
+				    	PersistentToken token = getPersistentTokenDBServiceDBService().create(
+								u.getId().toString(), 
+								User.class.getSimpleName(), 
+								tokenValue,
+								OffsetDateTime.now().plusDays(1) );
+				    	
+				    	Long tid = null;
+				    
+				    	try {
+				    		
+				    		tid = token.getId();
+				    		
+				    		String from = getServerDBSettings().getEmailFrom();
+				    		String to = u.getEmail();
+				    		
+				    		String subject = getLabel( "password-reset-subject").getObject();
+				    		String url=getServerDBSettings().getEmailValidationServer() + "/password-reset/" +u.getId().toString()+"-"+tokenValue+"-"+getLocale().getLanguage();
+				    		
+				    		String text= getEmailTemplateService().render(EmailTemplateService.PASSWORD_RESET, 
+				    				Map.of(
+				    			    "application",  DellemuseServer.APPNAME,
+				    			    "personName",   personName,
+				    			    "resetLink",    url
+				    			));
+
+				    		logger.debug( url );
+				    		
+				    		logger.debug("Sending email to -> " + to);
+				    		logger.debug("Sending email subject -> " + subject);
+				    	
+				    		// logger.debug("Sending email body -> " + text);
+				    		
+				    		String sendEmail= getEmailService().send(from, to, subject, text);
+				    	
+				    		logger.debug("Email sent response -> " + sendEmail);
+				    		
+				    	} catch (Exception e) {
+				    		if (tid!=null)
+				    			getPersistentTokenDBServiceDBService().findById(tid).ifPresent(t -> getPersistentTokenDBServiceDBService().delete(t));
+							ForgotPasswordPage.this.addOrReplace(new ErrorPanel("alert", e));
+				    		logger.error(e);
+						}
+						
+				    	String css = "col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-lg-center text-xl-center text-xxl-center";
+				    	AlertPanel<Void> s=new AlertPanel<Void>("alert", AlertPanel.SUCCESS, null, null, null, getLabel("email-sent"));
+				    	s.setAlertTextContainerCss(css);
+				    	ForgotPasswordPage.this.addOrReplace(s);
+				    	
+				    	
+					} else {
+						ForgotPasswordPage.this.addOrReplace(new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel("no-email-associated")));
+					}
+				} else {
+					ForgotPasswordPage.this.addOrReplace(new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel("no-user-found")));
+				}
 			
+				target.add(ForgotPasswordPage.this);
+				
+				
 			
 			}
 			  public IModel<String> getLabel() {
@@ -274,6 +269,13 @@ public class ForgotPasswordPage extends BasePage {
 		
 	    edit();
 	}
+	
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		return true;
+	}
+
 	
 	private boolean isError() {
 		return this.isError;

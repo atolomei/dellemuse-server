@@ -33,6 +33,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.email.EmailService;
+import dellemuse.serverapp.email.EmailTemplateService;
 import dellemuse.serverapp.help.HelpService;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -436,8 +437,9 @@ public abstract class BasePage extends WebPage {
 		return model;
 	}
 
- 
-	
+	protected void setSessionUser(User user) {
+		sessionUserModel = new ObjectModel<User>(user);
+	}
 
 	
 	public Optional<User> getSessionUser()  {
@@ -603,6 +605,9 @@ public abstract class BasePage extends WebPage {
 	}
 	
  
+	protected EmailTemplateService getEmailTemplateService() {
+		return (EmailTemplateService) ServiceLocator.getInstance().getBean(EmailTemplateService.class);
+	}
 	
 
 	protected PersistentTokenDBService getPersistentTokenDBServiceDBService() {
@@ -849,15 +854,15 @@ public abstract class BasePage extends WebPage {
 	public boolean isInstitutionAdmin(Institution in) {
 	 return getSecurityAuthorizationService().isInstitutionAdmin(getSessionUser(), in);
 	}
-	
+	public boolean isInstitutionAdminOrAudit(Institution in) {
+		 return getSecurityAuthorizationService().isInstitutionAdminOrAudit(getSessionUser(), in);
+	}
 	
 	public boolean isGeneralAdminOrAudit() {
 		 return getSecurityAuthorizationService().isGeneralAdminOrAudit(getSessionUser());
 	}
 
-	public boolean isInstitutionAdminOrAudit(Institution in) {
-		 return getSecurityAuthorizationService().isInstitutionAdminOrAudit(getSessionUser(), in);
-	}
+	
 
 	
 	public boolean isSiteAdminOrEditor(Site site) {

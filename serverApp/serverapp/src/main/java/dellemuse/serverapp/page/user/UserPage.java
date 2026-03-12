@@ -55,13 +55,7 @@ import wktui.base.NamedTab;
 @MountPath("/user/${id}")
 public class UserPage extends ObjectPage<User> {
 
-	public IModel<Person> getPersonModel() {
-		return personModel;
-	}
-
-	public void setPersonModel(IModel<Person> personModel) {
-		this.personModel = personModel;
-	}
+	
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,6 +67,7 @@ public class UserPage extends ObjectPage<User> {
 	private List<ToolbarItem> userMenu = null;
 
 	IModel<Person> personModel;
+	boolean myAccount;
 
 	
 	public String getHelpKey() {
@@ -87,17 +82,29 @@ public class UserPage extends ObjectPage<User> {
 
 	public UserPage(PageParameters parameters) {
 		super(parameters);
+		myAccount=false;
 	}
 
-	public UserPage(IModel<User> model) {
+	public UserPage(IModel<User> model, boolean myAccount) {
 		super(model);
+		this.myAccount=myAccount;
+		
 	}
 
-	public UserPage(IModel<User> model, List<IModel<User>> list) {
+	public UserPage(IModel<User> model, List<IModel<User>> list, boolean myAccount) {
 		super(model, list);
+		this.myAccount=myAccount;
+		
+
 	}
 
-	  
+	public IModel<Person> getPersonModel() {
+		return personModel;
+	}
+
+	public void setPersonModel(IModel<Person> personModel) {
+		this.personModel = personModel;
+	}
 	
 	@Override
 	public void onDetach() {
@@ -297,7 +304,10 @@ public class UserPage extends ObjectPage<User> {
 
 		try {
 			BreadCrumb<Void> bc = createBreadCrumb();
-			bc.addElement(new HREFBCElement("/user/list", getLabel("users")));
+			
+			if (!isMyAccount())
+				bc.addElement(new HREFBCElement("/user/list", getLabel("users")));
+			
 			bc.addElement(new BCElement(new Model<String>(getModel().getObject().getUsername())));
 			JumboPageHeaderPanel<User> ph = new JumboPageHeaderPanel<User>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
 			ph.setHeaderCss("mb-0 pb-2 border-none");
@@ -322,7 +332,7 @@ public class UserPage extends ObjectPage<User> {
 
 					@Override
 					public void navigate(int current) {
-						setResponsePage(new UserPage(getList().get(current), getList()));
+						setResponsePage(new UserPage(getList().get(current), getList(), false));
 					}
 				};
 				bc.setNavigator(nav);
@@ -336,9 +346,13 @@ public class UserPage extends ObjectPage<User> {
 		}
 	}
 
+	protected boolean isMyAccount() {
+		return this.myAccount;
+	}
+
 	@Override
 	protected IRequestablePage getObjectPage(IModel<User> model, List<IModel<User>> list) {
-		return new UserPage(model, list);
+		return new UserPage(model, list, false);
 	}
 
 	 

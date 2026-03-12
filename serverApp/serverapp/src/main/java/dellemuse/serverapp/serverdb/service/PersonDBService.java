@@ -173,6 +173,7 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 			u.setEmail(o.getEmail());
 			u.setPhone(o.getPhone());
         	user.setSortLastFirstname(o.getSortLastFirstname());
+        	user.setFirstLastname(o.getFirstLastname());
 			getUserDBService().save(u);
 		}
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));

@@ -128,6 +128,13 @@ public class ServerDBSettings {
 		return helpDir;
 	}
 
+	@Value("${templates.dir:templates}")
+	protected String templatesDir;
+
+	public String getTemplatesDir() {
+		return templatesDir;
+	}
+
 	@Value("${work.dir:work}")
 	protected String workDir;
 
