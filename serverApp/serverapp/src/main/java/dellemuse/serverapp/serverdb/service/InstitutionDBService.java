@@ -5,6 +5,7 @@ import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
 
@@ -27,11 +29,16 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
+import io.wktui.nav.toolbar.ToolbarItem;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
@@ -60,12 +67,9 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		c.setName(name);
 		c.setState(ObjectState.EDITION);
 		
-	 
-
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
 		c.setLanguages( Language.getDefaultLanguages() );
-		
 		
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
@@ -78,7 +82,6 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 			getInstitutionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.UPDATE));
-		
 		
 		getRoleInstitutionDBService().create("admin", c, createdBy);
 		
@@ -156,11 +159,33 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		
 	}
 
+	
+	@Transactional
+	public Institution createFromCandidate(Candidate c, User user) {
 
-	
-	
-	
-	
+
+		logger.debug("Creating institution from candidate -> : "+ c.getDisplayname());
+		Institution in =  create(c.getInstitutionName(), user);
+    	in.setAddress(c.getInstitutionAddress());
+    	in.setEmail(c.getEmail());
+    	save(in, "email, address", user);
+    	
+  
+    	// ---
+    	logger.debug("Creating site from candidate -> : "+ c.getDisplayname());
+    	Site site = getSiteDBService().create(c.getInstitutionName(), in, Optional.ofNullable(in.getShortName()), Optional.ofNullable(in.getAddress()), Optional.ofNullable(in.getInfo()), user);
+    	site.setAddress(c.getInstitutionAddress());
+    	site.setEmail(c.getEmail());
+    	getSiteDBService().save(site, "email, address", user);
+    	getDelleMuseAuditDBService().save(DelleMuseAudit.of(site, user, AuditAction.UPDATE, AuditKey.CREATE_FROM_CANDIDATE));
+
+    	// ---
+    	logger.debug("Saving candidate with institution -> : "+ c.getDisplayname() + " - institution: " + in.getName());
+    	c.setInstitution(in);
+    	getCandidateDBService().save(c, "institution", user);
+    	getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, user, AuditAction.UPDATE, AuditKey.CREATE_FROM_CANDIDATE));
+		return in;
+    }
 	
 	@Transactional
 	public Optional<Institution> findWithDeps(Long id) {
@@ -263,6 +288,61 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		return createNameQuery(name).getResultList();
 	}
 
+	 
+
+	@Transactional
+	public List<Institution> findByNameApprox(String name) {
+
+		if (name==null || name.trim().isEmpty())
+			return new ArrayList<Institution>();
+		
+	    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	    CriteriaQuery<Institution> cq = cb.createQuery(Institution.class);
+
+	    Root<Institution> root = cq.from(Institution.class);
+
+	    String search = name.toLowerCase();
+
+	    Expression<String> normName =
+	        cb.function("immutable_unaccent", String.class,
+	            cb.lower(root.get("name")));
+
+	    Expression<String> normShort =
+	        cb.function("immutable_unaccent", String.class,
+	            cb.lower(root.get("shortName")));
+
+	    Expression<String> normSearch =
+	        cb.function("immutable_unaccent", String.class,
+	            cb.literal(search));
+
+	    Expression<Double> simName =
+	        cb.function("similarity", Double.class,
+	            normName, normSearch);
+
+	    Expression<Double> simShort =
+	        cb.function("similarity", Double.class,
+	            normShort, normSearch);
+
+	    Expression<Double> bestScore =
+	        cb.function("greatest", Double.class,
+	            simName, simShort);
+
+	    Predicate fuzzy =
+	        cb.greaterThan(bestScore, 0.5);
+
+	    cq.select(root)
+	      .where(fuzzy)
+	      .orderBy(cb.desc(bestScore));
+
+	    return entityManager.createQuery(cq)
+	            .setMaxResults(20)
+	            .getResultList();
+	}
+	
+	
+	
+	  
+	
 	@Override
 	protected Class<Institution> getEntityClass() {
 		return Institution.class;
@@ -282,4 +362,6 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		super.registerRecordDB(getEntityClass(), getInstitutionRecordDBService());
 		super.register(getEntityClass(), this);
 	}
+
+	
 }

@@ -1,5 +1,6 @@
 package dellemuse.serverapp.candidate;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseServer;
@@ -33,15 +35,18 @@ import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.model.CandidateStatus;
 import dellemuse.serverapp.serverdb.model.Music;
 import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.PersistentToken;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.SecurityService;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.Field;
+ 
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -69,6 +74,7 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
     private TextField<String> institutionField;
     private TextAreaField<String> institutionAddressField;
     private TextAreaField<String> commentsField;
+    private TextField<String> passwordField;
     
     private String slang;
     
@@ -87,6 +93,9 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
 	public Locale getLocale() {
 		return Locale.forLanguageTag(slang);	
 	}
+	
+	boolean submitted=false;
+	
 
     @Override
     public void onInitialize() {
@@ -111,6 +120,7 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
         institutionField = new TextField<String>("institution", new PropertyModel<String>(getModel(), "institutionName"), getLabel("institutionName"));
         institutionAddressField = new TextAreaField<String>("institutionAddress", new PropertyModel<String>(getModel(), "institutionAddress"), getLabel("institutionAddress"), 4);
         commentsField = new TextAreaField<String>("comments", new PropertyModel<String>(getModel(), "comments"), getLabel("comments"), 4);
+        passwordField = new TextField<String>("password", new PropertyModel<String>(getModel(), "password"), getLabel("password"));
        
         getForm().add(nameField);
         getForm().add(lastnameField);
@@ -119,6 +129,7 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
         getForm().add(institutionField);
         getForm().add(institutionAddressField);
         getForm().add(commentsField);
+        getForm().add(passwordField);
       
     	SubmitButton<Candidate> sm = new SubmitButton<Candidate>("send", getModel(), getForm()) {
 
@@ -129,6 +140,11 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
 				CandidateOnboardingEditor.this.onSave( target );
 			}
 
+			@Override
+			public boolean isVisible() {
+				return !submitted;
+			}
+			
 			@Override
 			public boolean isEnabled() {
 				return true;
@@ -168,54 +184,88 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
     protected void setUpModel() {
     	
         try {
-        	Candidate c = getCandidateDBService().create(new HashMap<String, String>(), getRootUser());
+        	
+        	Map<String, String> map = new HashMap<String, String>();
+
+        	map.put("language", slang);
+        	
+        	Candidate c = getCandidateDBService().create(map, getRootUser());
         	setModel( new ObjectModel<Candidate>(c));
+        
         } catch (Exception e) {
             logger.error(e);
             throw new RuntimeException(e);
         }
     }
 
+    protected SecurityService getSecurityService() {
+		return (SecurityService) ServiceLocator.getInstance().getBean(SecurityService.class);
+	}
+    
     protected void onSave(AjaxRequestTarget target) {
 
     	try {
     		
     		if  ( (getModel().getObject().getEmail()==null				|| getModel().getObject().getEmail().isEmpty()) 			||
     			  (getModel().getObject().getInstitutionName()==null	|| getModel().getObject().getInstitutionName().isEmpty())  	||
+    			  (getModel().getObject().getPassword()==null				|| getModel().getObject().getPassword().isEmpty()) 			||
     			  (getModel().getObject().getPersonLastname()==null		|| getModel().getObject().getPersonLastname().isEmpty()) ) {
+ 
     			
     			SimpleAlertRow<Void> r=new SimpleAlertRow<Void>("error");
     			r.setText(getLabel("mandatory-fields-not-filled"));
     			 addOrReplace(r);
-    			 
-    			 
     			target.add(this);
     			return;
     		}
     		
+    		
+    		
+    		// --------- Save Candidate on Database -----------
+    		
     		 getModel().getObject().setStatus(CandidateStatus.SUBMITTED);
     		 getModel().getObject().setObjectState(ObjectState.PUBLISHED);
          	 
+		     String hash = new BCryptPasswordEncoder().encode(getModel().getObject().getPassword());
+			 getModel().getObject().setPassword(hash);
+				
             CandidateDBService service = (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
             service.save(getModelObject(), String.join(", ",   getUpdatedParts()), getRootUser());
  
-
-            String personName= getModelObject().getPersonName() + " " + getModelObject().getPersonLastname();
-            
-            String from = getServerDBSettings().getEmailFrom();
-    		String to = getModel().getObject().getEmail();
+            submitted=true;
+        	
+            /** -- 
+             * 
+              	CandidateEventListener
+            	CandidateValidateEmailCommand 
+            	CanidateSubmittedEmailCommand
+           
+            **/
+           
+    		// --------- Send email to Sys Admin to let them know there is a ne Candidate ------
     		
-    		String subject= getLabel( "candidate-submit-form" ).getObject();
-    		
-        	String text= getEmailTemplateService().render(EmailTemplateService.PASSWORD_RESET, 
-    				Map.of(
-    			    "application",  DellemuseServer.APPNAME,
-    			    "personName",   personName));
+    		/**
 
-    		String sendEmail= getEmailService().send(from, to, subject, text);
+        		String textAdmin= getEmailTemplateService().render(EmailTemplateService.PASSWORD_RESET, 
+    					Map.of(
+    			    	"application",  DellemuseServer.APPNAME,
+    			    	"name",   getModelObject().getPersonName(),
+    			    	"lastname",   getModelObject().getPersonLastname(),
+    			    	"institution",   getModelObject().getInstitutionName(),
+    			    	"address",   getModelObject().getInstitutionAddress(),
+    			    	"email",   getModelObject().getEmail(),
+    			    	"phone",   getModelObject().getPhone(),
+    			    	"comments",   getModelObject().getComments())
+    			   	);
+
+        	String to = getModel().getObject().getEmail();
+     		String subject= getLabel( "candidate-submit-form" ).getObject();
+    		String sendEmailAdmin = getEmailService().sendText(to, subject, textAdmin);
     	
-    		logger.debug("Email sent response -> " + sendEmail);
-
+    		logger.debug("Email sent response -> " + sendEmailAdmin);
+    		
+    		**/
+    		
     	    getForm().setFormState(FormState.VIEW);
             getForm().updateReload();
             

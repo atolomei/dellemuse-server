@@ -11,6 +11,7 @@ import dellemuse.model.util.RandomIDGenerator;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.elevenlabs.ClientConstant;
 import dellemuse.serverapp.email.EmailService;
+import dellemuse.serverapp.email.EmailTemplateService;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
@@ -156,6 +157,12 @@ public abstract class Command extends JsonObject {
 		return (PersistentTokenDBService) ServiceLocator.getInstance().getBean(PersistentTokenDBService.class);
 	}
 
+	
+
+	protected EmailTemplateService getEmailTemplateService() {
+		return (EmailTemplateService) ServiceLocator.getInstance().getBean(EmailTemplateService.class);
+	}
+	
 	protected ObjectStorageService getObjectStorageService() {
 		return (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
 	}

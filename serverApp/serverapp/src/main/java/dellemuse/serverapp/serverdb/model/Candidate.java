@@ -14,11 +14,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.icons.Icons;
+import dellemuse.serverapp.jpa.events.ArtWorkEventListener;
+import dellemuse.serverapp.jpa.events.CandidateEventListener;
+import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseUserSerializer;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -27,11 +31,37 @@ import jakarta.persistence.ManyToOne;
  
 import jakarta.persistence.Table;
 
+
+/**
+ * 
+ * 
+ * <p>See also {@link CandidateValidateEmailCommand}</p>
+ */
 @Entity
 @Table(name = "candidate")
 @JsonInclude(Include.NON_NULL)
+@EntityListeners(CandidateEventListener.class)
 public class Candidate extends DelleMuseObject {
 
+	
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
+	@JoinColumn(name = "institution_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	private Institution institution;
+
+	
+	@ManyToOne(fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = User.class)
+	@Fetch(FetchMode.SELECT)
+	@JoinColumn(name = "user_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("user")
+	@JsonSerialize(using = DelleMuseUserSerializer.class)
+	private User user;
+	
+	
 	@Column(name = "emailValidated")
 	private boolean emailValidated;
 	  
@@ -63,6 +93,11 @@ public class Candidate extends DelleMuseObject {
     @Column(name = "validationEmailSent")
   	private  OffsetDateTime validationEmailSent;
 
+    @Column(name = "language")
+    private String language;
+    
+    @Column(name = "password")
+    private String password;
     
     
     
@@ -110,12 +145,28 @@ public class Candidate extends DelleMuseObject {
 		return email;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 	public String getPhone() {
 		return phone;
 	}
 
 	public String getInstitutionName() {
 		return institutionName;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 	public String getInstitutionAddress() {
@@ -152,6 +203,22 @@ public class Candidate extends DelleMuseObject {
 
 	public void setPersonName(String personName) {
 		this.personName = personName;
+	}
+
+	public Institution getInstitution() {
+		return institution;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setInstitution(Institution institution) {
+		this.institution = institution;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public void setPersonLastname(String personLastname) {

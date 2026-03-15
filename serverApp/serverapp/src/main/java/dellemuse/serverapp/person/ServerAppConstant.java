@@ -175,6 +175,11 @@ public class ServerAppConstant {
 	public static final String candidate_info = "candidate-info";
 
 	public static final String action_candidate_edit = "candidate-action-edit";
-	
+
+	public static final String candidate_institution = "ci";
+
+	public static final String candidate_user = "cu";
+	public static final String action_candidate_insitution_edit ="ci-edit";
+	public static final String action_candidate_user_edit = "cu-edit";
 	
 }

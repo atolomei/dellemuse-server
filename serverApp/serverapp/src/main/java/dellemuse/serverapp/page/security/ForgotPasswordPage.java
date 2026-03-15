@@ -114,16 +114,7 @@ public class ForgotPasswordPage extends BasePage {
 		add( new InvisiblePanel("alert") );
 		
 		
-		//alertContainer  = new WebMarkupContainer("alertContainer");
-		//add(alertContainer);
-		
-		//if (isError()) {
-		//	alert = new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel( "username-password-invalid"));
-        //    alertContainer.add(alert);
-        //} else {
-        //     alertContainer.setVisible(false);
-        //     alertContainer.add( new InvisiblePanel("alert"));
-        // }
+		 
 		 
 	    form = new Form<User>("loginForm") {
 	    	
@@ -160,7 +151,7 @@ public class ForgotPasswordPage extends BasePage {
 	
 				
 				if (username==null || username.trim().isEmpty()) {
-					ForgotPasswordPage.this.addOrReplace(new AlertPanel<Void>("alert", AlertPanel.WARNING, null, null, null, getLabel("enter-username-email-phone")));
+					ForgotPasswordPage.this.addOrReplace(new AlertPanel<Void>("alert", AlertPanel.WARNING, null,   getLabel("enter-username-email-phone")));
 					target.add(ForgotPasswordPage.this);
 					return;
 				}
@@ -204,7 +195,7 @@ public class ForgotPasswordPage extends BasePage {
 				    		
 				    		tid = token.getId();
 				    		
-				    		String from = getServerDBSettings().getEmailFrom();
+				    		//String from = getServerDBSettings().getEmailFrom();
 				    		String to = u.getEmail();
 				    		
 				    		String subject = getLabel( "password-reset-subject").getObject();
@@ -224,7 +215,7 @@ public class ForgotPasswordPage extends BasePage {
 				    	
 				    		// logger.debug("Sending email body -> " + text);
 				    		
-				    		String sendEmail= getEmailService().send(from, to, subject, text);
+				    		String sendEmail= getEmailService().sendHTML(to, subject, text);
 				    	
 				    		logger.debug("Email sent response -> " + sendEmail);
 				    		
@@ -236,16 +227,16 @@ public class ForgotPasswordPage extends BasePage {
 						}
 						
 				    	String css = "col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-lg-center text-xl-center text-xxl-center";
-				    	AlertPanel<Void> s=new AlertPanel<Void>("alert", AlertPanel.SUCCESS, null, null, null, getLabel("email-sent"));
+				    	AlertPanel<Void> s=new AlertPanel<Void>("alert", AlertPanel.SUCCESS, null,  getLabel("email-sent"));
 				    	s.setAlertTextContainerCss(css);
 				    	ForgotPasswordPage.this.addOrReplace(s);
 				    	
 				    	
 					} else {
-						ForgotPasswordPage.this.addOrReplace(new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel("no-email-associated")));
+						ForgotPasswordPage.this.addOrReplace(new AlertPanel<Void>("alert", AlertPanel.DANGER, null,   getLabel("no-email-associated")));
 					}
 				} else {
-					ForgotPasswordPage.this.addOrReplace(new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel("no-user-found")));
+					ForgotPasswordPage.this.addOrReplace(new AlertPanel<Void>("alert", AlertPanel.DANGER, null,  getLabel("no-user-found")));
 				}
 			
 				target.add(ForgotPasswordPage.this);

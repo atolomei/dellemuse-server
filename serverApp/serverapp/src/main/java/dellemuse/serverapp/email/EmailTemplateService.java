@@ -41,8 +41,11 @@ public class EmailTemplateService extends BaseService implements SystemService {
 
     static private Logger logger = Logger.getLogger(EmailTemplateService.class.getName());
 
-    
+
+    public static final String CANDIDATE_EMAIL_VALIDATION = "candidate-email-validation.html";
     public static final String PASSWORD_RESET 	= "password-reset.html";
+    public static final String CANDIDATE_SUBMT_NOTIFY_ADMIN 	= "candidate-submit-notify-admin.html";
+    public static final String USER_WELCOME = "user-welcome.html";
     
     
     /** One FreeMarker Configuration per language directory, keyed by lang code. */
@@ -70,7 +73,7 @@ public class EmailTemplateService extends BaseService implements SystemService {
      * @param model         key/value pairs substituted into the template
      * @return              rendered HTML string, or {@code null} on error
      */
-    public String render(String templateName, String lang, Map<String, String> model) {
+    public String render(String templateName, String lang, Map<String, String> model ) {
 
         String normalizedLang = normalize(lang);
         Configuration cfg = getOrCreateConfig(normalizedLang);

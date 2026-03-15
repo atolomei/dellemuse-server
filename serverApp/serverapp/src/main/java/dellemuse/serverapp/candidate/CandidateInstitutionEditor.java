@@ -29,6 +29,7 @@ import dellemuse.serverapp.serverdb.model.CandidateStatus;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Music;
 import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
@@ -50,33 +51,21 @@ import io.wktui.error.AlertPanel;
 import io.wktui.event.MenuAjaxEvent;
 import wktui.base.InvisiblePanel;
 
-public class CandidateEditor extends DBObjectEditor<Candidate> implements InternalPanel { 
+public class CandidateInstitutionEditor extends DBObjectEditor<Candidate> implements InternalPanel { 
 	
     private static final long serialVersionUID = 1L;
 
-	static private Logger logger = Logger.getLogger(CandidateEditor.class.getName());
+	static private Logger logger = Logger.getLogger(CandidateInstitutionEditor.class.getName());
 	
-    private TextField<String> nameField;
-    private TextField<String> lastnameField;
-    private TextField<String> emailField;
-    private BooleanField emailValidatedField;
-    private TextField<String> phoneField;
-    private TextField<String> institutionField;
-    private TextAreaField<String> institutionAddressField;
-    private TextAreaField<String> commentsField;
-    private TextAreaField<String> internalcommentsField;
-    private ChoiceField<CandidateStatus> statusField;
-    private StaticTextField<String> validationEmailSentField;
-    
-    
-   
-   
+    private ChoiceField<IModel<Institution>> institutionChoiceField;
+    private IModel<Institution> selectedInstitutionModel;
     
     private List<ToolbarItem> x_list;
     private String userName;
+
+    List<IModel<Institution>> list;
     
-    
-    public CandidateEditor(String id, IModel<Candidate> model) {
+    public CandidateInstitutionEditor(String id, IModel<Candidate> model) {
         super(id, model);
         this.setOutputMarkupId(true);
     }
@@ -84,11 +73,35 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		 
+		
+		if (selectedInstitutionModel != null) {
+			selectedInstitutionModel.detach();
+		}
+		
+		if (list!=null) {
+			for (IModel<Institution> m : list) {
+				m.detach();
+			}
+		}
 	}
 
-	 
-	 
+	
+	
+	
+	
+	public List<IModel<Institution>> getInstitutionListModel() {
+
+		if (list!=null)
+			return list;
+		
+	    list = new ArrayList<IModel<Institution>>();
+	    
+		for (Institution i : getInstitutionDBService().findAllSorted()) {
+			list.add(new ObjectModel<Institution>(i));
+		}
+	
+		return list;
+	}
 	
     @Override
     public void onInitialize() {
@@ -104,57 +117,82 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
         form.setOutputMarkupId(true);
         add(form);
         setForm(form);
-       
-        nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "personName"), getLabel("personName"));
-        lastnameField = new TextField<String>("lastname", new PropertyModel<String>(getModel(), "personLastname"), getLabel("personLastname"));
-        emailField = new TextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
-        emailValidatedField = new BooleanField("emailValidated", new PropertyModel<Boolean>(getModel(), "emailValidated"), getLabel("emailValidated"));
-        phoneField = new TextField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"));
       
-        institutionField = new TextField<String>("institutionName", new PropertyModel<String>(getModel(), "institutionName"), getLabel("institutionName"));
-        institutionAddressField = new TextAreaField<String>("institutionAddress", new PropertyModel<String>(getModel(), "institutionAddress"), getLabel("institutionAddress"), 4);
-        
-        commentsField = new TextAreaField<String>("comments", new PropertyModel<String>(getModel(), "comments"), getLabel("comments"), 4);
-        internalcommentsField = new TextAreaField<String>("internalcomments", new PropertyModel<String>(getModel(), "internalcomments"), getLabel("internalcomments"), 4);
-        statusField = new ChoiceField<CandidateStatus>("status", new PropertyModel<CandidateStatus>(getModel(), "status"),  getLabel("status")) {
-        	@Override
-			public IModel<List<CandidateStatus>> getChoices() {
-				return new ListModel<CandidateStatus>(CandidateStatus.getValues());
-			}
-        };
-        validationEmailSentField = new StaticTextField<String>("validationEmailSent", new PropertyModel<String>(getModel(), "validationEmailSent"), getLabel("validationEmailSent"));
         
         
-         getForm().add(nameField);
-        getForm().add(lastnameField);
-        getForm().add(emailField);
-        getForm().add(emailValidatedField);
-        getForm().add(phoneField);
-        getForm().add(institutionField);
-        getForm().add(institutionAddressField);
-        getForm().add(commentsField);
-        getForm().add(internalcommentsField);
-        getForm().add(statusField);
-        getForm().add(validationEmailSentField);
-        
-        
-   
+        if (getModel().getObject().getInstitution() != null) {
+        	getForm().addOrReplace( new InvisiblePanel("institutionApprox"));
+		 }
+		else {
+
+	        List<Institution> cand = getInstitutionDBService().findByNameApprox( getModel().getObject().getInstitutionName() );
+	        List<String> sCand = new ArrayList<String>();
+	        cand.forEach( c -> sCand.add( "<a class=\"pt-3 pb-3\" href=\"" + "/institution/"+ c.getId().toString() +  "\">"+c.getDisplayname()+"</a>"));
+			if (cand.size()<1)
+				sCand.add( getLabel("none").getObject() );
+        	getForm().addOrReplace( new SimpleAlertRow<Void>("institutionApprox", null, Model.of(String.join(", ", sCand)), getLabel("institutionApprox"), AlertPanel.PRIMARY ) );
+		}
        
+        if (getModel().getObject().getInstitution() != null) {
+        		addCreated(getModel().getObject().getInstitution());
+        } else {
+			getForm().addOrReplace( new InvisiblePanel("institutionCreated") );
+		}
+         
         
-		EditButtons<Candidate> buttons = new EditButtons<Candidate>("buttons", getForm(), getModel()) {
+        institutionChoiceField = new ChoiceField<IModel<Institution>>("institution", new PropertyModel<IModel<Institution>>(this, "selectedInstitutionModel"), getLabel("institutionChoice")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected String getDisplayValue(IModel<Institution> value) {
+				if (value == null)
+					return null;
+				if (value.getObject() == null)
+					return null;
+				return value.getObject().getDisplayname();
+			}
+			
+
+			@Override
+			public boolean isVisible() {
+				
+				if (CandidateInstitutionEditor.this.getModel().getObject().getInstitution() != null)
+					return false;
+				
+					return false;
+				
+			}
+			
+			
+			 
+        };
+        
+        
+        list = new ArrayList<IModel<Institution>>();
+	    for (Institution i : getInstitutionDBService().findAllSorted()) {
+			list.add(new ObjectModel<Institution>(i));
+		}
+		institutionChoiceField.setChoices(new ListModel<IModel<Institution>>( list ));
+		
+		
+       
+        getForm().add(institutionChoiceField);
+    	
+        
+     	EditButtons<Candidate> buttons = new EditButtons<Candidate>("buttons", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
 
 			public void onEdit(AjaxRequestTarget target) {
-				CandidateEditor.this.onEdit(target);
+				CandidateInstitutionEditor.this.onEdit(target);
 			}
 
 			public void onCancel(AjaxRequestTarget target) {
-				CandidateEditor.this.onCancel(target);
+				CandidateInstitutionEditor.this.onCancel(target);
 			}
 
 			public void onSave(AjaxRequestTarget target) {
-				CandidateEditor.this.onSave(target);
+				CandidateInstitutionEditor.this.onSave(target);
 			}
 
 			@Override
@@ -174,15 +212,15 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 			private static final long serialVersionUID = 1L;
 
 			public void onEdit(AjaxRequestTarget target) {
-				CandidateEditor.this.onEdit(target);
+				CandidateInstitutionEditor.this.onEdit(target);
 			}
 
 			public void onCancel(AjaxRequestTarget target) {
-				CandidateEditor.this.onCancel(target);
+				CandidateInstitutionEditor.this.onCancel(target);
 			}
 
 			public void onSave(AjaxRequestTarget target) {
-				CandidateEditor.this.onSave(target);
+				CandidateInstitutionEditor.this.onSave(target);
 			}
 
 			@Override
@@ -206,7 +244,30 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 		getForm().add(b_buttons_top);
 		
 		
-		  
+		 
+	 
+		
+		
+		AjaxLink<Candidate> createInstitution = new AjaxLink<Candidate>("createInstitution", getModel() ) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				CandidateInstitutionEditor.this.create(target);
+			}
+			
+			@Override
+			public boolean isVisible() {
+				
+				if (getModel().getObject().getInstitution() != null)
+					return false;
+				
+				return hasWritePermission();
+			}
+		};
+		
+		
+		getForm().add(createInstitution);
 				
 		
 		/** --
@@ -223,6 +284,36 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 		
     }
 
+    
+   
+    
+    private void addCreated(Institution in) {
+
+   	 List<String> s = new ArrayList<String>();
+
+   	in = getInstitutionDBService().findWithDeps(in.getId()).get();
+   	
+   	
+   	 s.add("Name. " + in.getName());
+   	 s.add("Address. " +in.getAddress());
+   	 s.add("Email. " + in.getEmail());
+   	 for (Site si: in.getSites()) {
+			 s.add("Site. " + si.getName());
+		 }
+   	 getForm().addOrReplace( new SimpleAlertRow<Void>("institutionCreated", null, Model.of(String.join("<br/>", s)), getLabel("institutionCreated"), AlertPanel.SUCCESS ) );
+        
+    	
+    }
+    
+    
+    protected void create(AjaxRequestTarget target) {
+    	Institution in =  getInstitutionDBService().createFromCandidate(getModel().getObject(), getRootUser());
+    	addCreated(in);
+    	target.add(this);
+    	
+	}
+
+	 
     protected void setUpModel() {
     	try {
         	setModel( new ObjectModel<Candidate>( getCandidateDBService().findWithDeps(getModel().getObject().getId()).get() ) );
@@ -245,33 +336,24 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
             addOrReplace( new AlertPanel<Void>("success", AlertPanel.SUCCESS, getLabel("submitted-ok")));
             target.add(this);
         
-            
-            /**
-        
-            StringBuilder str = new StringBuilder();
-            if (	getModel().getObject().getPersonLastname() != null && 
-            		!getModel().getObject().getPersonLastname().isEmpty() && 
-            		getModel().getObject().getPersonName()!=null && 
-            		!getModel().getObject().getPersonName().isEmpty()) {
-            		
-            	userName = getUserDBService().generateUserName(getModel().getObject().getPersonName(), getModel().getObject().getPersonLastname());
-    			str.append("userName. " + userName);
+         
+           
+            if (getModel().getObject().getInstitution() != null) {
+            	  getForm().addOrReplace( new InvisiblePanel("institutionApprox"));
+            	    	
             }
-            
-            getForm().addOrReplace( new SimpleAlertRow<Void>("userInfo", null, Model.of(str.toString()), getLabel("userInfo"), AlertPanel.PRIMARY ) );
-            
-            
+            else {
             List<Institution> cand = getInstitutionDBService().findByNameApprox( getModel().getObject().getInstitutionName() );
-            
             List<String> sCand = new ArrayList<String>();
             cand.forEach( c -> sCand.add(c.getDisplayname()) );
             getForm().addOrReplace( new SimpleAlertRow<Void>("institutionApprox", null, Model.of(String.join(", ", sCand)), getLabel("institutionApprox"), AlertPanel.PRIMARY ) );
-            */
+            }
             
             fireScanAll(new ObjectUpdateEvent(target));
         	
             
     	} catch (Exception e) {
+    		 logger.error(e);
             addOrReplace(new SimpleAlertRow<Void>("error", e));
         }
         target.add(this);
@@ -300,7 +382,7 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
-				fire(new MenuAjaxEvent(ServerAppConstant.action_candidate_edit, target));
+				fire(new MenuAjaxEvent(ServerAppConstant.action_candidate_insitution_edit, target));
 			}
 
 			@Override
@@ -310,7 +392,7 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 			
 			@Override
 			public boolean isVisible() {
-				return true; //isRoot() || isGeneralAdmin();
+				return isRoot() || isGeneralAdmin();
 				
 			}
 			
@@ -329,6 +411,13 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 		return x_list;
 	}
 
-	 
+	public IModel<Institution> getSelectedInstitutionModel() {
+		return selectedInstitutionModel;
+	}
+
+	public void setSelectedInstitutionModel(IModel<Institution> selectedInstitutionModel) {
+		this.selectedInstitutionModel = selectedInstitutionModel;
+	}
+
 
 }

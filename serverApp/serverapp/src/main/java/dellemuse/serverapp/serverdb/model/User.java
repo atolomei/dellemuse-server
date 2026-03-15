@@ -1,5 +1,6 @@
 package dellemuse.serverapp.serverdb.model;
 
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -129,6 +130,13 @@ public class User extends DelleMuseObject {
 	@Column(name = "language")
 	private String language;
 	
+
+	@JsonProperty("welcomeEmailSent")
+	@Column(name = "welcomeEmailSent")
+	 private OffsetDateTime welcomeEmailSent;
+	 
+	 
+	
 	@Override
 	public String getObjectClassName() {
 		return User.class.getSimpleName();
@@ -234,6 +242,14 @@ public class User extends DelleMuseObject {
 
 	
 	
+	public OffsetDateTime getWelcomeEmailSent() {
+		return welcomeEmailSent;
+	}
+
+	public void setWelcomeEmailSent(OffsetDateTime welcomeEmailSent) {
+		this.welcomeEmailSent = welcomeEmailSent;
+	}
+
 	public void setPhone(String phone) {
 		if (phone==null)
 			this.phone = phone;
@@ -472,6 +488,11 @@ public class User extends DelleMuseObject {
 
 	public static final String getIcon() {
 		return Icons.User;
+	}
+
+	public void setLastWelcomeEmailSent(OffsetDateTime now) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	 

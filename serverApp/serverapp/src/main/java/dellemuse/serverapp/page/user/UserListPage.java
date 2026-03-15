@@ -2,8 +2,11 @@ package dellemuse.serverapp.page.user;
 
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 
+import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,7 +24,9 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.DellemuseServer;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.email.EmailTemplateService;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
@@ -43,6 +48,7 @@ import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
 
 import io.wktui.nav.breadcrumb.BCElement;
@@ -62,7 +68,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * site foto Info - exhibitions
  */
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/user/list")
 public class UserListPage extends ObjectListPage<User> {
 
@@ -74,19 +80,19 @@ public class UserListPage extends ObjectListPage<User> {
 	private List<ToolbarItem> listToolbar;
 
 	public String getHelpKey() {
-		return Help.USER_LIST ;
+		return Help.USER_LIST;
 	}
-	
+
 	@Override
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
 	}
-	
+
 	@Override
 	public boolean canCreate() {
 		return isRoot() || isGeneralAdmin();
 	}
-	
+
 	@Override
 	public boolean canWrite(User m) {
 		return isRoot() || isGeneralAdmin();
@@ -97,7 +103,6 @@ public class UserListPage extends ObjectListPage<User> {
 		return isRoot() || isGeneralAdmin();
 	}
 
-	
 	public UserListPage() {
 		super();
 		setIsExpanded(true);
@@ -108,36 +113,27 @@ public class UserListPage extends ObjectListPage<User> {
 		setIsExpanded(true);
 	}
 
-	
-	 
-
-	
 	public ImpersonationService getImpersonationService() {
 		return (ImpersonationService) ServiceLocator.getInstance().getBean(ImpersonationService.class);
 	}
-	
+
 	public void impersonateUser(String username) {
 
-	    ServletWebRequest servletRequest =
-	        (ServletWebRequest) RequestCycle.get().getRequest();
+		ServletWebRequest servletRequest = (ServletWebRequest) RequestCycle.get().getRequest();
 
-	    HttpServletRequest request =
-	        (HttpServletRequest) servletRequest.getContainerRequest();
+		HttpServletRequest request = (HttpServletRequest) servletRequest.getContainerRequest();
 
-	    HttpServletResponse response =
-	        (HttpServletResponse) ((WebResponse) RequestCycle.get().getResponse())
-	            .getContainerResponse();
+		HttpServletResponse response = (HttpServletResponse) ((WebResponse) RequestCycle.get().getResponse()).getContainerResponse();
 
-	    getImpersonationService().impersonate(username, request, response);
+		getImpersonationService().impersonate(username, request, response);
 
-	    // restart session state for Wicket
-	    getSession().bind();
+		// restart session state for Wicket
+		getSession().bind();
 
-	    // reload UI
-	    setResponsePage(getApplication().getHomePage());
+		// reload UI
+		setResponsePage(getApplication().getHomePage());
 	}
-	
-	
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		if (ouser.isEmpty())
@@ -193,9 +189,8 @@ public class UserListPage extends ObjectListPage<User> {
 			str.append(op.get().getLastFirstname());
 		}
 
-		str.append(" <span class=\"text-secondary\">( " +model.getObject().getUsername()+ " ) </span>");
+		str.append(" <span class=\"text-secondary\">( " + model.getObject().getUsername() + " ) </span>");
 
-		
 		User o = model.getObject();
 
 		if (o.getState() == ObjectState.DELETED)
@@ -209,7 +204,7 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	public void onClick(IModel<User> model) {
-		setResponsePage(new UserPage(model, getList(), false ));
+		setResponsePage(new UserPage(model, getList(), false));
 	}
 
 	@Override
@@ -234,22 +229,21 @@ public class UserListPage extends ObjectListPage<User> {
 
 	@Override
 	protected String getObjectImageSrc(IModel<User> model) {
-		
-		
+
 		Optional<Person> ouser = getPersonDBService().getByUser(model.getObject());
-		
+
 		if (ouser.isEmpty())
 			return null;
-	
-		if ( ouser.get().getPhoto()!=null) {
-			
-			Optional<Resource> or = getResourceDBService().findById( ouser.get().getPhoto().getId());
+
+		if (ouser.get().getPhoto() != null) {
+
+			Optional<Resource> or = getResourceDBService().findById(ouser.get().getPhoto().getId());
 			if (or.isPresent()) {
 				return super.getPresignedThumbnailSmall(or.get());
 			}
 		}
 		return null;
-	
+
 	}
 
 	@Override
@@ -263,17 +257,13 @@ public class UserListPage extends ObjectListPage<User> {
 		ButtonCreateToolbarItem<User> create = new ButtonCreateToolbarItem<>("item") {
 			private static final long serialVersionUID = 1L;
 
-			
-			
-			
-			
 			protected void onClick() {
 				UserListPage.this.onCreate();
 			}
 		};
-		
-		list.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
-		
+
+		list.add(new HelpButtonToolbarItem("item", Align.TOP_RIGHT));
+
 		list.add(create);
 
 		return list;
@@ -404,8 +394,8 @@ public class UserListPage extends ObjectListPage<User> {
 					@Override
 					public void onClick() {
 						try {
-							impersonateUser( getModel().getObject().getUsername() );
-							
+							impersonateUser(getModel().getObject().getUsername());
+
 						} catch (Exception e) {
 							logger.error(e);
 							setResponsePage(new ErrorPage(e));
@@ -423,6 +413,36 @@ public class UserListPage extends ObjectListPage<User> {
 					}
 				};
 
+			}
+		});
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new AjaxLinkMenuItem<User>(id, model) {
+
+					private static final long serialVersionUID = 1L;
+
+					public boolean isVisible() {
+						return isRoot() || isGeneralAdmin();
+					}
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						UserListPage.this.sendWelcomeEmail(getModel().getObject());
+						
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("send-welcome-email");
+					}
+				};
 			}
 		});
 
@@ -465,6 +485,53 @@ public class UserListPage extends ObjectListPage<User> {
 		});
 
 		return menu;
+	}
+
+	protected boolean sendWelcomeEmail(User user) {
+
+		String to = user.getEmail();
+		String subject = getLabel("welcome").getObject();
+		String text = "";
+
+		if (to==null 	 || to.isEmpty()) {
+			UserListPage.this.setErrorPanel(new AlertPanel<Void>("error", AlertPanel.WARNING, getLabel("user-no-email", user.getUsername())));
+			return false;
+		}
+		
+		try {
+
+			Optional<Person> op = getPersonDBService().getByUser(user);
+
+			text = getEmailTemplateService().render(EmailTemplateService.USER_WELCOME, Map.of("application", DellemuseServer.APPNAME, "personName", op.get().getFirstLastname(), "username", user.getUsername(), "forgotpassword",
+					getServerUrl() + "/forgot", "signinpage", getServerUrl() + "/" + DellemuseServer.URL_SIGNIN));
+
+			logger.debug("Sending email to -> " + to);
+			logger.debug("Sending email subject -> " + subject);
+			
+		} catch (Exception e) {
+			logger.error(e);
+			UserListPage.this.setErrorPanel(new ErrorPanel("error", e, true));
+			return false;
+		}
+
+		try {
+			String sendEmail;
+			sendEmail = getEmailService().sendHTML(to, subject, text);
+			user.setWelcomeEmailSent(OffsetDateTime.now());
+			getUserDBService().save(user, "Welcome email", getSessionUser().get());
+
+			logger.debug("Email sent response -> " + sendEmail);
+			
+			UserListPage.this.setErrorPanel(new AlertPanel<Void>("error", AlertPanel.SUCCESS, getLabel("email-sent", to)));
+			
+			return true;
+
+		} catch (Exception e) {
+			logger.error(e);
+			UserListPage.this.setErrorPanel(new ErrorPanel("error", e, true));
+			return false;
+		}
+
 	}
 
 	@Override

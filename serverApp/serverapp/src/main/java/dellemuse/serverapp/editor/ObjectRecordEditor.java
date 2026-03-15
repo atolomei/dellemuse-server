@@ -307,7 +307,12 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			} else {
 				String date = getDateTimeService().format(getModel().getObject().getLastModified());
-				io.wktui.error.AlertPanel<R> alert = new io.wktui.error.AlertPanel<R>("alert", io.wktui.error.AlertPanel.INFO, null, getModel(), null, getLabel("translated-on", date));
+				io.wktui.error.AlertPanel<R> alert = new io.wktui.error.AlertPanel<R>(
+						"alert", 
+						io.wktui.error.AlertPanel.INFO, 
+						getModel(),
+						null,
+						getLabel("translated-on", date));
 				getForm().addOrReplace(alert);
 			}
 

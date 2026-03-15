@@ -23,4 +23,8 @@ public class AuditKey {
 	public static final String INTEGRATE_AUDIO = "integrate audioStudio";
 
 	
+
+	public static final String CREATE_FROM_CANDIDATE = "create from candidate";
+	
+	
 }

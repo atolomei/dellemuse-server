@@ -46,14 +46,13 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 	private Form<User> form;
 	private TextField<String> nameField;
-	
+
 	private ZoneIdField zoneidField;
 	private List<ToolbarItem> list;
 	private LocaleField localeField;
 	private BooleanField emailValidatedField;
 	private BooleanField phoneValidatedField;
-	
-	
+
 	// private StaticTextField<String> emailField;
 
 	/**
@@ -72,26 +71,25 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 	public boolean hasWritePermission() {
 
-		if (getSessionUser().get().getId().equals( getModel().getObject().getId()) )
+		if (getSessionUser().get().getId().equals(getModel().getObject().getId()))
 			return true;
-		
-		if( (getModel().getObject().getUsername()!=null) && getModel().getObject().getUsername().equals("root"))
-				return isRoot();
-		
+
+		if ((getModel().getObject().getUsername() != null) && getModel().getObject().getUsername().equals("root"))
+			return isRoot();
+
 		if (isGeneralAdmin())
 			return true;
-		
-		//if (isGeneralAdmin( getModel().getObject() ))
-		//	return false;
-		
-		
+
+		if (isRoot())
+			return true;
+
+		// if (isGeneralAdmin( getModel().getObject() ))
+		// return false;
+
 		return false;
 
-					
-					
 	}
-		
-		
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -103,16 +101,16 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 		logger.debug("user locale -> " + getModel().getObject().getLocale().getLanguage());
 
-		// this.emailField = new StaticTextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
+		// this.emailField = new StaticTextField<String>("email", new
+		// PropertyModel<String>(getModel(), "email"), getLabel("email"));
 		// this.form.add(emailField);
-		
+
 		this.nameField = new TextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
-		
-		
-		if(getModel().getObject().getUsername()!=null && getModel().getObject().getUsername().equals("root")) {
+
+		if (getModel().getObject().getUsername() != null && getModel().getObject().getUsername().equals("root")) {
 			this.nameField.setReadOnly(true);
 		}
-		
+
 		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 		this.localeField = new LocaleField("locale", new PropertyModel<Locale>(getModel(), "locale"), getLabel("locale")) {
 			public List<Locale> getLocales() {
@@ -120,26 +118,21 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 			}
 		};
 
-
-		this.localeField.setHelpPanel( new SimpleHelpPanel<>("help") {
+		this.localeField.setHelpPanel(new SimpleHelpPanel<>("help") {
 			public IModel<String> getLinkLabel() {
 				return UserEditor.this.getLabel("locale-help-label");
 			}
-			
+
 			public IModel<String> getHelpText() {
 				return UserEditor.this.getLabel("locale-text-help");
 			}
 		});
-		
-		
-		
-		
-		
-		
-		
-		
+
 		this.emailValidatedField = new BooleanField("emailValidated", new PropertyModel<Boolean>(getModel(), "emailValidated"), getLabel("emailValidated"));
+		this.emailValidatedField.setVisible(isRoot() || isGeneralAdmin());
+
 		this.phoneValidatedField = new BooleanField("phoneValidated", new PropertyModel<Boolean>(getModel(), "phoneValidated"), getLabel("phoneValidated"));
+		this.phoneValidatedField.setVisible(isRoot() || isGeneralAdmin());
 
 		if (getModel().getObject().isRoot())
 			this.nameField.setReadOnly(true);
@@ -186,7 +179,6 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 			}
 		};
 
-		
 		EditButtons<User> b_buttons_top = new EditButtons<User>("buttons-top", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -205,10 +197,10 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -222,8 +214,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		};
 
 		getForm().add(b_buttons_top);
-		
-		
+
 		this.form.add(buttons);
 	}
 
@@ -289,18 +280,15 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 			target.add(this.form);
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 
-            // ----------------------
-            // if not validated
-            // sendEmail to validate email person ?
-            //
-            // ----------------------
+			// ----------------------
+			// if not validated
+			// sendEmail to validate email person ?
+			//
+			// ----------------------
 
-			
 			getForm().updateReload();
 			fireScanAll(new ObjectUpdateEvent(target));
 
-			
-			
 		} catch (Exception e) {
 
 			addOrReplace(new SimpleAlertRow<Void>("error", e));

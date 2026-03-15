@@ -1,5 +1,6 @@
 package dellemuse.serverapp.role;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -16,7 +17,8 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.ObjectPage;
 
 import dellemuse.serverapp.person.ServerAppConstant;
@@ -36,7 +38,7 @@ import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 
 import io.wktui.nav.toolbar.ToolbarItem;
-
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
@@ -68,6 +70,9 @@ public class RolePage extends ObjectPage<Role> {
 	}
 
 	
+	public String getHelpKey() {
+		return Help.ROLE_INFO;
+	}
 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -216,9 +221,22 @@ public class RolePage extends ObjectPage<Role> {
 		return new AuditPanel<Role>(id, getModel());
 	}
 
+	private List<ToolbarItem> userMenu = null;
+	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
-		return null;
+		
+		
+		if (userMenu != null)
+			return (userMenu);
+
+		userMenu = new ArrayList<ToolbarItem>();
+ 
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		userMenu.add(h);
+		
+	
+		return userMenu;
 	}
 
 	@Override

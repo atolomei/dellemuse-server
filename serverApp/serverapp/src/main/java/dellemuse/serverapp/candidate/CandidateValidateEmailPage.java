@@ -2,6 +2,7 @@ package dellemuse.serverapp.candidate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -61,13 +62,12 @@ import wktui.base.NamedTab;
 
 /**
  * 
- * gracias por registrarte en Dellemuse.
- * El proximo paso es validar tu dirección de correo electrónico
- * haz click en el siguiente enlace:
+  
+ * <p>See also {@link CandidateValidateEmailCommand}</p>
  * 
  */
 
-@MountPath("/candval/${token}")
+@MountPath("/ca-email-validate/${token}")
 public class CandidateValidateEmailPage extends BasePage {
 	 
 	private static final long serialVersionUID = 1L;
@@ -90,7 +90,13 @@ public class CandidateValidateEmailPage extends BasePage {
 		return true;
 	}
 	
+	String slang = "en";
 
+	@Override
+	public Locale getLocale() {
+		return Locale.forLanguageTag(slang);	
+	} 
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -101,60 +107,77 @@ public class CandidateValidateEmailPage extends BasePage {
 		 add( new InvisiblePanel("error"));
 		 add( new InvisiblePanel("success"));
 		 
-		 
-		addOrReplace( new AlertPanel<>("info", AlertPanel.NEUTRAL, Model.of("Nombre apellido email")));
-		addOrReplace( new AlertPanel<>("success", AlertPanel.SUCCESS, Model.of("Email address confirmed successfully")));
-		
-			
 		if (getPageParameters().get("token").isNull()) {
-			addOrReplace( new ErrorPanel("error", Model.of("Invalid token")));
+			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 1")));
 			return;
 		}
 		
 		String token = getPageParameters().get("token").toString();
 		
 		if (token.length()==0) {
-			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 0")));
+			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 2")));
 			return;
 		}
 		
 		
 		String arr[] = token.split("-");
 		
-		if (arr.length!=2) {
-			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 1")));
+		if (arr.length!=3) {
+			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 3")));
 			return;
 		
 		}
 		
 		String candidateIdStr = arr[0];
-		String tokenValue = arr[1];			
+		String tokenValue = arr[1];		
+		this.slang = arr[2];			
+
 		
 		Iterable<PersistentToken> opt = getPersistentTokenDBServiceDBService().findByToken(tokenValue);
 
 		if (opt==null) {
-			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 2")));
+			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 4")));
 			return;
 		
 		}
 		
+		
+		try {
+			Long cid=Long.parseLong(candidateIdStr);
+		} catch(Exception e) {
+			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 5")));
+			return;
+		}
+		
+		Candidate c = getCandidateDBService().findById(Long.parseLong(candidateIdStr)).orElse(null);
+	
+		if (c==null) {
+			addOrReplace( new ErrorPanel("error", Model.of("Invalid token 6")));
+			return;
+		}
+		
+		
+		if (c.isEmailValidated()) {
+			addOrReplace( new AlertPanel<>("success", AlertPanel.SUCCESS, Model.of("Email is already validated for ->  "+ c.getEmail()  + " | "+ c.getPersonLastname())));
+			return;
+		}
+		
 		for (PersistentToken t: opt) {
+			
 			if (t.getEntityClass().equals(Candidate.class.getSimpleName()) && t.getEntity().equals(candidateIdStr)) {
-				Candidate c = getCandidateDBService().findById(Long.parseLong(candidateIdStr)).orElse(null);
-				if (c!=null) {
-					c.setEmailValidated(true);
-					getCandidateDBService().save(c);
-					
-					addOrReplace( new AlertPanel<>("info", AlertPanel.INFO, Model.of("Candidate Validate Email ok: candidateIdStr: "+ candidateIdStr + " tokenValue: "+ tokenValue)));
-					addOrReplace( new AlertPanel<>("success", AlertPanel.WARNING, Model.of("Candidate Validate Email ok: candidateIdStr: "+ candidateIdStr + " tokenValue: "+ tokenValue)));
-					logger.debug("Candidate Validate Email ok: candidateIdStr: "+ candidateIdStr + " tokenValue: "+ tokenValue);
-				}
+		
+				c.setEmailValidated(true);
+				getCandidateDBService().save(c);
+				getPersistentTokenDBServiceDBService().delete(t);
 				
-				
+				addOrReplace( new AlertPanel<>("success", AlertPanel.SUCCESS, Model.of("Email validated ok ->  "+ c.getEmail()  + " | "+ c.getPersonLastname())));
+				logger.debug("Email validated ok ->  "+ c.getEmail()  + " | "+ c.getPersonLastname());
+				return;
 			}
 		}
- 
-	 
+		
+		addOrReplace( new ErrorPanel("error", Model.of("Invalid token 7")));
+	
 	}
 
 }

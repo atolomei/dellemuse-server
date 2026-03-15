@@ -37,6 +37,7 @@ import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import io.wktui.error.AlertPanel;
 import io.wktui.event.MenuAjaxEvent;
  
 import io.wktui.form.Form;
@@ -73,6 +74,7 @@ public class SitePublicPortalEditor extends DBSiteObjectEditor<Site> implements 
 		super(id, model);
 	}
 
+	boolean isPublicPortal = false;
 
 	@Override
 	public void onInitialize() {
@@ -81,10 +83,12 @@ public class SitePublicPortalEditor extends DBSiteObjectEditor<Site> implements 
 		Optional<Site> o_i = getSiteDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<Site>(o_i.get()));
 
-			
-		add(new Label("site-public-portal", getLabel("site-public-portal", getModel().getObject().getMasterLanguage())));
-
+		add(new InvisiblePanel("info"));
 		add(new InvisiblePanel("error"));
+
+		isPublicPortal = getModel().getObject().isPublicPortalEnabled();
+		
+		add(new Label("site-public-portal", getLabel("site-public-portal", getModel().getObject().getMasterLanguage())));
  	
 		Form<Site> form = new Form<Site>("siteForm", getModel());
 		add(form);
@@ -96,10 +100,8 @@ public class SitePublicPortalEditor extends DBSiteObjectEditor<Site> implements 
 		List<Institution> list = new ArrayList<Institution>();
 		getInstitutions().forEach(x -> list.add(x));
 		
-		
 		//urlField = new StaticTextField<String>("url", Model.of( getPublicUrl()), getLabel("url"));
 		//form.add(urlField);
-	 	
 		
 		Link<Void> link = new Link<Void>("link") {
 
@@ -266,11 +268,13 @@ public class SitePublicPortalEditor extends DBSiteObjectEditor<Site> implements 
 		super.edit(target);
 		SitePublicPortalEditor.this.addOrReplace( new InvisiblePanel("error"));
 		target.add(this);
-
-		 
 	}
  
-	
+	/**
+	 * 
+	 * 
+	 * @param target
+	 */
 	protected void onSave(AjaxRequestTarget target) {
 
 		logger.debug("onSave");
@@ -279,23 +283,34 @@ public class SitePublicPortalEditor extends DBSiteObjectEditor<Site> implements 
 		logger.debug("saving...");
 
 		if ((getUpdatedParts()!=null) && (getUpdatedParts().size()>0)) {
+
 			try {
 	
-				 
-							
 				save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 				 
 				getForm().setFormState(FormState.VIEW);
 				getForm().updateReload();
+			
+				
+				if ( getModelObject().isPublicPortalEnabled() && !isPublicPortal ) {
+					addOrReplace( new SimpleAlertRow<Void>("info", null, getLabel("publicPortalEnabled"),null, AlertPanel.SUCCESS ));
+				} 
+				else if ( !getModelObject().isPublicPortalEnabled() && isPublicPortal ) {
+					addOrReplace( new SimpleAlertRow<Void>("info", null, getLabel("publicPortalDisabled"),null, AlertPanel.WARNING ));
+				}
+				
 				fireScanAll(new ObjectUpdateEvent(target));
 	
 			} catch (Exception e) {
-	
-				addOrReplace(new SimpleAlertRow<Void>("error", e));
-				logger.error(e);
+				 addOrReplace(new SimpleAlertRow<Void>("error", e));
+				 logger.error(e);
 	
 			}
 		}
+		
+		
+		this.isPublicPortal=getModelObject().isPublicPortalEnabled();
+		
 		target.add(this);
 	}
 

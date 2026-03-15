@@ -18,7 +18,9 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 	private AlertPanel<Void> info;
 	private int alertType = AlertPanel.WARNING;
 	private IModel<String> text;
+	private IModel<String> title;
 
+	
 	public SimpleAlertRow(String id) {
 		super(id, null);
 	}
@@ -27,6 +29,14 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 		super(id, model);
 	}
 
+	public SimpleAlertRow(String id, IModel<T> model, IModel<String> text, IModel<String> title, int type) {
+		super(id, model);
+		this.alertType = type;
+		this.text = text;
+		this.title=title;
+		
+	}
+	
 	public SimpleAlertRow(String id, IModel<T> model, int type) {
 		super(id, model);
 		this.alertType = type;
@@ -54,6 +64,9 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 		if (this.isVisible()) {
 			IModel<String> s = getText();
 			this.info = new AlertPanel<Void>("info", getAlertType(), (s != null ? s : Model.of("")));
+			if (this.getTitle() != null) {
+				info.setAlertTitle(this.getTitle());
+			}
 			infoContainer.addOrReplace(info);
 		} else {
 			infoContainer.addOrReplace(new InvisiblePanel("info"));
@@ -79,6 +92,14 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 
 	public void setText(IModel<String> t) {
 		this.text = t;
+	}
+
+	public IModel<String> getTitle() {
+		return title;
+	}
+
+	public void setTitle(IModel<String> title) {
+		this.title = title;
 	}
 
 }

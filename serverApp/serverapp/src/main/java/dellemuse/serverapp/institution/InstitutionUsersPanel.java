@@ -2,6 +2,7 @@ package dellemuse.serverapp.institution;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -27,6 +28,7 @@ import dellemuse.serverapp.role.RoleUsersPanel;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.ObjectState;
+import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
@@ -193,10 +195,20 @@ public class InstitutionUsersPanel extends DBModelPanel<Institution> implements 
 **/
 
 	protected IModel<String> getObjectTitle(IModel<User> model) {
-		StringBuilder str = new StringBuilder();
-		str.append(model.getObject().getName());
 
-		User o = model.getObject();
+		
+		StringBuilder str = new StringBuilder();
+
+		
+		Optional<Person> op = getPersonDBService().getByUser(model.getObject());
+		
+		if (op.isPresent()) {
+			str.append( op.get().getLastFirstname() );
+		}
+		
+		User o  = model.getObject();
+		
+		str.append(" <span class=\"text-secondary small\">. " +o.getName() + "  </span>");
 		
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
@@ -211,8 +223,7 @@ public class InstitutionUsersPanel extends DBModelPanel<Institution> implements 
 
 	private void setUpModel() {
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
-		Institution s = getModel().getObject();
-		getModel().setObject(getInstitutionDBService().findWithDeps(s.getId()).get());
+	 	getModel().setObject(getInstitutionDBService().findWithDeps(getModel().getObject().getId()).get());
 	}
 
 	

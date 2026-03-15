@@ -53,7 +53,7 @@ public class Institution extends MultiLanguageObject {
 	private String addressKey;
 
 	@Column(name = "moreinfo")
-	private String moreinfo;
+	private String moreinfo; 
 
 	@Column(name = "moreinfoKey")
 	private String moreinfoKey;

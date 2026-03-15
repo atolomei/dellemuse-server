@@ -132,7 +132,7 @@ public class LoginPage extends BasePage {
 		add(alertContainer);
 
 		if (isError()) {
-			alert = new AlertPanel<Void>("alert", AlertPanel.DANGER, null, null, null, getLabel("username-password-invalid"));
+			alert = new AlertPanel<Void>("alert", AlertPanel.DANGER, null,  getLabel("username-password-invalid"));
 			
 			alert.setAlertTextContainerCss("col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center");
 			alertContainer.add(alert);

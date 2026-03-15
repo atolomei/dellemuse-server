@@ -306,6 +306,11 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 	}
 	
+	
+	protected CandidateDBService getCandidateDBService() {
+		return (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
+	}
+	
 	protected InstitutionDBService getInstitutionDBService() {
 		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 	}

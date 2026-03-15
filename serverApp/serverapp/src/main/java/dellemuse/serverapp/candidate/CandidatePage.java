@@ -18,7 +18,9 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
+ 
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -42,12 +44,15 @@ import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
-
+import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
-
+import io.wktui.nav.menu.AjaxLinkMenuItem;
+import io.wktui.nav.menu.MenuItemPanel;
+import io.wktui.nav.menu.TitleMenuItem;
+import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 
@@ -63,7 +68,14 @@ public class CandidatePage extends ObjectPage<Candidate> {
 
 	static private Logger logger = Logger.getLogger(CandidatePage.class.getName());
 
+	
 	private CandidateEditor editor;
+	
+	
+	private CandidateInstitutionEditor institutionEditor;
+	private CandidateUserEditor userEditor;
+	
+	
 	private List<ToolbarItem> listMenu = null;
 
 	 
@@ -78,7 +90,7 @@ public class CandidatePage extends ObjectPage<Candidate> {
 	public CandidatePage(IModel<Candidate> model) {
 		super(model);
 	}
-
+	
 	public CandidatePage(IModel<Candidate> model, List<IModel<Candidate>> list) {
 		super(model, list);
 	}
@@ -88,7 +100,10 @@ public class CandidatePage extends ObjectPage<Candidate> {
 		super.onDetach();
 
 	}
- 
+	
+	public String getHelpKey() {
+		return Help.CANDIDATE_INFO;
+	}
 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -126,9 +141,25 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			public void onEvent(SimpleAjaxWicketEvent event) {
 
 				logger.debug(event.toString());
+				
 				if (event.getName().equals(ServerAppConstant.action_candidate_edit)) { 
 					CandidatePage.this.onEdit(event.getTarget());
 				}
+				if (event.getName().equals(ServerAppConstant.action_candidate_insitution_edit)) { 
+					CandidatePage.this.onInstitutionEdit(event.getTarget());
+				}
+				if (event.getName().equals(ServerAppConstant.action_candidate_user_edit)) { 
+					CandidatePage.this.onUserEdit(event.getTarget());
+				}
+				 else if (event.getName().equals(ServerAppConstant.candidate_info)) {
+						CandidatePage.this.togglePanel(ServerAppConstant.candidate_info, event.getTarget());
+				 }
+				 else if (event.getName().equals(ServerAppConstant.candidate_user)) {
+								CandidatePage.this.togglePanel(ServerAppConstant.candidate_user, event.getTarget());
+				 }		
+				 else if (event.getName().equals(ServerAppConstant.candidate_institution)) {
+						CandidatePage.this.togglePanel(ServerAppConstant.candidate_institution, event.getTarget());
+		 }
 				
 				/**
 				if (event.getName().equals(ServerAppConstant.Music_action_edit_info)) { 
@@ -175,6 +206,36 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			}
 		});
 	}
+
+	protected void onUserEdit(AjaxRequestTarget target) {
+		getUserEditor().onEdit(target);
+	}
+
+	protected void onInstitutionEdit(AjaxRequestTarget target) {
+		getInstitutionEditor().onEdit(target);
+	}
+
+	private CandidateInstitutionEditor getInstitutionEditor() {
+		return this.institutionEditor;
+	}
+			
+	private CandidateInstitutionEditor getInstitutionEditor(String id) {
+		if (institutionEditor == null)
+			institutionEditor = new CandidateInstitutionEditor(id, getModel());
+		return (institutionEditor);
+	}
+	
+	
+	private CandidateUserEditor getUserEditor() {
+		return this.userEditor;
+	}
+			
+	private CandidateUserEditor getUserEditor(String id) {
+		if (userEditor == null)
+			userEditor = new CandidateUserEditor(id, getModel());
+		return (userEditor);
+	}
+	
 
 	@Override
 	protected Optional<Candidate> getObject(Long id) {
@@ -249,9 +310,97 @@ public class CandidatePage extends ObjectPage<Candidate> {
 
 		listMenu = new ArrayList<ToolbarItem>();
 		
-		//MusicNavDropDownToolbarItem vn = new MusicNavDropDownToolbarItem("item", getModel(), getLabel("candidate"), Align.TOP_RIGHT);
-		//musicMenu.add(vn);
+		DropDownMenuToolbarItem<Candidate> menu = new DropDownMenuToolbarItem<Candidate>("item", getModel(), Align.TOP_RIGHT);
 
+		menu.setTitle(Model.of(TextCleaner.truncate(getModel().getObject().getInstitutionName(), 24) ));
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Candidate> getItem(String id) {
+				return new TitleMenuItem<Candidate>(id) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("information");
+					}
+				};
+			}
+		});
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Candidate> getItem(String id) {
+				return new AjaxLinkMenuItem<Candidate>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.candidate_info, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("info");
+					}
+				};
+			}
+		});
+
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Candidate> getItem(String id) {
+				return new AjaxLinkMenuItem<Candidate>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.candidate_institution, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("institution");
+					}
+				};
+			}
+		});
+
+
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Candidate> getItem(String id) {
+				return new AjaxLinkMenuItem<Candidate>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.candidate_user, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("user");
+					}
+				};
+			}
+		});
+
+		
+		listMenu.add(menu);
+		
+		
 		
 		listMenu.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
 	
@@ -261,46 +410,14 @@ public class CandidatePage extends ObjectPage<Candidate> {
 	
 	 
 	
-	
-
-	/**
-	@Override
-	protected List<INamedTab> createInternalPanels() {
-
-		List<INamedTab> list = super.createInternalPanels();
-
-		NamedTab editor = new NamedTab(Model.of("editor"), ServerAppConstant.voice_info) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getEditor(panelId);
-			}
-		};
-		
-		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getAuditPanel(panelId);
-			}
-		};
-
-		list.add(audit);
-		return list;
-	}
-	*/
-	
+	 
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 
 		 
-		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.voice_info) {
+		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.candidate_info) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -310,6 +427,30 @@ public class CandidatePage extends ObjectPage<Candidate> {
 		};
 		tabs.add(tab_1);
  
+		
+		NamedTab tab_2 = new NamedTab(Model.of("i-editor"), ServerAppConstant.candidate_institution) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getInstitutionEditor(panelId);
+			}
+		};
+		tabs.add(tab_2);
+		
+		
+		
+		NamedTab tab_3 = new NamedTab(Model.of("u-editor"), ServerAppConstant.candidate_user) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getUserEditor(panelId);
+			}
+		};
+		tabs.add(tab_3);
+
+		
 		
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
@@ -324,7 +465,7 @@ public class CandidatePage extends ObjectPage<Candidate> {
 		
 		
 		if (getStartTab() == null)
-			setStartTab(ServerAppConstant.voice_info);
+			setStartTab(ServerAppConstant.candidate_info);
 
 		return tabs;
 	}
@@ -334,4 +475,5 @@ public class CandidatePage extends ObjectPage<Candidate> {
 		return null;
 	}
 
+	
 }

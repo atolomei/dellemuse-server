@@ -76,7 +76,8 @@ public class CandidateDBService extends DBService<Candidate, Long> {
         c.setInstitutionName(values.get("institutionName"));
         c.setComments(values.get("comments"));
         c.setReferences(values.get("references"));
-       
+        c.setLanguage(values.get("language"));
+        
         c.setObjectState(ObjectState.DRAFT);
         c.setStatus(dellemuse.serverapp.serverdb.model.CandidateStatus.DRAFT);
         
@@ -107,10 +108,22 @@ public class CandidateDBService extends DBService<Candidate, Long> {
 			aw.setLastModifiedUser(getUserDBService().findById(u.getId()).get());
 
 		User v = aw.getEvaluatedBy();
-		
 		if (v != null)
 			aw.setEvaluatedBy(getUserDBService().findById(u.getId()).get());
 			
+
+		if (aw.getInstitution()!=null) {
+			aw.setInstitution(getInstitutionDBService().findById(aw.getInstitution().getId()).get());
+		}
+
+		if (aw.getUser()!=null) {
+			aw.setUser(getUserDBService().findById(aw.getUser().getId()).get());
+		}
+	
+		if (aw.getLastModifiedUser()!=null) {
+			aw.setLastModifiedUser(getUserDBService().findById(aw.getLastModifiedUser().getId()).get());
+		}
+		
 		aw.setDependencies(true);
 		return o_aw;
 	}

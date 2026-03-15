@@ -386,4 +386,17 @@ public class DelleMuseAudit extends JsonObject implements Identifiable, Auditabl
 		return of(u, by, update, addRole, map);
 
 	}
+	
+	public static DelleMuseAudit ofUser(User u, User by, String b, AuditAction a) {
+		
+		Check.requireNonNullArgument(u, "User is null");
+		Check.requireTrue(u.getId() != null, "User id is null");
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("action", String.valueOf(a.getId()));
+		
+		return of(u, by, a, b, map);
+
+	}
+	
 }

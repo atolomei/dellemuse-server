@@ -210,13 +210,13 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 		StringBuilder str = new StringBuilder();
 		
 		Optional<Person> op = getPersonDBService().getByUser(model.getObject());
+	
 		if (op.isPresent()) {
 			str.append( op.get().getLastFirstname() );
 		}
 		str.append(" <span class=\"text-secondary small\">. " + model.getObject().getName() + "  </span>");
 		
 		User o  = model.getObject();
-		
 		
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);

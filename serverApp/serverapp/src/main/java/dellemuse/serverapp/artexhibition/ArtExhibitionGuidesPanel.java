@@ -97,7 +97,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 			@Override
 			public IModel<String> getButtonLabel() {
-				return getLabel("create");
+				return ArtExhibitionGuidesPanel.this.getLabel("create-audio-guide");
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);

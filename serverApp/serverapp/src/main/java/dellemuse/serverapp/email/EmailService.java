@@ -47,10 +47,17 @@ public class EmailService extends BaseService implements SystemService  {
 		super(settings);
 	}
 	
-	public String send(String to, String subject, String text)
+	
+	public String sendText(String to, String subject, String text)
+            throws IOException, InterruptedException {
+	return send( getSettings().getEmailFrom(), to, subject, text, "text");
+}
+	
+	public String sendHTML(String to, String subject, String text)
 	            throws IOException, InterruptedException {
-		return send( getSettings().getEmailFrom(), to, subject, text);
+		return send( getSettings().getEmailFrom(), to, subject, text, "html");
     }
+	
 
 	 /**
      * Sends an email with an explicit {@code from} address.
@@ -64,23 +71,18 @@ public class EmailService extends BaseService implements SystemService  {
      * @throws InterruptedException if the operation is interrupted
      */
 	
-    public String send(String from, String to, String subject, String text)
+    public String send(String from, String to, String subject, String text, String type)
             throws IOException, InterruptedException {
 
         Map<String, String> params = new LinkedHashMap<>();
         params.put("from",    from);
         params.put("to",      to);
         params.put("subject", subject);
-
-        params.put("html",    text);
-
-       // params.put("text",    text);
-   
+        params.put(type,     text);
         
         String formBody = buildFormBody(params);
         
         logger.debug("Mailgun request body -> " + formBody);
-     
         
         
         if (getSettings().isEmailSenderEnabled()) {

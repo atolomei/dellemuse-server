@@ -224,9 +224,7 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 			{
 		        String hash = new BCryptPasswordEncoder().encode(getNewPassword() );
 				getModel().getObject().setPassword(hash);
-
 				save(getModelObject(), getSessionUser().get(), getUpdatedParts());
-				
 				
 			}
 			this.form.setFormState(FormState.VIEW);

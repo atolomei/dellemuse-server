@@ -1,39 +1,20 @@
 package dellemuse.serverapp.candidate;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.util.Optional;
-
-import javax.imageio.ImageIO;
-
-import org.apache.commons.compress.utils.FileNameUtils;
-import org.apache.commons.io.FilenameUtils;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.FSUtil;
-import dellemuse.serverapp.DelleMuseServerDBVersion;
+import dellemuse.serverapp.DellemuseServer;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.command.Command;
-import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.email.EmailTemplateService;
 import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.model.CandidateStatus;
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.PersistentToken;
-import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.UserDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
 public class CandidateValidateEmailCommand extends Command {
 
@@ -48,14 +29,12 @@ public class CandidateValidateEmailCommand extends Command {
 
 	@Override
 	public void execute() {
-
 		
 		if (this.candidateId == null) {
 			logger.error(this.getClass().getSimpleName() + ": candidateId is null", ServerConstant.NOT_THROWN);
 			return;
 		}
 		 
-		
 		Candidate c = getCandidateDBService().findById(candidateId).orElse(null);
 		
 		if (c == null)
@@ -67,43 +46,99 @@ public class CandidateValidateEmailCommand extends Command {
     	if (c.getValidationEmailSent()!=null)
 			return;
     	
+    	if (c.getState()==ObjectState.DELETED)
+    		return;
+
+    	if (c.getState()==ObjectState.EDITION)
+    		return;
+
     	if (c.getStatus()!=CandidateStatus.SUBMITTED)
     		return;
 		
     	
+    	if (c.getEmail()==null || c.getEmail().length()==0) {
+    		logger.error("email is null", ServerConstant.NOT_THROWN);
+    		return;
+    	}
+    	
     	logger.debug("Executing " + this.getClass().getSimpleName() + " for candidate -> "+ c.getDisplayname());
     	
+    
+    	
+    	// -- token for email validation -------------------------------------------------------
+    	//
     	
     	String tokenValue = getSecurityService().nextSecureToken();
     	 
-    	PersistentToken token = getPersistentTokenDBServiceDBService().create(
+    	@SuppressWarnings("unused")
+		PersistentToken token = getPersistentTokenDBServiceDBService().create(
 				c.getId().toString(), 
 				Candidate.class.getSimpleName(), 
 				tokenValue,
 				OffsetDateTime.now().plusDays(7) );
     	
-    	Long tid = null;
-    
-    	try {
-    		
-    		tid = token.getId();
-    		
-    		String from = getSettings().getEmailFrom();
-    		String to = c.getEmail();
-    		
-    		String subject = "DelleMuse - Please validate your email address";
-    		String text = "please click the following link to validate your email address: " + getSettings().getEmailValidationServer() + "/candidate-validate-email?token=" +c.getId().toString()+"-"+tokenValue;
-    		
-    		String sendEmail= getEmailService().send(from, to, subject, text);
+    	String personName 		= c.getPersonName() !=null ?  c.getPersonName() : "";
+    	String personLastname 	= c.getPersonLastname() !=null ?  c.getPersonLastname() : "";
+        String name = (personName + " " + personLastname).trim();
     	
-    		logger.debug("Email sent response -> " + sendEmail);
-    		
-    	} catch (Exception e) {
-    		if (tid!=null)
-    			getPersistentTokenDBServiceDBService().findById(tid).ifPresent(t -> getPersistentTokenDBServiceDBService().delete(t));
-    		logger.error(e, ServerConstant.NOT_THROWN);
+    	String to = c.getEmail();
+ 		
+ 		String subject = "candidate validate email";
+	    	
+ 		String url=getServerDBSettings().getEmailValidationServer() + "/"+ DellemuseServer.URL_CANDIDATE_VALIDATE_EMAIL + "/" + c.getId().toString()+"-"+tokenValue+"-"+ c.getLanguage();
+ 		
+ 		// --------- Send email to Candidate to validate email -----------
+ 	   	//
+ 		 
+     	String text= getEmailTemplateService().render(EmailTemplateService.CANDIDATE_EMAIL_VALIDATION, 
+ 		
+     			Map.of(
+ 				"confirmationLink", url,
+ 			    "application",  DellemuseServer.APPNAME,
+ 			    "personName",   name));
+
+ 		try {
+ 	 		String sendEmail;
+			sendEmail = getEmailService().sendHTML(to, subject, text);
+			
+			
+			c.setValidationEmailSent(OffsetDateTime.now());
+			getCandidateDBService().save(c);
+			
+			
+	 		logger.debug("Candidate email validation response -> " + sendEmail);
+	 		
+		} catch (IOException | InterruptedException e) {
+			logger.error(e, ServerConstant.NOT_THROWN);
+		}
+ 	
+ 		
+ 		// --------- Send email to Admin ------------------------------------
+ 	   	//
+ 		 
+ 		try {
+
+ 			String textAdmin= getEmailTemplateService().render(EmailTemplateService.CANDIDATE_SUBMT_NOTIFY_ADMIN, 
+					Map.of(
+				    "application",  DellemuseServer.APPNAME,
+				    "name",   		c.getPersonName(),
+				    "lastname",  	c.getPersonLastname(),
+				    "institution",  c.getInstitutionName(),
+				    "address",   	c.getInstitutionAddress(),
+				    "email",   		c.getEmail(),
+				    "phone",   		c.getPhone(),
+				    "comments",   	c.getComments())
+				   	);
+	
+	    	String toAdmin = getRootUser().getEmail();
+	    	String subjectAdmin = "Institution registration";
+			String sendEmailAdmin = getEmailService().sendText(toAdmin, subjectAdmin, textAdmin);
+		
+			logger.debug("Email sent response -> " + sendEmailAdmin);
+			
+ 		} catch (IOException | InterruptedException e) {
+			logger.error(e, ServerConstant.NOT_THROWN);
 		}
  	}
  
-
 }
