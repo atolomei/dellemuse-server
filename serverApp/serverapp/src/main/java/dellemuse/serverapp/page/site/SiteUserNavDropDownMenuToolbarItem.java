@@ -150,7 +150,7 @@ public class SiteUserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("person");
+						return getLabel("person-info");
 					}
 				};
 			}

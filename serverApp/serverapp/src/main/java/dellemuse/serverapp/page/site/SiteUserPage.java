@@ -19,7 +19,7 @@ import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
-
+import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
@@ -58,7 +58,7 @@ import wktui.base.INamedTab;
 
 import wktui.base.NamedTab;
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/site/user/${id}/${userid}")
 public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
@@ -69,48 +69,45 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	private List<ToolbarItem> list;
 
 	private IModel<User> userModel;
-	
-
 	private StringValue sv;
 
-	
 	private PersonEditor personEditor;
-	
 	private UserPasswordEditor pwdeditor;
 	private SiteUserEditor editor;
-	private UserRolesPanel reditor;
-	
 
+	private UserRolesPanel reditor;
+
+	private ObjectMetaEditor<User>  metaEditor;
+	
+	
+	
 	public SiteUserPage(PageParameters parameters) {
 		super(parameters);
-		if (getPageParameters()!=null)
+		if (getPageParameters() != null)
 			sv = getPageParameters().get("userid");
 	}
- 	
+
 	public SiteUserPage() {
 		super();
 	}
-	
+
 	public SiteUserPage(IModel<Site> model, IModel<User> userModel) {
 		super(model);
-		this.userModel=userModel;
+		this.userModel = userModel;
 		getPageParameters().add("userid", userModel.getObject().getId().toString());
-		sv= StringValue.valueOf( userModel.getObject().getId().toString());
+		sv = StringValue.valueOf(userModel.getObject().getId().toString());
 	}
-
 
 	public String getHelpKey() {
 		return Help.SITE_USER_INFO;
 	}
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;
 
-		
 		if (isRoot())
 			return true;
 
@@ -145,7 +142,6 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return false;
 	}
 
-
 	@Override
 	protected Panel createHeaderPanel() {
 
@@ -153,19 +149,19 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			BreadCrumb<Void> bc = createBreadCrumb();
 			bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
 			bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), getObjectTitle(getModel().getObject())));
-			bc.addElement(new HREFBCElement("/site/users/"+getModel().getObject().getId().toString(), getLabel("users")));
-			
-			bc.addElement(new BCElement(getObjectTitle( this.userModel.getObject()) ));
-			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), getObjectTitle(getModel().getObject()) );
+			bc.addElement(new HREFBCElement("/site/users/" + getModel().getObject().getId().toString(), getLabel("users")));
+
+			bc.addElement(new BCElement(getObjectTitle(this.userModel.getObject())));
+			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), getObjectTitle(getModel().getObject()));
 			ph.setBreadCrumb(bc);
 
 			ph.setContext(getLabel("site"));
 
 			if (getModel().getObject().getSubtitle() != null)
-				ph.setTagline( getObjectSubtitle(getModel().getObject() ));
+				ph.setTagline(getObjectSubtitle(getModel().getObject()));
 
 			if (getModel().getObject().getPhoto() != null)
-				ph.setPhotoModel(new ObjectModel<Resource>( getResourceDBService().findById( getModel().getObject().getPhoto().getId() ).get() ));
+				ph.setPhotoModel(new ObjectModel<Resource>(getResourceDBService().findById(getModel().getObject().getPhoto().getId()).get()));
 
 			return ph;
 
@@ -180,30 +176,36 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return new SitePage(iModel, list2);
 	}
 
-	protected Panel getEditor(String id) {
+	protected Panel getSiteUserEditor(String id) {
 		if (this.editor == null)
 			this.editor = new SiteUserEditor(id, getModel(), this.userModel);
 		return this.editor;
 	}
+
 	
-	
+	protected ObjectMetaEditor<User> getSiteUserStateEditor() {
+		return this.metaEditor;
+	}
+
+	protected WebMarkupContainer getSiteUserStateEditor(String pid) {
+		if (this. metaEditor == null) {
+			this. metaEditor = new ObjectMetaEditor<User>(pid, getUserModel());
+		}
+		return this.metaEditor;
+	}
 	
 	protected PersonEditor getPersonEditor() {
 		return this.personEditor;
 	}
 
-	
 	protected Panel getPersonEditor(String id) {
 		if (this.personEditor == null) {
 			Optional<Person> o = getPersonDBService().getByUser(getUserModel().getObject());
-			 
-				this.personEditor = new PersonEditor(id, new ObjectModel<Person>( o.get()) );
-		 
+			this.personEditor = new PersonEditor(id, new ObjectModel<Person>(o.get()));
 		}
 		return this.personEditor;
 	}
 
-	
 	protected PersonDBService getPersonDBService() {
 		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 	}
@@ -212,21 +214,18 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return this.pwdeditor;
 	}
 
-	
 	protected Panel getUserPasswordEditor(String id) {
 		if (this.pwdeditor == null)
-			this.pwdeditor = new UserPasswordEditor(id, getUserModel() );
+			this.pwdeditor = new UserPasswordEditor(id, getUserModel());
 		return this.pwdeditor;
 	}
 
 	protected UserRolesPanel getUserRolesdEditor(String id) {
 		if (this.reditor == null)
-			this.reditor = new UserRolesPanel(id, getUserModel(), getModel(), true );
+			this.reditor = new UserRolesPanel(id, getUserModel(), getModel(), true);
 		return this.reditor;
 	}
 
-	
-	
 	protected List<ToolbarItem> getToolbarItems() {
 
 		if (list != null)
@@ -234,19 +233,18 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 		list = new ArrayList<ToolbarItem>();
 
-		//list.add(new SiteInfoNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT));
+	 
 		SiteUserNavDropDownMenuToolbarItem menu = new SiteUserNavDropDownMenuToolbarItem("item", userModel, getLabel("user"), Align.TOP_RIGHT);
 		list.add(menu);
-		
+
 		// site
 		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT);
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
-		
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item", Align.TOP_RIGHT);
 		list.add(h);
-		
-		
+
 		return list;
 	}
 
@@ -261,14 +259,12 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 			@Override
 			public WebMarkupContainer getPanel(String panelId) {
-				return getEditor(panelId);
+				return getSiteUserEditor(panelId);
 			}
 		};
 		tabs.add(tab_1);
 
-		
-
-		NamedTab tab_2= new NamedTab(Model.of("pwd"), ServerAppConstant.user_panel_password) {
+		NamedTab tab_2 = new NamedTab(Model.of("pwd"), ServerAppConstant.user_panel_password) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -278,11 +274,8 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			}
 		};
 		tabs.add(tab_2);
-		
-		
-		
 
-		NamedTab tab_3= new NamedTab(Model.of("roles"), ServerAppConstant.user_panel_roles) {
+		NamedTab tab_3 = new NamedTab(Model.of("roles"), ServerAppConstant.user_panel_roles) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -292,10 +285,8 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			}
 		};
 		tabs.add(tab_3);
-		
-		
 
-		NamedTab tab_4= new NamedTab(Model.of("person"), ServerAppConstant.person_info) {
+		NamedTab tab_4 = new NamedTab(Model.of("person"), ServerAppConstant.person_info) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -305,7 +296,19 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			}
 		};
 		tabs.add(tab_4);
+
 		
+		NamedTab tab_5 = new NamedTab(Model.of("state"), ServerAppConstant.site_user_state_info) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getSiteUserStateEditor(panelId);
+			}
+		};
+		
+		tabs.add(tab_5);
 		
 		
 		if (getStartTab() == null)
@@ -314,9 +317,9 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return tabs;
 	}
 
-	 
+
 	protected void onEdit(AjaxRequestTarget target) {
-		//this.editor.onEdit(target);
+		// this.editor.onEdit(target);
 
 	}
 
@@ -324,43 +327,37 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	protected Class<?> getTranslationClass() {
 		return SiteRecord.class;
 	}
-	
+
 	@Override
 	protected void setUpModel() {
 		super.setUpModel();
 
 		if (this.userModel == null) {
 			if (this.sv != null) {
-				Optional<User> o = getUserDBService().findById( Long.valueOf(this.sv.toLong())) ;
+				Optional<User> o = getUserDBService().findById(Long.valueOf(this.sv.toLong()));
 				if (o.isPresent()) {
-					this.userModel =  new ObjectModel<User>(o.get());
+					this.userModel = new ObjectModel<User>(o.get());
 				}
 			}
 		}
 
 		if (getModel() == null)
 			throw new IllegalStateException("site is null");
-		
+
 		if (this.userModel == null)
 			throw new IllegalStateException("user is null");
-		
-		
+
 		if (!this.userModel.getObject().isDependencies()) {
 			Optional<User> o_i = getUserDBService().findWithDeps(userModel.getObject().getId());
-			this.userModel =  new ObjectModel<User>(o_i.get());
+			this.userModel = new ObjectModel<User>(o_i.get());
 		}
-		
+
 	}
 
-	 
-	
-	
-	
 	protected List<Language> getSupportedLanguages() {
 		return getModel().getObject().getLanguages();
 	}
-	
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -369,7 +366,7 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		if (this.userModel!=null)
+		if (this.userModel != null)
 			this.userModel.detach();
 	}
 
@@ -400,52 +397,61 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 				logger.debug(event.toString());
 
+				if (event.getName().equals(ServerAppConstant.site_user_state_info)) {
+					SiteUserPage.this.togglePanel(ServerAppConstant.site_user_state_info, event.getTarget());
+				}
+				 
+				if (	(event.getName().equals(ServerAppConstant.site_user_state_action_edit))  || 
+						(event.getName().equals(ServerAppConstant.action_object_edit_meta ))) {
+					SiteUserPage.this.getSiteUserStateEditor().onEdit(event.getTarget());
+				}
+				else if (event.getName().equals(ServerAppConstant.person_info)) {
+					SiteUserPage.this.togglePanel(ServerAppConstant.person_info, event.getTarget());
+				}
+				
+				
 				if (event.getName().equals(ServerAppConstant.site_portal_action_edit)) {
 					SiteUserPage.this.onEdit(event.getTarget());
+				}
+
+				else if (event.getName().equals(ServerAppConstant.user_panel_password)) {
+					SiteUserPage.this.togglePanel(ServerAppConstant.user_panel_password, event.getTarget());
+				}
+
+				else if (event.getName().equals(ServerAppConstant.user_action_edit_pwd)) {
+					SiteUserPage.this.getUserPasswordEditor().onEdit(event.getTarget());
+				}
+
+				else if (event.getName().equals(ServerAppConstant.site_user_editor)) {
+					SiteUserPage.this.togglePanel(ServerAppConstant.site_user_editor, event.getTarget());
+				}
+
+				else if (event.getName().equals(ServerAppConstant.user_panel_roles)) {
+					SiteUserPage.this.togglePanel(ServerAppConstant.user_panel_roles, event.getTarget());
+				}
+
+				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
+					SiteUserPage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
+
+				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
+					SiteUserPage.this.togglePanel(ServerAppConstant.site_user_state_info, event.getTarget());
+				}
+				
+
+			
+
+				else if (event.getName().equals(ServerAppConstant.user_action_edit_info)) {
+					SiteUserPage.this.getSiteUserEditor().onEdit(event.getTarget());
+				}
+
+				else if (event.getName().equals(ServerAppConstant.action_person_edit_info)) {
+					SiteUserPage.this.getPersonEditor().onEdit(event.getTarget());
 				}
 
 				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
 					SiteUserPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
 				}
 
-
-			 
-				
-				else if (event.getName().equals(ServerAppConstant.user_panel_password)) {
-					SiteUserPage.this.togglePanel(ServerAppConstant.user_panel_password, event.getTarget());
-				}
-				
-
-				else if (event.getName().equals(ServerAppConstant.user_action_edit_pwd)) {
-					SiteUserPage.this.getUserPasswordEditor().onEdit(event.getTarget());
-				}
-				
-				else if (event.getName().equals(ServerAppConstant.site_user_editor)) {
-					SiteUserPage.this.togglePanel(ServerAppConstant.site_user_editor, event.getTarget());
-				}
-				
-				else if (event.getName().equals(ServerAppConstant.user_panel_roles)) {
-					SiteUserPage.this.togglePanel(ServerAppConstant.user_panel_roles, event.getTarget());
-				}
-				
-
-				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
-					SiteUserPage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
-					
-					
-				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
-					SiteUserPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
-				}
-
-
-				else if (event.getName().equals(ServerAppConstant.person_info)) {
-					SiteUserPage.this.togglePanel(ServerAppConstant.person_info, event.getTarget());
-				}
-				
-				else if (event.getName().equals(ServerAppConstant.action_person_edit_info)) {
-					SiteUserPage.this.getPersonEditor().onEdit(event.getTarget());
-				}
-				
 				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 					SiteUserPage.this.togglePanel(event.getName(), event.getTarget());
 				}
@@ -453,10 +459,10 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
 					if (event.getMoreInfo() != null) {
 						SiteUserPage.this.togglePanel(ServerAppConstant.object_audit + "-" + event.getMoreInfo(), event.getTarget());
-						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
+
 					} else {
 						SiteUserPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-						// SiteInfoPage.this.getHeader().setPhotoVisible(true);
+
 					}
 				}
 			}
@@ -469,7 +475,6 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			}
 		});
 
-		
 		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
 			private static final long serialVersionUID = 1L;
 
@@ -492,8 +497,6 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			}
 		});
 
-		
-		
 		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
 			private static final long serialVersionUID = 1L;
 
@@ -512,7 +515,11 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 			}
 		});
 	}
-	
+
+	protected SiteUserEditor getSiteUserEditor() {
+		return this.editor;
+	}
+
 	@Override
 	protected Optional<Site> getObject(Long id) {
 		return getSite(id);
@@ -523,11 +530,9 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 		return getLabel("user");
 	}
 
-
 	public IModel<User> getUserModel() {
 		return userModel;
 	}
-
 
 	public void setUserModel(IModel<User> userModel) {
 		this.userModel = userModel;

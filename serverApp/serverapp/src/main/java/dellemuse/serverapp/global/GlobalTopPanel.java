@@ -17,9 +17,11 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseServer;
 import dellemuse.serverapp.branded.panel.BrandedArtExhibitionGuidePanel;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.media.InvisibleImage;
 import io.wktui.nav.menu.NavBar;
+import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.InvisiblePanel;
 import wktui.base.LabelLinkPanel;
 import wktui.base.ModelPanel;
@@ -130,7 +132,9 @@ public class GlobalTopPanel extends ModelPanel<User> {
 
 		add(this.userGlobalTopPanel);
 
-		 
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("help", Align.TOP_RIGHT);
+		add(h);
+		
 	}
 
  

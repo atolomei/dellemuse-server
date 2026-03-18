@@ -3,7 +3,7 @@ package dellemuse.serverapp.editor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
+ 
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
@@ -33,7 +33,7 @@ import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
-import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+ 
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
@@ -58,23 +58,13 @@ import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.field.Field;
 
-/**
- * 
- * reset edit [new value] ------------------------- remove [id] add [id]
- * 
- * op.
- * 
- * edit -> reset -> relationship ->
- * 
- * id value
- * 
- * @param <T>
- */
+ 
 public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	private static final long serialVersionUID = 1L;
 
 	static public final List<Boolean> b_list = new ArrayList<Boolean>();
+
 	static {
 		b_list.add(Boolean.TRUE);
 		b_list.add(Boolean.FALSE);
@@ -96,46 +86,49 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		locales.add(Locale.forLanguageTag("es"));
 	}
 	
-	public List<Locale> getSuppportedLocales() {
-		return locales;
-	}
-	
 	private Form<T> form;
 	private boolean readonly = false;
 	private List<String> updatedParts = new ArrayList<String>();
-
-	
-	public boolean hasWritePermission() {
-		return true;
-	}
-	
-	public boolean isSiteAdminOrEditor(Site site) {
-		if (site==null)
-			return false;
-		return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), site);
-	}
-	
-	public boolean isSiteAdmin (Site site) {
-		if (site==null)
-			return false;
-		return getSecurityAuthorizationService().isSiteAdmin (getSessionUser(), site);
-	}
-	
-	
 
 	public DBObjectEditor(String id, IModel<T> model) {
 		super(id, model);
 		super.setOutputMarkupId(true);
 	}
-
-	protected Locale getUserLocale() {
-		return getSessionUser().get().getLocale();
+	
+	public boolean hasWritePermission() {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+		
+		if (isRoot())
+			return true;
+		
+		if (isGeneralAdmin())
+			return true;
+		
+		return false;
 	}
-
-	protected List<Language> getLanguages() {
-		return getLanguageService().getLanguagesSorted(getLocale());
+	
+	public boolean isSiteAdminOrEditor(Site site) {
+		
+		if (site==null)
+			return false;
+		
+		return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), site);
 	}
-
+	
+	public boolean isSiteAdmin (Site site) {
+		
+		if (site==null)
+			return false;
+		
+		return getSecurityAuthorizationService().isSiteAdmin (getSessionUser(), site);
+	}
+	
+	public List<Locale> getSuppportedLocales() {
+		return locales;
+	}
+	
 	@Override
 	public boolean isReadOnly() {
 		return readonly;
@@ -164,7 +157,6 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 			@Override
 			public void component(Field<?> field, IVisit<Void> visit) {
 				field.editOn();
-
 			}
 		});
 	}
@@ -175,7 +167,6 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 			@Override
 			public void component(Field<?> field, IVisit<Void> visit) {
 				field.editOn();
-
 			}
 		});
 		target.add(this);
@@ -373,6 +364,14 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	/** ------------------------ **/
 
+	protected Locale getUserLocale() {
+		return getSessionUser().get().getLocale();
+	}
+
+	protected List<Language> getLanguages() {
+		return getLanguageService().getLanguagesSorted(getLocale());
+	}
+	
 	protected String getMimeType(String clientFileName) {
 		return super.getResourceDBService().getMimeType(clientFileName);
 	}

@@ -23,6 +23,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
+import io.wktui.error.AlertPanel;
 import io.wktui.event.MenuAjaxEvent;
 
 import io.wktui.form.Form;
@@ -47,10 +48,10 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 
 	private Form<User> form;
 	private TextField<String> nameField;
-	
+
 	private ZoneIdField zoneidField;
 	private List<ToolbarItem> list;
-	
+
 	private LocaleField localeField;
 	private BooleanField emailValidatedField;
 	private BooleanField phoneValidatedField;
@@ -58,76 +59,81 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 	private StaticTextField<String> firstLastnameField;
 	private StaticTextField<String> emailField;
 
-	
 	private IModel<Site> siteModel;
-	
+
 	/**
 	 * @param id
 	 * @param model
 	 */
 	public SiteUserEditor(String id, IModel<Site> siteModel, IModel<User> model) {
 		super(id, model);
-		this.siteModel=siteModel;
-		
+		this.siteModel = siteModel;
+
 	}
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		
-		if (siteModel!=null)
+
+		if (siteModel != null)
 			siteModel.detach();
 	}
-	
- 
 
 	@Override
 	public boolean hasWritePermission() {
 
-		if (getSessionUser().get().getId().equals( getModel().getObject().getId()) )
+		// is session use is editing himself ok
+		if (getSessionUser().get().getId().equals(getModel().getObject().getId()))
 			return true;
-		
-		if( (getModel().getObject().getUsername()!=null) 
-			&& getModel().getObject().getUsername().equals("root"))
-				return isRoot();
-		
+
+		// only root can edit root
+		if ((getModel().getObject().getUsername() != null) && getModel().getObject().getUsername().equals("root"))
+			return isRoot();
+
+		// general admin can edit all users
 		if (isGeneralAdmin())
 			return true;
-		
-		if (isSiteAdmin( this.getSiteModel().getObject() ))
-			return true;
-			 
-		
-		return false;
 
-					
-					
+		// root can edit all users
+		if (isRoot())
+			return true;
+
+		if (getModel().getObject().isRoot())
+			return false;
+
+		// if session user is not site admin of the site, return false
+		if (!isSiteAdmin(this.getSiteModel().getObject()))
+			return false;
+
+		// can not edit users that have admin rights
+		if (isGeneralAdmin(getModel().getObject()))
+			return false;
+
+		return true;
+
 	}
-		
-		
- 
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		add(new InvisiblePanel("error"));
+		add(new InvisiblePanel("notice"));
 
 		this.form = new Form<User>("personForm", getModel());
 		add(this.form);
 
 		logger.debug("user locale -> " + getModel().getObject().getLocale().getLanguage());
 
-		 this.emailField = new StaticTextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
-		 this.form.add(emailField);
-		
+		this.emailField = new StaticTextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
+		this.form.add(emailField);
+
 		this.nameField = new TextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
-		
-		
-		if(getModel().getObject().getUsername()!=null && getModel().getObject().getUsername().equals("root")) {
+
+		if (getModel().getObject().getUsername() != null && getModel().getObject().getUsername().equals("root")) {
 			this.nameField.setReadOnly(true);
 		}
-		
+
 		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 		this.localeField = new LocaleField("locale", new PropertyModel<Locale>(getModel(), "locale"), getLabel("locale")) {
 			public List<Locale> getLocales() {
@@ -135,30 +141,22 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 			}
 		};
 
-
-		this.localeField.setHelpPanel( new SimpleHelpPanel<>("help") {
+		this.localeField.setHelpPanel(new SimpleHelpPanel<>("help") {
 			public IModel<String> getLinkLabel() {
 				return SiteUserEditor.this.getLabel("locale-help-label");
 			}
-			
+
 			public IModel<String> getHelpText() {
 				return SiteUserEditor.this.getLabel("locale-text-help");
 			}
 		});
-		
-		
-		
-		
-		
-		
-		
-		
+
 		if (getModel().getObject().isRoot())
 			this.nameField.setReadOnly(true);
 
 		this.emailValidatedField = new BooleanField("emailValidated", new PropertyModel<Boolean>(getModel(), "emailValidated"), getLabel("emailValidated"));
 		this.phoneValidatedField = new BooleanField("phoneValidated", new PropertyModel<Boolean>(getModel(), "phoneValidated"), getLabel("phoneValidated"));
-		this.firstLastnameField  = new StaticTextField<String>("firstLastname", new PropertyModel<String>(getModel(), "firstLastname"), getLabel("firstLastname"));
+		this.firstLastnameField = new StaticTextField<String>("firstLastname", new PropertyModel<String>(getModel(), "firstLastname"), getLabel("firstLastname"));
 
 		this.form.add(nameField);
 		this.form.add(firstLastnameField);
@@ -203,7 +201,6 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 			}
 		};
 
-		
 		EditButtons<User> b_buttons_top = new EditButtons<User>("buttons-top", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -222,10 +219,10 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -239,9 +236,13 @@ public class SiteUserEditor extends DBObjectEditor<User> implements InternalPane
 		};
 
 		getForm().add(b_buttons_top);
-		
-		
+
 		this.form.add(buttons);
+
+		if (!hasWritePermission()) {
+			addOrReplace(new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getUsername())));
+		}
+
 	}
 
 	@Override

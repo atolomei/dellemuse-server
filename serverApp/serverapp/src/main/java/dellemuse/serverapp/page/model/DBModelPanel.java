@@ -274,6 +274,18 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 	
 	private Boolean generalAdmin = null;
 
+	
+	protected boolean isGeneralAdmin(User u) {
+
+		if (!u.isDependencies()) 
+			u = getUserDBService().findWithDeps(u.getId()).get();
+		
+		boolean isGeneralAdmin = u.getRolesGeneral().stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)));
+ 		return isGeneralAdmin;
+	}
+
+	
+	
 	public boolean isGeneralAdmin() {
 
 		if (generalAdmin != null)

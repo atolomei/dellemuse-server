@@ -31,7 +31,7 @@ public class AuditService extends BaseService implements SystemService {
 
 	static private Logger logger = Logger.getLogger(AuditService.class.getName());
 
-	static private Logger startupLogger = Logger.getLogger("StartupLogger");
+	 
  
 	public AuditService(ServerDBSettings settings) {
 		super(settings);

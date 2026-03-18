@@ -26,6 +26,12 @@ public class ServerAppConstant {
 	
 	
 	
+	static final public String site_user_state_info	= "site-user-state-info";
+	static final public String site_user_state_action_edit	= "site-user-state-action-edit";
+	
+	
+	
+	
 	
  	static final public String action_exhibition_info_edit = "exhibition-action-info-edit";
 	static final public String action_exhibition_items_edit = "action-exhibition-items-edit";

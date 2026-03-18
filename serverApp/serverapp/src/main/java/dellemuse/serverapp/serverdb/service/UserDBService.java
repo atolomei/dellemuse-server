@@ -215,6 +215,10 @@ public class UserDBService extends DBService<User, Long> {
 
 		List<Role> list = new ArrayList<Role>();
 
+		if (!u.isDependencies()) {
+			u = findWithDeps(u.getId()).get();
+		}
+		
 		u.getRolesGeneral().forEach(r -> list.add(r));
 		u.getRolesInstitution().forEach(r -> list.add(r));
 		u.getRolesSite().forEach(r -> list.add(r));
@@ -286,8 +290,12 @@ public class UserDBService extends DBService<User, Long> {
 			user.getRolesSite().forEach(r -> set.add(getRoleSiteDBService().findById(r.getId()).get()));
 			user.setRolesSite(set);
 		}
-
+		
+		if (user.getLastModifiedUser() != null)
+			user.setLastModifiedUser( findById( user.getLastModifiedUser().getId()).get() );
+		
 		user.setDependencies(true);
+		
 		return o_u;
 	}
 

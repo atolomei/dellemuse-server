@@ -64,6 +64,8 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	public void onInitialize() {
 		super.onInitialize();
 
+		this.setOutputMarkupId(true);
+		
 		this.itemsContainer = new WebMarkupContainer("itemsContainer");
 		this.itemsContainer.setOutputMarkupId(true);
 		add(this.itemsContainer);

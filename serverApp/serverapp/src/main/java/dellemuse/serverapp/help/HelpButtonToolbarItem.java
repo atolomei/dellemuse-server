@@ -6,14 +6,8 @@ import org.apache.wicket.model.IModel;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.person.ServerAppConstant;
 import io.wktui.event.HelpAjaxEvent;
-import io.wktui.event.MenuAjaxEvent;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 
-
-/**
- * 
- * 
- */
 public class HelpButtonToolbarItem extends AjaxButtonToolbarItem<String> {
 			
 	private static final long serialVersionUID = 1L;
@@ -22,6 +16,8 @@ public class HelpButtonToolbarItem extends AjaxButtonToolbarItem<String> {
 	public HelpButtonToolbarItem(String id, Align a) {
 		super(id);
 		super.setAlign(a);
+
+		
 	}
 	
 	public HelpButtonToolbarItem(String id, IModel<String> title) {

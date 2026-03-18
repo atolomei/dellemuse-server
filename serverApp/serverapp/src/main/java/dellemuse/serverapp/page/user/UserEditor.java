@@ -71,18 +71,24 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 
 	public boolean hasWritePermission() {
 
+		
+		// is session use is editing himself ok
 		if (getSessionUser().get().getId().equals(getModel().getObject().getId()))
 			return true;
 
+		// only root can edit root
 		if ((getModel().getObject().getUsername() != null) && getModel().getObject().getUsername().equals("root"))
 			return isRoot();
 
+		// general admin can edit all users 
 		if (isGeneralAdmin())
 			return true;
 
+		// root can edit all users
 		if (isRoot())
 			return true;
-
+		
+		// if user is site admin and user
 		// if (isGeneralAdmin( getModel().getObject() ))
 		// return false;
 
@@ -110,6 +116,10 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		if (getModel().getObject().getUsername() != null && getModel().getObject().getUsername().equals("root")) {
 			this.nameField.setReadOnly(true);
 		}
+		if (!isRoot())
+			this.nameField.setReadOnly(true);
+		
+		
 
 		this.zoneidField = new ZoneIdField("zoneid", new PropertyModel<ZoneId>(getModel(), "zoneId"), getLabel("zoneid"));
 		this.localeField = new LocaleField("locale", new PropertyModel<Locale>(getModel(), "locale"), getLabel("locale")) {

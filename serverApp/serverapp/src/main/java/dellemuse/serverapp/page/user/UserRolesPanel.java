@@ -263,20 +263,7 @@ public class UserRolesPanel extends DBModelPanel<User> implements InternalPanel 
 
 			});
 			
-			/**
-			.forEach(s -> 
-			{
-				if (s instanceof RoleInstitution) {
-					if (((RoleInstitution) s).getInstitution().getId().equals(iid))
-						this.userRoles.add(new ObjectModel<Role>(s));	
-					}
-				 
-				else if (s instanceof RoleSite) {
-					if (s.getId().equals(getSiteModel().getObject().getId()))
-						this.userRoles.add(new ObjectModel<Role>(s));	
-				}
-			});
-			*/
+			 
 		}
 		else {
 			getUserDBService().getUserRoles(user).forEach(s -> this.userRoles.add(new ObjectModel<Role>(s)));

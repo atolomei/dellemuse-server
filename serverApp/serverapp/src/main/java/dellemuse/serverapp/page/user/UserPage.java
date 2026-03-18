@@ -51,11 +51,9 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/user/${id}")
 public class UserPage extends ObjectPage<User> {
-
-	
 
 	private static final long serialVersionUID = 1L;
 
@@ -64,38 +62,35 @@ public class UserPage extends ObjectPage<User> {
 	private UserRolesPanel rolesPanel;
 	private UserPasswordEditor passwordEditor;
 	private UserEditor editor;
+
 	private List<ToolbarItem> userMenu = null;
 
-	IModel<Person> personModel;
-	boolean myAccount;
+	private IModel<Person> personModel;
+	private boolean myAccount;
 
-	
-	public String getHelpKey() {
-		return Help.USER_INFO;
-	}
-
-	
-	
 	public UserPage() {
 		super();
 	}
 
 	public UserPage(PageParameters parameters) {
 		super(parameters);
-		myAccount=false;
+		myAccount = false;
 	}
 
 	public UserPage(IModel<User> model, boolean myAccount) {
 		super(model);
-		this.myAccount=myAccount;
-		
+		this.myAccount = myAccount;
+
 	}
 
 	public UserPage(IModel<User> model, List<IModel<User>> list, boolean myAccount) {
 		super(model, list);
-		this.myAccount=myAccount;
-		
+		this.myAccount = myAccount;
 
+	}
+
+	public String getHelpKey() {
+		return Help.USER_INFO;
 	}
 
 	public IModel<Person> getPersonModel() {
@@ -105,16 +100,15 @@ public class UserPage extends ObjectPage<User> {
 	public void setPersonModel(IModel<Person> personModel) {
 		this.personModel = personModel;
 	}
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
 
-		if (getPersonModel()!=null)
-				 getPersonModel().detach();
+		if (getPersonModel() != null)
+			getPersonModel().detach();
 	}
- 
-	
+
 	@Override
 	protected List<INamedTab> createInternalPanels() {
 
@@ -139,13 +133,12 @@ public class UserPage extends ObjectPage<User> {
 		super.onInitialize();
 	}
 
-
 	protected boolean isMetaEditEnabled() {
 		if (getModel().getObject().isRoot())
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
@@ -154,13 +147,14 @@ public class UserPage extends ObjectPage<User> {
 
 		if (ouser.get().getId().equals(getModel().getObject().getId()))
 			return true;
-		
-		User user = ouser.get();  if (user.isRoot()) return true;
+
+		User user = ouser.get();
+		if (user.isRoot())
+			return true;
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
-		
 		{
 			Set<RoleGeneral> set = user.getRolesGeneral();
 			if (set != null) {
@@ -183,7 +177,7 @@ public class UserPage extends ObjectPage<User> {
 
 		return false;
 	}
-	
+
 	@Override
 	protected void setUpModel() {
 		super.setUpModel();
@@ -193,11 +187,11 @@ public class UserPage extends ObjectPage<User> {
 			setModel(new ObjectWithDepModel<User>(o_i.get()));
 		}
 
-		Optional<Person> o = getPersonDBService().getByUserWithDeps( getModel().getObject());
+		Optional<Person> o = getPersonDBService().getByUserWithDeps(getModel().getObject());
 		if (o.isPresent())
-			setPersonModel( new ObjectModel<Person>(o.get()));
+			setPersonModel(new ObjectModel<Person>(o.get()));
 	}
-	
+
 	protected void addListeners() {
 		super.addListeners();
 
@@ -209,9 +203,9 @@ public class UserPage extends ObjectPage<User> {
 
 				logger.debug(event.toString());
 
-				if (event.getName().equals(ServerAppConstant.user_action_edit_info)) { 
+				if (event.getName().equals(ServerAppConstant.user_action_edit_info)) {
 					UserPage.this.onEdit(event.getTarget());
-					
+
 				} else if (event.getName().equals(ServerAppConstant.user_panel_info)) {
 					UserPage.this.togglePanel(ServerAppConstant.user_panel_info, event.getTarget());
 				} else if (event.getName().equals(ServerAppConstant.user_panel_password)) {
@@ -222,17 +216,14 @@ public class UserPage extends ObjectPage<User> {
 					UserPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				} else if (event.getName().equals(ServerAppConstant.user_panel_roles)) {
 					UserPage.this.togglePanel(ServerAppConstant.user_panel_roles, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+				} else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					UserPage.this.getMetaEditor().onEdit(event.getTarget());
 				}
-				
+
 				else if (event.getName().equals(ServerAppConstant.user_action_edit_pwd)) {
 					UserPage.this.getPasswordEditor().onEdit(event.getTarget());
 				}
-				
-				
-				
+
 			}
 
 			@Override
@@ -265,10 +256,9 @@ public class UserPage extends ObjectPage<User> {
 			}
 		});
 	}
-	
-	
+
 	protected UserPasswordEditor getPasswordEditor() {
-			return this.passwordEditor;
+		return this.passwordEditor;
 	}
 
 	@Override
@@ -287,13 +277,13 @@ public class UserPage extends ObjectPage<User> {
 			passwordEditor = new UserPasswordEditor(id, getModel());
 		return (passwordEditor);
 	}
-	
+
 	protected Panel getUserRolesPanel(String id) {
 		if (rolesPanel == null)
-			rolesPanel = new UserRolesPanel(id, getModel(),null, false);
+			rolesPanel = new UserRolesPanel(id, getModel(), null, false);
 		return (rolesPanel);
 	}
-	
+
 	@Override
 	protected IModel<String> getPageTitle() {
 		return new Model<String>(getModel().getObject().getName());
@@ -304,26 +294,24 @@ public class UserPage extends ObjectPage<User> {
 
 		try {
 			BreadCrumb<Void> bc = createBreadCrumb();
-			
+
 			if (!isMyAccount())
 				bc.addElement(new HREFBCElement("/user/list", getLabel("users")));
-			
+
 			bc.addElement(new BCElement(new Model<String>(getModel().getObject().getUsername())));
 			JumboPageHeaderPanel<User> ph = new JumboPageHeaderPanel<User>("page-header", getModel(), new Model<String>(getModel().getObject().getDisplayname()));
 			ph.setHeaderCss("mb-0 pb-2 border-none");
-			if (getPersonModel()!=null) {
-				Person p=getPersonModel().getObject();
+			if (getPersonModel() != null) {
+				Person p = getPersonModel().getObject();
 
 				ph.setTagline(Model.of(p.getFirstLastname()));
-				if (p.getPhoto()!=null) {
+				if (p.getPhoto() != null) {
 					ph.setPhotoModel(new ObjectModel<Resource>(p.getPhoto()));
-				}
-				else
+				} else
 					ph.setIcon(User.getIcon());
-			}
-			else
+			} else
 				ph.setIcon(User.getIcon());
-			
+
 			ph.setBreadCrumb(bc);
 
 			if (getList() != null && getList().size() > 0) {
@@ -355,7 +343,6 @@ public class UserPage extends ObjectPage<User> {
 		return new UserPage(model, list, false);
 	}
 
-	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}
@@ -363,8 +350,6 @@ public class UserPage extends ObjectPage<User> {
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<User>(id, getModel());
 	}
-	
-	
 
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
@@ -376,10 +361,9 @@ public class UserPage extends ObjectPage<User> {
 		UserNavDropDownMenuToolbarItem menu = new UserNavDropDownMenuToolbarItem("item", getModel(), getLabel("user"), Align.TOP_RIGHT);
 		userMenu.add(menu);
 
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item", Align.TOP_RIGHT);
 		userMenu.add(h);
-		
-	
+
 		return userMenu;
 	}
 
@@ -417,7 +401,7 @@ public class UserPage extends ObjectPage<User> {
 			}
 		};
 		tabs.add(tab_3);
-		
+
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
 			private static final long serialVersionUID = 1L;
@@ -428,8 +412,7 @@ public class UserPage extends ObjectPage<User> {
 			}
 		};
 		tabs.add(audit);
-		
-		
+
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.user_panel_info);
 

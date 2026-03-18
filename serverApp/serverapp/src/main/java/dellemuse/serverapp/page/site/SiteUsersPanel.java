@@ -182,28 +182,7 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 		});
 	}
  	
-	/**
-	protected void onObjectRemove(IModel<Role> model, AjaxRequestTarget target) {
-		getUserDBService().removeRole( getModel().getObject(), model.getObject(), getSessionUser());
-		resetList();
-		target.add(this.roleUsersPanel);
-	}
-
-	protected void onObjectSelect(IModel<Role> model, AjaxRequestTarget target) {
-		getUserDBService().addRole( getModel().getObject(), model.getObject(), getSessionUser());
-		resetList();
-		target.add(this.roleUsersPanel);
-
-	}
-	
-	protected IModel<String> getObjectInfo(IModel<Role> model) {
-		return new Model<String>(model.getObject().getRoleDisplayName() + " (" + model.getObject().getDisplayClass(getLocale()) + ") ");
-	}
-
-	protected IModel<String> getObjectSubtitle(IModel<ArtExhibitionItem> model) {
-		return null;
-	}
-**/
+	 
 
 	protected IModel<String> getObjectTitle(IModel<User> model) {
 		
@@ -234,77 +213,6 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 		Site s = getModel().getObject();
 		getModel().setObject(getSiteDBService().findWithDeps(s.getId()).get());
 	}
-
-	
-/**
-	private WebMarkupContainer getMenu(IModel<Role> model) {
-		NavDropDownMenu<Role> menu = new NavDropDownMenu<Role>("menu", model, null) {
-			private static final long serialVersionUID = 1L;
-
-			public boolean isVisible() {
-				return true;
-			}
-		};
-
-		menu.setOutputMarkupId(true);
-
-		menu.setTitleCss
-("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
-		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
-
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Role> getItem(String id) {
-
-				return new AjaxLinkMenuItem<Role>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("open");
-					}
-
-				};
-			}
-		});
-
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Role>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Role> getItem(String id) {
-
-				return new AjaxLinkMenuItem<Role>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						RoleUsersPanel.this.onObjectRemove(getModel(), target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("remove");
-					}
-				};
-			}
-		});
-		return menu;
-	}
-*/
-	
-	 
  
 	 
 

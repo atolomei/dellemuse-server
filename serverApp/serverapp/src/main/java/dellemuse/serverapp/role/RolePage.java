@@ -26,6 +26,8 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
+import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.security.RoleDBService;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
@@ -111,6 +113,22 @@ public class RolePage extends ObjectPage<Role> {
 
 		return false;
 	}
+	
+	
+	protected Panel getNoAuthorizedErrorPanel(String id) {
+	
+		if (!getSessionUser().isPresent()) {
+			return new ErrorPanel(id, getLabel("not-authorized"));
+		}
+		
+		if (! (isRoot() || isGeneralAdmin()) ) {
+			 ErrorPanel panel =  new ErrorPanel(id, Model.of( "Para ingresar a esta página debe tener rol de administrador general del sistema."));
+			 panel.setCss("alert alert-warning");
+			 return panel;
+		}
+		return new ErrorPanel(id, getLabel("not-authorized"));
+	}
+
 	
 	
 	@Override
@@ -273,7 +291,10 @@ public class RolePage extends ObjectPage<Role> {
 
 	@Override
 	protected Optional<Role> getObject(Long id) {
-		return Optional.empty();
+		return getRoleDBService().findById(id);
+		
 	}
 
+	
+	
 }

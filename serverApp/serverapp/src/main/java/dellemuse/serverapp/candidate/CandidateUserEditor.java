@@ -100,14 +100,35 @@ public class CandidateUserEditor extends DBObjectEditor<Candidate> implements In
 				!getModel().getObject().getPersonName().isEmpty()) {
 
 			userName = getUserDBService().generateUserName(getModel().getObject().getPersonName(), getModel().getObject().getPersonLastname());
+		
+		}
+
+		if( getModel().getObject().getUser() != null) {
+		
+			str.append("<b>Username</b>.  " + getModel().getObject().getUser().getUsername());
+
+			
+			if (getModel().getObject().getInstitution() != null)
+				str.append("<br/><b>Institution</b>.  " + getModel().getObject().getInstitution().getName());
+
+			str.append("<br/><b>Roles</b>. ");
+			
+			 
+			getUserDBService().getUserRoles(getModel().getObject().getUser()).forEach(r -> str.append(r.getRoleDisplayName() + " (" + r.getDisplayClass(getLocale()) + ") " + " "));
+			
+			getForm().addOrReplace(new SimpleAlertRow<Void>("userInfo", null, Model.of(str.toString()), getLabel("userInfo"), AlertPanel.SUCCESS));
+		}
+		else {
+		
 			str.append("<b>Username a crear</b>.  " + userName);
 
 			if (getModel().getObject().getInstitution() != null)
 				str.append("<br/><b>Institution</b>.  " + getModel().getObject().getInstitution().getName());
+
+			
+			getForm().addOrReplace(new SimpleAlertRow<Void>("userInfo", null, Model.of(str.toString()), getLabel("userInfo"), AlertPanel.PRIMARY));
 		}
-
-		getForm().addOrReplace(new SimpleAlertRow<Void>("userInfo", null, Model.of(str.toString()), getLabel("userInfo"), AlertPanel.PRIMARY));
-
+		
 		EditButtons<Candidate> buttons = new EditButtons<Candidate>("buttons", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -191,6 +212,9 @@ public class CandidateUserEditor extends DBObjectEditor<Candidate> implements In
 			public boolean isVisible() {
 				
 				if (getModelObject().getInstitution() == null)
+					return false;
+				
+				if (getModelObject().getUser() != null)
 					return false;
 				
 				return hasWritePermission();

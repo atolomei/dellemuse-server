@@ -12,18 +12,18 @@ public class Icons {
 	
 	
 	public static final String GuideContent = "fa-duotone fa-solid fa-headphones";
-	public static final String Person = "fa-duotone fa-solid fa-person-simple";
 	public static final String Site = "fa-duotone fa-solid fa-hotel";
 
 	public static final String Voice = "fa-solid fa-head-side-speak";
 	public static final String Music = "fa-solid fa-music";
 
+
+	public static final String Person = "fa-duotone fa-solid fa-person-simple";
 	public static final String Resource = "fa-duotone fa-file";
 	public static final String User = "fa-duotone fa-solid fa-user";
 	public static final String Role = "fa-duotone fa-id-badge";
 
 	static public final String headphoneIcon = "fa-solid fa-headphones";
-
 	static public final String help = "fa-sharp fa-light fa-circle-question";
 
 	public static final String ACCESIBLE_ICON_HTML = " <i class=\"text-info fa-thin fa-universal-access ms-1 me-1\"></i>";

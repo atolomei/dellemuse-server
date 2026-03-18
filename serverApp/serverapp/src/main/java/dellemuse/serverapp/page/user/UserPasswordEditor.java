@@ -21,6 +21,7 @@ import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.User;
+import io.wktui.error.AlertPanel;
 import io.wktui.event.MenuAjaxEvent;
 
 import io.wktui.form.Form;
@@ -63,7 +64,6 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 	
 
 	public boolean hasWritePermission() {
-	
 		
 		if (isRoot())
 			return true;
@@ -76,7 +76,10 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 			return true;
 		
 		
-		return false;
+		if (isGeneralAdmin( getModel().getObject()))
+			return false;
+		
+		return true;
 	}
 	
 	/**
@@ -91,8 +94,13 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 		super.onInitialize();
 
 		add(new InvisiblePanel("error"));
+		add(new InvisiblePanel("notice"));
 
-		this.form = new Form<User>("personForm", getModel());
+		
+		
+
+		   
+		   this.form = new Form<User>("personForm", getModel());
 		add(this.form);
 
 		newPassword = "";
@@ -137,11 +145,11 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 			}
 
 			protected String getSaveClass() {
-				return "ps-0 btn btn-sm btn-link";
+				return " btn btn-primary btn-sm";
 			}
 
 			protected String getCancelClass() {
-				return "ps-0 btn btn-sm btn-link";
+				return " btn btn-sm btn-outline-primary  ";
 			}
 
 			@Override
@@ -152,16 +160,19 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 			
 					return getForm().getFormState() == FormState.EDIT;
 			}
-
 		};
 
 		this.form.add(buttons);
+
+	
+		if (! hasWritePermission()) {
+			addOrReplace( new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getUsername())));
+		}
+
 	}
 
-	/**
-	 * 
-	 * 
-	 */
+	
+	
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 
@@ -216,9 +227,6 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 	protected void onSave(AjaxRequestTarget target) {
 
 		try {
-
-			 
-
 			
 			if (this.getNewPassword()!=null) 
 			{

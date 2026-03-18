@@ -13,15 +13,15 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import dellemuse.model.logging.Logger;
- 
+
 import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.editor.ObjectRecordEditor;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
- 
+
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
- 
+
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageObjectService;
@@ -48,8 +48,6 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 	protected abstract Optional<R> loadTranslationRecord(String lang);
 
 	protected abstract R createTranslationRecord(String lang);
-
-	 
 
 	public MultiLanguageObjectPage() {
 		super();
@@ -128,16 +126,13 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 	}
 
 	protected abstract List<Language> getSupportedLanguages();
-		
-		
-	 
-	
+
 	@Override
 	protected List<INamedTab> createInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 
-		List<Language> list =  getSupportedLanguages(); 
+		List<Language> list = getSupportedLanguages();
 
 		for (Language la : list) {
 
@@ -218,9 +213,9 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 	}
 
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
-		
+
 		if (getRecordEditors().get(lang) instanceof ObjectRecordEditor)
-			((ObjectRecordEditor<?,?>) getRecordEditors().get(lang)).edit(target);
+			((ObjectRecordEditor<?, ?>) getRecordEditors().get(lang)).edit(target);
 	}
 
 	protected abstract Class<?> getTranslationClass();

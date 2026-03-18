@@ -22,11 +22,11 @@ import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.person.PersonPage;
+ 
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
+ 
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
@@ -63,6 +63,26 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 	private List<ToolbarItem> listToolbar;
 	private List<ToolbarItem> mainToolbar;
 	
+
+	public SiteArtistsListPage() {
+		super();
+		setIsExpanded(true);
+	}
+
+	public SiteArtistsListPage(PageParameters parameters) {
+		super(parameters);
+		stringValue = getPageParameters().get("id");
+		setIsExpanded(true);
+	}
+
+	public SiteArtistsListPage(IModel<Site> siteModel) {
+		super();
+		Check.requireNonNullArgument(siteModel, "siteModel is null");
+
+		setSiteModel(siteModel);
+		getPageParameters().add("id", siteModel.getObject().getId().toString());
+		setIsExpanded(true);
+	}
 	
 	
 	public boolean canCreate() {
@@ -141,25 +161,6 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 		return Help.SITE_ARTIST_LIST;
 	}
 	
-	public SiteArtistsListPage() {
-		super();
-		setIsExpanded(true);
-	}
-
-	public SiteArtistsListPage(PageParameters parameters) {
-		super(parameters);
-		stringValue = getPageParameters().get("id");
-		setIsExpanded(true);
-	}
-
-	public SiteArtistsListPage(IModel<Site> siteModel) {
-		super();
-		Check.requireNonNullArgument(siteModel, "siteModel is null");
-
-		setSiteModel(siteModel);
-		getPageParameters().add("id", siteModel.getObject().getId().toString());
-		setIsExpanded(true);
-	}
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -232,16 +233,8 @@ public class SiteArtistsListPage extends ObjectListPage<Artist> {
 	@Override
 	public void onClick(IModel<Artist> model) {
 		
-		
 		setResponsePage( new ArtistPage(model));
-		
-		//Person person=model.getObject().getPerson();
-		//if (person!=null) {
-		//	setResponsePage(new PersonPage( new ObjectModel<Person>(person)));
-		//}
-		//else {
-		//	setResponsePage( new ErrorPage(Model.of("person not found")));
-		//}
+	 
 	
 	}
 

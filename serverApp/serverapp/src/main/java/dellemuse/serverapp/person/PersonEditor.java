@@ -31,6 +31,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import io.wktui.error.AlertPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -72,6 +73,29 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 	private boolean uploadedPhoto = false;
 
 
+	public boolean hasWritePermission() {
+		
+		if (isRoot())
+			return true;
+		
+		if(getSessionUser().isPresent() && getModelObject().getId().equals(getSessionUser().get().getId()))
+			return true;
+		
+		if (getModel().getObject().getUser().getUsername().equals("root") )
+			return false;
+		
+		if (isGeneralAdmin())
+			return true;
+	
+		
+		if (isGeneralAdmin( getModel().getObject().getUser() ))
+			return false;
+		
+		return true;
+		
+	}
+	
+	
 	public PersonEditor(String id, IModel<Person> model) {
 		super(id, model);
 	}
@@ -83,6 +107,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		setUpModel();
 		
 		add(new InvisiblePanel("error"));
+		add(new InvisiblePanel("notice"));
 	
 		Form<Person> form = new Form<Person>("personForm", getModel());
 		form.setOutputMarkupId(true);
@@ -201,6 +226,10 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		};
 
 		getForm().add(b_buttons_top);
+		
+		if (! hasWritePermission()) {
+			addOrReplace( new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getFirstLastname() )));
+		}
 	}
 
 	@Override
@@ -224,6 +253,15 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 				fire(new MenuAjaxEvent(ServerAppConstant.action_person_edit_info, target));
 			}
 
+			@Override
+			public boolean isVisible() {
+				
+				if (!hasWritePermission())
+					return false;
+		
+				return true;
+			}
+			
 			@Override
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");

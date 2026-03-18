@@ -5,19 +5,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
@@ -28,50 +23,31 @@ import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
-import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Artist;
-import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtistRecord;
-import dellemuse.serverapp.serverdb.model.record.PersonRecord;
-import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
-import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
-import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
-import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
-import io.wktui.nav.listNavigator.ListNavigator;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
-import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.SeparatorMenuItem;
-import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
-import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.DropDownMenuToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
-import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-/**
- * 
- * site foto Info - exhibitions
- * 
- */
+
 @AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/artist/${id}")
 public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
@@ -84,7 +60,6 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 	private ArtistEditor editor;
 	private List<ToolbarItem> list;
 
-	
 	
 	public ArtistPage() {
 		super();
@@ -121,9 +96,7 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 		}
 
 	}
-
-	
-	
+ 
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -159,11 +132,8 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 						return true;
 			}
 		}
-	
 		return false;
 	}
-	
-	
 	
 	@Override
 	protected Optional<Artist> getObject(Long id) {
@@ -227,7 +197,6 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 		if (this.editor == null)
 			this.editor = new ArtistEditor(id, getModel());
 		return this.editor;
-	
 	}
 
 	@Override
@@ -271,9 +240,6 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 				};
 			}
 		});
-
-		
-	
  
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Artist>() {
 			private static final long serialVersionUID = 1L;
@@ -282,8 +248,6 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 				return new SeparatorMenuItem<Artist>(id, getModel());
 			}
 		});
-		 
-		
  	 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Artist>() {
 
@@ -335,12 +299,10 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 			}
 		});
 	 
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
-		list.add(h);
-		
-	 
-		
 	 	list.add(menu);
+	 	
+	 	HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
 		
 		return list;
 	}
@@ -399,31 +361,7 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 			}
 		});
 		
-		/**
-		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onEvent(SimpleWicketEvent event) {
-				if (event.getName().equals(ServerAppConstant.person_user)) {
-			
-					User user= ArtistPage.this.getModel().getObject().getUser();
-					
-					if (user!=null) {
-						setResponsePage(new UserPage(new ObjectModel<User>( user)));
-					}
-					else
-						setResponsePage(new ErrorPage(Model.of("user not found for person -> " + ArtistPage.this.getModel().getObject().getDisplayname())));
-				}
-			}
-			@Override
-			public boolean handle(UIEvent event) {
-				if (event instanceof SimpleWicketEvent)
-					return true;
-				return false;
-			}
-		});
-		*/
+		 
 		
 	}
 

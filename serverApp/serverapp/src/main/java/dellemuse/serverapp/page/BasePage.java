@@ -83,6 +83,7 @@ import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
+import dellemuse.serverapp.serverdb.service.security.RoleDBService;
 import dellemuse.serverapp.service.DateTimeService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.SecurityAuthorizationService;
@@ -115,7 +116,7 @@ public abstract class BasePage extends WebPage {
 	private Boolean generalAdmin = null;
 	private Boolean generalAudit = null;
 
-	private IModel<User> sessionUserModel;
+
 	
 	// 1 Day
 	static private final int COOKIE_DURATION = 86400 * 1;
@@ -437,6 +438,10 @@ public abstract class BasePage extends WebPage {
 		return model;
 	}
 
+	
+	
+	private IModel<User> sessionUserModel;
+	
 	protected void setSessionUser(User user) {
 		sessionUserModel = new ObjectModel<User>(user);
 	}
@@ -551,6 +556,9 @@ public abstract class BasePage extends WebPage {
 		return (PersonRecordDBService) ServiceLocator.getInstance().getBean(PersonRecordDBService.class);
 	}
 
+	protected RoleDBService getRoleDBService() {
+		return (RoleDBService) ServiceLocator.getInstance().getBean(RoleDBService.class);
+	}
 
 	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);

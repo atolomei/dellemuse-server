@@ -22,6 +22,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.TranslateMode;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.DBService;
+import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
@@ -41,8 +42,6 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 	static private Logger logger = Logger.getLogger(ObjectMetaEditor.class.getName());
 
 	private ChoiceField<ObjectState> objectStateField;
-	//private ChoiceField<Boolean> audioModeField;
-
 	private ChoiceField<Language> masterLanguageField;
 	private ChoiceField<TranslateMode> translateMode;
 
@@ -52,13 +51,44 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 	private Language masterLanguage;
 	private List<ToolbarItem> list;
 
-	/**
-	 * @param id
-	 * @param model
-	 */
+	Boolean writePermission;
+	
 	public ObjectMetaEditor(String id, IModel<T> model) {
 		super(id, model);
 	}
+	
+	public boolean hasWritePermission() {
+		
+	if (writePermission != null)
+			return writePermission.booleanValue();
+		
+	if (getSessionUser().isEmpty())
+			writePermission=Boolean.FALSE;
+		
+	else if (isRoot())
+			writePermission=Boolean.FALSE;
+		
+	else if (ObjectMetaEditor.this.getModel().getObject() instanceof  User) {
+			
+			User u = (User) ObjectMetaEditor.this.getModel().getObject();
+
+			if (u.getId().equals(getSessionUser().get().getId()))
+				writePermission=Boolean.TRUE;
+			
+			else if (isGeneralAdmin(u))
+				writePermission =isGeneralAdmin();
+			
+			else 
+				writePermission=Boolean.TRUE;
+		}
+		
+		if (writePermission == null)
+			writePermission=Boolean.TRUE;
+
+		return writePermission.booleanValue();
+	}
+
+
 
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
@@ -71,6 +101,11 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		AjaxButtonToolbarItem<T> create = new AjaxButtonToolbarItem<T>() {
 			private static final long serialVersionUID = 1L;
 
+			@Override
+			public boolean isVisible() {
+				return hasWritePermission();
+			}
+			
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_object_edit_meta, target));
@@ -105,6 +140,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		setUpModel();
 
 		add(new InvisiblePanel("error"));
+		add(new InvisiblePanel("notice"));
 
 		try {
 
@@ -275,6 +311,10 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			};
 
 			getForm().add(b_buttons_top);
+			
+			if (!hasWritePermission()) {
+				addOrReplace(new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getDisplayname() )));
+			}
 
 		} catch (Exception e) {
 			logger.error(e);
@@ -310,6 +350,10 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		return TranslateMode.getTranslateModes();
 	}
 
+	
+	 
+	
+	
 	public Optional<Person> getPerson(Long value) {
 		return super.getPerson(value);
 	}
