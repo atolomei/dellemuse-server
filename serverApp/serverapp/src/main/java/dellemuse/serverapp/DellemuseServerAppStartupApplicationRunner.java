@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.email.EmailService;
+import dellemuse.serverapp.openai.OpenAIService;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
@@ -48,6 +49,34 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 	public DellemuseServerAppStartupApplicationRunner(ApplicationContext appContext) {
 		this.appContext = appContext;
 	}
+
+	/**
+	  @Bean CommandLineRunner testEmail() {
+		  
+	        return args -> {
+	  
+	        try {
+	  
+	         
+	       	OpenAIService s = ((OpenAIService) ServiceLocator.getInstance().getBean(OpenAIService.class));
+
+	       	String ret = s.generate("dada esta obra de arte: \n "
+	       			+ "obra: En la costa de Valencia \n"
+	       			+ "artista: Joaquín Sorolla y Bastida \n"
+	       			+ "generar la siguiente información:"
+	       			+ "- técnica \n"
+	       			+ "- dimensiones en cm"
+	       			+ "- año de creación");
+	       	
+	       	logger.debug(ret);
+	       	logger.debug("done");
+	  
+	        } catch (Exception e) { logger.error(e); } }; 
+	       
+	  
+	  }
+	  **/
+
 
 
 /**

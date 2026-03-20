@@ -248,14 +248,13 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		if (this.getId()==null)
 			return false;
 	 
-		if ((o.getClass().getName().equals(this.getClass().getName()))) {
+		//if ((o.getClass().getName().equals(this.getClass().getName()))) {
 			
 			if (((DelleMuseObject) o).getId()==null)
 					return false;
 			
 			return ((DelleMuseObject) o).getId().equals(getId());
-		}
-		
-		return false;
+		//}
+		//return false;
 	}
 }

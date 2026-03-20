@@ -280,7 +280,7 @@ public class SiteUsersPanel extends DBModelPanel<Site> implements InternalPanel 
 
 					@Override
 					public void onClick() {
-						  setResponsePage(new SiteUserPage(SiteUsersPanel.this.getModel(), getModel()));
+						  setResponsePage(new SiteUserPage(SiteUsersPanel.this.getModel(), getModel() ));
 					}
 
 					 

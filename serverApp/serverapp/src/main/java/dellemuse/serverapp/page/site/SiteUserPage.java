@@ -31,6 +31,7 @@ import dellemuse.serverapp.page.user.UserRolesPanel;
 import dellemuse.serverapp.person.PersonEditor;
 import dellemuse.serverapp.person.PersonPage;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
@@ -502,6 +503,9 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
+			
+				logger.debug(event.toString());
+				
 				if (event.getName().equals(ServerAppConstant.site_action_home)) {
 					setResponsePage(new SitePage(getModel(), getList()));
 				}

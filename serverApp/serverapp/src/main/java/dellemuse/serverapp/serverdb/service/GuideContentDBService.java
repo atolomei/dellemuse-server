@@ -119,25 +119,24 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 
 		ArtExhibitionItem item = o.getArtExhibitionItem();
-		if (!item.isDependencies())
+
+		if (item!=null) {
 			item = getArtExhibitionItemDBService().findWithDeps(item.getId()).get();
-
-		ArtWork a = item.getArtWork();
-
-		if (a.getAudioId() == null) {
-			Site site = a.getSite();
-			item.getArtWork().setAudioId(newAudioId(site));
-			getArtWorkDBService().save(item.getArtWork(), user, "audioid");
-
+			ArtWork a = item.getArtWork();
+			if (a.getAudioId() == null) {
+				Site site = a.getSite();
+				item.getArtWork().setAudioId(newAudioId(site));
+				getArtWorkDBService().save(item.getArtWork(), user, "audioid");
+	
+			}
 		}
-
+		
 		Optional<AudioStudio> oa = getAudioStudioDBService().findByGuideContent(o);
 
 		if (oa.isPresent()) {
 			oa.get().setName(o.getName());
 			oa.get().setInfo(o.getInfo());
 			oa.get().setInfoAccessible(o.getInfoAccessible());
-
 			getAudioStudioDBService().save(oa.get());
 		}
 	}
@@ -430,9 +429,7 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 	public Long newAudioId(Site site) {
 		return getSiteDBService().newAudioId(site);
-		//String seqName = site.getAudioIdSequencerName();
-		//return ((Number) getEntityManager().createNativeQuery("SELECT nextval('" + seqName + "')").getSingleResult()).longValue();
-	}
+	 }
 
 	@Transactional
 	public void delete(GuideContent c) {

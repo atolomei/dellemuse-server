@@ -28,14 +28,9 @@ public class Help {
 
 	
 	public static final String GUIDE_CONTENT_INFO = "guide-content-info";
-
-	
-	
 	public static final String INSTITUTION_INFO =  "institution-info";
 	
-	
 	public static final String ARTEXHIBITION_GUIDE_INFO =  "artexhibitionguide-info";
-
 	public static final String ARTEXHIBITION_ITEM_INFO =  "artexhibitionitem-info";
 
 	public static final String ARTEXHIBITION_INFO =  "artexhibition-info";

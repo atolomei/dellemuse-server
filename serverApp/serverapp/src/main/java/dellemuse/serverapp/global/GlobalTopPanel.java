@@ -18,6 +18,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseServer;
 import dellemuse.serverapp.branded.panel.BrandedArtExhibitionGuidePanel;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
+import dellemuse.serverapp.help.HelpDropDownMenu;
 import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.media.InvisibleImage;
 import io.wktui.nav.menu.NavBar;
@@ -74,15 +75,8 @@ public class GlobalTopPanel extends ModelPanel<User> {
 		logo.setSubtitle(getLabel("dellemuse-tagline"));
 		logo.setSubtitleCss("subtitle d-none d-lg-inline d-xl-inline d-xxl-inline");
 
-		 
- 
-
 		nav.addNoCollapseLeft(logo);
-
-	 
-
 		logo.setLinkStyle("text-decoration: none;");
-	 
 
 		add(nav);
 
@@ -126,17 +120,20 @@ public class GlobalTopPanel extends ModelPanel<User> {
 
 		if (getModel() != null) {
 			this.userGlobalTopPanel = new UserGlobalTopPanel("userGlobalTopPanel", getModel());
+			HelpDropDownMenu help = new HelpDropDownMenu( "help", getModel());
+			add( help );	
+		
 		} else {
 			this.userGlobalTopPanel = new InvisiblePanel("userGlobalTopPanel");
+			add( new InvisiblePanel("help"));
+		
 		}
 
 		add(this.userGlobalTopPanel);
 
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("help", Align.TOP_RIGHT);
-		add(h);
-		
+		// HelpButtonToolbarItem h = new HelpButtonToolbarItem("help", Align.TOP_RIGHT);
+		// add(h);
 	}
-
  
 	public boolean isSearch() {
 		return isSearch;

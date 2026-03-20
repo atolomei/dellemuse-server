@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.apache.commons.compress.utils.FileNameUtils;
@@ -27,6 +28,8 @@ import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.music.MusicEditor;
+import dellemuse.serverapp.openai.OpenAIService.ArtWorkData;
+
 import dellemuse.serverapp.page.model.ObjectModel;
 
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -110,6 +113,25 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			}
 		};
 
+		AjaxLink<ArtWork> askai = new AjaxLink<ArtWork>("askai", getModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				ArtWorkEditor.this.askai(target);
+			}
+
+			@Override
+			public boolean isVisible() {
+
+				if (!hasWritePermission())
+					return false;
+
+				return getForm().getFormState() == FormState.EDIT;
+			}
+		};
+		form.add(askai);
+
 		form.add(generateAudioId);
 
 		audioIdField = new StaticTextField<Long>("audioid", new PropertyModel<Long>(getModel(), "audioId"), getLabel("audioid"));
@@ -164,19 +186,16 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 				return ArtWorkEditor.this.getModel().getObject().getObjectType() == ObjectType.ARTWORK;
 			}
 		};
-		
-		mArtistField.setHelpPanel( new SimpleHelpPanel<>("help") {
+
+		mArtistField.setHelpPanel(new SimpleHelpPanel<>("help") {
 			public IModel<String> getLinkLabel() {
 				return ArtWorkEditor.this.getLabel("help");
 			}
-			
+
 			public IModel<String> getHelpText() {
 				return ArtWorkEditor.this.getLabel("artists-help");
 			}
 		});
-		
-		
-		
 
 		this.sourceField = new TextField<String>("source", new PropertyModel<String>(getModel(), "source"), getLabel("source"));
 		this.epochField = new TextField<String>("epoch", new PropertyModel<String>(getModel(), "epoch"), getLabel("epoch"));
@@ -297,10 +316,50 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		getForm().add(b_buttons_top);
 	}
 
+	protected void askai(AjaxRequestTarget target) {
+
+		// ArtWorkData data = new ArtWorkData("a", "b","c", "d");
+
+		try {
+
+			ArtWork a = getArtWorkDBService().findWithDeps(getModel().getObject().getId()).get();
+			{
+				String prompt = "Generate a very short list for the artwork " + a.getName() + " by " + a.getArtists().stream().map(x -> x.getFirstLastname()).collect(Collectors.joining(", ")) + " that is exhibited at "
+						+ getSiteModel().getObject().getName() + ". " + "The list should be in " + getModel().getObject().getMasterLanguage() + ". "
+						+ " Unless explicitly stated just the values without labels, there must be one line for each of these items (if exists) separated by a \n: " + "- technique, just the name of the technique without any label"
+						+ "- dimensions in cm with the unit, just the dimensions and unit without any label" + "- year, just the year without any label" + "- if it was donated a line describing who was the donor and when it was donated"
+
+				;
+
+				String description = getOpenAIService().generate(prompt);
+
+				getModel().getObject().setSpec(description);
+			}
+
+			{
+
+				String prompt = "Generate a short description of less than 220 words for the artwork " + a.getName() + " by " + a.getArtists().stream().map(x -> x.getName()).collect(Collectors.joining(", ")) + " that is exhibited at "
+						+ getSiteModel().getObject().getName() + ". " + "The text will be used to generate an audio guide of the artwork for the general public, it should be in " + getModel().getObject().getMasterLanguage();
+
+				String description = getOpenAIService().generate(prompt);
+
+				getModel().getObject().setInfo(description);
+
+			}
+
+			getForm().updateReload();
+
+		} catch (Exception e) {
+			addOrReplace(new SimpleAlertRow<Void>("error", e));
+			logger.error(e);
+		}
+		target.add(this);
+
+	}
+
 	protected void generateAudioId(AjaxRequestTarget target) {
 		getArtWorkDBService().generateAudioId(getModel().getObject(), getSessionUser().get());
-		
-		 
+
 		ArtWorkEditor.this.audioIdField.setValue(getModel().getObject().getAudioId());
 		ArtWorkEditor.this.audioIdField.updateModel();
 		target.add(ArtWorkEditor.this);
@@ -474,8 +533,11 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 		}
 
 		getSiteDBService().getArtistsByMainSite(getSiteModel().getObject(), ObjectState.PUBLISHED, ObjectState.EDITION).forEach(a -> choices.add(new ObjectModel<Artist>(a)));
-		
-		// getArtistDBService().findAll .findortedMultiSitesAllSorted(getSiteModel().getObject(), ObjectState.PUBLISHED, ObjectState.PUBLISHED).forEach(a -> choices.add(new ObjectModel<Artist>(a)));
+
+		// getArtistDBService().findAll
+		// .findortedMultiSitesAllSorted(getSiteModel().getObject(),
+		// ObjectState.PUBLISHED, ObjectState.PUBLISHED).forEach(a -> choices.add(new
+		// ObjectModel<Artist>(a)));
 
 	}
 

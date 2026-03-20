@@ -3,11 +3,12 @@ package dellemuse.serverapp.guidecontent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
@@ -67,17 +68,16 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 	private TextField<String> nameField;
 	private TextField<String> subtitleField;
 	private TextAreaField<String> infoField;
-	
+
 	private StaticTextField<Long> audioIdField;
 	private StaticTextField<Long> artWorkAudioIdField;
-	
+
 	private FileUploadSimpleField<Resource> audioField;
 	private StaticTextField<String> guideField;
-	
+
 	private IModel<Resource> photoModel;
 	private IModel<Resource> audioModel;
 
-		
 	private boolean uploadedPhoto = false;
 	private boolean uploadedAudio = false;
 
@@ -91,24 +91,20 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 	private String audioMeta;
 
-	
 	private ChoiceField<Boolean> infoAccessibleIsPrimaryField;
 	private ChoiceField<Boolean> onlyAccesibleVersionField;
-	
-	
+
 	private IModel<Resource> audioAccesibleModel;
-	
+
 	private FileUploadSimpleField<Resource> audioAccesibleField;
-	
+
 	private boolean uploadedAccesibleAudio = false;
 	private String audioAccesibleMeta;
 	private Link<GuideContent> openAudioStudio;
 
-	
 	private TextAreaField<String> infoAccesibleField;
 	private Link<GuideContent> openAccesibleAudioStudio;
 
-	
 	private boolean alertInfo = false;
 
 	/**
@@ -122,8 +118,6 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.artExhibitionModel = artExhibitionModel;
 		this.siteModel = siteModel;
 	}
-
-	
 
 	@Override
 	public void onBeforeRender() {
@@ -146,130 +140,52 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		add(form);
 		setForm(form);
 
-		
-		/** --------------------------------- */
+		StringBuilder str = new StringBuilder();
+		str.append(getObjectTitle(getModel().getObject().getArtExhibitionGuide()).getObject());
 
-		/**
-		
-		infoAccesibleField = new TextAreaField<String>("infoAccesible", new PropertyModel<String>(getModel(), "infoAccessible"), getLabel("audio-accesible-info"), 12);
-		form.add(infoAccesibleField);
+		if (getModel().getObject().getArtExhibitionGuide().isAccessible())
+			str.append(Icons.ACCESIBLE_ICON_HTML);
 
-		audioAccesibleField = new FileUploadSimpleField<Resource>("audioAccesible", getAudioAccesibleModel(), getLabel("audio-accesible")) {
+		guideField = new StaticTextField<String>("guide", Model.of(str.toString()), getLabel("guide"));
 
-			private static final long serialVersionUID = 1L;
+		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
+		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("audio-info"), 20);
 
-			protected boolean processFileUploads(List<FileUpload> uploads) {
-				return GuideContentEditor.this.processAccesibleAudioUpload(uploads);
-			}
-
-			public Image getImage() {
-				return null;
-			}
-
-			protected String getAudioSrc() {
-
-				if (getAudioAccesibleModel() == null || getAudioAccesibleModel().getObject() == null)
-					return null;
-				return GuideContentEditor.this.getPresignedUrl(getAudioAccesibleModel().getObject());
-			}
-
-			public String getFileName() {
-				
-				if (audioAccesibleMeta == null)
-					audioAccesibleMeta = GuideContentEditor.this.getAudioMeta(getAudioAccesibleModel());
-				return audioAccesibleMeta;
-				
-			}
-		};
-		form.add(audioAccesibleField);
-		
-		
-		this.openAccesibleAudioStudio = new Link<GuideContent>("openAccesibleAudioStudio", getModel()) {
+		WebMarkupContainer importContainer = new WebMarkupContainer("importContainer") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onClick() {
-				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
-				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), true));
-				else
-					setResponsePage(new ErrorPage(Model.of("No Audio Studio -> " + getModel().getObject().getDisplayname())));
-			}
+			public boolean isVisible() {
 
-			public boolean isEnabled() {
+				if (getForm().getFormState() != FormState.EDIT)
+					return false;
+
+				if (!getArtExhibitionGuideModel().getObject().isAccessible())
+					return false;
+
 				return true;
 			}
 		};
+		form.add(importContainer);
 
-		Label openAccesibleLabel = new Label("openAccesibleAudioStudioLabel", getLabel("open-audio-studio", getModel().getObject().getDisplayname()));
-		this.openAccesibleAudioStudio.add(openAccesibleLabel);
-		getForm().add(openAccesibleAudioStudio);
-		
-		
-		
-		
-		infoAccessibleIsPrimaryField = new ChoiceField<Boolean>("infoAccessibleIsPrimary", new PropertyModel<Boolean>(getModel(), "infoAccessibleIsPrimary"), getLabel("infoAccessibleIsPrimary")) {
-
+		AjaxLink<GuideContent> importFromGeneralGuideContent = new AjaxLink<GuideContent>("importFromGeneralGuideContent", getModel()) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public IModel<List<Boolean>> getChoices() {
-				return new ListModel<Boolean>(b_list);
+			public void onClick(AjaxRequestTarget target) {
+				GuideContentEditor.this.importFromGeneralGuide(target);
+
 			}
 
 			@Override
-			protected String getDisplayValue(Boolean value) {
-				if (value == null)
-					return null;
-				if (value.booleanValue())
-					return getLabel("infoAccessibleIsPrimary-yes").getObject();
-				return getLabel("infoAccessibleIsPrimary-no").getObject();
+			public boolean isVisible() {
+				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
-		getForm().add(infoAccessibleIsPrimaryField);
-		
-		
-		
-		onlyAccesibleVersionField= new ChoiceField<Boolean>("onlyAccesibleVersion", new PropertyModel<Boolean>(getModel(), "onlyAccesibleVersion"), getLabel("onlyAccesibleVersion")) {
+		importContainer.add(importFromGeneralGuideContent);
 
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public IModel<List<Boolean>> getChoices() {
-				return new ListModel<Boolean>(b_list);
-			}
-
-			@Override
-			protected String getDisplayValue(Boolean value) {
-				if (value == null)
-					return null;
-				if (value.booleanValue())
-					return getLabel("yes").getObject();
-				return getLabel("no").getObject();
-			}
-		};
-		
-		getForm().add(onlyAccesibleVersionField);
-		*/
-		
-		/** --------------------------------- */
-		
-		
-		
-		StringBuilder str = new StringBuilder();
-		str.append( getObjectTitle ( getModel().getObject().getArtExhibitionGuide()).getObject() );
-		
-		if (getModel().getObject().getArtExhibitionGuide().isAccessible()) 
-			str.append(Icons.ACCESIBLE_ICON_HTML);
-		
-		
-		guideField 		= new StaticTextField<String>("guide",  Model.of(str.toString()), getLabel("guide"));
-		
-		
-		nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		subtitleField 	= new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
-		infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("audio-info"), 12);
-		audioField	 	= new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
+		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -305,13 +221,9 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		audioIdField = new StaticTextField<Long>("audioid", new PropertyModel<Long>(getModel(), "audioId"), getLabel("audioid"));
 		audioIdField.setVisible(false);
 		form.add(audioIdField);
-		
-		
+
 		artWorkAudioIdField = new StaticTextField<Long>("artworkaudioid", new PropertyModel<Long>(getModel(), "artWorkAudioId"), getLabel("artWorkAudioId"));
 		form.add(artWorkAudioIdField);
-		
-	 
-		
 
 		EditButtons<GuideContent> buttons = new EditButtons<GuideContent>("buttons-bottom", getForm(), getModel()) {
 
@@ -416,9 +328,8 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent()) {
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getArtExhibitionGuideModel().getObject().isAccessible() ));
-				}
-				else
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getArtExhibitionGuideModel().getObject().isAccessible()));
+				} else
 					setResponsePage(new ErrorPage(Model.of("no audio studio for -> " + getModel().getObject().getDisplayname())));
 			}
 
@@ -434,6 +345,61 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		Label importArtworkLabel = new Label("importArtworkLabel", getLabel("import-artwork", getArtWorkModel().getObject().getDisplayname()));
 		this.importArtwork.add(importArtworkLabel);
 		getForm().add(this.importArtwork);
+	}
+
+	protected void importFromGeneralGuide(AjaxRequestTarget target) {
+
+		ArtExhibition ae = this.getArtExhibitionGuideModel().getObject().getArtExhibition();
+
+		List<ArtExhibitionGuide> list = getArtExhibitionDBService().getArtExhibitionGuides(ae);
+
+		boolean found = false;
+
+		for (ArtExhibitionGuide g : list) {
+
+			if (!g.isAccessible()) {
+
+				for (GuideContent z : getArtExhibitionGuideDBService().findWithDeps(g.getId()).get().getGuideContents()) {
+
+					logger.debug(getModel().getObject().getArtExhibitionItem().getId());
+					logger.debug(getGuideContentDBService().findWithDeps(z.getId()).get().getArtExhibitionItem().getId());
+
+					if (getGuideContentDBService().findWithDeps(z.getId()).get().getArtExhibitionItem().getId().equals(getModel().getObject().getArtExhibitionItem().getId())) {
+						String source = z.getInfo();
+						logger.debug("importing info from guide content -> " + z.getDisplayname());
+
+						try {
+
+							ArtWork a = getArtWorkDBService().findWithDeps(getArtWorkModel().getObject().getId()).get();
+
+							String prompt = "The following is the text of an audio guide of the art work  " + a.getName() + " by " + a.getArtists().stream().map(x -> x.getFirstLastname()).collect(Collectors.joining(", "))
+									+ " that is exhibited at " + getSiteModel().getObject().getName() + ":  ' " + source + " ' "
+									+ "Please generate a new text fot the accesible audio guide, for people with reduced vision. It should be in language: " + getModel().getObject().getMasterLanguage()
+									+ ", and include a visual description of the work, and the length should be at most 125% the length of the original version. ";
+
+							String description = getOpenAIService().generate(prompt);
+
+							logger.debug("generated description -> " + description);
+
+							getModel().getObject().setInfo(description);
+
+						} catch (Exception e) {
+
+							logger.error("Error generating info with OpenAI: " + e.getMessage());
+						}
+
+						found = true;
+						break;
+					}
+				}
+				;
+
+				if (found)
+					break;
+			}
+		}
+		getForm().updateReload();
+		target.add(this);
 	}
 
 	public IModel<ArtWork> getArtWorkModel() {
@@ -578,11 +544,9 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		if (audioModel != null)
 			audioModel.detach();
 
-
 		if (audioAccesibleModel != null)
 			audioAccesibleModel.detach();
 
-		
 		if (siteModel != null)
 			siteModel.detach();
 
@@ -668,7 +632,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			}
 		});
 	}
-	
+
 	protected boolean processAudioUpload(List<FileUpload> uploads) {
 
 		if (this.uploadedAudio)
@@ -705,10 +669,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 		return uploadedAudio;
 	}
-	
-	
-	
-	
+
 	protected boolean processAccesibleAudioUpload(List<FileUpload> uploads) {
 
 		if (this.uploadedAccesibleAudio)
@@ -745,8 +706,6 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 		return uploadedAccesibleAudio;
 	}
-	
-	
 
 	protected void importArtWorkText(AjaxRequestTarget target) {
 
@@ -784,7 +743,6 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.audioModel = model;
 	}
 
-	
 	protected IModel<Resource> getAudioAccesibleModel() {
 		return this.audioAccesibleModel;
 	}
@@ -792,7 +750,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 	protected void setAudioAccesibleModel(ObjectModel<Resource> model) {
 		this.audioAccesibleModel = model;
 	}
-	
+
 	protected void onSubmit() {
 		logger.debug("");
 		logger.debug("onSubmit");
@@ -903,8 +861,10 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		setModel(new ObjectModel<GuideContent>(o_i.get()));
 
 		if (getModel().getObject().getArtExhibitionItem() != null) {
-			Optional<ArtExhibitionItem> o_ai = getArtExhibitionItemDBService().findWithDeps(getModel().getObject().getArtExhibitionItem().getId());
 
+			Optional<ArtExhibitionItem> o_ai = getArtExhibitionItemDBService().findWithDeps(getModel().getObject().getArtExhibitionItem().getId());
+			this.artExhibitionItemModel = new ObjectModel<ArtExhibitionItem>(o_ai.get());
+			
 			if (o_ai.get().getArtWork() != null) {
 				Optional<ArtWork> o_aw = getArtWorkDBService().findWithDeps(o_ai.get().getArtWork().getId());
 				setArtWorkModel(o_aw.get());
@@ -916,21 +876,18 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
 		}
 
-				 
 		if (getModel().getObject().getAudio() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
 			if (o_r.isPresent())
 				setAudioModel(new ObjectModel<Resource>(o_r.get()));
 		}
-		
-		
+
 		if (getModel().getObject().getAudioAccessible() != null) {
 			Optional<Resource> o_a = getResourceDBService().findWithDeps(getModel().getObject().getAudioAccessible().getId());
 			if (o_a.isPresent())
 				setAudioAccesibleModel(new ObjectModel<Resource>(o_a.get()));
 		}
-		
-		
+
 		if (getModel().getObject().getArtExhibitionItem() != null) {
 			Optional<ArtExhibitionItem> o_ae = getArtExhibitionItemDBService().findWithDeps(getModel().getObject().getArtExhibitionItem().getId());
 			setArtExhibitionItemModel(new ObjectModel<ArtExhibitionItem>(o_ae.get()));

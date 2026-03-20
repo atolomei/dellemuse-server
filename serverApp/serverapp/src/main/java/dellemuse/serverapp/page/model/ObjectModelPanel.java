@@ -3,6 +3,7 @@ package dellemuse.serverapp.page.model;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
@@ -25,6 +26,7 @@ import dellemuse.serverapp.email.EmailService;
 import dellemuse.serverapp.email.EmailTemplateService;
 import dellemuse.serverapp.help.HelpService;
 import dellemuse.serverapp.icons.Icons;
+import dellemuse.serverapp.openai.OpenAIService;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
@@ -202,6 +204,12 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	public HelpService getHelpService() {
 		return (HelpService) ServiceLocator.getInstance().getBean(HelpService.class);
 	}
+	
+	
+	public  OpenAIService getOpenAIService() {
+		return (OpenAIService) ServiceLocator.getInstance().getBean(OpenAIService.class);
+	}
+	
 
 	/** Deps --------------------------------------------------------- */
 

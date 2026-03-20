@@ -82,7 +82,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 
 					@Override
 					public void onClick() {
-						fire(new SimpleWicketEvent(ServerAppConstant.site_action_home));
+						setResponsePage(new SitePage(getModel()));
 					}
 
 					@Override

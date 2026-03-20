@@ -66,7 +66,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			writePermission=Boolean.FALSE;
 		
 	else if (isRoot())
-			writePermission=Boolean.FALSE;
+			writePermission=Boolean.TRUE;
 		
 	else if (ObjectMetaEditor.this.getModel().getObject() instanceof  User) {
 			

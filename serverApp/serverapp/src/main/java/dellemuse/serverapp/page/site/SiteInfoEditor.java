@@ -125,17 +125,12 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 			setLogoModel(new ObjectModel<Resource>(o_r.get()));
 		}
  
-		
-		
 		add(new Label("site-general-info", getLabel("site-general-info", getModel().getObject().getMasterLanguage())));
-
-		
 		
 		langSelected = new ArrayList<IModel<Language>>();
 		langChoices = new ArrayList<IModel<Language>>();
 		
 		Language.getLanguages().forEach((k,v) -> langChoices.add(Model.of(v)));
-		
 
 		List<Language> l_list = getModel().getObject().getLanguages();
 		
@@ -153,18 +148,13 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 		setForm(form);
 
 		Site site = getModel().getObject();
-		//getSiteDBService().reloadIfDetached(site);
 		getModel().setObject(site);
 
 		List<Institution> list = new ArrayList<Institution>();
 		getInstitutions().forEach(x -> list.add(x));
-
-		// StreamSupport.stream(getInstitutions().spliterator(),
-		// false).collect(Collectors.toList());
 	 
 		languagesField = new MultipleSelectField<Language>("languages", langSelected, getLabel("languages"), langChoices) {
-		
-			
+		 	
 			private static final long serialVersionUID = 1L;
 
 			@Override
