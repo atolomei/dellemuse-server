@@ -31,6 +31,7 @@ import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.base.BaseService;
+import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.util.MediaUtil;
 import io.odilon.client.error.ODClientException;
 import io.odilon.model.ObjectMetadata;
@@ -142,9 +143,19 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 				}
 				
 				
+				if (getPublicUrlCacheService().contains(resource.getId(), size.getLabel())) {
+					logger.debug(" using cache -> " + resource.getId().toString());
+					return getPublicUrlCacheService().get(resource.getId(), size.getLabel());
+				}
+						
 				logger.debug ( meta.toString());
-				return getObjectStorageService().getClient().getPublicObjectUrl(t_bucket, t_object);
 				
+			
+				
+				String url = getObjectStorageService().getClient().getPublicObjectUrl(t_bucket, t_object);
+				getPublicUrlCacheService().put(resource.getId(), size.getLabel(), url);
+				return url;
+		
 			}
 		} catch (ODClientException e) {
 			throw new IOException(e);
@@ -202,6 +213,11 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 			}
 		}
 	}
+	
+	public PublicUrlCacheService getPublicUrlCacheService() {
+		return (PublicUrlCacheService) ServiceLocator.getInstance().getBean(PublicUrlCacheService.class);
+	}
+
 
 	public ObjectStorageService getObjectStorageService() {
 		return objectStorageService;

@@ -1,7 +1,9 @@
 package dellemuse.serverapp.page.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -75,6 +77,7 @@ import dellemuse.serverapp.serverdb.service.security.RoleGeneralDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleInstitutionDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleSiteDBService;
 import dellemuse.serverapp.service.DateTimeService;
+import dellemuse.serverapp.service.PublicUrlCacheService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.SecurityAuthorizationService;
 import dellemuse.serverapp.service.language.LanguageObjectService;
@@ -91,6 +94,10 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	static private Logger logger = Logger.getLogger(ObjectModelPanel.class.getName());
 
 	private IModel<User> sessionUserModel;
+
+	// private Map<String, String> thumbnails;
+	// private Map<String, String> thumbnailsSize;
+	// private Map<String, String> urls;
 
 	protected boolean canDelete(T object) {
 		return true;
@@ -184,15 +191,15 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	protected EmailTemplateService getEmailTemplateService() {
 		return (EmailTemplateService) ServiceLocator.getInstance().getBean(EmailTemplateService.class);
 	}
-	
+
 	protected PersistentTokenDBService getPersistentTokenDBServiceDBService() {
 		return (PersistentTokenDBService) ServiceLocator.getInstance().getBean(PersistentTokenDBService.class);
 	}
 
-	protected  ServerDBSettings getServerDBSettings() {
+	protected ServerDBSettings getServerDBSettings() {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
-	} 
-	
+	}
+
 	public SecurityAuthorizationService getSecurityAuthorizationService() {
 		return (SecurityAuthorizationService) ServiceLocator.getInstance().getBean(SecurityAuthorizationService.class);
 	}
@@ -204,12 +211,14 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	public HelpService getHelpService() {
 		return (HelpService) ServiceLocator.getInstance().getBean(HelpService.class);
 	}
-	
-	
-	public  OpenAIService getOpenAIService() {
+
+	public OpenAIService getOpenAIService() {
 		return (OpenAIService) ServiceLocator.getInstance().getBean(OpenAIService.class);
 	}
-	
+
+	public PublicUrlCacheService getPublicUrlCacheService() {
+		return (PublicUrlCacheService) ServiceLocator.getInstance().getBean(PublicUrlCacheService.class);
+	}
 
 	/** Deps --------------------------------------------------------- */
 
@@ -314,12 +323,21 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		if (resource == null)
 			return null;
 
-		if (!resource.isDependencies()) {
-			resource = this.getResourceDBService().findWithDeps(resource.getId()).get();
+		String presignedThumbnail;
+
+		if (getPublicUrlCacheService().contains(resource.getId(), ThumbnailSize.SMALL.getLabel())) {
+			presignedThumbnail = getPublicUrlCacheService().get(resource.getId(), ThumbnailSize.SMALL.getLabel());
+			logger.debug(" using cache -> " + presignedThumbnail);
+		} else {
+			if (!resource.isDependencies()) {
+				resource = this.getResourceDBService().findWithDeps(resource.getId()).get();
+			}
+			presignedThumbnail = getPresignedThumbnail(resource, ThumbnailSize.SMALL);
+			getPublicUrlCacheService().put(resource.getId(), ThumbnailSize.SMALL.getLabel(), presignedThumbnail);
 		}
 
-		String presignedThumbnail = getPresignedThumbnail(resource, ThumbnailSize.SMALL);
 		Image image;
+
 		if (presignedThumbnail != null) {
 			Url url = Url.parse(presignedThumbnail);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
@@ -337,33 +355,41 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 			if (photo == null)
 				return null;
 
-			if (!photo.isDependencies()) {
-				photo = this.getResourceDBService().findWithDeps(photo.getId()).get();
+			if (getPublicUrlCacheService().contains(photo.getId(), size.getLabel())) {
+				logger.debug(" using cache -> " + photo.getId().toString());
+				return getPublicUrlCacheService().get(photo.getId(), size.getLabel());
 			}
 
+			if (!photo.isDependencies())
+				photo = this.getResourceDBService().findWithDeps(photo.getId()).get();
+
 			if ((photo.getMedia() == null) || (photo.getMedia().length() == 0) || photo.getMedia().endsWith("svg+xml") || photo.getMedia().endsWith("svg") || photo.getMedia().endsWith("webp")) {
-				return getObjectStorageService().getPublicUrl(photo);
+				String url = getObjectStorageService().getPublicUrl(photo);
+				getPublicUrlCacheService().put(photo.getId(), size.getLabel(), url);
+				return url;
 
 			} else if (photo.isUsethumbnail()) {
-				
-				
-				
+
 				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
 				String url = service.getPresignedThumbnailUrl(photo, size);
+				getPublicUrlCacheService().put(photo.getId(), size.getLabel(), url);
 				return url;
-			
+
 			} else {
-				
+
 				ObjectMetadata meta = getObjectStorageService().getClient().getObjectMetadata(photo.getBucketName(), photo.getObjectName());
-				
+
 				if (!meta.isPublicAccess()) {
 					logger.debug("Setting public access true to " + photo.getBucketName() + "/" + photo.getObjectName());
 					getObjectStorageService().getClient().setPublicAccess(photo.getBucketName(), photo.getObjectName(), true);
 				}
-				return getObjectStorageService().getPublicUrl(photo);
+
+				String url = getObjectStorageService().getPublicUrl(photo);
+				getPublicUrlCacheService().put(photo.getId(), size.getLabel(), url);
+				return url;
+
 			}
 		} catch (Exception e) {
-			logger.error(e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -374,34 +400,59 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 			if (photo == null)
 				return null;
 
+			if (getPublicUrlCacheService().contains(photo.getId(), ThumbnailSize.SMALL.getLabel())) {
+				logger.debug(" using cache -> " + photo.getId().toString());
+				return getPublicUrlCacheService().get(photo.getId(), ThumbnailSize.SMALL.getLabel());
+			}
+
 			if (!photo.isDependencies()) {
 				photo = this.getResourceDBService().findWithDeps(photo.getId()).get();
 			}
 
 			if ((photo.getMedia() != null) && (photo.getMedia().endsWith("svg") || photo.getMedia().endsWith("webp"))) {
-				return getObjectStorageService().getPublicUrl(photo);
+
+				String url = getObjectStorageService().getPublicUrl(photo);
+				getPublicUrlCacheService().put(photo.getId(), ThumbnailSize.SMALL.getLabel(), url);
+				return url;
 			}
 
 			else if (photo.isUsethumbnail()) {
 				ResourceThumbnailService rservice = (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
-
 				String url = rservice.getPresignedThumbnailUrl(photo, ThumbnailSize.SMALL);
+				getPublicUrlCacheService().put(photo.getId(), ThumbnailSize.SMALL.getLabel(), url);
 				return url;
 			} else {
-				return getObjectStorageService().getPublicUrl(photo);
+
+				String url = getObjectStorageService().getPublicUrl(photo);
+				getPublicUrlCacheService().put(photo.getId(), ThumbnailSize.SMALL.getLabel(), url);
+				return url;
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param resource
+	 * @return
+	 */
 	public String getPresignedUrl(Resource resource) {
+
 		try {
 
 			if (resource == null)
 				return "";
 
-			return getObjectStorageService().getPublicUrl(resource);
+			if (getPublicUrlCacheService().contains(resource.getId(), "url")) {
+				logger.debug(" using cache -> " + resource.getId().toString());
+				return getPublicUrlCacheService().get(resource.getId(), "url");
+			}
+
+			String url = getObjectStorageService().getPublicUrl(resource);
+			getPublicUrlCacheService().put(resource.getId(), "url", url);
+			return url;
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -639,9 +690,6 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		sessionUserModel = new ObjectModel<User>(user);
 	}
 
-	
-	
-	
 	protected Optional<User> getSessionUser() {
 
 		if (sessionUserModel != null)
