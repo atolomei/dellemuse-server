@@ -86,6 +86,52 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 
 	
 
+	
+	public GuideContentPage() {
+		super();
+	}
+
+	public GuideContentPage(PageParameters parameters) {
+		super(parameters);
+	}
+
+	public GuideContentPage(IModel<GuideContent> model) {
+		this(model, null);
+	}
+
+	public GuideContentPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {
+		super(model, list);
+	}
+
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (siteModel != null)
+			siteModel.detach();
+
+		if (artExhibitionGuideModel != null)
+			artExhibitionGuideModel.detach();
+
+		if (artExhibitionModel != null)
+			artExhibitionModel.detach();
+
+		if (artExhibitionItemModel != null)
+			artExhibitionItemModel.detach();
+
+		if (artWorkModel != null)
+			artWorkModel.detach();
+	}
+	
+
 	public boolean canCreate() {
 
 		if (getSessionUser().isEmpty())
@@ -157,49 +203,6 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 
 	}
 	
-	public GuideContentPage() {
-		super();
-	}
-
-	public GuideContentPage(PageParameters parameters) {
-		super(parameters);
-	}
-
-	public GuideContentPage(IModel<GuideContent> model) {
-		this(model, null);
-	}
-
-	public GuideContentPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {
-		super(model, list);
-	}
-
-	public IModel<Site> getSiteModel() {
-		return siteModel;
-	}
-
-	public void setSiteModel(IModel<Site> siteModel) {
-		this.siteModel = siteModel;
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-
-		if (siteModel != null)
-			siteModel.detach();
-
-		if (artExhibitionGuideModel != null)
-			artExhibitionGuideModel.detach();
-
-		if (artExhibitionModel != null)
-			artExhibitionModel.detach();
-
-		if (artExhibitionItemModel != null)
-			artExhibitionItemModel.detach();
-
-		if (artWorkModel != null)
-			artWorkModel.detach();
-	}
 
 	public IModel<ArtExhibitionGuide> getArtExhibitionGuideModel() {
 		return artExhibitionGuideModel;
@@ -429,12 +432,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 					return;
 				}
 
-				// else if (event.getName().equals(ServerAppConstant.object_audit)) {
-				// GuideContentPage.this.togglePanel(ServerAppConstant.object_audit,
-				// event.getTarget());
-				// GuideContentPage.this.getHeader().setPhotoVisible(true);
-				// event.getTarget().add(GuideContentPage.this.getHeader());
-				// }
+		 
 
 				else if (event.getName().startsWith(ServerAppConstant.object_audit)) {
 					if (event.getMoreInfo() != null) {

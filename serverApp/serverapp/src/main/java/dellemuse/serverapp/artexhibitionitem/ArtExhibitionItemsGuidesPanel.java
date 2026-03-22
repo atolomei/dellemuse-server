@@ -177,7 +177,6 @@ public class ArtExhibitionItemsGuidesPanel extends DBModelPanel<ArtExhibitionIte
 					@Override
 					protected WebMarkupContainer getObjectMenu() {
 						return null;
-						// return ArtExhibitionItemsGuidesPanel.this.getMenu(getModel());
 					}
 				};
 				return panel;
@@ -187,11 +186,6 @@ public class ArtExhibitionItemsGuidesPanel extends DBModelPanel<ArtExhibitionIte
 			public List<IModel<GuideContent>> getItems() {
 				return ArtExhibitionItemsGuidesPanel.this.getItems();
 			}
-
-			// @Override
-			// protected void setItems(List<IModel<GuideContent>> list) {
-			// ArtExhibitionItemsGuidesPanel.this.setItems(list);
-			// }
 		};
 		add(itemsPanel);
 

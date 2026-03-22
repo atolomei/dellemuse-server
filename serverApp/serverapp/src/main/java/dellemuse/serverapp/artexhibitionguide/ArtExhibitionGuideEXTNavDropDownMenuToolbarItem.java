@@ -7,6 +7,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.artexhibition.ArtExhibitionPage;
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
@@ -37,7 +38,8 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 
 	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, Align align) {
 		this(id, model, siteModel, null, align);
-		setTitle(getLabel("audio-guide-dropdown",  getObjectTitle(getModel().getObject()).getObject() ));
+		String ti = getObjectTitle(getModel().getObject()).getObject() + ( model.getObject().isAccessible() ? Icons.ACCESIBLE_ICON_NOM_HTML : "" );
+		setTitle(getLabel("audio-guide-dropdown",  ti ));
 	}
 
 	public ArtExhibitionGuideEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, IModel<String> title, Align align) {

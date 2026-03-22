@@ -23,11 +23,13 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.artwork.ArtWorkEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
+import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.page.site.ArtistArtWorksPanel;
 import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -55,7 +57,7 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.InvisiblePanel;
 
-public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPanel {
+public class ArtistEditor extends DBSiteObjectEditor<Artist> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -64,12 +66,16 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 	private ChoiceField<ObjectState> objectStateField;
 	private TextField<String> nicknameField;
 	private TextAreaField<String> infoField;
-	// private MultipleSelectField<Site> mSiteField;
 
 	private StaticTextField<String> siteField;
-	
+
 	private List<IModel<Site>> selected;
 	private List<IModel<Site>> choices;
+
+	private IModel<Site> siteModel;
+
+	private ArtistArtWorksPanel more;
+	private WebMarkupContainer moreContainer;
 
 	/**
 	 * @param id
@@ -78,28 +84,9 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 	public ArtistEditor(String id, IModel<Artist> model) {
 		super(id, model);
 	}
-	
-	 
 
-	private void setUpModel() {
-		
-		getModel().setObject(getArtistDBService().findWithDeps(getModel().getObject().getId()).get());
-		
-		selected = new ArrayList<IModel<Site>>();
-		choices = new ArrayList<IModel<Site>>();
-		
-		
-		Set<Site> set = getModel().getObject().getArtistSites();
-		if (set != null && set.size() > 0) {
-		 	set.forEach(i -> selected.add(new ObjectModel<Site>(i)));
-		 	selected.sort( new Comparator<IModel<Site>> () {
-				@Override
-				public int compare(IModel<Site> o1, IModel<Site>  o2) {
-					return o1.getObject().getName().compareToIgnoreCase(o2.getObject().getName());
-				}
-		 	});
-		}
-		getSiteDBService().findAllSorted(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(a -> choices.add(new ObjectModel<Site>(a)));
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
 	}
 
 	@Override
@@ -116,47 +103,65 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 		add(form);
 		setForm(form);
 
+		
+		
+		boolean isMore = false;
+
+		moreContainer = new WebMarkupContainer("moreContainer");
+		moreContainer.add(new ArtistArtWorksPanel("more", getModel(), getSiteModel()));
+		isMore = true;
+		 
+		if (!isMore)
+			moreContainer.add(new InvisiblePanel("more"));
+
+		moreContainer.setVisible(isMore);
+		add(moreContainer);
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		form.setFormState(FormState.VIEW);
-		
-		
-		
-		form.add(new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name") ));
-		form.add(new TextField<String>("lastname", new PropertyModel<String>(getModel(), "lastname"), getLabel("lastname") ));
 
-		
-		
-/**
-		mSiteField = new MultipleSelectField<Site>("sites", getSelected(), getLabel("sites"), getChoices()) {
+		form.add(new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name")));
+		form.add(new TextField<String>("lastname", new PropertyModel<String>(getModel(), "lastname"), getLabel("lastname")));
 
-			private static final long serialVersionUID = 1L;
+		/**
+		 * mSiteField = new MultipleSelectField<Site>("sites", getSelected(),
+		 * getLabel("sites"), getChoices()) {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override protected IModel<String> getObjectTitle(IModel<Site> model) {
+		 *           return ArtistEditor.this.getObjectTitle(model.getObject()); }
+		 * 
+		 * @Override protected IModel<String> getObjectSubtitle(IModel<Site> model) {
+		 *           return ArtistEditor.this.getObjectSubtitle(model.getObject()); }
+		 * 
+		 * @Override protected void onObjectRemove(IModel<Site> model, AjaxRequestTarget
+		 *           target) { ArtistEditor.this.getSelected().remove(model);
+		 *           target.add(getForm()); }
+		 * 
+		 * @Override protected void onObjectSelect(IModel<Site> model, AjaxRequestTarget
+		 *           target) { ArtistEditor.this.getSelected().add(model);
+		 *           target.add(getForm()); }
+		 * 
+		 *           }; form.add(mSiteField);
+		 * 
+		 */
 
-			@Override
-			protected IModel<String> getObjectTitle(IModel<Site> model) {
-				return ArtistEditor.this.getObjectTitle(model.getObject());
-			}
-
-			@Override
-			protected IModel<String> getObjectSubtitle(IModel<Site> model) {
-				return ArtistEditor.this.getObjectSubtitle(model.getObject());
-			}
-
-			@Override
-			protected void onObjectRemove(IModel<Site> model, AjaxRequestTarget target) {
-				ArtistEditor.this.getSelected().remove(model);
-				target.add(getForm());
-			}
-
-			@Override
-			protected void onObjectSelect(IModel<Site> model, AjaxRequestTarget target) {
-				ArtistEditor.this.getSelected().add(model);
-				target.add(getForm());
-			}
-
-		};
-		form.add(mSiteField);
-		
-*/
-		
 		objectStateField = new ChoiceField<ObjectState>("state", new PropertyModel<ObjectState>(getModel(), "state"), getLabel("state")) {
 
 			private static final long serialVersionUID = 1L;
@@ -181,11 +186,9 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 
 		form.add(objectStateField);
 
-		siteField = new StaticTextField<String>("site", Model.of( getModel().getObject().getSite().getName()), getLabel("site"));
+		siteField = new StaticTextField<String>("site", Model.of(getModel().getObject().getSite().getName()), getLabel("site"));
 		form.add(siteField);
 
-		
-		
 		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
 		nicknameField = new TextField<String>("nickname", new PropertyModel<String>(getModel(), "nickname"), getLabel("nickname"));
 
@@ -267,6 +270,9 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 		if (this.choices != null)
 			this.choices.forEach(i -> i.detach());
 
+		if (this.siteModel != null)
+			this.siteModel.detach();
+
 	}
 
 	public List<IModel<Site>> getSelected() {
@@ -315,36 +321,28 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 
 	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
-		target.add(getForm());
+		target.add(this);
 	}
 
 	public void onSave(AjaxRequestTarget target) {
 
 		try {
 
-
 			if (getUpdatedParts() == null || getUpdatedParts().size() == 0) {
 				target.add(this);
 				return;
 			}
-			
+
 			/**
-			if (this.getSelected() != null) {
-				Set<Site> set = new HashSet<Site>();
-				getSelected().forEach(i-> set.add(i.getObject()));
-				getModel().getObject().setArtistSites(set);
-				
-				Optional<Site> optional = set.stream().findFirst();
-				    if (optional.isPresent()) {
-				        Site retrieved = optional.get();
-						getModel().getObject().setSite(retrieved);
-				    }
-			}
-			else {
-				getModel().getObject().setArtistSites(null);
-			}
-			**/
-			
+			 * if (this.getSelected() != null) { Set<Site> set = new HashSet<Site>();
+			 * getSelected().forEach(i-> set.add(i.getObject()));
+			 * getModel().getObject().setArtistSites(set);
+			 * 
+			 * Optional<Site> optional = set.stream().findFirst(); if (optional.isPresent())
+			 * { Site retrieved = optional.get(); getModel().getObject().setSite(retrieved);
+			 * } } else { getModel().getObject().setArtistSites(null); }
+			 **/
+
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 
 			getForm().setFormState(FormState.VIEW);
@@ -360,6 +358,37 @@ public class ArtistEditor extends DBObjectEditor<Artist> implements InternalPane
 
 		target.add(this);
 
+	}
+
+	@Override
+	public IModel<Site> getSiteModel() {
+		return this.siteModel;
+	}
+
+	private void setUpModel() {
+
+		getModel().setObject(getArtistDBService().findWithDeps(getModel().getObject().getId()).get());
+
+		selected = new ArrayList<IModel<Site>>();
+		choices = new ArrayList<IModel<Site>>();
+
+		Set<Site> set = getModel().getObject().getArtistSites();
+
+		if (set != null && set.size() > 0) {
+			set.forEach(i -> selected.add(new ObjectModel<Site>(i)));
+			selected.sort(new Comparator<IModel<Site>>() {
+				@Override
+				public int compare(IModel<Site> o1, IModel<Site> o2) {
+					return o1.getObject().getName().compareToIgnoreCase(o2.getObject().getName());
+				}
+			});
+		}
+		getSiteDBService().findAllSorted(ObjectState.EDITION, ObjectState.PUBLISHED).forEach(a -> choices.add(new ObjectModel<Site>(a)));
+
+		if (getModel().getObject().getSite() != null) {
+			Optional<Site> o_s = getSiteDBService().findWithDeps(getModel().getObject().getSite().getId());
+			setSiteModel(new ObjectModel<Site>(o_s.get()));
+		}
 	}
 
 }

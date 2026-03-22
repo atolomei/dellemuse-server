@@ -380,7 +380,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		else
 			getObjects().forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
 		
-		 list.forEach( i -> logger.debug("GuideContent " + i.getObject().getId() + " - " + i.getObject().getDisplayname() + " - " + i.getObject().getState()));
+	//	 list.forEach( i -> logger.debug("GuideContent " + i.getObject().getId() + " - " + i.getObject().getDisplayname() + " - " + i.getObject().getState()));
 	
 	
 	}

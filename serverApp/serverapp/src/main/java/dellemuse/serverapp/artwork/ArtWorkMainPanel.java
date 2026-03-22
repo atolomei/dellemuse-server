@@ -55,12 +55,10 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalP
 	private Image qrCode;
 
 	private ArtWorkEditor editor;
-	// private ObjectMetaEditor<ArtWork> metaEditor;
 
 	private Link<Site> addSite;
 	private ArtistArtWorksPanel more;
 
-	 
 	private WebMarkupContainer qrcodecontainer;
 	private WebMarkupContainer moreContainer;
 
@@ -96,11 +94,9 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalP
 		boolean isMore = false;
 
 		moreContainer = new WebMarkupContainer("moreContainer");
-		
-		
-		if (	(getModel().getObject().getObjectType() == ObjectType.ARTWORK) && 
-				(getModel().getObject().getArtists() != null) && (getModel().getObject().getArtists().size() > 0)) {
-		
+
+		if ((getModel().getObject().getObjectType() == ObjectType.ARTWORK) && (getModel().getObject().getArtists() != null) && (getModel().getObject().getArtists().size() > 0)) {
+
 			Artist a = getModel().getObject().getArtists().iterator().next();
 			moreContainer.add(new ArtistArtWorksPanel("more", new ObjectModel<Artist>(a), null));
 			isMore = true;
@@ -118,7 +114,7 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalP
 		qrcodecontainer.setVisible(getModel().getObject().getQRCode() != null);
 
 		try {
-	
+
 			if (getModel().getObject().getQRCode() != null) {
 
 				qrFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(getModel().getObject().getQRCode().getBucketName(), getModel().getObject().getQRCode().getObjectName(),
@@ -199,12 +195,8 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalP
 
 	public void onEdit(AjaxRequestTarget target) {
 		getEditor().onEdit(target);
-		// getMetaEditor().onEdit(target);
-	}
 
-	// private ObjectMetaEditor<?> getMetaEditor() {
-	// return this.metaEditor;
-	// }
+	}
 
 	private IModel<File> getQRFileModel() {
 		return qrFileModel;

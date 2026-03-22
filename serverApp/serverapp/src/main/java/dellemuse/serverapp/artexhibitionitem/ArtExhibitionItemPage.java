@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.wicket.Component;
+ 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
+ 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
@@ -108,7 +108,23 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 	private List<ToolbarItem> list;
 
 
-	
+
+	public ArtExhibitionItemPage() {
+		super();
+	}
+
+	public ArtExhibitionItemPage(PageParameters parameters) {
+		super(parameters);
+	}
+
+	public ArtExhibitionItemPage(IModel<ArtExhibitionItem> model) {
+		this(model, null);
+	}
+
+	public ArtExhibitionItemPage(IModel<ArtExhibitionItem> model, List<IModel<ArtExhibitionItem>> list) {
+		super(model, list);
+	}
+
 	 
 	public boolean canCreate() {
 
@@ -398,22 +414,6 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 	protected void onRestore(AjaxRequestTarget target) {
 		getArtExhibitionItemDBService().restore(getModel().getObject(), getSessionUser().get());
 		fireScanAll(new ObjectRestoreEvent(target));
-	}
-
-	public ArtExhibitionItemPage() {
-		super();
-	}
-
-	public ArtExhibitionItemPage(PageParameters parameters) {
-		super(parameters);
-	}
-
-	public ArtExhibitionItemPage(IModel<ArtExhibitionItem> model) {
-		this(model, null);
-	}
-
-	public ArtExhibitionItemPage(IModel<ArtExhibitionItem> model, List<IModel<ArtExhibitionItem>> list) {
-		super(model, list);
 	}
 
 	@Override

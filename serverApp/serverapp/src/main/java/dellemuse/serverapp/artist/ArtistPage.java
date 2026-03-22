@@ -28,9 +28,12 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtistRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
+import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.UIEvent;
@@ -60,6 +63,7 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 	private ArtistEditor editor;
 	private List<ToolbarItem> list;
 
+	private IModel<Site> siteModel;
 	
 	public ArtistPage() {
 		super();
@@ -77,6 +81,11 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 		super(model, list);
 	}
 
+	@Override
+	protected boolean isLanguage() {
+		return false;
+	}
+
 
 	public String getHelpKey() {
 		return Help.ARTIST_INFO;
@@ -87,6 +96,13 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 		super.onInitialize();
 	}
 
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
 	protected void setUpModel() {
 		super.setUpModel();
 
@@ -94,13 +110,24 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 			Optional<Artist> o_i = getArtistDBService().findWithDeps(getModel().getObject().getId());
 			setModel(new ObjectModel<Artist>(o_i.get()));
 		}
+		
+		setSiteModel(new ObjectModel<Site>(getModel().getObject().getSite()));
+
+		if (!getSiteModel().getObject().isDependencies()) {
+			Optional<Site> o_i = getSiteDBService().findWithDeps(getSiteModel().getObject().getId());
+			setSiteModel(new ObjectModel<Site>(o_i.get()));
+		}
 
 	}
  
 	@Override
 	public void onDetach() {
 		super.onDetach();
+		
+		if (siteModel != null)
+			siteModel.detach();
 	}
+	
 
 	protected List<Language> getSupportedLanguages() {
 		return  getLanguageService().getLanguages();
@@ -113,7 +140,7 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 		if (ouser.isEmpty())
 			return false;
 	
-		{
+		
 			
 			User user = ouser.get();  
 			
@@ -124,6 +151,7 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 				user = getUserDBService().findWithDeps(user.getId()).get();
 			}
 
+			{
 			Set<RoleGeneral> set = user.getRolesGeneral();
 		
 			if (set!=null) {
@@ -131,7 +159,32 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 					if (isAccess)
 						return true;
 			}
-		}
+			}
+			
+			
+			{
+				final Long sid = getSiteModel().getObject().getId();
+				Set<RoleSite> set = user.getRolesSite();
+				if (set!=null) {
+					boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+					if (isAccess)
+						return true;
+				}
+			}	
+		
+			{
+				final Long iid = getSiteModel().getObject().getInstitution().getId();
+				Set<RoleInstitution> set = user.getRolesInstitution();
+				if (set!=null) {
+					boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+					if (isAccess)
+						return true;
+				}
+			}
+		
+		
+		
+		
 		return false;
 	}
 	
@@ -157,8 +210,13 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(new HREFBCElement("/artist/list", getLabel("artists")));
-		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getFirstLastname())));
+		bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
+		
+	 
+		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(), new Model<String>(getSiteModel().getObject().getDisplayname())));
+		bc.addElement(new HREFBCElement("/site/artists/" + getSiteModel().getObject().getId().toString(), getLabel("artists")));
+		
+		bc.addElement(new BCElement(getObjectTitle(getModel().getObject() )));
 
 		
 		JumboPageHeaderPanel<Artist> ph = new JumboPageHeaderPanel<Artist>("page-header", getModel(),
@@ -323,12 +381,17 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 
 			@Override
 			public void onEvent(SimpleAjaxWicketEvent event) {
-
-				if (event.getName().equals(ServerAppConstant.action_person_edit_info)) {
+				
+				logger.debug(event.toString());
+				
+				if (event.getName().equals(ServerAppConstant.artist_info)) {
+					ArtistPage.this.togglePanel(ServerAppConstant.artist_info, event.getTarget());
+				}
+				else if (event.getName().equals(ServerAppConstant.action_person_edit_info)) {
 					ArtistPage.this.onEdit(event.getTarget());
 				}
 				
-				if (event.getName().equals(ServerAppConstant.action_artist_edit)) {
+				else if (event.getName().equals(ServerAppConstant.action_artist_edit)) {
 					ArtistPage.this.onEdit(event.getTarget());
 				}
 				
@@ -380,7 +443,7 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 
-		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.person_info) {
+		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.artist_info) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -391,7 +454,7 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 		tabs.add(tab_1);
 
 		if (getStartTab()==null)
-			setStartTab( ServerAppConstant.person_info );
+			setStartTab( ServerAppConstant.artist_info );
 		
 		return tabs;
 	}

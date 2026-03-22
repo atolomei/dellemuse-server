@@ -123,11 +123,10 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 
 			@Override
 			public boolean isVisible() {
-
-				if (!hasWritePermission())
-					return false;
-
-				return getForm().getFormState() == FormState.EDIT;
+				return false;
+				//if (!hasWritePermission())
+				//	return false;
+				//return getForm().getFormState() == FormState.EDIT;
 			}
 		};
 		form.add(askai);

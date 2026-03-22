@@ -73,6 +73,16 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 	
 	private List<ToolbarItem> listToolbar;
 
+	public  ArtistListPage() {
+		super();
+		 setIsExpanded(true);
+	}		
+	 
+	public ArtistListPage(PageParameters parameters) {
+		 super(parameters);
+		 setIsExpanded(true);
+	}
+	
 	public String getHelpKey() {
 		return Help.ARTIST_LIST;
 	}
@@ -167,17 +177,7 @@ public class ArtistListPage extends ObjectListPage<Artist> {
 
 	
 	
-	public  ArtistListPage() {
-		super();
-		 setIsExpanded(true);
-		 
-	}		
 	
-	 
-	public ArtistListPage(PageParameters parameters) {
-		 super(parameters);
-		 setIsExpanded(true);
-	}
 	 	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {

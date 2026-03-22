@@ -224,12 +224,8 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 				});
 			}
 		}
-
 	}
 
-	protected LanguageService getLanguageService() {
-		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
-	}
 
 	public IModel<Site> getSiteModel() {
 		return siteModel;
@@ -237,6 +233,10 @@ public class ArtExhibitionItemNavDropDownMenuToolbarItem extends DropDownMenuToo
 
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
+	}
+
+	protected LanguageService getLanguageService() {
+		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
 
 }

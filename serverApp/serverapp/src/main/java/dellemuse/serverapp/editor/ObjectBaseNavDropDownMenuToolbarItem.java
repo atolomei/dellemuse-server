@@ -7,6 +7,7 @@ import org.apache.wicket.model.Model;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageObjectService;
@@ -39,6 +40,11 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 	 
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
+	}
+	
+	
+	protected ArtExhibitionDBService getArtExhibitionDBService() {
+		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 	}
 	
 	protected void addAudit() {

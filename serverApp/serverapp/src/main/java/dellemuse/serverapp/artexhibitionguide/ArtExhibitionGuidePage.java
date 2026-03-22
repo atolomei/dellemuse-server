@@ -56,8 +56,7 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/guide/${id}")
 public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitionGuide, ArtExhibitionGuideRecord> {
 
@@ -74,80 +73,6 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 
 	private List<ToolbarItem> list;
 
-	
-	
-	 
-	public boolean canCreate() {
-
-		if (getSessionUser().isEmpty())
-			return false;
-
-		if (isRoot())
-			return true;
-
-		if (isGeneralAdmin())
-			return true;
-
-		if (isSiteAdminOrEditor(getSiteModel().getObject()))
-			return true;
-
-		return false;
-	}
-
-	public boolean canRead(ArtExhibitionGuide o) {
-		
-		if (getSessionUser().isEmpty())
-			return false;
-
-		if (isRoot())
-			return true;
-
-		if (isGeneralAdmin())
-			return true;
-
-		if (isSiteAdminOrEditor(getSiteModel().getObject()))
-			return true;
-
-		return false;
-
-	}
-
-	public boolean canWrite(ArtExhibitionGuide o) {
-		
-		if (getSessionUser().isEmpty())
-			return false;
-
-		if (isRoot())
-			return true;
-
-		if (isGeneralAdmin())
-			return true;
-
-		if (isSiteAdminOrEditor(getSiteModel().getObject()))
-			return true;
-
-		return false;
-
-	}
-
-	public boolean canDelete(ArtExhibitionGuide o) {
-		
-		if (getSessionUser().isEmpty())
-			return false;
-
-		if (isRoot())
-			return true;
-
-		if (isGeneralAdmin())
-			return true;
-
-		if (isSiteAdminOrEditor(getSiteModel().getObject()))
-			return true;
-
-		return false;
-
-	}
-	
 	public ArtExhibitionGuidePage() {
 		super();
 	}
@@ -164,11 +89,10 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		super(model, list);
 	}
 
-
 	public String getHelpKey() {
 		return Help.ARTEXHIBITION_GUIDE_INFO;
 	}
-	
+
 	public IModel<Site> getSiteModel() {
 		return this.siteModel;
 	}
@@ -184,11 +108,10 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		if (this.siteModel != null)
 			this.siteModel.detach();
 	}
-	
+
 	protected List<Language> getSupportedLanguages() {
 		return getSiteModel().getObject().getLanguages();
 	}
-
 
 	@Override
 	protected Optional<ArtExhibitionGuideRecord> loadTranslationRecord(String lang) {
@@ -218,6 +141,77 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 	@Override
 	protected boolean isLanguage() {
 		return false;
+	}
+
+	public boolean canCreate() {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+	}
+
+	public boolean canRead(ArtExhibitionGuide o) {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canWrite(ArtExhibitionGuide o) {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
+	}
+
+	public boolean canDelete(ArtExhibitionGuide o) {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isSiteAdminOrEditor(getSiteModel().getObject()))
+			return true;
+
+		return false;
+
 	}
 
 	protected void addListeners() {
@@ -321,9 +315,6 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 	protected void onGuideCreate(AjaxRequestTarget target) {
 	}
 
-	
-	
-	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 
@@ -331,7 +322,12 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 			return list;
 
 		list = new ArrayList<ToolbarItem>();
-		list.add(new ArtExhibitionGuideNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(), getLabel("audio-guide", TextCleaner.truncate(getModel().getObject().getName(), 24)), Align.TOP_RIGHT));
+
+		String ti = TextCleaner.truncate(getModel().getObject().getName(), 24);
+		if (getModel().getObject().isAccessible())
+			ti = ti + " " + Icons.ACCESIBLE_ICON_JUMBO_HTML;
+
+		list.add(new ArtExhibitionGuideNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(), getLabel("audio-guide", ti), Align.TOP_RIGHT));
 
 		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), getSiteModel(),
 				getLabel("art-exhibition", TextCleaner.truncate(getArtExhibitionModel().getObject().getName(), 24)), Align.TOP_RIGHT);
@@ -346,12 +342,10 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 
 		list.add(site);
-		
-		
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item", Align.TOP_RIGHT);
 		list.add(h);
-		
-		
+
 		return list;
 	}
 

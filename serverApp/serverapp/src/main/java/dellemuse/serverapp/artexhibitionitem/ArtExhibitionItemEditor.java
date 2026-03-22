@@ -29,11 +29,6 @@ import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.InvisiblePanel;
 
-/**
- * 
- * alter table artexhibition add column spec text;
- * 
- */
 public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionItem> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;

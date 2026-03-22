@@ -424,7 +424,7 @@ public class ElevenLabsService extends BaseService {
 
 		 
 		VoiceSettings voiceSettings = new VoiceSettings();
-		 voiceSettings.speed= Double.valueOf(1.1);
+		 voiceSettings.speed= Double.valueOf(1.15);
 		 voiceSettings.stability=Double.valueOf(0.91);
 		 voiceSettings.similarity_boost=Double.valueOf(0.48);
 		 voiceSettings.style=Double.valueOf(0.01);

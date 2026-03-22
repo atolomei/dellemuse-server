@@ -151,7 +151,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			}
 		}
 
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+	 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -161,8 +161,64 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 				};
 			}
 		});
+ 
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+				return new TitleMenuItem<ArtExhibition>(id) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("items-title");
+					}
+				};
+			}
+		});
 
 		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new LinkMenuItem<ArtExhibition>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						ArtExhibitionPage page = new ArtExhibitionPage(getModel());
+						page.setStartTab(ServerAppConstant.exhibition_items);
+						setResponsePage(page);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("items");
+					}
+				};
+			}
+		});
+		
+		
+
+		 addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<ArtExhibition> getItem(String id) {
+					return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibition>(id) {
+						private static final long serialVersionUID = 1L;
+					};
+				}
+			});
+		 
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 			private static final long serialVersionUID = 1L;
@@ -180,6 +236,33 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			}
 		});
 		
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new LinkMenuItem<ArtExhibition>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						ArtExhibitionPage page = new ArtExhibitionPage(getModel());
+						page.setStartTab(ServerAppConstant.exhibition_guides);
+						setResponsePage(page);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("exhibition-guides");
+					}
+				};
+			}
+		});
+		
+ 
+		 
 		
 		for (ArtExhibitionGuide g: getArtExhibitionDBService().getArtExhibitionGuides( getModel().getObject(), ObjectState.PUBLISHED, ObjectState.EDITION)) {
 			
@@ -232,40 +315,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 		});
 		
 		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<ArtExhibition> getItem(String id) {
-
-				return new LinkMenuItem<ArtExhibition>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						ArtExhibitionPage page = new ArtExhibitionPage(getModel());
-						page.setStartTab(ServerAppConstant.exhibition_guides);
-						setResponsePage(page);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("exhibition-guides");
-					}
-				};
-			}
-		});
-		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<ArtExhibition> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibition>(id) {
-					private static final long serialVersionUID = 1L;
-				};
-			}
-		});
+	 
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
 
@@ -292,30 +342,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			}
 		});
 
-		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<ArtExhibition> getItem(String id) {
-
-				return new LinkMenuItem<ArtExhibition>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						ArtExhibitionPage page = new ArtExhibitionPage(getModel());
-						page.setStartTab(ServerAppConstant.exhibition_items);
-						setResponsePage(page);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("items");
-					}
-				};
-			}
-		});
+		
 
 	
 

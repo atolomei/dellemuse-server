@@ -235,18 +235,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 
 				logger.debug(event.toString());
 
-				/**
-				 * if (event.getName().equals(ServerAppConstant.action_site_edit)) {
-				 * ArtWorkPage.this.onEdit(event.getTarget()); }
-				 * 
-				 * else if (event.getName().equals(ServerAppConstant.site_info)) {
-				 * ArtWorkPage.this.togglePanel(ServerAppConstant.site_info, event.getTarget());
-				 * }
-				 * 
-				 * if (event.getName().equals(ServerAppConstant.audit)) {
-				 * ArtWorkPage.this.togglePanel(ServerAppConstant.audit, event.getTarget()); }
-				 **/
-
+			 
 				// edit --------------------------------------
 				//
 				//
