@@ -112,7 +112,7 @@ public class ElevenLabsClient {
    * 
    * Alejandro Tolomei
    *  
-   * sk_1d73569ea735c3013edd9bb49a6a652839942590f45944d7
+   * 
    *
    *
    */

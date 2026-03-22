@@ -97,6 +97,9 @@ public class ElevenLabsService extends BaseService {
 
 	private int port;
 	
+
+	boolean enabled = false;
+	
 	
 	public List<ELVoice> getVoices(String lang) {
 	
@@ -163,22 +166,16 @@ public class ElevenLabsService extends BaseService {
 
 	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode, String vid, boolean enableLogging) {
 
+		Check.requireTrue(enabled, "the service is not enabled, check apikey and host");
+		
 		if (text==null || text.length()==0)
 			return Optional.empty();
 		
 		Check.requireNonNullStringArgument(audioFileName, "audioFileName can not be null");
 		Check.requireNonNullArgument(languageCode, "languageCode can not be null");
 		Check.requireNonNullStringArgument(vid, "vid can not be null");
-		
-		
-		//if (!getVoices().containsKey(dm_voice_id))
-		//	throw new IllegalArgumentException("voice not found -> " + dm_voice_id);
-		
-		String voice_id  = vid; // getVoices().get(dm_voice_id).getVoiceId();
-		//VoiceSettings vs =  getVoices().get(dm_voice_id).getVoiceSettings();
-		
-		
-		
+		 
+		String voice_id  = vid;  
 		
 		
 		String output_format = OutputFormat.Opus_48000_192.getName();
@@ -269,17 +266,7 @@ public class ElevenLabsService extends BaseService {
 	                // requestBuilder.header("Accept-Charset", "utf-8");
 	                // requestBuilder.header("Accept-Encoding", "gzip, deflate"); cMKZRsVE5V7xf6qCp9fF
 	                
-	                
-	                /**
-	                 * 
-	                 * 
-	                 * 
-	                 * 
-	                 * 
-	                 * LudcwvHIZaqQOcQfVZSY clara
-	                 * 
-	                 */
-	                
+	               
 	                requestBuilder.post(body);
 	                
 	                Request request = requestBuilder.build();
@@ -320,15 +307,6 @@ public class ElevenLabsService extends BaseService {
 	        }
 		    return Optional.of(file);
 		    
-		/**
-		 * curl -X POST "https://api.elevenlabs.io/v1/text-to-speech / 9rvdnhrYoXoUt4igKpBw ? output_format=opus_48000_192" \
-     -H "xi-api-key: sk_1d73569ea735c3013edd9bb49a6a652839942590f45944d7" \
-     -H "Content-Type: application/json" \
-     -d '{
-  "text": "Entre 1920 e 1950, o turismo na Itália se transformou em um fenômeno de massa, e o cartaz foi uma ferramenta fundamental: uma síntese de arte, design e promoção cultural, uma peça publicitária que era também uma obra de arte, refletindo a cultura e a estética de sua época.",
-  "model_id": "eleven_multilingual_v2"
-}'
-		 */
 	}
 
 	
@@ -371,6 +349,8 @@ public class ElevenLabsService extends BaseService {
 		return this.lockService;
 	}
 		
+ 
+	
 	@PostConstruct
 	protected void onInit() {
 		try {
@@ -378,10 +358,29 @@ public class ElevenLabsService extends BaseService {
 			this.apiKey = getSettings().getElevenLabsAPIKey();
 			this.apiHost = getSettings().getElevenLabsAPIHost();
 			this.port = 443;
-		
+			
+			if (this.apiKey==null || this.apiKey.length()==0) {
+				startupLogger.error("ElevenLabsService API key not found. ElevenLabsService will be disabled.");
+				setStatus(ServiceStatus.STOPPED);
+				enabled=false;
+				return;
+			}
+
+			
+			if (this.apiHost==null || this.apiHost.length()==0) {
+				startupLogger.error("ElevenLabsService API host not found. ElevenLabsService will be disabled.");
+				setStatus(ServiceStatus.STOPPED);
+				enabled=false;
+				return;
+			}
+			
+			
 			loadVoices();
 			initOkHttpClient();
-				
+			
+			enabled=true;
+
+			
 			setStatus(ServiceStatus.RUNNING);
 		} catch (Exception e) {
 			setStatus(ServiceStatus.STOPPED);
