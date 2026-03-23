@@ -23,9 +23,13 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Artist;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
+import dellemuse.serverapp.serverdb.model.MusicWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Floor;
@@ -729,7 +733,92 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		throw new RuntimeException("not done");
 	}
 
+	/**
+	 * Returns the {@link Site} associated with the given {@link MultiLanguageObject},
+	 * navigating lazy relationships using {@code findWithDeps} when needed.
+	 * <p>
+	 * Returns {@code null} for {@link Institution}, {@link MusicWork}, and {@link Person}
+	 * since they do not have a direct Site association.
+	 * </p>
+	 */
+	@Transactional
+	public Site getSite(MultiLanguageObject o) {
 
-	
+		if (o == null)
+			return null;
+
+		if (o instanceof Institution || o instanceof MusicWork || o instanceof Person)
+			return null;
+
+		if (o instanceof Site)
+			return (Site) o;
+
+		if (o instanceof ArtWork) {
+			ArtWork aw = (ArtWork) o;
+			if (!aw.isDependencies())
+				aw = getArtWorkDBService().findWithDeps(aw.getId()).get();
+			return aw.getSite();
+		}
+
+		if (o instanceof Artist) {
+			Artist ar = (Artist) o;
+			if (!ar.isDependencies())
+				ar = getArtistDBService().findWithDeps(ar.getId()).get();
+			return ar.getSite();
+		}
+
+		if (o instanceof ArtExhibition) {
+			ArtExhibition ae = (ArtExhibition) o;
+			if (!ae.isDependencies())
+				ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+			return ae.getSite();
+		}
+
+		if (o instanceof ArtExhibitionItem) {
+			ArtExhibitionItem aei = (ArtExhibitionItem) o;
+			if (!aei.isDependencies())
+				aei = getArtExhibitionItemDBService().findWithDeps(aei.getId()).get();
+			ArtExhibition ae = aei.getArtExhibition();
+			if (ae != null && !ae.isDependencies())
+				ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+			return ae != null ? ae.getSite() : null;
+		}
+
+		if (o instanceof ArtExhibitionSection) {
+			ArtExhibitionSection aes = (ArtExhibitionSection) o;
+			ArtExhibition ae = aes.getArtExhibition();
+			if (ae != null && !ae.isDependencies())
+				ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+			return ae != null ? ae.getSite() : null;
+		}
+
+		if (o instanceof ArtExhibitionGuide) {
+			ArtExhibitionGuide aeg = (ArtExhibitionGuide) o;
+			if (!aeg.isDependencies())
+				aeg = getArtExhibitionGuideDBService().findWithDeps(aeg.getId()).get();
+			ArtExhibition ae = aeg.getArtExhibition();
+			if (ae != null && !ae.isDependencies())
+				ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+			return ae != null ? ae.getSite() : null;
+		}
+
+		if (o instanceof GuideContent) {
+			GuideContent gc = (GuideContent) o;
+			if (!gc.isDependencies())
+				gc = getGuideContentDBService().findWithDeps(gc.getId()).get();
+			ArtExhibitionGuide aeg = gc.getArtExhibitionGuide();
+			if (aeg != null && !aeg.isDependencies())
+				aeg = getArtExhibitionGuideDBService().findWithDeps(aeg.getId()).get();
+			if (aeg != null) {
+				ArtExhibition ae = aeg.getArtExhibition();
+				if (ae != null && !ae.isDependencies())
+					ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+				return ae != null ? ae.getSite() : null;
+			}
+			return null;
+		}
+
+		return null;
+	}
 
 }

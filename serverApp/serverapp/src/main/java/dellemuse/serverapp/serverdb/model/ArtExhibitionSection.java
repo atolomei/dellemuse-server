@@ -50,4 +50,10 @@ public class ArtExhibitionSection extends MultiLanguageObject {
 		this.artExhibition = artExhibition;
 	}
 
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
+
+	
 };

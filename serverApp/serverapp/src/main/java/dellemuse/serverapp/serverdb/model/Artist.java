@@ -65,6 +65,12 @@ public class Artist extends MultiLanguageObject {
 	private Site site;
 	
 	
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
+
+	
 	public Set<ArtWork> getArtworks() {
 		return artworks;
 	}

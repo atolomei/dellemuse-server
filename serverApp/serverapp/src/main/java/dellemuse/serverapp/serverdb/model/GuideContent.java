@@ -89,6 +89,13 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	private Resource audioAccessible;
 	
 	
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
+
+	
+	
 	/**
 	 * 
 	 * CREATE SEQUENCE if not exists audio_id START 1; alter table

@@ -18,7 +18,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
- 
+
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Language;
@@ -27,10 +27,10 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
- 
+
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
- 
+
 import io.odilon.util.Check;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -42,7 +42,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExhibition, Long> {
+public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhibition, Long> {
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ArtExhibitionDBService.class.getName());
@@ -60,13 +60,13 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		super(repository, settings);
 		this.artExhibitionRecordDBService = artExhibitionRecordDBService;
 	}
-	 
+
 	@Transactional
 	public ArtExhibition create(String name, User createdBy) {
-		
+
 		Check.requireNonNullArgument(createdBy, "createdBy is null");
 		Check.requireNonNullArgument(name, "name is null");
-		
+
 		ArtExhibition c = new ArtExhibition();
 		c.setName(name);
 
@@ -79,10 +79,10 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
-		
+
 		for (Language la : getLanguageService().getLanguages())
 			getArtExhibitionRecordDBService().create(c, la.getLanguageCode(), createdBy);
-		
+
 		return c;
 	}
 
@@ -93,13 +93,13 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		Check.requireNonNullArgument(name, "name is null");
 		Check.requireNonNullArgument(site, "site is null");
 
-		Check.requireTrue(site.getState()!=null, "site state is null");
-		Check.requireTrue(site.getLanguage()!=null, "site language is null");
-		Check.requireTrue(site.getMasterLanguage()!=null, "site Master language is null");
+		Check.requireTrue(site.getState() != null, "site state is null");
+		Check.requireTrue(site.getLanguage() != null, "site language is null");
+		Check.requireTrue(site.getMasterLanguage() != null, "site Master language is null");
 
 		ArtExhibition c = new ArtExhibition();
 		c.setName(name);
-			
+
 		c.setMasterLanguage(site.getMasterLanguage());
 		c.setLanguage(site.getLanguage());
 
@@ -111,45 +111,41 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
-			
-		for (Language la: getLanguageService().getLanguages())
+
+		for (Language la : getLanguageService().getLanguages())
 			getArtExhibitionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
 		return c;
 	}
 
-	
-	
-	@Transactional	
+	@Transactional
 	public void save(ArtExhibition o, User user, List<String> updatedParts) {
 		super.save(o);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 	}
 
 	/**
-	 *  ArtExhibition (1)
-	 *  ArtExhibitionRecord(n) 
-	 *  ArtExhibitionItem (n)
+	 * ArtExhibition (1) ArtExhibitionRecord(n) ArtExhibitionItem (n)
 	 */
 	@Transactional
 	public void markAsDeleted(ArtExhibition c, User deletedBy) {
-		
+
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
-		
+
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
-		
+
 		for (ArtExhibitionRecord g : getArtExhibitionRecordDBService().findAllByGuideContent(c)) {
 			getArtExhibitionRecordDBService().markAsDeleted(g, deletedBy);
 		}
-		
+
 		c.getArtExhibitionItems().forEach(gc -> {
 			getArtExhibitionItemDBService().markAsDeleted(gc, deletedBy);
 		});
 	}
- 	
+
 	@Transactional
 	public void restore(ArtExhibition c, User restoredBy) {
 
@@ -157,14 +153,14 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		c.setLastModified(date);
 		c.setLastModifiedUser(restoredBy);
 		c.setState(ObjectState.EDITION);
-		
+
 		getRepository().save(c);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy,  AuditAction.UPDATE, AuditKey.RESTORE));
-		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE, AuditKey.RESTORE));
+
 		for (ArtExhibitionRecord g : getArtExhibitionRecordDBService().findAllByGuideContent(c)) {
 			getArtExhibitionRecordDBService().restore(g, restoredBy);
 		}
-		
+
 		c.getArtExhibitionItems().forEach(gc -> {
 			getArtExhibitionItemDBService().restore(gc, restoredBy);
 		});
@@ -193,15 +189,13 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		}
 
 		Resource photo = a.getPhoto();
-		if (photo!=null)
-			a.setPhoto( getResourceDBService().findById(photo.getId()).get());
-
+		if (photo != null)
+			a.setPhoto(getResourceDBService().findById(photo.getId()).get());
 
 		User user = a.getLastModifiedUser();
-		if (user!=null)
+		if (user != null)
 			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
-		
-		
+
 		a.setDependencies(true);
 
 		return o;
@@ -230,10 +224,10 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		exhibition.setArtExhibitionItems(list);
 		exhibition.setLastModified(OffsetDateTime.now());
 		exhibition.setLastModifiedUser(addedBy);
-		
+
 		getRepository().save(exhibition);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.ofArtExhibition(exhibition, addedBy, AuditAction.UPDATE, AuditKey.ADD_ITEM, item));
-		
+
 	}
 
 	@Transactional
@@ -288,36 +282,36 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		ex.setArtExhibitionSections(list);
 		ex.setLastModified(OffsetDateTime.now());
 		ex.setLastModifiedUser(removedBy);
-		
+
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(ex, removedBy, AuditAction.UPDATE));
 		getRepository().save(ex);
- 	}
- 
+	}
+
 	@Transactional
 	public List<ArtExhibition> getByName(String name) {
 		return createNameQuery(name).getResultList();
 	}
-	
+
 	@Transactional
 	public Boolean isArtExhibitionGuides(ArtExhibition exhibition) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(ArtExhibitionGuide.class);
-		
+
 		Root<ArtExhibitionGuide> root = cq.from(ArtExhibitionGuide.class);
-	
+
 		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
 		Predicate p1 = cb.equal(root.get("state"), ObjectState.EDITION);
 		Predicate p2 = cb.equal(root.get("state"), ObjectState.PUBLISHED);
 		Predicate statePredicate = cb.or(p1, p2);
 		Predicate combinedPredicate = cb.and(p0, statePredicate);
 		cq.select(root).where(combinedPredicate);
-		
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		List<ArtExhibitionGuide> list = getEntityManager().createQuery(cq).getResultList();
-	
-		return (list!=null && list.size()>0);
+
+		return (list != null && list.size() > 0);
 	}
-	
+
 	@Transactional
 	public List<ArtExhibitionGuide> getArtExhibitionGuides(ArtExhibition exhibition) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -329,33 +323,24 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-
-	
 	@Transactional
 	public List<ArtExhibitionGuide> getArtExhibitionGuides(ArtExhibition exhibition, ObjectState o1, ObjectState o2) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(ArtExhibitionGuide.class);
 		Root<ArtExhibitionGuide> root = cq.from(ArtExhibitionGuide.class);
-		
-		
-		
+
 		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
 		Predicate p1 = cb.equal(root.get("state"), ObjectState.EDITION);
 		Predicate p2 = cb.equal(root.get("state"), ObjectState.PUBLISHED);
 		Predicate statePredicate = cb.or(p1, p2);
 		Predicate combinedPredicate = cb.and(p0, statePredicate);
 		cq.select(root).where(combinedPredicate);
-		
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
-	
-	
-	
-	
-	
+
 	@Transactional
 	public List<ArtExhibitionItem> getArtExhibitionItems(ArtExhibition exhibition) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -371,13 +356,13 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionItem> cq = cb.createQuery(ArtExhibitionItem.class);
 		Root<ArtExhibitionItem> root = cq.from(ArtExhibitionItem.class);
-		
+
 		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
 		Predicate p1 = cb.equal(root.get("state"), os1);
-			 
+
 		Predicate finalredicate = cb.and(p0, p1);
 		cq.select(root).where(finalredicate);
-		
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
@@ -387,7 +372,7 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionItem> cq = cb.createQuery(ArtExhibitionItem.class);
 		Root<ArtExhibitionItem> root = cq.from(ArtExhibitionItem.class);
-			
+
 		Predicate p0 = cb.equal(root.get("artExhibition").get("id"), String.valueOf(exhibition.getId()));
 		Predicate p1 = cb.equal(root.get("state"), os1);
 		Predicate p2 = cb.equal(root.get("state"), os2);
@@ -395,11 +380,11 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		Predicate combinedPredicate = cb.or(p1, p2);
 		Predicate finalredicate = cb.and(p0, combinedPredicate);
 		cq.select(root).where(finalredicate);
-		
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	@Transactional
 	public List<ArtExhibitionSection> getArtExhibitionSections(ArtExhibition exhibition) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -421,7 +406,6 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	
 	@Transactional
 	public List<ArtExhibition> getArtExhibitionsByOrdinal(Site site) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -432,17 +416,17 @@ public class ArtExhibitionDBService extends  MultiLanguageObjectDBservice<ArtExh
 
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	@Override
 	public String getObjectClassName() {
-		 return ArtExhibition.class.getSimpleName().toLowerCase();
+		return ArtExhibition.class.getSimpleName().toLowerCase();
 	}
 
 	@Override
 	protected Class<ArtExhibition> getEntityClass() {
 		return ArtExhibition.class;
 	}
-	
+
 	protected ArtExhibitionRecordDBService getArtExhibitionRecordDBService() {
 		return this.artExhibitionRecordDBService;
 	}

@@ -203,4 +203,9 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 		this.opens = opens;
 	}
 
+	public boolean isSiteSecured() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

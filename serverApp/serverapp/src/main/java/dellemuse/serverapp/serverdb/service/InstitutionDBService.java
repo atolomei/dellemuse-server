@@ -1,11 +1,8 @@
 package dellemuse.serverapp.serverdb.service;
 
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
-
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +14,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
@@ -29,22 +25,18 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
-import io.wktui.nav.toolbar.ToolbarItem;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institution, Long> {
+public class InstitutionDBService extends MultiLanguageObjectDBservice<Institution, Long> {
 
 	private static final Logger logger = Logger.getLogger(InstitutionDBService.class.getName());
 
@@ -59,18 +51,18 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		super(repository, settings);
 		this.institutionRecordDBService = institutionRecordDBService;
 	}
- 
+
 	@Transactional
 	public Institution create(String name, User createdBy) {
 		Institution c = new Institution();
 
 		c.setName(name);
 		c.setState(ObjectState.EDITION);
-		
+
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
-		c.setLanguages( Language.getDefaultLanguages() );
-		
+		c.setLanguages(Language.getDefaultLanguages());
+
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
@@ -82,9 +74,9 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 			getInstitutionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.UPDATE));
-		
+
 		getRoleInstitutionDBService().create("admin", c, createdBy);
-		
+
 		return c;
 	}
 
@@ -98,7 +90,7 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
-		c.setLanguages( Language.getDefaultLanguages() );
+		c.setLanguages(Language.getDefaultLanguages());
 
 		shortName.ifPresent(c::setShortName);
 		address.ifPresent(c::setAddress);
@@ -112,7 +104,7 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
-		
+
 		for (Language la : getLanguageService().getLanguages())
 			getInstitutionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
@@ -120,21 +112,18 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 
 		return c;
 	}
-	
 
-	@Transactional	
+	@Transactional
 	public void save(Institution o, User user, String updatedPart) {
-			super.save(o);
-			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, updatedPart));
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, updatedPart));
 	}
 
-	 
-	@Transactional	
+	@Transactional
 	public void save(Institution o, User user, List<String> updatedParts) {
-			super.save(o);
-			getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
-		}
-		
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
+	}
 
 	@Transactional
 	public void markAsDeleted(Institution c, User deletedBy) {
@@ -142,9 +131,9 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		c.setLastModifiedUser(deletedBy);
 		c.setState(ObjectState.DELETED);
 		getRepository().save(c);
-		
+
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, deletedBy, AuditAction.DELETE, AuditKey.MARK_AS_DELETED));
-		
+
 	}
 
 	@Transactional
@@ -154,39 +143,36 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		c.setLastModifiedUser(restoredBy);
 		c.setState(ObjectState.EDITION);
 		getRepository().save(c);
-		
+
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE, AuditKey.RESTORE));
-		
+
 	}
 
-	
 	@Transactional
 	public Institution createFromCandidate(Candidate c, User user) {
 
+		logger.debug("Creating institution from candidate -> : " + c.getDisplayname());
+		Institution in = create(c.getInstitutionName(), user);
+		in.setAddress(c.getInstitutionAddress());
+		in.setEmail(c.getEmail());
+		save(in, "email, address", user);
 
-		logger.debug("Creating institution from candidate -> : "+ c.getDisplayname());
-		Institution in =  create(c.getInstitutionName(), user);
-    	in.setAddress(c.getInstitutionAddress());
-    	in.setEmail(c.getEmail());
-    	save(in, "email, address", user);
-    	
-  
-    	// ---
-    	logger.debug("Creating site from candidate -> : "+ c.getDisplayname());
-    	Site site = getSiteDBService().create(c.getInstitutionName(), in, Optional.ofNullable(in.getShortName()), Optional.ofNullable(in.getAddress()), Optional.ofNullable(in.getInfo()), user);
-    	site.setAddress(c.getInstitutionAddress());
-    	site.setEmail(c.getEmail());
-    	getSiteDBService().save(site, "email, address", user);
-    	getDelleMuseAuditDBService().save(DelleMuseAudit.of(site, user, AuditAction.UPDATE, AuditKey.CREATE_FROM_CANDIDATE));
+		// ---
+		logger.debug("Creating site from candidate -> : " + c.getDisplayname());
+		Site site = getSiteDBService().create(c.getInstitutionName(), in, Optional.ofNullable(in.getShortName()), Optional.ofNullable(in.getAddress()), Optional.ofNullable(in.getInfo()), user);
+		site.setAddress(c.getInstitutionAddress());
+		site.setEmail(c.getEmail());
+		getSiteDBService().save(site, "email, address", user);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(site, user, AuditAction.UPDATE, AuditKey.CREATE_FROM_CANDIDATE));
 
-    	// ---
-    	logger.debug("Saving candidate with institution -> : "+ c.getDisplayname() + " - institution: " + in.getName());
-    	c.setInstitution(in);
-    	getCandidateDBService().save(c, "institution", user);
-    	getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, user, AuditAction.UPDATE, AuditKey.CREATE_FROM_CANDIDATE));
+		// ---
+		logger.debug("Saving candidate with institution -> : " + c.getDisplayname() + " - institution: " + in.getName());
+		c.setInstitution(in);
+		getCandidateDBService().save(c, "institution", user);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, user, AuditAction.UPDATE, AuditKey.CREATE_FROM_CANDIDATE));
 		return in;
-    }
-	
+	}
+
 	@Transactional
 	public Optional<Institution> findWithDeps(Long id) {
 
@@ -198,28 +184,25 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		Institution i = o_i.get();
 
 		List<Site> sites = new ArrayList<Site>();
-		
-		i.getSites().forEach( site ->  getSiteDBService().findById(site.getId()).ifPresent(s -> sites.add(s)) );
-		
+
+		i.getSites().forEach(site -> getSiteDBService().findById(site.getId()).ifPresent(s -> sites.add(s)));
+
 		i.setSites(sites);
-		
+
 		Resource photo = i.getPhoto();
-		if (photo!=null)
-			i.setPhoto( getResourceDBService().findById(photo.getId()).get());
+		if (photo != null)
+			i.setPhoto(getResourceDBService().findById(photo.getId()).get());
 
 		Resource logo = i.getLogo();
-		if (logo!=null)
+		if (logo != null)
 			i.setLogo(getResourceDBService().findById(logo.getId()).get());
 
-
 		User user = i.getLastModifiedUser();
-		if (user!=null)
+		if (user != null)
 			i.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
-
 
 		i.setDependencies(true);
 
-		
 		return o_i;
 	}
 
@@ -288,61 +271,38 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		return createNameQuery(name).getResultList();
 	}
 
-	 
-
 	@Transactional
 	public List<Institution> findByNameApprox(String name) {
 
-		if (name==null || name.trim().isEmpty())
+		if (name == null || name.trim().isEmpty())
 			return new ArrayList<Institution>();
-		
-	    CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-	    CriteriaQuery<Institution> cq = cb.createQuery(Institution.class);
 
-	    Root<Institution> root = cq.from(Institution.class);
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Institution> cq = cb.createQuery(Institution.class);
 
-	    String search = name.toLowerCase();
+		Root<Institution> root = cq.from(Institution.class);
 
-	    Expression<String> normName =
-	        cb.function("immutable_unaccent", String.class,
-	            cb.lower(root.get("name")));
+		String search = name.toLowerCase();
 
-	    Expression<String> normShort =
-	        cb.function("immutable_unaccent", String.class,
-	            cb.lower(root.get("shortName")));
+		Expression<String> normName = cb.function("immutable_unaccent", String.class, cb.lower(root.get("name")));
 
-	    Expression<String> normSearch =
-	        cb.function("immutable_unaccent", String.class,
-	            cb.literal(search));
+		Expression<String> normShort = cb.function("immutable_unaccent", String.class, cb.lower(root.get("shortName")));
 
-	    Expression<Double> simName =
-	        cb.function("similarity", Double.class,
-	            normName, normSearch);
+		Expression<String> normSearch = cb.function("immutable_unaccent", String.class, cb.literal(search));
 
-	    Expression<Double> simShort =
-	        cb.function("similarity", Double.class,
-	            normShort, normSearch);
+		Expression<Double> simName = cb.function("similarity", Double.class, normName, normSearch);
 
-	    Expression<Double> bestScore =
-	        cb.function("greatest", Double.class,
-	            simName, simShort);
+		Expression<Double> simShort = cb.function("similarity", Double.class, normShort, normSearch);
 
-	    Predicate fuzzy =
-	        cb.greaterThan(bestScore, 0.5);
+		Expression<Double> bestScore = cb.function("greatest", Double.class, simName, simShort);
 
-	    cq.select(root)
-	      .where(fuzzy)
-	      .orderBy(cb.desc(bestScore));
+		Predicate fuzzy = cb.greaterThan(bestScore, 0.5);
 
-	    return entityManager.createQuery(cq)
-	            .setMaxResults(20)
-	            .getResultList();
+		cq.select(root).where(fuzzy).orderBy(cb.desc(bestScore));
+
+		return entityManager.createQuery(cq).setMaxResults(20).getResultList();
 	}
-	
-	
-	
-	  
-	
+
 	@Override
 	protected Class<Institution> getEntityClass() {
 		return Institution.class;
@@ -363,5 +323,4 @@ public class InstitutionDBService extends  MultiLanguageObjectDBservice<Institut
 		super.register(getEntityClass(), this);
 	}
 
-	
 }

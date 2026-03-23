@@ -120,17 +120,17 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 		ArtExhibitionItem item = o.getArtExhibitionItem();
 
-		if (item!=null) {
+		if (item != null) {
 			item = getArtExhibitionItemDBService().findWithDeps(item.getId()).get();
 			ArtWork a = item.getArtWork();
 			if (a.getAudioId() == null) {
 				Site site = a.getSite();
 				item.getArtWork().setAudioId(newAudioId(site));
 				getArtWorkDBService().save(item.getArtWork(), user, "audioid");
-	
+
 			}
 		}
-		
+
 		Optional<AudioStudio> oa = getAudioStudioDBService().findByGuideContent(o);
 
 		if (oa.isPresent()) {
@@ -272,15 +272,6 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	/**
-	 * 
-	 * 
-	 * @param site
-	 * @param aid
-	 * @param os1
-	 * 
-	 * @return
-	 */
 	@Transactional
 	public List<GuideContent> getByAudioId(Site site, Long aid, ObjectState os1) {
 
@@ -308,8 +299,7 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
-	
+
 	@Transactional
 	public List<GuideContent> getByArtWorkAudioId(Site site, Long aid) {
 
@@ -331,8 +321,6 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	
-	
 	@Transactional
 	public List<GuideContent> getByArtWorkAudioId(Site site, Long aid, ObjectState os1) {
 
@@ -360,11 +348,7 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
-	
-	
-	
-	
+
 	@Transactional
 	public List<GuideContent> getByArtWorkAudioId(Site site, Long aid, ObjectState os1, ObjectState os2) {
 
@@ -393,10 +377,6 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-
-	
-	
-	
 
 	@Transactional
 	public List<GuideContent> getByAudioId(Site site, Long aid, ObjectState os1, ObjectState os2) {
@@ -429,7 +409,7 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 	public Long newAudioId(Site site) {
 		return getSiteDBService().newAudioId(site);
-	 }
+	}
 
 	@Transactional
 	public void delete(GuideContent c) {

@@ -77,6 +77,33 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	private List<IModel<ArtExhibitionGuide>> artExhibitionSearchList;
 	
 	private String lang;
+	private Locale locale = null;
+	
+	private boolean modelAlreadySet = false;
+	
+	protected void setCookieLocale() {
+		
+		if (lang != null) {
+		  logger.debug("setting language from parameter -> " + lang);
+		  locale =Locale.forLanguageTag(lang);
+		  getSession().setLocale(Locale.forLanguageTag(lang));
+		  return;
+		}
+		
+		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+		Cookie cookie = request.getCookie("lang");
+
+		if (cookie != null) {
+			String value = cookie.getValue();
+		    logger.debug("setting language from cookie -> " + value);
+			locale = Locale.forLanguageTag(value);
+			lang=value;
+		    getSession().setLocale(Locale.forLanguageTag(value));
+		}
+		
+		
+	}
+	
 	
 	public List<IModel<GuideContent>> getGuideContentSearchList() {
 		return guideContentSearchList;
@@ -101,6 +128,8 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 	public BrandedGuideContentPage(PageParameters parameters) {
 		super(parameters);
+		setUpModel() ;
+		setCookieLocale();
 	}
 
 	public BrandedGuideContentPage(IModel<GuideContent> model) {
@@ -110,7 +139,47 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	public BrandedGuideContentPage(IModel<GuideContent> model, List<IModel<GuideContent>> list, String lang) {
 		super(model, list);
 		this.lang=lang;
+		setUpModel() ;
+		setCookieLocale();
 	}
+	
+	@Override
+	public Locale getLocale() {
+
+		if (locale != null)
+			return locale;
+
+		if (lang != null) {
+			logger.debug("setting language from parameter -> " + lang);
+			locale = Locale.forLanguageTag(lang);
+			getSession().setLocale(Locale.forLanguageTag(lang));
+		} else {
+			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+			Cookie cookie = request.getCookie("lang");
+
+			if (cookie != null) {
+				String value = cookie.getValue();
+				logger.debug("setting language from cookie -> " + value);
+				locale = Locale.forLanguageTag(value);
+				getSession().setLocale(Locale.forLanguageTag(value));
+
+			} else if (getSessionUser().isEmpty()) {
+
+				if (getSiteModel() == null) {
+					logger.error("site model is null, cannot set language");
+					return Locale.getDefault();
+				}
+
+				Language la = Language.of(getSiteModel().getObject().getMasterLanguage());
+				String code = la.getLanguageCode();
+				logger.debug("setting language from site master language -> " + code);
+				locale = Locale.forLanguageTag(code);
+				getSession().setLocale(Locale.forLanguageTag(code));
+			}
+		}
+		return locale;
+	}
+
 	
 	
 	protected List<Language> getSupportedLanguages() {
@@ -234,32 +303,20 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return true;
 	}
 
-	
-	protected void setLanguage() {
-		if (lang!=null) {
-		    getSession().setLocale(Locale.forLanguageTag(lang));
-		}
-		else {
-			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
-			Cookie cookie = request.getCookie("lang");
-			if (cookie != null) {
-			    String value = cookie.getValue();
-			    getSession().setLocale( Locale.forLanguageTag(value));
-			}
-			else if (getSessionUser().isEmpty()) {
-				Language la=Language.of( getSiteModel().getObject().getMasterLanguage());
-				String code=la.getLanguageCode();
-				getSession().setLocale(Locale.forLanguageTag(code));
-			}
-		}
-	}
+	 
 	
 	protected IModel<String> getMainClass() {
 		return Model.of("branded text-bg-dark");
 	}
 
 	
+	
+	@Override
 	protected void setUpModel() {
+		
+		if (modelAlreadySet)
+			return;
+		
 		super.setUpModel();
 
 		if (!getModel().getObject().isDependencies()) {
@@ -284,6 +341,9 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 		Optional<Site> o_s = getSiteDBService().findWithDeps(getArtExhibitionModel().getObject().getSite().getId());
 		setSiteModel(new ObjectModel<Site>(o_s.get()));
+	
+		modelAlreadySet = true;
+		
 	}
 
 	@Override
@@ -427,7 +487,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		setLanguage();
+		 
 
 	}
 

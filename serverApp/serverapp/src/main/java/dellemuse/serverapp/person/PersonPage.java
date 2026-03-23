@@ -5,13 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.wicket.Component;
+ 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
+ 
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
+ 
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -65,36 +64,28 @@ import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-/**
- * 
- * site foto Info - exhibitions
- * 
- */
-@AuthorizeInstantiation({"ROLE_USER"})
-
+ 
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/person/${id}")
-public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
+public class PersonPage extends MultiLanguageObjectPage<Person, PersonRecord> {
 
 	private static final long serialVersionUID = 1L;
 
 	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(PersonPage.class.getName());
 
-	
 	private ArtistEditor artistEditor;
 	private PersonEditor editor;
 	private List<ToolbarItem> list;
 
-	
-
 	public boolean isLanguage() {
 		return false;
 	}
-	
+
 	public PersonPage() {
 		super();
 	}
-	
+
 	public PersonPage(PageParameters parameters) {
 		super(parameters);
 	}
@@ -122,58 +113,49 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 
 	}
 
-	
-	
 	@Override
 	public void onDetach() {
 		super.onDetach();
 	}
 
 	protected List<Language> getSupportedLanguages() {
-		return  getLanguageService().getLanguages();
+		return getLanguageService().getLanguages();
 	}
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-		
+
 		if (ouser.isEmpty())
 			return false;
-	
-		 
-			
-			User user = ouser.get();  
-			
-			if (user.isRoot()) 
-				return true;
-			
-			if (!user.isDependencies()) {
-				user = getUserDBService().findWithDeps(user.getId()).get();
-			}
 
-			Set<RoleGeneral> set = user.getRolesGeneral();
-		
-			if (set!=null) {
-					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-					if (isAccess)
-						return true;
-			}
-	
-		
-		Optional<Person> op = getPersonDBService().getByUser( user );
-		
+		User user = ouser.get();
+
+		if (user.isRoot())
+			return true;
+
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		Set<RoleGeneral> set = user.getRolesGeneral();
+
+		if (set != null) {
+			boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+			if (isAccess)
+				return true;
+		}
+
+		Optional<Person> op = getPersonDBService().getByUser(user);
+
 		if (op.isEmpty())
 			return false;
-		
-		
-		if (op.get().getId().equals( getModel().getObject().getId()))
-					return true;
-		
+
+		if (op.get().getId().equals(getModel().getObject().getId()))
+			return true;
+
 		return false;
 	}
-	
-	
-	
+
 	@Override
 	protected Optional<Person> getObject(Long id) {
 		return getPerson(id);
@@ -182,7 +164,7 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Person>(id, getModel());
 	}
-	
+
 	@Override
 	protected IModel<String> getPageTitle() {
 		return getObjectTitle(getModel().getObject());
@@ -192,34 +174,32 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 	protected Class<?> getTranslationClass() {
 		return PersonRecord.class;
 	}
+
 	@Override
 	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
-		
-		if (isRoot() || isGeneralAdmin() ) {
+
+		if (isRoot() || isGeneralAdmin()) {
 			bc.addElement(new HREFBCElement("/person/list", getLabel("persons")));
 
 		}
 		bc.addElement(new BCElement(new Model<String>(getModel().getObject().getFirstLastname())));
 
-		 
-		JumboPageHeaderPanel<Person> ph = new JumboPageHeaderPanel<Person>("page-header", getModel(),
-				new Model<String>(getModel().getObject().getFirstLastname()));
+		JumboPageHeaderPanel<Person> ph = new JumboPageHeaderPanel<Person>("page-header", getModel(), new Model<String>(getModel().getObject().getFirstLastname()));
 		ph.setBreadCrumb(bc);
-		
-		 ph.setContext(getLabel("person-title"));
-		 
-		 if (getModel().getObject().getPhoto()!=null) {
-			 ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
-			 ph.setHeaderCss("mb-0 pb-0 border-none");	
-		
-		 }
-		 else {
-			 ph.setIcon( Person.getIcon());
-			 ph.setHeaderCss("mb-0 pb-2 border-none");	
-		 }
- 		 
+
+		ph.setContext(getLabel("person-title"));
+
+		if (getModel().getObject().getPhoto() != null) {
+			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
+			ph.setHeaderCss("mb-0 pb-0 border-none");
+
+		} else {
+			ph.setIcon(Person.getIcon());
+			ph.setHeaderCss("mb-0 pb-2 border-none");
+		}
+
 		if (getList() != null && getList().size() > 0) {
 			Navigator<Person> nav = new Navigator<Person>("navigator", getCurrent(), getList()) {
 				private static final long serialVersionUID = 1L;
@@ -232,54 +212,37 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 			bc.setNavigator(nav);
 		}
 
-		return(ph);
+		return (ph);
 	}
 
-	
 	protected Panel getEditor(String id) {
 		if (this.editor == null)
 			this.editor = new PersonEditor(id, getModel());
 		return this.editor;
-	
+
 	}
 
-	/**
-	protected Panel getArtistEditor(String id) {
-		Optional<Artist> a =getArtistDBService().getByPerson(getModel().getObject());
-		if ( a.isEmpty() ) {
-			return new SimpleAlertRow<>(id, Model.of("no artist"));
-		}
-		else {
-			if (this.artistEditor == null)
-				this.artistEditor = new ArtistEditor(id, new ObjectModel<Artist>( a.get() ));
-		}
-		return this.artistEditor;
-	}
-	**/
-	
 	@Override
 	protected IRequestablePage getObjectPage(IModel<Person> model, List<IModel<Person>> list) {
 		return new PersonPage(model, list);
 	}
 
-	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}
-	
+
 	protected void onArtistEdit(AjaxRequestTarget target) {
 		this.artistEditor.onEdit(target);
 	}
-	
- 
+
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 
-		if (list!=null)
+		if (list != null)
 			return list;
-		
- 		list = new ArrayList<ToolbarItem>();
-			
+
+		list = new ArrayList<ToolbarItem>();
+
 		DropDownMenuToolbarItem<Person> menu = new DropDownMenuToolbarItem<Person>("item", getModel(), Align.TOP_RIGHT);
 		menu.setTitle(getLabel("person", getModel().getObject().getDisplayName()));
 
@@ -304,93 +267,84 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 			}
 		});
 
-		
 		/**
-		Optional<Artist> a = getArtistDBService().getByPerson(getModel().getObject());
-		
-		if (a.isPresent()) {
-			
+		 * Optional<Artist> a =
+		 * getArtistDBService().getByPerson(getModel().getObject());
+		 * 
+		 * if (a.isPresent()) {
+		 * 
+		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() { private static
+		 * final long serialVersionUID = 1L;
+		 * 
+		 * @Override public MenuItemPanel<Person> getItem(String id) { return new
+		 *           SeparatorMenuItem<Person>(id, getModel()); } });
+		 * 
+		 *           menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
+		 * 
+		 *           private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public MenuItemPanel<Person> getItem(String id) {
+		 * 
+		 *           return new AjaxLinkMenuItem<Person>(id, getModel()) { private
+		 *           static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public void onClick(AjaxRequestTarget target) { fire(new
+		 *           MenuAjaxEvent(ServerAppConstant.person_artist, target)); }
+		 * @Override public IModel<String> getLabel() { return getLabel("artist"); }
+		 * 
+		 * 
+		 *           }; } });
+		 * 
+		 *           }
+		 **/
+
+		User user = PersonPage.this.getModel().getObject().getUser();
+
+		if (user != null) {
+
 			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 				private static final long serialVersionUID = 1L;
+
 				@Override
 				public MenuItemPanel<Person> getItem(String id) {
 					return new SeparatorMenuItem<Person>(id, getModel());
 				}
 			});
-			
+
 			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
-	
+
 				private static final long serialVersionUID = 1L;
-	
+
 				@Override
 				public MenuItemPanel<Person> getItem(String id) {
-	
-					return new AjaxLinkMenuItem<Person>(id, getModel()) {
+
+					return new LinkMenuItem<Person>(id, getModel()) {
 						private static final long serialVersionUID = 1L;
-	
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							fire(new MenuAjaxEvent(ServerAppConstant.person_artist, target));
-						}
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("artist");
-						}
-						
-						
-					};
-				}
-			});
-			
-		}
-		**/
-		
-		User user= PersonPage.this.getModel().getObject().getUser();
-		
-		if (user!=null) {
-	
-			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public MenuItemPanel<Person> getItem(String id) {
-					return new SeparatorMenuItem<Person>(id, getModel());
-				}
-			});
-			
-			menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
-	
-				private static final long serialVersionUID = 1L;
-	
-				@Override
-				public MenuItemPanel<Person> getItem(String id) {
-	
-					return new  LinkMenuItem<Person>(id, getModel()) {
-						private static final long serialVersionUID = 1L;
-	
+
 						@Override
 						public void onClick() {
 							fire(new SimpleWicketEvent(ServerAppConstant.person_user));
 						}
+
 						@Override
 						public IModel<String> getLabel() {
 							return getLabel("user");
 						}
-						
-						
+
 					};
 				}
 			});
 		}
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Person> getItem(String id) {
 				return new SeparatorMenuItem<Person>(id, getModel());
 			}
 		});
-		
- 		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 
 			private static final long serialVersionUID = 1L;
@@ -400,29 +354,32 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 
 				return new AjaxLinkMenuItem<Person>(id, getModel()) {
 					private static final long serialVersionUID = 1L;
+
 					@Override
-					public void onClick(AjaxRequestTarget target)  {
-						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.object_meta, target));
 					}
+
 					@Override
 					public IModel<String> getLabel() {
 						return getLabel("state");
 					}
 				};
 			}
-		});		
- 		
+		});
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Person> getItem(String id) {
 				return new SeparatorMenuItem<Person>(id, getModel());
 			}
 		});
 
-		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Person>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Person> getItem(String id) {
 				return new AjaxLinkMenuItem<Person>(id, getModel()) {
@@ -440,24 +397,24 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 				};
 			}
 		});
-	 
-	 	list.add(menu);
-		
+
+		list.add(menu);
+
 		return list;
 	}
 
 	protected Optional<PersonRecord> loadTranslationRecord(String lang) {
 		return getPersonRecordDBService().findByPerson(getModel().getObject(), lang);
 	}
-	
+
 	protected PersonRecord createTranslationRecord(String lang) {
 		return getPersonRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
 	}
-	
+
 	@Override
 	protected void addListeners() {
 		super.addListeners();
-  
+
 		add(new io.wktui.event.WicketEventListener<SimpleAjaxWicketEvent>() {
 			private static final long serialVersionUID = 1L;
 
@@ -466,37 +423,26 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 
 				if (event.getName().equals(ServerAppConstant.person_artist)) {
 					PersonPage.this.togglePanel(ServerAppConstant.person_artist, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.action_person_edit_info)) {
+				} else if (event.getName().equals(ServerAppConstant.action_person_edit_info)) {
 					PersonPage.this.onEdit(event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
+				} else if (event.getName().equals(ServerAppConstant.action_object_edit_record)) {
 					PersonPage.this.onEditRecord(event.getTarget(), event.getMoreInfo());
-				}
-				else if (event.getName().equals(ServerAppConstant.person_info)) {
+				} else if (event.getName().equals(ServerAppConstant.person_info)) {
 					PersonPage.this.togglePanel(ServerAppConstant.person_info, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.object_meta)) {
+				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					PersonPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
-				}
-				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
+				} else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 					PersonPage.this.togglePanel(event.getName(), event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.object_audit)) {
+				} else if (event.getName().equals(ServerAppConstant.object_audit)) {
 					PersonPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+				} else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					PersonPage.this.getMetaEditor().onEdit(event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.action_artist_edit)) {
+				} else if (event.getName().equals(ServerAppConstant.action_artist_edit)) {
 					PersonPage.this.onArtistEdit(event.getTarget());
 				}
-				
-				
-		
-				
+
 				if (event.getName().equals("create-artist")) {
-					PersonPage.this.list=null;
+					PersonPage.this.list = null;
 					event.getTarget().add(PersonPage.this);
 				}
 			}
@@ -508,28 +454,25 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 				return false;
 			}
 		});
-		
-			 
-		
-		
+
 		add(new io.wktui.event.WicketEventListener<SimpleWicketEvent>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
 				if (event.getName().equals(ServerAppConstant.person_user)) {
-			
-					User user= PersonPage.this.getModel().getObject().getUser();
-					
-					if (user!=null) {
-						
-						boolean isMyAccount= getSessionUser().get().getId().equals( user.getId() );
-						setResponsePage(new UserPage(new ObjectModel<User>( user),  isMyAccount));
-					}
-					else
+
+					User user = PersonPage.this.getModel().getObject().getUser();
+
+					if (user != null) {
+
+						boolean isMyAccount = getSessionUser().get().getId().equals(user.getId());
+						setResponsePage(new UserPage(new ObjectModel<User>(user), isMyAccount));
+					} else
 						setResponsePage(new ErrorPage(Model.of("user not found for person -> " + PersonPage.this.getModel().getObject().getDisplayname())));
 				}
 			}
+
 			@Override
 			public boolean handle(UIEvent event) {
 				if (event instanceof SimpleWicketEvent)
@@ -537,17 +480,16 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 				return false;
 			}
 		});
-		
+
 	}
 
-		
 	protected void onDelete(AjaxRequestTarget target) {
-		getPersonDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
+		getPersonDBService().markAsDeleted(getModel().getObject(), getSessionUser().get());
 		fireScanAll(new ObjectMarkAsDeleteEvent(target));
 	}
-	
+
 	protected void onRestore(AjaxRequestTarget target) {
-		getPersonDBService().restore( getModel().getObject(), getSessionUser().get() );
+		getPersonDBService().restore(getModel().getObject(), getSessionUser().get());
 		fireScanAll(new ObjectRestoreEvent(target));
 	}
 
@@ -564,23 +506,19 @@ public class PersonPage extends  MultiLanguageObjectPage<Person, PersonRecord> {
 			}
 		};
 		tabs.add(tab_1);
-		
+
 		/**
-		NamedTab tab_2 = new NamedTab(Model.of("artist"), ServerAppConstant.person_artist) {
-			private static final long serialVersionUID = 1L;
+		 * NamedTab tab_2 = new NamedTab(Model.of("artist"),
+		 * ServerAppConstant.person_artist) { private static final long serialVersionUID
+		 * = 1L;
+		 * 
+		 * @Override public WebMarkupContainer getPanel(String panelId) { return
+		 *           getArtistEditor(panelId); } }; tabs.add(tab_2);
+		 **/
 
-			@Override
-			public WebMarkupContainer getPanel(String panelId) {
-				return getArtistEditor(panelId);
-			}
-		};
-		tabs.add(tab_2);
-		**/
-		
+		if (getStartTab() == null)
+			setStartTab(ServerAppConstant.person_info);
 
-		if (getStartTab()==null)
-			setStartTab( ServerAppConstant.person_info );
-		
 		return tabs;
 	}
 

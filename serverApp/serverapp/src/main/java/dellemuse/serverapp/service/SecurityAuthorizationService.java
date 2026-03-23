@@ -8,8 +8,14 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
+import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
@@ -69,6 +75,58 @@ public class SecurityAuthorizationService extends BaseService {
 	 * public boolean canDeleteObject(Class<? extends DelleMuseObject> objectClass,
 	 * User user) { return true; }
 	 **/
+	
+	
+	public <T extends MultiLanguageObject> boolean isSiteAdminOrEditor(Optional<User> o, T s) {
+
+		if (s == null)
+			return false;
+
+		if (o.isEmpty())
+			return false;
+
+		User user = o.get();
+
+		if (!user.isDependencies()) {
+			user = getUserDBService().findWithDeps(user.getId()).get();
+		}
+
+		if (o.isEmpty())
+			return false;
+		
+		if (s instanceof Site)
+			return isSiteAdminOrEditor(o, (Site) s);
+		
+		
+		if (s instanceof ArtExhibition) {
+			return isSiteAdminOrEditor(o, (Site) ((ArtExhibition) s).getSite());
+		}
+		
+		if (s instanceof ArtExhibitionItem) {
+			return isSiteAdminOrEditor(o, (Site) ((ArtExhibitionItem) s).getArtExhibition().getSite());
+		}
+		
+		if (s instanceof ArtExhibitionGuide) {
+			return isSiteAdminOrEditor(o, (Site) ((ArtExhibitionGuide) s).getArtExhibition().getSite());
+		}
+	
+		if (s instanceof GuideContent) {
+			return isSiteAdminOrEditor(o, (Site) ((GuideContent) s).getArtExhibitionItem().getArtExhibition().getSite());
+		}
+		
+		if (s instanceof Artist) {
+			return isSiteAdminOrEditor(o, (Site) ((Artist) s).getSite());
+		}
+		
+		if (s instanceof ArtWork) {
+			return isSiteAdminOrEditor(o, (Site) ((ArtWork) s).getSite());
+		}
+		
+		return true;
+	}
+
+	
+	
 
 	public boolean isSiteAdminOrEditor(Optional<User> o, Site s) {
 
@@ -95,6 +153,7 @@ public class SecurityAuthorizationService extends BaseService {
 
 	}
 
+	
 	public boolean isSiteAdmin(Optional<User> o, Site s) {
 
 		if (s == null)
@@ -324,5 +383,6 @@ public class SecurityAuthorizationService extends BaseService {
 	protected MusicDBService getMusicDBService() {
 		return (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);
 	}
+
 
 }

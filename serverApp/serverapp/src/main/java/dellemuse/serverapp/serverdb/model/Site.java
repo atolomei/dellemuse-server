@@ -150,6 +150,12 @@ public class Site extends MultiLanguageObject {
 	@Column(name = "publicPortalEnabled")
 	private boolean publicPortalEnabled;
 	
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
+
+	
 	
 	public Site() {
 	}

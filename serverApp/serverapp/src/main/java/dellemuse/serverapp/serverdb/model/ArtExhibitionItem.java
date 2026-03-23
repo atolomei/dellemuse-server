@@ -84,6 +84,12 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	@Column(name = "audio_id")
 	private Long audioId;
 
+	
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
+
 
 	public ArtExhibitionItem() {
 	}

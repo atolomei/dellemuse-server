@@ -77,6 +77,13 @@ public class Person extends MultiLanguageObject {
 		return Icons.Person;
 	}
 	
+	@Override
+	public boolean isSiteSecured() {
+		return false;
+	}
+
+	
+	
 	public Person() {
 	}
 

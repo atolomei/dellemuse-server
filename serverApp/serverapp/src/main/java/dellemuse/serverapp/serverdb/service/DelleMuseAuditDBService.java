@@ -29,7 +29,7 @@ public class DelleMuseAuditDBService extends BaseDBService<DelleMuseAudit, Long>
 	public DelleMuseAuditDBService(CrudRepository<DelleMuseAudit, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
-	
+
 	@Transactional
 	public <S extends DelleMuseAudit> S save(S entity) {
 		entity.setLastModified(OffsetDateTime.now());
@@ -46,15 +46,10 @@ public class DelleMuseAuditDBService extends BaseDBService<DelleMuseAudit, Long>
 
 		DelleMuseAudit aw = o_aw.get();
 
-		//User u = aw.getLastModifiedUser();
-		//User user = aw.getLastModifiedUser();
-		//if (user!=null)
-		//	aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
-
 		aw.setDependencies(true);
 		return o_aw;
 	}
-	
+
 	@Transactional
 	public Optional<DelleMuseAudit> findById(Long id) {
 		return getRepository().findById(id);
@@ -69,36 +64,30 @@ public class DelleMuseAuditDBService extends BaseDBService<DelleMuseAudit, Long>
 	public void delete(DelleMuseAudit o) {
 		getRepository().delete(o);
 	}
-	
-	
+
 	@Transactional
 	public List<DelleMuseAudit> getAudit(Long objectId, String objectClassName) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<DelleMuseAudit> cq = cb.createQuery(DelleMuseAudit.class);
 		Root<DelleMuseAudit> root = cq.from(DelleMuseAudit.class);
-		
+
 		Predicate p0 = cb.equal(root.get("objectId"), String.valueOf(objectId));
 		Predicate p1 = cb.equal(root.get("objectClassName"), String.valueOf(objectClassName));
 
 		Predicate combinedPredicate = cb.and(p0, p1);
 
 		cq.select(root).where(combinedPredicate);
-		cq.orderBy(cb.asc( root.get("lastModified") ));
+		cq.orderBy(cb.asc(root.get("lastModified")));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	protected UserDBService getUserDBService() {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
-	 
 
 	@Override
 	protected Class<DelleMuseAudit> getEntityClass() {
 		return DelleMuseAudit.class;
 	}
-
-
-	
-	
 
 }

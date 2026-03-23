@@ -215,7 +215,7 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
 
 		if (getRecordEditors().get(lang) instanceof ObjectRecordEditor)
-			((ObjectRecordEditor<?, ?>) getRecordEditors().get(lang)).edit(target);
+			((ObjectRecordEditor<?, ?>) getRecordEditors().get(lang)).onEdit(target);
 	}
 
 	protected abstract Class<?> getTranslationClass();

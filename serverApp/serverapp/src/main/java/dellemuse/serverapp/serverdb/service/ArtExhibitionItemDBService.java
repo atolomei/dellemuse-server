@@ -48,14 +48,6 @@ public class ArtExhibitionItemDBService extends MultiLanguageObjectDBservice<Art
 		this.artExhibitionItemRecordDBService = artExhibitionItemRecordDBService;
 	}
 
-	/**
-	 * <p>
-	 * Annotation Transactional is required to store values into the Database
-	 * </p>
-	 * 
-	 * @param name
-	 * @param createdBy
-	 */
 	@Transactional
 	public ArtExhibitionItem create(String name, User createdBy) {
 		ArtExhibitionItem c = new ArtExhibitionItem();

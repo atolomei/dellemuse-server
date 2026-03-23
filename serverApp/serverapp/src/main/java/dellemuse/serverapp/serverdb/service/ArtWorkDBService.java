@@ -1,16 +1,12 @@
 package dellemuse.serverapp.serverdb.service;
 
-import java.io.File;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.hibernate.Hibernate;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionStatusType;
+
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.AuditAction;
@@ -32,7 +27,7 @@ import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
+
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
 import dellemuse.serverapp.service.language.LanguageService;
@@ -44,7 +39,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Long> {
+public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long> {
 
 	static private Logger logger = Logger.getLogger(ArtWorkDBService.class.getName());
 
@@ -75,20 +70,19 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
-	 
+
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		c.setState(ObjectState.EDITION);
 		c.setObjectType(ObjectType.ARTWORK);
-		
-		
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 		getRepository().save(c);
-		
-		for (Language la : getLanguageService().getLanguages()) 
+
+		for (Language la : getLanguageService().getLanguages())
 			getArtWorkRecordDBService().create(c, la.getLanguageCode(), createdBy);
-		 
+
 		return c;
 	}
 
@@ -97,7 +91,7 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 		ArtWork c = new ArtWork();
 
 		c.setName(name);
-		 
+
 		c.setSite(site);
 		c.setMasterLanguage(site.getMasterLanguage());
 		c.setLanguage(site.getLanguage());
@@ -108,27 +102,26 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 		c.setState(ObjectState.EDITION);
 
 		getRepository().save(c);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
-		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+
 		for (Language la : getLanguageService().getLanguages())
 			getArtWorkRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
 		return c;
 	}
-	 @Transactional	
+
+	@Transactional
 	public void save(ArtWork o, User user, String updatedPart) {
 		super.save(o);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE,  updatedPart));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, updatedPart));
 	}
-	 
-	 
-	 @Transactional	
+
+	@Transactional
 	public void save(ArtWork o, User user, List<String> updatedParts) {
 		super.save(o);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 	}
-	
-	
+
 	@Transactional
 	public ArtWork addQR(ArtWork aw, String bucketName, String objectName, String name, String media, long size, User createdBy) {
 		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
@@ -154,32 +147,23 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 
 	}
 
-	/**@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-	**/
-
- 
-
 	@Transactional
 	public void generateAudioId(ArtWork a, User user) {
-	
+
 		Site site = getSiteDBService().findById(a.getSite().getId()).get();
 		Long aid = getSiteDBService().newAudioId(site);
 		a.setAudioId(aid);
 		logger.debug("adding audioid to ArtWork -> " + a.getDisplayname());
 		save(a, user, "audioid");
-		
-		getSiteDBService().getSiteArtWorkGuideContents(site.getId(), a).forEach( c -> {
+
+		getSiteDBService().getSiteArtWorkGuideContents(site.getId(), a).forEach(c -> {
 			c.setArtWorkAudioId(aid);
 			logger.debug("adding audioid to GuideContent -> " + c.getDisplayname());
 			getGuideContentDBService().save(c, user, List.of("audioid"));
 		});
 	}
- 
- 	@Transactional
+
+	@Transactional
 	public Optional<ArtWork> findWithDeps(Long id) {
 
 		Optional<ArtWork> o_aw = super.findById(id);
@@ -189,46 +173,42 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 
 		ArtWork aw = o_aw.get();
 
-		if ( aw.getSite()!=null) {
-			aw.setSite( getSiteDBService().findById( aw.getSite().getId()).get());
+		if (aw.getSite() != null) {
+			aw.setSite(getSiteDBService().findById(aw.getSite().getId()).get());
 		}
 
-		Set<Artist> set= new HashSet<Artist>();
-		
-		aw.getArtists().forEach( p -> set.add(getArtistDBService().findById( p.getId()).get() ));
-		aw.setArtists(set);
-		
-		
-		Resource photo = aw.getPhoto();
-		if (photo!=null)
-			aw.setPhoto( getResourceDBService().findById(photo.getId()).get());
+		Set<Artist> set = new HashSet<Artist>();
 
+		aw.getArtists().forEach(p -> set.add(getArtistDBService().findById(p.getId()).get()));
+		aw.setArtists(set);
+
+		Resource photo = aw.getPhoto();
+		if (photo != null)
+			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
 
 		Resource qrcode = aw.getQRCode();
 
 		if (qrcode != null) {
 			aw.setQrcode(getResourceDBService().findById(photo.getId()).get());
 		}
-		
+
 		User user = aw.getLastModifiedUser();
-		if (user!=null)
+		if (user != null)
 			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
 
-	
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
-	
-	
+
 	public ArtistDBService getArtistDBService() {
 		return (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
-		 
+
 	}
 
 	public PersonDBService getPersonDBService() {
 		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
-		 
+
 	}
 
 	@Transactional
@@ -266,18 +246,15 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 	@Transactional
 	public List<Person> getArtists(ArtWork aw) {
 
-		/**aw = findById(aw.getId()).get();
-		PersonDBService service = (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
-		List<Person> list = new ArrayList<Person>();
-		aw.getAwArtists().forEach( i-> {
-				list.add( service.findById(i.getPerson().getId()).get() );
-		});
-		return list;
-**/
-		
+		/**
+		 * aw = findById(aw.getId()).get(); PersonDBService service = (PersonDBService)
+		 * ServiceLocator.getInstance().getBean(PersonDBService.class); List<Person>
+		 * list = new ArrayList<Person>(); aw.getAwArtists().forEach( i-> { list.add(
+		 * service.findById(i.getPerson().getId()).get() ); }); return list;
+		 **/
+
 		throw new RuntimeException("not done");
-		 
-		
+
 	}
 
 	/**
@@ -300,14 +277,13 @@ public class ArtWorkDBService extends  MultiLanguageObjectDBservice<ArtWork, Lon
 
 	@Override
 	public String getObjectClassName() {
-		 return ArtWork.class.getSimpleName().toLowerCase();
-	} 
+		return ArtWork.class.getSimpleName().toLowerCase();
+	}
 
 	@PostConstruct
 	protected void onInitialize() {
-		super.registerRecordDB(getEntityClass(),getArtWorkRecordDBService());
+		super.registerRecordDB(getEntityClass(), getArtWorkRecordDBService());
 		super.register(getEntityClass(), this);
 	}
-
 
 }

@@ -11,9 +11,9 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
- 
+
 import org.apache.wicket.model.PropertyModel;
- 
+
 import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
@@ -69,46 +69,22 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 	private WebMarkupContainer cac;
 	private WebMarkupContainer aac;
-	
+
 	private boolean uploadedPhoto = false;
 
-
-	public boolean hasWritePermission() {
-		
-		if (isRoot())
-			return true;
-		
-		if(getSessionUser().isPresent() && getModelObject().getId().equals(getSessionUser().get().getId()))
-			return true;
-		
-		if (getModel().getObject().getUser().getUsername().equals("root") )
-			return false;
-		
-		if (isGeneralAdmin())
-			return true;
-	
-		
-		if (isGeneralAdmin( getModel().getObject().getUser() ))
-			return false;
-		
-		return true;
-		
-	}
-	
-	
 	public PersonEditor(String id, IModel<Person> model) {
 		super(id, model);
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		setUpModel();
-		
+
 		add(new InvisiblePanel("error"));
 		add(new InvisiblePanel("notice"));
-	
+
 		Form<Person> form = new Form<Person>("personForm", getModel());
 		form.setOutputMarkupId(true);
 
@@ -116,16 +92,16 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		setForm(form);
 
 		form.setFormState(FormState.VIEW);
- 		
-		infoField 		= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
-		nameField 		= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		lastnameField 	= new TextField<String>("lastname", new PropertyModel<String>(getModel(), "lastname"), getLabel("lastname"));
-		sexField 		= new TextField<String>("sex", new PropertyModel<String>(getModel(), "sex"), getLabel("sex"));
-		addressField 	= new TextField<String>("address", new PropertyModel<String>(getModel(), "address"), getLabel("address"));
-		phoneField 		= new TextField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"));
-		emailField 		= new TextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
-		webpageField 	= new TextField<String>("webpage", new PropertyModel<String>(getModel(), "webpage"), getLabel("webpage"));
-		photoField 		= new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
+
+		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
+		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		lastnameField = new TextField<String>("lastname", new PropertyModel<String>(getModel(), "lastname"), getLabel("lastname"));
+		sexField = new TextField<String>("sex", new PropertyModel<String>(getModel(), "sex"), getLabel("sex"));
+		addressField = new TextField<String>("address", new PropertyModel<String>(getModel(), "address"), getLabel("address"));
+		phoneField = new TextField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"));
+		emailField = new TextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
+		webpageField = new TextField<String>("webpage", new PropertyModel<String>(getModel(), "webpage"), getLabel("webpage"));
+		photoField = new FileUploadSimpleField<Resource>("photo", getPhotoModel(), getLabel("photo")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -148,7 +124,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 			public boolean isThumbnail() {
 				return true;
 			}
-			
+
 			@Override
 			protected void onRemove(AjaxRequestTarget target) {
 				logger.debug("onRemove");
@@ -181,10 +157,10 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -209,10 +185,10 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -226,10 +202,31 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		};
 
 		getForm().add(b_buttons_top);
-		
-		if (! hasWritePermission()) {
-			addOrReplace( new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getFirstLastname() )));
+
+		if (!hasWritePermission()) {
+			addOrReplace(new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getFirstLastname())));
 		}
+	}
+
+	public boolean hasWritePermission() {
+
+		if (isRoot())
+			return true;
+
+		if (getSessionUser().isPresent() && getModelObject().getId().equals(getSessionUser().get().getId()))
+			return true;
+
+		if (getModel().getObject().getUser().getUsername().equals("root"))
+			return false;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (isGeneralAdmin(getModel().getObject().getUser()))
+			return false;
+
+		return true;
+
 	}
 
 	@Override
@@ -248,20 +245,20 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 		AjaxButtonToolbarItem<Person> create = new AjaxButtonToolbarItem<Person>() {
 			private static final long serialVersionUID = 1L;
 
-			@Override	
+			@Override
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_person_edit_info, target));
 			}
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-		
+
 				return true;
 			}
-			
+
 			@Override
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
@@ -321,7 +318,7 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 		if (uploads != null && !uploads.isEmpty()) {
 			for (FileUpload upload : uploads) {
-				
+
 				try {
 
 					logger.debug("name -> " + upload.getClientFileName());
@@ -349,12 +346,11 @@ public class PersonEditor extends DBObjectEditor<Person> implements InternalPane
 
 		return uploadedPhoto;
 	}
-	
-	
+
 	private void setUpModel() {
-		
-		getModel().setObject( getPersonDBService().findById(getModel().getObject().getId()).get());
-		
+
+		getModel().setObject(getPersonDBService().findById(getModel().getObject().getId()).get());
+
 		if (getModel().getObject().getPhoto() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));

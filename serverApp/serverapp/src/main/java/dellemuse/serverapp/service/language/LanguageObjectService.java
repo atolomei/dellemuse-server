@@ -186,13 +186,21 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 
 	/**
 	 * 
-	 * -1 no hay audio 0 hay en el lang 1 hay audio pero no es del lang sino del
+	 * -1 no hay audio 
+	 * 0 hay en el lang 
+	 * 1 hay audio pero no es del lang sino del
 	 * master lang
 	 * 
 	 * @param o
 	 * @param locale
 	 * @return
 	 */
+	
+	public static int NO_AUDIO = -1;
+	public static int AUDIO_SAME_LANG = 0;
+	public static int AUDIO_NOT_SAME_LANG = 1;
+	
+	
 	@SuppressWarnings({ "unchecked"  })
 	public int compareAudioLanguage(MultiLanguageObject o, Locale locale) {
 
@@ -200,29 +208,32 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 
 		String lang = locale.getLanguage();
 
+		logger.debug("compareAudioLanguage -> " +  lang);
+		logger.debug( o.getMasterLanguage() );
+		
+		
 		if (lang.equals(o.getMasterLanguage())) {
 			r = o.getAudio();
-			return ((r != null) ? 0 : -1);
+			return ((r != null) ? AUDIO_SAME_LANG :  NO_AUDIO);
 		} else {
 
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
 
-
 			if (service==null) {
 				logger.error("RecordDBService not found -> " + o.getClass());
-				return 0;
+				return AUDIO_SAME_LANG;
 			}
 
 			
 			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
 			
 			if (t.isEmpty())
-				return ((o.getAudio() != null) ? 1 : -1);
+				return ((o.getAudio() != null) ? AUDIO_NOT_SAME_LANG : NO_AUDIO);
 
 			r = t.get().getAudio();
 
 			if (r == null)
-				return (o.getAudio() != null) ? 1 : -1;
+				return (o.getAudio() != null) ? AUDIO_NOT_SAME_LANG : NO_AUDIO;
 			else
 				return 0;
 		}

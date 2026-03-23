@@ -66,12 +66,6 @@ import io.wktui.struct.list.ListPanelMode;
 import jakarta.servlet.http.Cookie;
 import wktui.base.InvisiblePanel;
 
-/**
- * 
- * site foto Info - exhibitions
- * 
- */
-
 @MountPath("/ag/${id}")
 public class BrandedSitePage extends BasePage {
 
@@ -86,6 +80,7 @@ public class BrandedSitePage extends BasePage {
 	private List<IModel<ArtExhibition>> listTemporary;
 	private List<IModel<ArtExhibition>> listTemporaryPast;
 	private List<IModel<ArtExhibition>> listTemporaryComing;
+
 	private Panel searcher;
 
 	private boolean listsLoaded = false;
@@ -95,15 +90,25 @@ public class BrandedSitePage extends BasePage {
 	
 	private List<IModel<GuideContent>> gc_list;
 	private List<IModel<ArtExhibitionGuide>> ag_list;
-	
+	private Locale locale = null;
 
+	boolean modelAlreadySet = false;
+	
 	public BrandedSitePage() {
 		super();
+		setCookieLocale();
 	}
 
 	public BrandedSitePage(PageParameters parameters) {
 		super(parameters);
 		stringValue = getPageParameters().get("id");
+		setCookieLocale();
+		if (stringValue != null) {
+			Optional<Site> o_site = findByIdWithDeps(Long.valueOf(stringValue.toLong()));
+			if (o_site.isPresent()) {
+				setSiteModel(new ObjectModel<Site>(o_site.get()));
+			}
+		}
 	}
 
 	
@@ -111,9 +116,6 @@ public class BrandedSitePage extends BasePage {
 		this(model, null, null, null);
 	}
 
-	
-	
-	
 	public BrandedSitePage(IModel<Site> model, List<IModel<GuideContent>> gc_list,  List<IModel<ArtExhibitionGuide>> ag_list) {
 		this(model, gc_list, ag_list, null);
 	}
@@ -123,42 +125,81 @@ public class BrandedSitePage extends BasePage {
 		Check.requireTrue(model.getObject() != null, "modelOjbect is null");
 		setSiteModel(model);
 		getPageParameters().add("id", model.getObject().getId().toString());
-	
+		this.lang=lang;
+		setCookieLocale();
 		this.ag_list=ag_list;
 		this.gc_list=gc_list;
-		this.lang=lang;
 	}
 
+
 	
-	protected void setLanguage() {
-		if (lang!=null) {
-		    getSession().setLocale( Locale.forLanguageTag(lang));
-		}
-		else {
-			
-			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
-			Cookie cookie = request.getCookie("lang");
 	
-			if (cookie != null) {
-			    String value = cookie.getValue();
-			    getSession().setLocale( Locale.forLanguageTag(value));
-			    
-			}
-			else if (getSessionUser().isEmpty()) {
-				Language la=Language.of( getSiteModel().getObject().getMasterLanguage());
-				String code=la.getLanguageCode();
-				getSession().setLocale(Locale.forLanguageTag(code));
-			}
+	protected void setCookieLocale() {
+	
+		if (lang != null) {
+		  logger.debug("setting language from parameter -> " + lang);
+		  locale =Locale.forLanguageTag(lang);
+		  getSession().setLocale(Locale.forLanguageTag(lang));
+		  return;
 		}
+		
+		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+		Cookie cookie = request.getCookie("lang");
+
+		if (cookie != null) {
+			String value = cookie.getValue();
+		    logger.debug("setting language from cookie -> " + value);
+			locale = Locale.forLanguageTag(value);
+			lang=value;
+		    getSession().setLocale(Locale.forLanguageTag(value));
+		}
+		
 		
 	}
 	
+	
+	public Locale getLocale() {
+	
+		if (locale!=null)
+			return locale;
+		
+		if (lang != null) {
+			  logger.debug("setting language from parameter -> " + lang);
+			  locale =Locale.forLanguageTag(lang);
+			  getSession().setLocale(Locale.forLanguageTag(lang));
+			
+		} else {
+				WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+				Cookie cookie = request.getCookie("lang");
+
+				if (cookie != null) {
+					String value = cookie.getValue();
+				    logger.debug("setting language from cookie -> " + value);
+					locale = Locale.forLanguageTag(value);
+				    getSession().setLocale(Locale.forLanguageTag(value));
+
+				} else if (getSessionUser().isEmpty()) {
+					
+					if (getSiteModel()==null) {
+						logger.error("site model is null, cannot set language");
+						return Locale.getDefault();
+					}
+					
+					Language la = Language.of(getSiteModel().getObject().getMasterLanguage());
+					String code = la.getLanguageCode();
+					logger.debug("setting language from site master language -> " + code);
+					locale=Locale.forLanguageTag(code);
+					getSession().setLocale(Locale.forLanguageTag(code));
+				}
+			}
+		return locale;
+	}
+ 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 	
 		getPage().add( new org.apache.wicket.AttributeModifier("class", "branded branded  text-bg-dark"));
-		
 		try {
 			
 			setUpModel();
@@ -169,8 +210,7 @@ public class BrandedSitePage extends BasePage {
 			return;
 		}
 		
-		setLanguage();
-		
+	 	
 		addHeader();
 		addSearch();
 
@@ -1046,7 +1086,18 @@ public class BrandedSitePage extends BasePage {
 		return listTemporaryComing;
 	}
 
-	private void setUpModel() {
+	
+	protected void setUpSiteModel() {
+		
+		
+	}
+	
+	protected void setUpModel() {
+		
+		if (modelAlreadySet)
+			return;
+		
+		
 		try {
 			if (getSiteModel() == null) {
 				if (stringValue != null) {
@@ -1068,6 +1119,9 @@ public class BrandedSitePage extends BasePage {
 					}
 				}
 			}
+		
+			modelAlreadySet = true;
+			
 		} catch (Exception e) {
 			throw e;
 		}

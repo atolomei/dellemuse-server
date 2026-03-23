@@ -113,6 +113,13 @@ public class Institution extends MultiLanguageObject {
 	private Map<String, String> languages;
 	
 	
+	@Override
+	public boolean isSiteSecured() {
+		return false;
+	}
+
+	
+	
 	public List<Language> getLanguages() {
 		if (this.languages==null) {
 			return Language.getDefaultLanguages();

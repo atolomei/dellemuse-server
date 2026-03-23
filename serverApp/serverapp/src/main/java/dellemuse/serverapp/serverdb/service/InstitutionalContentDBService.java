@@ -21,47 +21,44 @@ import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.transaction.Transactional;
 
-
 @Service
-public class InstitutionalContentDBService extends DBService< InstitutionalContent, Long> {
+public class InstitutionalContentDBService extends DBService<InstitutionalContent, Long> {
 
-    @SuppressWarnings("unused")
-    static private Logger logger = Logger.getLogger(InstitutionalContentDBService.class.getName());
+	@SuppressWarnings("unused")
+	static private Logger logger = Logger.getLogger(InstitutionalContentDBService.class.getName());
 
-    public InstitutionalContentDBService(CrudRepository< InstitutionalContent, Long> repository,   ServerDBSettings settings) {
-        super(repository,   settings);
-    }
-    
-    
-    /**
-     * <p>
-     * Annotation Transactional is required to store values into the Database
-     * </p>
-     * 
-     * @param name
-     * @param createdBy
-     */
-    @Transactional
-   
-    public  InstitutionalContent create(String name,User createdBy) {
-        InstitutionalContent c = new  InstitutionalContent();
-        c.setName(name);
-         
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
-        
-        getRepository().save(c);
-        getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
+	public InstitutionalContentDBService(CrudRepository<InstitutionalContent, Long> repository, ServerDBSettings settings) {
+		super(repository, settings);
+	}
 
-        return c;
-    }
-    
+	/**
+	 * <p>
+	 * Annotation Transactional is required to store values into the Database
+	 * </p>
+	 * 
+	 * @param name
+	 * @param createdBy
+	 */
+	@Transactional
 
- 	@Transactional
+	public InstitutionalContent create(String name, User createdBy) {
+		InstitutionalContent c = new InstitutionalContent();
+		c.setName(name);
+
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+
+		getRepository().save(c);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+
+		return c;
+	}
+
+	@Transactional
 	public Optional<InstitutionalContent> findWithDeps(Long id) {
 
-		Optional< InstitutionalContent> o = super.findById(id);
+		Optional<InstitutionalContent> o = super.findById(id);
 
 		if (o.isEmpty())
 			return o;
@@ -72,29 +69,27 @@ public class InstitutionalContentDBService extends DBService< InstitutionalConte
 		return o;
 	}
 
-    
-    
-    @PostConstruct
-    protected void onInitialize() {
-    	super.register(getEntityClass(), this);
-    }
-   
-    /**
-     * @param name
-     * @return
-     */
-    public List< InstitutionalContent> getByName(String name) {
-        return createNameQuery(name).getResultList();
-    }
+	@PostConstruct
+	protected void onInitialize() {
+		super.register(getEntityClass(), this);
+	}
 
-    @Override
-    protected Class< InstitutionalContent> getEntityClass() {
-        return  InstitutionalContent.class;
-    }
-    
-    @Override
+	/**
+	 * @param name
+	 * @return
+	 */
+	public List<InstitutionalContent> getByName(String name) {
+		return createNameQuery(name).getResultList();
+	}
+
+	@Override
+	protected Class<InstitutionalContent> getEntityClass() {
+		return InstitutionalContent.class;
+	}
+
+	@Override
 	public String getObjectClassName() {
-		 return  InstitutionalContent.class.getSimpleName().toLowerCase();
-	} 
+		return InstitutionalContent.class.getSimpleName().toLowerCase();
+	}
 
 }

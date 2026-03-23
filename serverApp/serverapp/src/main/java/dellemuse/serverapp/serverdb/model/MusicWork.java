@@ -59,6 +59,11 @@ public class MusicWork extends MultiLanguageObject {
 	@Column(name = "url")
 	private String url;
 	
+	@Override
+	public boolean isSiteSecured() {
+		return false;
+	}
+
 	
 	public MusicWork() {
 	}

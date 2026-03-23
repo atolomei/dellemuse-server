@@ -23,14 +23,16 @@ import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
+ 
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import dellemuse.serverapp.serverdb.service.DBService;
@@ -39,7 +41,7 @@ import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
-import io.wktui.form.field.ChoiceField;
+ 
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
@@ -63,16 +65,13 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	private TextAreaField<String> specField;
 	private FileUploadSimpleField<Resource> audioField;
 
-	
 	private AjaxLink<R> translate;
 	private Label t_label;
 	private IModel<T> sourceModel;
-	
-	private IModel<ArtExhibitionGuide> artExhibitionGuideModel;
-	
+
 	private IModel<Resource> audioModel;
 	private boolean uploadedAudio = false;
-	
+
 	private Link<R> openAudioStudio;
 
 	private boolean isInfoVisible = false;
@@ -80,6 +79,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	private boolean isSpecVisible = false;
 	private boolean isIntroVisible = false;
 	private boolean isAudioVisible = false;
+
 
 	/**
 	 * @param id
@@ -95,7 +95,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		super.onInitialize();
 
 		setUpModel();
-		
+
 		add(new InvisiblePanel("error"));
 		loadForm();
 	}
@@ -129,6 +129,30 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		return list;
 	}
 
+	public boolean hasWritePermission() {
+
+		if (getSessionUser().isEmpty())
+			return false;
+
+		if (isRoot())
+			return true;
+
+		if (isGeneralAdmin())
+			return true;
+
+		if (sourceModel.getObject() instanceof Institution) {
+			return isInstitutionAdmin((Institution) sourceModel.getObject());
+		}
+		if (sourceModel.getObject().isSiteSecured()) {
+			Site site = getSiteDBService().getSite(sourceModel.getObject());
+			if (site == null)
+				return false;
+			return isSiteAdminOrEditor(site);
+		}
+		return false;
+	}
+
+	
 	protected boolean isAudioStudio() {
 		return ((getSourceModel().getObject() instanceof GuideContent) || (getSourceModel().getObject() instanceof ArtExhibitionGuide));
 	}
@@ -150,6 +174,8 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
+		target.add(this);
+
 		// getForm().setFormState(FormState.EDIT);
 		// target.add(getForm());
 	}
@@ -176,10 +202,10 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 		if (audioModel != null)
 			audioModel.detach();
-		
-		if (this.artExhibitionGuideModel!=null)
-			this.artExhibitionGuideModel.detach();
-		
+
+		// if (this.artExhibitionGuideModel!=null)
+		// this.artExhibitionGuideModel.detach();
+
 	}
 
 	public IModel<T> getSourceModel() {
@@ -265,13 +291,14 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		this.audioModel = model;
 	}
 
-	public IModel<ArtExhibitionGuide> getArtExhibitionGuideModel() {
-		return artExhibitionGuideModel;
-	}
+	// public IModel<ArtExhibitionGuide> getArtExhibitionGuideModel() {
+//		return artExhibitionGuideModel;
+	// }
 
-	public void setArtExhibitionGuideModel(IModel<ArtExhibitionGuide> artExhibitionGuideModel) {
-		this.artExhibitionGuideModel = artExhibitionGuideModel;
-	}
+	// public void setArtExhibitionGuideModel(IModel<ArtExhibitionGuide>
+	// artExhibitionGuideModel) {
+//		this.artExhibitionGuideModel = artExhibitionGuideModel;
+//	}
 
 	protected boolean isIntroVisible() {
 		return this.isIntroVisible;
@@ -307,12 +334,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			} else {
 				String date = getDateTimeService().format(getModel().getObject().getLastModified());
-				io.wktui.error.AlertPanel<R> alert = new io.wktui.error.AlertPanel<R>(
-						"alert", 
-						io.wktui.error.AlertPanel.INFO, 
-						getModel(),
-						null,
-						getLabel("translated-on", date));
+				io.wktui.error.AlertPanel<R> alert = new io.wktui.error.AlertPanel<R>("alert", io.wktui.error.AlertPanel.INFO, getModel(), null, getLabel("translated-on", date));
 				getForm().addOrReplace(alert);
 			}
 
@@ -339,16 +361,12 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		@SuppressWarnings("unchecked")
 		Optional<R> o_i = (Optional<R>) getDBService(getModelObject().getClass()).findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<R>(o_i.get()));
-		
+
 		if (getModel().getObject().getAudio() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
 			setAudioModel(new ObjectModel<Resource>(o_r.get()));
 		}
 
-		
-		
-		
-		
 	}
 
 	protected void loadForm() {
@@ -426,7 +444,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 				if (getAudioModel() == null || getAudioModel().getObject() == null)
 					return null;
-				
+
 				try {
 					return getObjectStorageService().getPublicUrl(getAudioModel().getObject());
 				} catch (IOException e) {
@@ -456,9 +474,9 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
-					openAudioStudio(new ObjectModel<AudioStudio>(oa.get()) );
-				
-				}
+					openAudioStudio(new ObjectModel<AudioStudio>(oa.get()));
+
+			}
 
 			@Override
 			public boolean isVisible() {
@@ -491,13 +509,14 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 			@Override
 			public boolean isVisible() {
+
 				if (!hasWritePermission())
 					return false;
 
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
-		
+
 		form.add(buttons);
 		EditButtons<R> b_buttons_top = new EditButtons<R>("buttons-top", getForm(), getModel()) {
 
@@ -538,20 +557,19 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	}
 
 	protected void openAudioStudio(ObjectModel<AudioStudio> objectModel) {
-			setResponsePage(new AudioStudioPage(objectModel, isAccesible() ));
+		setResponsePage(new AudioStudioPage(objectModel, isAccesible()));
 	}
 
 	protected boolean isAccesible() {
 		if (getSourceModel().getObject() instanceof ArtExhibitionGuide) {
-			return ( (ArtExhibitionGuide) getSourceModel().getObject()).isAccessible();
+			return ((ArtExhibitionGuide) getSourceModel().getObject()).isAccessible();
 		}
 		return false;
 	}
 
-	
 	protected void onAudioRemove(AjaxRequestTarget target) {
 		try {
-			this.audioModel=null;
+			this.audioModel = null;
 			getModel().getObject().setAudio(null);
 			this.uploadedAudio = false;
 			target.add(this);

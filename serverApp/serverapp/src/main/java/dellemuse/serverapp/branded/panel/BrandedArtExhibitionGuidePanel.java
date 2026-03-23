@@ -2,6 +2,7 @@ package dellemuse.serverapp.branded.panel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -53,6 +54,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.language.LanguageObjectService;
 import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.UIEvent;
@@ -145,25 +147,29 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		infoContainer.add(new InvisiblePanel("error"));
 
 		try {
-
-			//String intro = getLanguageObjectService().getIntro(getArtExhibitionModel().getObject(), getLocale());
-			//IModel<String> m = Model.of(intro != null ? intro : "");
-			//infoContainer.add(((new Label("intro", m)).setEscapeModelStrings(false)));
-
+ 
 			/** intro audio guide */
 
-			Resource r = getLanguageObjectService().getAudio(getModel().getObject(), getLocale());
+			Locale locale = getLocale();
+			logger.debug("locale lang -> " + locale.getLanguage());
+			
+			Resource r = getResourceDBService().findWithDeps(  getLanguageObjectService().getAudio(getModel().getObject(), locale).getId() ).get();
 
 			if (r != null) {
-
-				int c = getLanguageObjectService().compareAudioLanguage(getModel().getObject(), getLocale());
-				if (c != 0) {
+			
+				int c = getLanguageObjectService().compareAudioLanguage(getModel().getObject(), locale );
+				
+				if (c != LanguageObjectService.AUDIO_SAME_LANG) {
 					infoContainer.addOrReplace(new AlertPanel<Void>("error", AlertPanel.INFO, getLabel("audio-other", Language.of(getModel().getObject().getMasterLanguage()).getLabel(getLocale()))));
 				}
 
 				WebMarkupContainer audioIntroContainer = new WebMarkupContainer("intro-audio");
 				audioContainer.add(audioIntroContainer);
-				String as = getPresignedUrl(getModel().getObject().getAudio());
+				String as = getPresignedUrl(r);
+		
+				//String xx=getPresignedUrl(r);
+				//logger.debug("audio url -> " + xx);
+				
 				Url url = Url.parse(as);
 				UrlResourceReference resourceReference = new UrlResourceReference(url);
 			
@@ -186,11 +192,10 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 			audioContainer.setVisible(r != null);
 
 		} catch (Exception e) {
+
 			logger.error(e);
-			infoContainer.addOrReplace(new Label("intro", ""));
-			audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));
-			audioContainer.setVisible(false);
-			addOrReplace(new ErrorPanel("descriptionContainer", e));
+			infoContainer.setVisible(false);
+			addOrReplace(new ErrorPanel("error", e));
 		}
 	}
 

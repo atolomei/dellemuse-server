@@ -106,6 +106,9 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		if (isGeneralAdmin())
 			return true;
 		
+		
+		
+		
 		return false;
 	}
 	

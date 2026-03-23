@@ -21,61 +21,58 @@ import jakarta.transaction.Transactional;
 @Service
 public class ArtExhibitionStatusTypeDBService extends DBService<ArtExhibitionStatusType, Long> {
 
-    @SuppressWarnings("unused")
-    static private Logger logger = Logger.getLogger(ArtExhibitionStatusTypeDBService.class.getName());
+	@SuppressWarnings("unused")
+	static private Logger logger = Logger.getLogger(ArtExhibitionStatusTypeDBService.class.getName());
 
-    public ArtExhibitionStatusTypeDBService(CrudRepository<ArtExhibitionStatusType, Long> repository,
-             ServerDBSettings settings) {
-        super(repository, settings);
-    }
+	public ArtExhibitionStatusTypeDBService(CrudRepository<ArtExhibitionStatusType, Long> repository, ServerDBSettings settings) {
+		super(repository, settings);
+	}
 
-    /**
-     * <p>
-     * Annotation Transactional is required to store values into the Database
-     * </p>
-     * 
-     * @param name
-     * @param createdBy
-     */
-    @Transactional
-     
-    public ArtExhibitionStatusType create(String name, User createdBy) {
-        ArtExhibitionStatusType c = new ArtExhibitionStatusType();
-        c.setName(name);
-        
-        c.setCreated(OffsetDateTime.now());
-        c.setLastModified(OffsetDateTime.now());
-        c.setLastModifiedUser(createdBy);
- 
-        getRepository().save(c);
-        
-    	getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
-    	return c;
-    	
-    }
+	/**
+	 * <p>
+	 * Annotation Transactional is required to store values into the Database
+	 * </p>
+	 * 
+	 * @param name
+	 * @param createdBy
+	 */
+	@Transactional
 
-  
-    
-    /**
-     * @param name
-     * @return
-     */
-    public List<ArtExhibitionStatusType> getByName(String name) {
-        return createNameQuery(name).getResultList();
-    }
+	public ArtExhibitionStatusType create(String name, User createdBy) {
+		ArtExhibitionStatusType c = new ArtExhibitionStatusType();
+		c.setName(name);
 
-    @Override
-    protected Class<ArtExhibitionStatusType> getEntityClass() {
-        return ArtExhibitionStatusType.class;
-    }
-    
+		c.setCreated(OffsetDateTime.now());
+		c.setLastModified(OffsetDateTime.now());
+		c.setLastModifiedUser(createdBy);
+
+		getRepository().save(c);
+
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+		return c;
+
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public List<ArtExhibitionStatusType> getByName(String name) {
+		return createNameQuery(name).getResultList();
+	}
+
+	@Override
+	protected Class<ArtExhibitionStatusType> getEntityClass() {
+		return ArtExhibitionStatusType.class;
+	}
+
 	@Override
 	public String getObjectClassName() {
-		 return ArtExhibitionStatusType.class.getSimpleName().toLowerCase();
-	} 
+		return ArtExhibitionStatusType.class.getSimpleName().toLowerCase();
+	}
 
-	  @PostConstruct
-	    protected void onInitialize() {
-	    	super.register(getEntityClass(), this);
-	    }
+	@PostConstruct
+	protected void onInitialize() {
+		super.register(getEntityClass(), this);
+	}
 }

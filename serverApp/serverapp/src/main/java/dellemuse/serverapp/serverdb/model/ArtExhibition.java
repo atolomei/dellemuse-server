@@ -31,6 +31,10 @@ import jakarta.persistence.Table;
 @JsonInclude(Include.NON_NULL)
 public class ArtExhibition extends MultiLanguageObject {
 
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
 
 	public static String getIcon() {
 		return Icons.ArtExhibition;

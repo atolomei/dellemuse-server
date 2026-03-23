@@ -109,11 +109,12 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return getRepository().save(entity);
 	}
 
-	/**@Transactional
-	public <S extends T> void save(S o, User user, List<String> updatedParts) {
-		super.save(o);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
-	}**/
+	/**
+	 * @Transactional public <S extends T> void save(S o, User user, List<String>
+	 *                updatedParts) { super.save(o);
+	 *                getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user,
+	 *                AuditAction.UPDATE, String.join(", ", updatedParts))); }
+	 **/
 
 	@Transactional
 	public <S extends T> S save(S entity, User user) {
@@ -126,7 +127,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 	@Transactional
 	public void delete(T c, User user) {
-		 
+
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, user, AuditAction.DELETE));
 		getRepository().delete(c);
 	}
@@ -184,7 +185,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 	@Transactional
 	public Iterable<T> findAllSorted(ObjectState os) {
-		
+
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<T> cq = cb.createQuery(getEntityClass());
 		Root<T> root = cq.from(getEntityClass());
@@ -193,11 +194,6 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-
-	
-	
-	
-	
 	@Transactional
 	public Iterable<T> findAllSorted(ObjectState os1, ObjectState os2) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -210,12 +206,6 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
-	
-	
-	
-	
-	
 
 	@Transactional
 	public void flush() {
@@ -286,16 +276,13 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	protected String getNameColumn() {
 		return "name";
 	}
-	
-	
+
 	protected ArtistDBService getArtistDBService() {
 		return (ArtistDBService) ServiceLocator.getInstance().getBean(ArtistDBService.class);
 	}
-	
-	
-	
-   protected  ArtWorkDBService getArtWorkDBService() {
-    	return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+
+	protected ArtWorkDBService getArtWorkDBService() {
+		return (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 	}
 
 	protected ArtExhibitionItemDBService getArtExhibitionItemDBService() {
@@ -305,12 +292,11 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	protected ArtExhibitionDBService getArtExhibitionDBService() {
 		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 	}
-	
-	
+
 	protected CandidateDBService getCandidateDBService() {
 		return (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
 	}
-	
+
 	protected InstitutionDBService getInstitutionDBService() {
 		return (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 	}
@@ -335,23 +321,18 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 		return (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 	}
 
-
 	protected ArtExhibitionSectionDBService getArtExhibitionSectionDBService() {
 		return (ArtExhibitionSectionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionSectionDBService.class);
 	}
-	
-	
+
 	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
 		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
 	}
 
-	
-
 	protected ArtistRecordDBService getArtistRecordDBService() {
 		return (ArtistRecordDBService) ServiceLocator.getInstance().getBean(ArtistRecordDBService.class);
 	}
-	
-	
+
 	protected GuideContentDBService getGuideContentDBService() {
 		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 	}
@@ -371,7 +352,7 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	protected PersonDBService getPersonDBService() {
 		return (PersonDBService) ServiceLocator.getInstance().getBean(PersonDBService.class);
 	}
-	
+
 	protected RoleGeneralDBService getRoleGeneralDBService() {
 		return (RoleGeneralDBService) ServiceLocator.getInstance().getBean(RoleGeneralDBService.class);
 	}
@@ -391,12 +372,10 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	protected String getDefaultMasterLanguage() {
 		return getLanguageService().getDefaultLanguage().getLanguageCode();
 	}
-	
 
 	protected ObjectStorageService getObjectStorageService() {
 		return (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
 	}
-	
 
 	protected String nameKey(String name) {
 		if (name == null)

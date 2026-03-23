@@ -61,6 +61,9 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	private List<IModel<ArtExhibitionGuide>> artExhibitionSearchList;
 
 	private String lang;
+	private Locale locale = null;
+
+	private boolean modelAlreadySet = false;
 
 	public BrandedArtExhibitionGuidePage() {
 		super();
@@ -68,6 +71,8 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 	public BrandedArtExhibitionGuidePage(PageParameters parameters) {
 		super(parameters);
+		setUpModel();
+		setCookieLocale();
 	}
 
 	public BrandedArtExhibitionGuidePage(IModel<ArtExhibitionGuide> model) {
@@ -77,6 +82,8 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	public BrandedArtExhibitionGuidePage(IModel<ArtExhibitionGuide> model, List<IModel<ArtExhibitionGuide>> list, String lang) {
 		super(model, list);
 		this.lang = lang;
+		setUpModel();
+		setCookieLocale();
 	}
 
 	@Override
@@ -94,14 +101,10 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		return true;
 	}
 
-	protected IModel<String> getMainClass() {
-		return Model.of("branded text-bg-dark");
-	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		setLanguage();
 
 	}
 
@@ -137,12 +140,24 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			this.siteModel.detach();
 	}
 
+
+	protected IModel<String> getMainClass() {
+		return Model.of("branded text-bg-dark");
+	}
+	
 	protected List<Language> getSupportedLanguages() {
 		return getSiteModel().getObject().getLanguages();
 	}
 
-	protected void setLanguage() {
+	@Override
+	public Locale getLocale() {
+
+		if (locale != null)
+			return locale;
+
 		if (lang != null) {
+			logger.debug("setting language from parameter -> " + lang);
+			locale = Locale.forLanguageTag(lang);
 			getSession().setLocale(Locale.forLanguageTag(lang));
 		} else {
 			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
@@ -150,18 +165,28 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 			if (cookie != null) {
 				String value = cookie.getValue();
+				logger.debug("setting language from cookie -> " + value);
+				locale = Locale.forLanguageTag(value);
 				getSession().setLocale(Locale.forLanguageTag(value));
 
 			} else if (getSessionUser().isEmpty()) {
+
+				if (getSiteModel() == null) {
+					logger.error("site model is null, cannot set language");
+					return Locale.getDefault();
+				}
+
 				Language la = Language.of(getSiteModel().getObject().getMasterLanguage());
 				String code = la.getLanguageCode();
+				logger.debug("setting language from site master language -> " + code);
+				locale = Locale.forLanguageTag(code);
 				getSession().setLocale(Locale.forLanguageTag(code));
 			}
 		}
-
+		return locale;
 	}
 
-	@Override
+ 	@Override
 	protected void addListeners() {
 		super.addListeners();
 
@@ -202,6 +227,27 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 				setResponsePage(page);
 			}
 		});
+	}
+
+	protected void setCookieLocale() {
+
+		if (lang != null) {
+			logger.debug("setting language from parameter -> " + lang);
+			locale = Locale.forLanguageTag(lang);
+			getSession().setLocale(Locale.forLanguageTag(lang));
+			return;
+		}
+
+		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+		Cookie cookie = request.getCookie("lang");
+
+		if (cookie != null) {
+			String value = cookie.getValue();
+			logger.debug("setting language from cookie -> " + value);
+			locale = Locale.forLanguageTag(value);
+			lang = value;
+			getSession().setLocale(Locale.forLanguageTag(value));
+		}
 	}
 
 	@Override
@@ -319,6 +365,10 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 	@Override
 	protected void setUpModel() {
+
+		if (modelAlreadySet)
+			return;
+
 		super.setUpModel();
 
 		if (!getModel().getObject().isDependencies()) {
@@ -331,6 +381,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 		Optional<Site> o_s = getSiteDBService().findWithDeps(o_i.get().getSite().getId());
 		setSiteModel(new ObjectModel<Site>(o_s.get()));
+		modelAlreadySet = true;
 	}
 
 	protected void seArtExhibitionModel(IModel<ArtExhibition> model) {

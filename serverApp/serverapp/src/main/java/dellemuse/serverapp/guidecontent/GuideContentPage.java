@@ -48,6 +48,7 @@ import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
+import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -244,7 +245,6 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 	protected void onEditRecord(AjaxRequestTarget target, String lang) {
 		if (getRecordEditors().get(lang) instanceof ObjectRecordEditor)
 			((ObjectRecordEditor<?, ?>) getRecordEditors().get(lang)).edit(target);
-
 	}
 
 	@Override

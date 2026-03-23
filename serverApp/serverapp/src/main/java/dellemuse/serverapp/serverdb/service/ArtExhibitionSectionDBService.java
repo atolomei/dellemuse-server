@@ -1,7 +1,5 @@
 package dellemuse.serverapp.serverdb.service;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -14,20 +12,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionSectionRecord;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionSectionRecordDBService;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -39,7 +30,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
-public class ArtExhibitionSectionDBService extends  MultiLanguageObjectDBservice<ArtExhibitionSection, Long> {
+public class ArtExhibitionSectionDBService extends MultiLanguageObjectDBservice<ArtExhibitionSection, Long> {
 
 	@SuppressWarnings("unused")
 	private static final Logger logger = Logger.getLogger(ArtExhibitionSectionDBService.class.getName());
@@ -57,7 +48,6 @@ public class ArtExhibitionSectionDBService extends  MultiLanguageObjectDBservice
 		this.artExhibitionSectionRecordDBService = artExhibitionSectionRecordDBService;
 	}
 
-	
 	@Transactional
 	public ArtExhibitionSection create(String name, User createdBy) {
 		ArtExhibitionSection c = new ArtExhibitionSection();
@@ -93,12 +83,6 @@ public class ArtExhibitionSectionDBService extends  MultiLanguageObjectDBservice
 		return c;
 	}
 
-	
-	
-	
-	
-	
-	
 	@Transactional
 	public Optional<ArtExhibitionSection> findWithDeps(Long id) {
 
@@ -115,15 +99,13 @@ public class ArtExhibitionSectionDBService extends  MultiLanguageObjectDBservice
 			photo.getBucketName();
 
 		User user = a.getLastModifiedUser();
-		if (user!=null)
+		if (user != null)
 			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
 
-		
 		a.setDependencies(true);
 
 		return o;
 	}
-
 
 	/**
 	 * @param a
@@ -149,7 +131,6 @@ public class ArtExhibitionSectionDBService extends  MultiLanguageObjectDBservice
 
 	}
 
-	
 	@Transactional
 	public List<ArtExhibitionSection> getByName(String name) {
 		return createNameQuery(name).getResultList();
@@ -168,6 +149,7 @@ public class ArtExhibitionSectionDBService extends  MultiLanguageObjectDBservice
 	protected ArtExhibitionSectionRecordDBService getArtExhibitionSectionRecordDBService() {
 		return this.artExhibitionSectionRecordDBService;
 	}
+
 	@PostConstruct
 	protected void onInitialize() {
 		super.registerRecordDB(getEntityClass(), getArtExhibitionSectionRecordDBService());

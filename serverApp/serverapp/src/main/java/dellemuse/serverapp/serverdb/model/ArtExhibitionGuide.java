@@ -73,6 +73,12 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 	private boolean accessible;
 	
 	
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
+
+	
 	public ArtExhibitionGuide() {
 	}
 
