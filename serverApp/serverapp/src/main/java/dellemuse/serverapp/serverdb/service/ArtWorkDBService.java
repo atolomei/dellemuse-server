@@ -127,6 +127,10 @@ public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long
 		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE, createdBy, name, true);
 		aw.setQRCode(res);
+		
+		// TODO 
+		// Audit
+		
 		return getRepository().save(aw);
 	}
 
@@ -173,28 +177,39 @@ public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long
 
 		ArtWork aw = o_aw.get();
 
-		if (aw.getSite() != null) {
-			aw.setSite(getSiteDBService().findById(aw.getSite().getId()).get());
-		}
+		// Read all lazy proxy IDs while entity is still attached
+		Long siteId = aw.getSite() != null ? aw.getSite().getId() : null;
+
+		Set<Long> artistIds = new HashSet<Long>();
+		if (aw.getArtists() != null)
+			aw.getArtists().forEach(p -> artistIds.add(p.getId()));
+
+		Long photoId = aw.getPhoto() != null ? aw.getPhoto().getId() : null;
+		Long qrcodeId = aw.getQRCode() != null ? aw.getQRCode().getId() : null;
+		Long qrPdfId = aw.getQRCodePdf() != null ? aw.getQRCodePdf().getId() : null;
+		Long userId = aw.getLastModifiedUser() != null ? aw.getLastModifiedUser().getId() : null;
+
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(aw);
+
+		if (siteId != null)
+			aw.setSite(getSiteDBService().findById(siteId).get());
 
 		Set<Artist> set = new HashSet<Artist>();
-
-		aw.getArtists().forEach(p -> set.add(getArtistDBService().findById(p.getId()).get()));
+		artistIds.forEach(aid -> set.add(getArtistDBService().findById(aid).get()));
 		aw.setArtists(set);
 
-		Resource photo = aw.getPhoto();
-		if (photo != null)
-			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		if (photoId != null)
+			aw.setPhoto(getResourceDBService().findById(photoId).get());
 
-		Resource qrcode = aw.getQRCode();
+		if (qrcodeId != null)
+			aw.setQrcode(getResourceDBService().findById(qrcodeId).get());
 
-		if (qrcode != null) {
-			aw.setQrcode(getResourceDBService().findById(photo.getId()).get());
-		}
+		if (qrPdfId != null)
+			aw.setQRCodePdf(getResourceDBService().findById(qrPdfId).get());
 
-		User user = aw.getLastModifiedUser();
-		if (user != null)
-			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		if (userId != null)
+			aw.setLastModifiedUser(getUserDBService().findById(userId).get());
 
 		aw.setDependencies(true);
 

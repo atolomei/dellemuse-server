@@ -11,13 +11,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.icons.Icons;
+import dellemuse.serverapp.jpa.events.ArtExhibitionEventListener;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
-
+import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -29,12 +31,8 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "artExhibition")
 @JsonInclude(Include.NON_NULL)
+@EntityListeners(ArtExhibitionEventListener.class)
 public class ArtExhibition extends MultiLanguageObject {
-
-	@Override
-	public boolean isSiteSecured() {
-		return true;
-	}
 
 	public static String getIcon() {
 		return Icons.ArtExhibition;
@@ -89,15 +87,29 @@ public class ArtExhibition extends MultiLanguageObject {
 	@JsonProperty("artExhibitionSections")
 	private List<ArtExhibitionSection> artExhibitionSections;
 
+	
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "qrcodepdf", nullable = true)
+	@JsonManagedReference
+	@JsonProperty("qrcodepdf")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource QRCodePdf;
+	
+	
+	
 	@Column(name = "website")
 	private String website;
 
-	
 	@Column(name = "ordinal")
 	private int ordinal;
-	
-	
-	
+
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "qrcode", nullable = true)
+	@JsonManagedReference
+	@JsonProperty("qrcode")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource qrcode;
+
 	public ArtExhibition() {
 	}
 
@@ -112,12 +124,17 @@ public class ArtExhibition extends MultiLanguageObject {
 	public void setArtExhibitionStatusType(ArtExhibitionStatusType artExhibitionStatusType) {
 		this.artExhibitionStatusType = artExhibitionStatusType;
 	}
-	
+
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
+
 	@Override
 	public String getObjectClassName() {
 		return ArtExhibition.class.getSimpleName();
 	}
-	
+
 	public Site getSite() {
 		return site;
 	}
@@ -178,6 +195,22 @@ public class ArtExhibition extends MultiLanguageObject {
 		return website;
 	}
 
+	public Resource getQRCodePdf() {
+		return QRCodePdf;
+	}
+
+	public void setQRCodePdf(Resource qRCodePdf) {
+		QRCodePdf = qRCodePdf;
+	}
+
+	public Resource getQrcode() {
+		return qrcode;
+	}
+
+	public void setQrcode(Resource qrcode) {
+		this.qrcode = qrcode;
+	}
+
 	public void setWebsite(String website) {
 		this.website = website;
 	}
@@ -206,23 +239,20 @@ public class ArtExhibition extends MultiLanguageObject {
 		this.shortnamekey = shortnamekey;
 	}
 
-	/**
-	 * @return
-	 */
 	public boolean isComing() {
 
-		if (fromDate == null && toDate == null)
+		if (this.fromDate == null && this.toDate == null)
 			return false;
 
-		if (fromDate == null)
+		if (this.fromDate == null)
 			return false;
 
 		OffsetDateTime now = OffsetDateTime.now();
 
-		if (toDate == null)
-			return fromDate.isAfter(now);
+		if (this.toDate == null)
+			return this.fromDate.isAfter(now);
 
-		return fromDate.isAfter(now) && toDate.isAfter(now);
+		return this.fromDate.isAfter(now) && this.toDate.isAfter(now);
 	}
 
 	/**
@@ -230,15 +260,15 @@ public class ArtExhibition extends MultiLanguageObject {
 	 */
 	public boolean isOpen() {
 
-		if (toDate == null)
+		if (this.toDate == null)
 			return true;
 
 		OffsetDateTime now = OffsetDateTime.now();
 
-		if (fromDate == null)
-			return toDate.isBefore(now);
+		if (this.fromDate == null)
+			return this.toDate.isBefore(now);
 
-		return fromDate.isBefore(now) && toDate.isAfter(now);
+		return this.fromDate.isBefore(now) && this.toDate.isAfter(now);
 	}
 
 	/**
@@ -256,28 +286,30 @@ public class ArtExhibition extends MultiLanguageObject {
 
 		return toDate.isBefore(now);
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
 
-		if (o==null)
+		if (o == null)
 			return false;
-		 
-		if (this == o) return true;
 
-		if (!(o instanceof ArtExhibition)) return false;
-		 
-		if (this.getId()==null)
+		if (this == o)
+			return true;
+
+		if (!(o instanceof ArtExhibition))
 			return false;
-	 
+
+		if (this.getId() == null)
+			return false;
+
 		if ((o instanceof ArtExhibition)) {
-			
-			if (((ArtExhibition) o).getId()==null)
-					return false;
-			
+
+			if (((ArtExhibition) o).getId() == null)
+				return false;
+
 			return ((ArtExhibition) o).getId().equals(getId());
 		}
-		
+
 		return false;
 	}
 

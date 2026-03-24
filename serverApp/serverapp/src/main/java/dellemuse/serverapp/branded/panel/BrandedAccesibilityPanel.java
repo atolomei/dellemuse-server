@@ -1,6 +1,7 @@
 package dellemuse.serverapp.branded.panel;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -9,40 +10,43 @@ import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.http.WebRequest;
+import org.apache.wicket.request.http.WebResponse;
 
+import dellemuse.serverapp.branded.AccesibilityAjaxEvent;
 import dellemuse.serverapp.page.model.ObjectModelPanel;
 import dellemuse.serverapp.serverdb.model.AccesibilityMode;
 
 import dellemuse.serverapp.serverdb.model.User;
-
+import jakarta.servlet.http.Cookie;
 
 public class BrandedAccesibilityPanel extends ObjectModelPanel<User> {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private String srcUrl;
 	private DropDownChoice<AccesibilityMode> selector;
 	private List<AccesibilityMode> modes;
 	private AccesibilityMode mode;
-	
+
 	private AjaxLink<Void> link;
-	
+	private boolean isAccesible = false;
+
 	public BrandedAccesibilityPanel(String id) {
-		this(id, null,  null);
+		this(id, null, null);
 	}
-	
-	
+
 	public BrandedAccesibilityPanel(String id, IModel<User> model) {
 		super(id, model);
 		this.setOutputMarkupId(true);
 	}
-	
-	
-	public BrandedAccesibilityPanel(String id,  IModel<User> userModel, String srcUrl) {
+
+	public BrandedAccesibilityPanel(String id, IModel<User> userModel, String srcUrl) {
 		super(id, userModel);
-		this.srcUrl=srcUrl;
+		this.srcUrl = srcUrl;
 		this.setOutputMarkupId(true);
-		
+
 	}
 
 	@Override
@@ -53,27 +57,45 @@ public class BrandedAccesibilityPanel extends ObjectModelPanel<User> {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
-		
-		setMode(AccesibilityMode.GENERAL);
-		
-		link =new AjaxLink<Void>("link") {
+
+		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+		Cookie accCookie = request.getCookie("accessible");
+		if (accCookie != null) {
+			String value = accCookie.getValue();
+			isAccesible = value.equals("true");
+		}
+
+		setMode(!isAccesible ? AccesibilityMode.GENERAL : AccesibilityMode.ACCESIBLE);
+
+		link = new AjaxLink<Void>("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				if (getMode()==AccesibilityMode.GENERAL)
+				
+				if (getMode() == AccesibilityMode.GENERAL)
 					setMode(AccesibilityMode.ACCESIBLE);
 				else
 					setMode(AccesibilityMode.GENERAL);
+
+				link.add(new org.apache.wicket.AttributeModifier("class", "btn border  " + (getMode() == AccesibilityMode.GENERAL ? " bg-dark " : " bg-secondary ")));
+
+				 Cookie cookie = new Cookie("accessible", (getMode() == AccesibilityMode.GENERAL ? "false" : "true"));
+		            cookie.setPath("/");
+		            cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
+		            ((WebResponse) RequestCycle.get().getResponse())
+		                    .addCookie(cookie);
+		        
+				fire (new  AccesibilityAjaxEvent("accesibility", getMode(), target) );
 				target.add(BrandedAccesibilityPanel.this);
 			}
-			
+
 		};
 		add(link);
-		
-		
+
+		link.add(new org.apache.wicket.AttributeModifier("class", "btn border  " + (getMode() == AccesibilityMode.GENERAL ? " bg-dark " : " bg-secondary ")));
+
 		this.modes = AccesibilityMode.getModes();
-	
+
 		this.selector = new DropDownChoice<AccesibilityMode>("modes", getModes()) {
 
 			private static final long serialVersionUID = 1L;
@@ -121,8 +143,8 @@ public class BrandedAccesibilityPanel extends ObjectModelPanel<User> {
 				return BrandedAccesibilityPanel.this.getDisplayValue(value);
 			};
 		});
- 
-		//add(selector);
+
+		// add(selector);
 	}
 
 	protected String getDisplayValue(AccesibilityMode value) {
@@ -130,9 +152,9 @@ public class BrandedAccesibilityPanel extends ObjectModelPanel<User> {
 	}
 
 	protected String getIdValue(AccesibilityMode value) {
-		return String.valueOf( value.getId());
+		return String.valueOf(value.getId());
 	}
-	
+
 	public String getSrcUrl() {
 		return srcUrl;
 	}

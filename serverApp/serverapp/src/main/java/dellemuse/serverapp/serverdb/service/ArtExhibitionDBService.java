@@ -176,25 +176,38 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 
 		ArtExhibition a = o.get();
 
-		Long siteId = a.getSite().getId();
+		// Read all lazy proxy IDs while entity is still attached
+		Long siteId = a.getSite() != null ? a.getSite().getId() : null;
+		boolean hasItems = a.getArtExhibitionItems() != null;
+		Long photoId = a.getPhoto() != null ? a.getPhoto().getId() : null;
+		Long qrId = a.getQrcode() != null ? a.getQrcode().getId() : null;
+		Long qrPdfId = a.getQRCodePdf() != null ? a.getQRCodePdf().getId() : null;
+		Long userId = a.getLastModifiedUser() != null ? a.getLastModifiedUser().getId() : null;
+
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(a);
 
 		if (siteId != null) {
 			SiteDBService se = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 			a.setSite(se.findById(siteId).get());
 		}
 
-		if (a.getArtExhibitionItems() != null) {
+		if (hasItems) {
 			ArtExhibitionDBService se = (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 			a.setArtExhibitionItems(se.getArtExhibitionItems(a));
 		}
 
-		Resource photo = a.getPhoto();
-		if (photo != null)
-			a.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		if (photoId != null)
+			a.setPhoto(getResourceDBService().findById(photoId).get());
 
-		User user = a.getLastModifiedUser();
-		if (user != null)
-			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		if (qrId != null)
+			a.setQrcode(getResourceDBService().findById(qrId).get());
+
+		if (qrPdfId != null)
+			a.setQRCodePdf(getResourceDBService().findById(qrPdfId).get());
+
+		if (userId != null)
+			a.setLastModifiedUser(getUserDBService().findById(userId).get());
 
 		a.setDependencies(true);
 

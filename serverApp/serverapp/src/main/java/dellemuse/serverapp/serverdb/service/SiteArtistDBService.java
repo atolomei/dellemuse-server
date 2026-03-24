@@ -100,7 +100,16 @@ public class SiteArtistDBService extends MultiLanguageObjectDBservice<SiteArtist
 			return o_sa;
 
 		SiteArtist sa = o_sa.get();
-		sa.setLastModifiedUser( getUserDBService().findById( sa.getLastModifiedUser().getId()).get());
+
+		// Read lazy proxy ID while entity is still attached
+		Long userId = sa.getLastModifiedUser() != null ? sa.getLastModifiedUser().getId() : null;
+
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(sa);
+
+		if (userId != null)
+			sa.setLastModifiedUser(getUserDBService().findById(userId).get());
+
 		sa.setDependencies(true);
 
 		return o_sa;

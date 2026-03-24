@@ -309,32 +309,42 @@ public class ArtExhibitionGuideDBService extends MultiLanguageObjectDBservice<Ar
 
 		ArtExhibitionGuide a = o.get();
 
+		// Read all lazy proxy IDs while entity is still attached
 		if (a.getArtExhibition() != null)
 			a.getArtExhibition().getDisplayname();
 
-		if (a.getPublisher() != null)
-			a.setPublisher(getPersonDBService().findById(a.getPublisher().getId()).get());
+		Long publisherId = a.getPublisher() != null ? a.getPublisher().getId() : null;
 
-		if (a.getGuideContents() != null)
-			a.getGuideContents().size();
+		// Force-initialize lazy collection and capture IDs
+		List<Long> guideContentIds = new ArrayList<Long>();
+		if (a.getGuideContents() != null) {
+			a.getGuideContents().forEach(c -> guideContentIds.add(c.getId()));
+		}
 
-		Resource photo = a.getPhoto();
-		if (photo != null)
-			a.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		Long photoId = a.getPhoto() != null ? a.getPhoto().getId() : null;
+		Long audioId = a.getAudio() != null ? a.getAudio().getId() : null;
+		Long userId = a.getLastModifiedUser() != null ? a.getLastModifiedUser().getId() : null;
 
-		Resource audio = a.getAudio();
-		if (audio != null)
-			a.setAudio(getResourceDBService().findById(audio.getId()).get());
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(a);
 
-		User user = a.getLastModifiedUser();
+		if (publisherId != null)
+			a.setPublisher(getPersonDBService().findById(publisherId).get());
 
-		if (user != null)
-			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		if (photoId != null)
+			a.setPhoto(getResourceDBService().findById(photoId).get());
+
+		if (audioId != null)
+			a.setAudio(getResourceDBService().findById(audioId).get());
+
+		if (userId != null)
+			a.setLastModifiedUser(getUserDBService().findById(userId).get());
 
 		List<GuideContent> li = new ArrayList<GuideContent>();
-		a.getGuideContents().forEach(c -> {
-			li.add(getGuideContentDBService().findById(c.getId()).get());
+		guideContentIds.forEach(cid -> {
+			li.add(getGuideContentDBService().findById(cid).get());
 		});
+		a.setContents(li);
 
 		a.setDependencies(true);
 		return o;

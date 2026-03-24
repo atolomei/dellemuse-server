@@ -183,23 +183,30 @@ public class InstitutionDBService extends MultiLanguageObjectDBservice<Instituti
 
 		Institution i = o_i.get();
 
+		// Read all lazy proxy IDs while entity is still attached
+		List<Long> siteIds = new ArrayList<Long>();
+		if (i.getSites() != null)
+			i.getSites().forEach(site -> siteIds.add(site.getId()));
+
+		Long photoId = i.getPhoto() != null ? i.getPhoto().getId() : null;
+		Long logoId = i.getLogo() != null ? i.getLogo().getId() : null;
+		Long userId = i.getLastModifiedUser() != null ? i.getLastModifiedUser().getId() : null;
+
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(i);
+
 		List<Site> sites = new ArrayList<Site>();
-
-		i.getSites().forEach(site -> getSiteDBService().findById(site.getId()).ifPresent(s -> sites.add(s)));
-
+		siteIds.forEach(sid -> getSiteDBService().findById(sid).ifPresent(s -> sites.add(s)));
 		i.setSites(sites);
 
-		Resource photo = i.getPhoto();
-		if (photo != null)
-			i.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		if (photoId != null)
+			i.setPhoto(getResourceDBService().findById(photoId).get());
 
-		Resource logo = i.getLogo();
-		if (logo != null)
-			i.setLogo(getResourceDBService().findById(logo.getId()).get());
+		if (logoId != null)
+			i.setLogo(getResourceDBService().findById(logoId).get());
 
-		User user = i.getLastModifiedUser();
-		if (user != null)
-			i.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		if (userId != null)
+			i.setLastModifiedUser(getUserDBService().findById(userId).get());
 
 		i.setDependencies(true);
 

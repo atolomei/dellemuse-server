@@ -26,13 +26,7 @@ public class ResourceEventListener {
     public void postUpdate(Object entidad) {
     	logger.debug("postUpdate");    
     }
-    
-    
-    /**
-     * lastmodifieduser
-   
-     * @param o
-     */
+      
     @PostRemove
     public void postRemove(Object o) {
     	try {

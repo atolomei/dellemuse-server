@@ -342,6 +342,31 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 			}
 		});
 
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new LinkMenuItem<ArtExhibition>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						ArtExhibitionPage page = new ArtExhibitionPage(getModel());
+						page.setStartTab(ServerAppConstant.exhibition_qrcode);
+						setResponsePage(page);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("exhibition-qrcode");
+					}
+				};
+			}
+		});
+
 		
 
 	

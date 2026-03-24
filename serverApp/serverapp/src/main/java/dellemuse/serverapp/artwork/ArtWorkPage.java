@@ -78,6 +78,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 	private IModel<Site> siteModel;
 
 	private ArtWorkMainPanel editor;
+	private ArtWorkQRCodePanel qrcodePanel;
 	private List<ToolbarItem> list;
 
 	
@@ -266,8 +267,10 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					ArtWorkPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
-					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
-					// event.getTarget().add(ArtWorkPage.this.getHeader());
+				}
+
+				else if (event.getName().equals(ServerAppConstant.artwork_qrcode)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_qrcode, event.getTarget());
 				}
 
 				else if (event.getName().equals(ServerAppConstant.object_audit)) {
@@ -358,6 +361,17 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		};
 		tabs.add(tab_1);
 
+		NamedTab tab_2 = new NamedTab(Model.of("qrcode"), ServerAppConstant.artwork_qrcode) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return ArtWorkPage.this.getQRCodePanel(panelId);
+			}
+		};
+		tabs.add(tab_2);
+
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.artwork_info);
 
@@ -368,6 +382,12 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		if (this.editor == null)
 			editor = new ArtWorkMainPanel(id, getModel());
 		return (editor);
+	}
+
+	protected Panel getQRCodePanel(String id) {
+		if (this.qrcodePanel == null)
+			qrcodePanel = new ArtWorkQRCodePanel(id, getModel());
+		return (qrcodePanel);
 	}
 
 	

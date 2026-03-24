@@ -75,6 +75,7 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 	private ArtExhibitionItemsPanel items;
 	private ArtExhibitionGuidesPanel guides = null;
 	private ArtExhibitionSectionsPanel sections = null;
+	private ArtExhibitionQRCodePanel qrcodePanel = null;
 	private List<ToolbarItem> list;
 
 
@@ -302,6 +303,9 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 					ArtExhibitionPage.this.togglePanel(ServerAppConstant.exhibition_sections, event.getTarget());
 
 					event.getTarget().add(ArtExhibitionPage.this.getHeaderPanel());
+				} else if (event.getName().equals(ServerAppConstant.exhibition_qrcode)) {
+					ArtExhibitionPage.this.togglePanel(ServerAppConstant.exhibition_qrcode, event.getTarget());
+					event.getTarget().add(ArtExhibitionPage.this.getHeaderPanel());
 				} else if (event.getName().equals(ServerAppConstant.exhibition_guides)) {
 					ArtExhibitionPage.this.togglePanel(ServerAppConstant.exhibition_guides, event.getTarget());
 					;
@@ -468,6 +472,16 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 		};
 		tabs.add(tab_5);
 
+		NamedTab tab_6 = new NamedTab(Model.of("qrcode"), ServerAppConstant.exhibition_qrcode) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getArtExhibitionQRCodePanel(panelId);
+			}
+		};
+		tabs.add(tab_6);
+
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.exhibition_info);
 
@@ -489,6 +503,12 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 		if (sections == null)
 			sections = new ArtExhibitionSectionsPanel(panelId, getModel(), getSiteModel());
 		return sections;
+	}
+
+	protected WebMarkupContainer getArtExhibitionQRCodePanel(String panelId) {
+		if (qrcodePanel == null)
+			qrcodePanel = new ArtExhibitionQRCodePanel(panelId, getModel());
+		return qrcodePanel;
 	}
 
 	protected ArtExhibitionItemsPanel getArtExhibitionItemsPanel(String id) {

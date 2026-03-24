@@ -7,7 +7,7 @@ import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
 import dellemuse.serverapp.command.CommandService;
 import dellemuse.serverapp.command.EvictLanguageCacheMLOCommand;
-import dellemuse.serverapp.command.QRCodeGenerationCommand;
+import dellemuse.serverapp.command.QRCodeArtWorkGenerationCommand;
 import dellemuse.serverapp.command.ResourceMetadataCommand;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;

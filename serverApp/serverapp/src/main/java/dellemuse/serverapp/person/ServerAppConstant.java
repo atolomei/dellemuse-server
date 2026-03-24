@@ -23,6 +23,8 @@ public class ServerAppConstant {
 	static final public String site_floors		= "site-floors";
 	
 	static final public String site_portal_action_edit		= "site_portal_action_edit";
+	static final public String site_qrcode					= "site_qrcode";
+	static final public String exhibition_qrcode			= "exhibition_qrcode";
 	
 	
 	
@@ -70,6 +72,7 @@ public class ServerAppConstant {
 	
 	/** artwork */
 	static final public String artwork_info = "artwork-info";
+	static final public String artwork_qrcode = "artwork_qrcode";
 	static final public String artworkrecord_info = "artworkrecord-info";
  
   	static final public String action_artwork_edit_info = "artwork_action_edit_info";

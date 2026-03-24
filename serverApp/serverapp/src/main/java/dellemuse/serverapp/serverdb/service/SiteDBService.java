@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.Check;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -260,6 +261,27 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	
 	
 	@Transactional
+	public Site addQR(Site site, String bucketName, String objectName, String name, String media, long size, User createdBy) {
+		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE, createdBy, name, true);
+		site.setQrcode(res);
+		getRepository().save(site);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(site, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR));
+		return site;
+	}
+	
+	
+	@Transactional
+	public Site addQRPdf(Site site, String bucketName, String objectName, String name, String media, long size, User createdBy) {
+		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE_PDF, createdBy, name, true);
+		site.setQRCodePdf(res);
+		getRepository().save(site);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(site, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR_PDF));
+		return site;
+	}
+	
+	@Transactional
 	public void markAsDeleted(Site c, User deletedBy) {
 		super.markAsDeleted(c, deletedBy);
 	}
@@ -307,22 +329,34 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 		Site site = o_site.get();
 
+		// Read all lazy proxy IDs while entity is still attached
+		Long institutionId = site.getInstitution() != null ? site.getInstitution().getId() : null;
+		Long photoId = site.getPhoto() != null ? site.getPhoto().getId() : null;
+		Long logoId = site.getLogo() != null ? site.getLogo().getId() : null;
+		Long qrId = site.getQrcode() != null ? site.getQrcode().getId() : null;
+		Long qrPdfId = site.getQRCodePdf() != null ? site.getQRCodePdf().getId() : null;
+		Long userId = site.getLastModifiedUser() != null ? site.getLastModifiedUser().getId() : null;
 
-		site.setInstitution( getInstitutionDBService().findById( site.getInstitution().getId()).get());
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(site);
 
-		Resource photo = site.getPhoto();
-		if (photo!=null)
-			site.setPhoto( getResourceDBService().findById(photo.getId()).get());
+		if (institutionId != null)
+			site.setInstitution(getInstitutionDBService().findById(institutionId).get());
 
-		Resource logo = site.getLogo();
-		if (logo!=null)
-			site.setLogo(getResourceDBService().findById(logo.getId()).get());
+		if (photoId != null)
+			site.setPhoto(getResourceDBService().findById(photoId).get());
 
+		if (logoId != null)
+			site.setLogo(getResourceDBService().findById(logoId).get());
 
-		User user = site.getLastModifiedUser();
-		if (user!=null)
-			site.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		if (qrId != null)
+			site.setQrcode(getResourceDBService().findById(qrId).get());
 
+		if (qrPdfId != null)
+			site.setQRCodePdf(getResourceDBService().findById(qrPdfId).get());
+
+		if (userId != null)
+			site.setLastModifiedUser(getUserDBService().findById(userId).get());
 
 		site.setDependencies(true);
 

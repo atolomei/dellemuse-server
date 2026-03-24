@@ -6,16 +6,12 @@ import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
 import dellemuse.serverapp.candidate.CandidateValidateEmailCommand;
 import dellemuse.serverapp.command.CommandService;
-import dellemuse.serverapp.command.QRCodeGenerationCommand;
-import dellemuse.serverapp.command.ResourceMetadataCommand;
-import dellemuse.serverapp.serverdb.model.ArtWork;
+ 
 import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.model.CandidateStatus;
-import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+ 
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-
 
 
 public class CandidateEventListener {
@@ -45,12 +41,8 @@ public class CandidateEventListener {
     	logger.debug("Scheduling email validation for candidate -> : "+ c.getDisplayname());
     	
     	getCommandService().run(new CandidateValidateEmailCommand(c.getId()));
-
-    	
-    
-    
     }
-    
+
     @PostPersist
     public void postPersist(Object o) {
     	logger.debug("postPersist");    

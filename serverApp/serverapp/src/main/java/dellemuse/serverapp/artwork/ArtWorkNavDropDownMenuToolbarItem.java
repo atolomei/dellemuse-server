@@ -141,6 +141,41 @@ public class ArtWorkNavDropDownMenuToolbarItem extends ObjectBaseNavDropDownMenu
 				});
 			}
 		}
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtWork> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtWork>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtWork> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtWork>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.artwork_qrcode, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("artwork-qrcode");
+					}
+				};
+			}
+		});
+
 		addAudit();
 	}
 

@@ -165,8 +165,8 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 	}
 
 	public Optional<T> findWithDeps(I id) {
-		logger.error("findWithDeps ia null");
-		return null;
+		logger.warn("findWithDeps not implemented for " + getEntityClass().getSimpleName());
+		return Optional.empty();
 	}
 
 	@Transactional

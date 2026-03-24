@@ -98,26 +98,26 @@ public class CandidateDBService extends DBService<Candidate, Long> {
 
 		Candidate aw = o_aw.get();
 
-		User u = aw.getLastModifiedUser();
+		// Read lazy proxy IDs while entity is still attached
+		Long lastModUserId = aw.getLastModifiedUser() != null ? aw.getLastModifiedUser().getId() : null;
+		Long evaluatedById = aw.getEvaluatedBy() != null ? aw.getEvaluatedBy().getId() : null;
+		Long institutionId = aw.getInstitution() != null ? aw.getInstitution().getId() : null;
+		Long userId = aw.getUser() != null ? aw.getUser().getId() : null;
 
-		if (u != null)
-			aw.setLastModifiedUser(getUserDBService().findById(u.getId()).get());
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(aw);
 
-		User v = aw.getEvaluatedBy();
-		if (v != null)
-			aw.setEvaluatedBy(getUserDBService().findById(u.getId()).get());
+		if (lastModUserId != null)
+			aw.setLastModifiedUser(getUserDBService().findById(lastModUserId).get());
 
-		if (aw.getInstitution() != null) {
-			aw.setInstitution(getInstitutionDBService().findById(aw.getInstitution().getId()).get());
-		}
+		if (evaluatedById != null)
+			aw.setEvaluatedBy(getUserDBService().findById(evaluatedById).get());
 
-		if (aw.getUser() != null) {
-			aw.setUser(getUserDBService().findById(aw.getUser().getId()).get());
-		}
+		if (institutionId != null)
+			aw.setInstitution(getInstitutionDBService().findById(institutionId).get());
 
-		if (aw.getLastModifiedUser() != null) {
-			aw.setLastModifiedUser(getUserDBService().findById(aw.getLastModifiedUser().getId()).get());
-		}
+		if (userId != null)
+			aw.setUser(getUserDBService().findById(userId).get());
 
 		aw.setDependencies(true);
 		return o_aw;

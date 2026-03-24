@@ -23,7 +23,8 @@ public class ServerConstant {
 	static public final String menuIconCss = "fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1";
 
 	static public final String QR_CODE = "qrcode";
-
+	static public final String QR_CODE_PDF = "qrcode-pdf";
+	
 	static public final String SEPARATOR = "---------------------------------";
 	static public final String NOT_THROWN = " not thrown";
  	

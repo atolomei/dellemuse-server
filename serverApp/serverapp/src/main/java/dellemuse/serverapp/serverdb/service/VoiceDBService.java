@@ -105,18 +105,19 @@ public class VoiceDBService extends DBService<Voice, Long> {
 
 		Voice aw = o_aw.get();
 
-		User u = aw.getLastModifiedUser();
+		// Read lazy proxy IDs while entity is still attached
+		Long userId = aw.getLastModifiedUser() != null ? aw.getLastModifiedUser().getId() : null;
+		Long audioId = aw.getAudio() != null ? aw.getAudio().getId() : null;
 
-		if (u != null)
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(aw);
 
-			if (u != null)
-				aw.setLastModifiedUser(getUserDBService().findById(u.getId()).get());
+		if (userId != null)
+			aw.setLastModifiedUser(getUserDBService().findById(userId).get());
 
-		Resource audio = aw.getAudio();
+		if (audioId != null)
+			aw.setAudio(getResourceDBService().findById(audioId).get());
 
-		if (audio != null) 
-			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
-			
 		aw.setDependencies(true);
 		return o_aw;
 	}

@@ -343,9 +343,32 @@ public class ArtExhibitionNavDropDownMenuToolbarItem extends ObjectBaseNavDropDo
 			}
 		});
 
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibition> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibition>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.exhibition_qrcode, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("exhibition-qrcode");
+					}
+				};
+			}
+		});
+
 	
 
-		
+		addAudit();
 		addAudit();
 
 		/**

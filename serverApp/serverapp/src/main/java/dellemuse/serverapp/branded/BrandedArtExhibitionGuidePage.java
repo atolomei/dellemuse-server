@@ -20,7 +20,7 @@ import dellemuse.serverapp.branded.panel.BrandedArtExhibitionGuidePanel;
 import dellemuse.serverapp.branded.panel.BrandedGlobalTopPanel;
 import dellemuse.serverapp.branded.panel.BrandedSiteSearcherPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -340,7 +340,12 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			bc.addElement(new HREFBCElement("/" + ServerConstant.AG + "/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
 			bc.addElement(new BCElement(getObjectTitle(getArtExhibitionModel().getObject())));
 
-			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getObjectTitle(getArtExhibitionModel().getObject()));
+			StringBuilder str = new StringBuilder();
+			str.append(getObjectTitle(getModel().getObject()).getObject());
+			str.append(getModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML : "");
+
+			
+			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(),  Model.of(str.toString()));
 			ph.setBreadCrumb(bc);
 
 			ph.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));

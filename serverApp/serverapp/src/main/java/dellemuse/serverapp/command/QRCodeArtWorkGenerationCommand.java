@@ -30,14 +30,14 @@ import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
-public class QRCodeGenerationCommand extends Command {
+public class QRCodeArtWorkGenerationCommand extends Command {
 
-	static private Logger logger = Logger.getLogger(QRCodeGenerationCommand.class.getName());
+	static private Logger logger = Logger.getLogger(QRCodeArtWorkGenerationCommand.class.getName());
 
 	@JsonProperty("artworkId")
 	private Long artworkId;
 
-	public QRCodeGenerationCommand(Long aId) {
+	public QRCodeArtWorkGenerationCommand(Long aId) {
 		this.artworkId = aId;
 	}
 

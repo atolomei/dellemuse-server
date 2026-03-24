@@ -1,31 +1,20 @@
 package dellemuse.serverapp.branded;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.media.audio.Audio;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.Url;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.UrlResourceReference;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.model.ref.RefResourceModel;
 import dellemuse.serverapp.branded.panel.BrandedGlobalTopPanel;
 import dellemuse.serverapp.branded.panel.BrandedGuideContentPanel;
 import dellemuse.serverapp.branded.panel.BrandedSiteSearcherPanel;
@@ -34,7 +23,6 @@ import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.site.SitePage;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
@@ -46,7 +34,6 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import io.wktui.event.UIEvent;
 import io.wktui.nav.breadcrumb.BCElement;
@@ -55,9 +42,7 @@ import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.toolbar.ToolbarItem;
 import jakarta.servlet.http.Cookie;
-import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
-import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
 @MountPath("/ag/guidecontent/${id}")
@@ -72,7 +57,6 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	private IModel<ArtExhibitionItem> artExhibitionItemModel;
 	private IModel<Site> siteModel;
 	private IModel<ArtWork> artWorkModel;
-
 	private List<IModel<GuideContent>> guideContentSearchList;
 	private List<IModel<ArtExhibitionGuide>> artExhibitionSearchList;
 	
@@ -81,47 +65,6 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	
 	private boolean modelAlreadySet = false;
 	
-	protected void setCookieLocale() {
-		
-		if (lang != null) {
-		  logger.debug("setting language from parameter -> " + lang);
-		  locale =Locale.forLanguageTag(lang);
-		  getSession().setLocale(Locale.forLanguageTag(lang));
-		  return;
-		}
-		
-		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
-		Cookie cookie = request.getCookie("lang");
-
-		if (cookie != null) {
-			String value = cookie.getValue();
-		    logger.debug("setting language from cookie -> " + value);
-			locale = Locale.forLanguageTag(value);
-			lang=value;
-		    getSession().setLocale(Locale.forLanguageTag(value));
-		}
-		
-		
-	}
-	
-	
-	public List<IModel<GuideContent>> getGuideContentSearchList() {
-		return guideContentSearchList;
-	}
-
-	public List<IModel<ArtExhibitionGuide>> getArtExhibitionSearchList() {
-		return artExhibitionSearchList;
-	}
-
-	public void setGuideContentSearchList(List<IModel<GuideContent>> guideContentSearchList) {
-		this.guideContentSearchList = guideContentSearchList;
-	}
-
-	public void setArtExhibitionSearchList(List<IModel<ArtExhibitionGuide>> artExhibitionSearchList) {
-		this.artExhibitionSearchList = artExhibitionSearchList;
-	}
-
-
 	public BrandedGuideContentPage() {
 		super();
 	}
@@ -179,37 +122,21 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		}
 		return locale;
 	}
-
-	
-	
-	protected List<Language> getSupportedLanguages() {
-		return  getSiteModel().getObject().getLanguages();
+ 	
+	public List<IModel<GuideContent>> getGuideContentSearchList() {
+		return guideContentSearchList;
 	}
 
-	
-	@Override
-	protected boolean isDarkTheme() {
-		return true;
-	}
-	
-	@Override
-	protected Optional<GuideContentRecord> loadTranslationRecord(String lang) {
-		return getGuideContentRecordDBService().findByGuideContent(getModel().getObject(), lang);
+	public List<IModel<ArtExhibitionGuide>> getArtExhibitionSearchList() {
+		return artExhibitionSearchList;
 	}
 
-	@Override
-	protected GuideContentRecord createTranslationRecord(String lang) {
-		return getGuideContentRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	public void setGuideContentSearchList(List<IModel<GuideContent>> guideContentSearchList) {
+		this.guideContentSearchList = guideContentSearchList;
 	}
 
-	@Override
-	protected Panel createGlobalTopPanel(String id) {
-		return new BrandedGlobalTopPanel("top-panel", getSiteModel());
-	}
-
-	@Override
-	protected Panel createSearchPanel() {
-		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList());
+	public void setArtExhibitionSearchList(List<IModel<ArtExhibitionGuide>> artExhibitionSearchList) {
+		this.artExhibitionSearchList = artExhibitionSearchList;
 	}
 
 	@Override
@@ -231,9 +158,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return true;
 	}
 
-	
-
-	public IModel<Site> getSiteModel() {
+ 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
 
@@ -292,6 +217,58 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	public void setArtWorkModel(IModel<ArtWork> artWorkModel) {
 		this.artWorkModel = artWorkModel;
 	}
+	
+	protected void setCookieLocale() {
+		
+		if (lang != null) {
+		  logger.debug("setting language from parameter -> " + lang);
+		  locale =Locale.forLanguageTag(lang);
+		  getSession().setLocale(Locale.forLanguageTag(lang));
+		  return;
+		}
+		
+		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+		Cookie cookie = request.getCookie("lang");
+
+		if (cookie != null) {
+			String value = cookie.getValue();
+		    logger.debug("setting language from cookie -> " + value);
+			locale = Locale.forLanguageTag(value);
+			lang=value;
+		    getSession().setLocale(Locale.forLanguageTag(value));
+		}
+ 	}
+
+	protected List<Language> getSupportedLanguages() {
+		return  getSiteModel().getObject().getLanguages();
+	}
+ 
+	@Override
+	protected boolean isDarkTheme() {
+		return true;
+	}
+	
+	@Override
+	protected Optional<GuideContentRecord> loadTranslationRecord(String lang) {
+		return getGuideContentRecordDBService().findByGuideContent(getModel().getObject(), lang);
+	}
+
+	@Override
+	protected GuideContentRecord createTranslationRecord(String lang) {
+		return getGuideContentRecordDBService().create(getModel().getObject(), lang, getSessionUser().get());
+	}
+
+	@Override
+	protected Panel createGlobalTopPanel(String id) {
+		return new BrandedGlobalTopPanel("top-panel", getSiteModel());
+	}
+
+	@Override
+	protected Panel createSearchPanel() {
+		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList());
+	}
+
+
 
 	@Override
 	protected boolean isLanguage() {
@@ -302,15 +279,11 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	protected boolean isAudioAutoGenerate() {
 		return true;
 	}
-
-	 
 	
 	protected IModel<String> getMainClass() {
 		return Model.of("branded text-bg-dark");
 	}
 
-	
-	
 	@Override
 	protected void setUpModel() {
 		

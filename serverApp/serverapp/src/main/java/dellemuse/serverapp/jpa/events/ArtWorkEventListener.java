@@ -5,13 +5,12 @@ import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
 import dellemuse.serverapp.command.CommandService;
-import dellemuse.serverapp.command.QRCodeGenerationCommand;
+import dellemuse.serverapp.command.QRCodeArtWorkGenerationCommand;
  
 import dellemuse.serverapp.serverdb.model.ArtWork;
  
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-
 
 
 public class ArtWorkEventListener {
@@ -24,11 +23,9 @@ public class ArtWorkEventListener {
 
     @PostUpdate
     public void postUpdate(Object o) {
-    	
     	logger.debug("postUpdate");    
-
     	ArtWork a = (ArtWork) o;
-    	getCommandService().run(new QRCodeGenerationCommand(a.getId()));
+    	getCommandService().run(new QRCodeArtWorkGenerationCommand(a.getId()));
     }
     
     @PostPersist

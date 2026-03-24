@@ -35,7 +35,7 @@ import dellemuse.serverapp.page.error.BrandedErrorPage;
  
 import dellemuse.serverapp.page.model.ObjectModel;
 
-import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.AccesibilityMode;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -50,7 +50,6 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
  
 import io.odilon.util.Check;
-import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -92,7 +91,11 @@ public class BrandedSitePage extends BasePage {
 	private List<IModel<ArtExhibitionGuide>> ag_list;
 	private Locale locale = null;
 
-	boolean modelAlreadySet = false;
+	private boolean modelAlreadySet = false;
+	private boolean isError = false;
+	
+	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
+	 
 	
 	public BrandedSitePage() {
 		super();
@@ -104,9 +107,14 @@ public class BrandedSitePage extends BasePage {
 		stringValue = getPageParameters().get("id");
 		setCookieLocale();
 		if (stringValue != null) {
-			Optional<Site> o_site = findByIdWithDeps(Long.valueOf(stringValue.toLong()));
-			if (o_site.isPresent()) {
-				setSiteModel(new ObjectModel<Site>(o_site.get()));
+			try {
+				Optional<Site> o_site = findByIdWithDeps(Long.valueOf(stringValue.toLong()));
+				if (o_site.isPresent()) {
+					setSiteModel(new ObjectModel<Site>(o_site.get()));
+				}
+			} catch (Exception e) {
+				logger.error(e);
+				isError=true;
 			}
 		}
 	}
@@ -130,8 +138,6 @@ public class BrandedSitePage extends BasePage {
 		this.ag_list=ag_list;
 		this.gc_list=gc_list;
 	}
-
-
 	
 	
 	protected void setCookieLocale() {
@@ -154,10 +160,23 @@ public class BrandedSitePage extends BasePage {
 		    getSession().setLocale(Locale.forLanguageTag(value));
 		}
 		
-		
+	
+		Cookie accCookie = request.getCookie("accessible");
+	
+		if (accCookie != null) {
+			String value = accCookie.getValue();
+			boolean isAccesible = value.equals("true");
+			if (isAccesible) {
+				logger.debug("setting accesibility mode to accessible from cookie");
+				this.accesibilityMode = AccesibilityMode.ACCESIBLE;
+			} else {
+				logger.debug("setting accesibility mode to general from cookie");
+				this.accesibilityMode = AccesibilityMode.GENERAL;
+			}
+		}
 	}
 	
-	
+ 	
 	public Locale getLocale() {
 	
 		if (locale!=null)
@@ -196,11 +215,30 @@ public class BrandedSitePage extends BasePage {
 	}
  
 	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		
+		if (getSiteModel().getObject().getState() == ObjectState.EDITION)
+			return false;
+		
+		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
+			return false;
+		
+		if ( !getSiteModel().getObject().isPublicPortalEnabled() )
+			return false;
+		
+		return true;
+	}
+	
+	@Override
 	public void onInitialize() {
 		super.onInitialize();
 	
 		getPage().add( new org.apache.wicket.AttributeModifier("class", "branded branded  text-bg-dark"));
+	
 		try {
+
+			if (isError)
+				throw new RuntimeException("Error loading site");
 			
 			setUpModel();
 			
@@ -209,7 +247,6 @@ public class BrandedSitePage extends BasePage {
 			addErrorPanels(e);
 			return;
 		}
-		
 	 	
 		addHeader();
 		addSearch();
@@ -245,22 +282,7 @@ public class BrandedSitePage extends BasePage {
 		return true;
 	}
 	
-	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
-		
-		if (getSiteModel().getObject().getState() == ObjectState.EDITION)
-			return false;
-		
-		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
-			return false;
-		
-		if ( !getSiteModel().getObject().isPublicPortalEnabled() )
-			return false;
-		
-		return true;
-	}
-	
-	protected IModel<String> getMainClass() {
+ 	protected IModel<String> getMainClass() {
 		return Model.of("branded text-bg-dark");
 	}
 
@@ -274,9 +296,7 @@ public class BrandedSitePage extends BasePage {
 		if (o.getState() == ObjectState.EDITION)
 			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
-		
-		
-		return Model.of(str.toString());
+	 	return Model.of(str.toString());
 	}
 
 	protected IModel<String> getObjectTitle(ArtExhibition o) {
@@ -291,8 +311,6 @@ public class BrandedSitePage extends BasePage {
 		return Model.of(str.toString());
 	}
 
-	
-	
 	protected IModel<String> getObjectSubtitle(ArtExhibition o) {
 		return Model.of(TextCleaner.clean(getLanguageObjectService().getObjectSubtitle(o, getLocale()), ServerConstant.INFO_MAX));
 	}
@@ -305,9 +323,15 @@ public class BrandedSitePage extends BasePage {
 		return Model.of(TextCleaner.clean(getLanguageObjectService().getIntro(o, getLocale()), ServerConstant.INTRO_MAX));
 	}
 
-
-	
 	protected Optional<ArtExhibitionGuide> getArtExhibitionGuide(IModel<ArtExhibition> model) {
+
+		if (this.getAccesibilityMode()==AccesibilityMode.ACCESIBLE) {
+			for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
+				if (g.isAccessible())
+					return Optional.of(g);
+			}
+		}
+		
 		for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
 			if (g.isOfficial())
 				return Optional.of(g);
@@ -315,6 +339,7 @@ public class BrandedSitePage extends BasePage {
 		return Optional.empty();
 	}
 
+	
 	protected void addSearch() {
 		this.searcher = new BrandedSiteSearcherPanel("search", getSiteModel(), gc_list, ag_list);
 		addOrReplace(this.searcher);
@@ -327,7 +352,26 @@ public class BrandedSitePage extends BasePage {
 
 	protected void addListeners() {
 		super.addListeners();
-		
+	 	
+		add(new io.wktui.event.WicketEventListener<AccesibilityAjaxEvent>() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof AccesibilityAjaxEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(AccesibilityAjaxEvent event) {
+				logger.debug("setting accesibility mode to " + event.getMode());
+				setAccesibilityMode( event.getMode() );
+				event.getTarget().add(BrandedSitePage.this);
+			}
+		});
+	
 
 		add(new io.wktui.event.WicketEventListener<LangEvent>() {
 			
@@ -342,8 +386,7 @@ public class BrandedSitePage extends BasePage {
 
 			@Override
 			public void onEvent(LangEvent event) {
-			
-				setResponsePage(new BrandedSitePage(BrandedSitePage.this.getSiteModel(), gc_list, ag_list, event.getLang()));
+ 				setResponsePage(new BrandedSitePage(BrandedSitePage.this.getSiteModel(), gc_list, ag_list, event.getLang()));
 			}
 		});
 
@@ -480,8 +523,6 @@ public class BrandedSitePage extends BasePage {
 							return null;
 							//return BrandedSitePage.this.getObjectMenu(getModel());
 						}
-					
-
 					};
 					return panel;
 				}
@@ -509,9 +550,7 @@ public class BrandedSitePage extends BasePage {
 					});
 					return list;
 				}
-
-
-				
+ 			
 				@Override
 				protected boolean isToolbar() {
 					return false;
@@ -521,9 +560,8 @@ public class BrandedSitePage extends BasePage {
 				public IModel<String> getItemLabel(IModel<ArtExhibition> model) {
 					return getObjectTitle(model.getObject());
 				}
-		 		
-		 		
-				@Override
+	 
+		 		@Override
 				protected Panel getListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
 					return new ObjectListItemExpandedPanel<ArtExhibition>("expanded-panel", model, mode) {
 						private static final long serialVersionUID = 1L;
@@ -597,10 +635,8 @@ public class BrandedSitePage extends BasePage {
 						@Override
 						protected WebMarkupContainer getObjectMenu() {
 							return null;
-
 							//return BrandedSitePage.this.getObjectMenu(getModel());
 						}
-
 					};
 					return panel;
 				}
@@ -628,12 +664,10 @@ public class BrandedSitePage extends BasePage {
 					return list;
 				}
 				
-				
 				@Override
 				protected boolean isToolbar() {
 					return false;
 				}
-				
 
 				@Override
 				public IModel<String> getItemLabel(IModel<ArtExhibition> model) {
@@ -699,8 +733,6 @@ public class BrandedSitePage extends BasePage {
 						@Override
 						public void onClick() {
 							BrandedSitePage.this.goTo( getModel());
-							
-								
 						}
 
 						@Override
@@ -710,7 +742,6 @@ public class BrandedSitePage extends BasePage {
 
 						protected IModel<String> getInfo() {
 							return BrandedSitePage.this.getObjectInfo(getModel().getObject());
-
 						}
 
 						@Override
@@ -745,13 +776,11 @@ public class BrandedSitePage extends BasePage {
 					return list;
 				}
 				
-				
 				@Override
 				protected boolean isToolbar() {
 					return false;
 				}
-				
-
+	
 				@Override
 				public IModel<String> getItemLabel(IModel<ArtExhibition> model) {
 					return getObjectTitle(model.getObject());
@@ -769,7 +798,6 @@ public class BrandedSitePage extends BasePage {
 							if (getMode() == ListPanelMode.TITLE)
 								return null;
 							return BrandedSitePage.this.getObjectSubtitle(getModel().getObject());
-
 						}
 
 						@Override
@@ -784,12 +812,10 @@ public class BrandedSitePage extends BasePage {
 						@Override
 						public void onClick() {
 							BrandedSitePage.this.goTo( getModel());
-							
 						}
 
 						protected IModel<String> getInfo() {
 							return BrandedSitePage.this.getObjectInfo(getModel().getObject());
-
 						}
 
 					};
@@ -826,16 +852,13 @@ public class BrandedSitePage extends BasePage {
 
 						protected IModel<String> getInfo() {
 							return BrandedSitePage.this.getObjectInfo(getModel().getObject());
-
 						}
 
 						@Override
 						protected WebMarkupContainer getObjectMenu() {
 							return null;
-
 							//return BrandedSitePage.this.getObjectMenu(getModel());
 						}
-
 					};
 					return panel;
 				}
@@ -959,11 +982,8 @@ public class BrandedSitePage extends BasePage {
 						};
 					}
 				});
-
 			}
-
 		}
-
 		return menu;
 	}
 
@@ -1012,6 +1032,14 @@ public class BrandedSitePage extends BasePage {
 
 	}
 
+	public AccesibilityMode getAccesibilityMode() {
+		return accesibilityMode;
+	}
+
+	public void setAccesibilityMode(AccesibilityMode accesibilityMode) {
+		this.accesibilityMode = accesibilityMode;
+	}
+
 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
@@ -1058,33 +1086,6 @@ public class BrandedSitePage extends BasePage {
 
 	}
 
-	private List<IModel<ArtExhibition>> getArtExhibitionsPermanent() {
-		if (!listsLoaded) {
-			loadLists();
-		}
-		return listPermanent;
-	}
-
-	private List<IModel<ArtExhibition>> getArtExhibitionsTemporary() {
-		if (!listsLoaded) {
-			loadLists();
-		}
-		return listTemporary;
-	}
-
-	private List<IModel<ArtExhibition>> getArtExhibitionsTemporaryPast() {
-		if (!listsLoaded) {
-			loadLists();
-		}
-		return listTemporaryPast;
-	}
-
-	private List<IModel<ArtExhibition>> getArtExhibitionsTemporaryComing() {
-		if (!listsLoaded) {
-			loadLists();
-		}
-		return listTemporaryComing;
-	}
 
 	
 	protected void setUpSiteModel() {
@@ -1131,10 +1132,7 @@ public class BrandedSitePage extends BasePage {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
-
-		
-	
-		
+ 	
 		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getLabel("exhibitions"));
 		ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0  border-none bg-dark");
 		ph.setHeaderCss("mb-2 mt-0 pt-0 pb-2 border-none");
@@ -1153,6 +1151,34 @@ public class BrandedSitePage extends BasePage {
 		// ph.setIcon(Site.getIcon());
 		// }
 		add(ph);
+	}
+
+	private List<IModel<ArtExhibition>> getArtExhibitionsPermanent() {
+		if (!listsLoaded) {
+			loadLists();
+		}
+		return listPermanent;
+	}
+
+	private List<IModel<ArtExhibition>> getArtExhibitionsTemporary() {
+		if (!listsLoaded) {
+			loadLists();
+		}
+		return listTemporary;
+	}
+
+	private List<IModel<ArtExhibition>> getArtExhibitionsTemporaryPast() {
+		if (!listsLoaded) {
+			loadLists();
+		}
+		return listTemporaryPast;
+	}
+
+	private List<IModel<ArtExhibition>> getArtExhibitionsTemporaryComing() {
+		if (!listsLoaded) {
+			loadLists();
+		}
+		return listTemporaryComing;
 	}
 
 }

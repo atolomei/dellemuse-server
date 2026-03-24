@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.serverapp.icons.Icons;
+import dellemuse.serverapp.jpa.events.ArtWorkEventListener;
+import dellemuse.serverapp.jpa.events.SiteEventListener;
 import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
@@ -28,6 +30,7 @@ import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -50,6 +53,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "Site")
 @JsonInclude(Include.NON_NULL)
+@EntityListeners(SiteEventListener.class)
 public class Site extends MultiLanguageObject {
 	
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = SiteType.class)
@@ -59,12 +63,6 @@ public class Site extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private SiteType siteType;
 
-	@JsonProperty("siteTypeId")
-	public Optional<Long> getSiteTypeId() {
-		if (siteType != null)
-			return Optional.of(siteType.getId());
-		return Optional.empty();
-	}
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
 	@JoinColumn(name = "institution_id", nullable = false)
@@ -143,6 +141,21 @@ public class Site extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseListIdNameSerializer.class)
 	private List<Floor> floors;
 
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "qrcode", nullable = true)
+	@JsonManagedReference
+	@JsonProperty("qrcode")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource qrcode;
+	
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "qrcodepdf", nullable = true)
+	@JsonManagedReference
+	@JsonProperty("qrcodepdf")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource QRCodePdf;
+	
+	
 	@JdbcTypeCode(SqlTypes.JSON)
 	@Column(name = "languages", columnDefinition = "json")
 	private Map<String, String> languages;
@@ -154,12 +167,26 @@ public class Site extends MultiLanguageObject {
 	public boolean isSiteSecured() {
 		return true;
 	}
-
-	
 	
 	public Site() {
 	}
 
+	public Resource getQrcode() {
+		return qrcode;
+	}
+
+	public void setQrcode(Resource qrcode) {
+		this.qrcode = qrcode;
+	}
+
+
+	@JsonProperty("siteTypeId")
+	public Optional<Long> getSiteTypeId() {
+		if (siteType != null)
+			return Optional.of(siteType.getId());
+		return Optional.empty();
+	}
+	
 	@Override
 	public String getObjectClassName() {
 		return Site.class.getSimpleName();
@@ -230,6 +257,14 @@ public class Site extends MultiLanguageObject {
 
 	public String getWebsite() {
 		return website;
+	}
+
+	public Resource getQRCodePdf() {
+		return QRCodePdf;
+	}
+
+	public void setQRCodePdf(Resource qRCodePdf) {
+		QRCodePdf = qRCodePdf;
 	}
 
 	public void setWebsite(String website) {

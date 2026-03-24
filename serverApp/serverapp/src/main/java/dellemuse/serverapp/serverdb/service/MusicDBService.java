@@ -109,16 +109,19 @@ public class MusicDBService extends DBService<Music, Long> {
 
 		Music aw = o_aw.get();
 
-		User u = aw.getLastModifiedUser();
+		// Read lazy proxy IDs while entity is still attached
+		Long userId = aw.getLastModifiedUser() != null ? aw.getLastModifiedUser().getId() : null;
+		Long audioId = aw.getAudio() != null ? aw.getAudio().getId() : null;
 
-		if (u != null)
-			aw.setLastModifiedUser(getUserDBService().findById(u.getId()).get());
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(aw);
 
-		Resource audio = aw.getAudio();
+		if (userId != null)
+			aw.setLastModifiedUser(getUserDBService().findById(userId).get());
 
-		if (audio != null) 
-			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
-			
+		if (audioId != null)
+			aw.setAudio(getResourceDBService().findById(audioId).get());
+
 		aw.setDependencies(true);
 		return o_aw;
 	}

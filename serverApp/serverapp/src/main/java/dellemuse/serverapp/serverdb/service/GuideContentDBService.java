@@ -426,29 +426,30 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 
 		GuideContent a = o.get();
 
-		if (a.getArtExhibitionGuide() != null) {
-			ArtExhibitionGuide g = a.getArtExhibitionGuide();
-			a.setArtExhibitionGuide(getArtExhibitionGuideDBService().findById(g.getId()).get());
-		}
+		// Read all lazy proxy IDs while entity is still attached
+		Long guideId = a.getArtExhibitionGuide() != null ? a.getArtExhibitionGuide().getId() : null;
+		Long itemId = a.getArtExhibitionItem() != null ? a.getArtExhibitionItem().getId() : null;
+		Long photoId = a.getPhoto() != null ? a.getPhoto().getId() : null;
+		Long audioId = a.getAudio() != null ? a.getAudio().getId() : null;
+		Long userId = a.getLastModifiedUser() != null ? a.getLastModifiedUser().getId() : null;
 
-		if (a.getArtExhibitionItem() != null) {
-			ArtExhibitionItem item = a.getArtExhibitionItem();
-			a.setArtExhibitionItem(getArtExhibitionItemDBService().findById(item.getId()).get());
-		}
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(a);
 
-		if (a.getPhoto() != null) {
-			Resource r = getResourceDBService().findById(a.getPhoto().getId()).get();
-			a.setPhoto(r);
-		}
+		if (guideId != null)
+			a.setArtExhibitionGuide(getArtExhibitionGuideDBService().findById(guideId).get());
 
-		if (a.getAudio() != null) {
-			Resource r = getResourceDBService().findById(a.getAudio().getId()).get();
-			a.setAudio(r);
-		}
+		if (itemId != null)
+			a.setArtExhibitionItem(getArtExhibitionItemDBService().findById(itemId).get());
 
-		User user = a.getLastModifiedUser();
-		if (user != null)
-			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		if (photoId != null)
+			a.setPhoto(getResourceDBService().findById(photoId).get());
+
+		if (audioId != null)
+			a.setAudio(getResourceDBService().findById(audioId).get());
+
+		if (userId != null)
+			a.setLastModifiedUser(getUserDBService().findById(userId).get());
 
 		a.setDependencies(true);
 

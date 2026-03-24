@@ -93,14 +93,17 @@ public class ArtExhibitionSectionDBService extends MultiLanguageObjectDBservice<
 
 		ArtExhibitionSection a = o.get();
 
-		Resource photo = a.getPhoto();
+		// Read lazy proxy IDs while entity is still attached
+		if (a.getPhoto() != null)
+			a.getPhoto().getBucketName();
 
-		if (photo != null)
-			photo.getBucketName();
+		Long userId = a.getLastModifiedUser() != null ? a.getLastModifiedUser().getId() : null;
 
-		User user = a.getLastModifiedUser();
-		if (user != null)
-			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(a);
+
+		if (userId != null)
+			a.setLastModifiedUser(getUserDBService().findById(userId).get());
 
 		a.setDependencies(true);
 

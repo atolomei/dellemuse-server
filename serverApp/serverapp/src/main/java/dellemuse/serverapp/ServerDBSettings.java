@@ -55,7 +55,7 @@ public class ServerDBSettings {
 	@Value("${trafficTokens:10}")
 	protected int maxTrafficTokens;
 
-	@Value("${server.qr:https://dellemuse.kbee.io/qrcode/artwork/}")
+	@Value("${server.qr:https://dellemuse.kbee.io}")
 	protected String qrurl;
 
 	/** -------------------------------------- **/
@@ -531,6 +531,13 @@ public class ServerDBSettings {
 
 	public String getElevenLabsAPIHost() {
 		return elevenLabsAPIHost;
+	}
+
+	String fontsDir = "fonts";
+	
+	public String getFontsDir() {
+		 return this.fontsDir + File.separator + "Noto_Sans" + File.separator + "static";
+
 	}
 
 	

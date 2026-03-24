@@ -196,19 +196,23 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
 			return  o_aw;
 		
 		Person aw = o_aw.get();
-	
-		Resource photo = aw.getPhoto();
-		if (photo!=null)
-			aw.setPhoto( getResourceDBService().findById(photo.getId()).get());
-		
-		User user = aw.getUser();
-		
-		if (user!=null)
-			aw.setUser(getUserDBService().findById(user.getId()).get());
-		
-		User luser = aw.getLastModifiedUser();
-		if (luser!=null)
-			aw.setLastModifiedUser(getUserDBService().findById(luser.getId()).get());
+
+		// Read lazy proxy IDs while entity is still attached
+		Long photoId = aw.getPhoto() != null ? aw.getPhoto().getId() : null;
+		Long userId = aw.getUser() != null ? aw.getUser().getId() : null;
+		Long lastModUserId = aw.getLastModifiedUser() != null ? aw.getLastModifiedUser().getId() : null;
+
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(aw);
+
+		if (photoId != null)
+			aw.setPhoto(getResourceDBService().findById(photoId).get());
+
+		if (userId != null)
+			aw.setUser(getUserDBService().findById(userId).get());
+
+		if (lastModUserId != null)
+			aw.setLastModifiedUser(getUserDBService().findById(lastModUserId).get());
 
 		aw.setDependencies(true);
 

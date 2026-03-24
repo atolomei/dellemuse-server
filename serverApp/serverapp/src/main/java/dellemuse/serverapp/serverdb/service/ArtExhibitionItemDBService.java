@@ -158,15 +158,9 @@ public class ArtExhibitionItemDBService extends MultiLanguageObjectDBservice<Art
 
 		ArtExhibitionItem a = o.get();
 
-		a.setDependencies(true);
-
-		if (a.getArtExhibition() != null) {
-			a.setArtExhibition(getArtExhibitionDBService().findById(a.getArtExhibition().getId()).get());
-		}
-
-		if (a.getArtWork() != null) {
-			a.setArtWork(getArtWorkDBService().findById(a.getArtWork().getId()).get());
-		}
+		// Read lazy proxy IDs while entity is still attached
+		Long exhibitionId = a.getArtExhibition() != null ? a.getArtExhibition().getId() : null;
+		Long artWorkId = a.getArtWork() != null ? a.getArtWork().getId() : null;
 
 		if (a.getFloor() != null)
 			a.getFloor().getDisplayname();
@@ -174,13 +168,25 @@ public class ArtExhibitionItemDBService extends MultiLanguageObjectDBservice<Art
 		if (a.getRoom() != null)
 			a.getRoom().getDisplayname();
 
-		Resource photo = a.getPhoto();
-		if (photo != null)
-			a.setPhoto(getResourceDBService().findById(photo.getId()).get());
+		Long photoId = a.getPhoto() != null ? a.getPhoto().getId() : null;
+		Long userId = a.getLastModifiedUser() != null ? a.getLastModifiedUser().getId() : null;
 
-		User user = a.getLastModifiedUser();
-		if (user != null)
-			a.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(a);
+
+		if (exhibitionId != null)
+			a.setArtExhibition(getArtExhibitionDBService().findById(exhibitionId).get());
+
+		if (artWorkId != null)
+			a.setArtWork(getArtWorkDBService().findById(artWorkId).get());
+
+		if (photoId != null)
+			a.setPhoto(getResourceDBService().findById(photoId).get());
+
+		if (userId != null)
+			a.setLastModifiedUser(getUserDBService().findById(userId).get());
+
+		a.setDependencies(true);
 
 		return o;
 	}

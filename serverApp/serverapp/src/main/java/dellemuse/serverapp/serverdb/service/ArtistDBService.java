@@ -139,25 +139,38 @@ public class ArtistDBService extends MultiLanguageObjectDBservice<Artist, Long> 
 
 		Artist aw = o_aw.get();
 
-		Set<ArtWork> set = new HashSet<ArtWork>();
+		// Read lazy proxy IDs while entity is still attached
+		Set<Long> artworkIds = new HashSet<Long>();
+		if (aw.getArtworks() != null)
+			aw.getArtworks().forEach(x -> artworkIds.add(x.getId()));
 
-		aw.getArtworks().forEach(x -> set.add(getArtWorkDBService().findById(x.getId()).get()));
+		Long personId = aw.getPerson() != null ? aw.getPerson().getId() : null;
+		Long userId = aw.getLastModifiedUser() != null ? aw.getLastModifiedUser().getId() : null;
+		Long siteId = aw.getSite() != null ? aw.getSite().getId() : null;
+
+		Set<Long> artistSiteIds = new HashSet<Long>();
+		if (aw.getArtistSites() != null)
+			aw.getArtistSites().forEach(b -> artistSiteIds.add(b.getId()));
+
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(aw);
+
+		Set<ArtWork> set = new HashSet<ArtWork>();
+		artworkIds.forEach(aid -> set.add(getArtWorkDBService().findById(aid).get()));
 		aw.setArtworks(set);
 
-		if (aw.getPerson() != null)
-			aw.setPerson(getPersonDBService().findById(aw.getPerson().getId()).get());
+		if (personId != null)
+			aw.setPerson(getPersonDBService().findById(personId).get());
 
-		User user = aw.getLastModifiedUser();
-		if (user != null)
-			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		if (userId != null)
+			aw.setLastModifiedUser(getUserDBService().findById(userId).get());
 
-		if (aw.getSite() != null) {
-			aw.setSite(getSiteDBService().findById(aw.getSite().getId()).get());
-		}
+		if (siteId != null)
+			aw.setSite(getSiteDBService().findById(siteId).get());
 
-		if (aw.getArtistSites() != null) {
+		if (!artistSiteIds.isEmpty()) {
 			Set<Site> s = new HashSet<Site>();
-			aw.getArtistSites().forEach(b -> s.add(getSiteDBService().findById(b.getId()).get()));
+			artistSiteIds.forEach(sid -> s.add(getSiteDBService().findById(sid).get()));
 			aw.setArtistSites(s);
 		}
 

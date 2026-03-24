@@ -4,18 +4,10 @@ import dellemuse.model.logging.Logger;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
 import dellemuse.serverapp.command.CommandService;
 import dellemuse.serverapp.command.EvictLanguageCacheMLOCommand;
-import dellemuse.serverapp.command.QRCodeGenerationCommand;
-import dellemuse.serverapp.command.ResourceMetadataCommand;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
-import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-
-
 
 public class MultiLanguageObjectEventListener {
 
@@ -37,7 +29,6 @@ public class MultiLanguageObjectEventListener {
 	    	MultiLanguageObject a = (MultiLanguageObject) o;
 	    	logger.debug("postPersist -> " + a.getDisplayname());    
 		    getCommandService().run(new EvictLanguageCacheMLOCommand (a.getObjectClassName() , a.getId()));
-
 	    }
     }
     

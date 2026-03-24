@@ -75,6 +75,15 @@ public class ArtWork extends MultiLanguageObject {
 	private ObjectType objectType;
 	
 	
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "qrcodepdf", nullable = true)
+	@JsonManagedReference
+	@JsonProperty("qrcodepdf")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource QRCodePdf;
+	
+	
+	
 	@Column(name = "audio_id")
 	private Long audioId;
 	
@@ -152,6 +161,16 @@ public class ArtWork extends MultiLanguageObject {
 		artists.add(a);
 		a.getArtworks().add(this);
 	}
+
+	public Resource getQRCodePdf() {
+		return QRCodePdf;
+	}
+
+
+	public void setQRCodePdf(Resource qRCodePdf) {
+		QRCodePdf = qRCodePdf;
+	}
+
 
 	public void removeArtist(Artist a) {
 		artists.remove(a);

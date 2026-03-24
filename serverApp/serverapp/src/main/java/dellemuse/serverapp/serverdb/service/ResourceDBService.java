@@ -108,12 +108,14 @@ public class ResourceDBService extends DBService<Resource, Long> implements Appl
    		
    		Resource i = o_i.get();
    		
-   		User user = i.getLastModifiedUser();
+   		// Read lazy proxy ID while entity is still attached
+   		Long userId = i.getLastModifiedUser() != null ? i.getLastModifiedUser().getId() : null;
    		
-   		if (user!=null) {
-   			user = getUserDBService().findWithDeps(user.getId()).get();
-   			i.setLastModifiedUser(user);
-   		}
+   		// Detach to prevent dirty-checking from triggering @PostUpdate
+   		getEntityManager().detach(i);
+   		
+   		if (userId != null)
+   			i.setLastModifiedUser(getUserDBService().findWithDeps(userId).get());
    		
    		i.setDependencies(true);
    		return o_i;

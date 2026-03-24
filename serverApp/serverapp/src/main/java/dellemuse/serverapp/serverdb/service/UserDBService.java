@@ -273,27 +273,45 @@ public class UserDBService extends DBService<User, Long> {
 
 		User user = o_u.get();
 
+		// Read lazy proxy IDs while entity is still attached
+		Set<Long> roleGeneralIds = new HashSet<Long>();
+		if (user.getRolesGeneral() != null)
+			user.getRolesGeneral().forEach(r -> roleGeneralIds.add(r.getId()));
+
+		Set<Long> roleInstitutionIds = new HashSet<Long>();
+		if (user.getRolesInstitution() != null)
+			user.getRolesInstitution().forEach(r -> roleInstitutionIds.add(r.getId()));
+
+		Set<Long> roleSiteIds = new HashSet<Long>();
+		if (user.getRolesSite() != null)
+			user.getRolesSite().forEach(r -> roleSiteIds.add(r.getId()));
+
+		Long lastModUserId = user.getLastModifiedUser() != null ? user.getLastModifiedUser().getId() : null;
+
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(user);
+
 		{
 			Set<RoleGeneral> set = new HashSet<RoleGeneral>();
-			user.getRolesGeneral().forEach(r -> set.add(getRoleGeneralDBService().findById(r.getId()).get()));
+			roleGeneralIds.forEach(rid -> set.add(getRoleGeneralDBService().findById(rid).get()));
 			user.setRolesGeneral(set);
 		}
 
 		{
 			Set<RoleInstitution> set = new HashSet<RoleInstitution>();
-			user.getRolesInstitution().forEach(r -> set.add(getRoleInstitutionDBService().findById(r.getId()).get()));
+			roleInstitutionIds.forEach(rid -> set.add(getRoleInstitutionDBService().findById(rid).get()));
 			user.setRolesInstitution(set);
 		}
 
 		{
 			Set<RoleSite> set = new HashSet<RoleSite>();
-			user.getRolesSite().forEach(r -> set.add(getRoleSiteDBService().findById(r.getId()).get()));
+			roleSiteIds.forEach(rid -> set.add(getRoleSiteDBService().findById(rid).get()));
 			user.setRolesSite(set);
 		}
-		
-		if (user.getLastModifiedUser() != null)
-			user.setLastModifiedUser( findById( user.getLastModifiedUser().getId()).get() );
-		
+
+		if (lastModUserId != null)
+			user.setLastModifiedUser(findById(lastModUserId).get());
+
 		user.setDependencies(true);
 		
 		return o_u;

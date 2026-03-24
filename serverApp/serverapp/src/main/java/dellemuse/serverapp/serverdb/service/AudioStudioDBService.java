@@ -301,45 +301,39 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 
 		AudioStudio aw = o_aw.get();
 
-		User u = aw.getLastModifiedUser();
+		// Read lazy proxy IDs while entity is still attached
+		Long userId = aw.getLastModifiedUser() != null ? aw.getLastModifiedUser().getId() : null;
+		Long audioSpeechId = aw.getAudioSpeech() != null ? aw.getAudioSpeech().getId() : null;
+		Long audioSpeechMusicId = aw.getAudioSpeechMusic() != null ? aw.getAudioSpeechMusic().getId() : null;
+		Long guideContentId = aw.getGuideContent() != null ? aw.getGuideContent().getId() : null;
+		Long guideId = aw.getArtExhibitionGuide() != null ? aw.getArtExhibitionGuide().getId() : null;
+		Long gcRecordId = aw.getGuideContentRecord() != null ? aw.getGuideContentRecord().getId() : null;
+		Long aegRecordId = aw.getArtExhibitionGuideRecord() != null ? aw.getArtExhibitionGuideRecord().getId() : null;
 
-		User user = aw.getLastModifiedUser();
-		if (user!=null)
-			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+		// Detach to prevent dirty-checking from triggering @PostUpdate
+		getEntityManager().detach(aw);
 
-		Resource audio = aw.getAudioSpeech();
-		if (audio != null) 
-			aw.setAudioSpeech(getResourceDBService().findById(audio.getId()).get());
-			
-		Resource s_audio = aw.getAudioSpeechMusic();
-		if (s_audio != null) 
-			aw.setAudioSpeechMusic(getResourceDBService().findById(s_audio.getId()).get());
-		
-		GuideContent gc = aw.getGuideContent();
-		if (gc!=null) {
-			aw.setGuideContent( getGuideContentDBService().findById(gc.getId()).get() );
-		}
-		
-		ArtExhibitionGuide ae = aw.getArtExhibitionGuide();
-		if (ae!=null) {
-			aw.setArtExhibitionGuide( getArtExhibitionGuideDBService().findById(ae.getId()).get() );
-		}
-		
-		GuideContentRecord gc_r = aw.getGuideContentRecord();
-		if ( gc_r!=null) {
-			aw.setGuideContentRecord( getGuideContentRecordDBService().findById(gc_r.getId()).get() );
+		if (userId != null)
+			aw.setLastModifiedUser(getUserDBService().findById(userId).get());
 
-		}
-		
-		ArtExhibitionGuideRecord aeg_r = aw.getArtExhibitionGuideRecord();
-		if (aeg_r !=null) {
-			aw.setArtExhibitionGuideRecord( getArtExhibitionGuideRecordDBService().findById(aeg_r .getId()).get() );
+		if (audioSpeechId != null)
+			aw.setAudioSpeech(getResourceDBService().findById(audioSpeechId).get());
 
-		}
-		
-		 
-		
-		
+		if (audioSpeechMusicId != null)
+			aw.setAudioSpeechMusic(getResourceDBService().findById(audioSpeechMusicId).get());
+
+		if (guideContentId != null)
+			aw.setGuideContent(getGuideContentDBService().findById(guideContentId).get());
+
+		if (guideId != null)
+			aw.setArtExhibitionGuide(getArtExhibitionGuideDBService().findById(guideId).get());
+
+		if (gcRecordId != null)
+			aw.setGuideContentRecord(getGuideContentRecordDBService().findById(gcRecordId).get());
+
+		if (aegRecordId != null)
+			aw.setArtExhibitionGuideRecord(getArtExhibitionGuideRecordDBService().findById(aegRecordId).get());
+
 		aw.setDependencies(true);
 
 		return o_aw;
