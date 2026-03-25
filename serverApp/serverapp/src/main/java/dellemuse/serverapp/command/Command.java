@@ -1,12 +1,26 @@
 package dellemuse.serverapp.command;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.io.FilenameUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import dellemuse.model.JsonObject;
+import dellemuse.model.util.FSUtil;
 import dellemuse.model.util.RandomIDGenerator;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.elevenlabs.ClientConstant;
@@ -80,6 +94,55 @@ public abstract class Command extends JsonObject {
 		return this.lockService;
 	}
 
+	
+	protected String getMimeType(String fileName) {
+
+		if (FSUtil.isImage(fileName)) {
+			String str = FilenameUtils.getExtension(fileName);
+
+			if (str.equals("jpg"))
+				return "image/jpeg";
+
+			if (str.equals("jpeg"))
+				return "image/jpeg";
+
+			return "image/" + str;
+		}
+
+		if (FSUtil.isPdf(fileName))
+			return "application/pdf";
+
+		if (FSUtil.isVideo(fileName))
+			return "video/" + FilenameUtils.getExtension(fileName);
+
+		if (FSUtil.isAudio(fileName))
+			return "audio/" + FilenameUtils.getExtension(fileName);
+
+		return "";
+	}
+	protected BufferedImage genereate(String barcodeText) throws IOException {
+
+		QRCodeWriter barcodeWriter = new QRCodeWriter();
+
+		Map<EncodeHintType, Object> hints = new HashMap<>();
+		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+		hints.put(EncodeHintType.MARGIN, 2); // optional tweak
+
+		BitMatrix bitMatrix;
+		try {
+			 
+
+			bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.QR_CODE, 800, 800, hints);
+
+			BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix);
+			return image;
+
+		} catch (WriterException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	
 	protected String getAudioCacheWorkDir() {
 		return getHomeDirAbsolutePath() + File.separator + "audiocache" + File.separator + "download";
 	}

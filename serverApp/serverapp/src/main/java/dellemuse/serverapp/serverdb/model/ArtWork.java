@@ -82,20 +82,20 @@ public class ArtWork extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource QRCodePdf;
 	
-	
-	
 	@Column(name = "audio_id")
 	private Long audioId;
+	
+	
+	public ArtWork() {
+	}
 	
 	@Override
 	public boolean isSiteSecured() {
 		return true;
 	}
 
-	
-	public ArtWork() {
-	}
 
+	
 	@Override
 	public String getObjectClassName() {
 		return ArtWork.class.getSimpleName();

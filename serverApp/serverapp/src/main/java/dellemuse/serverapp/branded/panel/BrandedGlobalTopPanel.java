@@ -9,6 +9,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.UrlResourceReference;
 
+import dellemuse.serverapp.branded.BrandedSitePage;
 import dellemuse.serverapp.global.LanguagePanel;
 import dellemuse.serverapp.global.UserGlobalTopPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -68,15 +69,14 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 			LogoPanel<Site> logoPanel = new LogoPanel<Site>("item", getModel(), image) {
 				private static final long serialVersionUID = 1L;
 				public void onClick() {
-					setResponsePage(new RedirectPage(getModel().getObject().getWebsite()));
+					//setResponsePage(new RedirectPage(getModel().getObject().getWebsite()));
+					setResponsePage( new BrandedSitePage( getModel() ));
 				}
 			};
 	
-		 	
 			nav.addNoCollapseLeft(logoPanel);
 			add(nav);  
 		}
-		
 		
 		{
 			NavBar<Site> nav = new NavBar<Site>("navbarRight" , getModel());

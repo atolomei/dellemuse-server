@@ -24,6 +24,7 @@ import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.AccesibilityMode;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
@@ -218,6 +219,15 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		this.artWorkModel = artWorkModel;
 	}
 	
+	public AccesibilityMode getAccesibilityMode() {
+		return accesibilityMode;
+	}
+
+	public void setAccesibilityMode(AccesibilityMode accesibilityMode) {
+		this.accesibilityMode = accesibilityMode;
+	}
+	
+	
 	protected void setCookieLocale() {
 		
 		if (lang != null) {
@@ -237,7 +247,23 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 			lang=value;
 		    getSession().setLocale(Locale.forLanguageTag(value));
 		}
- 	}
+ 	
+	
+		Cookie accCookie = request.getCookie("accessible");
+		
+		if (accCookie != null) {
+			String value = accCookie.getValue();
+			boolean isAccesible = value.equals("true");
+			if (isAccesible) {
+				logger.debug("setting accesibility mode to accessible from cookie");
+				this.accesibilityMode = AccesibilityMode.ACCESIBLE;
+			} else {
+				logger.debug("setting accesibility mode to general from cookie");
+				this.accesibilityMode = AccesibilityMode.GENERAL;
+			}
+		}
+		
+	}
 
 	protected List<Language> getSupportedLanguages() {
 		return  getSiteModel().getObject().getLanguages();
@@ -265,10 +291,10 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 	@Override
 	protected Panel createSearchPanel() {
-		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList());
+		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList(), accesibilityMode);
 	}
 
-
+	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
 
 	@Override
 	protected boolean isLanguage() {
@@ -322,6 +348,27 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	@Override
 	protected void addListeners() {
 		super.addListeners();
+		
+		
+		
+	add(new io.wktui.event.WicketEventListener<AccesibilityAjaxEvent>() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof AccesibilityAjaxEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(AccesibilityAjaxEvent event) {
+				logger.debug("setting accesibility mode to " + event.getMode());
+				setAccesibilityMode( event.getMode() );
+				event.getTarget().add(BrandedGuideContentPage.this);
+			}
+		});
 		
 		
 
@@ -399,6 +446,14 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return new Model<String>(getModel().getObject().getName());
 	}
 
+
+	@Override
+	public BreadCrumb<Void> createBreadCrumb() {
+		BreadCrumb<Void> bc = new BreadCrumb<>();
+		//bc.addElement(new HREFBCElement("/home", getLabel("home")));
+		return bc;
+	}
+	
 	@Override
 	protected Panel createHeaderPanel() {
 

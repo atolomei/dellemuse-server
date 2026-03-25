@@ -74,11 +74,18 @@ public class ArtExhibitionGuideDBService extends MultiLanguageObjectDBservice<Ar
 		c.setOfficial(true);
 		c.setAccessible(false);
 		c.setArtExhibition(ex);
-
+		
+		if  (ex.getAudioId() != null) {
+			getArtExhibitionDBService().generateAudioId(ex, createdBy);
+		}
+		c.setArtExhibitionAudioId(ex.getAudioId());
+		
 		if (!ex.isDependencies())
 			ex = getArtExhibitionDBService().findWithDeps(ex.getId()).get();
+		
 		c.setAudioId(newAudioId(ex.getSite()));
 
+		
 		c.setState(ex.getState());
 		c.setMasterLanguage(ex.getMasterLanguage());
 		c.setLanguage(ex.getLanguage());

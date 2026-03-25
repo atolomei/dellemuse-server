@@ -78,9 +78,13 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
 
+		
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
+		generateAudioId(c, createdBy);
+
+		
 		for (Language la : getLanguageService().getLanguages())
 			getArtExhibitionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
@@ -110,7 +114,12 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		c.setState(ObjectState.EDITION);
 		c.setSite(site);
 
+		
 		getRepository().save(c);
+		
+		generateAudioId(c, createdBy);
+
+		
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
 		for (Language la : getLanguageService().getLanguages())
@@ -119,6 +128,13 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		return c;
 	}
 
+	
+	@Transactional
+	public void save(ArtExhibition o, User user, String updatedPart) {
+		super.save(o);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, updatedPart));
+	}
+	
 	@Transactional
 	public void save(ArtExhibition o, User user, List<String> updatedParts) {
 		super.save(o);
@@ -146,6 +162,23 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 			getArtExhibitionItemDBService().markAsDeleted(gc, deletedBy);
 		});
 	}
+
+	
+	@Transactional
+	public void generateAudioId(ArtExhibition a, User user) {
+
+		Site site = getSiteDBService().findById(a.getSite().getId()).get();
+		Long aid = getSiteDBService().newAudioId(site);
+		a.setAudioId(aid);
+		logger.debug("adding audioid to  -> " + a.getDisplayname());
+		save(a, user, "audioid");
+		getArtExhibitionGuides(a).forEach(c -> {
+			c.setArtExhibitionAudioId(aid);
+			logger.debug("adding audioid to GuideContent -> " + c.getDisplayname());
+			getArtExhibitionGuideDBService().save(c, user, List.of("audioid"));
+		});
+	}
+
 
 	@Transactional
 	public void restore(ArtExhibition c, User restoredBy) {

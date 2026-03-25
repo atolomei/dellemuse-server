@@ -72,6 +72,12 @@ public class ArtExhibition extends MultiLanguageObject {
 
 	@Column(name = "mapurl")
 	private String map;
+	
+	@Column(name = "audio_id")
+	private Long audioId;
+	
+
+	
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = ArtExhibitionItem.class)
 	@JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
@@ -141,6 +147,14 @@ public class ArtExhibition extends MultiLanguageObject {
 
 	public void setSite(Site site) {
 		this.site = site;
+	}
+
+	public Long getAudioId() {
+		return audioId;
+	}
+
+	public void setAudioId(Long audioId) {
+		this.audioId = audioId;
 	}
 
 	public boolean isPermanent() {

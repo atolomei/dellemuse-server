@@ -26,6 +26,7 @@ import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 
 import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.AccesibilityMode;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -64,7 +65,9 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	private Locale locale = null;
 
 	private boolean modelAlreadySet = false;
-
+	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
+	
+	
 	public BrandedArtExhibitionGuidePage() {
 		super();
 	}
@@ -186,9 +189,38 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		return locale;
 	}
 
+	public AccesibilityMode getAccesibilityMode() {
+		return accesibilityMode;
+	}
+
+	public void setAccesibilityMode(AccesibilityMode accesibilityMode) {
+		this.accesibilityMode = accesibilityMode;
+	}
+	
  	@Override
 	protected void addListeners() {
 		super.addListeners();
+
+		
+		add(new io.wktui.event.WicketEventListener<AccesibilityAjaxEvent>() {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof AccesibilityAjaxEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(AccesibilityAjaxEvent event) {
+				logger.debug("setting accesibility mode to " + event.getMode());
+				setAccesibilityMode( event.getMode() );
+				event.getTarget().add(BrandedArtExhibitionGuidePage.this);
+			}
+		});
+
 
 		add(new io.wktui.event.WicketEventListener<LangEvent>() {
 
@@ -229,6 +261,8 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		});
 	}
 
+ 	
+ 	
 	protected void setCookieLocale() {
 
 		if (lang != null) {
@@ -248,6 +282,25 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			lang = value;
 			getSession().setLocale(Locale.forLanguageTag(value));
 		}
+		
+		
+		Cookie accCookie = request.getCookie("accessible");
+		
+		if (accCookie != null) {
+			String value = accCookie.getValue();
+			boolean isAccesible = value.equals("true");
+			if (isAccesible) {
+				logger.debug("setting accesibility mode to accessible from cookie");
+				this.accesibilityMode = AccesibilityMode.ACCESIBLE;
+			} else {
+				logger.debug("setting accesibility mode to general from cookie");
+				this.accesibilityMode = AccesibilityMode.GENERAL;
+			}
+		}
+		
+		
+		
+		
 	}
 
 	@Override
@@ -262,7 +315,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 	@Override
 	protected Panel createSearchPanel() {
-		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), getGuideContentSearchList(), getArtExhibitionSearchList());
+		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), getGuideContentSearchList(), getArtExhibitionSearchList(), accesibilityMode);
 	}
 
 	@Override
@@ -330,6 +383,15 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		return new Model<String>(getModel().getObject().getName());
 	}
 
+	
+
+	@Override
+	public BreadCrumb<Void> createBreadCrumb() {
+		BreadCrumb<Void> bc = new BreadCrumb<>();
+		//bc.addElement(new HREFBCElement("/home", getLabel("home")));
+		return bc;
+	}
+	
 	@Override
 	protected Panel createHeaderPanel() {
 

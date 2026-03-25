@@ -61,23 +61,18 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 	@Column(name = "official")
 	private boolean official;
 
-	/** CREATE SEQUENCE if not exists audio_id START 1; */
 	@Column(name = "audio_id")
 	private Long audioId;
 
+	@Column(name = "artexhibition_audio_id")
+	private Long artExhibitionAudioId;
+	
 	@Column(name = "ordinal")
 	private int ordinal;
-	
 	
 	@Column(name = "accessible")
 	private boolean accessible;
 	
-	
-	@Override
-	public boolean isSiteSecured() {
-		return true;
-	}
-
 	
 	public ArtExhibitionGuide() {
 	}
@@ -98,6 +93,13 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 	public void setArtExhibition(ArtExhibition artExhibition) {
 		this.artExhibition = artExhibition;
 	}
+	
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
+
+
 
 	public Person getPublisher() {
 		return publisher;
@@ -183,5 +185,13 @@ public class ArtExhibitionGuide extends MultiLanguageObject implements AudioStud
 
 	public void setAccessible(boolean accesiible) {
 		this.accessible = accesiible;
+	}
+
+	public Long getArtExhibitionAudioId() {
+		return artExhibitionAudioId;
+	}
+
+	public void setArtExhibitionAudioId(Long artExhibitionAudioId) {
+		this.artExhibitionAudioId = artExhibitionAudioId;
 	}
 };

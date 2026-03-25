@@ -16,6 +16,7 @@ import dellemuse.serverapp.branded.panel.BrandedSiteSearcherPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.model.ObjectModel;
+import dellemuse.serverapp.serverdb.model.AccesibilityMode;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -110,7 +111,7 @@ public class BrandedErrorPage extends BasePage {
 
  
 	protected Panel createSearchPanel() {
-		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel());
+		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), AccesibilityMode.GENERAL);
 	}
 	
 	

@@ -108,9 +108,11 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 							String bucketName = ServerConstant.QR_BUCKET;
 							String objectName = "qrartexhibition-png-" + aex.getId().toString();
 	
-							if (!os.existsObject(bucketName, objectName)) {
-								os.getClient().putObject(bucketName, objectName, file);
+							if (os.existsObject(bucketName, objectName)) {
+								os.getClient().deleteObject(bucketName, objectName);
 							}
+							os.getClient().putObject(bucketName, objectName, file);
+							
 							aex = getArtExhibitionDBService().addQR(aex, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
 							logger.debug(aex.getQrcode() != null ? aex.getQrcode().getDisplayname() : "nul");
 	
@@ -162,54 +164,9 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 
 	
 
-	private BufferedImage genereate(String barcodeText) throws IOException {
+	 
 
-		QRCodeWriter barcodeWriter = new QRCodeWriter();
-
-		Map<EncodeHintType, Object> hints = new HashMap<>();
-		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-		hints.put(EncodeHintType.MARGIN, 2); // optional tweak
-
-		BitMatrix bitMatrix;
-		try {
-			// bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.QR_CODE, 800,
-			// 800);
-
-			bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.QR_CODE, 800, 800, hints);
-
-			BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix);
-			return image;
-
-		} catch (WriterException e) {
-			throw new IOException(e);
-		}
-	}
-
-	private String getMimeType(String fileName) {
-
-		if (FSUtil.isImage(fileName)) {
-			String str = FilenameUtils.getExtension(fileName);
-
-			if (str.equals("jpg"))
-				return "image/jpeg";
-
-			if (str.equals("jpeg"))
-				return "image/jpeg";
-
-			return "image/" + str;
-		}
-
-		if (FSUtil.isPdf(fileName))
-			return "application/pdf";
-
-		if (FSUtil.isVideo(fileName))
-			return "video/" + FilenameUtils.getExtension(fileName);
-
-		if (FSUtil.isAudio(fileName))
-			return "audio/" + FilenameUtils.getExtension(fileName);
-
-		return "";
-	}
+	
 
 	private File generatePdf3(Site site, BufferedImage qrImage, File outputDir) throws IOException {
 

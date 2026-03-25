@@ -88,14 +88,7 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource audioAccessible;
 	
-	
-	@Override
-	public boolean isSiteSecured() {
-		return true;
-	}
-
-	
-	
+	  
 	/**
 	 * 
 	 * CREATE SEQUENCE if not exists audio_id START 1; alter table
@@ -108,9 +101,7 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	@Column(name = "artwork_audio_id")
 	private Long artWorkAudioId;
 	
-	//@Column(name = "artexhibition_item_audio_id")
-	//private Long artexhibitionItemAudioId;
-
+	 
 	
 	public GuideContent() {
 	}
@@ -127,6 +118,12 @@ public class GuideContent extends MultiLanguageObject implements AudioStudioPare
 	public ArtExhibitionGuide getArtExhibitionGuide() {
 		return artExhibitionGuide;
 	}
+	
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
+
 
 	public void setArtExhibitionGuide(ArtExhibitionGuide artExhibitionGuide) {
 		this.artExhibitionGuide = artExhibitionGuide;

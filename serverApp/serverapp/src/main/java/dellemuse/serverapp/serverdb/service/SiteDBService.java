@@ -164,6 +164,8 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 		c.setName(name);
 		c.setMasterLanguage(institution.getMasterLanguage());
+		c.setLanguage(institution.getLanguage());
+
 		c.setInstitution(institution);
 		c.setCreated(OffsetDateTime.now());
 
@@ -611,6 +613,8 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		cq.select(root).where(finalPredicate);
 		return getEntityManager().createQuery(cq).getResultList();
 	}
+	
+	
 	
 	
 	@Transactional

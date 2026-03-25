@@ -341,7 +341,7 @@ public class BrandedSitePage extends BasePage {
 
 	
 	protected void addSearch() {
-		this.searcher = new BrandedSiteSearcherPanel("search", getSiteModel(), gc_list, ag_list);
+		this.searcher = new BrandedSiteSearcherPanel("search", getSiteModel(), gc_list, ag_list, getAccesibilityMode());
 		addOrReplace(this.searcher);
 
 	}
@@ -1128,6 +1128,15 @@ public class BrandedSitePage extends BasePage {
 		}
 	}
 
+	
+	@Override
+	public BreadCrumb<Void> createBreadCrumb() {
+		BreadCrumb<Void> bc = new BreadCrumb<>();
+		//bc.addElement(new HREFBCElement("/home", getLabel("home")));
+		return bc;
+	}
+
+	
 	private void addHeader() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();

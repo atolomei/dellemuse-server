@@ -85,9 +85,10 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 							String objectName = "qr-" + aw.getId().toString();
 
 							if (!os.existsObject(bucketName, objectName)) {
-								os.getClient().putObject(bucketName, objectName, file);
-								aw = dbs.addQR(aw, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
+								os.getClient().deleteObject(bucketName, objectName);
 							}
+							os.getClient().putObject(bucketName, objectName, file);
+							aw = dbs.addQR(aw, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
 							logger.debug(aw.getQRCode() != null ? aw.getQRCode().getDisplayname() : "nul");
 
 						} catch (IOException e) {
@@ -127,44 +128,6 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
 
-	private BufferedImage genereate(String barcodeText) throws IOException {
-
-		QRCodeWriter barcodeWriter = new QRCodeWriter();
-
-		BitMatrix bitMatrix;
-		try {
-			bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.QR_CODE, 200, 200);
-			BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix);
-			return image;
-
-		} catch (WriterException e) {
-			throw new IOException(e);
-		}
-	}
-
-	private String getMimeType(String fileName) {
-
-		if (FSUtil.isImage(fileName)) {
-			String str = FilenameUtils.getExtension(fileName);
-
-			if (str.equals("jpg"))
-				return "image/jpeg";
-
-			if (str.equals("jpeg"))
-				return "image/jpeg";
-
-			return "image/" + str;
-		}
-
-		if (FSUtil.isPdf(fileName))
-			return "application/pdf";
-
-		if (FSUtil.isVideo(fileName))
-			return "video/" + FilenameUtils.getExtension(fileName);
-
-		if (FSUtil.isAudio(fileName))
-			return "audio/" + FilenameUtils.getExtension(fileName);
-
-		return "";
-	}
+	 
+ 
 }

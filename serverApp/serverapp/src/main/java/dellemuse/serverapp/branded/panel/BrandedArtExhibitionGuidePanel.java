@@ -174,6 +174,9 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 				audio.setIncludeDownloadMenu(false);
 				audioIntroContainer.add(audio);
 
+				getArtExhibitionModel().getObject().getAudioId();
+				
+				
 				Label aid = new Label("aid", getModel().getObject().getAudioId() != null ? getModel().getObject().getAudioId().toString() : "");
 				audioContainer.add(aid);
 

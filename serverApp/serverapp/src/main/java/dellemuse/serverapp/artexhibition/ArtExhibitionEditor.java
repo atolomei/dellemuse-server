@@ -16,6 +16,7 @@ import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
@@ -46,6 +47,7 @@ import io.wktui.form.button.EditButtons;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.NumberField;
+import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -79,6 +81,7 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 	private TextField<String> toField;
 	private IModel<Resource> photoModel;
 	private NumberField<Integer> ordinalield;
+	private StaticTextField<Long> audioIdField;
 	private boolean uploadedPhoto = false;
 
 	private String from;
@@ -111,6 +114,25 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 		add(form);
 		setForm(form);
+
+		AjaxLink<ArtExhibition> generateAudioId = new AjaxLink<ArtExhibition>("generateAudioId", getModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				ArtExhibitionEditor.this.generateAudioId(target);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return getModel().getObject().getAudioId() == null;
+			}
+		};
+
+		form.add(generateAudioId);
+
+		audioIdField = new StaticTextField<Long>("audioid", new PropertyModel<Long>(getModel(), "audioId"), getLabel("audioid"));
+		form.add(audioIdField);
 
 		if (getModel().getObject().getFromDate() != null)
 			setFrom(getDateTimeService().format(getModel().getObject().getFromDate(), DTFormatter.day_of_year));
@@ -313,6 +335,14 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 		};
 		getForm().add(b_buttons_top);
+	}
+
+	protected void generateAudioId(AjaxRequestTarget target) {
+		getArtExhibitionDBService().generateAudioId(getModel().getObject(), getSessionUser().get());
+
+		ArtExhibitionEditor.this.audioIdField.setValue(getModel().getObject().getAudioId());
+		ArtExhibitionEditor.this.audioIdField.updateModel();
+		target.add(ArtExhibitionEditor.this);
 	}
 
 	protected void onCancel(AjaxRequestTarget target) {
