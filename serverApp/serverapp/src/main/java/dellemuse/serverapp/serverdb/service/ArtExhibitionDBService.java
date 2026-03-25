@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -448,6 +449,27 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 	protected void onInitialize() {
 		super.registerRecordDB(getEntityClass(), getArtExhibitionRecordDBService());
 		super.register(getEntityClass(), this);
+	}
+ 
+	
+	@Transactional
+	public ArtExhibition addQR(ArtExhibition aex, String bucketName, String objectName, String name, String media, long size, User createdBy) {
+		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE, createdBy, name, true);
+		aex.setQrcode(res);
+		getRepository().save(aex);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aex, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR));
+		return aex;
+	}
+	
+	@Transactional
+	public ArtExhibition addQRPdf(ArtExhibition aex, String bucketName, String objectName, String name, String media, long size, User createdBy) {
+		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE_PDF, createdBy, name, true);
+		aex.setQRCodePdf(res);
+		getRepository().save(aex);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aex, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR_PDF));
+		return aex;
 	}
 
 }

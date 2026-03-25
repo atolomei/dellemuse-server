@@ -14,10 +14,13 @@ import dellemuse.serverapp.email.EmailService;
 import dellemuse.serverapp.email.EmailTemplateService;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
+import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
+import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
 import dellemuse.serverapp.serverdb.service.PersistentTokenDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
+import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.LockService;
@@ -129,6 +132,23 @@ public abstract class Command extends JsonObject {
 		this.endTime = endOffseDateTime;
 	}
 
+	 
+
+ 
+
+	protected ArtExhibitionDBService getArtExhibitionDBService() {
+		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
+	}
+
+	protected SiteDBService getSiteDBService() {
+		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+	}
+
+	protected ArtWorkDBService getArtWorkDBService() {
+		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+		return service;
+	}
+	
 	protected ServerDBSettings getServerDBSettings() {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
 	}

@@ -37,7 +37,6 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
-
 import org.apache.pdfbox.pdmodel.*;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
@@ -45,7 +44,6 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-
 
 public class QRSiteCodeGenerationCommand extends Command {
 
@@ -65,8 +63,7 @@ public class QRSiteCodeGenerationCommand extends Command {
 			logger.debug("QR Code generation is disabled in application.properties | qrcode.generation=disabled");
 			return;
 		}
-		
-		
+
 		try {
 
 			Optional<Site> o = getSiteDBService().findById(getSiteId());
@@ -74,81 +71,75 @@ public class QRSiteCodeGenerationCommand extends Command {
 			if (o.isPresent()) {
 
 				Site site = o.get();
-			
+
 				getSiteDBService().evict(site);
-				
+
 				o = getSiteDBService().findWithDeps(getSiteId());
-		
-				site=o.get();
-				
+
+				site = o.get();
+
 				BufferedImage image;
-				
-				if (site.getName()==null) {
+
+				if (site.getName() == null) {
 					logger.debug("Site name is null, cannot generate QR code");
 					return;
 				}
-				
-				
-				if (site.getQrcode()==null) {
-		 
-				 
-					ObjectStorageService os = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class); 
-					
-					String url = getSettings().getQRServer()  + "/ag/" + site.getId().toString();
 
-					image = genereate(url);
+				if (site.getQrcode() == null) {
 
-					ServerDBSettings settings = getSettings();
-					File file = new File(settings.getWorkDir(), "qrsite-" + getResourceDBService().normalizeFileName(site.getName()) +"-" + site.getId().toString() + ".png");
-
+					getLockService().getObjectLock(site.getId()).writeLock().lock();
 					try {
+						ObjectStorageService os = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
+
+						String url = getSettings().getQRServer() + "/ag/" + site.getId().toString();
+
+						image = genereate(url);
+
+						ServerDBSettings settings = getSettings();
+						File file = new File(settings.getWorkDir(), "qrsite-" + getResourceDBService().normalizeFileName(site.getName()) + "-" + site.getId().toString() + ".png");
+
+						try {
 							logger.debug("write -> " + file.getAbsolutePath());
 							ImageIO.write(image, "PNG", file);
-						
-							String bucketName = ServerConstant.QR_BUCKET; 
-							String objectName = "qrsite-png-"+site.getId().toString(); 
-						  
-							if (!os.existsObject(bucketName, objectName)) {
-								os.getClient().putObject(bucketName, objectName, file); 
-							}
-							site= getSiteDBService().addQR(site, bucketName, objectName, file.getName(), getMimeType(file.getName()),  file.length(), getRootUser());
-							logger.debug(site.getQrcode()!=null? site.getQrcode().getDisplayname() : "nul");
-						  
-					} catch (IOException e) {
-						logger.error(e, ServerConstant.NOT_THROWN);
-					}
-					
-					/**
-					try {
-					
-						
-						File outputDir = new File(settings.getWorkDir());
-						File pdf= generatePdf(site, image, outputDir);
-					
-						if (pdf.exists()) {
-							String bucketName = ServerConstant.QR_BUCKET; 
-							String objectName = "qrsite-pdf-"+site.getId().toString(); 
-							
+
+							String bucketName = ServerConstant.QR_BUCKET;
+							String objectName = "qrsite-png-" + site.getId().toString();
+
 							if (!os.existsObject(bucketName, objectName)) {
 								os.getClient().putObject(bucketName, objectName, file);
 							}
-							site= getSiteDBService().addQRPdf(site, bucketName, objectName, pdf.getName(), getMimeType(pdf.getName()),  pdf.length(), getRootUser());
-							
+							site = getSiteDBService().addQR(site, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
+							logger.debug(site.getQrcode() != null ? site.getQrcode().getDisplayname() : "nul");
+
+						} catch (IOException e) {
+							logger.error(e, ServerConstant.NOT_THROWN);
 						}
-						
-						
-						
-					} catch (IOException e) {
-						logger.error(e, ServerConstant.NOT_THROWN);
+
+						/**
+						 * try {
+						 * 
+						 * 
+						 * File outputDir = new File(settings.getWorkDir()); File pdf= generatePdf(site,
+						 * image, outputDir);
+						 * 
+						 * if (pdf.exists()) { String bucketName = ServerConstant.QR_BUCKET; String
+						 * objectName = "qrsite-pdf-"+site.getId().toString();
+						 * 
+						 * if (!os.existsObject(bucketName, objectName)) {
+						 * os.getClient().putObject(bucketName, objectName, file); } site=
+						 * getSiteDBService().addQRPdf(site, bucketName, objectName, pdf.getName(),
+						 * getMimeType(pdf.getName()), pdf.length(), getRootUser());
+						 * 
+						 * }
+						 * 
+						 * 
+						 * 
+						 * } catch (IOException e) { logger.error(e, ServerConstant.NOT_THROWN); }
+						 **/
+					} finally {
+						getLockService().getObjectLock(site.getId()).writeLock().unlock();
 					}
-					**/
-					
-					
-					
-					
-					
-					
-					
+
 				}
 			}
 
@@ -156,16 +147,11 @@ public class QRSiteCodeGenerationCommand extends Command {
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
 	}
-	
-	  protected ArtWorkDBService getArtWorkDBService() {
-	    	ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
-	    	return service;
-	    }
-	  
-	  
 
-
-	 
+	protected ArtWorkDBService getArtWorkDBService() {
+		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+		return service;
+	}
 
 	public Long getSiteId() {
 		return this.siteId;
@@ -178,17 +164,15 @@ public class QRSiteCodeGenerationCommand extends Command {
 	protected ServerDBSettings getSettings() {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
 	}
-	
-	protected ResourceDBService getResourceDBService() {
-		return  (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
-	}
 
+	protected ResourceDBService getResourceDBService() {
+		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+	}
 
 	protected SiteDBService getSiteDBService() {
-		return  (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
+		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
 
-	
 	private BufferedImage genereate(String barcodeText) throws IOException {
 
 		QRCodeWriter barcodeWriter = new QRCodeWriter();
@@ -196,19 +180,14 @@ public class QRSiteCodeGenerationCommand extends Command {
 		Map<EncodeHintType, Object> hints = new HashMap<>();
 		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
 		hints.put(EncodeHintType.MARGIN, 2); // optional tweak
- 	
+
 		BitMatrix bitMatrix;
 		try {
-			// bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.QR_CODE, 800, 800);
-	 		
-			bitMatrix = barcodeWriter.encode(
-				    barcodeText,
-				    BarcodeFormat.QR_CODE,
-				    800,
-				    800,
-				    hints
-				);
-			
+			// bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.QR_CODE, 800,
+			// 800);
+
+			bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.QR_CODE, 800, 800, hints);
+
 			BufferedImage image = MatrixToImageWriter.toBufferedImage(bitMatrix);
 			return image;
 
@@ -216,198 +195,158 @@ public class QRSiteCodeGenerationCommand extends Command {
 			throw new IOException(e);
 		}
 	}
-	
-	
-	
-	
 
 	private String getMimeType(String fileName) {
 
-        if (FSUtil.isImage(fileName)) {
-            String str = FilenameUtils.getExtension(fileName);
+		if (FSUtil.isImage(fileName)) {
+			String str = FilenameUtils.getExtension(fileName);
 
-            if (str.equals("jpg"))
-                return "image/jpeg";
+			if (str.equals("jpg"))
+				return "image/jpeg";
 
-            if (str.equals("jpeg"))
-                return "image/jpeg";
+			if (str.equals("jpeg"))
+				return "image/jpeg";
 
-            return "image/" + str;
-        }
+			return "image/" + str;
+		}
 
-        if (FSUtil.isPdf(fileName))
-            return "application/pdf";
+		if (FSUtil.isPdf(fileName))
+			return "application/pdf";
 
-        if (FSUtil.isVideo(fileName))
-            return "video/" + FilenameUtils.getExtension(fileName);
+		if (FSUtil.isVideo(fileName))
+			return "video/" + FilenameUtils.getExtension(fileName);
 
-        if (FSUtil.isAudio(fileName))
-            return "audio/" + FilenameUtils.getExtension(fileName);
+		if (FSUtil.isAudio(fileName))
+			return "audio/" + FilenameUtils.getExtension(fileName);
 
-        return "";
-    }
-	
-	
+		return "";
+	}
+
 	private File generatePdf3(Site site, BufferedImage qrImage, File outputDir) throws IOException {
 
-		
 		if (qrImage == null) {
-		    throw new RuntimeException("QR image is null");
+			throw new RuntimeException("QR image is null");
 		}
-		
-		
-		String filename = "qrsite-" 
-		        + getResourceDBService().normalizeFileName(site.getName()) 
-		        + "-" + site.getId() + ".pdf";
-		
-		  File pdfFile = new File(outputDir, filename);
-		  
-	    try (PDDocument document = new PDDocument()) {
 
-	        PDPage page = new PDPage(PDRectangle.A4);
-	        document.addPage(page);
+		String filename = "qrsite-" + getResourceDBService().normalizeFileName(site.getName()) + "-" + site.getId() + ".pdf";
 
-	        PDImageXObject pdImage = LosslessFactory.createFromImage(document, qrImage);
-	        
-	        try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-	            contentStream.drawImage(pdImage, 100, 400, 200, 200);
-	        } catch (Exception e) {
-	            logger.error(e);
-	            throw e;
-	        }
-	        
+		File pdfFile = new File(outputDir, filename);
 
-	        document.save(pdfFile);
-	    }
-	    
-	    
-	    logger.debug("PDF size: " + pdfFile.length());
+		try (PDDocument document = new PDDocument()) {
 
-	    
-	    return pdfFile;
+			PDPage page = new PDPage(PDRectangle.A4);
+			document.addPage(page);
+
+			PDImageXObject pdImage = LosslessFactory.createFromImage(document, qrImage);
+
+			try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+				contentStream.drawImage(pdImage, 100, 400, 200, 200);
+			} catch (Exception e) {
+				logger.error(e);
+				throw e;
+			}
+
+			document.save(pdfFile);
+		}
+
+		logger.debug("PDF size: " + pdfFile.length());
+
+		return pdfFile;
 	}
-	
-	 
-	
+
 	private File generatePdf(Site site, BufferedImage qrImage, File outputDir) throws IOException {
-		
-		String filename = "qrsite-" 
-		        + getResourceDBService().normalizeFileName(site.getName()) 
-		        + "-" + site.getId() + ".pdf";
-		
-		
-		  File pdfFile = new File(outputDir, filename);
 
-	    try (PDDocument document = new PDDocument()) {
+		String filename = "qrsite-" + getResourceDBService().normalizeFileName(site.getName()) + "-" + site.getId() + ".pdf";
 
-	        PDPage page = new PDPage(PDRectangle.A4);
-	        document.addPage(page);
+		File pdfFile = new File(outputDir, filename);
 
-	        // Convert image safely (REQUIRED in 3.x)
-	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	        ImageIO.write(qrImage, "PNG", baos);
+		try (PDDocument document = new PDDocument()) {
 
-	        PDImageXObject pdImage = PDImageXObject.createFromByteArray(
-	                document,
-	                baos.toByteArray(),
-	                "qr"
-	        );
+			PDPage page = new PDPage(PDRectangle.A4);
+			document.addPage(page);
 
-	        try (PDPageContentStream contentStream =
-	                     new PDPageContentStream(document, page, PDPageContentStream.AppendMode.OVERWRITE, true)) {
+			// Convert image safely (REQUIRED in 3.x)
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(qrImage, "PNG", baos);
 
-	            float pageWidth = page.getMediaBox().getWidth();
-	            float pageHeight = page.getMediaBox().getHeight();
+			PDImageXObject pdImage = PDImageXObject.createFromByteArray(document, baos.toByteArray(), "qr");
 
-	            float qrSize = 200f;
+			try (PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.OVERWRITE, true)) {
 
-	            float x = (pageWidth - qrSize) / 2;
-	            float y = (pageHeight - qrSize) / 2;
+				float pageWidth = page.getMediaBox().getWidth();
+				float pageHeight = page.getMediaBox().getHeight();
 
-	            contentStream.drawImage(pdImage, x, y, qrSize, qrSize);
-	        }
+				float qrSize = 200f;
 
-	        document.save(pdfFile);
-	    }
-   	    return pdfFile;
+				float x = (pageWidth - qrSize) / 2;
+				float y = (pageHeight - qrSize) / 2;
+
+				contentStream.drawImage(pdImage, x, y, qrSize, qrSize);
+			}
+
+			document.save(pdfFile);
+		}
+		return pdfFile;
 	}
-	
-	
-	
 
 	private File generatePdf2(Site site, BufferedImage qrImage, File outputDir) throws IOException {
 
-	    String filename = "qrsite-" 
-	        + getResourceDBService().normalizeFileName(site.getName()) 
-	        + "-" + site.getId() + ".pdf";
+		String filename = "qrsite-" + getResourceDBService().normalizeFileName(site.getName()) + "-" + site.getId() + ".pdf";
 
-	    File pdfFile = new File(outputDir, filename);
+		File pdfFile = new File(outputDir, filename);
 
-	    try (PDDocument document = new PDDocument()) {
+		try (PDDocument document = new PDDocument()) {
 
-	        PDPage page = new PDPage(PDRectangle.A4);
-	        document.addPage(page);
+			PDPage page = new PDPage(PDRectangle.A4);
+			document.addPage(page);
 
-	        PDImageXObject pdImage = LosslessFactory.createFromImage(document, qrImage);
+			PDImageXObject pdImage = LosslessFactory.createFromImage(document, qrImage);
 
-	        try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
+			try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
 
-	            float pageWidth = page.getMediaBox().getWidth();
-	            float pageHeight = page.getMediaBox().getHeight();
+				float pageWidth = page.getMediaBox().getWidth();
+				float pageHeight = page.getMediaBox().getHeight();
 
-	            float qrSize = 200f;
+				float qrSize = 200f;
 
-	            float x = (pageWidth - qrSize) / 2;
-	            float y = (pageHeight / 2) - (qrSize / 2);
+				float x = (pageWidth - qrSize) / 2;
+				float y = (pageHeight / 2) - (qrSize / 2);
 
-	            // QR
-	            contentStream.drawImage(pdImage, x, y, qrSize, qrSize);
+				// QR
+				contentStream.drawImage(pdImage, x, y, qrSize, qrSize);
 
-	            // ---- Title ----
-	            if (site.getName() != null) {
-	            	
-	            	
-	                contentStream.beginText();
-	                
-	            	PDType0Font font = PDType0Font.load(document, new File( getSettings().getFontsDir(), "NotoSans-Regular.ttf"));
-	            	contentStream.setFont(font, 18);
-	                contentStream.newLineAtOffset(50, y + qrSize + 40);
-	                contentStream.showText(safeText(site.getName()));
-	                contentStream.endText();
-	            }
+				// ---- Title ----
+				if (site.getName() != null) {
 
-	            // ---- Instruction ----
-	            contentStream.beginText();
-	            
-            	PDType0Font font = PDType0Font.load(document, new File( getSettings().getFontsDir(), "NotoSans-Regular.ttf"));
-            	contentStream.setFont(font, 12);
-            	contentStream.newLineAtOffset(50, y - 40);
-	            contentStream.showText("Scan to listen");
-	            contentStream.endText();
-	        }
+					contentStream.beginText();
 
-	        document.save(pdfFile);
-	    }
+					PDType0Font font = PDType0Font.load(document, new File(getSettings().getFontsDir(), "NotoSans-Regular.ttf"));
+					contentStream.setFont(font, 18);
+					contentStream.newLineAtOffset(50, y + qrSize + 40);
+					contentStream.showText(safeText(site.getName()));
+					contentStream.endText();
+				}
 
-	    return pdfFile;
+				// ---- Instruction ----
+				contentStream.beginText();
+
+				PDType0Font font = PDType0Font.load(document, new File(getSettings().getFontsDir(), "NotoSans-Regular.ttf"));
+				contentStream.setFont(font, 12);
+				contentStream.newLineAtOffset(50, y - 40);
+				contentStream.showText("Scan to listen");
+				contentStream.endText();
+			}
+
+			document.save(pdfFile);
+		}
+
+		return pdfFile;
 	}
-	
+
 	private String safeText(String input) {
-	    if (input == null) return "";
-	    return input.replaceAll("[^\\x00-\\xFF]", "?");
+		if (input == null)
+			return "";
+		return input.replaceAll("[^\\x00-\\xFF]", "?");
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 }

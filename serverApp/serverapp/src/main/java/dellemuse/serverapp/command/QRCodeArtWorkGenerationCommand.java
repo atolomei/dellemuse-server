@@ -48,8 +48,7 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 			logger.debug("QR Code generation is disabled in application.properties | qrcode.generation=disabled");
 			return;
 		}
-		
-		
+
 		try {
 
 			Optional<ArtWork> o = getArtWorkDBService().findById(getArtWorkId());
@@ -57,59 +56,60 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 			if (o.isPresent()) {
 
 				ArtWork aw = o.get();
-			
-				getArtWorkDBService().evict(aw);
-				
-				o = getArtWorkDBService().findWithDeps(getArtWorkId());
-		
-				aw=o.get();
-				
-				if ((aw.getQRCode()==null) && (aw.getName()!=null)) {
-				 
-					String url = getSettings().getQRServer()  + aw.getId().toString();
 
-					BufferedImage image = genereate(url);
+				getLockService().getObjectLock(aw.getId()).writeLock().lock();
+				try {
+					getArtWorkDBService().evict(aw);
 
-					ServerDBSettings settings = getSettings();
-					File file = new File(settings.getWorkDir(), "qr-" + getResourceDBService().normalizeFileName(aw.getName()) +"-" + aw.getId().toString() + ".png");
+					o = getArtWorkDBService().findWithDeps(getArtWorkId());
 
-					try {
+					aw = o.get();
+
+					if ((aw.getQRCode() == null) && (aw.getName() != null)) {
+
+						String url = getSettings().getQRServer() + aw.getId().toString();
+
+						BufferedImage image = genereate(url);
+
+						ServerDBSettings settings = getSettings();
+						File file = new File(settings.getWorkDir(), "qr-" + getResourceDBService().normalizeFileName(aw.getName()) + "-" + aw.getId().toString() + ".png");
+
+						try {
 							logger.debug("write -> " + file.getAbsolutePath());
 							ImageIO.write(image, "PNG", file);
-						
+
 							ArtWorkDBService dbs = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
-							ObjectStorageService os = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class); 
-						  
-							String bucketName = ServerConstant.QR_BUCKET; 
-							String objectName = "qr-"+aw.getId().toString(); 
-						  
+							ObjectStorageService os = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
+
+							String bucketName = ServerConstant.QR_BUCKET;
+							String objectName = "qr-" + aw.getId().toString();
+
 							if (!os.existsObject(bucketName, objectName)) {
-								os.getClient().putObject(bucketName, objectName, file); 
-								aw=dbs.addQR(aw, bucketName, objectName, file.getName(), getMimeType(file.getName()),  file.length(), getRootUser());
+								os.getClient().putObject(bucketName, objectName, file);
+								aw = dbs.addQR(aw, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
 							}
-						 	logger.debug(aw.getQRCode()!=null? aw.getQRCode().getDisplayname() : "nul");
-						  
-						  
-					} catch (IOException e) {
-						logger.error(e, ServerConstant.NOT_THROWN);
+							logger.debug(aw.getQRCode() != null ? aw.getQRCode().getDisplayname() : "nul");
+
+						} catch (IOException e) {
+							logger.error(e, ServerConstant.NOT_THROWN);
+						}
 					}
+
+				} finally {
+					getLockService().getObjectLock(aw.getId()).writeLock().unlock();
 				}
+
 			}
 
 		} catch (Exception e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
 	}
-	
-	  protected ArtWorkDBService getArtWorkDBService() {
-	    	ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
-	    	return service;
-	    }
-	  
-	  
 
-
-	 
+	protected ArtWorkDBService getArtWorkDBService() {
+		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+		return service;
+	}
 
 	public Long getArtWorkId() {
 		return this.artworkId;
@@ -122,12 +122,11 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 	protected ServerDBSettings getSettings() {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
 	}
-	
+
 	protected ResourceDBService getResourceDBService() {
-		return  (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
 
-	
 	private BufferedImage genereate(String barcodeText) throws IOException {
 
 		QRCodeWriter barcodeWriter = new QRCodeWriter();
@@ -145,27 +144,27 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 
 	private String getMimeType(String fileName) {
 
-        if (FSUtil.isImage(fileName)) {
-            String str = FilenameUtils.getExtension(fileName);
+		if (FSUtil.isImage(fileName)) {
+			String str = FilenameUtils.getExtension(fileName);
 
-            if (str.equals("jpg"))
-                return "image/jpeg";
+			if (str.equals("jpg"))
+				return "image/jpeg";
 
-            if (str.equals("jpeg"))
-                return "image/jpeg";
+			if (str.equals("jpeg"))
+				return "image/jpeg";
 
-            return "image/" + str;
-        }
+			return "image/" + str;
+		}
 
-        if (FSUtil.isPdf(fileName))
-            return "application/pdf";
+		if (FSUtil.isPdf(fileName))
+			return "application/pdf";
 
-        if (FSUtil.isVideo(fileName))
-            return "video/" + FilenameUtils.getExtension(fileName);
+		if (FSUtil.isVideo(fileName))
+			return "video/" + FilenameUtils.getExtension(fileName);
 
-        if (FSUtil.isAudio(fileName))
-            return "audio/" + FilenameUtils.getExtension(fileName);
+		if (FSUtil.isAudio(fileName))
+			return "audio/" + FilenameUtils.getExtension(fileName);
 
-        return "";
-    }
+		return "";
+	}
 }
