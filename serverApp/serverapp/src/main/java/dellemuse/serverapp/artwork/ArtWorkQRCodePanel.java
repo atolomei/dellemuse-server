@@ -3,6 +3,8 @@ package dellemuse.serverapp.artwork;
 import java.io.File;
 import java.util.List;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
@@ -15,6 +17,7 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
+import dellemuse.serverapp.command.QRCodeArtWorkGenerationCommand;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.ArtWork;
@@ -34,7 +37,6 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 	private WebMarkupContainer qrcodecontainer;
 
 	private IModel<File> qrFileModel;
-
 	private IModel<File> qrPdfFileModel;
 
 	public ArtWorkQRCodePanel(String id, IModel<ArtWork> model) {
@@ -47,48 +49,67 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 		super.onInitialize();
 
 		setUpModel();
-
+		
+		add(new InvisiblePanel("error"));
+		
 		qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
 		add(qrcodecontainer);
+	
+		
+		AjaxLink<Void> qrGenerateLink = new AjaxLink<Void>("qr-generate-link") {
 
-		Resource qrcode = getModel().getObject().getQRCode();
-		Resource qrcodePdf = getModel().getObject().getQRCodePdf();
+			private static final long serialVersionUID = 1L;
 
-		qrcodecontainer.setVisible(qrcode != null);
-
-		try {
-
-			if (qrcode != null) {
-
-				qrFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(
-						qrcode.getBucketName(), qrcode.getObjectName(), qrcode.getName());
-
-				String presignedThumbnail = super.getPresignedThumbnail(qrcode, ThumbnailSize.LARGE);
-				Url url = Url.parse(presignedThumbnail);
-				UrlResourceReference resourceReference = new UrlResourceReference(url);
-
-				Image image = new Image("qrcode", resourceReference);
-				qrcodecontainer.add(image);
-
-				DownloadLink link = new DownloadLink("qr-file-link", getQRFileModel()) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public File getModelObject() {
-						return getQRFileModel().getObject();
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				try {
+					
+					QRCodeArtWorkGenerationCommand c= new QRCodeArtWorkGenerationCommand(ArtWorkQRCodePanel.this.getModel().getObject().getId(), true );
+					c.execute();
+				
+					logger.debug("artwork with id " + ArtWorkQRCodePanel.this.getModel().getObject().getId() + " qr code generation command executed");
+					
+					
+					getLockService().getObjectLock(ArtWorkQRCodePanel.this.getModel().getObject().getId()).writeLock().lock();
+					try {
+						logger.debug("reloading artwork with id " + ArtWorkQRCodePanel.this.getModel().getObject().getId());
+						setUpModel();
+						addQRCodePanel();
+						addQRCodePdfPanel();
+						
+					} finally {
+						getLockService().getObjectLock(ArtWorkQRCodePanel.this.getModel().getObject().getId()).writeLock().unlock();
 					}
-				};
-
-				Label f = new Label("qr-file-name", qrcode.getName());
-				link.add(f);
-				qrcodecontainer.add(link);
-
-				// PDF download link
+				
+					target.add(ArtWorkQRCodePanel.this);
+				
+				} catch (Exception e) {
+					logger.error(e, ServerConstant.NOT_THROWN);
+					ArtWorkQRCodePanel.this.addOrReplace(new ErrorPanel("error", e));
+				}
+				
+			}
+			
+			@Override
+			public boolean isVisible() {
+				return true;
+				//return  ArtWorkQRCodePanel.this.getModel().getObject().getQRCode()==null;
+			}
+			
+		};
+		
+		add(qrGenerateLink);
+		
+		addQRCodePanel();
+		addQRCodePdfPanel();
+		
+		
+		
+	}
+/**
+ * 
+ * 	// PDF download link
 				if (qrcodePdf != null) {
-
-					qrPdfFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(
-							qrcodePdf.getBucketName(), qrcodePdf.getObjectName(), qrcodePdf.getName());
 
 					DownloadLink pdfLink = new DownloadLink("qr-pdf-link", getQRPdfFileModel()) {
 
@@ -107,26 +128,82 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 				} else {
 					qrcodecontainer.add(new InvisiblePanel("qr-pdf-link"));
 				}
+				
+ * @return
+ */
+	private void addQRCodePanel() {
+		
+			qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
+			addOrReplace(qrcodecontainer);
 
-				add(new InvisiblePanel("noqrcode"));
+			Resource qrcode = getModel().getObject().getQRCode();
+			
+			    if (qrcode != null) {
+			       
+					String presignedThumbnail = getPresignedThumbnail(qrcode, ThumbnailSize.LARGE) ;
+					Url url = Url.parse(presignedThumbnail);
+					UrlResourceReference resourceReference = new UrlResourceReference(url);
+	
+					Image image = new Image("qrcode", resourceReference);
+					qrcodecontainer.addOrReplace(image);
+					
+					DownloadLink link = new DownloadLink("qr-file-link", getQRFileModel()) {
+						private static final long serialVersionUID = 1L;
+						@Override
+						public File getModelObject() {
+							return getQRFileModel().getObject();
+						}
+					};
+	
+					Label f = new Label("qr-file-name", qrcode.getName());
+					link.add(f);
+					qrcodecontainer.addOrReplace(link);
 
-			} else {
-				qrcodecontainer.add(new InvisibleImage("qrcode"));
-				qrcodecontainer.add(new InvisiblePanel("qr-file-link"));
-				qrcodecontainer.add(new InvisiblePanel("qr-pdf-link"));
-				add(new LabelPanel("noqrcode", getLabel("noqrcode")));
+					Label l = new Label("qrcode-text",  getModel().getObject().getQrCodeText());
+					qrcodecontainer.addOrReplace(l);
+					
+					addOrReplace(new InvisiblePanel("noqrcode"));
+	
+			    }
+			    
+			    else {
+			    	qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
+			    	qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
+			    	qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
+
+			    	addOrReplace(new LabelPanel("noqrcode", getLabel("noqrcode")));
 			}
-
-		} catch (Exception e) {
-			qrcodecontainer.add(new InvisibleImage("qrcode"));
-			qrcodecontainer.add(new InvisiblePanel("qr-file-link"));
-			qrcodecontainer.add(new InvisiblePanel("qr-pdf-link"));
-			add(new ErrorPanel("noqrcode", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
-
-			logger.error(e, ServerConstant.NOT_THROWN);
-		}
 	}
+	
+	private void addQRCodePdfPanel() {
+		 
+	    Resource qrcodepdf = getModel().getObject().getQRCodePdf();
+	
+	    if (qrcodepdf != null) {
+	       
+	    	DownloadLink link = new DownloadLink("qr-pdf-link", getQRFileModel()) {
+				private static final long serialVersionUID = 1L;
+				@Override
+				public File getModelObject() {
+					return getQRPdfFileModel().getObject();
+				}
+			};
 
+			Label f = new Label("qr-pdf-name", qrcodepdf.getName());
+			link.add(f);
+			qrcodecontainer.addOrReplace(link);
+
+			addOrReplace(new InvisiblePanel("noqrcode"));
+	    }
+	    
+	    else {
+	    	qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
+	    }
+
+
+}
+
+	
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -144,8 +221,25 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 	}
 
 	private void setUpModel() {
+
 		ArtWork aw = getModel().getObject();
 		getModel().setObject(getArtWorkDBService().findWithDeps(aw.getId()).get());
+
+
+		Resource qrcode = getModel().getObject().getQRCode();
+		Resource qrcodePdf = getModel().getObject().getQRCodePdf();
+		
+		if (qrcode != null) {
+		qrFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(
+				qrcode.getBucketName(), qrcode.getObjectName(), qrcode.getName());
+		}
+		
+		if (qrcodePdf != null) {
+		qrPdfFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(
+				qrcodePdf.getBucketName(), qrcodePdf.getObjectName(), qrcodePdf.getName());
+		}
+		
+		
 	}
 
 	private IModel<File> getQRFileModel() {

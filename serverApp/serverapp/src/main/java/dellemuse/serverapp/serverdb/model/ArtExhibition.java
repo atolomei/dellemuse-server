@@ -77,7 +77,9 @@ public class ArtExhibition extends MultiLanguageObject {
 	private Long audioId;
 	
 
-	
+	@Column(name = "qrcodetext")
+	private String qrCodeText;
+
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = ArtExhibitionItem.class)
 	@JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
@@ -207,6 +209,14 @@ public class ArtExhibition extends MultiLanguageObject {
 
 	public String getWebsite() {
 		return website;
+	}
+
+	public String getQrCodeText() {
+		return qrCodeText;
+	}
+
+	public void setQrCodeText(String qrCodeText) {
+		this.qrCodeText = qrCodeText;
 	}
 
 	public Resource getQRCodePdf() {

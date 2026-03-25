@@ -94,6 +94,8 @@ public class SitePage extends BasePage {
 	private Link<Site> linkFloors;
 	private Link<Site> linkExhibitions;
 
+	private Link<Site> linkqrcode;
+	
 	private List<IModel<ArtExhibition>> listPermanent;
 	private List<IModel<ArtExhibition>> listTemporary;
 	private List<IModel<ArtExhibition>> listTemporaryPast;
@@ -124,6 +126,29 @@ public class SitePage extends BasePage {
 		
 		//if (isSiteAdminOrEditor(object.getSite()))
 		//	return true;
+		
+		User user = getSessionUser().get();
+		
+		{
+			Set<RoleGeneral> set = user.getRolesGeneral();
+
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
+				if (isAccess)
+					return true;
+			}
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
 		
 		return false;
 	}
@@ -828,13 +853,7 @@ public class SitePage extends BasePage {
 						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
 
-					
-
-					
-
-
-
-					@Override
+	 				@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
 						getArtExhibitionDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
@@ -1273,6 +1292,21 @@ public class SitePage extends BasePage {
 		};
 		s.add(linkFloors);
 
+		
+
+		linkqrcode = new Link<Site>("qrcode", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new SiteQRCodePage(getSiteModel()));
+			}
+		};
+		s.add(linkqrcode);
+
+		
+		
+		
 	}
 
 	private void addCatalog() {

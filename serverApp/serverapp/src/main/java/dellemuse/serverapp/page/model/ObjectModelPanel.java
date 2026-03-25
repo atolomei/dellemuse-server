@@ -77,6 +77,7 @@ import dellemuse.serverapp.serverdb.service.security.RoleGeneralDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleInstitutionDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleSiteDBService;
 import dellemuse.serverapp.service.DateTimeService;
+import dellemuse.serverapp.service.LockService;
 import dellemuse.serverapp.service.PublicUrlCacheService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.SecurityAuthorizationService;
@@ -190,6 +191,10 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 
 	protected EmailTemplateService getEmailTemplateService() {
 		return (EmailTemplateService) ServiceLocator.getInstance().getBean(EmailTemplateService.class);
+	}
+	
+	protected LockService getLockService() {
+		return (LockService) ServiceLocator.getInstance().getBean(LockService.class);
 	}
 
 	protected PersistentTokenDBService getPersistentTokenDBServiceDBService() {

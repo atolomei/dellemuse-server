@@ -64,15 +64,7 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalP
 
 	private IModel<File> qrFileModel;
 
-	/**
-	 * 
-	 * - ObjectState - Record -> translate
-	 * 
-	 * 
-	 * 
-	 * @param id
-	 * @param model
-	 */
+	 
 	public ArtWorkMainPanel(String id, IModel<ArtWork> model) {
 		super(id, model);
 	}

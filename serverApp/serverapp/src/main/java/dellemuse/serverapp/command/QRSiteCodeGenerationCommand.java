@@ -110,7 +110,7 @@ public class QRSiteCodeGenerationCommand extends Command {
 							}
 							os.getClient().putObject(bucketName, objectName, file);
 							
-							site = getSiteDBService().addQR(site, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
+							site = getSiteDBService().addQR(site, url, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
 							logger.debug(site.getQrcode() != null ? site.getQrcode().getDisplayname() : "nul");
 
 						} catch (IOException e) {

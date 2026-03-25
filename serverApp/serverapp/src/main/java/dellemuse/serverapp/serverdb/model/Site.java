@@ -118,6 +118,10 @@ public class Site extends MultiLanguageObject {
 	@Column(name = "sortAlphabetical")
 	private boolean sortAlphabetical;
 	
+	@Column(name = "qrcodetext")
+	private String qrCodeText;
+
+	
 	// Resource
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "logo", nullable = true)
@@ -173,6 +177,14 @@ public class Site extends MultiLanguageObject {
 
 	public Resource getQrcode() {
 		return qrcode;
+	}
+
+	public String getQrCodeText() {
+		return qrCodeText;
+	}
+
+	public void setQrCodeText(String qrCodeText) {
+		this.qrCodeText = qrCodeText;
 	}
 
 	public void setQrcode(Resource qrcode) {

@@ -486,10 +486,11 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
  
 	
 	@Transactional
-	public ArtExhibition addQR(ArtExhibition aex, String bucketName, String objectName, String name, String media, long size, User createdBy) {
+	public ArtExhibition addQR(ArtExhibition aex, String text, String bucketName, String objectName, String name, String media, long size, User createdBy) {
 		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE, createdBy, name, true);
 		aex.setQrcode(res);
+		aex.setQrCodeText(text);
 		getRepository().save(aex);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aex, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR));
 		return aex;

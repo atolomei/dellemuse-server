@@ -113,7 +113,7 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 							}
 							os.getClient().putObject(bucketName, objectName, file);
 							
-							aex = getArtExhibitionDBService().addQR(aex, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
+							aex = getArtExhibitionDBService().addQR(aex, url, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
 							logger.debug(aex.getQrcode() != null ? aex.getQrcode().getDisplayname() : "nul");
 	
 						} catch (IOException e) {

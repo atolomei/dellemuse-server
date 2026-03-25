@@ -74,6 +74,9 @@ public class ArtWork extends MultiLanguageObject {
 	@Enumerated(EnumType.ORDINAL)
 	private ObjectType objectType;
 	
+	@Column(name = "qrcodetext")
+	private String qrCodeText;
+
 	
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "qrcodepdf", nullable = true)
@@ -151,6 +154,14 @@ public class ArtWork extends MultiLanguageObject {
 
 	public Set<Artist> getArtists() {
 		return artists;
+	}
+
+	public String getQrCodeText() {
+		return qrCodeText;
+	}
+
+	public void setQrCodeText(String qrCodeText) {
+		this.qrCodeText = qrCodeText;
 	}
 
 	public void setArtists(Set<Artist> artists) {

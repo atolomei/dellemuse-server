@@ -41,6 +41,15 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 		this.artworkId = aId;
 	}
 
+	boolean force = false;
+	
+	public QRCodeArtWorkGenerationCommand(Long aId, boolean force) {
+		this.artworkId = aId;
+		this.force = force;
+		
+	}
+
+	
 	@Override
 	public void execute() {
 
@@ -65,10 +74,10 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 
 					aw = o.get();
 
-					if ((aw.getQRCode() == null) && (aw.getName() != null)) {
+					if ( force || ((aw.getQRCode() == null) && (aw.getName() != null))) {
 
-						String url = getSettings().getQRServer() + aw.getId().toString();
-
+						String url = getSettings().getQRServer() + "/ag/guidecontent/" + aw.getId().toString();
+						
 						BufferedImage image = genereate(url);
 
 						ServerDBSettings settings = getSettings();
@@ -84,11 +93,11 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 							String bucketName = ServerConstant.QR_BUCKET;
 							String objectName = "qr-" + aw.getId().toString();
 
-							if (!os.existsObject(bucketName, objectName)) {
+							if (os.existsObject(bucketName, objectName)) {
 								os.getClient().deleteObject(bucketName, objectName);
 							}
 							os.getClient().putObject(bucketName, objectName, file);
-							aw = dbs.addQR(aw, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
+							aw = dbs.addQR(aw, url, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
 							logger.debug(aw.getQRCode() != null ? aw.getQRCode().getDisplayname() : "nul");
 
 						} catch (IOException e) {
