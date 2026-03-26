@@ -3,6 +3,7 @@ package dellemuse.serverapp.page.model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -148,6 +149,21 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return list;
 	}
 
+	
+	public Locale getLocale() {
+		Locale locale = super.getLocale();
+		
+		if (locale == null) {
+			logger.error("locale is null, using default locale -> " + Locale.getDefault().toString());
+			locale = Locale.getDefault();	
+		}
+		return locale;
+		
+		//WebRequest request = (WebRequest) RequestCycle.get().getRequest();
+		//return request.getLocale();
+	
+	}
+	
 	/** Save --------------------------------------------------------- */
 
 	protected IModel<String> getObjectTitle(MultiLanguageObject o) {

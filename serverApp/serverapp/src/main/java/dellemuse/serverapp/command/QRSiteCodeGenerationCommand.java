@@ -24,6 +24,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.FSUtil;
+import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.DelleMuseServerDBVersion;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
@@ -52,10 +53,17 @@ public class QRSiteCodeGenerationCommand extends Command {
 	@JsonProperty("siteId")
 	private Long siteId;
 
+	boolean force = false;
+	
 	public QRSiteCodeGenerationCommand(Long aId) {
 		this.siteId = aId;
 	}
 
+	public QRSiteCodeGenerationCommand(Long aId, boolean force) {
+		this.siteId = aId;
+		this.force = force;
+	}
+	
 	@Override
 	public void execute() {
 
@@ -85,7 +93,7 @@ public class QRSiteCodeGenerationCommand extends Command {
 					return;
 				}
 
-				if (site.getQrcode() == null) {
+				if (force || site.getQrcode() == null) {
 
 					getLockService().getObjectLock(site.getId()).writeLock().lock();
 					try {
@@ -111,6 +119,12 @@ public class QRSiteCodeGenerationCommand extends Command {
 							os.getClient().putObject(bucketName, objectName, file);
 							
 							site = getSiteDBService().addQR(site, url, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
+							
+							if (site.getQrcode() != null) {
+								getResourceThumbnailService().deleteThumbnail(site.getQrcode(), ThumbnailSize.LARGE);
+							}
+
+							
 							logger.debug(site.getQrcode() != null ? site.getQrcode().getDisplayname() : "nul");
 
 						} catch (IOException e) {

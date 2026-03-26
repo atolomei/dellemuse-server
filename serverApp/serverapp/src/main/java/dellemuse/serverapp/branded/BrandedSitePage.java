@@ -137,6 +137,7 @@ public class BrandedSitePage extends BasePage {
 		this.gc_list = gc_list;
 	}
 
+	@Override
 	public Locale getLocale() {
 
 		if (locale != null)
@@ -146,7 +147,6 @@ public class BrandedSitePage extends BasePage {
 			logger.debug("setting language from parameter -> " + lang);
 			locale = Locale.forLanguageTag(lang);
 			getSession().setLocale(Locale.forLanguageTag(lang));
-
 		} else {
 			WebRequest request = (WebRequest) RequestCycle.get().getRequest();
 			Cookie cookie = request.getCookie("lang");
@@ -169,11 +169,27 @@ public class BrandedSitePage extends BasePage {
 				logger.debug("setting language from site master language -> " + code);
 				locale = Locale.forLanguageTag(code);
 				getSession().setLocale(Locale.forLanguageTag(code));
+			
+			} else {
+			
+				if (getSiteModel() != null) {
+					Language la = Language.of(getSiteModel().getObject().getMasterLanguage());
+					String code = la.getLanguageCode();
+					logger.debug("setting language from site master language -> " + code);
+					locale = Locale.forLanguageTag(code);
+					getSession().setLocale(locale);
+				
+				}
+				else {
+					locale = Locale.getDefault();
+					getSession().setLocale(locale);
+				}
+	
 			}
 		}
 		return locale;
 	}
-
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 

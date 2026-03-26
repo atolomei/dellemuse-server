@@ -24,6 +24,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.FSUtil;
+import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.DelleMuseServerDBVersion;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
@@ -54,10 +55,18 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 	@JsonProperty("artExhibitionId")
 	private Long artExhibitionId;
 
+	boolean force = false;
+	
 	public QRArtExhibitionCodeGenerationCommand(Long aId) {
 		this.artExhibitionId = aId;
 	}
 
+	public QRArtExhibitionCodeGenerationCommand(Long aId, boolean forece) {
+		this.artExhibitionId = aId;
+		this.force = forece;
+	}
+
+	
 	@Override
 	public void execute() {
 
@@ -85,7 +94,7 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 	
 					BufferedImage image;
 	
-					if (aex.getName() == null || aex.getSite() == null) {
+					if (force || (aex.getName() == null || aex.getSite() == null)) {
 						logger.debug("ArtExhibition name or site is null, cannot generate QR code");
 						return;
 					}
@@ -114,6 +123,12 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 							os.getClient().putObject(bucketName, objectName, file);
 							
 							aex = getArtExhibitionDBService().addQR(aex, url, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
+							
+							if (aex.getQrcode() != null) {
+								getResourceThumbnailService().deleteThumbnail(aex.getQrcode(), ThumbnailSize.LARGE);
+							}
+							
+							
 							logger.debug(aex.getQrcode() != null ? aex.getQrcode().getDisplayname() : "nul");
 	
 						} catch (IOException e) {

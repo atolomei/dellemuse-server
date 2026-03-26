@@ -226,11 +226,27 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 				logger.debug("setting language from site master language -> " + code);
 				locale = Locale.forLanguageTag(code);
 				getSession().setLocale(Locale.forLanguageTag(code));
+			
+			} else {
+			
+				if (getSiteModel() != null) {
+					Language la = Language.of(getSiteModel().getObject().getMasterLanguage());
+					String code = la.getLanguageCode();
+					logger.debug("setting language from site master language -> " + code);
+					locale = Locale.forLanguageTag(code);
+					getSession().setLocale(locale);
+				
+				}
+				else {
+					locale = Locale.getDefault();
+					getSession().setLocale(locale);
+				}
+	
 			}
 		}
 		return locale;
 	}
-
+	
 	public AccesibilityMode getAccesibilityMode() {
 		return accesibilityMode;
 	}

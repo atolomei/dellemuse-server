@@ -39,11 +39,13 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 	@JsonProperty("artworkId")
 	private Long artworkId;
 
+	boolean force = false;
+	
 	public QRCodeArtWorkGenerationCommand(Long aId) {
 		this.artworkId = aId;
 	}
 
-	boolean force = false;
+
 	
 	public QRCodeArtWorkGenerationCommand(Long aId, boolean force) {
 		this.artworkId = aId;
