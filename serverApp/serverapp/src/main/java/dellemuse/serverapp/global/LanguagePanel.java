@@ -77,7 +77,14 @@ public class LanguagePanel extends ModelPanel<User> {
 		this.languages.add(Language.of( siteModel.getObject().getMasterLanguage()));
 		this.languages.addAll(siteModel.getObject().getLanguages());
 		
-		setLanguage(Language.of(getLocale().getLanguage()));
+		Locale locale = getLocale();
+		
+		if (locale==null) {
+			logger.error("locale is null");
+			locale=Locale.getDefault();
+		}
+			
+		setLanguage(Language.of(locale.getLanguage()));
 
 		this.selector = new DropDownChoice<Language>("languages", getChoices()) {
 

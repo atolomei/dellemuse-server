@@ -65,57 +65,22 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 		return MediaUtil.getAudioDurationMilliseconds(sourceFile);
 	}
 
-	/**
-	 * 
-	 * public String getPresignedThumbnailUrl(String bucketName, String objectName,
-	 * ThumbnailSize size) throws IOException {
-	 * 
-	 * 
-	 * final String t_bucket = ServerConstant.THUMBNAIL_BUCKET; final String
-	 * t_object = bucketName+"-"+ String.valueOf(objectName.hashCode()) + "-" +
-	 * size.getLabel();
-	 * 
-	 * int cacheDurationSecs = ServerConstant.THUMBNAIL_CACHE_DURATION_SECS;
-	 * 
-	 * try { if (getObjectStorageService().getClient().existsObject(t_bucket,
-	 * t_object)) { return getObjectStorageService().getPresignedStaticUrl(t_bucket,
-	 * t_object); } } catch (ODClientException e) { throw new RuntimeException ( e
-	 * ); } catch (IOException e) { throw new RuntimeException ( e ); }
-	 * 
-	 * 
-	 * 
-	 * 
-	 * File sourceFile = new File(getSettings().getWorkDir(), objectName);
-	 * 
-	 * try { try (InputStream in =
-	 * getObjectStorageService().getClient().getObject(bucketName, objectName)) {
-	 * Files.copy(in, sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING); }
-	 * catch (ODClientException e) { throw new RuntimeException (e); } catch
-	 * (IOException e) { throw new RuntimeException (e); }
-	 * 
-	 * File thumbnail = null; try { thumbnail = create(
-	 * Long.valueOf(objectName.hashCode()).longValue(), sourceFile, size); } catch
-	 * (IOException e) { throw new RuntimeException ( e ); }
-	 * 
-	 * if (thumbnail==null) throw new RuntimeException ("thumbnail is null");
-	 * 
-	 * 
-	 * 
-	 * try { getObjectStorageService().getClient().putObject(t_bucket, t_object,
-	 * thumbnail); } catch (ODClientException e) { throw new RuntimeException ( e );
-	 * } } finally { if (sourceFile.exists()) { try {
-	 * FileUtils.forceDelete(sourceFile); } catch (IOException e) { logger.error(e);
-	 * } } }
-	 * 
-	 * 
-	 * 
-	 * return getObjectStorageService().getPresignedStaticUrl(t_bucket, t_object);
-	 * 
-	 * 
-	 * }
-	 * 
-	 */
-
+	 
+	public void  deleteThumbnail(Resource resource, ThumbnailSize size) throws IOException {
+		final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
+		final String t_object = resource.getBucketName() + "-" + String.valueOf(resource.getObjectName().hashCode()) + "-" + size.getLabel();
+		try {
+			if (getObjectStorageService().getClient().existsObject(t_bucket, t_object)) {
+				getObjectStorageService().getClient().deleteObject(t_bucket, t_object);
+				logger.debug("thumbnail deleted -> " + t_bucket + " | " + t_object);
+			}
+		}
+		catch (ODClientException e) {
+			throw new IOException(e);
+		}
+	}
+	
+	
 	public String getPresignedThumbnailUrl(Resource resource, ThumbnailSize size) throws IOException {
 
 		final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;

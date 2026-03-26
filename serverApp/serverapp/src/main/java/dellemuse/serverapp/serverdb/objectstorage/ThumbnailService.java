@@ -39,6 +39,9 @@ public class ThumbnailService extends BaseService {
 		super(settings);
 	}
 
+
+
+	
 	public File create(Long id, File file, ThumbnailSize size) throws IOException {
 
 		if (!MediaUtil.isImage(file.getName()))

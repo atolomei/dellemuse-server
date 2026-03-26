@@ -322,6 +322,26 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 	}
 
 	@Transactional
+	public List<GuideContent> getByArtWorkId(Long aid) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<GuideContent> cq = cb.createQuery(getEntityClass());
+
+		Root<GuideContent> root = cq.from(getEntityClass());
+	 
+		Predicate p1 = cb.equal(root.get("artExhibitionItem").get("artWork").get("id"), aid);
+		Predicate p2 = cb.equal(root.get("state"), ObjectState.PUBLISHED);
+
+		Predicate combinedPredicate = cb.and(p1, p2);
+		cq.select(root).where(combinedPredicate);
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+	
+	
+	
+	@Transactional
 	public List<GuideContent> getByArtWorkAudioId(Site site, Long aid, ObjectState os1) {
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();

@@ -298,6 +298,41 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 				};
 			}
 		});
+		
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<GuideContent> getItem(String id) {
+
+				return new AjaxLinkMenuItem<GuideContent>(id, model) {
+
+					private static final long serialVersionUID = 1L;
+
+					public boolean isEnabled() {
+						return getModel().getObject().getState() != ObjectState.EDITION;
+					}
+					public boolean isVisible() {
+						return getModel().getObject().getState() != ObjectState.EDITION;
+					}
+					
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.EDITION);
+						getGuideContentDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get() );
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("edit");
+					}
+				};
+			}
+		});
+		
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
 
@@ -310,6 +345,11 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 					private static final long serialVersionUID = 1L;
 
+					public boolean isVisible() {
+						return getModel().getObject().getState() != ObjectState.PUBLISHED;
+					}
+
+					
 					public boolean isEnabled() {
 						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}

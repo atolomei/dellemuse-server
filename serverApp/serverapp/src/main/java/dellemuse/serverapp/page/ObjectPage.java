@@ -63,7 +63,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	private int currentIndex = 0;
 	private WebMarkupContainer currentPanel;
 
-	private WebMarkupContainer mainMarkupContainer;
+	private WebMarkupContainer mainMarkupContainer = new WebMarkupContainer("mainContainer");
 
 	private WebMarkupContainer navigatorContainer;
 	private WebMarkupContainer internalPanelContainer;
@@ -102,11 +102,27 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	public ObjectPage(PageParameters parameters) {
 		super(parameters);
 		stringValue = getPageParameters().get("id");
+		mainMarkupContainer.add(AttributeModifier.replace("class", getMainClass()));
+		super.addOrReplace(mainMarkupContainer);
+		helpContainer = new WebMarkupContainer("helpContainer");
+		helpContainer.setOutputMarkupId(true);
+		mainMarkupContainer.add(helpContainer);
+		helpContainer.add(new InvisiblePanel("help"));
+
+		
 	}
 
 	public ObjectPage(IModel<T> model) {
 		setModel(model);
 		getPageParameters().add("id", model.getObject().getId().toString());
+		mainMarkupContainer.add(AttributeModifier.replace("class", getMainClass()));
+		super.addOrReplace(mainMarkupContainer);
+		helpContainer = new WebMarkupContainer("helpContainer");
+		helpContainer.setOutputMarkupId(true);
+		mainMarkupContainer.add(helpContainer);
+		helpContainer.add(new InvisiblePanel("help"));
+
+		
 	}
 
 	public ObjectPage(IModel<T> model, List<IModel<T>> list) {
@@ -115,6 +131,14 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		setModel(model);
 		setList(list);
 		getPageParameters().add("id", model.getObject().getId().toString());
+		mainMarkupContainer.add(AttributeModifier.replace("class", getMainClass()));
+		super.addOrReplace(mainMarkupContainer);
+		helpContainer = new WebMarkupContainer("helpContainer");
+		helpContainer.setOutputMarkupId(true);
+		mainMarkupContainer.add(helpContainer);
+		helpContainer.add(new InvisiblePanel("help"));
+
+		
 	}
 
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -246,27 +270,23 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		return Model.of("eeeeeeee");
 	}
 
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
-		mainMarkupContainer = new WebMarkupContainer("mainContainer");
-		mainMarkupContainer.add(AttributeModifier.replace("class", getMainClass()));
-
-		super.addOrReplace(mainMarkupContainer);
-
-		helpContainer = new WebMarkupContainer("helpContainer");
-		helpContainer.setOutputMarkupId(true);
-		mainMarkupContainer.add(helpContainer);
-		helpContainer.add(new InvisiblePanel("help"));
-
 		try {
-
+			
 			setUpModel();
-
+		
 		} catch (Exception e) {
 			logger.error(e);
 			addErrorPanels(e);
+			return;
+		}
+
+		if (isError()) {
+			addErrorPanels(new RuntimeException(getErrorStr()));
 			return;
 		}
 
@@ -317,6 +337,15 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		addToolbar();
 	}
 
+
+	protected boolean isError() {
+		return false;
+	}
+
+	protected String getErrorStr() {
+		return "";
+	}
+	
 	protected Panel getNoAuthorizedErrorPanel(String id) {
 		return new ErrorPanel(id, getLabel("not-authorized"));
 	}

@@ -106,17 +106,15 @@ public class AvatarService extends BaseService implements SystemService {
 	}
 
 	private void loadFiles() {
-
+		
 		long index = 0;
-		for (Resource resource : getResourceDBService().getDefaultAvatars()) {
+		
+		for (Resource resource: getResourceDBService().getDefaultAvatars()) {
 			map.put(index++, resource.getId());
 		}
-
-		// int cacheDurationSecs = ServerDBConstant.THUMBNAIL_CACHE_DURATION_SECS;
-
-	 
 	}
 
+	
 	private void importFiles() {
 
 		File avatarDir = new File(getSettings().getAvatarDir());

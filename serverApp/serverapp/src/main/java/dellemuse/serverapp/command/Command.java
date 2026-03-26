@@ -38,6 +38,7 @@ import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.LockService;
+import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.SecurityService;
 
 public abstract class Command extends JsonObject {
@@ -197,7 +198,9 @@ public abstract class Command extends JsonObject {
 
 	 
 
- 
+	protected ResourceThumbnailService getResourceThumbnailService() {
+		return (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
+	}
 
 	protected ArtExhibitionDBService getArtExhibitionDBService() {
 		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);

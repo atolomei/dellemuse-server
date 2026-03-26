@@ -21,7 +21,8 @@ public class PrefixUrl {
 	static public final String ArtExhibitionGuide = "guide";
 
 	static public final String GuideContent = "guidecontent";
-
+	static public final String PublicPortalGuideContent = "aw";
+	
 	static public final String GuideContentRecord = "guidecontent";
 	static public final String ArtExhibitionGuideRecord = "ArtExhibition";
 

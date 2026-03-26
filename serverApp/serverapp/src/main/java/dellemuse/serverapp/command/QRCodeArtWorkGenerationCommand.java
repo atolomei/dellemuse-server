@@ -19,9 +19,11 @@ import com.google.zxing.qrcode.QRCodeWriter;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.FSUtil;
+import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.DelleMuseServerDBVersion;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
@@ -76,7 +78,7 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 
 					if ( force || ((aw.getQRCode() == null) && (aw.getName() != null))) {
 
-						String url = getSettings().getQRServer() + "/ag/guidecontent/" + aw.getId().toString();
+						String url = getSettings().getQRServer() + "/ag/" + PrefixUrl.PublicPortalGuideContent +"/" + aw.getId().toString();
 						
 						BufferedImage image = genereate(url);
 
@@ -84,6 +86,7 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 						File file = new File(settings.getWorkDir(), "qr-" + getResourceDBService().normalizeFileName(aw.getName()) + "-" + aw.getId().toString() + ".png");
 
 						try {
+							
 							logger.debug("write -> " + file.getAbsolutePath());
 							ImageIO.write(image, "PNG", file);
 
@@ -93,11 +96,19 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 							String bucketName = ServerConstant.QR_BUCKET;
 							String objectName = "qr-" + aw.getId().toString();
 
+							
 							if (os.existsObject(bucketName, objectName)) {
 								os.getClient().deleteObject(bucketName, objectName);
 							}
+						
 							os.getClient().putObject(bucketName, objectName, file);
+						
 							aw = dbs.addQR(aw, url, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
+						
+							if (aw.getQRCode() != null) {
+								getResourceThumbnailService().deleteThumbnail(aw.getQRCode(), ThumbnailSize.LARGE);
+							}
+					
 							logger.debug(aw.getQRCode() != null ? aw.getQRCode().getDisplayname() : "nul");
 
 						} catch (IOException e) {

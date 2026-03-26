@@ -100,7 +100,7 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalP
 		moreContainer.setVisible(isMore);
 		add(moreContainer);
 
-		qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
+		/**qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
 		add(qrcodecontainer);
 
 		qrcodecontainer.setVisible(getModel().getObject().getQRCode() != null);
@@ -148,6 +148,8 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalP
 
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
+		*/
+		
 	}
 
 	/**

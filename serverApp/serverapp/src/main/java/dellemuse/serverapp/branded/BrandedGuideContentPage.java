@@ -1,5 +1,6 @@
 package dellemuse.serverapp.branded;
 
+ 
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -12,6 +13,7 @@ import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
@@ -46,7 +48,7 @@ import jakarta.servlet.http.Cookie;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-@MountPath("/ag/guidecontent/${id}")
+@MountPath("/ag/aw/${id}")
 public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideContent, GuideContentRecord> {
 
 	private static final long serialVersionUID = 1L;
@@ -57,23 +59,38 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	private IModel<ArtExhibition> artExhibitionModel;
 	private IModel<ArtExhibitionItem> artExhibitionItemModel;
 	private IModel<Site> siteModel;
+
 	private IModel<ArtWork> artWorkModel;
+
 	private List<IModel<GuideContent>> guideContentSearchList;
 	private List<IModel<ArtExhibitionGuide>> artExhibitionSearchList;
-	
+
 	private String lang;
 	private Locale locale = null;
-	
+
 	private boolean modelAlreadySet = false;
 	
+	private StringValue artworIdValue;
+	private boolean isError = false;
+	private String errorStr = "";
+	
+	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
+	
+
 	public BrandedGuideContentPage() {
 		super();
 	}
 
 	public BrandedGuideContentPage(PageParameters parameters) {
 		super(parameters);
-		setUpModel() ;
+
+		artworIdValue = parameters.get("id");
+		if (artworIdValue.isEmpty()) {
+			isError = true;
+		}
 		setCookieLocale();
+		setUpModel();
+
 	}
 
 	public BrandedGuideContentPage(IModel<GuideContent> model) {
@@ -82,11 +99,15 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 	public BrandedGuideContentPage(IModel<GuideContent> model, List<IModel<GuideContent>> list, String lang) {
 		super(model, list);
-		this.lang=lang;
-		setUpModel() ;
+		this.lang = lang;
 		setCookieLocale();
+		setUpModel();
 	}
-	
+
+	public void onInitialize() {
+		super.onInitialize();
+	}
+
 	@Override
 	public Locale getLocale() {
 
@@ -123,7 +144,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		}
 		return locale;
 	}
- 	
+
 	public List<IModel<GuideContent>> getGuideContentSearchList() {
 		return guideContentSearchList;
 	}
@@ -143,23 +164,19 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
-		if (getModel().getObject().getState() == ObjectState.DELETED)
-			return false;
-
-		if (getSiteModel().getObject().getState() == ObjectState.EDITION)
+		if (getSiteModel().getObject().getState() != ObjectState.PUBLISHED)
 			return false;
 
 		if (getModel().getObject().getState() == ObjectState.DELETED)
 			return false;
 
-		
-		if ( !getSiteModel().getObject().isPublicPortalEnabled() )
+		if (!getSiteModel().getObject().isPublicPortalEnabled())
 			return false;
-		
+
 		return true;
 	}
 
- 	public IModel<Site> getSiteModel() {
+	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
 
@@ -218,7 +235,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	public void setArtWorkModel(IModel<ArtWork> artWorkModel) {
 		this.artWorkModel = artWorkModel;
 	}
-	
+
 	public AccesibilityMode getAccesibilityMode() {
 		return accesibilityMode;
 	}
@@ -226,31 +243,37 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	public void setAccesibilityMode(AccesibilityMode accesibilityMode) {
 		this.accesibilityMode = accesibilityMode;
 	}
-	
-	
+
+	protected boolean isError() {
+		return isError;
+	}
+
+	protected String getErrorStr() {
+		return errorStr;
+	}
+
 	protected void setCookieLocale() {
-		
+
 		if (lang != null) {
-		  logger.debug("setting language from parameter -> " + lang);
-		  locale =Locale.forLanguageTag(lang);
-		  getSession().setLocale(Locale.forLanguageTag(lang));
-		  return;
+			logger.debug("setting language from parameter -> " + lang);
+			locale = Locale.forLanguageTag(lang);
+			getSession().setLocale(Locale.forLanguageTag(lang));
+			return;
 		}
-		
+
 		WebRequest request = (WebRequest) RequestCycle.get().getRequest();
 		Cookie cookie = request.getCookie("lang");
 
 		if (cookie != null) {
 			String value = cookie.getValue();
-		    logger.debug("setting language from cookie -> " + value);
+			logger.debug("setting language from cookie -> " + value);
 			locale = Locale.forLanguageTag(value);
-			lang=value;
-		    getSession().setLocale(Locale.forLanguageTag(value));
+			lang = value;
+			getSession().setLocale(Locale.forLanguageTag(value));
 		}
- 	
-	
+
 		Cookie accCookie = request.getCookie("accessible");
-		
+
 		if (accCookie != null) {
 			String value = accCookie.getValue();
 			boolean isAccesible = value.equals("true");
@@ -262,18 +285,18 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 				this.accesibilityMode = AccesibilityMode.GENERAL;
 			}
 		}
-		
+
 	}
 
 	protected List<Language> getSupportedLanguages() {
-		return  getSiteModel().getObject().getLanguages();
+		return getSiteModel().getObject().getLanguages();
 	}
- 
+
 	@Override
 	protected boolean isDarkTheme() {
 		return true;
 	}
-	
+
 	@Override
 	protected Optional<GuideContentRecord> loadTranslationRecord(String lang) {
 		return getGuideContentRecordDBService().findByGuideContent(getModel().getObject(), lang);
@@ -294,9 +317,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList(), accesibilityMode);
 	}
 
-	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
-
-	@Override
+ 	@Override
 	protected boolean isLanguage() {
 		return false;
 	}
@@ -305,54 +326,128 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	protected boolean isAudioAutoGenerate() {
 		return true;
 	}
-	
+
 	protected IModel<String> getMainClass() {
 		return Model.of("branded text-bg-dark");
 	}
 
-	@Override
-	protected void setUpModel() {
-		
-		if (modelAlreadySet)
-			return;
-		
-		super.setUpModel();
+	protected void setUpModelFromParameters() {
 
-		if (!getModel().getObject().isDependencies()) {
-			Optional<GuideContent> o_i = getGuideContentDBService().findWithDeps(getModel().getObject().getId());
-			setModel(new ObjectModel<GuideContent>(o_i.get()));
+		GuideContent guideContent = null;
+
+		if (this.artworIdValue == null) {
+			isError = true;
+			errorStr = "artwork id parameter is missing";
+			return;
 		}
 
-		ArtExhibitionItem item = getModel().getObject().getArtExhibitionItem();
-		Optional<ArtExhibitionItem> o_i = getArtExhibitionItemDBService().findWithDeps(item.getId());
-		this.setArtExhibitionItemModel(new ObjectModel<ArtExhibitionItem>(o_i.get()));
+		Optional<ArtWork> o = getArtWorkDBService().findWithDeps(Long.valueOf(this.artworIdValue.toLong()));
 
-		ArtWork aw = getArtWorkDBService().findWithDeps(o_i.get().getArtWork().getId()).get();
-		setArtWorkModel(new ObjectModel<ArtWork>(aw));
+		if (o.isEmpty()) {
+			isError = true;
+			errorStr = "artwork not found for id " + this.artworIdValue.toString();
+			return;
+		}
 
-		ArtExhibitionGuide guide = getModel().getObject().getArtExhibitionGuide();
-		Optional<ArtExhibitionGuide> o_g = getArtExhibitionGuideDBService().findWithDeps(guide.getId());
-		this.setArtExhibitionGuideModel(new ObjectModel<ArtExhibitionGuide>(o_g.get()));
+		setArtWorkModel(new ObjectModel<ArtWork>(o.get()));
 
-		ArtExhibition a = item.getArtExhibition();
-		Optional<ArtExhibition> o_a = getArtExhibitionDBService().findWithDeps(a.getId());
-		this.setArtExhibitionModel(new ObjectModel<ArtExhibition>(o_a.get()));
-
-		Optional<Site> o_s = getSiteDBService().findWithDeps(getArtExhibitionModel().getObject().getSite().getId());
+		Optional<Site> o_s = getSiteDBService().findWithDeps(o.get().getSite().getId());
 		setSiteModel(new ObjectModel<Site>(o_s.get()));
-	
-		modelAlreadySet = true;
-		
+
+		List<GuideContent> list = getGuideContentDBService().getByArtWorkId(o.get().getId());
+
+		if (this.getAccesibilityMode() == AccesibilityMode.GENERAL) {
+			for (GuideContent gc : list) {
+				ArtExhibitionGuide guide = getArtExhibitionGuideDBService().findWithDeps(gc.getArtExhibitionGuide().getId()).get();
+				if (!guide.isAccessible()) {
+					guideContent = gc;
+					setModel(new ObjectModel<GuideContent>(getGuideContentDBService().findWithDeps(guideContent.getId()).get()));
+					break;
+				}
+			}
+		} else {
+			for (GuideContent gc : list) {
+				ArtExhibitionGuide guide = getArtExhibitionGuideDBService().findWithDeps(gc.getArtExhibitionGuide().getId()).get();
+				if (guide.isAccessible()) {
+					guideContent = gc;
+					setModel(new ObjectModel<GuideContent>(getGuideContentDBService().findWithDeps(guideContent.getId()).get()));
+					break;
+				}
+			}
+		}
+
+		if (guideContent != null) {
+
+			ArtExhibitionItem item = getModel().getObject().getArtExhibitionItem();
+			Optional<ArtExhibitionItem> o_i = getArtExhibitionItemDBService().findWithDeps(item.getId());
+			this.setArtExhibitionItemModel(new ObjectModel<ArtExhibitionItem>(o_i.get()));
+
+			ArtExhibitionGuide guide = getModel().getObject().getArtExhibitionGuide();
+			Optional<ArtExhibitionGuide> o_g = getArtExhibitionGuideDBService().findWithDeps(guide.getId());
+			this.setArtExhibitionGuideModel(new ObjectModel<ArtExhibitionGuide>(o_g.get()));
+
+			ArtExhibition a = item.getArtExhibition();
+			Optional<ArtExhibition> o_a = getArtExhibitionDBService().findWithDeps(a.getId());
+			this.setArtExhibitionModel(new ObjectModel<ArtExhibition>(o_a.get()));
+		} else {
+			isError = true;
+			errorStr = "guide content not found for artwork id " + this.artworIdValue.toString();
+		}
+	}
+
+	@Override
+	protected void setUpModel() {
+
+		if (modelAlreadySet)
+			return;
+
+		if (getModel() == null) {
+			setUpModelFromParameters();
+			modelAlreadySet = true;
+			return;
+		}
+
+		try {
+
+			if (!getModel().getObject().isDependencies()) {
+				Optional<GuideContent> o_i = getGuideContentDBService().findWithDeps(getModel().getObject().getId());
+				setModel(new ObjectModel<GuideContent>(o_i.get()));
+			}
+
+			ArtExhibitionItem item = getModel().getObject().getArtExhibitionItem();
+			Optional<ArtExhibitionItem> o_i = getArtExhibitionItemDBService().findWithDeps(item.getId());
+			this.setArtExhibitionItemModel(new ObjectModel<ArtExhibitionItem>(o_i.get()));
+
+			ArtWork aw = getArtWorkDBService().findWithDeps(o_i.get().getArtWork().getId()).get();
+			setArtWorkModel(new ObjectModel<ArtWork>(aw));
+
+			ArtExhibitionGuide guide = getModel().getObject().getArtExhibitionGuide();
+			Optional<ArtExhibitionGuide> o_g = getArtExhibitionGuideDBService().findWithDeps(guide.getId());
+			this.setArtExhibitionGuideModel(new ObjectModel<ArtExhibitionGuide>(o_g.get()));
+
+			ArtExhibition a = item.getArtExhibition();
+			Optional<ArtExhibition> o_a = getArtExhibitionDBService().findWithDeps(a.getId());
+			this.setArtExhibitionModel(new ObjectModel<ArtExhibition>(o_a.get()));
+
+			Optional<Site> o_s = getSiteDBService().findWithDeps(getArtExhibitionModel().getObject().getSite().getId());
+			setSiteModel(new ObjectModel<Site>(o_s.get()));
+
+			getPageParameters().set("id", getArtWorkModel().getObject().getId());
+
+			modelAlreadySet = true;
+
+		} catch (Exception e) {
+			isError = true;
+			errorStr = e.getClass().getSimpleName() + " " + e.getMessage();
+		}
 	}
 
 	@Override
 	protected void addListeners() {
 		super.addListeners();
-		
-		
-		
-	add(new io.wktui.event.WicketEventListener<AccesibilityAjaxEvent>() {
-			
+
+		add(new io.wktui.event.WicketEventListener<AccesibilityAjaxEvent>() {
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -365,15 +460,13 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 			@Override
 			public void onEvent(AccesibilityAjaxEvent event) {
 				logger.debug("setting accesibility mode to " + event.getMode());
-				setAccesibilityMode( event.getMode() );
+				setAccesibilityMode(event.getMode());
 				event.getTarget().add(BrandedGuideContentPage.this);
 			}
 		});
-		
-		
 
 		add(new io.wktui.event.WicketEventListener<LangEvent>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -385,17 +478,12 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 			@Override
 			public void onEvent(LangEvent event) {
-			
-				setResponsePage(
-						new BrandedGuideContentPage(
-								BrandedGuideContentPage.this.getModel(), 
-								BrandedGuideContentPage.this.getList(), 
-								event.getLang()));
+ 				setResponsePage(new BrandedGuideContentPage(BrandedGuideContentPage.this.getModel(), BrandedGuideContentPage.this.getList(), event.getLang()));
 			}
 		});
-		
+
 		add(new io.wktui.event.WicketEventListener<SearchAudioEvent>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -410,11 +498,10 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 				BrandedGuideContentPage page = new BrandedGuideContentPage(BrandedGuideContentPage.this.getModel());
 				page.setArtExhibitionSearchList(event.getArtExhibitionGuidesList());
 				page.setGuideContentSearchList(event.getGuideContentsList());
-				setResponsePage( page );
+				setResponsePage(page);
 			}
 		});
-		
-		
+
 	}
 
 	@Override
@@ -433,7 +520,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 	@Override
 	protected IRequestablePage getObjectPage(IModel<GuideContent> model, List<IModel<GuideContent>> list) {
-		return new BrandedGuideContentPage(model, list,null);
+		return new BrandedGuideContentPage(model, list, null);
 	}
 
 	@Override
@@ -446,34 +533,31 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return new Model<String>(getModel().getObject().getName());
 	}
 
-
 	@Override
 	public BreadCrumb<Void> createBreadCrumb() {
 		BreadCrumb<Void> bc = new BreadCrumb<>();
-		//bc.addElement(new HREFBCElement("/home", getLabel("home")));
+		// bc.addElement(new HREFBCElement("/home", getLabel("home")));
 		return bc;
 	}
-	
+
 	@Override
 	protected Panel createHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
 		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
-		bc.addElement(new HREFBCElement("/ag/guide/" + getArtExhibitionGuideModel().getObject().getId().toString(), getObjectTitle(getArtExhibitionGuideModel().getObject())));
+		bc.addElement(new HREFBCElement("/ag/guide/" + getArtExhibitionModel().getObject().getId().toString(), getObjectTitle(getArtExhibitionModel().getObject())));
 
 		bc.addElement(new BCElement(getObjectTitle(getModel().getObject())));
 
 		StringBuilder str = new StringBuilder();
-		str.append( getObjectTitle( getModel().getObject() ).getObject() );
-		str.append(  getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML: "" );
-	
-		
+		str.append(getObjectTitle(getModel().getObject()).getObject());
+		str.append(getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML : "");
+
 		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), Model.of(str.toString()));
 		ph.setImageLinkCss("jumbo-img jumbo-md mb-0 mb-lg-0  border bg-none");
 
-		
 		ph.setImageContainerCss("row mt-3 mb-1 text-center");
-		
+
 		ph.setHeaderCss("mb-0 mt-0 pt-0 pb-0 border-none");
 		ph.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center  "));
 
@@ -503,20 +587,13 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 				@Override
 				public void navigate(int current) {
-					setResponsePage(new BrandedGuideContentPage(getList().get(current), getList(), null) );
+					setResponsePage(new BrandedGuideContentPage(getList().get(current), getList(), null));
 				}
 			};
 			bc.setNavigator(nav);
 		}
 
 		return ph;
-	}
-
-	@Override
-	public void onInitialize() {
-		super.onInitialize();
-		 
-
 	}
 
 	@Override
