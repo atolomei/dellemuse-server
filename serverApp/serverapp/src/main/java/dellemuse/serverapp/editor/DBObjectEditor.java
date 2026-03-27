@@ -125,7 +125,7 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		if (site==null)
 			return false;
 		
-		return getSecurityAuthorizationService().isSiteAdmin (getSessionUser(), site);
+		return getSecurityAuthorizationService().isSiteAdmin (getSessionUser(), site.getId());
 	}
 	
 	public List<Locale> getSuppportedLocales() {

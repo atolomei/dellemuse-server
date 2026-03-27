@@ -27,7 +27,7 @@ import dellemuse.serverapp.serverdb.model.Language;
  
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
- 
+import dellemuse.serverapp.service.language.LanguageObjectService;
 import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
 import io.wktui.media.AudioPlayer;
@@ -104,14 +104,16 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 						getModel().getObject(), getLocale()
 				);
 			
-				if (c!=0) {
+				if (c != LanguageObjectService.AUDIO_SAME_LANG) {
 				        infoContainer.addOrReplace( new AlertPanel<Void>("error", AlertPanel.INFO, getLabel("audio-other", 
 				        		Language.of( getModel().getObject().getMasterLanguage() ).getLabel(getLocale()))));
 				}
 				
 				WebMarkupContainer audioIntroContainer = new WebMarkupContainer("intro-audio");
 			    audioContainer.add(audioIntroContainer);
-		        String as =  getPresignedUrl(getModel().getObject().getAudio());
+			    
+			    
+		        String as =  getPresignedUrl(getResourceDBService().findWithDeps(res.getId()).get());
 		        Url url = Url.parse(as);
 	            UrlResourceReference resourceReference = new UrlResourceReference(url);
 		        

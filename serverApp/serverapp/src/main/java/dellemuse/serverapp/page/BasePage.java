@@ -132,7 +132,9 @@ public abstract class BasePage extends WebPage {
 	private static final ResourceReference BOOTSTRAP_JS = Bootstrap.getJavaScriptResourceReference();
 
 	private static final ResourceReference CSS = new CssResourceReference(BasePage.class, "./dellemuse.css");
+	private static final ResourceReference DARKCSS = new CssResourceReference(BasePage.class, "./dellemusedark.css");
 
+	
 	private String keywords = xkeywords;
 	private String language = xlanguage;
 
@@ -144,7 +146,9 @@ public abstract class BasePage extends WebPage {
 	private ResourceReference rcss;
 
 	private WebMarkupContainer wfont;
-	private WebMarkupContainer wcss;
+	//private WebMarkupContainer wcss;
+	 
+
 	private WebMarkupContainer fvicon;
 	private WebMarkupContainer vp;
 	private WebMarkupContainer desc;
@@ -289,9 +293,9 @@ public abstract class BasePage extends WebPage {
 
 		setPageKeywords(keywords);
 
-		this.wcss = new WebMarkupContainer("css");
-		this.wcss.setVisible(false);
-		add(this.wcss);
+		//this.wcss = new WebMarkupContainer("css");
+		//this.wcss.setVisible(false);
+		//add(this.wcss);
 
 		this.vp = new WebMarkupContainer("viewport");
 		add(vp);
@@ -339,6 +343,7 @@ public abstract class BasePage extends WebPage {
 		response.render(JavaScriptHeaderItem.forReference(BOOTSTRAP_JS));
 
 		response.render(CssHeaderItem.forReference(CSS));
+		response.render(CssHeaderItem.forReference(DARKCSS));
 
 		if (getCssResource() != null)
 			response.render(CssHeaderItem.forReference(getCssResource()));
@@ -860,10 +865,10 @@ public abstract class BasePage extends WebPage {
 	 */
 
 	public boolean isInstitutionAdmin(Institution in) {
-	 return getSecurityAuthorizationService().isInstitutionAdmin(getSessionUser(), in);
+	 return getSecurityAuthorizationService().isInstitutionAdmin(getSessionUser(), in.getId());
 	}
 	public boolean isInstitutionAdminOrAudit(Institution in) {
-		 return getSecurityAuthorizationService().isInstitutionAdminOrAudit(getSessionUser(), in);
+		 return getSecurityAuthorizationService().isInstitutionAdminOrAudit(getSessionUser(), in.getId());
 	}
 	
 	public boolean isGeneralAdminOrAudit() {
@@ -876,17 +881,16 @@ public abstract class BasePage extends WebPage {
 	public boolean isSiteAdminOrEditor(Site site) {
 		if (site==null)
 			return false;
-		return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), site);
+		return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), site.getId());
 	}
 	
 	public boolean isSiteAdminOrEditor(ArtExhibition in) {
 		if (in==null || in.getSite()==null)
 			return false;
 		if (!in.isDependencies())
-			return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), 
-					getArtExhibitionDBService().findWithDeps(in.getId()).get().getSite());
+			return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), getArtExhibitionDBService().findWithDeps(in.getId()).get().getSite().getId());
 		else
-			return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), in.getSite());
+			return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), in.getSite().getId());
 	}
 
 	public boolean isSiteAdmin (ArtExhibition in) {
@@ -894,9 +898,9 @@ public abstract class BasePage extends WebPage {
 			return false;
 		if (!in.isDependencies())
 			return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), 
-					getArtExhibitionDBService().findWithDeps(in.getId()).get().getSite());
+					getArtExhibitionDBService().findWithDeps(in.getId()).get().getSite().getId());
 		else
-			return getSecurityAuthorizationService().isSiteAdmin(getSessionUser(), in.getSite());
+			return getSecurityAuthorizationService().isSiteAdmin(getSessionUser(), in.getSite().getId());
 
 	}
 	

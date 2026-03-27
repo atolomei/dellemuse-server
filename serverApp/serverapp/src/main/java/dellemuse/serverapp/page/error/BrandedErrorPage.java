@@ -72,8 +72,10 @@ public class BrandedErrorPage extends BasePage {
 			
 			setUpModel();
 			
-			add( new BrandedGlobalTopPanel("top-panel", getSiteModel()));
-		
+			//add( new BrandedGlobalTopPanel("top-panel", getSiteModel()));
+			add( new InvisiblePanel("top-panel" ));
+			
+	
 		} catch (Exception e) {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("top-panel", e));
@@ -81,8 +83,8 @@ public class BrandedErrorPage extends BasePage {
 
 		
 		try {
-		
-			add(createSearchPanel());
+			addOrReplace(new InvisiblePanel("globalSearch"));
+			//eSadd(createarchPanel());
 			add(createHeaderPanel());
 		
 		} catch (Exception e) {

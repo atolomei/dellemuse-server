@@ -49,6 +49,7 @@ import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.PersonRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
+import jakarta.transaction.Transactional;
 
 @Service
 public class SecurityAuthorizationService extends BaseService {
@@ -76,7 +77,7 @@ public class SecurityAuthorizationService extends BaseService {
 	 * User user) { return true; }
 	 **/
 	
-	
+	@Transactional
 	public <T extends MultiLanguageObject> boolean isSiteAdminOrEditor(Optional<User> o, T s) {
 
 		if (s == null)
@@ -95,15 +96,15 @@ public class SecurityAuthorizationService extends BaseService {
 			return false;
 		
 		if (s instanceof Site)
-			return isSiteAdminOrEditor(o, (Site) s);
+			return isSiteAdminOrEditor(o, s.getId());
 		
 		
 		if (s instanceof ArtExhibition) {
-			return isSiteAdminOrEditor(o, (Site) ((ArtExhibition) s).getSite());
+			return isSiteAdminOrEditor(o, ((Site) ((ArtExhibition) s).getSite()).getId());
 		}
 		
 		if (s instanceof ArtExhibitionItem) {
-			return isSiteAdminOrEditor(o, (Site) ((ArtExhibitionItem) s).getArtExhibition().getSite());
+			return isSiteAdminOrEditor(o, ((Site) ((ArtExhibitionItem) s).getArtExhibition().getSite()).getId());
 		}
 		
 		if (s instanceof ArtExhibitionGuide) {
@@ -111,11 +112,11 @@ public class SecurityAuthorizationService extends BaseService {
 		}
 	
 		if (s instanceof GuideContent) {
-			return isSiteAdminOrEditor(o, (Site) ((GuideContent) s).getArtExhibitionItem().getArtExhibition().getSite());
+			return isSiteAdminOrEditor(o, ((Site) ((GuideContent) s).getArtExhibitionItem().getArtExhibition().getSite()).getId());
 		}
 		
 		if (s instanceof Artist) {
-			return isSiteAdminOrEditor(o, (Site) ((Artist) s).getSite());
+			return isSiteAdminOrEditor(o, ((Site) ((Artist) s).getSite()).getId());
 		}
 		
 		if (s instanceof ArtWork) {
@@ -127,10 +128,10 @@ public class SecurityAuthorizationService extends BaseService {
 
 	
 	
+	@Transactional
+	public boolean isSiteAdminOrEditor(Optional<User> o, Long siteId) {
 
-	public boolean isSiteAdminOrEditor(Optional<User> o, Site s) {
-
-		if (s == null)
+		if (siteId == null)
 			return false;
 
 		if (o.isEmpty())
@@ -141,22 +142,16 @@ public class SecurityAuthorizationService extends BaseService {
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
+ 
 
-		Site site;
-
-		if (!s.isDependencies()) {
-			site = getSiteDBService().findWithDeps(s.getId()).get();
-		} else
-			site = s;
-
-		return user.getRolesSite().stream().filter(ia -> (ia.getKey().equals(RoleInstitution.ADMIN) || ia.getKey().equals(RoleSite.EDITOR)) && (ia.getSite().getId().equals(site.getId()))).findAny().isPresent();
+		return user.getRolesSite().stream().filter(ia -> (ia.getKey().equals(RoleInstitution.ADMIN) || ia.getKey().equals(RoleSite.EDITOR)) && (ia.getSite().getId().equals(siteId))).findAny().isPresent();
 
 	}
 
-	
-	public boolean isSiteAdmin(Optional<User> o, Site s) {
+	@Transactional
+	public boolean isSiteAdmin(Optional<User> o, Long siteId) {
 
-		if (s == null)
+		if (siteId == null)
 			return false;
 
 		if (o.isEmpty())
@@ -167,21 +162,15 @@ public class SecurityAuthorizationService extends BaseService {
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
+ 	 
 
-		Site site;
-
-		if (!s.isDependencies()) {
-			site = getSiteDBService().findWithDeps(s.getId()).get();
-		} else
-			site = s;
-
-		return user.getRolesSite().stream().filter(ia -> (ia.getKey().equals(RoleInstitution.ADMIN)) && (ia.getSite().getId().equals(site.getId()))).findAny().isPresent();
+		return user.getRolesSite().stream().filter(ia -> (ia.getKey().equals(RoleInstitution.ADMIN)) && (ia.getSite().getId().equals(siteId))).findAny().isPresent();
 
 	}
 
 	
-
-	public boolean isInstitutionAdminOrAudit(Optional<User> o, Institution in) {
+	@Transactional
+	public boolean isInstitutionAdminOrAudit(Optional<User> o, Long in) {
 
 		if (in == null)
 			return false;
@@ -195,11 +184,11 @@ public class SecurityAuthorizationService extends BaseService {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
-		return user.getRolesInstitution().stream().filter(ia -> (ia.getKey().equals(RoleInstitution.ADMIN) || ia.getKey().equals(RoleInstitution.AUDIT)) && (ia.getInstitution().getId().equals(in.getId()))).findAny().isPresent();
+		return user.getRolesInstitution().stream().filter(ia -> (ia.getKey().equals(RoleInstitution.ADMIN) || ia.getKey().equals(RoleInstitution.AUDIT)) && (ia.getInstitution().getId().equals(in ))).findAny().isPresent();
 
 	}
-
-	public boolean isInstitutionAdmin(Optional<User> o, Institution in) {
+	@Transactional
+	public boolean isInstitutionAdmin(Optional<User> o, Long in) {
 
 		if (in == null)
 			return false;
@@ -213,10 +202,11 @@ public class SecurityAuthorizationService extends BaseService {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
-		return user.getRolesInstitution().stream().filter(ia -> ia.getKey().equals(RoleInstitution.ADMIN) && ia.getInstitution().getId().equals(in.getId())).findAny().isPresent();
+		return user.getRolesInstitution().stream().filter(ia -> ia.getKey().equals(RoleInstitution.ADMIN) && ia.getInstitution().getId().equals(in)).findAny().isPresent();
 
 	}
-
+	
+	@Transactional
 	public boolean isGeneralAdminOrAudit(Optional<User> o) {
 
 		if (o.isEmpty()) {
@@ -238,6 +228,7 @@ public class SecurityAuthorizationService extends BaseService {
 
 	}
 
+	@Transactional
 	public boolean isGeneralAdmin(Optional<User> o) {
 
 		if (o.isEmpty()) {
@@ -258,6 +249,7 @@ public class SecurityAuthorizationService extends BaseService {
 		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)));
 	}
 
+	@Transactional
 	public boolean isGeneralAudit(Optional<User> o) {
 
 		if (o.isEmpty()) {
@@ -278,6 +270,7 @@ public class SecurityAuthorizationService extends BaseService {
 		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.AUDIT)));
 	}
 
+	
 	public User getRootUser() {
 		return getUserDBService().findRoot();
 	}

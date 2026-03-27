@@ -118,11 +118,11 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	}
 
 	public boolean isInstitutionAdmin(Institution in) {
-		return getSecurityAuthorizationService().isInstitutionAdmin(getSessionUser(), in);
+		return getSecurityAuthorizationService().isInstitutionAdmin(getSessionUser(), in.getId());
 	}
 
 	public boolean isInstitutionAdminOrAudit(Institution in) {
-		return getSecurityAuthorizationService().isInstitutionAdminOrAudit(getSessionUser(), in);
+		return getSecurityAuthorizationService().isInstitutionAdminOrAudit(getSessionUser(), in.getId());
 	}
 
 	public ObjectModelPanel(String id, IModel<T> model) {
