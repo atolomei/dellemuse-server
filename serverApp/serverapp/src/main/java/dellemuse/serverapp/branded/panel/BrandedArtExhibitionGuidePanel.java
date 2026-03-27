@@ -109,7 +109,13 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		setUpModel();
 
 		try {
-			addInfo();
+			
+			infoContainer = new WebMarkupContainer("infoContainer");
+			add(infoContainer);
+			infoContainer.add(new InvisiblePanel("error"));
+
+			addAudioNumber();
+			addAudioPlayer();
 
 		} catch (Exception e) {
 			logger.error(e);
@@ -135,15 +141,17 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		descContainer.setVisible(isArtExhibitionGuideInfo());
 	}
 
-	protected void addInfo() {
-
-		infoContainer = new WebMarkupContainer("infoContainer");
-		add(infoContainer);
+	protected void addAudioNumber() {
+		Label aid = new Label("aid", getModel().getObject().getAudioId() != null ? getModel().getObject().getAudioId().toString() : "");
+		aid.setVisible(getModel().getObject().getAudioId() != null);
+		infoContainer.add(aid);
+ 	}
+	
+	protected void addAudioPlayer() {
 
 		WebMarkupContainer audioContainer = new WebMarkupContainer("audioContainer");
-		infoContainer.addOrReplace(audioContainer);
-		infoContainer.add(new InvisiblePanel("error"));
-
+		addOrReplace(audioContainer);
+	
 		try {
 
 			/** intro audio guide */
@@ -156,7 +164,6 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 			if (res != null) {
 
 				res = getResourceDBService().findWithDeps(res.getId()).get();
-
 				int c = getLanguageObjectService().compareAudioLanguage(getModel().getObject(), locale);
 
 				if (c != LanguageObjectService.AUDIO_SAME_LANG) {
@@ -166,19 +173,12 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 				WebMarkupContainer audioIntroContainer = new WebMarkupContainer("intro-audio");
 				audioContainer.add(audioIntroContainer);
 				String as = getPresignedUrl(res);
-
 				Url url = Url.parse(as);
 				UrlResourceReference resourceReference = new UrlResourceReference(url);
 
 				AudioPlayer audio = new AudioPlayer("audioIntro", resourceReference);
 				audio.setIncludeDownloadMenu(false);
 				audioIntroContainer.add(audio);
-
-				getArtExhibitionModel().getObject().getAudioId();
-				
-				
-				Label aid = new Label("aid", getModel().getObject().getAudioId() != null ? getModel().getObject().getAudioId().toString() : "");
-				audioContainer.add(aid);
 
 			} else {
 				audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));
@@ -189,7 +189,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		} catch (Exception e) {
 
 			logger.error(e);
-			infoContainer.setVisible(false);
+			audioContainer.setVisible(false);
 			infoContainer.addOrReplace(new ErrorPanel("error", e));
 		}
 	}
@@ -532,7 +532,8 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 					@Override
 					protected IModel<String> getInfo() {
-						return BrandedArtExhibitionGuidePanel.this.getObjectInfo(getModel());
+					 return null;
+						//return BrandedArtExhibitionGuidePanel.this.getObjectInfo(getModel());
 					}
 
 					@Override
@@ -562,7 +563,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		};
 		add(itemsPanel);
 
-		itemsPanel.setListPanelMode(ListPanelMode.TITLE_TEXT_IMAGE);
+		itemsPanel.setListPanelMode(ListPanelMode.TITLE);
 		itemsPanel.setLiveSearch(false);
 		itemsPanel.setSettings(true);
 		itemsPanel.setHasExpander(false);

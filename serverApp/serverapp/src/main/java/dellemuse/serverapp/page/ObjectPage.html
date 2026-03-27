@@ -6,8 +6,11 @@
 
 		<div wicket:id="mainContainer">
 
-			<section class="container-xxl" wicket:id="globalSearch" />
-
+			<div class="container-xxl" wicket:id="globalSearchContainer">
+				<div wicket:id="globalSearch" />
+			</div>
+			
+			
 			<section class="container-xxl main">
 
 				<div class="row">
@@ -42,7 +45,7 @@
 
 			</section>
 
-			<section wicket:id="navigatorContainer" class="container-fluid border-top"
+			<section wicket:id="navigatorContainer" class="container-fluid border-top page-navigator"
 				style="width: 100%; float: left;">
 				<div class="container-xxl" style="padding:0;">
 					<div class="mt-3 mb-5">

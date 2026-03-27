@@ -46,6 +46,7 @@ import io.wktui.nav.breadcrumb.Navigator;
 import io.wktui.nav.toolbar.ToolbarItem;
 import jakarta.servlet.http.Cookie;
 import wktui.base.INamedTab;
+import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
 @MountPath("/ag/aw/${id}")
@@ -104,8 +105,23 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		setUpModel();
 	}
 
+	@Override
+	protected Panel createInitialSearchPanel() {
+	if (getGuideContentSearchList() == null && getArtExhibitionSearchList() == null)
+		return new InvisiblePanel("globalSearch");
+	return createSearchPanel();
+	}
+	
+	@Override
+	protected Panel createSearchPanel() {
+		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList(), getAccesibilityMode());
+	}
+	
 	public void onInitialize() {
 		super.onInitialize();
+		
+		 
+		
 	}
 
 	@Override
@@ -328,10 +344,9 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return new BrandedGlobalTopPanel("top-panel", getSiteModel());
 	}
 
-	@Override
-	protected Panel createSearchPanel() {
-		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList(), accesibilityMode);
-	}
+	
+	
+
 
  	@Override
 	protected boolean isLanguage() {
@@ -570,7 +585,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		str.append(getArtExhibitionGuideModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML : "");
 
 		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), Model.of(str.toString()));
-		ph.setImageLinkCss("jumbo-img jumbo-md mb-0 mb-lg-0  border bg-none");
+		ph.setImageLinkCss("jumbo-img p-1 jumbo-md mb-0 mb-lg-0  border bg-none");
 
 		ph.setImageContainerCss("row mt-3 mb-1 text-center");
 

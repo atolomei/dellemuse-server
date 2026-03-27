@@ -33,7 +33,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
@@ -49,11 +49,10 @@ import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
-
 /**
  * 
  * 
- * ArtExhibition 
+ * ArtExhibition
  * 
  * 
  */
@@ -74,14 +73,11 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 	private boolean modelAlreadySet = false;
 	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
-	
+
 	private StringValue exhibitionIdValue;
 	private boolean isError = false;
 	private String errorStr = "";
 
-
-	
-	
 	public BrandedArtExhibitionGuidePage() {
 		super();
 	}
@@ -92,11 +88,11 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		exhibitionIdValue = parameters.get("id");
 		if (exhibitionIdValue.isEmpty()) {
 			isError = true;
-			 errorStr = "exhibition id is missing";
+			errorStr = "exhibition id is missing";
 		}
 		setCookieLocale();
 		setUpModel();
-		
+
 	}
 
 	public BrandedArtExhibitionGuidePage(IModel<ArtExhibitionGuide> model) {
@@ -109,7 +105,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		setCookieLocale();
 		setUpModel();
 	}
-	
+
 	protected boolean isError() {
 		return isError;
 	}
@@ -117,8 +113,6 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	protected String getErrorStr() {
 		return errorStr;
 	}
-
-	
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -135,11 +129,9 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		return true;
 	}
 
-
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
 
 	}
 
@@ -173,23 +165,22 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 		if (this.siteModel != null)
 			this.siteModel.detach();
-		
-	 if (artExhibitionModel!=null)
-		 			this.artExhibitionModel.detach();
-	 
-	if (guideContentSearchList!=null)
-		guideContentSearchList.forEach(m -> m.detach());
-	
-	if (artExhibitionSearchList!=null)
-		artExhibitionSearchList.forEach(m -> m.detach());	
-		
-	}
 
+		if (artExhibitionModel != null)
+			this.artExhibitionModel.detach();
+
+		if (guideContentSearchList != null)
+			guideContentSearchList.forEach(m -> m.detach());
+
+		if (artExhibitionSearchList != null)
+			artExhibitionSearchList.forEach(m -> m.detach());
+
+	}
 
 	protected IModel<String> getMainClass() {
 		return Model.of("branded text-bg-dark");
 	}
-	
+
 	protected List<Language> getSupportedLanguages() {
 		return getSiteModel().getObject().getLanguages();
 	}
@@ -226,27 +217,26 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 				logger.debug("setting language from site master language -> " + code);
 				locale = Locale.forLanguageTag(code);
 				getSession().setLocale(Locale.forLanguageTag(code));
-			
+
 			} else {
-			
+
 				if (getSiteModel() != null) {
 					Language la = Language.of(getSiteModel().getObject().getMasterLanguage());
 					String code = la.getLanguageCode();
 					logger.debug("setting language from site master language -> " + code);
 					locale = Locale.forLanguageTag(code);
 					getSession().setLocale(locale);
-				
-				}
-				else {
+
+				} else {
 					locale = Locale.getDefault();
 					getSession().setLocale(locale);
 				}
-	
+
 			}
 		}
 		return locale;
 	}
-	
+
 	public AccesibilityMode getAccesibilityMode() {
 		return accesibilityMode;
 	}
@@ -254,14 +244,13 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	public void setAccesibilityMode(AccesibilityMode accesibilityMode) {
 		this.accesibilityMode = accesibilityMode;
 	}
-	
- 	@Override
+
+	@Override
 	protected void addListeners() {
 		super.addListeners();
 
-		
 		add(new io.wktui.event.WicketEventListener<AccesibilityAjaxEvent>() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -274,11 +263,10 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			@Override
 			public void onEvent(AccesibilityAjaxEvent event) {
 				logger.debug("setting accesibility mode to " + event.getMode());
-				setAccesibilityMode( event.getMode() );
+				setAccesibilityMode(event.getMode());
 				event.getTarget().add(BrandedArtExhibitionGuidePage.this);
 			}
 		});
-
 
 		add(new io.wktui.event.WicketEventListener<LangEvent>() {
 
@@ -319,8 +307,6 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		});
 	}
 
- 	
- 	
 	protected void setCookieLocale() {
 
 		if (lang != null) {
@@ -340,10 +326,9 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			lang = value;
 			getSession().setLocale(Locale.forLanguageTag(value));
 		}
-		
-		
+
 		Cookie accCookie = request.getCookie("accessible");
-		
+
 		if (accCookie != null) {
 			String value = accCookie.getValue();
 			boolean isAccesible = value.equals("true");
@@ -355,10 +340,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 				this.accesibilityMode = AccesibilityMode.GENERAL;
 			}
 		}
-		
-		
-		
-		
+
 	}
 
 	@Override
@@ -371,9 +353,18 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		return new BrandedGlobalTopPanel("top-panel", getSiteModel());
 	}
 
+
+	@Override
+	protected Panel createInitialSearchPanel() {
+	if (getGuideContentSearchList() == null && getArtExhibitionSearchList() == null)
+		return new InvisiblePanel("globalSearch");
+	return createSearchPanel();
+	}
+
+	
 	@Override
 	protected Panel createSearchPanel() {
-		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), getGuideContentSearchList(), getArtExhibitionSearchList(), accesibilityMode);
+		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), getGuideContentSearchList(), getArtExhibitionSearchList(), getAccesibilityMode());
 	}
 
 	public void setArtExhibitionModel(IModel<ArtExhibition> artExhibitionModel) {
@@ -445,15 +436,13 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		return new Model<String>(getModel().getObject().getName());
 	}
 
-	
-
 	@Override
 	public BreadCrumb<Void> createBreadCrumb() {
 		BreadCrumb<Void> bc = new BreadCrumb<>();
-		//bc.addElement(new HREFBCElement("/home", getLabel("home")));
+		// bc.addElement(new HREFBCElement("/home", getLabel("home")));
 		return bc;
 	}
-	
+
 	@Override
 	protected Panel createHeaderPanel() {
 
@@ -466,17 +455,38 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			StringBuilder str = new StringBuilder();
 			str.append(getObjectTitle(getModel().getObject()).getObject());
 			str.append(getModel().getObject().isAccessible() ? Icons.ACCESIBLE_ICON_JUMBO_HTML : "");
- 		
-			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(),  Model.of(str.toString()));
+
+			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), Model.of(str.toString()));
 			ph.setBreadCrumb(bc);
 
 			ph.add(new org.apache.wicket.AttributeModifier("class", "row mt-0 mb-0 text-center imgReduced"));
 
-			ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0 border-none bg-dark");
+			ph.setImageLinkCss("jumbo-img p-1 border jumbo-md mb-0 mb-lg-0 border-none bg-dark");
 			ph.setHeaderCss("mb-0 mt-0 pt-0 pb-2 border-none");
 
 			ph.setContext(getLabel("exhibition-guide"));
 
+			boolean isPhoto = false;
+			
+			if (getArtExhibitionModel().getObject().getPhoto() != null) {
+				Resource r=getArtExhibitionModel().getObject().getPhoto();
+				ph.setPhotoModel( new ObjectModel<Resource>(r));
+				isPhoto = true;
+			}
+
+			if (!isPhoto) {
+				ph.setHeaderCss("mb-0 mt-0 pt-0 pb-4 border-none");
+				ph.setIcon(ArtExhibitionGuide.getIcon());
+			}
+			else {
+				ph.setImageLinkCss("jumbo-img p-1 border jumbo-md mb-0 mb-lg-0   bg-dark");
+				ph.setImageContainerCss("row mt-4 mb-0 text-center");
+			}
+			
+			
+			
+			
+			
 			return ph;
 
 		} catch (Exception e) {
@@ -501,7 +511,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			modelAlreadySet = true;
 			return;
 		}
-		
+
 		if (!getModel().getObject().isDependencies()) {
 			Optional<ArtExhibitionGuide> o_i = getArtExhibitionGuideDBService().findWithDeps(getModel().getObject().getId());
 			setModel(new ObjectModel<ArtExhibitionGuide>(o_i.get()));
@@ -512,35 +522,19 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 		Optional<Site> o_s = getSiteDBService().findWithDeps(o_i.get().getSite().getId());
 		setSiteModel(new ObjectModel<Site>(o_s.get()));
-		
-		getPageParameters().set("id", getArtExhibitionModel().getObject().getId());
 
+		getPageParameters().set("id", getArtExhibitionModel().getObject().getId());
+		
 		modelAlreadySet = true;
 	}
-
 	
-	protected void setUpModelFromParameters() {
-
-			if (this.exhibitionIdValue == null) {
-			isError = true;
-			errorStr = "exhibition id parameter is missing";
-			return;
-		}
-
-		Optional<ArtExhibition> o = getArtExhibitionDBService().findWithDeps(Long.valueOf(this.exhibitionIdValue.toLong()));
-
-		if (o.isEmpty()) {
-			isError = true;
-			errorStr = "exhibitionId not found for id " + this.exhibitionIdValue.toString();
-			return;
-		}
-
-		setArtExhibitionModel(new ObjectModel<ArtExhibition>(o.get()));
-				
+	
+	private ArtExhibitionGuide selectGuide(ArtExhibition a) {
+		
 		ArtExhibitionGuide guide = null;
-		
-		List<ArtExhibitionGuide> list = getArtExhibitionDBService().getArtExhibitionGuides(o.get());
-		
+
+		List<ArtExhibitionGuide> list = getArtExhibitionDBService().getArtExhibitionGuides(a);
+
 		if (getAccesibilityMode() == AccesibilityMode.ACCESIBLE) {
 			for (ArtExhibitionGuide g : list) {
 				if (g.isAccessible()) {
@@ -556,8 +550,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 					}
 				}
 			}
-		}
-		else {
+		} else {
 			for (ArtExhibitionGuide g : list) {
 				if (!g.isAccessible()) {
 					guide = getArtExhibitionGuideDBService().findWithDeps(g.getId()).get();
@@ -565,23 +558,45 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 				}
 			}
 		}
-	
+		
+		
+		return guide;
+	}
+
+	protected void setUpModelFromParameters() {
+
+		if (this.exhibitionIdValue == null) {
+			isError = true;
+			errorStr = "exhibition id parameter is missing";
+			return;
+		}
+
+		Optional<ArtExhibition> o = getArtExhibitionDBService().findWithDeps(Long.valueOf(this.exhibitionIdValue.toLong()));
+
+		if (o.isEmpty()) {
+			isError = true;
+			errorStr = "exhibitionId not found for id " + this.exhibitionIdValue.toString();
+			return;
+		}
+
+		setArtExhibitionModel(new ObjectModel<ArtExhibition>(o.get()));
+
+		Optional<Site> o_s = getSiteDBService().findWithDeps(getArtExhibitionModel().getObject().getSite().getId());
+		setSiteModel(new ObjectModel<Site>(o_s.get()));
+		
+
+		ArtExhibitionGuide guide = selectGuide(o.get());
+
 		if (guide == null) {
 			isError = true;
 			errorStr = "no guide found for exhibition " + o.get().getName() + " with accesibility mode " + getAccesibilityMode();
 			return;
 		}
-		
+
 		setModel(new ObjectModel<ArtExhibitionGuide>(guide));
 
-		Optional<Site> o_s = getSiteDBService().findWithDeps(getArtExhibitionModel().getObject().getSite().getId());
-		setSiteModel(new ObjectModel<Site>(o_s.get()));
-		
+
 	}
-	
-	
-	
-	
 
 	protected void seArtExhibitionModel(IModel<ArtExhibition> model) {
 		this.artExhibitionModel = model;

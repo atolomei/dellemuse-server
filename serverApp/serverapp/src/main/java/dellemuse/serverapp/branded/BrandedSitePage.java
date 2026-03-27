@@ -85,6 +85,7 @@ public class BrandedSitePage extends BasePage {
 	private boolean listsLoaded = false;
 
 	private WebMarkupContainer exhibitionsContainer;
+	private WebMarkupContainer searchContainer;
 	private String lang;
 
 	private List<IModel<GuideContent>> gc_list;
@@ -106,7 +107,7 @@ public class BrandedSitePage extends BasePage {
 		stringValue = getPageParameters().get("id");
 		setCookieLocale();
 		if (stringValue != null) {
-			try {
+			try { 
 				Optional<Site> o_site = findByIdWithDeps(Long.valueOf(stringValue.toLong()));
 				if (o_site.isPresent()) {
 					setSiteModel(new ObjectModel<Site>(o_site.get()));
@@ -210,7 +211,12 @@ public class BrandedSitePage extends BasePage {
 		super.onInitialize();
 
 		getPage().add(new org.apache.wicket.AttributeModifier("class", "branded branded  text-bg-dark"));
-
+		
+		searchContainer  = new WebMarkupContainer("searchContainer");
+		searchContainer.setOutputMarkupId(true);
+		add(searchContainer);
+		
+		
 		try {
 
 			if (isError)
@@ -225,8 +231,15 @@ public class BrandedSitePage extends BasePage {
 		}
 
 		addHeader();
-		addSearch();
-
+		
+		
+		if (this.gc_list == null || this.ag_list == null)
+			searchContainer.add(new InvisiblePanel("search"));
+		else {
+			addSearch();
+		}
+		
+		
 		add(new BrandedGlobalTopPanel("top-panel", getSiteModel()));
 		add(new InvisiblePanel("footer-panel"));
 
@@ -378,15 +391,16 @@ public class BrandedSitePage extends BasePage {
 		}
 
 		for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
-			if (g.isOfficial())
+			if (!g.isAccessible())
 				return Optional.of(g);
 		}
 		return Optional.empty();
 	}
 
+	
 	protected void addSearch() {
 		this.searcher = new BrandedSiteSearcherPanel("search", getSiteModel(), gc_list, ag_list, getAccesibilityMode());
-		addOrReplace(this.searcher);
+		searchContainer.addOrReplace(this.searcher);
 
 	}
 
@@ -397,6 +411,33 @@ public class BrandedSitePage extends BasePage {
 	protected void addListeners() {
 		super.addListeners();
 
+		
+		add(new io.wktui.event.WicketEventListener<SearchGlobalTopPanelEvent>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SearchGlobalTopPanelEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(SearchGlobalTopPanelEvent event) {
+
+				if ( BrandedSitePage.this.searcher != null)  {
+					BrandedSitePage.this.searcher.setVisible( !BrandedSitePage.this.searcher.isVisible());
+				}
+				else {
+					BrandedSitePage.this.addSearch();
+				}
+				event.getTarget().add(BrandedSitePage.this.searchContainer);
+			}
+		});
+
+		
+		
 		add(new io.wktui.event.WicketEventListener<AccesibilityAjaxEvent>() {
 
 			private static final long serialVersionUID = 1L;
@@ -1090,15 +1131,15 @@ public class BrandedSitePage extends BasePage {
 
 	private void addHeader() {
 
-		BreadCrumb<Void> bc = createBreadCrumb();
-		bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
+		//BreadCrumb<Void> bc = createBreadCrumb();
+		//bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
 
 		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getLabel("exhibitions"));
 		ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0  border-none bg-dark");
 		ph.setHeaderCss("mb-2 mt-0 pt-0 pb-2 border-none");
 
 		// ph.setIcon(GuideContent.getIcon());
-		ph.setBreadCrumb(bc);
+		//ph.setBreadCrumb(bc);
 
 		// ph.setContext(getLabel("site"));
 		// if (getSiteModel().getObject().getSubtitle() != null)

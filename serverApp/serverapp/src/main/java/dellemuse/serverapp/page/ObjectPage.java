@@ -17,6 +17,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.branded.SearchGlobalTopPanelEvent;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectMetaEditor;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
@@ -82,6 +83,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	private Panel pageHeader;
 	private Panel globalSearch;
+	private WebMarkupContainer globalSearchContainer;
 
 	protected abstract Optional<T> getObject(Long id);
 
@@ -108,6 +110,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		helpContainer.setOutputMarkupId(true);
 		mainMarkupContainer.add(helpContainer);
 		helpContainer.add(new InvisiblePanel("help"));
+		globalSearchContainer = new WebMarkupContainer("globalSearchContainer");
+		globalSearchContainer.setOutputMarkupId(true);
+		mainMarkupContainer.add(globalSearchContainer);	
 
 		
 	}
@@ -121,6 +126,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		helpContainer.setOutputMarkupId(true);
 		mainMarkupContainer.add(helpContainer);
 		helpContainer.add(new InvisiblePanel("help"));
+		globalSearchContainer = new WebMarkupContainer("globalSearchContainer");
+		globalSearchContainer.setOutputMarkupId(true);
+		mainMarkupContainer.add(globalSearchContainer);	
 
 		
 	}
@@ -137,6 +145,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		helpContainer.setOutputMarkupId(true);
 		mainMarkupContainer.add(helpContainer);
 		helpContainer.add(new InvisiblePanel("help"));
+		globalSearchContainer = new WebMarkupContainer("globalSearchContainer");
+		globalSearchContainer.setOutputMarkupId(true);
+		mainMarkupContainer.add(globalSearchContainer);		
 
 		
 	}
@@ -267,7 +278,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	}
 
 	protected IModel<String> getMainClass() {
-		return Model.of("eeeeeeee");
+		return null;
 	}
 
 	
@@ -289,8 +300,9 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			addErrorPanels(new RuntimeException(getErrorStr()));
 			return;
 		}
-
-		addGlobalSearch();
+		
+		globalSearchContainer.addOrReplace( createInitialSearchPanel() );
+		//addGlobalSearch();
 
 		super.add(createGlobalTopPanel("top-panel"));
 		super.add(new InvisiblePanel("footer-panel"));
@@ -338,6 +350,12 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	}
 
 
+	protected Panel getGlobalSerch() {
+		return new InvisiblePanel("globalSearch");
+		
+		
+	}
+
 	protected boolean isError() {
 		return false;
 	}
@@ -370,20 +388,24 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		return this.metaEditor;
 	}
 
-	protected abstract Panel createSearchPanel();
-
+	protected abstract 	Panel createSearchPanel();
+	
+	protected  			Panel createInitialSearchPanel() {
+		return new InvisiblePanel("globalSearch");
+	}
+	
+	
 	protected void addGlobalSearch() {
-
 		try {
 			Panel panel = createSearchPanel();
 			if (panel == null)
 				this.globalSearch = new InvisiblePanel("globalSearch");
 			else
 				this.globalSearch = panel;
-			mainMarkupContainer.addOrReplace(this.globalSearch);
+			globalSearchContainer.addOrReplace(this.globalSearch);
 		} catch (Exception e) {
 			logger.error(e);
-			mainMarkupContainer.addOrReplace(new ErrorPanel("globalSearch", e));
+			globalSearchContainer.addOrReplace(new ErrorPanel("globalSearch", e));
 		}
 
 	}
@@ -475,6 +497,36 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 	protected void addListeners() {
 		super.addListeners();
 
+		
+
+		add(new io.wktui.event.WicketEventListener<SearchGlobalTopPanelEvent>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean handle(UIEvent event) {
+				if (event instanceof SearchGlobalTopPanelEvent)
+					return true;
+				return false;
+			}
+
+			@Override
+			public void onEvent(SearchGlobalTopPanelEvent event) {
+
+				if ( ObjectPage.this.globalSearch != null)  {
+					if (!(ObjectPage.this.globalSearch instanceof InvisiblePanel)) {
+						ObjectPage.this.globalSearch.setVisible(!ObjectPage.this.globalSearch.isVisible());
+					}
+				}
+				else {
+					ObjectPage.this.addGlobalSearch();
+				}
+				event.getTarget().add(ObjectPage.this.globalSearchContainer);
+			}
+		});
+		
+		
+		
 		add(new io.wktui.event.WicketEventListener<ObjectUpdateEvent>() {
 			private static final long serialVersionUID = 1L;
 
@@ -665,7 +717,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
 		add(this.navigatorContainer);
 
-		this.navigatorContainer.add(new org.apache.wicket.AttributeModifier("class", (isDarkTheme() ? "" : "text-bg-light") + " container-fluid border-top"));
+		this.navigatorContainer.add(new org.apache.wicket.AttributeModifier("class", (isDarkTheme() ? "" : "text-bg-light") + " container-fluid border-top hasplayer"));
 
 		try {
 			this.navigatorContainer.setVisible(getList() != null && getList().size() > 0);

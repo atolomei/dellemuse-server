@@ -77,7 +77,7 @@ public class BrandedAccesibilityPanel extends ObjectModelPanel<User> {
 				else
 					setMode(AccesibilityMode.GENERAL);
 
-				link.add(new org.apache.wicket.AttributeModifier("class", "btn border  " + (getMode() == AccesibilityMode.GENERAL ? " bg-dark " : " bg-secondary ")));
+				link.add(new org.apache.wicket.AttributeModifier("class", "btn border  " + (getMode() == AccesibilityMode.GENERAL ? " bg-dark " : " alert alert-success m-0")));
 
 				 Cookie cookie = new Cookie("accessible", (getMode() == AccesibilityMode.GENERAL ? "false" : "true"));
 		            cookie.setPath("/");
@@ -92,7 +92,7 @@ public class BrandedAccesibilityPanel extends ObjectModelPanel<User> {
 		};
 		add(link);
 
-		link.add(new org.apache.wicket.AttributeModifier("class", "btn border  " + (getMode() == AccesibilityMode.GENERAL ? " bg-dark " : " bg-secondary ")));
+		link.add(new org.apache.wicket.AttributeModifier("class", "btn border  " + (getMode() == AccesibilityMode.GENERAL ? " bg-dark " : " alert alert-success m-0 ")));
 
 		this.modes = AccesibilityMode.getModes();
 

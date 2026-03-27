@@ -71,14 +71,28 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 		infoContainer.add( new InvisiblePanel("error"));
 		
 		setUpModel();
+
+
+		addAudioNumber();
 		addAudio();
 		addInfo();
 	}
 	
+	protected void addAudioNumber() {
+		
+		Long a=   getArtWorkModel().getObject().getAudioId();
+		
+		
+		Label aid = new Label("aid", a != null ? a.toString() : "");
+		aid.setVisible(a != null);
+		infoContainer.add(aid);
+ 	}
+	
+	
 	protected void addAudio() {
 	 	
 		WebMarkupContainer audioContainer = new WebMarkupContainer("audioContainer");
-		infoContainer.addOrReplace(audioContainer);
+		addOrReplace(audioContainer);
 		
 		try {
 			
@@ -106,8 +120,7 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 				audio.setIncludeDownloadMenu(false);
 	            audioIntroContainer.add(audio);
 		        
-		    	Label aid = new Label("aid", getModel().getObject().getArtWorkAudioId()!=null ? getModel().getObject().getArtWorkAudioId().toString() : "");
-		    	audioContainer.add(aid);
+	            
 				
 			}
 			else {
@@ -118,8 +131,7 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 			
 		} catch (Exception e) {
 			logger.error(e);
-			infoContainer.addOrReplace( new Label("intro", ""));
-			audioContainer.addOrReplace(new InvisiblePanel("audio"));
+			audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));
 			audioContainer.setVisible(false);
 			infoContainer.addOrReplace(new ErrorPanel("error", e));
 		}
