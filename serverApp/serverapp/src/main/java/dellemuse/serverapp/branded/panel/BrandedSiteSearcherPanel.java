@@ -297,6 +297,7 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 			 
 			 
 				final boolean isAccesible = (this.accesibilityMode==AccesibilityMode.ACCESIBLE);
+			
 				for (IModel<GuideContent> g : gc_list) {
 
 				 	ArtExhibitionGuide guide = getArtExhibitionGuideDBService().findById( g.getObject().getArtExhibitionGuide().getId()).get();
@@ -315,11 +316,28 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 
 		
 		ag_list	= generateArtExhibitionGuideList();
+		
 		if (ag_list!=null && ag_list.size()==1) {
 			 setResponsePage( new  BrandedArtExhibitionGuidePage( ag_list.get(0)));
 			 return;
 		 }
-	
+
+		 if (ag_list!=null && ag_list.size()==2) {
+			 
+				final boolean isAccesible = (this.accesibilityMode==AccesibilityMode.ACCESIBLE);
+			
+				for (IModel<ArtExhibitionGuide> g : ag_list) {
+					if (isAccesible && g.getObject().isAccessible()) {
+						setResponsePage( new BrandedArtExhibitionGuidePage(g));
+						return;
+					}
+					if (!isAccesible && !g.getObject().isAccessible()) {
+						setResponsePage( new BrandedArtExhibitionGuidePage(g));
+						return;
+					}
+				}
+		 }
+		
 		fire (new SearchAudioEvent("search-audio", BrandedSiteSearcherPanel.this.getModel(), gc_list, ag_list));
 	}
 	
@@ -415,15 +433,11 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 		} catch (Exception e) {
 			l_aid = Long.valueOf(-1);
 		}
-		
-
-	
-		
-		
-		  getGuideContentDBService().getByArtWorkAudioId( getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> 
-		  {
+			
+		getGuideContentDBService().getByArtWorkAudioId( getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> 
+		{
 			  list.add(new ObjectModel<GuideContent>(s));
-		  });
+		 });
 		return list;
 	
 	}
@@ -439,7 +453,7 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 		} catch (Exception e) {
 			l_aid = Long.valueOf(-1);
 		}
-	 	getArtExhibitionGuideDBService().getByAudioId( getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> list.add(new ObjectModel<ArtExhibitionGuide>(s)));
+	 	getArtExhibitionGuideDBService().getByExhibitionAudioId( getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> list.add(new ObjectModel<ArtExhibitionGuide>(s)));
 		return list;
 	
 	}

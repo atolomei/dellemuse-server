@@ -281,7 +281,6 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 			@Override
 			public void onEvent(LangEvent event) {
-
 				setResponsePage(new BrandedArtExhibitionGuidePage(BrandedArtExhibitionGuidePage.this.getModel(), BrandedArtExhibitionGuidePage.this.getList(), event.getLang()));
 			}
 		});

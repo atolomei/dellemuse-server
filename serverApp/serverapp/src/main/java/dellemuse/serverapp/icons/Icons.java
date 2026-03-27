@@ -31,6 +31,8 @@ public class Icons {
 	public static final String ACCESIBLE_ICON_JUMBO_HTML = " <i class=\"small text-info fa-thin fa-universal-access ms-0 me-1\"></i>";
 
 	static public final String EDITION_ICON_HTML = "<div class=\"d-inline text-warning small ms-1\"><i title=\"edition\" class=\"fa-solid  fa-thin fa-pen-circle \"></i> </div>";
-	static public final String DELETED_ICON_HTML = "<div class=\"d-inline text-danger small ms-1\"> <i title=\"deleted\" class=\"fa-solid  fa-solid fa-ban \"></i> </div>";
+	static public final String DELETED_ICON_HTML =    "<div class=\"d-inline text-danger small ms-1\"> <i title=\"deleted\" class=\"fa-solid  fa-solid fa-ban \"></i> </div>";
+	static public final String AUDIO_ICON_HTML = "<div class=\"d-inline small ms-1\"> <i title=\"audio\" class=\"  fa-duotone fa-headphones \"></i> </div>";
 
+	
 }

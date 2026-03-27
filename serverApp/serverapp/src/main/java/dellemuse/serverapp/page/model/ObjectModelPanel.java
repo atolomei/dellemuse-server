@@ -176,6 +176,9 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		if (o.getState() == ObjectState.EDITION)
 			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
+		if (o.getAudio()!=null)
+			return new Model<String>(str.toString() + Icons.AUDIO_ICON_HTML);
+		
 		return Model.of(str.toString());
 	}
 

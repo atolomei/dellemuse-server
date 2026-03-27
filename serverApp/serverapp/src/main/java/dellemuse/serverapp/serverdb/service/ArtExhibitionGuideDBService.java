@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.wicket.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
@@ -74,18 +75,17 @@ public class ArtExhibitionGuideDBService extends MultiLanguageObjectDBservice<Ar
 		c.setOfficial(true);
 		c.setAccessible(false);
 		c.setArtExhibition(ex);
-		
-		if  (ex.getAudioId() != null) {
+
+		if (ex.getAudioId() != null) {
 			getArtExhibitionDBService().generateAudioId(ex, createdBy);
 		}
 		c.setArtExhibitionAudioId(ex.getAudioId());
-		
+
 		if (!ex.isDependencies())
 			ex = getArtExhibitionDBService().findWithDeps(ex.getId()).get();
-		
+
 		c.setAudioId(newAudioId(ex.getSite()));
 
-		
 		c.setState(ex.getState());
 		c.setMasterLanguage(ex.getMasterLanguage());
 		c.setLanguage(ex.getLanguage());
@@ -241,6 +241,34 @@ public class ArtExhibitionGuideDBService extends MultiLanguageObjectDBservice<Ar
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 
 		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	public List<ArtExhibitionGuide> getByExhibitionAudioId(Site object, Long aid, ObjectState os1) {
+
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<ArtExhibitionGuide> cq = cb.createQuery(getEntityClass());
+
+		Root<ArtExhibitionGuide> root = cq.from(getEntityClass());
+
+		Predicate p1;
+		Predicate p2;
+		Predicate combinedPredicate;
+
+		if (aid!=null) {
+			p1 = cb.equal(root.get("artExhibitionAudioId"), aid);
+			p2 = cb.equal(root.get("state"), os1);
+			combinedPredicate = cb.and(p1, p2);
+			cq.select(root).where(combinedPredicate);
+
+		}
+		else {
+			p2 = cb.equal(root.get("state"), os1);
+			cq.select(root).where(p2);
+		}
+	
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+
 	}
 
 	@Transactional

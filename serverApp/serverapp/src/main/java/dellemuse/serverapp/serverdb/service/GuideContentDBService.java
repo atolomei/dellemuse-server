@@ -368,6 +368,7 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
+	
 
 	@Transactional
 	public List<GuideContent> getByArtWorkAudioId(Site site, Long aid, ObjectState os1, ObjectState os2) {

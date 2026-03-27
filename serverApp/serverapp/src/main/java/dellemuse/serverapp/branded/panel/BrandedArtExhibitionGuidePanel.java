@@ -142,8 +142,11 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 	}
 
 	protected void addAudioNumber() {
-		Label aid = new Label("aid", getModel().getObject().getAudioId() != null ? getModel().getObject().getAudioId().toString() : "");
-		aid.setVisible(getModel().getObject().getAudioId() != null);
+		
+		Long a=getArtExhibitionModel().getObject().getAudioId();
+		
+		Label aid = new Label("aid", a != null ? a.toString() : "");
+		aid.setVisible(a != null);
 		infoContainer.add(aid);
  	}
 	
@@ -181,7 +184,9 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 				audioIntroContainer.add(audio);
 
 			} else {
+				
 				audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));
+		
 			}
 
 			audioContainer.setVisible(res != null);
@@ -191,6 +196,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 			logger.error(e);
 			audioContainer.setVisible(false);
 			infoContainer.addOrReplace(new ErrorPanel("error", e));
+		
 		}
 	}
 
@@ -418,42 +424,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 	protected WebMarkupContainer getMenu(IModel<GuideContent> model) {
 
 		return null;
-		/**
-		 * NavDropDownMenu<GuideContent> menu = new
-		 * NavDropDownMenu<GuideContent>("menu", model, null) { private static final
-		 * long serialVersionUID = 1L;
-		 * 
-		 * public boolean isVisible() { return true; } };
-		 * 
-		 * menu.setOutputMarkupId(true);
-		 * 
-		 * menu.setTitleCss ("d-block-inline d-sm-block-inline d-md-block-inline
-		 * d-lg-none d-xl-none d-xxl-none ps-1 pe-1"); menu.setIconCss("fa-solid
-		 * fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline
-		 * d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
-		 */
-
-		/**
-		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
-		 * 
-		 * private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public MenuItemPanel<GuideContent> getItem(String id) {
-		 * 
-		 *           return new AjaxLi nkMenuItem<GuideContent>(id) {
-		 * 
-		 *           private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public void onClick(AjaxRequestTarget target) { // refresh(target);
-		 *           }
-		 * 
-		 * @Override public IModel<String> getLabel() { return getLabel("open"); }
-		 * 
-		 *           }; } });
-		 * 
-		 *           return menu;
-		 * 
-		 **/
+		 
 
 	}
 
@@ -479,6 +450,24 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		return listToolbar;
 	}
 
+	
+	protected IModel<String> getObjectTitle(GuideContent o) {
+		StringBuilder str = new StringBuilder();
+		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
+
+		if (o.getState() == ObjectState.DELETED)
+			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
+
+		if (o.getState() == ObjectState.EDITION)
+			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
+
+		if (o.getAudio() != null)
+			str.append(" " + Icons.AUDIO_ICON_HTML);
+		
+		return Model.of(str.toString());
+	}
+	
+	
 	private void addGuideContents() {
 
 		this.itemsPanel = new ListPanel<GuideContent>("items") {
