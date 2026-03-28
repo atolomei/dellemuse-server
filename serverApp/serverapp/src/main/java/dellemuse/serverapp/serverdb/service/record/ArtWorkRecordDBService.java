@@ -114,6 +114,12 @@ public class ArtWorkRecordDBService extends RecordDBService<ArtWorkRecord, Long>
 	@Transactional
 	public Optional<ArtWorkRecord> findByArtWork(ArtWork a, String lang) {
 
+		
+
+		if (lang.startsWith("pt"))
+			lang="pt-BR";
+		
+		
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtWorkRecord> cq = cb.createQuery(ArtWorkRecord.class);
 		Root<ArtWorkRecord> root = cq.from(ArtWorkRecord.class);

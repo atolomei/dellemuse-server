@@ -679,7 +679,7 @@ DateTimeFormatter.ofPattern("EEE d MMM yyyy", LOCALE_ES) };
     	
     		
 
-    	if (locale.getLanguage()==Locale.forLanguageTag("pt-BR").getLanguage()) {
+    	if (locale.getLanguage().startsWith("pt")) {
        		
     		String trimmed = input.trim().replaceAll("\\s+", " ").toLowerCase().replace(" de ", " ");
 	        

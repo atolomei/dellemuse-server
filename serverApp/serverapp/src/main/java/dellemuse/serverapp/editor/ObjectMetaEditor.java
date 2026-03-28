@@ -51,7 +51,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 	private Language masterLanguage;
 	private List<ToolbarItem> list;
 
-	Boolean writePermission;
+	private Boolean writePermission;
 	
 	public ObjectMetaEditor(String id, IModel<T> model) {
 		super(id, model);

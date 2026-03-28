@@ -97,9 +97,7 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 
 	private IModel<User> sessionUserModel;
 
-	// private Map<String, String> thumbnails;
-	// private Map<String, String> thumbnailsSize;
-	// private Map<String, String> urls;
+ 
 
 	protected boolean canDelete(T object) {
 		return true;
@@ -714,6 +712,11 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		sessionUserModel = new ObjectModel<User>(user);
 	}
 
+	
+	protected void reloadSetSessionUser() {
+		sessionUserModel = null;
+	}
+	
 	protected Optional<User> getSessionUser() {
 
 		if (sessionUserModel != null)

@@ -2,6 +2,7 @@ package dellemuse.serverapp.artexhibitionguide;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -31,10 +32,11 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-
+import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
-
+import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -192,25 +194,86 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 			@Override
 			protected IModel<String> getInfo() {
-				return ArtExhibitionGuideContentsPanel.this.getObjectInfo(getModel());
+
+				StringBuilder str = new StringBuilder();
+				str.append( getModel().getObject().getMasterLanguage() +" : ");
+				
+				Resource audio = getModel().getObject().getAudio();
+				
+				if (audio != null) {
+					str.append( audio.getDisplayname());
+				}
+				else {
+					str.append("no audio");
+				}
+				
+				
+				for (Language la: getSiteModel().getObject().getLanguages()) {
+				
+					
+					final String langCode = la.getLanguageCode();
+					
+					if (!langCode.equals(getModel().getObject().getMasterLanguage())) {
+						
+						 Optional<GuideContentRecord> o = getGuideContentRecordDBService().findByGuideContent(getModel().getObject(),langCode );
+
+						 if (o.isPresent()) {
+						
+							 GuideContentRecord r = o.get();
+							 
+							 r= getGuideContentRecordDBService().findWithDeps(r.getId()).get();
+							 
+							 
+							 if (r.getAudio() != null) {
+								 str.append("<br/>" + langCode +" : " + r.getAudio().getDisplayname());
+							 }
+							 else {
+								 str.append("<br/>" + langCode +" : no audio");
+							 }
+						 }
+						 else
+							 str.append("<br/>" + langCode +" : no audio");
+					}
+				}
+				return Model.of(str.toString());
+				
+				//return ArtExhibitionGuideContentsPanel.this.getObjectInfo(getModel());
 			}
 
 			@Override
 			protected IModel<String> getObjectSubtitle() {
-				return ArtExhibitionGuideContentsPanel.this.getObjectSubtitle(getModel());
+				
+				return null;
+				//return ArtExhibitionGuideContentsPanel.this.getObjectSubtitle(getModel());
 			}
 
 			@Override
 			protected String getImageSrc() {
-				return ArtExhibitionGuideContentsPanel.this.getObjectImageSrc(getModel());
+				return null;
+				//return ArtExhibitionGuideContentsPanel.this.getObjectImageSrc(getModel());
 			}
 
 			@Override
 			protected String getIcon() {
 				return isAudio(getModel()) ? "fa-solid fa-headphones iconOver" : null;
 			}
-
+			
+			public boolean isImageVisible() {
+				return false;
+			}
 		};
+	}
+
+ 
+	
+	
+	
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
 	}
 
 	protected void onObjectRemove(IModel<GuideContent> model, AjaxRequestTarget target) {

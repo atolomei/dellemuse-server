@@ -159,9 +159,11 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 			/** intro audio guide */
 
+			
 			Locale locale = getLocale();
 			logger.debug("locale lang -> " + locale.getLanguage());
 
+		
 			Resource res = getLanguageObjectService().getAudio(getModel().getObject(), locale);
 
 			if (res != null) {
@@ -170,7 +172,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 				int c = getLanguageObjectService().compareAudioLanguage(getModel().getObject(), locale);
 
 				if (c != LanguageObjectService.AUDIO_SAME_LANG) {
-					infoContainer.addOrReplace(new AlertPanel<Void>("error", AlertPanel.INFO, getLabel("audio-other", Language.of(getModel().getObject().getMasterLanguage()).getLabel(getLocale()))));
+					infoContainer.addOrReplace(new AlertPanel<Void>("error", AlertPanel.WARNING, getLabel("audio-other", Language.of(getModel().getObject().getMasterLanguage()).getLabel(getLocale()))));
 				}
 
 				WebMarkupContainer audioIntroContainer = new WebMarkupContainer("intro-audio");

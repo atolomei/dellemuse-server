@@ -110,7 +110,8 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		String displayName;
 
 		String lang = locale.getLanguage();
-		if (lang.equals(o.getMasterLanguage()))
+	
+		if (isSameLanguage( lang, o.getMasterLanguage()))
 			displayName = o.getDisplayname();
 		else {
 
@@ -212,7 +213,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		logger.debug( o.getMasterLanguage() );
 		
 		
-		if (lang.equals(o.getMasterLanguage())) {
+		if ( isSameLanguage( lang, o.getMasterLanguage())) {
 			r = o.getAudio();
 			return ((r != null) ? AUDIO_SAME_LANG :  NO_AUDIO);
 		} else {
@@ -244,9 +245,14 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 
 		Resource r;
 
-		String lang = locale.getLanguage();
-
-		if (lang.equals(o.getMasterLanguage())) {
+		String langNormalized = normalize( locale.getLanguage() );
+ 
+		/**
+		 * pt and pt-BR are considered the same language, so if the master language is pt and the locale is pt-BR, 
+		 * it will return the audio of the master language.
+		 *  
+		 */
+		if (isSameLanguage (langNormalized, o.getMasterLanguage()) ) {
 			r = o.getAudio();
 		} else {
 
@@ -259,7 +265,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 			}
 
 			
-			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
+			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, langNormalized);
 
 			if (t.isEmpty())
 				return o.getAudio();
@@ -271,6 +277,27 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		}
 		return r;
 	}
+
+	protected String normalize(String language) {
+		if (language.startsWith("pt")) {
+			return "pt-BR";
+		}
+		return language;
+	}
+
+
+	private boolean isSameLanguage(String lang, String masterLang) {
+		 
+		if (lang.equals(masterLang))
+			return true;
+		
+		//if (lang.startsWith("pt") && masterLang.startsWith("pt"))
+		//	return true;
+			
+		return false;
+	}
+
+	
 
 	@SuppressWarnings("unchecked")
 	public String getIntro(MultiLanguageObject o, Locale locale) {

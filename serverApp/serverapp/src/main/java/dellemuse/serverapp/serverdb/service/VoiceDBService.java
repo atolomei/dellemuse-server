@@ -163,24 +163,21 @@ public class VoiceDBService extends DBService<Voice, Long> {
 		
 		String la= language;
 		
-		if (language.startsWith("pt"))
-			la="pt";
 		
-		Predicate p_lang = cb.equal(root.get("language"), la);
+		// grabamos pt en vez de pt-BR !!
+		//if (language.startsWith("pt"))
+		//	la="pt-BR";
+		
+		Predicate p_lang = cb.equal(root.get("language"), getLanguageService().normalizeLanguage(language));
 		Predicate p_state = cb.equal(root.get("state"), os1);
 
 		Predicate combinedPredicate = cb.and(p_lang, p_state);
 		cq.select(root).where(combinedPredicate);
 		
-		
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
-		
 		return getEntityManager().createQuery(cq).getResultList();
-	
 		
 	}
-	
-	
 	
 	
 	

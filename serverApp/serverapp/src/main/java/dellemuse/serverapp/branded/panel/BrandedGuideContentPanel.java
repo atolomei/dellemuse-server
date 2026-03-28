@@ -51,8 +51,7 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 	private IModel<ArtExhibitionItem> artExhibitionItemModel;
 	private IModel<ArtExhibitionGuide> artExhibitionGuideModel;
 	 
-  	//private List<ToolbarItem> listToolbar = null;
-	//private List<ToolbarItem> t_list = null;
+  
 
 	private WebMarkupContainer infoContainer;
 	 

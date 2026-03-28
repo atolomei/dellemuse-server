@@ -238,6 +238,7 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	@Override
 	public void onDetach() {
+		super.onDetach();
 
 		if (getModel() != null)
 			getModel().detach();

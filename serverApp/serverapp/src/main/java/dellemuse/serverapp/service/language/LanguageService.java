@@ -144,5 +144,24 @@ public class LanguageService extends BaseService {
 		}
 		return null;
 	}
+	
+	
+	public String normalizeLanguage(String lang) {
+		if (lang == null)
+			return lang;
+		
+		if (lang.startsWith("pt"))
+			return "pt-BR";
+		else if (lang.startsWith("en"))
+			return "en";
+		else if (lang.startsWith("es"))
+			return "es";
+		else if (lang.startsWith("fr"))
+			return "fr";
+		else if (lang.startsWith("ger"))
+			return "ger";
+		else
+			return lang;
+	}
     
 }

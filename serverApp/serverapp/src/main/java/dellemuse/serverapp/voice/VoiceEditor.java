@@ -192,7 +192,7 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		voiceIdField = new TextField<String>("voiceid", new PropertyModel<String>(getModel(), "voiceId"), getLabel("voiceid"));
 		form.add(voiceIdField);
 
-		languageField = new TextField<String>("language", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		languageField = new TextField<String>("language", new PropertyModel<String>(getModel(), "language"), getLabel("language"));
 		form.add(languageField);
 
 		sexField = new TextField<String>("sex", new PropertyModel<String>(getModel(), "sex"), getLabel("sex"));
@@ -304,6 +304,7 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	protected void onSave(AjaxRequestTarget target) {
 
 		try {
+			
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 
 			uploadedAudio = false;

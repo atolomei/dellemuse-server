@@ -144,12 +144,14 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 	@Transactional
 	public Optional<GuideContentRecord> findByGuideContent(GuideContent a, String lang) {
 
+
+		 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContentRecord> cq = cb.createQuery(GuideContentRecord.class);
 		Root<GuideContentRecord> root = cq.from(GuideContentRecord.class);
 		
 	     Predicate p1 = cb.equal(root.get("guideContent").get("id"), a.getId() );
-	     Predicate p2 = cb.equal(root.get("language"), lang );
+	     Predicate p2 = cb.equal(root.get("language"), getLanguageService().normalizeLanguage(lang) );
 
 	     Predicate combinedPredicate = cb.and(p1, p2);
 	     

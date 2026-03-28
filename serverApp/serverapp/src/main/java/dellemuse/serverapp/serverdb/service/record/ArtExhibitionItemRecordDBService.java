@@ -127,12 +127,15 @@ public class ArtExhibitionItemRecordDBService extends RecordDBService<ArtExhibit
 	@Transactional
 	public Optional<ArtExhibitionItemRecord> findByArtExhibitionItem(ArtExhibitionItem a, String lang) {
 
+ 
+		
+		
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionItemRecord> cq = cb.createQuery(ArtExhibitionItemRecord.class);
 		Root<ArtExhibitionItemRecord> root = cq.from(ArtExhibitionItemRecord.class);
 		
 	     Predicate p1 = cb.equal(root.get("artExhibitionItem").get("id"), a.getId() );
-	     Predicate p2 = cb.equal(root.get("language"), lang );
+	     Predicate p2 = cb.equal(root.get("language"), getLanguageService().normalizeLanguage(lang) );
 
 	     Predicate combinedPredicate = cb.and(p1, p2);
 	     

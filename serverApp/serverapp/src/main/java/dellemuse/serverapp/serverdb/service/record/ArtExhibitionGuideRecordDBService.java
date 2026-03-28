@@ -41,6 +41,7 @@ import jakarta.annotation.PostConstruct;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
@@ -165,12 +166,14 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 	@Transactional
 	public Optional<ArtExhibitionGuideRecord> findByArtExhibitionGuide(ArtExhibitionGuide a, String lang) {
 
+	 
+		
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionGuideRecord> cq = cb.createQuery(ArtExhibitionGuideRecord.class);
 		Root<ArtExhibitionGuideRecord> root = cq.from(ArtExhibitionGuideRecord.class);
 
 		Predicate p1 = cb.equal(root.get("artExhibitionGuide").get("id"), a.getId());
-		Predicate p2 = cb.equal(root.get("language"), lang);
+		Predicate p2 = cb.equal(root.get("language"), getLanguageService().normalizeLanguage(lang));
 
 		Predicate combinedPredicate = cb.and(p1, p2);
 
@@ -179,6 +182,9 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 		List<ArtExhibitionGuideRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
 	}
+
+	
+	
 
 	@Transactional
 	public List<ArtExhibitionGuideRecord> findAllByArtExhibitionGuide(ArtExhibitionGuide a) {

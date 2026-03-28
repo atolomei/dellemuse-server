@@ -23,7 +23,7 @@ import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
- 
+
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
@@ -41,7 +41,7 @@ import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
- 
+
 import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
@@ -80,7 +80,10 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	private boolean isIntroVisible = false;
 	private boolean isAudioVisible = false;
 
-
+	
+	private Boolean hasWritePermission;
+	
+	
 	/**
 	 * @param id
 	 * @param model
@@ -129,27 +132,46 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		return list;
 	}
 
+	
 	public boolean hasWritePermission() {
 
-		if (getSessionUser().isEmpty())
-			return false;
-
-		if (isRoot())
-			return true;
-
-		if (isGeneralAdmin())
-			return true;
-
-		if (sourceModel.getObject() instanceof Institution) {
-			return isInstitutionAdmin((Institution) sourceModel.getObject());
+		if (hasWritePermission != null)
+			return hasWritePermission;
+		
+		if (getSessionUser().isEmpty()) {
+			hasWritePermission= Boolean.FALSE;
+			return hasWritePermission;
 		}
+		
+		if (isRoot()) {
+			hasWritePermission= Boolean.TRUE;
+			return hasWritePermission;
+		}
+
+		if (isGeneralAdmin()) {
+			hasWritePermission= Boolean.TRUE;
+			return hasWritePermission;
+		}
+		
+		if (sourceModel.getObject() instanceof Institution) {
+			hasWritePermission = isInstitutionAdmin((Institution) sourceModel.getObject());
+			return hasWritePermission;
+		}
+
 		if (sourceModel.getObject().isSiteSecured()) {
+
 			Site site = getSiteDBService().getSite(sourceModel.getObject());
+
 			if (site == null)
 				return false;
-			return isSiteAdminOrEditor(site);
+
+			hasWritePermission = isSiteAdminOrEditor(site);
+			return hasWritePermission;
+
 		}
-		return false;
+
+		hasWritePermission = Boolean.FALSE;
+		return hasWritePermission;
 	}
 
 	
@@ -176,8 +198,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		super.edit(target);
 		target.add(this);
 
-		// getForm().setFormState(FormState.EDIT);
-		// target.add(getForm());
+		 
 	}
 
 	public void onSave(AjaxRequestTarget target) {
@@ -202,9 +223,6 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 		if (audioModel != null)
 			audioModel.detach();
-
-		// if (this.artExhibitionGuideModel!=null)
-		// this.artExhibitionGuideModel.detach();
 
 	}
 
@@ -291,14 +309,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		this.audioModel = model;
 	}
 
-	// public IModel<ArtExhibitionGuide> getArtExhibitionGuideModel() {
-//		return artExhibitionGuideModel;
-	// }
-
-	// public void setArtExhibitionGuideModel(IModel<ArtExhibitionGuide>
-	// artExhibitionGuideModel) {
-//		this.artExhibitionGuideModel = artExhibitionGuideModel;
-//	}
+ 
 
 	protected boolean isIntroVisible() {
 		return this.isIntroVisible;
@@ -358,6 +369,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	}
 
 	protected void setUpModel() {
+	 	
 		@SuppressWarnings("unchecked")
 		Optional<R> o_i = (Optional<R>) getDBService(getModelObject().getClass()).findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<R>(o_i.get()));
@@ -366,9 +378,10 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
 			setAudioModel(new ObjectModel<Resource>(o_r.get()));
 		}
-
+		reloadSetSessionUser();
 	}
 
+	
 	protected void loadForm() {
 
 		Form<R> form = new Form<R>("form");

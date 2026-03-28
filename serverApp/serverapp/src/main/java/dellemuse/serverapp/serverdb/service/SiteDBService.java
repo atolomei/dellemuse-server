@@ -795,21 +795,21 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		if (o instanceof ArtWork) {
 			ArtWork aw = (ArtWork) o;
 			if (!aw.isDependencies())
-				aw = getArtWorkDBService().findWithDeps(aw.getId()).get();
+				aw = getArtWorkDBService().findById(aw.getId()).get();
 			return aw.getSite();
 		}
 
 		if (o instanceof Artist) {
 			Artist ar = (Artist) o;
 			if (!ar.isDependencies())
-				ar = getArtistDBService().findWithDeps(ar.getId()).get();
+				ar = getArtistDBService().findById(ar.getId()).get();
 			return ar.getSite();
 		}
 
 		if (o instanceof ArtExhibition) {
 			ArtExhibition ae = (ArtExhibition) o;
 			if (!ae.isDependencies())
-				ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+				ae = getArtExhibitionDBService().findById(ae.getId()).get();
 			return ae.getSite();
 		}
 
@@ -819,7 +819,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 				aei = getArtExhibitionItemDBService().findWithDeps(aei.getId()).get();
 			ArtExhibition ae = aei.getArtExhibition();
 			if (ae != null && !ae.isDependencies())
-				ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+				ae = getArtExhibitionDBService().findById(ae.getId()).get();
 			return ae != null ? ae.getSite() : null;
 		}
 
@@ -827,7 +827,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 			ArtExhibitionSection aes = (ArtExhibitionSection) o;
 			ArtExhibition ae = aes.getArtExhibition();
 			if (ae != null && !ae.isDependencies())
-				ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+				ae = getArtExhibitionDBService().findById(ae.getId()).get();
 			return ae != null ? ae.getSite() : null;
 		}
 
@@ -837,7 +837,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 				aeg = getArtExhibitionGuideDBService().findWithDeps(aeg.getId()).get();
 			ArtExhibition ae = aeg.getArtExhibition();
 			if (ae != null && !ae.isDependencies())
-				ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+				ae = getArtExhibitionDBService().findById(ae.getId()).get();
 			return ae != null ? ae.getSite() : null;
 		}
 
@@ -851,7 +851,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 			if (aeg != null) {
 				ArtExhibition ae = aeg.getArtExhibition();
 				if (ae != null && !ae.isDependencies())
-					ae = getArtExhibitionDBService().findWithDeps(ae.getId()).get();
+					ae = getArtExhibitionDBService().findById(ae.getId()).get();
 				return ae != null ? ae.getSite() : null;
 			}
 			return null;

@@ -121,12 +121,15 @@ public class ArtistRecordDBService extends RecordDBService<ArtistRecord, Long> {
 	@Transactional
 	public Optional<ArtistRecord> findByArtist(Artist a, String lang) {
 
+
+	 
+		
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtistRecord> cq = cb.createQuery(ArtistRecord.class);
 		Root<ArtistRecord> root = cq.from(ArtistRecord.class);
 		
 	     Predicate p1 = cb.equal(root.get("artist").get("id"), a.getId() );
-	     Predicate p2 = cb.equal(root.get("language"), lang );
+	     Predicate p2 = cb.equal(root.get("language"), getLanguageService().normalizeLanguage(lang) );
 
 	     Predicate combinedPredicate = cb.and(p1, p2);
 	     

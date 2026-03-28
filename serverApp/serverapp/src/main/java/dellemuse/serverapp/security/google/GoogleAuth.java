@@ -31,7 +31,7 @@ public class GoogleAuth {
 		Translation translation = translate.translate(src, 
 				Translate.TranslateOption.sourceLanguage("es"),
 				Translate.TranslateOption.targetLanguage("pt-BR"));
-		System.out.printf("Translated Text es -> pt-BR :\n\t%s\n", translation.getTranslatedText());
+		//logger.debug("Translated Text es -> pt-BR :\n\t%s\n", translation.getTranslatedText());
 		}
 
 	

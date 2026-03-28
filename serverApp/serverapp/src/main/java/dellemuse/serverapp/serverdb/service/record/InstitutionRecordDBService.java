@@ -94,6 +94,11 @@ public class InstitutionRecordDBService extends RecordDBService<InstitutionRecor
 	@Transactional
 	public Optional<InstitutionRecord> findByInstitution(Institution a, String lang) {
 
+
+		if (lang.startsWith("pt"))
+			lang="pt-BR";
+		
+		
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<InstitutionRecord> cq = cb.createQuery(InstitutionRecord.class);
 		Root<InstitutionRecord> root = cq.from(InstitutionRecord.class);

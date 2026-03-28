@@ -398,6 +398,7 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 					GuideContentPage.this.onRestore(event.getTarget());
 					return;
 				}
+				
 
 				if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					GuideContentPage.this.getMetaEditor().onEdit(event.getTarget());

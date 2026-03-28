@@ -120,12 +120,13 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 	@Transactional
 	public Optional<PersonRecord> findByPerson(Person a, String lang) {
 
+ 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<PersonRecord> cq = cb.createQuery(PersonRecord.class);
 		Root<PersonRecord> root = cq.from(PersonRecord.class);
 		
 	     Predicate p1 = cb.equal(root.get("person").get("id"), a.getId() );
-	     Predicate p2 = cb.equal(root.get("language"), lang );
+	     Predicate p2 = cb.equal(root.get("language"),getLanguageService().normalizeLanguage(lang) );
 
 	     Predicate combinedPredicate = cb.and(p1, p2);
 	     
