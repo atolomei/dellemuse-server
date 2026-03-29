@@ -295,8 +295,8 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	}
 
 	@Transactional
-	public Long newAudioId(Site site) {
-		String seqName = site.getAudioIdSequencerName();
+	public Long newAudioId(Long siteId) {
+		String seqName = "audio_id_" + siteId.toString() +"_seq" ; 
 		return ((Number) getEntityManager().createNativeQuery("SELECT nextval('" + seqName + "')").getSingleResult()).longValue();
 	}
 	

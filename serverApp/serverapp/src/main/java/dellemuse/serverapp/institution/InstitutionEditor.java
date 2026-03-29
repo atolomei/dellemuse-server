@@ -73,6 +73,34 @@ public class InstitutionEditor extends DBObjectEditor<Institution> {
 	private boolean uploadedPhoto = false;
 	private boolean uploadedLogo = false;
 
+	
+	/**
+	 * 
+	 * crear usuario -> persona que herede username si esta en "new"
+	 * Agregar roles -> sorting alf
+	 * 
+	 */
+	
+	@Override
+	public boolean hasWritePermission() {
+		
+		if (getSessionUser().isEmpty())
+			return false;
+		
+		if (isRoot())
+			return true;
+		
+		if (isGeneralAdmin())
+			return true;
+		
+		
+		if (isInstitutionAdmin(getModel().getObject())) 
+			return true;
+		
+		return false;
+	}
+	
+	
 	/**
 	 * @param id
 	 * @param model

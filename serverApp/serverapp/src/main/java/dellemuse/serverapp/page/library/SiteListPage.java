@@ -94,35 +94,56 @@ public class SiteListPage extends ObjectListPage<Site> {
 		return false;
 	}
 
+	
+	private Boolean canWrite;
+	
 	@Override
 	public boolean canWrite(Site in) {
-
+		
+		if (canWrite!=null)
+			return canWrite.booleanValue();
+		
+		
 		Optional<User> ouser = getSessionUser();
 
-		if (ouser.isEmpty())
-			return false;
+		if (ouser.isEmpty()) {
+			canWrite = Boolean.FALSE;
+			return canWrite;
+		}
 
 		User user = ouser.get();
 
-		if (user.isRoot())
-			return true;
-
+		if (user.isRoot()) {
+			canWrite = Boolean.TRUE;
+			return canWrite;
+		}
+		
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
 		Set<RoleGeneral> set = user.getRolesGeneral();
 		 
-		if ((set!=null) &&  set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN))))
-			return true;
+		if ((set!=null) &&  set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)))) {
+			canWrite = Boolean.TRUE;
+			return canWrite;
+		}
+	
+		if (user.getRolesInstitution().stream().anyMatch((p -> p.getKey().equals(RoleInstitution.ADMIN)))) {
+			canWrite = Boolean.TRUE;
+			return canWrite;
+		}
 
-		if (user.getRolesInstitution().stream().anyMatch((p -> p.getKey().equals(RoleInstitution.ADMIN))))
-			return true;
+		if (user.getRolesSite().stream().anyMatch((p -> p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR)))) {
+			canWrite = Boolean.TRUE;
+			return canWrite;
+			
+		}
 
-		if (user.getRolesSite().stream().anyMatch((p -> p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))))
-			return true;
+		canWrite = Boolean.FALSE;
 
-		return false;
+		return canWrite;
+
 	}
 
 	@Override
@@ -186,18 +207,6 @@ public class SiteListPage extends ObjectListPage<Site> {
 			return false;
 
 		return true;
-		/**
-		 * User user = ouser.get();
-		 * 
-		 * if (user.isRoot()) return true;
-		 * 
-		 * if (!user.isDependencies()) { user =
-		 * getUserDBService().findWithDeps(user.getId()).get(); }
-		 * 
-		 * Set<RoleGeneral> set = user.getRolesGeneral(); if (set==null) return false;
-		 * return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) ||
-		 * p.getKey().equals(RoleGeneral.AUDIT) ));
-		 **/
 
 	}
 
@@ -468,6 +477,44 @@ public class SiteListPage extends ObjectListPage<Site> {
 				};
 			}
 		});
+		
+		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new AjaxLinkMenuItem<Site>(id, model) {
+
+					private static final long serialVersionUID = 1L;
+
+					
+					public boolean isVisible() {
+						return canWrite(model.getObject()) && (model.getObject().getState() != ObjectState.PUBLISHED);
+					}
+					
+					
+					public boolean isEnabled() {
+						return canWrite(model.getObject()) && (model.getObject().getState() != ObjectState.PUBLISHED);
+					}
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						getModel().getObject().setState(ObjectState.PUBLISHED);
+						getSiteDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
+						refresh(target);
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("publish");
+					}
+				};
+			}
+		});
+		
+		
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 

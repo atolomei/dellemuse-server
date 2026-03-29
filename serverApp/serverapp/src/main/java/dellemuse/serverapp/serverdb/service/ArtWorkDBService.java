@@ -153,7 +153,7 @@ public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long
 	public void generateAudioId(ArtWork a, User user) {
 
 		Site site = getSiteDBService().findById(a.getSite().getId()).get();
-		Long aid = getSiteDBService().newAudioId(site);
+		Long aid = getSiteDBService().newAudioId(site.getId());
 		a.setAudioId(aid);
 		logger.debug("adding audioid to ArtWork -> " + a.getDisplayname());
 		save(a, user, "audioid");

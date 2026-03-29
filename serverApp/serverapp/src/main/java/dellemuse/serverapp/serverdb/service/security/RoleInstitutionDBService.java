@@ -53,8 +53,10 @@ public class RoleInstitutionDBService extends DBService<RoleInstitution, Long> {
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		getRepository().save(c);
+		c.setKey(RoleInstitution.ADMIN);
 
+		getRepository().save(c);
+	
 		logger.debug("Create RoleInstitution -> " + c.getName()+" - " + i.getName());
 
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));

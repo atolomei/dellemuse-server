@@ -190,7 +190,8 @@ public class ArtExhibitionGuideEditor extends DBSiteObjectEditor<ArtExhibitionGu
 		};
 
 		audioIdField = new StaticTextField<String>("audioid", new PropertyModel<String>(getModel(), "audioId"), getLabel("audioid"));
-
+		audioIdField.setVisible(false);
+		
 		form.add(audioIdField);
 
 		form.add(nameField);

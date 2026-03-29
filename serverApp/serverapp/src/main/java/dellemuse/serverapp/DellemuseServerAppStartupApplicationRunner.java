@@ -25,8 +25,10 @@ import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
+import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.PersistentTokenDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
+import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.odilon.client.error.ODClientException;
@@ -50,6 +52,57 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 		this.appContext = appContext;
 	}
 
+	
+	 @Bean CommandLineRunner verify() {
+		  
+	        return args -> {
+	  
+	        try {
+	         
+		       	SiteDBService s = ((SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class));
+	
+		       	
+		        s.findAll().forEach( site ->  
+		        {
+		        	s. createSequence(site);
+		        	logger.debug(site.getName()   );
+		        
+		        } );
+		        
+		        
+		  
+	        } catch (Exception e) { logger.error(e); } 
+
+	        try {
+		         
+		       	GuideContentDBService s = ((GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class));
+	
+		       	
+		        s.findAll().forEach( g ->  
+		        {
+		        	 
+		        	if (g.getArtWorkAudioId()==null) {
+		        		
+		        		s.setArtworkAudioId(g);
+		        		
+		        	}
+		        	logger.debug(g.getName()   );
+		        
+		        } );
+		        
+		        
+		  
+	        } catch (Exception e) {
+	        	logger.error(e); 
+	        } 
+	        
+	 }; 
+
+	        
+	  
+	  }
+	 
+	 
 	/**
 	  @Bean CommandLineRunner testEmail() {
 		  

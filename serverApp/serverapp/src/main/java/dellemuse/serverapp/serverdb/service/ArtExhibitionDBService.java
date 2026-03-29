@@ -168,7 +168,7 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 	public void generateAudioId(ArtExhibition a, User user) {
 
 		Site site = getSiteDBService().findById(a.getSite().getId()).get();
-		Long aid = getSiteDBService().newAudioId(site);
+		Long aid = getSiteDBService().newAudioId(site.getId());
 		a.setAudioId(aid);
 		logger.debug("adding audioid to  -> " + a.getDisplayname());
 		save(a, user, "audioid");

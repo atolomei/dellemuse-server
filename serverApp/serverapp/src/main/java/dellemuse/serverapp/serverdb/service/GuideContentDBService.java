@@ -52,7 +52,7 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 	}
 
 	@Transactional
-	public GuideContent create(ArtExhibitionGuide guide, ArtExhibitionItem item, User createdBy) {
+	public GuideContent create(ArtExhibitionGuide guide, ArtExhibitionItem item, User creeatedBy) {
 
 		boolean exists = existsInGuide(guide, item);
 
@@ -65,6 +65,9 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 			return null;
 		}
 
+		// Re-fetch the user within this transaction to avoid shared collection references
+	    User managedUser = getUserDBService().findById(creeatedBy.getId()).orElse(creeatedBy);
+	    
 		GuideContent c = new GuideContent();
 
 		c.setMasterLanguage(item.getMasterLanguage());
@@ -83,24 +86,40 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 			aex = getArtExhibitionDBService().findWithDeps(aex.getId()).get();
 
 		Site site = aex.getSite();
-		c.setAudioId(newAudioId(site));
+		
+		// Flush and clear session before native query to avoid shared collection flush issues
+	    getEntityManager().flush();
+	    getEntityManager().clear();
+
+	    
+		c.setAudioId(newAudioId(site.getId()));
 		c.setName(item.getName());
+		
+		// Re-fetch associations after clear since they are now detached
+	    guide = getArtExhibitionGuideDBService().findById(guide.getId()).get();
+	    item = getArtExhibitionItemDBService().findById(item.getId()).get();
+	    managedUser = getUserDBService().findById(managedUser.getId()).orElse(creeatedBy);
+	    
 		c.setArtExhibitionGuide(guide);
 		c.setArtExhibitionItem(item);
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
-		c.setLastModifiedUser(createdBy);
+		c.setLastModifiedUser( managedUser);
 
 		if (item.getArtWork().getAudioId() == null) {
-			item.getArtWork().setAudioId(newAudioId(site));
+			item.getArtWork().setAudioId(newAudioId(site.getId()));
 			getArtWorkDBService().save(item.getArtWork(), getUserDBService().findRoot(), "audioid");
 		}
 
+		
+		Long artworkaudioid = item.getArtWork().getAudioId();
+		c.setArtWorkAudioId(artworkaudioid);
+		
 		getRepository().save(c);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c,  managedUser, AuditAction.CREATE));
 
 		for (Language la : getLanguageService().getLanguages())
-			getGuideContentRecordDBService().create(c, la.getLanguageCode(), createdBy);
+			getGuideContentRecordDBService().create(c, la.getLanguageCode(), managedUser);
 
 		return c;
 	}
@@ -125,9 +144,9 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 			ArtWork a = item.getArtWork();
 			if (a.getAudioId() == null) {
 				Site site = a.getSite();
-				item.getArtWork().setAudioId(newAudioId(site));
+				item.getArtWork().setAudioId(newAudioId(site.getId()));
 				getArtWorkDBService().save(item.getArtWork(), user, "audioid");
-
+				o.setArtWorkAudioId(item.getArtWork().getAudioId());
 			}
 		}
 
@@ -141,6 +160,39 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		}
 	}
 
+	
+	@Transactional
+	public void setArtworkAudioId(GuideContent g) {
+		
+		
+		Optional<ArtExhibitionItem> o = getArtExhibitionItemDBService().findById(g.getArtExhibitionItem().getId());
+		
+				if (o.isEmpty())
+					return;
+		
+				ArtExhibitionItem item = o.get();
+				
+				if (item.getArtWork() == null)
+					return;
+				
+				Long id=item.getArtWork().getId();
+		
+				if (id==null)
+					return;
+		
+				ArtWork a = getArtWorkDBService().findById(id).get();
+	
+				Long aid = a.getAudioId();
+
+				if (aid==null)
+					return;
+		
+			g.setArtWorkAudioId(aid);
+			save(g);
+
+	}
+	
+	
 	@Transactional
 	public void delete(GuideContent c, User deletedBy) {
 
@@ -428,8 +480,8 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
-	public Long newAudioId(Site site) {
-		return getSiteDBService().newAudioId(site);
+	public Long newAudioId(Long siteId) {
+		return getSiteDBService().newAudioId(siteId);
 	}
 
 	@Transactional
@@ -504,5 +556,6 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		super.registerRecordDB(getEntityClass(), getGuideContentRecordDBService());
 		super.register(getEntityClass(), this);
 	}
+
 
 }
