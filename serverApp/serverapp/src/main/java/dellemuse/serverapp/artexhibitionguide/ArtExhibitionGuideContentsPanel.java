@@ -145,16 +145,15 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		StringBuilder str = new StringBuilder();
 		str.append(o.getDisplayname());
 
-		
 		ArtExhibitionItem item = getArtExhibitionItemDBService().findWithDeps(o.getArtExhibitionItem().getId()).get();
-		ArtWork a=item.getArtWork();
-		if (a!=null) {
+		ArtWork a = item.getArtWork();
+		if (a != null) {
 			String s = getArtistStr(a);
-			if (s!=null) {
+			if (s != null) {
 				str.append(". <span class=\"small text-secondary\">" + s + "</span>");
 			}
 		}
-		
+
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
 
@@ -196,78 +195,68 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			protected IModel<String> getInfo() {
 
 				StringBuilder str = new StringBuilder();
-				str.append( getModel().getObject().getMasterLanguage() +" : ");
-				
+				str.append(getModel().getObject().getMasterLanguage() + " : ");
+
 				Resource audio = getModel().getObject().getAudio();
-				
+
 				if (audio != null) {
-					str.append( audio.getDisplayname());
-				}
-				else {
+					str.append(audio.getDisplayname());
+				} else {
 					str.append("no audio");
 				}
-				
-				
-				for (Language la: getSiteModel().getObject().getLanguages()) {
-				
-					
-					final String langCode = la.getLanguageCode();
-					
-					if (!langCode.equals(getModel().getObject().getMasterLanguage())) {
-						
-						 Optional<GuideContentRecord> o = getGuideContentRecordDBService().findByGuideContent(getModel().getObject(),langCode );
 
-						 if (o.isPresent()) {
-						
-							 GuideContentRecord r = o.get();
-							 
-							 r= getGuideContentRecordDBService().findWithDeps(r.getId()).get();
-							 
-							 
-							 if (r.getAudio() != null) {
-								 str.append("<br/>" + langCode +" : " + r.getAudio().getDisplayname());
-							 }
-							 else {
-								 str.append("<br/>" + langCode +" : no audio");
-							 }
-						 }
-						 else
-							 str.append("<br/>" + langCode +" : no audio");
+				for (Language la : getSiteModel().getObject().getLanguages()) {
+
+					final String langCode = la.getLanguageCode();
+
+					if (!langCode.equals(getModel().getObject().getMasterLanguage())) {
+
+						Optional<GuideContentRecord> o = getGuideContentRecordDBService().findByGuideContent(getModel().getObject(), langCode);
+
+						if (o.isPresent()) {
+
+							GuideContentRecord r = o.get();
+
+							r = getGuideContentRecordDBService().findWithDeps(r.getId()).get();
+
+							if (r.getAudio() != null) {
+								str.append("<br/>" + langCode + " : " + r.getAudio().getDisplayname());
+							} else {
+								str.append("<br/>" + langCode + " : no audio");
+							}
+						} else
+							str.append("<br/>" + langCode + " : no audio");
 					}
 				}
 				return Model.of(str.toString());
-				
-				//return ArtExhibitionGuideContentsPanel.this.getObjectInfo(getModel());
+
+				// return ArtExhibitionGuideContentsPanel.this.getObjectInfo(getModel());
 			}
 
 			@Override
 			protected IModel<String> getObjectSubtitle() {
-				
+
 				return null;
-				//return ArtExhibitionGuideContentsPanel.this.getObjectSubtitle(getModel());
+				// return ArtExhibitionGuideContentsPanel.this.getObjectSubtitle(getModel());
 			}
 
 			@Override
 			protected String getImageSrc() {
 				return null;
-				//return ArtExhibitionGuideContentsPanel.this.getObjectImageSrc(getModel());
+				// return ArtExhibitionGuideContentsPanel.this.getObjectImageSrc(getModel());
 			}
 
 			@Override
 			protected String getIcon() {
 				return isAudio(getModel()) ? "fa-solid fa-headphones iconOver" : null;
 			}
-			
+
 			public boolean isImageVisible() {
 				return false;
 			}
 		};
 	}
 
- 
-	
-	
-	
 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
@@ -320,7 +309,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 		aList = new ArrayList<IModel<ArtExhibitionItem>>();
 		super.getArtExhibitionItems(this.getArtExhibitionModel().getObject()).forEach(i -> aList.add(new ObjectModel<ArtExhibitionItem>(i)));
-		 
+
 		return aList;
 	}
 
@@ -361,8 +350,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 				};
 			}
 		});
-		
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
 
 			private static final long serialVersionUID = 1L;
@@ -377,14 +365,15 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 					public boolean isEnabled() {
 						return getModel().getObject().getState() != ObjectState.EDITION;
 					}
+
 					public boolean isVisible() {
 						return getModel().getObject().getState() != ObjectState.EDITION;
 					}
-					
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.EDITION);
-						getGuideContentDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get() );
+						getGuideContentDBService().save(getModel().getObject(), ObjectState.EDITION.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 
@@ -395,7 +384,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 				};
 			}
 		});
-		
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
 
@@ -412,7 +400,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
 
-					
 					public boolean isEnabled() {
 						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
@@ -420,7 +407,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
-						getGuideContentDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get() );
+						getGuideContentDBService().save(getModel().getObject(), ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
 						refresh(target);
 					}
 
@@ -482,13 +469,12 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 
 		else
 			getObjects().forEach(s -> this.list.add(new ObjectModel<GuideContent>(s)));
-		
-	//	 list.forEach( i -> logger.debug("GuideContent " + i.getObject().getId() + " - " + i.getObject().getDisplayname() + " - " + i.getObject().getState()));
-	
-	
+
+		// list.forEach( i -> logger.debug("GuideContent " + i.getObject().getId() + " -
+		// " + i.getObject().getDisplayname() + " - " + i.getObject().getState()));
+
 	}
 
-	
 	protected void addListeners() {
 		super.addListeners();
 
@@ -516,7 +502,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	private List<IModel<GuideContent>> getItems() {
 
 		if (this.list == null)
-		 	loadList();
+			loadList();
 		return this.list;
 	}
 
@@ -546,7 +532,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			return listToolbar;
 
 		listToolbar = new ArrayList<ToolbarItem>();
- 
+
 		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
@@ -568,7 +554,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			public void onClick(AjaxRequestTarget target) {
 				setState(FormState.EDIT);
 				target.add(addContainerButtons);
-				 
 
 			}
 
@@ -585,7 +570,7 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 			public void onClick(AjaxRequestTarget target) {
 				setState(FormState.VIEW);
 				target.add(addContainerButtons);
-				 
+
 				target.add(multipleSeletor);
 			}
 
@@ -719,7 +704,6 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 		};
 		addOrReplace(itemsPanel);
 
-		 
 		itemsPanel.setListPanelMode(ListPanelMode.TITLE);
 		itemsPanel.setLiveSearch(false);
 		itemsPanel.setSettings(true);

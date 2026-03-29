@@ -28,6 +28,8 @@ box-shadow: 0 -3px 10px rgba(82, 112, 140, 0.85); margin: 0; padding: 0; border-
 	[data-bs-theme="dark"]   h3 {color:#eeeeee;}
   	[data-bs-theme="dark"]   h2 {font-size: 0.9em; text-transform:uppercase;}
 	[data-bs-theme="dark"]   h3  { font-size: 0.9em;   text-transform: uppercase;	margin-bottom: 0.2em;}
+	[data-bs-theme="dark"]   .wktui-volume {width:2.5em;} 
+
 }
   
  
