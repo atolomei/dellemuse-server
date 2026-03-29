@@ -141,25 +141,24 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	protected IModel<String> getObjectTitle(IModel<ArtExhibitionItem> model) {
 		StringBuilder str = new StringBuilder();
 		try {
-			str.append(getLanguageObjectService().getObjectDisplayName(model.getObject(), getLocale()));
+			
+			String s=getLanguageObjectService().getObjectDisplayName(model.getObject(), getLocale());
 
-			
+			str.append(s);
+
 			ArtWork a = getArtWorkDBService().findById(model.getObject().getArtWork().getId()).get();
-			
+
 			String as = getArtistStr(a);
-			
-			if (as!=null && as.length()>0)
+
+			if (as != null && as.length() > 0)
 				str.append("<span class=\" text-secondary me-2 small \">. " + as + "</span>");
-		
-			
+
 			if (model.getObject().getState() == ObjectState.DELETED)
 				str.append(Icons.DELETED_ICON_HTML);
 
 			else if (model.getObject().getState() == ObjectState.EDITION)
 				str.append(Icons.EDITION_ICON_HTML);
 
-
-			
 		} catch (Exception e) {
 			logger.error(e);
 			str.append(e.getClass().getSimpleName() + " " + e.getMessage());

@@ -108,21 +108,25 @@ public class SiteQRCodePanel extends DBModelPanel<Site> implements InternalPanel
 					qrcodecontainer.add(new InvisiblePanel("qr-pdf-link"));
 				}
 
+				Label l = new Label("qrcode-text",  getModel().getObject().getQrCodeText());
+				qrcodecontainer.addOrReplace(l);
+				
 				add(new InvisiblePanel("noqrcode"));
 
 			} else {
 				qrcodecontainer.add(new InvisibleImage("qrcode"));
+				qrcodecontainer.addOrReplace(new InvisiblePanel("qrcode-text"));
 				qrcodecontainer.add(new InvisiblePanel("qr-file-link"));
 				qrcodecontainer.add(new InvisiblePanel("qr-pdf-link"));
 				add(new LabelPanel("noqrcode", getLabel("noqrcode")));
 			}
 
 		} catch (Exception e) {
-			qrcodecontainer.add(new InvisibleImage("qrcode"));
-			qrcodecontainer.add(new InvisiblePanel("qr-file-link"));
-			qrcodecontainer.add(new InvisiblePanel("qr-pdf-link"));
-			add(new ErrorPanel("noqrcode", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
-
+			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
+			qrcodecontainer.addOrReplace(new InvisiblePanel("qrcode-text"));
+			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
+			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
+			addOrReplace(new ErrorPanel("noqrcode", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
 	}

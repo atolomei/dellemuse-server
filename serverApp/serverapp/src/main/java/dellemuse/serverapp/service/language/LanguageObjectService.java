@@ -100,18 +100,17 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	@SuppressWarnings("unchecked")
 	public String getObjectDisplayName(MultiLanguageObject o, Locale locale) {
 		
-		final String key = getKey(o, NAME, locale.getLanguage());
+		String langNormalized = normalize( locale.getLanguage() );
+
+		final String key = getKey(o, NAME, langNormalized);
 		final String value = getCache().getIfPresent(key);
 		
-		if (value!=null) {
- 			return value;
-		}
-		
+ 		if (value!=null) 
+  			return value;
+		 
 		String displayName;
-
-		String lang = locale.getLanguage();
 	
-		if (isSameLanguage( lang, o.getMasterLanguage()))
+		if (isSameLanguage(langNormalized, o.getMasterLanguage()))
 			displayName = o.getDisplayname();
 		else {
 
@@ -122,7 +121,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 				return o.getDisplayname();
 			}
 			
-			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
+			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, langNormalized);
 
 			if (t.isEmpty()) {
 				displayName = o.getDisplayname();
@@ -144,7 +143,9 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	@SuppressWarnings("unchecked")
 	public String getObjectSubtitle(MultiLanguageObject o, Locale locale) {
 		
-		final String key = getKey(o, SUBTITLE, locale.getLanguage());
+		String langNormalized = normalize( locale.getLanguage() );
+
+		final String key = getKey(o, SUBTITLE, langNormalized);
 		final String value = getCache().getIfPresent(key);
 		
 		if (value!=null) {
@@ -152,8 +153,8 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		}
 		
 		String displayName;
-		String lang = locale.getLanguage();
-		if (lang.equals(o.getMasterLanguage())) {
+		
+		if (langNormalized.equals(o.getMasterLanguage())) {
 			displayName = o.getSubtitle();
 		}
 		else {
@@ -166,13 +167,13 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 				return o.getSubtitle();
 			}
 			
-			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
+			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, langNormalized);
 			
 			if (t.isEmpty()) {
 				displayName = o.getSubtitle();
 			}
 			else {
-				displayName = service.findByParentObject(o, lang).get().getSubtitle();
+				displayName = service.findByParentObject(o,langNormalized).get().getSubtitle();
 			
 				if (displayName == null)
 					displayName = o.getSubtitle();
@@ -207,13 +208,13 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 
 		Resource r;
 
-		String lang = locale.getLanguage();
+		String langNormalized = normalize( locale.getLanguage() );
 
-		logger.debug("compareAudioLanguage -> " +  lang);
+		logger.debug("compareAudioLanguage -> " +  langNormalized);
 		logger.debug( o.getMasterLanguage() );
 		
 		
-		if ( isSameLanguage( lang, o.getMasterLanguage())) {
+		if ( isSameLanguage( langNormalized, o.getMasterLanguage())) {
 			r = o.getAudio();
 			return ((r != null) ? AUDIO_SAME_LANG :  NO_AUDIO);
 		} else {
@@ -226,7 +227,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 			}
 
 			
-			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
+			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o,langNormalized);
 			
 			if (t.isEmpty())
 				return ((o.getAudio() != null) ? AUDIO_NOT_SAME_LANG : NO_AUDIO);
@@ -282,6 +283,14 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		if (language.startsWith("pt")) {
 			return "pt-BR";
 		}
+		if (language.startsWith("en")) {
+			return "en";
+		}
+		
+		if (language.startsWith("es")) {
+			return "es";
+		}
+		
 		return language;
 	}
 
@@ -303,8 +312,8 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	public String getIntro(MultiLanguageObject o, Locale locale) {
 
 		
-		
-		final String key = getKey(o, INTRO, locale.getLanguage());
+		String langNormalized = normalize( locale.getLanguage() );
+		final String key = getKey(o, INTRO, langNormalized);
 		final String value = getCache().getIfPresent(key);
 		
 		if (value!=null) {
@@ -316,8 +325,8 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		
 		String d;
 
-		String lang = locale.getLanguage();
-		if (lang.equals(o.getMasterLanguage()))
+		 
+		if (langNormalized.equals(o.getMasterLanguage()))
 			d = o.getIntro();
 		else {
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
@@ -329,7 +338,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 			}
 			
 			
-			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
+			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, langNormalized);
 
 			if (t.isEmpty())
 				d=o.getIntro();
@@ -351,7 +360,9 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	public String getInfo(MultiLanguageObject o, Locale locale) {
 
 		
-		final String key = getKey(o, INFO, locale.getLanguage());
+		String langNormalized = normalize( locale.getLanguage() );
+	
+		final String key = getKey(o, INFO, langNormalized );
 		final String value = getCache().getIfPresent(key);
 		
 		if (value!=null) {
@@ -362,8 +373,8 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		
 		String d;
 
-		String lang = locale.getLanguage();
-		if (lang.equals(o.getMasterLanguage()))
+		 
+		if (langNormalized .equals(o.getMasterLanguage()))
 			d = o.getInfo();
 		else {
 			RecordDBService<?, Long> service = MultiLanguageObjectDBservice.getRecordDBService(o.getClass());
@@ -376,7 +387,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 			
 			
 			
-			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o, lang);
+			Optional<TranslationRecord> t = (Optional<TranslationRecord>) service.findByParentObject(o,langNormalized );
 
 			if (t.isEmpty()) {
 				d=o.getInfo();
@@ -401,7 +412,11 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	
 	public String getPersonFirstLastName(Artist p, Locale locale) {
 		
-		final String key = getKey(p, ARTIST, locale.getLanguage());
+		
+		String langNormalized = normalize( locale.getLanguage() );
+	
+		
+		final String key = getKey(p, ARTIST, langNormalized);
 		final String value = getCache().getIfPresent(key);
 		 
 		if (value!=null) {
@@ -410,8 +425,8 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		
 		String d;
 
-		String lang = locale.getLanguage();
-		if (lang.equals(p.getMasterLanguage()))
+		 
+		if (langNormalized.equals(p.getMasterLanguage()))
 			d = p.getFirstLastname();
 		else {
 
@@ -423,7 +438,8 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 			}
 			
 			
-			Optional<ArtistRecord> t = (Optional<ArtistRecord>) service.findByParentObject(p, lang);
+			@SuppressWarnings("unchecked")
+			Optional<ArtistRecord> t = (Optional<ArtistRecord>) service.findByParentObject(p,langNormalized);
 
 			if (t.isEmpty())
 				d= p.getFirstLastname();
@@ -444,7 +460,10 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	@SuppressWarnings("unchecked")
 	public String getPersonFirstLastName(Person p, Locale locale) {
 
-		final String key = getKey(p, PERSON, locale.getLanguage());
+
+		String langNormalized = normalize( locale.getLanguage() );
+	
+		final String key = getKey(p, PERSON, langNormalized);
 		final String value = getCache().getIfPresent(key);
 		 
 		
@@ -456,8 +475,8 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 		
 		String d;
 
-		String lang = locale.getLanguage();
-		if (lang.equals(p.getMasterLanguage()))
+		 
+		if (langNormalized.equals(p.getMasterLanguage()))
 			d = p.getFirstLastname();
 		else {
 
@@ -469,7 +488,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 			}
 			
 			
-			Optional<PersonRecord> t = (Optional<PersonRecord>) service.findByParentObject(p, lang);
+			Optional<PersonRecord> t = (Optional<PersonRecord>) service.findByParentObject(p,langNormalized);
 
 			if (t.isEmpty())
 				d= p.getFirstLastname();

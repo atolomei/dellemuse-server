@@ -84,12 +84,14 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 	static {
 		locales.add(Locale.ENGLISH);
 		locales.add(Locale.forLanguageTag("es"));
+		locales.add(Locale.forLanguageTag("pt-BR"));
 	}
 	
 	private Form<T> form;
 	private boolean readonly = false;
 	private List<String> updatedParts = new ArrayList<String>();
 
+	
 	public DBObjectEditor(String id, IModel<T> model) {
 		super(id, model);
 		super.setOutputMarkupId(true);
@@ -105,9 +107,6 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		
 		if (isGeneralAdmin())
 			return true;
-		
-		
-		
 		
 		return false;
 	}

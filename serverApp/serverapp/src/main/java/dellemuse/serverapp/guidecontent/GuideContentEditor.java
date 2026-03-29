@@ -106,14 +106,13 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 	private TextAreaField<String> infoAccesibleField;
 	private Link<GuideContent> openAccesibleAudioStudio;
 
-
 	private boolean openaigenerated = false;
 	private boolean openaiimported = false;
-	
+
 	private boolean alertInfo = false;
 	private WebMarkupContainer importContainer;
 	private WebMarkupContainer generateContainer;
-	
+
 	/**
 	 * @param id
 	 * @param model
@@ -131,9 +130,6 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		super.onBeforeRender();
 	}
 
-	
-
-	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -162,13 +158,10 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		subtitleField = new TextField<String>("subtitle", new PropertyModel<String>(getModel(), "subtitle"), getLabel("subtitle"));
 		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("audio-info"), 20);
 
-		
-		
 		// -------------- genertate
-		
-		
+
 		generateContainer = new WebMarkupContainer("generateContainer") {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -176,7 +169,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 				if (openaigenerated)
 					return true;
-				
+
 				if (getForm().getFormState() != FormState.EDIT)
 					return false;
 
@@ -188,10 +181,8 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		};
 		form.add(generateContainer);
 
-		generateContainer.add( new InvisiblePanel("generateNotice"));
-		
-	 	
-		
+		generateContainer.add(new InvisiblePanel("generateNotice"));
+
 		AjaxLink<GuideContent> generateGuideContent = new AjaxLink<GuideContent>("generateGuideContent", getModel()) {
 			private static final long serialVersionUID = 1L;
 
@@ -208,15 +199,10 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		};
 		generateContainer.add(generateGuideContent);
 
-		
-		
-		
-		
-		
 		// -------------- import
-		 
+
 		importContainer = new WebMarkupContainer("importContainer") {
-		
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -224,7 +210,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 				if (openaiimported)
 					return true;
-				
+
 				if (getForm().getFormState() != FormState.EDIT)
 					return false;
 
@@ -236,10 +222,8 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		};
 		form.add(importContainer);
 
-		importContainer.add( new InvisiblePanel("importNotice"));
-		 
-		
-		
+		importContainer.add(new InvisiblePanel("importNotice"));
+
 		AjaxLink<GuideContent> importFromGeneralGuideContent = new AjaxLink<GuideContent>("importFromGeneralGuideContent", getModel()) {
 			private static final long serialVersionUID = 1L;
 
@@ -256,10 +240,8 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		};
 		importContainer.add(importFromGeneralGuideContent);
 
-		
-		
 		// -------------------
-		
+
 		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
@@ -381,24 +363,19 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.openArtwork.add(openArtworkLabel);
 		getForm().add(openArtwork);
 
-		
 		/**
-		this.importArtwork = new AjaxLink<ArtWork>("importArtwork", getArtWorkModel()) {
-			private static final long serialVersionUID = 1L;
+		 * this.importArtwork = new AjaxLink<ArtWork>("importArtwork",
+		 * getArtWorkModel()) { private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public void onClick(AjaxRequestTarget target) {
+		 *           GuideContentEditor.this.importArtWorkText(target);
+		 * 
+		 *           }
+		 * 
+		 * @Override public boolean isVisible() { return getForm().getFormState() ==
+		 *           FormState.EDIT; } };
+		 **/
 
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				GuideContentEditor.this.importArtWorkText(target);
-
-			}
-
-			@Override
-			public boolean isVisible() {
-				return getForm().getFormState() == FormState.EDIT;
-			}
-		};
-**/
-		
 		this.openAudioStudio = new Link<GuideContent>("openAudioStudio", getModel()) {
 			private static final long serialVersionUID = 1L;
 
@@ -420,10 +397,10 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.openAudioStudio.add(openLabel);
 		getForm().add(openAudioStudio);
 
-		
-		//Label importArtworkLabel = new Label("importArtworkLabel", getLabel("import-artwork", getArtWorkModel().getObject().getDisplayname()));
-		//this.importArtwork.add(importArtworkLabel);
-		//getForm().add(this.importArtwork);
+		// Label importArtworkLabel = new Label("importArtworkLabel",
+		// getLabel("import-artwork", getArtWorkModel().getObject().getDisplayname()));
+		// this.importArtwork.add(importArtworkLabel);
+		// getForm().add(this.importArtwork);
 	}
 
 	protected void importFromGeneralGuide(AjaxRequestTarget target) {
@@ -433,11 +410,10 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		List<ArtExhibitionGuide> list = getArtExhibitionDBService().getArtExhibitionGuides(ae);
 
 		boolean found = false;
-		boolean success =false;
-		
+		boolean success = false;
+
 		openaiimported = true;
 
-		
 		for (ArtExhibitionGuide g : list) {
 
 			if (!g.isAccessible()) {
@@ -448,21 +424,21 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 					logger.debug(getGuideContentDBService().findWithDeps(z.getId()).get().getArtExhibitionItem().getId());
 
 					if (getGuideContentDBService().findWithDeps(z.getId()).get().getArtExhibitionItem().getId().equals(getModel().getObject().getArtExhibitionItem().getId())) {
-	
+
 						String source = z.getInfo();
 						logger.debug("importing info from guide content -> " + z.getDisplayname());
 
 						try {
-						
+
 							ArtWork a = getArtWorkDBService().findWithDeps(getArtWorkModel().getObject().getId()).get();
-							String des=getOpenAIService().generateAccesibleContentGuide(source, a, getSiteModel().getObject(), getModel().getObject().getMasterLanguage());
+							String des = getOpenAIService().generateAccesibleContentGuide(source, a, getSiteModel().getObject(), getModel().getObject().getMasterLanguage());
 
 							success = true;
 							getModel().getObject().setInfo(des);
-							
+
 						} catch (Exception e) {
 							logger.error("Error generating info with OpenAI -> " + e.getMessage());
-							this.importContainer.addOrReplace( new ErrorPanel("importNotice", e));
+							this.importContainer.addOrReplace(new ErrorPanel("importNotice", e));
 						}
 
 						found = true;
@@ -475,79 +451,59 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 					break;
 			}
 		}
-		
+
 		if (!found)
-			this.importContainer.addOrReplace( new ErrorPanel("importNotice", getLabel("no-source-guide-content-found", getArtWorkModel().getObject().getDisplayname())));
+			this.importContainer.addOrReplace(new ErrorPanel("importNotice", getLabel("no-source-guide-content-found", getArtWorkModel().getObject().getDisplayname())));
 		else {
-		
+
 			if (success) {
-				String info = getModel().getObject().getInfo()!=null ? getModel().getObject().getInfo() : "";
+				String info = getModel().getObject().getInfo() != null ? getModel().getObject().getInfo() : "";
 				String[] words = info.trim().split("\\s+");
 				String strsize = String.valueOf(words.length);
 				String service = getOpenAIService().getName();
-				this.importContainer.addOrReplace(  new AlertPanel<Void>("importNotice", AlertPanel.SUCCESS, getLabel("import-successful", service, strsize)));
+				this.importContainer.addOrReplace(new AlertPanel<Void>("importNotice", AlertPanel.SUCCESS, getLabel("import-successful", service, strsize)));
 				onSave(target);
-			
+
 			} else
-				this.importContainer.addOrReplace( new ErrorPanel("importNotice", getLabel("import-not-successful")));
-				
+				this.importContainer.addOrReplace(new ErrorPanel("importNotice", getLabel("import-not-successful")));
+
 		}
 		target.add(this);
 
 	}
-	
-	
-	
+
 	protected void generateGuideContent(AjaxRequestTarget target) {
 
-		boolean success =false;
-		
+		boolean success = false;
+
 		openaigenerated = true;
 
 		try {
 
-
 			ArtWork a = getArtWorkDBService().findWithDeps(getArtWorkModel().getObject().getId()).get();
-	
-			String text = getOpenAIService().generateGuide( getModel().getObject(), a, getSiteModel().getObject(), getModel().getObject().getMasterLanguage());
+
+			String text = getOpenAIService().generateGuide(getModel().getObject(), a, getSiteModel().getObject(), getModel().getObject().getMasterLanguage());
 			getModel().getObject().setInfo(text);
 			success = true;
-		
+
 		} catch (Exception e) {
 			logger.error("Error generating info with OpenAI -> " + e.getMessage());
-			this.generateContainer.addOrReplace( new ErrorPanel("generateNotice", e));
+			this.generateContainer.addOrReplace(new ErrorPanel("generateNotice", e));
 		}
-		
-		
+
 		if (success) {
-				String info = getModel().getObject().getInfo()!=null ? getModel().getObject().getInfo() : "";
-				String[] words = info.trim().split("\\s+");
-				String strsize = String.valueOf(words.length);
-				String service = getOpenAIService().getName();
-				this.generateContainer.addOrReplace(  new AlertPanel<Void>("generateNotice", AlertPanel.SUCCESS, getLabel("generate-successful", service, strsize)));
-				onSave(target);
-			
+			String info = getModel().getObject().getInfo() != null ? getModel().getObject().getInfo() : "";
+			String[] words = info.trim().split("\\s+");
+			String strsize = String.valueOf(words.length);
+			String service = getOpenAIService().getName();
+			this.generateContainer.addOrReplace(new AlertPanel<Void>("generateNotice", AlertPanel.SUCCESS, getLabel("generate-successful", service, strsize)));
+			onSave(target);
+
 		} else
-			this.generateContainer.addOrReplace( new ErrorPanel("generateNotice", getLabel("generate-not-successful")));
-		
+			this.generateContainer.addOrReplace(new ErrorPanel("generateNotice", getLabel("generate-not-successful")));
+
 		target.add(this);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 	public IModel<ArtWork> getArtWorkModel() {
 		return this.artWorkModel;
@@ -965,8 +921,6 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 			uploadedPhoto = false;
 
-			 
-			
 			getForm().setFormState(FormState.VIEW);
 
 			getForm().updateReload();
@@ -1013,7 +967,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 			Optional<ArtExhibitionItem> o_ai = getArtExhibitionItemDBService().findWithDeps(getModel().getObject().getArtExhibitionItem().getId());
 			this.artExhibitionItemModel = new ObjectModel<ArtExhibitionItem>(o_ai.get());
-			
+
 			if (o_ai.get().getArtWork() != null) {
 				Optional<ArtWork> o_aw = getArtWorkDBService().findWithDeps(o_ai.get().getArtWork().getId());
 				setArtWorkModel(o_aw.get());

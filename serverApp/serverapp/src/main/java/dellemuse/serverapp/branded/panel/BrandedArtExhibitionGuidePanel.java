@@ -109,7 +109,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		setUpModel();
 
 		try {
-			
+
 			infoContainer = new WebMarkupContainer("infoContainer");
 			add(infoContainer);
 			infoContainer.add(new InvisiblePanel("error"));
@@ -142,28 +142,26 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 	}
 
 	protected void addAudioNumber() {
-		
-		Long a=getArtExhibitionModel().getObject().getAudioId();
-		
+
+		Long a = getArtExhibitionModel().getObject().getAudioId();
+
 		Label aid = new Label("aid", a != null ? a.toString() : "");
 		aid.setVisible(a != null);
 		infoContainer.add(aid);
- 	}
-	
+	}
+
 	protected void addAudioPlayer() {
 
 		WebMarkupContainer audioContainer = new WebMarkupContainer("audioContainer");
 		addOrReplace(audioContainer);
-	
+
 		try {
 
 			/** intro audio guide */
 
-			
 			Locale locale = getLocale();
 			logger.debug("locale lang -> " + locale.getLanguage());
 
-		
 			Resource res = getLanguageObjectService().getAudio(getModel().getObject(), locale);
 
 			if (res != null) {
@@ -186,9 +184,9 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 				audioIntroContainer.add(audio);
 
 			} else {
-				
+
 				audioContainer.addOrReplace(new InvisiblePanel("intro-audio"));
-		
+
 			}
 
 			audioContainer.setVisible(res != null);
@@ -198,7 +196,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 			logger.error(e);
 			audioContainer.setVisible(false);
 			infoContainer.addOrReplace(new ErrorPanel("error", e));
-		
+
 		}
 	}
 
@@ -426,7 +424,6 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 	protected WebMarkupContainer getMenu(IModel<GuideContent> model) {
 
 		return null;
-		 
 
 	}
 
@@ -452,7 +449,6 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 		return listToolbar;
 	}
 
-	
 	protected IModel<String> getObjectTitle(GuideContent o) {
 		StringBuilder str = new StringBuilder();
 		str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
@@ -465,11 +461,10 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 		if (o.getAudio() != null)
 			str.append(" " + Icons.AUDIO_ICON_HTML);
-		
+
 		return Model.of(str.toString());
 	}
-	
-	
+
 	private void addGuideContents() {
 
 		this.itemsPanel = new ListPanel<GuideContent>("items") {
@@ -523,8 +518,8 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 
 					@Override
 					protected IModel<String> getInfo() {
-					 return null;
-						//return BrandedArtExhibitionGuidePanel.this.getObjectInfo(getModel());
+						return null;
+						// return BrandedArtExhibitionGuidePanel.this.getObjectInfo(getModel());
 					}
 
 					@Override

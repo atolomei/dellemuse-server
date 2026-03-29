@@ -65,7 +65,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		super.onInitialize();
 
 		this.setOutputMarkupId(true);
-		
+
 		this.itemsContainer = new WebMarkupContainer("itemsContainer");
 		this.itemsContainer.setOutputMarkupId(true);
 		add(this.itemsContainer);
@@ -133,31 +133,27 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 		service.create(name, getModel().getObject(), getSessionUser().get());
 
 		resetItems();
-		
+
 		target.add(this.itemsContainer);
 	}
 
-	
 	protected void refresh(AjaxRequestTarget target) {
 		target.add(ArtExhibitionGuidesPanel.this);
 	}
-	
-	
+
 	protected void onCancel(AjaxRequestTarget target) {
 		setState(FormState.VIEW);
 		target.add(this);
 	}
 
-	
 	protected boolean canRead(ArtExhibitionGuide object) {
 		return true;
 	}
+
 	protected boolean canWrite(ArtExhibitionGuide object) {
 		return true;
 	}
 
-
-	
 	protected WebMarkupContainer getMenu(IModel<ArtExhibitionGuide> model) {
 
 		NavDropDownMenu<ArtExhibitionGuide> menu = new NavDropDownMenu<ArtExhibitionGuide>("menu", model, null) {
@@ -180,27 +176,25 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			@Override
 			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
 
-				return new  LinkMenuItem<ArtExhibitionGuide>(id, model) {
+				return new LinkMenuItem<ArtExhibitionGuide>(id, model) {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick( ) {
-						setResponsePage( new ArtExhibitionGuidePage( getModel()));
+					public void onClick() {
+						setResponsePage(new ArtExhibitionGuidePage(getModel()));
 					}
 
 					@Override
 					public boolean isVisible() {
 						return ArtExhibitionGuidesPanel.this.canRead(getModel().getObject());
 					}
-					
 
 					@Override
 					public boolean isEnabled() {
 						return ArtExhibitionGuidesPanel.this.canRead(getModel().getObject());
 					}
-					
-					
+
 					@Override
 					public IModel<String> getLabel() {
 						return getLabel("open");
@@ -208,7 +202,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 				};
 			}
 		});
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
 			private static final long serialVersionUID = 1L;
@@ -220,15 +214,14 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isVisible() {
-						
+
 						if (!ArtExhibitionGuidesPanel.this.canWrite(getModel().getObject()))
 							return false;
-						
-						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+
+						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
@@ -243,7 +236,6 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 				};
 			}
 		});
-		
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
 
@@ -256,17 +248,14 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isVisible() {
-						
-						
+
 						if (!ArtExhibitionGuidesPanel.this.canWrite(getModel().getObject()))
 							return false;
-					
-						
-						return getModel().getObject().getState()!=ObjectState.EDITION;
+
+						return getModel().getObject().getState() != ObjectState.EDITION;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.EDITION);
@@ -282,14 +271,11 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 			}
 		});
 
-		
-
 		return menu;
 	}
 
-	
 	protected IModel<String> getObjectInfo(IModel<ArtExhibitionGuide> model) {
-		
+
 		return Model.of(getInfo(model.getObject(), false));
 	}
 
@@ -362,10 +348,10 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 					protected IModel<String> getObjectTitle() {
 						StringBuilder str = new StringBuilder();
 						str.append(ArtExhibitionGuidesPanel.this.getObjectTitle(getModel().getObject()).getObject());
-						if ( getModel().getObject().isAccessible())  
-							 str.append( Icons.ACCESIBLE_ICON_HTML );
-						
-						return Model.of( str.toString() );
+						if (getModel().getObject().isAccessible())
+							str.append(Icons.ACCESIBLE_ICON_HTML);
+
+						return Model.of(str.toString());
 					}
 
 					@Override

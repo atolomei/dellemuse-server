@@ -143,7 +143,12 @@ public class ArtExhibitionGuideContentsPanel extends DBModelPanel<ArtExhibitionG
 	public IModel<String> getObjectTitle(GuideContent o) {
 
 		StringBuilder str = new StringBuilder();
-		str.append(o.getDisplayname());
+		
+		String name=getLanguageObjectService().getObjectDisplayName(o, getLocale());
+
+		str.append(name);
+		
+		//str.append(o.getDisplayname());
 
 		ArtExhibitionItem item = getArtExhibitionItemDBService().findWithDeps(o.getArtExhibitionItem().getId()).get();
 		ArtWork a = item.getArtWork();
