@@ -69,8 +69,6 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
     private StaticTextField<String> validationEmailSentField;
     
     
-   
-   
     
     private List<ToolbarItem> x_list;
     private String userName;

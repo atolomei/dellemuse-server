@@ -83,24 +83,41 @@ public class CandidateValidateEmailCommand extends Command {
     	
     	String to = c.getEmail();
  		
- 		String subject = "candidate validate email";
-	    	
+ 		String subject ="Dellemuse - Sign up confirmation";
+ 		
+ 			
  		String url=getServerDBSettings().getEmailValidationServer() + "/"+ DellemuseServer.URL_CANDIDATE_VALIDATE_EMAIL + "/" + c.getId().toString()+"-"+tokenValue+"-"+ c.getLanguage();
  		
  		// --------- Send email to Candidate to validate email -----------
  	   	//
- 		 
-     	String text= getEmailTemplateService().render(EmailTemplateService.CANDIDATE_EMAIL_VALIDATION, 
  		
+ 	
+ 		logger.debug( "----------------");
+ 		logger.debug( "Candidate email validation url -> " + url);
+ 		logger.debug( "application -> " + DellemuseServer.APPNAME);
+ 		logger.debug( "personName -> " + name);
+ 		logger.debug( "email -> " + c.getEmail());
+ 		logger.debug( "institution -> " +  c.getInstitutionName());
+ 		logger.debug( "lang -> " + c.getLanguage());
+ 		logger.debug( "----------------");
+ 		
+ 		String lang = c.getLanguage();
+ 		
+ 		if (lang==null)
+ 			lang = getSettings().getDefaultLocale().getLanguage();
+ 			
+     	String text= getEmailTemplateService().render(EmailTemplateService.CANDIDATE_EMAIL_VALIDATION, 
+ 	 			lang, 
      			Map.of(
  				"confirmationLink", url,
  			    "application",  DellemuseServer.APPNAME,
- 			    "personName",   name));
+ 			    "personName",   name)
+     			);
 
+     	 
  		try {
  	 		String sendEmail;
 			sendEmail = getEmailService().sendHTML(to, subject, text);
-			
 			
 			c.setValidationEmailSent(OffsetDateTime.now());
 			getCandidateDBService().save(c);
@@ -111,7 +128,7 @@ public class CandidateValidateEmailCommand extends Command {
 		} catch (IOException | InterruptedException e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
- 	
+ 	 
  		
  		// --------- Send email to Admin ------------------------------------
  	   	//
@@ -121,22 +138,27 @@ public class CandidateValidateEmailCommand extends Command {
  			String textAdmin= getEmailTemplateService().render(EmailTemplateService.CANDIDATE_SUBMT_NOTIFY_ADMIN, 
 					Map.of(
 				    "application",  DellemuseServer.APPNAME,
-				    "name",   		c.getPersonName(),
-				    "lastname",  	c.getPersonLastname(),
-				    "institution",  c.getInstitutionName(),
-				    "address",   	c.getInstitutionAddress(),
-				    "email",   		c.getEmail(),
-				    "phone",   		c.getPhone(),
-				    "comments",   	c.getComments())
-				   	);
+				    "name",   		(c.getPersonName()!=null ?  c.getPersonName() : "null"),
+				    "lastname",  	(c.getPersonLastname() !=null ?  c.getPersonLastname() : "null"),
+				    "institution",  (c.getInstitutionName() !=null ?  c.getInstitutionName() : "null"),
+				    "address",   	(c.getInstitutionAddress() !=null ?  c.getInstitutionAddress() : "null"),
+				    "email",   		(c.getEmail() !=null ?  c.getEmail() : "null"),
+				    "phone",   		(c.getPhone() !=null ?  c.getPhone() : "null"),
+				    "comments",   	(c.getComments() !=null ?  c.getComments() : "null" )));
 	
 	    	String toAdmin = getRootUser().getEmail();
 	    	String subjectAdmin = "Institution registration";
-			String sendEmailAdmin = getEmailService().sendText(toAdmin, subjectAdmin, textAdmin);
 		
-			logger.debug("Email sent response -> " + sendEmailAdmin);
+	 		logger.debug( "----------------");
+	 		logger.debug( "Institution registration");
+	 		logger.debug( "----------------");
+	 		
+	 		
+	 		String sendEmailAdmin = getEmailService().sendText(toAdmin, subjectAdmin, textAdmin);
 			
- 		} catch (IOException | InterruptedException e) {
+			logger.debug("Email to Admin sent response -> " + sendEmailAdmin);
+			
+ 		} catch (Exception   e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
  	}

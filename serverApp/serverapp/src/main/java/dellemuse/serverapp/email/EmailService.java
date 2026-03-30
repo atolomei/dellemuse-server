@@ -23,6 +23,7 @@ import dellemuse.serverapp.ServerDBSettings;
  
 import dellemuse.serverapp.serverdb.service.base.BaseService;
 import dellemuse.serverapp.service.SystemService;
+import io.odilon.util.Check;
 
 
 @Service
@@ -74,6 +75,13 @@ public class EmailService extends BaseService implements SystemService  {
     public String send(String from, String to, String subject, String text, String type)
             throws IOException, InterruptedException {
 
+    	
+    	Check.requireNonNullStringArgument(to, "to cannot be null");
+    	Check.requireNonNullStringArgument(from, "to cannot be null");
+    	Check.requireNonNullStringArgument(subject, "to cannot be null");
+    	Check.requireNonNullStringArgument(text, "to cannot be null");
+
+    	
         Map<String, String> params = new LinkedHashMap<>();
         params.put("from",    from);
         params.put("to",      to);
@@ -82,11 +90,12 @@ public class EmailService extends BaseService implements SystemService  {
         
         String formBody = buildFormBody(params);
         
-        logger.debug("Mailgun request body -> " + formBody);
-        
-        
+        if (type.equals("text")) {
+			logger.debug("Sending text email with body -> " + text);
+		}
+
         if (getSettings().isEmailSenderEnabled()) {
-			logger.info("Sending email to " + to + " with subject '" + subject + "'");
+        	logger.debug("Sending email to -> " + to + " with subject  -> " + subject);
 		} else {
 			logger.warn("Email sender is disabled. Email to " + to + " with subject '" + subject + "' will not be sent.");
 			return "{\"message\": \"Email sender is disabled.\"}";

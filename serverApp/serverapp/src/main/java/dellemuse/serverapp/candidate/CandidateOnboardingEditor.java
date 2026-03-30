@@ -208,9 +208,8 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
     		
     		if  ( (getModel().getObject().getEmail()==null				|| getModel().getObject().getEmail().isEmpty()) 			||
     			  (getModel().getObject().getInstitutionName()==null	|| getModel().getObject().getInstitutionName().isEmpty())  	||
-    			  (getModel().getObject().getPassword()==null				|| getModel().getObject().getPassword().isEmpty()) 			||
+    			  (getModel().getObject().getPassword()==null			|| getModel().getObject().getPassword().isEmpty()) 			||
     			  (getModel().getObject().getPersonLastname()==null		|| getModel().getObject().getPersonLastname().isEmpty()) ) {
- 
     			
     			SimpleAlertRow<Void> r=new SimpleAlertRow<Void>("error");
     			r.setText(getLabel("mandatory-fields-not-filled"));
@@ -218,8 +217,6 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
     			target.add(this);
     			return;
     		}
-    		
-    		
     		
     		// --------- Save Candidate on Database -----------
     		
@@ -233,46 +230,16 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate>   {
             service.save(getModelObject(), String.join(", ",   getUpdatedParts()), getRootUser());
  
             submitted=true;
-        	
-            /** -- 
-             * 
-              	CandidateEventListener
-            	CandidateValidateEmailCommand 
-            	CanidateSubmittedEmailCommand
-           
-            **/
-           
-    		// --------- Send email to Sys Admin to let them know there is a ne Candidate ------
-    		
-    		/**
-
-        		String textAdmin= getEmailTemplateService().render(EmailTemplateService.PASSWORD_RESET, 
-    					Map.of(
-    			    	"application",  DellemuseServer.APPNAME,
-    			    	"name",   getModelObject().getPersonName(),
-    			    	"lastname",   getModelObject().getPersonLastname(),
-    			    	"institution",   getModelObject().getInstitutionName(),
-    			    	"address",   getModelObject().getInstitutionAddress(),
-    			    	"email",   getModelObject().getEmail(),
-    			    	"phone",   getModelObject().getPhone(),
-    			    	"comments",   getModelObject().getComments())
-    			   	);
-
-        	String to = getModel().getObject().getEmail();
-     		String subject= getLabel( "candidate-submit-form" ).getObject();
-    		String sendEmailAdmin = getEmailService().sendText(to, subject, textAdmin);
-    	
-    		logger.debug("Email sent response -> " + sendEmailAdmin);
-    		
-    		**/
-    		
+        
+          	
     	    getForm().setFormState(FormState.VIEW);
             getForm().updateReload();
             
             addOrReplace( new AlertPanel<Void>("success", AlertPanel.SUCCESS, getLabel("submitted-ok")));
-            target.add(this);
+            addOrReplace( new InvisiblePanel("error"));
             
-        
+            target.add(this);
+          
             fireScanAll(new ObjectUpdateEvent(target));
         
     	

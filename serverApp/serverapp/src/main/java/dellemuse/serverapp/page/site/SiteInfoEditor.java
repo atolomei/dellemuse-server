@@ -585,7 +585,7 @@ public class SiteInfoEditor extends DBSiteObjectEditor<Site> implements Internal
 	protected String getLogoFileName() {
 		if (getLogoModel() == null)
 			return null;
-		return getLogoModel().getObject().getDisplayname() + (getPhotoModel().getObject().getSize() != 0 ? " ( " + formatFileSize(getLogoModel().getObject().getSize()) + " )" : "");
+		return getLogoModel().getObject().getDisplayname() + (getLogoModel().getObject().getSize() != 0 ? " ( " + formatFileSize(getLogoModel().getObject().getSize()) + " )" : "");
 	}
 
 }
