@@ -10,61 +10,54 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import io.odilon.model.SharedConstant;
- 
 
 public class LanguageCacheEvictEvent extends ApplicationEvent {
 
-	   private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-	   @JsonIgnore
-	   static private Logger logger = Logger.getLogger(LanguageCacheEvictEvent.class.getName());
-	   
-	   
-	   @JsonIgnore
-	   static final private ObjectMapper mapper = new DellemuseObjectMapper();
+	@JsonIgnore
+	static private Logger logger = Logger.getLogger(LanguageCacheEvictEvent.class.getName());
 
-	   String objectClassName;
-	   Long oid;
+	@JsonIgnore
+	static final private ObjectMapper mapper = new DellemuseObjectMapper();
 
-	   public LanguageCacheEvictEvent(String objectClassName, Long id) {
-		   super(objectClassName+"-"+id.toString());
-		   this.objectClassName = objectClassName;
-		   this.oid=id;
-	   }
+	String objectClassName;
+	Long oid;
 
-	   
-	   public String toJSON() {
-	        try {
-	            return getObjectMapper().writeValueAsString(this);
-	        } catch (JsonProcessingException e) {
-	            logger.error(e, SharedConstant.NOT_THROWN);
-	            return "\"error\":\"" + e.getClass().getName() + " | " + e.getMessage() + "\"";
-	        }
-	    }
+	public LanguageCacheEvictEvent(String objectClassName, Long id) {
+		super(objectClassName + "-" + id.toString());
+		this.objectClassName = objectClassName;
+		this.oid = id;
+	}
 
-	    @JsonIgnore
-	    public ObjectMapper getObjectMapper() {
-	        return mapper;
-	    }
-
-
-		public String getObjectClassName() {
-			return objectClassName;
+	public String toJSON() {
+		try {
+			return getObjectMapper().writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			logger.error(e, SharedConstant.NOT_THROWN);
+			return "\"error\":\"" + e.getClass().getName() + " | " + e.getMessage() + "\"";
 		}
+	}
 
+	@JsonIgnore
+	public ObjectMapper getObjectMapper() {
+		return mapper;
+	}
 
-		public Long getOid() {
-			return oid;
-		}
+	public String getObjectClassName() {
+		return objectClassName;
+	}
 
+	public Long getOid() {
+		return oid;
+	}
 
-		public void setObjectClassName(String className) {
-			this.objectClassName = className;
-		}
+	public void setObjectClassName(String className) {
+		this.objectClassName = className;
+	}
 
-
-		public void setOid(Long oid) {
-			this.oid = oid;
-		}
+	public void setOid(Long oid) {
+		this.oid = oid;
+	}
 
 }

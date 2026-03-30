@@ -47,7 +47,7 @@ import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/voice/list")
 public class VoiceListPage extends ObjectListPage<Voice> {
 
@@ -58,27 +58,6 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 	private List<ToolbarItem> mainToolbar;
 	private List<ToolbarItem> listToolbar;
 
-	@Override
-	public boolean canEdit() {
-		return isRoot() || isGeneralAdmin();
-	}
-	
-	@Override
-	public boolean canCreate() {
-		return isRoot() || isGeneralAdmin();
-	}
-	
-	@Override
-	public boolean canWrite(Voice m) {
-		return isRoot() || isGeneralAdmin();
-	}
-
-	@Override
-	public boolean canDelete(Voice m) {
-		return isRoot() || isGeneralAdmin();
-	}
-
-	
 	public VoiceListPage() {
 		super();
 		super.setIsExpanded(true);
@@ -90,17 +69,35 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 	}
 
 	@Override
+	public boolean canEdit() {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
+	public boolean canCreate() {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
+	public boolean canWrite(Voice m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
+	public boolean canDelete(Voice m) {
+		return isRoot() || isGeneralAdmin();
+	}
+
+	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 	}
-  
-	
+
 	public String getHelpKey() {
 		return Help.VOICES;
 	}
-	
-	
+
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -123,41 +120,21 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 			return false;
 		return true;
 	}
-	
 
-	
 	public boolean isAdmin() {
 
-			if (isRoot())
-				return true;
-	
-			return isGeneralAdmin();
+		if (isRoot())
+			return true;
 
-			
-			/**		
-			User user = getSessionUser().get();
-			
-			if (!user.isDependencies()) {
-				user = getUserDBService().findWithDeps(user.getId()).get();
-			}
-			
-			Set<RoleGeneral> set = getSessionUser().get().getRolesGeneral();
-			
-			if (set==null)
-				return false;
-	
-			isAdmin = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)));
-		}
-		return isAdmin;
-		*/
+		return isGeneralAdmin();
+
 	}
-	
-	
+
 	protected void onCreate() {
 
 		try {
 			Voice in = getVoiceDBService().create("new", getUserDBService().findRoot());
-			setResponsePage(new  VoicePage(new ObjectModel<Voice>(in), getList()));
+			setResponsePage(new VoicePage(new ObjectModel<Voice>(in), getList()));
 
 		} catch (Exception e) {
 			logger.error(e);
@@ -190,10 +167,10 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 		};
 		create.setAlign(Align.TOP_LEFT);
 		mainToolbar.add(create);
-		
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item", Align.TOP_RIGHT);
 		mainToolbar.add(h);
-		
+
 		return mainToolbar;
 	}
 
@@ -218,8 +195,8 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick () {
-						setResponsePage( new VoicePage( getModel(), getList() ));
+					public void onClick() {
+						setResponsePage(new VoicePage(getModel(), getList()));
 					}
 
 					@Override
@@ -229,10 +206,6 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 				};
 			}
 		});
-		
-		
-		
-
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Voice>() {
 
@@ -245,11 +218,10 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isVisible() {
-						return getModel().getObject().getState()!=ObjectState.EDITION;
+						return getModel().getObject().getState() != ObjectState.EDITION;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.EDITION);
@@ -265,8 +237,6 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 			}
 		});
 
-		
-		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Voice>() {
 
 			private static final long serialVersionUID = 1L;
@@ -278,11 +248,10 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isEnabled() {
-						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
@@ -297,52 +266,36 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 				};
 			}
 		});
-		
-		/**
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Voice>() {
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			public MenuItemPanel<Voice> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<Voice>(id) {
-					private static final long serialVersionUID = 1L;
-				};
-			}
-		});
-		**/
-		
-		
-		
-		
 		return menu;
 	}
-	
+
 	@Override
 	public Iterable<Voice> getObjects(ObjectState os1) {
 		return getObjects(os1, null);
-	}	
+	}
 
 	@Override
 	public Iterable<Voice> getObjects(ObjectState os1, ObjectState os2) {
 
-		VoiceDBService service = (VoiceDBService ) ServiceLocator.getInstance().getBean(VoiceDBService .class);
+		VoiceDBService service = (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
 
-		if (os1==null && os2==null)
+		if (os1 == null && os2 == null)
 			return service.findAllSorted();
-	
-		if (os2==null)
+
+		if (os2 == null)
 			return service.findAllSorted(os1);
 
-		if (os1==null)
+		if (os1 == null)
 			return service.findAllSorted(os2);
-		
+
 		return service.findAllSorted(os1, os2);
 	}
 
 	@Override
 	public Iterable<Voice> getObjects() {
-		VoiceDBService  service = (VoiceDBService ) ServiceLocator.getInstance().getBean(VoiceDBService .class);
-	 
+		VoiceDBService service = (VoiceDBService) ServiceLocator.getInstance().getBean(VoiceDBService.class);
+
 		return service.findAllSorted();
 	}
 
@@ -350,30 +303,29 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 	public IModel<String> getObjectInfo(IModel<Voice> model) {
 		return new Model<String>(TextCleaner.clean(model.getObject().getInfo(), 280));
 	}
-	
- 
+
 	@Override
 	public IModel<String> getObjectTitle(IModel<Voice> model) {
-		
+
 		StringBuilder str = new StringBuilder();
 
 		str.append(model.getObject().getDisplayname());
 
- 		if (model.getObject().getSex()!=null)
+		if (model.getObject().getSex() != null)
 			str.append(" - " + model.getObject().getSex());
-		
-		str.append(" <span class=\"text-secondary ms-2 me-2\"> ( " + model.getObject().getLanguage() + " - " + model.getObject().getLanguageRegion()+" ) </span>");
-		
-		if (model.getObject().getState()==ObjectState.DELETED) 
+
+		str.append(" <span class=\"text-secondary ms-2 me-2\"> ( " + model.getObject().getLanguage() + " - " + model.getObject().getLanguageRegion() + " ) </span>");
+
+		if (model.getObject().getState() == ObjectState.DELETED)
 			str.append(model.getObject().getDisplayname() + Icons.DELETED_ICON_HTML);
-		
+
 		if (model.getObject().getState() == ObjectState.EDITION)
 			str.append(Icons.EDITION_ICON_HTML);
-			
-		return Model.of( str.toString());
-	
+
+		return Model.of(str.toString());
+
 	}
- 
+
 	@Override
 	public void onClick(IModel<Voice> model) {
 		setResponsePage(new VoicePage(model, getList()));
@@ -394,7 +346,6 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 		super.onDetach();
 	}
 
-	
 	@Override
 	protected void addHeaderPanel() {
 		try {
@@ -402,7 +353,7 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 			bc.addElement(new BCElement(getLabel("voices")));
 			JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("voices"));
 			ph.setBreadCrumb(bc);
-			ph.setIcon(Voice.getIcon()  );
+			ph.setIcon(Voice.getIcon());
 			ph.setHeaderCss("mb-2 pb-2 border-none");
 			add(ph);
 		} catch (Exception e) {

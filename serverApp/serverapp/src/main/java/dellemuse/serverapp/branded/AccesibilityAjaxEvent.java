@@ -8,11 +8,11 @@ import io.wktui.event.SimpleAjaxWicketEvent;
 public class AccesibilityAjaxEvent extends SimpleAjaxWicketEvent {
 
 	AccesibilityMode mode;
-	
+
 	public AccesibilityAjaxEvent(String name, AccesibilityMode mode, AjaxRequestTarget target) {
 		super(name, target);
-		this.mode=mode;
-		 
+		this.mode = mode;
+
 	}
 
 	public AccesibilityMode getMode() {

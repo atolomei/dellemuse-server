@@ -61,7 +61,7 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 
 	private String audioMeta;
 	private List<ToolbarItem> toolbarList;
-	
+
 	private IModel<Resource> audioModel;
 	private boolean uploadedAudio = false;
 
@@ -72,8 +72,6 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	public VoiceEditor(String id, IModel<Voice> model) {
 		super(id, model);
 	}
-
-	
 
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
@@ -91,7 +89,7 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 				return canEdit();
 
 			}
-			
+
 			@Override
 			public boolean isVisible() {
 				return canEdit();
@@ -270,7 +268,6 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		getForm().add(b_buttons_top);
 	}
 
-
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -304,7 +301,7 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 	protected void onSave(AjaxRequestTarget target) {
 
 		try {
-			
+
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 
 			uploadedAudio = false;
@@ -373,7 +370,6 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		return uploadedAudio;
 	}
 
-	
 	private void setUpModel() {
 
 		Voice voice = getModel().getObject();
@@ -387,5 +383,5 @@ public class VoiceEditor extends DBObjectEditor<Voice> implements InternalPanel 
 		}
 
 	}
-	
+
 }

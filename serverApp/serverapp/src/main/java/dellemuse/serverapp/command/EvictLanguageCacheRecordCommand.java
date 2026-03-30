@@ -42,19 +42,17 @@ public class EvictLanguageCacheRecordCommand extends Command {
 	static private Logger logger = Logger.getLogger(EvictLanguageCacheRecordCommand.class.getName());
 
 	final String parentObjectClassName;
-	final Long  parentId;
+	final Long parentId;
 
-	 
-	
 	public EvictLanguageCacheRecordCommand(String objectClassName, Long id) {
-		this.parentObjectClassName=objectClassName;
-		this.parentId=id;
+		this.parentObjectClassName = objectClassName;
+		this.parentId = id;
 	}
 
 	@Override
 	public void execute() {
 		try {
- 			 getLanguageObjectService().onApplicationEvent(new LanguageCacheEvictEvent(this.parentObjectClassName, this.parentId));
+			getLanguageObjectService().onApplicationEvent(new LanguageCacheEvictEvent(this.parentObjectClassName, this.parentId));
 		} catch (Exception e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
@@ -63,5 +61,5 @@ public class EvictLanguageCacheRecordCommand extends Command {
 	protected LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
-	 
+
 }

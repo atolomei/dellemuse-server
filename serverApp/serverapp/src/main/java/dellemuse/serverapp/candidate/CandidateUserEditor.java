@@ -94,41 +94,34 @@ public class CandidateUserEditor extends DBObjectEditor<Candidate> implements In
 
 		StringBuilder str = new StringBuilder();
 
-		if (	getModel().getObject().getPersonLastname() != null && 
-				!getModel().getObject().getPersonLastname().isEmpty() && 
-				getModel().getObject().getPersonName() != null && 
-				!getModel().getObject().getPersonName().isEmpty()) {
+		if (getModel().getObject().getPersonLastname() != null && !getModel().getObject().getPersonLastname().isEmpty() && getModel().getObject().getPersonName() != null && !getModel().getObject().getPersonName().isEmpty()) {
 
 			userName = getUserDBService().generateUserName(getModel().getObject().getPersonName(), getModel().getObject().getPersonLastname());
-		
+
 		}
 
-		if( getModel().getObject().getUser() != null) {
-		
+		if (getModel().getObject().getUser() != null) {
+
 			str.append("<b>Username</b>.  " + getModel().getObject().getUser().getUsername());
 
-			
 			if (getModel().getObject().getInstitution() != null)
 				str.append("<br/><b>Institution</b>.  " + getModel().getObject().getInstitution().getName());
 
 			str.append("<br/><b>Roles</b>. ");
-			
-			 
+
 			getUserDBService().getUserRoles(getModel().getObject().getUser()).forEach(r -> str.append(r.getRoleDisplayName() + " (" + r.getDisplayClass(getLocale()) + ") " + " "));
-			
+
 			getForm().addOrReplace(new SimpleAlertRow<Void>("userInfo", null, Model.of(str.toString()), getLabel("userInfo"), AlertPanel.SUCCESS));
-		}
-		else {
-		
+		} else {
+
 			str.append("<b>Username a crear</b>.  " + userName);
 
 			if (getModel().getObject().getInstitution() != null)
 				str.append("<br/><b>Institution</b>.  " + getModel().getObject().getInstitution().getName());
 
-			
 			getForm().addOrReplace(new SimpleAlertRow<Void>("userInfo", null, Model.of(str.toString()), getLabel("userInfo"), AlertPanel.PRIMARY));
 		}
-		
+
 		EditButtons<Candidate> buttons = new EditButtons<Candidate>("buttons", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -199,28 +192,27 @@ public class CandidateUserEditor extends DBObjectEditor<Candidate> implements In
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				User u = CandidateUserEditor.this.createUser();
-				
+
 				if (u != null) {
 					CandidateUserEditor.this.addOrReplace(new AlertPanel<Void>("success", AlertPanel.SUCCESS, getLabel("user-created-ok", u.getUsername(), u.getEmail())));
 				}
-				
+
 				target.add(CandidateUserEditor.this);
-				
+
 			}
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (getModelObject().getInstitution() == null)
 					return false;
-				
+
 				if (getModelObject().getUser() != null)
 					return false;
-				
+
 				return hasWritePermission();
 			}
 		};
-
 
 		AjaxLink<Candidate> sendEmail = new AjaxLink<Candidate>("sendEmail", getModel()) {
 			private static final long serialVersionUID = 1L;
@@ -262,10 +254,9 @@ public class CandidateUserEditor extends DBObjectEditor<Candidate> implements In
 	}
 
 	protected User createUser() {
-		 User u = getUserDBService().createUserFromCandidate(userName, getModel().getObject(), getSessionUser().get());
-		 return u;
+		User u = getUserDBService().createUserFromCandidate(userName, getModel().getObject(), getSessionUser().get());
+		return u;
 	}
-
 
 	protected void setUpModel() {
 		try {

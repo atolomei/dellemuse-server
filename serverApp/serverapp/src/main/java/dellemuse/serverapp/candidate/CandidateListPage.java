@@ -52,7 +52,7 @@ import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/candidate/list")
 public class CandidateListPage extends ObjectListPage<Candidate> {
 
@@ -62,28 +62,25 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 
 	private List<ToolbarItem> mainToolbar;
 	private List<ToolbarItem> listToolbar;
- 
-	
-	
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		if (ouser.isEmpty())
 			return false;
-		
+
 		return isRoot() || isGeneralAdmin();
 	}
-	
-	
+
 	@Override
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
 	}
-	
+
 	@Override
 	public boolean canCreate() {
 		return isRoot() || isGeneralAdmin();
 	}
-	
+
 	@Override
 	public boolean canWrite(Candidate m) {
 		return isRoot() || isGeneralAdmin();
@@ -94,7 +91,6 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 		return isRoot() || isGeneralAdmin();
 	}
 
-	
 	public CandidateListPage() {
 		super();
 		super.setIsExpanded(true);
@@ -110,13 +106,11 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 		super.onInitialize();
 
 	}
-  
-	
+
 	public String getHelpKey() {
 		return Help.CANDIDATES;
 	}
-	
-	
+
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -132,27 +126,25 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 
 		return listToolbar;
 	}
- 
-	
+
 	protected void onCreate() {
 
 		try {
-			
+
 			Map<String, String> map = new HashMap<String, String>();
-			
+
 			map.put("name", "name");
 			map.put("email", "email");
 			map.put("phone", "phone");
 			map.put("institutionName", "institutionName");
-			
+
 			Candidate in = getCandidateDBService().create(map, getSessionUser().get());
-		
+
 			in.setStatus(CandidateStatus.EVALUATION);
 			getCandidateDBService().save(in, getSessionUser().get());
-			
-			setResponsePage(new  CandidatePage(new ObjectModel<Candidate>(in), getList()));
 
-			
+			setResponsePage(new CandidatePage(new ObjectModel<Candidate>(in), getList()));
+
 		} catch (Exception e) {
 			logger.error(e);
 			setResponsePage(new ErrorPage(e));
@@ -184,10 +176,10 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 		};
 		create.setAlign(Align.TOP_LEFT);
 		mainToolbar.add(create);
-		
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item", Align.TOP_RIGHT);
 		mainToolbar.add(h);
-		
+
 		return mainToolbar;
 	}
 
@@ -212,8 +204,8 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick () {
-						setResponsePage( new CandidatePage( getModel(), getList()  ));
+					public void onClick() {
+						setResponsePage(new CandidatePage(getModel(), getList()));
 					}
 
 					@Override
@@ -223,10 +215,6 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 				};
 			}
 		});
-		
-		
-		
-
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
 
@@ -239,11 +227,10 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isVisible() {
-						return canEdit() &&  getModel().getObject().getState()!=ObjectState.EDITION;
+						return canEdit() && getModel().getObject().getState() != ObjectState.EDITION;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.EDITION);
@@ -259,8 +246,6 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 			}
 		});
 
-		
-		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
 
 			private static final long serialVersionUID = 1L;
@@ -272,11 +257,10 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isEnabled() {
-						return canEdit() && getModel().getObject().getState()!=ObjectState.PUBLISHED;
+						return canEdit() && getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
@@ -291,8 +275,7 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 				};
 			}
 		});
-		
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
 
 			private static final long serialVersionUID = 1L;
@@ -304,11 +287,10 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isVisible() {
-						return canDelete( getModel().getObject() ) &&  getModel().getObject().getState()!=ObjectState.DELETED;
+						return canDelete(getModel().getObject()) && getModel().getObject().getState() != ObjectState.DELETED;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.DELETED);
@@ -323,46 +305,38 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 				};
 			}
 		});
-		
-		
-		/**
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
-			private static final long serialVersionUID = 1L;
 
-			@Override
-			public MenuItemPanel<Candidate> getItem(String id) {
-				return new io.wktui.nav.menu.SeparatorMenuItem<Candidate>(id) {
-					private static final long serialVersionUID = 1L;
-				};
-			}
-		});
-		**/
-		
-		
-		
-		
+		/**
+		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() { private
+		 * static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public MenuItemPanel<Candidate> getItem(String id) { return new
+		 *           io.wktui.nav.menu.SeparatorMenuItem<Candidate>(id) { private static
+		 *           final long serialVersionUID = 1L; }; } });
+		 **/
+
 		return menu;
 	}
-	
+
 	@Override
 	public Iterable<Candidate> getObjects(ObjectState os1) {
 		return getObjects(os1, null);
-	}	
+	}
 
 	@Override
 	public Iterable<Candidate> getObjects(ObjectState os1, ObjectState os2) {
 
 		CandidateDBService service = (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
 
-		if (os1==null && os2==null)
+		if (os1 == null && os2 == null)
 			return service.findAllSorted();
-	
-		if (os2==null)
+
+		if (os2 == null)
 			return service.findAllSorted(os1);
 
-		if (os1==null)
+		if (os1 == null)
 			return service.findAllSorted(os2);
-		
+
 		return service.findAllSorted(os1, os2);
 	}
 
@@ -377,28 +351,28 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 	public IModel<String> getObjectInfo(IModel<Candidate> model) {
 		return new Model<String>(TextCleaner.clean(model.getObject().getComments(), 280));
 	}
-	
- 
+
 	@Override
 	public IModel<String> getObjectTitle(IModel<Candidate> model) {
-		
+
 		StringBuilder str = new StringBuilder();
 
 		str.append(model.getObject().getDisplayname());
- 	 
-		
-	//	str.append(" <span class=\"text-secondary ms-2 me-2\"> ( " + model.getObject().getLanguage() + " - " + model.getObject().getLanguageRegion()+" ) </span>");
-		
-		if (model.getObject().getState()==ObjectState.DELETED) 
+
+		// str.append(" <span class=\"text-secondary ms-2 me-2\"> ( " +
+		// model.getObject().getLanguage() + " - " +
+		// model.getObject().getLanguageRegion()+" ) </span>");
+
+		if (model.getObject().getState() == ObjectState.DELETED)
 			str.append(model.getObject().getDisplayname() + Icons.DELETED_ICON_HTML);
-		
+
 		if (model.getObject().getState() == ObjectState.EDITION)
 			str.append(Icons.EDITION_ICON_HTML);
-			
-		return Model.of( str.toString());
-	
+
+		return Model.of(str.toString());
+
 	}
- 
+
 	@Override
 	public void onClick(IModel<Candidate> model) {
 		setResponsePage(new CandidatePage(model, getList()));
@@ -419,7 +393,6 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 		super.onDetach();
 	}
 
-	
 	@Override
 	protected void addHeaderPanel() {
 		try {
@@ -427,7 +400,7 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 			bc.addElement(new BCElement(getLabel("candidates")));
 			JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("candidates"));
 			ph.setBreadCrumb(bc);
-			ph.setIcon(Candidate.getIcon()  );
+			ph.setIcon(Candidate.getIcon());
 			ph.setHeaderCss("mb-2 pb-2 border-none");
 			add(ph);
 		} catch (Exception e) {

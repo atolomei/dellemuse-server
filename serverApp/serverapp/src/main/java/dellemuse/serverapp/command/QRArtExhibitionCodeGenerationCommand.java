@@ -56,7 +56,7 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 	private Long artExhibitionId;
 
 	boolean force = false;
-	
+
 	public QRArtExhibitionCodeGenerationCommand(Long aId) {
 		this.artExhibitionId = aId;
 	}
@@ -66,7 +66,6 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 		this.force = forece;
 	}
 
-	
 	@Override
 	public void execute() {
 
@@ -78,63 +77,62 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 		try {
 
 			Optional<ArtExhibition> o = getArtExhibitionDBService().findById(getArtExhibitionId());
- 	
+
 			if (o.isPresent()) {
- 		
+
 				ArtExhibition aex = o.get();
 
 				getLockService().getObjectLock(aex.getId()).writeLock().lock();
 				try {
-			
+
 					getArtExhibitionDBService().evict(aex);
-	
+
 					o = getArtExhibitionDBService().findWithDeps(getArtExhibitionId());
-	
+
 					aex = o.get();
-	
+
 					BufferedImage image;
-	
+
 					if (force || (aex.getName() == null || aex.getSite() == null)) {
 						logger.debug("ArtExhibition name or site is null, cannot generate QR code");
 						return;
 					}
-	
+
 					if (aex.getQrcode() == null) {
-	
+
 						ObjectStorageService os = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
-	
+
 						String url = getSettings().getQRServer() + "/ag/guide/" + aex.getId().toString();
-	
+
 						image = genereate(url);
-	
+
 						ServerDBSettings settings = getSettings();
 						File file = new File(settings.getWorkDir(), "qrartexhibition-" + getResourceDBService().normalizeFileName(aex.getName()) + "-" + aex.getId().toString() + ".png");
-	
+
 						try {
 							logger.debug("write -> " + file.getAbsolutePath());
 							ImageIO.write(image, "PNG", file);
-	
+
 							String bucketName = ServerConstant.QR_BUCKET;
 							String objectName = "qrartexhibition-png-" + aex.getId().toString();
-	
+
 							if (os.existsObject(bucketName, objectName)) {
 								os.getClient().deleteObject(bucketName, objectName);
 							}
 							os.getClient().putObject(bucketName, objectName, file);
-							
+
 							aex = getArtExhibitionDBService().addQR(aex, url, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
-							
+
 							if (aex.getQrcode() != null) {
 								getResourceThumbnailService().deleteThumbnail(aex.getQrcode(), ThumbnailSize.LARGE);
 							}
-							
-							
+
 							logger.debug(aex.getQrcode() != null ? aex.getQrcode().getDisplayname() : "nul");
-	
+
 						} catch (IOException e) {
 							logger.error(e, ServerConstant.NOT_THROWN);
 						}
-	
+
 						/**
 						 * try {
 						 * 
@@ -156,11 +154,11 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 						 * 
 						 * } catch (IOException e) { logger.error(e, ServerConstant.NOT_THROWN); }
 						 **/
-	
+
 					}
 				} finally {
 					getLockService().getObjectLock(aex.getId()).writeLock().unlock();
-					
+
 				}
 			}
 
@@ -176,12 +174,6 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 	public void setSiteId(Long resourceId) {
 		this.artExhibitionId = resourceId;
 	}
-
-	
-
-	 
-
-	
 
 	private File generatePdf3(Site site, BufferedImage qrImage, File outputDir) throws IOException {
 

@@ -20,7 +20,7 @@ import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
- 
+
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.error.ErrorPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -59,26 +59,21 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/candidate/${id}")
 public class CandidatePage extends ObjectPage<Candidate> {
 
-	 
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(CandidatePage.class.getName());
 
-	
 	private CandidateEditor editor;
-	
-	
+
 	private CandidateInstitutionEditor institutionEditor;
 	private CandidateUserEditor userEditor;
-	
-	
+
 	private List<ToolbarItem> listMenu = null;
 
-	 
 	public CandidatePage() {
 		super();
 	}
@@ -90,7 +85,7 @@ public class CandidatePage extends ObjectPage<Candidate> {
 	public CandidatePage(IModel<Candidate> model) {
 		super(model);
 	}
-	
+
 	public CandidatePage(IModel<Candidate> model, List<IModel<Candidate>> list) {
 		super(model, list);
 	}
@@ -100,22 +95,21 @@ public class CandidatePage extends ObjectPage<Candidate> {
 		super.onDetach();
 
 	}
-	
+
 	public String getHelpKey() {
 		return Help.CANDIDATE_INFO;
 	}
-	
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-		
+
 		if (ouser.isEmpty())
 			return false;
- 
+
 		return isRoot() || isGeneralAdmin();
-		
+
 	}
-	
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -130,7 +124,7 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			setModel(new ObjectWithDepModel<Candidate>(o_i.get()));
 		}
 	}
-	
+
 	protected void addListeners() {
 		super.addListeners();
 
@@ -141,45 +135,44 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			public void onEvent(SimpleAjaxWicketEvent event) {
 
 				logger.debug(event.toString());
-				
-				if (event.getName().equals(ServerAppConstant.action_candidate_edit)) { 
+
+				if (event.getName().equals(ServerAppConstant.action_candidate_edit)) {
 					CandidatePage.this.onEdit(event.getTarget());
 				}
-				if (event.getName().equals(ServerAppConstant.action_candidate_insitution_edit)) { 
+				if (event.getName().equals(ServerAppConstant.action_candidate_insitution_edit)) {
 					CandidatePage.this.onInstitutionEdit(event.getTarget());
 				}
-				if (event.getName().equals(ServerAppConstant.action_candidate_user_edit)) { 
+				if (event.getName().equals(ServerAppConstant.action_candidate_user_edit)) {
 					CandidatePage.this.onUserEdit(event.getTarget());
+				} else if (event.getName().equals(ServerAppConstant.candidate_info)) {
+					CandidatePage.this.togglePanel(ServerAppConstant.candidate_info, event.getTarget());
+				} else if (event.getName().equals(ServerAppConstant.candidate_user)) {
+					CandidatePage.this.togglePanel(ServerAppConstant.candidate_user, event.getTarget());
+				} else if (event.getName().equals(ServerAppConstant.candidate_institution)) {
+					CandidatePage.this.togglePanel(ServerAppConstant.candidate_institution, event.getTarget());
 				}
-				 else if (event.getName().equals(ServerAppConstant.candidate_info)) {
-						CandidatePage.this.togglePanel(ServerAppConstant.candidate_info, event.getTarget());
-				 }
-				 else if (event.getName().equals(ServerAppConstant.candidate_user)) {
-								CandidatePage.this.togglePanel(ServerAppConstant.candidate_user, event.getTarget());
-				 }		
-				 else if (event.getName().equals(ServerAppConstant.candidate_institution)) {
-						CandidatePage.this.togglePanel(ServerAppConstant.candidate_institution, event.getTarget());
-		 }
-				
+
 				/**
-				if (event.getName().equals(ServerAppConstant.Music_action_edit_info)) { 
-					MusicPage.this.onEdit(event.getTarget());
-					
-				} else if (event.getName().equals(ServerAppConstant.Music_panel_info)) {
-					MusicPage.this.togglePanel(ServerAppConstant.Music_panel_info, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.Music_panel_password)) {
-					MusicPage.this.togglePanel(ServerAppConstant.Music_panel_password, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
-					MusicPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.object_audit)) {
-					MusicPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.Music_panel_roles)) {
-					MusicPage.this.togglePanel(ServerAppConstant.Music_panel_roles, event.getTarget());
-				}
-				else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
-					MusicPage.this.getMetaEditor().onEdit(event.getTarget());
-				}
-				*/
+				 * if (event.getName().equals(ServerAppConstant.Music_action_edit_info)) {
+				 * MusicPage.this.onEdit(event.getTarget());
+				 * 
+				 * } else if (event.getName().equals(ServerAppConstant.Music_panel_info)) {
+				 * MusicPage.this.togglePanel(ServerAppConstant.Music_panel_info,
+				 * event.getTarget()); } else if
+				 * (event.getName().equals(ServerAppConstant.Music_panel_password)) {
+				 * MusicPage.this.togglePanel(ServerAppConstant.Music_panel_password,
+				 * event.getTarget()); } else if
+				 * (event.getName().equals(ServerAppConstant.object_meta)) {
+				 * MusicPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
+				 * } else if (event.getName().equals(ServerAppConstant.object_audit)) {
+				 * MusicPage.this.togglePanel(ServerAppConstant.object_audit,
+				 * event.getTarget()); } else if
+				 * (event.getName().equals(ServerAppConstant.Music_panel_roles)) {
+				 * MusicPage.this.togglePanel(ServerAppConstant.Music_panel_roles,
+				 * event.getTarget()); } else if
+				 * (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
+				 * MusicPage.this.getMetaEditor().onEdit(event.getTarget()); }
+				 */
 			}
 
 			@Override
@@ -195,7 +188,7 @@ public class CandidatePage extends ObjectPage<Candidate> {
 
 			@Override
 			public void onEvent(SimpleWicketEvent event) {
-				 
+
 			}
 
 			@Override
@@ -218,24 +211,22 @@ public class CandidatePage extends ObjectPage<Candidate> {
 	private CandidateInstitutionEditor getInstitutionEditor() {
 		return this.institutionEditor;
 	}
-			
+
 	private CandidateInstitutionEditor getInstitutionEditor(String id) {
 		if (institutionEditor == null)
 			institutionEditor = new CandidateInstitutionEditor(id, getModel());
 		return (institutionEditor);
 	}
-	
-	
+
 	private CandidateUserEditor getUserEditor() {
 		return this.userEditor;
 	}
-			
+
 	private CandidateUserEditor getUserEditor(String id) {
 		if (userEditor == null)
 			userEditor = new CandidateUserEditor(id, getModel());
 		return (userEditor);
 	}
-	
 
 	@Override
 	protected Optional<Candidate> getObject(Long id) {
@@ -291,7 +282,6 @@ public class CandidatePage extends ObjectPage<Candidate> {
 		return new CandidatePage(model, list);
 	}
 
-	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 	}
@@ -299,8 +289,6 @@ public class CandidatePage extends ObjectPage<Candidate> {
 	protected Panel getAuditPanel(String id) {
 		return new AuditPanel<Candidate>(id, getModel());
 	}
-	
-	
 
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
@@ -309,10 +297,10 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			return (listMenu);
 
 		listMenu = new ArrayList<ToolbarItem>();
-		
+
 		DropDownMenuToolbarItem<Candidate> menu = new DropDownMenuToolbarItem<Candidate>("item", getModel(), Align.TOP_RIGHT);
 
-		menu.setTitle(Model.of(TextCleaner.truncate(getModel().getObject().getInstitutionName(), 24) ));
+		menu.setTitle(Model.of(TextCleaner.truncate(getModel().getObject().getInstitutionName(), 24)));
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
 			private static final long serialVersionUID = 1L;
@@ -330,8 +318,7 @@ public class CandidatePage extends ObjectPage<Candidate> {
 				};
 			}
 		});
-		
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
 			private static final long serialVersionUID = 1L;
 
@@ -352,7 +339,6 @@ public class CandidatePage extends ObjectPage<Candidate> {
 				};
 			}
 		});
-
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
 			private static final long serialVersionUID = 1L;
@@ -375,7 +361,6 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			}
 		});
 
-
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Candidate>() {
 			private static final long serialVersionUID = 1L;
 
@@ -397,26 +382,18 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			}
 		});
 
-		
 		listMenu.add(menu);
-		
-		
-		
-		listMenu.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
-	
-		
+
+		listMenu.add(new HelpButtonToolbarItem("item", Align.TOP_RIGHT));
+
 		return listMenu;
 	}
-	
-	 
-	
-	 
+
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
 		List<INamedTab> tabs = super.createInternalPanels();
 
-		 
 		NamedTab tab_1 = new NamedTab(Model.of("editor"), ServerAppConstant.candidate_info) {
 			private static final long serialVersionUID = 1L;
 
@@ -426,8 +403,7 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			}
 		};
 		tabs.add(tab_1);
- 
-		
+
 		NamedTab tab_2 = new NamedTab(Model.of("i-editor"), ServerAppConstant.candidate_institution) {
 			private static final long serialVersionUID = 1L;
 
@@ -437,9 +413,7 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			}
 		};
 		tabs.add(tab_2);
-		
-		
-		
+
 		NamedTab tab_3 = new NamedTab(Model.of("u-editor"), ServerAppConstant.candidate_user) {
 			private static final long serialVersionUID = 1L;
 
@@ -450,8 +424,6 @@ public class CandidatePage extends ObjectPage<Candidate> {
 		};
 		tabs.add(tab_3);
 
-		
-		
 		NamedTab audit = new NamedTab(Model.of("audit"), ServerAppConstant.object_audit) {
 
 			private static final long serialVersionUID = 1L;
@@ -462,8 +434,7 @@ public class CandidatePage extends ObjectPage<Candidate> {
 			}
 		};
 		tabs.add(audit);
-		
-		
+
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.candidate_info);
 
@@ -471,9 +442,8 @@ public class CandidatePage extends ObjectPage<Candidate> {
 	}
 
 	@Override
-	protected Panel createSearchPanel() { 
+	protected Panel createSearchPanel() {
 		return null;
 	}
 
-	
 }

@@ -95,7 +95,6 @@ public abstract class Command extends JsonObject {
 		return this.lockService;
 	}
 
-	
 	protected String getMimeType(String fileName) {
 
 		if (FSUtil.isImage(fileName)) {
@@ -121,6 +120,7 @@ public abstract class Command extends JsonObject {
 
 		return "";
 	}
+
 	protected BufferedImage genereate(String barcodeText) throws IOException {
 
 		QRCodeWriter barcodeWriter = new QRCodeWriter();
@@ -131,7 +131,6 @@ public abstract class Command extends JsonObject {
 
 		BitMatrix bitMatrix;
 		try {
-			 
 
 			bitMatrix = barcodeWriter.encode(barcodeText, BarcodeFormat.QR_CODE, 800, 800, hints);
 
@@ -142,8 +141,7 @@ public abstract class Command extends JsonObject {
 			throw new IOException(e);
 		}
 	}
-	
-	
+
 	protected String getAudioCacheWorkDir() {
 		return getHomeDirAbsolutePath() + File.separator + "audiocache" + File.separator + "download";
 	}
@@ -196,8 +194,6 @@ public abstract class Command extends JsonObject {
 		this.endTime = endOffseDateTime;
 	}
 
-	 
-
 	protected ResourceThumbnailService getResourceThumbnailService() {
 		return (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
 	}
@@ -214,7 +210,7 @@ public abstract class Command extends JsonObject {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		return service;
 	}
-	
+
 	protected ServerDBSettings getServerDBSettings() {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
 	}
@@ -243,12 +239,10 @@ public abstract class Command extends JsonObject {
 		return (PersistentTokenDBService) ServiceLocator.getInstance().getBean(PersistentTokenDBService.class);
 	}
 
-	
-
 	protected EmailTemplateService getEmailTemplateService() {
 		return (EmailTemplateService) ServiceLocator.getInstance().getBean(EmailTemplateService.class);
 	}
-	
+
 	protected ObjectStorageService getObjectStorageService() {
 		return (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
 	}

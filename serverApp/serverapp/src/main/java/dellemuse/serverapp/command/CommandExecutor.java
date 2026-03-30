@@ -18,8 +18,8 @@ package dellemuse.serverapp.command;
 
 import java.time.OffsetDateTime;
 
+import dellemuse.serverapp.ServerConstant;
 import io.odilon.log.Logger;
- 
 
 /**
  * <p>
@@ -34,57 +34,57 @@ import io.odilon.log.Logger;
  */
 public class CommandExecutor implements Runnable {
 
-    static private Logger logger = Logger.getLogger(CommandExecutor.class.getName());
+	static private Logger logger = Logger.getLogger(CommandExecutor.class.getName());
 
-    private Command command;
-    private Dispatcher dispatcher;
+	private Command command;
+	private Dispatcher dispatcher;
 
-    private boolean success = false;
+	private boolean success = false;
 
-    public CommandExecutor(Command c, Dispatcher dispatcher) {
-        this.command = c;
-        this.dispatcher = dispatcher;
-    }
+	public CommandExecutor(Command c, Dispatcher dispatcher) {
+		this.command = c;
+		this.dispatcher = dispatcher;
+	}
 
-    @Override
-    public void run() {
-        try {
+	@Override
+	public void run() {
+		try {
 
-            this.command.setOffsetDateTimeStart(OffsetDateTime.now());
-            this.command.setStatus(CommandStatus.RUNNING);
-            this.command.execute();
-            // this.success = this.command.isSuccess();
-        } catch (Throwable e) {
+			this.command.setOffsetDateTimeStart(OffsetDateTime.now());
+			this.command.setStatus(CommandStatus.RUNNING);
+			this.command.execute();
+			// this.success = this.command.isSuccess();
+		} catch (Throwable e) {
 
-        	//logger.error(e, SharedConstant.NOT_THROWN);
-            //this.request.setStatus(ServiceRequestStatus.ERROR);
-            //this.success = false;
-        } finally {
-            try {
-          	   this.command.setStatus(CommandStatus.TERMINATED);
+			logger.error(e, ServerConstant.NOT_THROWN);
+			this.success = false;
 
-          	   
-            	// this.request.setEnd(OffsetDateTime.now());
+		} finally {
+			try {
+				this.command.setStatus(CommandStatus.TERMINATED);
 
-               // if (this.success)
-                //    this.schedulerWorker.close(this.request);
-               // else
-                //    this.schedulerWorker.fail(this.request);
+				// this.request.setEnd(OffsetDateTime.now());
 
+				// if (this.success)
+				// this.schedulerWorker.close(this.request);
+				// else
+				// this.schedulerWorker.fail(this.request);
 
-            } catch (Throwable e) {
-               // logger.error(e, SharedConstant.NOT_THROWN);
-                //try {
-                //    this.request.setStatus(ServiceRequestStatus.ERROR);
-                //    this.schedulerWorker.fail(this.request);
-                //} catch (Exception e1) {
-                //   logger.error(e1, SharedConstant.NOT_THROWN);
-                //}
-            }
-        }
-    }
+			} catch (Throwable e) {
 
-    public void setDispatcher(Dispatcher d) {
-        this.dispatcher = d;
-    }
+				logger.error(e, ServerConstant.NOT_THROWN);
+
+				// try {
+				// this.request.setStatus(ServiceRequestStatus.ERROR);
+				// this.schedulerWorker.fail(this.request);
+				// } catch (Exception e1) {
+				// logger.error(e1, SharedConstant.NOT_THROWN);
+				// }
+			}
+		}
+	}
+
+	public void setDispatcher(Dispatcher d) {
+		this.dispatcher = d;
+	}
 }

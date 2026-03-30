@@ -26,7 +26,6 @@ import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.util.MediaUtil;
- 
 
 public class ResourceMetadataCommand extends Command {
 
@@ -47,59 +46,50 @@ public class ResourceMetadataCommand extends Command {
 	@JsonProperty("mimeType")
 	private String mimeType;
 
-	
 	@JsonProperty("metadata")
 	private Map<String, String> metadata;
 
-	
 	@JsonIgnore
 	ResourceDBService resourceDBService;
-	
-	
+
 	@JsonIgnore
 	ObjectStorageService objectStorageService;
-	
 
-	
 	@Override
 	public void execute() {
-		
-		resourceDBService = (ResourceDBService) ServiceLocator.getInstance()
-				.getBean(ResourceDBService.class);
 
+		resourceDBService = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 
-		objectStorageService = (ObjectStorageService) ServiceLocator.getInstance()
-				.getBean(ObjectStorageService.class);
+		objectStorageService = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
 
-		
 		try {
 
 			Optional<Resource> o = resourceDBService.findById(getResourceId());
-			
-			if (o.isPresent()) {
-				
-					Resource resource = o.get();
 
-					getLockService().getObjectLock(resource.getId()).writeLock().lock();
-					
-					try { 
-						if (resource.getMedia()!=null) {
-							if (resource.getMedia().contains("image")) {
-								processImage(resource);
-							} else if  (resource.getMedia().contains("audio")) {
-								processAudio(resource);
-							}
+			if (o.isPresent()) {
+
+				Resource resource = o.get();
+
+				getLockService().getObjectLock(resource.getId()).writeLock().lock();
+
+				try {
+					if (resource.getMedia() != null) {
+						if (resource.getMedia().contains("image")) {
+							processImage(resource);
+						} else if (resource.getMedia().contains("audio")) {
+							processAudio(resource);
 						}
-					} finally  {
-						getLockService().getObjectLock(resource.getId()).writeLock().unlock();
 					}
+				} finally {
+					getLockService().getObjectLock(resource.getId()).writeLock().unlock();
+				}
 			}
 
 		} catch (Exception e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
 	}
-	
+
 	public long getDurationMilliseconds() {
 		return this.durationMilliseconds;
 	}
@@ -120,117 +110,112 @@ public class ResourceMetadataCommand extends Command {
 		return this.mimeType;
 	}
 
-	
 	/**
 	 * 
 	 * @param resource
 	 */
-	private void processImage(Resource resource ) {
-		
+	private void processImage(Resource resource) {
+
 		if ((resource.getHeight() <= 0 && resource.getWidth() <= 0)) {
-			
-			if ( !(resource.getMedia().contains("webp") || resource.getMedia().contains("svg"))) {
-				
+
+			if (!(resource.getMedia().contains("webp") || resource.getMedia().contains("svg"))) {
+
 				try (InputStream is = objectStorageService.getObject(resource.getBucketName(), resource.getObjectName())) {
 					if (is != null) {
-							SimpleImageInfo info = new SimpleImageInfo(is);
-							this.width = info.getWidth();
-							this.height = info.getHeight();
-							this.mimeType = info.getMimeType();
+						SimpleImageInfo info = new SimpleImageInfo(is);
+						this.width = info.getWidth();
+						this.height = info.getHeight();
+						this.mimeType = info.getMimeType();
 
-							if (width > 0 && height > 0) {
-								resource.setWidth(width);
-								resource.setHeight(height);
-								resource.setAudit("");
-								logger.debug("Saving image dimensions -> " + resource.getDisplayname());
-								resourceDBService.save(resource);
+						if (width > 0 && height > 0) {
+							resource.setWidth(width);
+							resource.setHeight(height);
+							resource.setAudit("");
+							logger.debug("Saving image dimensions -> " + resource.getDisplayname());
+							resourceDBService.save(resource);
 
-							}
+						}
 					}
 				} catch (Exception e) {
-					resource.setAudit(e.getClass().getSimpleName() + "| " + (e.getMessage()!=null?e.getMessage():""));
+					resource.setAudit(e.getClass().getSimpleName() + "| " + (e.getMessage() != null ? e.getMessage() : ""));
 					resourceDBService.save(resource);
-					logger.error(e, resource.getDisplayname()+ "  | " + resource.getMedia(), ServerConstant.NOT_THROWN);
+					logger.error(e, resource.getDisplayname() + "  | " + resource.getMedia(), ServerConstant.NOT_THROWN);
 				}
 			}
 		}
 	}
-	
-	File downloadedFile = null;
-	
-	private void processAudio(Resource resource) {
-	 
-	 
-		if (resource.getMedia().contains("audio") && (resource.getMeta_json()==null || resource.getDurationMilliseconds()<=0) ) {
 
-	
+	File downloadedFile = null;
+
+	private void processAudio(Resource resource) {
+
+		if (resource.getMedia().contains("audio") && (resource.getMeta_json() == null || resource.getDurationMilliseconds() <= 0)) {
+
 			try (InputStream is = getObjectStorageService().getObject(resource.getBucketName(), resource.getObjectName())) {
-	
+
 				if (is != null) {
-	
-						downloadedFile = new File(getSettings().getWorkDir(), resource.getName());
-						
-						if (getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().tryLock(30, TimeUnit.SECONDS)) {
-							
-							try {
-								try (InputStream in = objectStorageService.getClient().getObject(resource.getBucketName(),
-										resource.getObjectName())) {
-									Files.copy(in, downloadedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-								}
-								
-			 					int d= MediaUtil.getAudioDurationInSeconds(downloadedFile);
-								
-								if (d > 0) {
-									
-									double d_size = Double.valueOf(resource.getSize());
-									double d_dur  = Double.valueOf(d);
-									
-									if (d_size>0) {
-										double coc = d_size  / d_dur;
-										if (coc>5000 || d_dur<180) {
-											logger.debug("Saving audio duration -> " + resource.getDisplayname() + " | " + String.valueOf(d) + "secs" + " | coc:" + String.valueOf(coc) + " bytes/sec");
-											resource.setDurationMilliseconds( Double.valueOf( Double.valueOf(d).doubleValue() * 1000.0 ).longValue());
-											resource.setAudit("");
-											resourceDBService.save(resource);
-										}
-										else {
-											resource.setAudit("Error -> " +  String.valueOf(d) + " secs" + " | " + String.valueOf(coc) + " bytes/sec");
-											resourceDBService.save(resource);
-										}
-										
-									}
-								}
-								
-								if (	FSUtil.isAudio( downloadedFile .getName())) {
-									
-										resource.setMeta_json(AudioFileMetadataExtractor.extractMetadata(downloadedFile));
-										logger.debug( resource.getMeta_json());
-								}
-								
-							} finally {
-								getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().unlock();
+
+					downloadedFile = new File(getSettings().getWorkDir(), resource.getName());
+
+					if (getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().tryLock(30, TimeUnit.SECONDS)) {
+
+						try {
+							try (InputStream in = objectStorageService.getClient().getObject(resource.getBucketName(), resource.getObjectName())) {
+								Files.copy(in, downloadedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 							}
-						} else {
-							logger.error("lock not working");
+
+							int d = MediaUtil.getAudioDurationInSeconds(downloadedFile);
+
+							if (d > 0) {
+
+								double d_size = Double.valueOf(resource.getSize());
+								double d_dur = Double.valueOf(d);
+
+								if (d_size > 0) {
+									double coc = d_size / d_dur;
+									if (coc > 5000 || d_dur < 180) {
+										logger.debug("Saving audio duration -> " + resource.getDisplayname() + " | " + String.valueOf(d) + "secs" + " | coc:" + String.valueOf(coc) + " bytes/sec");
+										resource.setDurationMilliseconds(Double.valueOf(Double.valueOf(d).doubleValue() * 1000.0).longValue());
+										resource.setAudit("");
+										resourceDBService.save(resource);
+									} else {
+										resource.setAudit("Error -> " + String.valueOf(d) + " secs" + " | " + String.valueOf(coc) + " bytes/sec");
+										resourceDBService.save(resource);
+									}
+
+								}
+							}
+
+							if (FSUtil.isAudio(downloadedFile.getName())) {
+
+								resource.setMeta_json(AudioFileMetadataExtractor.extractMetadata(downloadedFile));
+								logger.debug(resource.getMeta_json());
+							}
+
+						} finally {
+							getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().unlock();
 						}
+					} else {
+						logger.error("lock not working");
+					}
 				}
 			} catch (Exception e) {
-					logger.error(e, resource.getDisplayname()+ "  | " + resource.getMedia(), ServerConstant.NOT_THROWN);
-					resource.setAudit(e.getClass().getSimpleName() + "| " + (e.getMessage()!=null?e.getMessage():""));
-					resourceDBService.save(resource);
-					return;
+				logger.error(e, resource.getDisplayname() + "  | " + resource.getMedia(), ServerConstant.NOT_THROWN);
+				resource.setAudit(e.getClass().getSimpleName() + "| " + (e.getMessage() != null ? e.getMessage() : ""));
+				resourceDBService.save(resource);
+				return;
 			} finally {
 				if ((downloadedFile != null) && downloadedFile.exists()) {
 					try {
 						FileUtils.forceDelete(downloadedFile);
 					} catch (IOException e) {
-						logger.error(e,  downloadedFile.getName(), ServerConstant.NOT_THROWN);
+						logger.error(e, downloadedFile.getName(), ServerConstant.NOT_THROWN);
 					}
 				}
 			}
-		}  
+		}
 	}
-	
+
 	public Long getResourceId() {
 		return resourceId;
 	}
@@ -238,8 +223,6 @@ public class ResourceMetadataCommand extends Command {
 	public void setResourceId(Long resourceId) {
 		this.resourceId = resourceId;
 	}
-
-
 
 	public ObjectStorageService getObjectStorageService() {
 		return objectStorageService;

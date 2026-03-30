@@ -2,7 +2,7 @@ package dellemuse.serverapp.command;
 
 import java.io.Serializable;
 import java.time.OffsetDateTime;
- 
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -43,8 +43,6 @@ public class CommandService extends BaseService {
 	private OffsetDateTime lastCleanUp;
 	private Dispatcher dispatcher;
 
-	// private List<Command> commandsTerminated = Collections.synchronizedList(new
-	// ArrayList<Command>());
 	private int maxSize = MAX_SIZE;
 
 	private ReadWriteLock com_lock = new ReentrantReadWriteLock();
@@ -110,8 +108,7 @@ public class CommandService extends BaseService {
 
 		} else {
 			logger.error("Command with key '" + concurrentUniqueKey + "' is already being executed.");
-			throw new RuntimeException(
-					"Command with key '" + concurrentUniqueKey + "' is already being executed.");
+			throw new RuntimeException("Command with key '" + concurrentUniqueKey + "' is already being executed.");
 		}
 	}
 
@@ -128,7 +125,6 @@ public class CommandService extends BaseService {
 		return this.commands;
 	}
 
- 
 	/**
 	 * Client has finished using the Command
 	 *

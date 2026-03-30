@@ -1,7 +1,6 @@
 package dellemuse.serverapp.branded.panel;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -71,7 +70,7 @@ public class BrandedAccesibilityPanel extends ObjectModelPanel<User> {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				
+
 				if (getMode() == AccesibilityMode.GENERAL)
 					setMode(AccesibilityMode.ACCESIBLE);
 				else
@@ -79,13 +78,12 @@ public class BrandedAccesibilityPanel extends ObjectModelPanel<User> {
 
 				link.add(new org.apache.wicket.AttributeModifier("class", "btn border  " + (getMode() == AccesibilityMode.GENERAL ? " bg-dark " : " alert alert-success m-0")));
 
-				 Cookie cookie = new Cookie("accessible", (getMode() == AccesibilityMode.GENERAL ? "false" : "true"));
-		            cookie.setPath("/");
-		            cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
-		            ((WebResponse) RequestCycle.get().getResponse())
-		                    .addCookie(cookie);
-		        
-				fire (new  AccesibilityAjaxEvent("accesibility", getMode(), target) );
+				Cookie cookie = new Cookie("accessible", (getMode() == AccesibilityMode.GENERAL ? "false" : "true"));
+				cookie.setPath("/");
+				cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
+				((WebResponse) RequestCycle.get().getResponse()).addCookie(cookie);
+
+				fire(new AccesibilityAjaxEvent("accesibility", getMode(), target));
 				target.add(BrandedAccesibilityPanel.this);
 			}
 

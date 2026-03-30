@@ -3,7 +3,6 @@ package dellemuse.serverapp.branded.panel;
 import java.util.ArrayList;
 import java.util.List;
 
- 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -16,7 +15,6 @@ import org.apache.wicket.util.visit.IVisitor;
 
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
-
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuidePage;
@@ -45,7 +43,7 @@ import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.Toolbar;
 import io.wktui.nav.toolbar.ToolbarItem;
 import wktui.base.InvisiblePanel;
- 
+
 import io.wktui.form.field.Field;
 
 public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements InternalPanel {
@@ -53,20 +51,18 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(BrandedSiteSearcherPanel.class.getName());
-	
-	
+
 	private List<ToolbarItem> listToolbar;
-	 
+
 	private Form<Void> form;
 	private String audioId = "";
 	private TextField<String> aidField;
-	
-	
+
 	private WebMarkupContainer closeContainer;
-	
- 	private WebMarkupContainer itemsGuideContentsContainer;
+
+	private WebMarkupContainer itemsGuideContentsContainer;
 	private WebMarkupContainer itemsArtExhibitionGuideContainer;
-	
+
 	private WebMarkupContainer listToolbarContainer;
 
 	private List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
@@ -76,18 +72,18 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 
 	public BrandedSiteSearcherPanel(String id, IModel<Site> model, AccesibilityMode accesibilityMode) {
 		super(id, model);
-		this.accesibilityMode=accesibilityMode;
+		this.accesibilityMode = accesibilityMode;
 		setOutputMarkupId(true);
 	}
 
-	public  BrandedSiteSearcherPanel(String id, IModel<Site> model,  List<IModel<GuideContent>> gc_list,  List<IModel<ArtExhibitionGuide>> ag_list, AccesibilityMode accesibilityMode) {
+	public BrandedSiteSearcherPanel(String id, IModel<Site> model, List<IModel<GuideContent>> gc_list, List<IModel<ArtExhibitionGuide>> ag_list, AccesibilityMode accesibilityMode) {
 		super(id, model);
 		setOutputMarkupId(true);
-		this.gc_list=gc_list;
-		this.ag_list=ag_list;
-		this.accesibilityMode=accesibilityMode;
+		this.gc_list = gc_list;
+		this.ag_list = ag_list;
+		this.accesibilityMode = accesibilityMode;
 	}
-	
+
 	public String getAudioId() {
 		return this.audioId;
 	}
@@ -95,128 +91,110 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 	public void setAudioId(String aid) {
 		this.audioId = aid;
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
+
 		// addListToolbar();
 		addForm();
-		
-		
-		
-		
-		final boolean isClose = (gc_list!=null && gc_list.size()>1) || (ag_list!=null && ag_list.size()>0);
-	
+
+		final boolean isClose = (gc_list != null && gc_list.size() > 1) || (ag_list != null && ag_list.size() > 0);
 
 		closeContainer = new WebMarkupContainer("closeContainer") {
 			public boolean isVisible() {
-					return isClose;
+				return isClose;
 			}
 		};
-		
+
 		closeContainer.setOutputMarkupId(true);
 		add(closeContainer);
-		
-		
-		 Link<Void> close = new  Link<Void>("close") {
+
+		Link<Void> close = new Link<Void>("close") {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick() {
-				fire (new SearchAudioEvent("search-audio", BrandedSiteSearcherPanel.this.getModel(), null, null ));
+				fire(new SearchAudioEvent("search-audio", BrandedSiteSearcherPanel.this.getModel(), null, null));
 			}
+
 			public boolean isVisible() {
 				return isClose;
 			}
 		};
 		closeContainer.add(close);
-	  	
-	
+
 		itemsGuideContentsContainer = new WebMarkupContainer("itemsGuideContentContainer");
 		itemsGuideContentsContainer.setOutputMarkupId(true);
 		add(itemsGuideContentsContainer);
-		
-		if (gc_list==null || gc_list.size()==0) {
+
+		if (gc_list == null || gc_list.size() == 0) {
 			itemsGuideContentsContainer.setVisible(false);
 			itemsGuideContentsContainer.add(new InvisiblePanel("results"));
-		}
-		else {
+		} else {
 			itemsGuideContentsContainer.setVisible(true);
-				SearchResultsPanel<GuideContent> panel = new SearchResultsPanel<GuideContent>("results", getModel(), gc_list) {
+			SearchResultsPanel<GuideContent> panel = new SearchResultsPanel<GuideContent>("results", getModel(), gc_list) {
 				@Override
 				protected void onClick(IModel<GuideContent> model) {
-					setResponsePage( new BrandedGuideContentPage(model));
+					setResponsePage(new BrandedGuideContentPage(model));
 				}
 			};
-			itemsGuideContentsContainer.add( panel );
+			itemsGuideContentsContainer.add(panel);
 		}
- 
-		
-		
+
 		itemsArtExhibitionGuideContainer = new WebMarkupContainer("itemsArtExhibitionGuideContainer");
 		add(itemsArtExhibitionGuideContainer);
 		itemsArtExhibitionGuideContainer.setOutputMarkupId(true);
-		
-		
-		if (ag_list==null || ag_list.size()==0) {
+
+		if (ag_list == null || ag_list.size() == 0) {
 			itemsArtExhibitionGuideContainer.setVisible(false);
 			itemsArtExhibitionGuideContainer.add(new InvisiblePanel("results"));
-		}
-		else {
-			
+		} else {
+
 			itemsArtExhibitionGuideContainer.setVisible(true);
 			SearchResultsPanel<ArtExhibitionGuide> panel = new SearchResultsPanel<ArtExhibitionGuide>("results", getModel(), ag_list) {
 				@Override
 				protected void onClick(IModel<ArtExhibitionGuide> model) {
-					setResponsePage( new BrandedArtExhibitionGuidePage(model));
+					setResponsePage(new BrandedArtExhibitionGuidePage(model));
 				}
 			};
-			itemsArtExhibitionGuideContainer.add( panel );
+			itemsArtExhibitionGuideContainer.add(panel);
 		}
-		
-		
-		
-	 
-		
-		 
+
 	}
-	
-	 
-	
+
 	protected String getSaveCss() {
 		return "btn btn-outline btn-sm";
 	}
-	
+
 	protected String getSaveStyle() {
-	 
-	 	return "margin-top: 0px;    padding-top: 8px;    padding-bottom: 5px;    border-top: none;    border-bottom: none;    border-right: none;    border-left: 1px solid #495057;     font-size: 13px;    border-radius: 0 6px 6px 0;    padding-left: 12px;    padding-right: 12px;";
+
+		return "margin-top: 0px;    padding-top: 8px;    padding-bottom: 5px;    border-top: none;    border-bottom: none;    border-right: none;    border-left: 1px solid #495057;     font-size: 13px;    border-radius: 0 6px 6px 0;    padding-left: 12px;    padding-right: 12px;";
 	}
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		
-		if (getListToolbarItems()!=null)
-			getListToolbarItems().forEach(i->i.detach());
-		
-		 if ( gc_list!=null)
-			 gc_list.forEach( i-> i.detach());
-		 
-		 if (ag_list!=null)
-			 ag_list.forEach(i->i.detach());
+
+		if (getListToolbarItems() != null)
+			getListToolbarItems().forEach(i -> i.detach());
+
+		if (gc_list != null)
+			gc_list.forEach(i -> i.detach());
+
+		if (ag_list != null)
+			ag_list.forEach(i -> i.detach());
 	}
 
-	
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 		return t_list;
 	}
-	
-	 
+
 	protected void onClick(IModel<GuideContent> model, AjaxRequestTarget target) {
-		
+
 	}
-	
+
 	/**
 	 * 
 	 * 
@@ -236,16 +214,16 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 
 			@Override
 			protected void onSubmit() {
-				 BrandedSiteSearcherPanel.this.onSubmit();
+				BrandedSiteSearcherPanel.this.onSubmit();
 			}
 
 			public String getIcon() {
 				return BrandedSiteSearcherPanel.this.getIcon();
-				 
+
 			}
 
 			public String getIconStyle() {
-				return  BrandedSiteSearcherPanel.this.getIconStyle();
+				return BrandedSiteSearcherPanel.this.getIconStyle();
 			}
 
 			public IModel<String> getLabel() {
@@ -253,7 +231,7 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 			}
 
 			protected String getSaveCss() {
-				return  BrandedSiteSearcherPanel.this.getSaveCss();
+				return BrandedSiteSearcherPanel.this.getSaveCss();
 			}
 		};
 
@@ -274,80 +252,71 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 			}
 		});
 	}
-	
-	
+
 	public String getIcon() {
 		return "fa-solid fa-magnifying-glass";
 	}
 
-	
-	
 	protected void onSubmit() {
-		
-		 this.form.updateModel();
 
-		 gc_list = generateGuideContentList();
+		this.form.updateModel();
 
-		 if (gc_list!=null && gc_list.size()==1) {
-				setResponsePage( new BrandedGuideContentPage( gc_list.get(0)));
-				return;
-		 }
+		gc_list = generateGuideContentList();
 
-		 if (gc_list!=null && gc_list.size()==2) {
-			 
-			 
-				final boolean isAccesible = (this.accesibilityMode==AccesibilityMode.ACCESIBLE);
-			
-				for (IModel<GuideContent> g : gc_list) {
+		if (gc_list != null && gc_list.size() == 1) {
+			setResponsePage(new BrandedGuideContentPage(gc_list.get(0)));
+			return;
+		}
 
-				 	ArtExhibitionGuide guide = getArtExhibitionGuideDBService().findById( g.getObject().getArtExhibitionGuide().getId()).get();
-			 
-					
-					if (isAccesible && guide.isAccessible()) {
-						setResponsePage( new BrandedGuideContentPage(g));
-						return;
-					}
-					if (!isAccesible && !guide.isAccessible()) {
-						setResponsePage( new BrandedGuideContentPage(g));
-						return;
-					}
+		if (gc_list != null && gc_list.size() == 2) {
+
+			final boolean isAccesible = (this.accesibilityMode == AccesibilityMode.ACCESIBLE);
+
+			for (IModel<GuideContent> g : gc_list) {
+
+				ArtExhibitionGuide guide = getArtExhibitionGuideDBService().findById(g.getObject().getArtExhibitionGuide().getId()).get();
+
+				if (isAccesible && guide.isAccessible()) {
+					setResponsePage(new BrandedGuideContentPage(g));
+					return;
 				}
-		 }
-
-		
-		ag_list	= generateArtExhibitionGuideList();
-		
-		if (ag_list!=null && ag_list.size()==1) {
-			 setResponsePage( new  BrandedArtExhibitionGuidePage( ag_list.get(0)));
-			 return;
-		 }
-
-		 if (ag_list!=null && ag_list.size()==2) {
-			 
-				final boolean isAccesible = (this.accesibilityMode==AccesibilityMode.ACCESIBLE);
-			
-				for (IModel<ArtExhibitionGuide> g : ag_list) {
-					if (isAccesible && g.getObject().isAccessible()) {
-						setResponsePage( new BrandedArtExhibitionGuidePage(g));
-						return;
-					}
-					if (!isAccesible && !g.getObject().isAccessible()) {
-						setResponsePage( new BrandedArtExhibitionGuidePage(g));
-						return;
-					}
+				if (!isAccesible && !guide.isAccessible()) {
+					setResponsePage(new BrandedGuideContentPage(g));
+					return;
 				}
-		 }
-		
-		fire (new SearchAudioEvent("search-audio", BrandedSiteSearcherPanel.this.getModel(), gc_list, ag_list));
+			}
+		}
+
+		ag_list = generateArtExhibitionGuideList();
+
+		if (ag_list != null && ag_list.size() == 1) {
+			setResponsePage(new BrandedArtExhibitionGuidePage(ag_list.get(0)));
+			return;
+		}
+
+		if (ag_list != null && ag_list.size() == 2) {
+
+			final boolean isAccesible = (this.accesibilityMode == AccesibilityMode.ACCESIBLE);
+
+			for (IModel<ArtExhibitionGuide> g : ag_list) {
+				if (isAccesible && g.getObject().isAccessible()) {
+					setResponsePage(new BrandedArtExhibitionGuidePage(g));
+					return;
+				}
+				if (!isAccesible && !g.getObject().isAccessible()) {
+					setResponsePage(new BrandedArtExhibitionGuidePage(g));
+					return;
+				}
+			}
+		}
+
+		fire(new SearchAudioEvent("search-audio", BrandedSiteSearcherPanel.this.getModel(), gc_list, ag_list));
 	}
-	
 
-	
 	public String getIconStyle() {
 		return null;
 	}
 
-	
 	protected void addListToolbar() {
 
 		this.listToolbarContainer = new WebMarkupContainer("listToolbarContainer") {
@@ -371,8 +340,7 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 			this.listToolbarContainer.add(new InvisiblePanel("listToolbar"));
 		}
 	}
-	
- 
+
 	@Override
 	protected void addListeners() {
 		super.addListeners();
@@ -382,10 +350,10 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 
 			@Override
 			public void onEvent(ObjectStateSelectEvent event) {
-				//setObjectStateEnumSelector(event.getObjectStateEnumSelector());
-				//reloadList();
-				//event.getTarget().add( getItemsGuideContentContainer());
-				//event.getTarget().add( getListToolbarContainer());
+				// setObjectStateEnumSelector(event.getObjectStateEnumSelector());
+				// reloadList();
+				// event.getTarget().add( getItemsGuideContentContainer());
+				// event.getTarget().add( getListToolbarContainer());
 			}
 
 			@Override
@@ -396,68 +364,64 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 			}
 		});
 	}
-	
-	/**
-	@Override
-	protected void onClick(IModel<GuideContent> model) {
-		setResponsePage(new GuideContentPage(model,getItems()));
-	}
-	**/
 
-	 
-	protected  List<ToolbarItem> getListToolbarItems() {
+	/**
+	 * @Override protected void onClick(IModel<GuideContent> model) {
+	 *           setResponsePage(new GuideContentPage(model,getItems())); }
+	 **/
+
+	protected List<ToolbarItem> getListToolbarItems() {
 
 		if (listToolbar != null)
 			return listToolbar;
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-		//IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
-		//ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
-		//listToolbar.add(s);
+		// IModel<String> selected =
+		// Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
+		// ObjectStateListSelector s = new ObjectStateListSelector("item", selected,
+		// Align.TOP_LEFT);
+		// listToolbar.add(s);
 
 		return listToolbar;
 	}
 
 	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
-	
-	protected synchronized  List<IModel<GuideContent>> generateGuideContentList() {
+
+	protected synchronized List<IModel<GuideContent>> generateGuideContentList() {
 
 		List<IModel<GuideContent>> list = new ArrayList<IModel<GuideContent>>();
-		
+
 		Long l_aid = null;
-		
+
 		try {
-			if (getAudioId()!=null && getAudioId().length()>0)
+			if (getAudioId() != null && getAudioId().length() > 0)
 				l_aid = Long.valueOf(getAudioId());
 		} catch (Exception e) {
 			l_aid = Long.valueOf(-1);
 		}
-			
-		getGuideContentDBService().getByArtWorkAudioId( getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> 
-		{
-			  list.add(new ObjectModel<GuideContent>(s));
-		 });
+
+		getGuideContentDBService().getByArtWorkAudioId(getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> {
+			list.add(new ObjectModel<GuideContent>(s));
+		});
 		return list;
-	
+
 	}
-	
-	protected synchronized  List<IModel<ArtExhibitionGuide>> generateArtExhibitionGuideList() {
+
+	protected synchronized List<IModel<ArtExhibitionGuide>> generateArtExhibitionGuideList() {
 
 		List<IModel<ArtExhibitionGuide>> list = new ArrayList<IModel<ArtExhibitionGuide>>();
 		Long l_aid = null;
-		 
+
 		try {
-			if (getAudioId()!=null && getAudioId().length()>0)
+			if (getAudioId() != null && getAudioId().length() > 0)
 				l_aid = Long.valueOf(getAudioId());
 		} catch (Exception e) {
 			l_aid = Long.valueOf(-1);
 		}
-	 	getArtExhibitionGuideDBService().getByExhibitionAudioId( getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> list.add(new ObjectModel<ArtExhibitionGuide>(s)));
+		getArtExhibitionGuideDBService().getByExhibitionAudioId(getModel().getObject(), l_aid, ObjectState.PUBLISHED).forEach(s -> list.add(new ObjectModel<ArtExhibitionGuide>(s)));
 		return list;
-	
+
 	}
-	
-	 
-	
+
 }

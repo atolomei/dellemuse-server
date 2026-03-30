@@ -1,25 +1,22 @@
 package dellemuse.serverapp.candidate;
 
- 
 import java.util.Locale;
 import java.util.Optional;
 
- 
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
- 
+
 import dellemuse.serverapp.global.GlobalTopPanel;
- 
+
 import dellemuse.serverapp.page.BasePage;
- 
+
 import dellemuse.serverapp.serverdb.model.Candidate;
- 
+
 import dellemuse.serverapp.serverdb.model.User;
- 
+
 import wktui.base.InvisiblePanel;
- 
 
 @MountPath("/signup/${lang}")
 public class CandidateOnboardPage extends BasePage {

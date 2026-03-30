@@ -40,20 +40,17 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 	private Long artworkId;
 
 	boolean force = false;
-	
+
 	public QRCodeArtWorkGenerationCommand(Long aId) {
 		this.artworkId = aId;
 	}
 
-
-	
 	public QRCodeArtWorkGenerationCommand(Long aId, boolean force) {
 		this.artworkId = aId;
 		this.force = force;
-		
+
 	}
 
-	
 	@Override
 	public void execute() {
 
@@ -78,17 +75,17 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 
 					aw = o.get();
 
-					if ( force || ((aw.getQRCode() == null) && (aw.getName() != null))) {
+					if (force || ((aw.getQRCode() == null) && (aw.getName() != null))) {
 
-						String url = getSettings().getQRServer() + "/ag/" + PrefixUrl.PublicPortalGuideContent +"/" + aw.getId().toString();
-						
+						String url = getSettings().getQRServer() + "/ag/" + PrefixUrl.PublicPortalGuideContent + "/" + aw.getId().toString();
+
 						BufferedImage image = genereate(url);
 
 						ServerDBSettings settings = getSettings();
 						File file = new File(settings.getWorkDir(), "qr-" + getResourceDBService().normalizeFileName(aw.getName()) + "-" + aw.getId().toString() + ".png");
 
 						try {
-							
+
 							logger.debug("write -> " + file.getAbsolutePath());
 							ImageIO.write(image, "PNG", file);
 
@@ -98,19 +95,18 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 							String bucketName = ServerConstant.QR_BUCKET;
 							String objectName = "qr-" + aw.getId().toString();
 
-							
 							if (os.existsObject(bucketName, objectName)) {
 								os.getClient().deleteObject(bucketName, objectName);
 							}
-						
+
 							os.getClient().putObject(bucketName, objectName, file);
-						
+
 							aw = dbs.addQR(aw, url, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
-						
+
 							if (aw.getQRCode() != null) {
 								getResourceThumbnailService().deleteThumbnail(aw.getQRCode(), ThumbnailSize.LARGE);
 							}
-					
+
 							logger.debug(aw.getQRCode() != null ? aw.getQRCode().getDisplayname() : "nul");
 
 						} catch (IOException e) {
@@ -150,6 +146,4 @@ public class QRCodeArtWorkGenerationCommand extends Command {
 		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
 
-	 
- 
 }

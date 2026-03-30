@@ -54,7 +54,7 @@ public class QRSiteCodeGenerationCommand extends Command {
 	private Long siteId;
 
 	boolean force = false;
-	
+
 	public QRSiteCodeGenerationCommand(Long aId) {
 		this.siteId = aId;
 	}
@@ -63,7 +63,7 @@ public class QRSiteCodeGenerationCommand extends Command {
 		this.siteId = aId;
 		this.force = force;
 	}
-	
+
 	@Override
 	public void execute() {
 
@@ -117,14 +117,13 @@ public class QRSiteCodeGenerationCommand extends Command {
 								os.getClient().deleteObject(bucketName, objectName);
 							}
 							os.getClient().putObject(bucketName, objectName, file);
-							
+
 							site = getSiteDBService().addQR(site, url, bucketName, objectName, file.getName(), getMimeType(file.getName()), file.length(), getRootUser());
-							
+
 							if (site.getQrcode() != null) {
 								getResourceThumbnailService().deleteThumbnail(site.getQrcode(), ThumbnailSize.LARGE);
 							}
 
-							
 							logger.debug(site.getQrcode() != null ? site.getQrcode().getDisplayname() : "nul");
 
 						} catch (IOException e) {
@@ -188,9 +187,6 @@ public class QRSiteCodeGenerationCommand extends Command {
 	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
- 
-
-	 
 
 	private File generatePdf3(Site site, BufferedImage qrImage, File outputDir) throws IOException {
 

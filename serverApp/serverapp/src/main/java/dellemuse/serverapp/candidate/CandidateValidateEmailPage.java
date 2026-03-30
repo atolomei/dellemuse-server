@@ -84,7 +84,6 @@ public class CandidateValidateEmailPage extends BasePage {
 		super(parameters);
 	}
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		return true;

@@ -12,13 +12,13 @@ import org.apache.wicket.model.Model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.artexhibitionitem.ArtExhibitionItemsGuidesPanel;
+
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
 
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
-import dellemuse.serverapp.serverdb.model.GuideContent;
+
 import dellemuse.serverapp.serverdb.service.DelleMuseAuditDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -123,8 +123,7 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 	protected UserDBService getUserDBService() {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}
-	
-	
+
 	private IModel<String> getItemTitle(IModel<DelleMuseAudit> m) {
 
 		DelleMuseAudit o = m.getObject();
@@ -134,7 +133,7 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 
 		if (o.isDependencies()) {
 			str.append(" - ");
-			str.append( getUserDBService().findById(o.getUser().getId()).get().getUsername());
+			str.append(getUserDBService().findById(o.getUser().getId()).get().getUsername());
 		}
 
 		str.append(" - ");
@@ -149,8 +148,6 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 		return Model.of(str.toString());
 
 	}
-
-	 
 
 	private void addItems() {
 
@@ -173,7 +170,7 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 			public IModel<String> getItemLabel(IModel<DelleMuseAudit> model) {
 				return AuditPanel.this.getItemTitle(model);
 			}
-			
+
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<DelleMuseAudit> model, ListPanelMode mode) {
 				return AuditPanel.this.getObjectListItemExpandedPanel(model, mode);

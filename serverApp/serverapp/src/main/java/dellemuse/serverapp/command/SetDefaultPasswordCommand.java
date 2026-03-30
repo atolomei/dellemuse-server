@@ -57,6 +57,14 @@ public class SetDefaultPasswordCommand extends Command {
 		}
 	}
 
+	protected ServerDBSettings getSettings() {
+		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
+	}
+
+	protected ResourceDBService getResourceDBService() {
+		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+	}
+
 	protected ArtWorkDBService getArtWorkDBService() {
 		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
 		return service;
@@ -64,16 +72,6 @@ public class SetDefaultPasswordCommand extends Command {
 
 	private UserDBService getUserDBService() {
 		return ((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class));
-	}
-
- 
-
-	protected ServerDBSettings getSettings() {
-		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
-	}
-
-	protected ResourceDBService getResourceDBService() {
-		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
 
 }

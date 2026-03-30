@@ -40,63 +40,59 @@ public class EmtyQRCodesCommand extends Command {
 
 	static private Logger logger = Logger.getLogger(EmtyQRCodesCommand.class.getName());
 
-
-	public EmtyQRCodesCommand()  {
+	public EmtyQRCodesCommand() {
 	}
 
 	@Override
 	public void execute() {
 
 		try {
-				ObjectStorageService os = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class); 
-				String bucketName = ServerConstant.QR_BUCKET; 
+			ObjectStorageService os = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
+			String bucketName = ServerConstant.QR_BUCKET;
 
-				ResultSet<Item<ObjectMetadata>> r = os.listObjects(bucketName);
-				
-				List<ObjectMetadata> list = new ArrayList<ObjectMetadata>();
+			ResultSet<Item<ObjectMetadata>> r = os.listObjects(bucketName);
 
-				while (r.hasNext()) {
-					
-					Item<ObjectMetadata> item = r.next();
-					if (item.isOk())
-						list.add(item.getObject());
+			List<ObjectMetadata> list = new ArrayList<ObjectMetadata>();
+
+			while (r.hasNext()) {
+
+				Item<ObjectMetadata> item = r.next();
+				if (item.isOk())
+					list.add(item.getObject());
+			}
+
+			list.forEach(v -> {
+				try {
+
+					logger.debug("deleting -> " + bucketName + "-" + v.getObjectName());
+
+					os.getClient().deleteObject(bucketName, v.getObjectName());
+
+				} catch (ODClientException e) {
+					logger.error(e, ServerConstant.NOT_THROWN);
 				}
-							
-				list.forEach( 
-							v ->  {
-							try {
-								
-								logger.debug( "deleting -> " + bucketName +"-" + v.getObjectName() );
-
-								os.getClient().deleteObject(bucketName, v.getObjectName());
-							
-							} catch (ODClientException e) {
-								logger.error(e, ServerConstant.NOT_THROWN);
-							}
-						}
-				);
+			});
 
 		} catch (Exception e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
 	}
-	
-	  protected ArtWorkDBService getArtWorkDBService() {
-	    	ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
-	    	return service;
-	  }
-	  
+
+	protected ArtWorkDBService getArtWorkDBService() {
+		ArtWorkDBService service = (ArtWorkDBService) ServiceLocator.getInstance().getBean(ArtWorkDBService.class);
+		return service;
+	}
+
 	protected User getRootUser() {
 		return ((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class)).findRoot();
 	}
 
- 	protected ServerDBSettings getSettings() {
+	protected ServerDBSettings getSettings() {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
 	}
-	
+
 	protected ResourceDBService getResourceDBService() {
-		return  (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		return (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 	}
 
-	 
 }

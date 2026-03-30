@@ -39,19 +39,17 @@ public class EvictLanguageCacheMLOCommand extends Command {
 	static private Logger logger = Logger.getLogger(EvictLanguageCacheMLOCommand.class.getName());
 
 	final String objectClassName;
-	final Long  id;
-	
-	 
+	final Long id;
 
 	public EvictLanguageCacheMLOCommand(String objectClassName, Long id) {
-		this.objectClassName=objectClassName;
-		this.id=id;
+		this.objectClassName = objectClassName;
+		this.id = id;
 	}
 
 	@Override
 	public void execute() {
 		try {
- 			 getLanguageObjectService().onApplicationEvent(new LanguageCacheEvictEvent(objectClassName, id));
+			getLanguageObjectService().onApplicationEvent(new LanguageCacheEvictEvent(objectClassName, id));
 		} catch (Exception e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 		}
@@ -60,5 +58,5 @@ public class EvictLanguageCacheMLOCommand extends Command {
 	protected LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
-	 
+
 }

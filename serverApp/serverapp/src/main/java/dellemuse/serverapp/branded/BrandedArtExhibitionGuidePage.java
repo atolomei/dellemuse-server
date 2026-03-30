@@ -49,13 +49,6 @@ import wktui.base.INamedTab;
 import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
-/**
- * 
- * 
- * ArtExhibition
- * 
- * 
- */
 @MountPath("/ag/guide/${id}")
 public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitionGuide, ArtExhibitionGuideRecord> {
 
@@ -352,15 +345,13 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		return new BrandedGlobalTopPanel("top-panel", getSiteModel());
 	}
 
-
 	@Override
 	protected Panel createInitialSearchPanel() {
-	if (getGuideContentSearchList() == null && getArtExhibitionSearchList() == null)
-		return new InvisiblePanel("globalSearch");
-	return createSearchPanel();
+		if (getGuideContentSearchList() == null && getArtExhibitionSearchList() == null)
+			return new InvisiblePanel("globalSearch");
+		return createSearchPanel();
 	}
 
-	
 	@Override
 	protected Panel createSearchPanel() {
 		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), getGuideContentSearchList(), getArtExhibitionSearchList(), getAccesibilityMode());
@@ -466,26 +457,21 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 			ph.setContext(getLabel("exhibition-guide"));
 
 			boolean isPhoto = false;
-			
+
 			if (getArtExhibitionModel().getObject().getPhoto() != null) {
-				Resource r=getArtExhibitionModel().getObject().getPhoto();
-				ph.setPhotoModel( new ObjectModel<Resource>(r));
+				Resource r = getArtExhibitionModel().getObject().getPhoto();
+				ph.setPhotoModel(new ObjectModel<Resource>(r));
 				isPhoto = true;
 			}
 
 			if (!isPhoto) {
 				ph.setHeaderCss("mb-0 mt-0 pt-0 pb-4 border-none");
 				ph.setIcon(ArtExhibitionGuide.getIcon());
-			}
-			else {
+			} else {
 				ph.setImageLinkCss("jumbo-img p-1 border jumbo-md mb-0 mb-lg-0   bg-dark");
 				ph.setImageContainerCss("row mt-4 mb-0 text-center");
 			}
-			
-			
-			
-			
-			
+
 			return ph;
 
 		} catch (Exception e) {
@@ -523,13 +509,12 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		setSiteModel(new ObjectModel<Site>(o_s.get()));
 
 		getPageParameters().set("id", getArtExhibitionModel().getObject().getId());
-		
+
 		modelAlreadySet = true;
 	}
-	
-	
+
 	private ArtExhibitionGuide selectGuide(ArtExhibition a) {
-		
+
 		ArtExhibitionGuide guide = null;
 
 		List<ArtExhibitionGuide> list = getArtExhibitionDBService().getArtExhibitionGuides(a);
@@ -557,8 +542,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 				}
 			}
 		}
-		
-		
+
 		return guide;
 	}
 
@@ -582,7 +566,6 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 
 		Optional<Site> o_s = getSiteDBService().findWithDeps(getArtExhibitionModel().getObject().getSite().getId());
 		setSiteModel(new ObjectModel<Site>(o_s.get()));
-		
 
 		ArtExhibitionGuide guide = selectGuide(o.get());
 
@@ -593,7 +576,6 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		}
 
 		setModel(new ObjectModel<ArtExhibitionGuide>(guide));
-
 
 	}
 
