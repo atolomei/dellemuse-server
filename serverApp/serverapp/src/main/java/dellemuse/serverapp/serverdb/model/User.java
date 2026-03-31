@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
- 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -22,73 +21,62 @@ import dellemuse.serverapp.serverdb.model.security.Role;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
-import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseSetPersonSerializer;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
 @JsonInclude(Include.NON_NULL)
 public class User extends DelleMuseObject {
-	
+
 	public static String normalizeEmail(String e) {
-		if (e==null)
+		if (e == null)
 			return null;
 		return e.toLowerCase().trim();
 	}
-	
-	public static String normalizePhone(String phone) {
-		if (phone==null)
-			return null;
-	    return phone.replaceAll("[^0-9+]", "");
-	}
 
+	public static String normalizePhone(String phone) {
+		if (phone == null)
+			return null;
+		return phone.replaceAll("[^0-9+]", "");
+	}
 
 	static private Logger logger = Logger.getLogger(User.class.getName());
 
 	private String authProvider; // LOCAL, GOOGLE
-	private String providerId;   // google subject id
-
-	
+	private String providerId; // google subject id
 
 	@JsonProperty("showWelcome")
 	@Column(name = "showWelcome")
 	private boolean showWelcome;
-	
+
 	@JsonProperty("initialsignindone")
 	@Column(name = "initialsignindone")
 	private boolean initialSigninDone;
 
-	
-	
 	@JsonProperty("sortlastfirstname")
 	@Column(name = "sortlastfirstname")
 	private String sortLastFirstname;
-	
+
 	@JsonProperty("firstlastname")
 	@Column(name = "firstlastname")
 	private String firstLastname;
 
-	
 	@JsonProperty("emailValidated")
 	@Column(name = "emailValidated")
 	private boolean emailValidated;
-	
+
 	@JsonProperty("phoneValidated")
 	@Column(name = "phoneValidated")
 	private boolean phoneValidated;
-	
+
 	@JsonProperty("email")
 	@Column(name = "email")
 	private String email;
@@ -96,7 +84,7 @@ public class User extends DelleMuseObject {
 	@JsonProperty("phone")
 	@Column(name = "phone")
 	private String phone;
-	
+
 	@JsonProperty("zoneId")
 	@Column(name = "zoneId")
 	private String zoneId;
@@ -104,7 +92,7 @@ public class User extends DelleMuseObject {
 	@JsonProperty("password")
 	@Column(name = "password")
 	private String password;
- 
+
 	@ManyToMany(cascade = { CascadeType.MERGE }, fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "general_role_id") })
 	@JsonSerialize(using = DelleMuseSetPersonSerializer.class)
@@ -118,7 +106,7 @@ public class User extends DelleMuseObject {
 	@JsonManagedReference
 	@JsonProperty("rolesInstitution")
 	private Set<RoleInstitution> rolesInstitution;
- 
+
 	@ManyToMany(cascade = { CascadeType.MERGE }, fetch = FetchType.LAZY)
 	@JoinTable(name = "user_roles", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = { @JoinColumn(name = "site_role_id") })
 	@JsonSerialize(using = DelleMuseSetPersonSerializer.class)
@@ -129,26 +117,21 @@ public class User extends DelleMuseObject {
 
 	@Column(name = "language")
 	private String language;
-	
 
 	@JsonProperty("welcomeEmailSent")
 	@Column(name = "welcomeEmailSent")
-	 private OffsetDateTime welcomeEmailSent;
-	 
-	 
-	
+	private OffsetDateTime welcomeEmailSent;
+
+	public User() {
+	}
+
 	@Override
 	public String getObjectClassName() {
 		return User.class.getSimpleName();
 	}
 
-	
-	
-	public User() {
-	}
-
 	public String getLanguage() {
-		 return this.language;
+		return this.language;
 	}
 
 	public String getAuthProvider() {
@@ -231,7 +214,6 @@ public class User extends DelleMuseObject {
 		setLanguage(locale.getLanguage());
 	}
 
-	
 	public void setZoneId(ZoneId z) {
 		this.setZoneIdStr(z.getId());
 	}
@@ -240,8 +222,6 @@ public class User extends DelleMuseObject {
 		return phone;
 	}
 
-	
-	
 	public OffsetDateTime getWelcomeEmailSent() {
 		return welcomeEmailSent;
 	}
@@ -251,12 +231,10 @@ public class User extends DelleMuseObject {
 	}
 
 	public void setPhone(String phone) {
-		if (phone==null)
+		if (phone == null)
 			this.phone = phone;
 		this.phone = normalizePhone(phone);
 	}
-
-
 
 	public String getSortLastFirstname() {
 		return sortLastFirstname;
@@ -267,21 +245,19 @@ public class User extends DelleMuseObject {
 	}
 
 	public ZoneId getZoneId() {
-		if (getZoneIdStr()==null)
+		if (getZoneIdStr() == null)
 			return ZoneId.systemDefault();
 		return ZoneId.of(zoneId);
-		
 	}
 
 	public String getZoneIdStr() {
 		return zoneId;
 	}
-	
+
 	public void setZoneIdStr(String zoneid) {
 		this.zoneId = zoneid;
 	}
-	
-	
+
 	public String getPassword() {
 		return password;
 	}
@@ -313,41 +289,39 @@ public class User extends DelleMuseObject {
 	public void setRolesSite(Set<RoleSite> roles) {
 		this.rolesSite = roles;
 	}
-	
+
 	@Override
 	public int hashCode() {
-	    return getId() != null ? getId().hashCode() : 0;
+		return getId() != null ? getId().hashCode() : 0;
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
-	    
-		if (o==null) return false;
-	    
-		if (this == o) return true;
-	    
-	    if (!(o instanceof User)) return false;
-	    
-	    User other = (User) o;
-	    return getId() != null && getId().equals(other.getId());
+
+		if (o == null)
+			return false;
+
+		if (this == o)
+			return true;
+
+		if (!(o instanceof User))
+			return false;
+
+		User other = (User) o;
+		return getId() != null && getId().equals(other.getId());
 	}
-	
-	
-	
+
 	public List<String> getRolesAsString() {
 
 		List<String> list = new ArrayList<String>();
 
-		 list.add("ROLE_USER");
-		 
-		 getRolesGeneral().forEach( r -> list.add(r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_")+"_"+r.getName().toUpperCase()));
-		 getRolesInstitution().forEach( r -> list.add(
-		 r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_")+"_"+r.getInstitution().getId().toString()));
-		 getRolesSite().forEach( r -> list.add(
-		 r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_")+"_"+r.getSite().getId().toString()));
+		list.add("ROLE_USER");
 
-		 
-		 list.forEach( r -> logger.debug(r));
+		getRolesGeneral().forEach(r -> list.add(r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_") + "_" + r.getName().toUpperCase()));
+		getRolesInstitution().forEach(r -> list.add(r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_") + "_" + r.getInstitution().getId().toString()));
+		getRolesSite().forEach(r -> list.add(r.getClass().getSimpleName().toUpperCase().replace("ROLE", "ROLE_") + "_" + r.getSite().getId().toString()));
+
+		list.forEach(r -> logger.debug(r));
 		return list;
 	}
 
@@ -355,15 +329,12 @@ public class User extends DelleMuseObject {
 		return email;
 	}
 
-
-
 	public void setEmail(String email) {
-		if (email==null)
+		if (email == null)
 			this.email = email;
 		else
-			this.email=normalizeEmail(email);
+			this.email = normalizeEmail(email);
 	}
-
 
 	public boolean hasRole(Role r) {
 
@@ -483,7 +454,7 @@ public class User extends DelleMuseObject {
 	}
 
 	public boolean isRoot() {
-		return getUsername()!=null && getUsername().equals("root");
+		return getUsername() != null && getUsername().equals("root");
 	}
 
 	public static final String getIcon() {
@@ -492,11 +463,7 @@ public class User extends DelleMuseObject {
 
 	public void setLastWelcomeEmailSent(OffsetDateTime now) {
 		// TODO Auto-generated method stub
-		
+
 	}
-
-	 
-
-
 
 }

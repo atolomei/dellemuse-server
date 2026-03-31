@@ -52,6 +52,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	private LocaleField localeField;
 	private BooleanField emailValidatedField;
 	private BooleanField phoneValidatedField;
+	private BooleanField showWelcomeField;
 
 	// private StaticTextField<String> emailField;
 
@@ -142,6 +143,9 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		this.phoneValidatedField = new BooleanField("phoneValidated", new PropertyModel<Boolean>(getModel(), "phoneValidated"), getLabel("phoneValidated"));
 		this.phoneValidatedField.setVisible(isRoot() || isGeneralAdmin());
 
+		this.showWelcomeField = new BooleanField("showWelcome", new PropertyModel<Boolean>(getModel(), "showWelcome"), getLabel("showWelcome"));
+		this.showWelcomeField.setVisible(isRoot() || isGeneralAdmin());
+
 		if (getModel().getObject().isRoot())
 			this.nameField.setReadOnly(true);
 
@@ -150,6 +154,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		this.form.add(localeField);
 		this.form.add(emailValidatedField);
 		this.form.add(phoneValidatedField);
+		this.form.add(showWelcomeField);
 
 		this.form.setFormState(FormState.VIEW);
 

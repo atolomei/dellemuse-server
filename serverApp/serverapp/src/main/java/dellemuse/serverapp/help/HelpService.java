@@ -89,11 +89,16 @@ public class HelpService extends BaseService {
 
 		if (str == null)
 			return null;
-
-		if (str.equals("es"))
+		
+		if (str.startsWith("en"))
+			return "en";
+		
+		if (str.startsWith("es"))
 			return "spa";
+		
 		if (str.startsWith("pt"))
 			return "pt";
+		
 		return str;
 
 	}
