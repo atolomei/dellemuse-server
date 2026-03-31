@@ -1,0 +1,16 @@
+
+
+/audioCache/
+/logs/
+/target/
+/config
+/config/*.properties
+/config/*.json
+/tmp
+/work
+
+*.tar.gz
+*.zip
+
+
+
