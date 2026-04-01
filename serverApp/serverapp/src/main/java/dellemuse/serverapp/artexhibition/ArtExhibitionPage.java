@@ -403,10 +403,10 @@ public class ArtExhibitionPage extends MultiLanguageObjectPage<ArtExhibition, Ar
 
 		String name = null;
 
-		if (getModel().getObject().getShortname() != null)
+		if (getModel().getObject().getShortname() != null && getModel().getObject().getShortname().length() > 0)
 			name = TextCleaner.truncate(getModel().getObject().getShortname(), 24);
 		else
-			name = TextCleaner.truncate(getModel().getObject().getName(), 24);
+			name = TextCleaner.truncate( getObjectTitle( getModel().getObject() ).getObject(), 24);
 
 		list.add(new ArtExhibitionNavDropDownMenuToolbarItem("item", getModel(), getLabel("art-exhibition", name), Align.TOP_RIGHT));
 

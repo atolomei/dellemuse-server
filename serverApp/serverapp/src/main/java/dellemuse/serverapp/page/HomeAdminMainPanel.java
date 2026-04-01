@@ -70,7 +70,7 @@ public class HomeAdminMainPanel extends DBModelPanel<User> implements InternalPa
 	}
 
 	protected IModel<String> getObjectTitle(IModel<Site> model) {
-		return new Model<String>(model.getObject().getDisplayname());
+		return getObjectTitle(model.getObject());
 	}
 
 	private List<IModel<Site>> getList() {

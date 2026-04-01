@@ -40,7 +40,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 	public ArtExhibitionEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibition> model, IModel<Site> siteModel, Align align) {
 		this(id, model, siteModel, null, align);
 
-		if (model.getObject().getShortname() != null)
+		if (model.getObject().getShortname() != null && model.getObject().getShortname().length()>0)
 			setTitle(getLabel("art-exhibition-dropdown", model.getObject().getShortname()));
 		else
 			setTitle( getLabel("art-exhibition-dropdown", getObjectTitle(model.getObject()).getObject() ));

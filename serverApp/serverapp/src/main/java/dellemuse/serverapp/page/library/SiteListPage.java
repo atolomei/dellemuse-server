@@ -380,56 +380,7 @@ public class SiteListPage extends ObjectListPage<Site> {
 			}
 		});
 
-		/**
-		 * menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
-		 * 
-		 * private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public MenuItemPanel<Site> getItem(String id) {
-		 * 
-		 *           return new AjaxLinkMenuItem<Site>(id) {
-		 * 
-		 *           private static final long serialVersionUID = 1L;
-		 * 
-		 * 
-		 *           public boolean isVisible() { return
-		 *           getModel().getObject().getState()!=ObjectState.PUBLISHED; }
-		 * 
-		 * @Override public void onClick(AjaxRequestTarget target) {
-		 *           getModel().getObject().setState(ObjectState.PUBLISHED);
-		 *           getSiteDBService().save(getModel().getObject(),
-		 *           ObjectState.PUBLISHED.getLabel(), getSessionUser().get());
-		 *           refresh(target); }
-		 * 
-		 * @Override public IModel<String> getLabel() { return getLabel("publish"); } };
-		 *           } });
-		 * 
-		 * 
-		 * 
-		 *           menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
-		 * 
-		 *           private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public MenuItemPanel<Site> getItem(String id) {
-		 * 
-		 *           return new AjaxLinkMenuItem<Site>(id) {
-		 * 
-		 *           private static final long serialVersionUID = 1L;
-		 * 
-		 * 
-		 *           public boolean isVisible() { return
-		 *           getModel().getObject().getState()!=ObjectState.EDITION; }
-		 * 
-		 * @Override public void onClick(AjaxRequestTarget target) {
-		 *           getModel().getObject().setState(ObjectState.EDITION);
-		 *           getSiteDBService().save(getModel().getObject(),
-		 *           ObjectState.EDITION.getLabel(), getSessionUser().get());
-		 *           refresh(target); }
-		 * 
-		 * @Override public IModel<String> getLabel() { return getLabel("edit-mode"); }
-		 *           }; } });
-		 * 
-		 */
+		 
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 			private static final long serialVersionUID = 1L;

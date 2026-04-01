@@ -82,30 +82,7 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 		super.onInitialize();
 	}
 
-	/**
-	 * public IModel<String> getObjectTitle(Site o) { StringBuilder str = new
-	 * StringBuilder();
-	 * str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
-	 * if (o.getState() == ObjectState.DELETED) return new
-	 * Model<String>(str.toString() + ServerConstant.DELETED_ICON); return
-	 * Model.of(str.toString()); }
-	 ***/
-	/**
-	 * public IModel<String> getObjectTitle(ArtExhibitionGuide o) { StringBuilder
-	 * str = new StringBuilder();
-	 * str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
-	 * if (o.getState() == ObjectState.DELETED) return new
-	 * Model<String>(str.toString() + ServerConstant.DELETED_ICON); return
-	 * Model.of(str.toString()); }
-	 **/
-	/**
-	 * public IModel<String> getObjectTitle(GuideContent o) { StringBuilder str =
-	 * new StringBuilder();
-	 * str.append(getLanguageObjectService().getObjectDisplayName(o, getLocale()));
-	 * if (o.getState() == ObjectState.DELETED) return new
-	 * Model<String>(str.toString() + ServerConstant.DELETED_ICON); return
-	 * Model.of(str.toString()); }
-	 **/
+	 
 	public IModel<String> getObjectSubtitle(MultiLanguageObject o) {
 		String s = getLanguageObjectService().getObjectSubtitle(o, getLocale());
 		if (s == null)

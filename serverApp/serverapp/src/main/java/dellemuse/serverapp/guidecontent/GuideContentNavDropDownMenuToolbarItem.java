@@ -1,13 +1,19 @@
 package dellemuse.serverapp.guidecontent;
 
+import java.util.Optional;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.nav.menu.AjaxLinkMenuItem;
@@ -74,6 +80,17 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 					public IModel<String> getLabel() {
 						return getLabel("guide-content-record", getModel().getObject().getMasterLanguage());
 					}
+					
+					
+					@Override
+					public String getIconCssClass() {
+						boolean isAudio = getModel().getObject().getAudio() != null;
+						if (isAudio) {
+							return Icons.AUDIO_ICON_HTML;
+						} else
+							return null;
+					}
+					
 				};
 			}
 		});
@@ -103,6 +120,16 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 							public IModel<String> getLabel() {
 								return getLabel("guide-content-record", langCode);
 							}
+
+							@Override
+							public String getIconCssClass() {
+								Optional<GuideContentRecord> r = getGuideContentRecordDBService().findByGuideContent(getModel().getObject(), langCode);
+								if (r.isPresent() && r.get().getAudio() != null) {
+									return Icons.AUDIO_ICON_HTML;
+								} else
+									return null;
+							}
+
 						};
 					}
 				});
@@ -205,6 +232,10 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 			}
 		}
 
+	}
+
+	protected GuideContentRecordDBService getGuideContentRecordDBService() {
+		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
 	}
 
 	protected LanguageService getLanguageService() {

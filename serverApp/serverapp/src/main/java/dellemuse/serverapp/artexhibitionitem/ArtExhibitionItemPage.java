@@ -281,8 +281,9 @@ public class ArtExhibitionItemPage extends MultiLanguageObjectPage<ArtExhibition
 
 		String name = null;
 
-		name = TextCleaner.truncate(getModel().getObject().getName(), 24);
-
+		
+		name = TextCleaner.truncate( getObjectTitle( getModel().getObject() ).getObject(), 24);
+		
 		list.add(new ArtExhibitionItemNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(), getLabel("art-exhibition-item", name), Align.TOP_RIGHT));
 
 		String ae_name = TextCleaner.truncate(this.getArtExhibitionModel().getObject().getName(), 24);

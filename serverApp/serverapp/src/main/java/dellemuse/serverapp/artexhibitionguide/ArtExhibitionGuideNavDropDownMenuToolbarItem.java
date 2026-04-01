@@ -1,15 +1,19 @@
 package dellemuse.serverapp.artexhibitionguide;
 
  
+import java.util.Optional;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
- 
+
+import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Site;
-
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.model.TextCleaner;
@@ -43,6 +47,11 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 		if (siteModel!=null)
 			siteModel.detach();
 	}
+	
+	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
+		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
+	}
+	
 	
 	@Override
 	public void onInitialize() {
@@ -82,6 +91,17 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 					public IModel<String> getLabel() {
 						return getLabel("artexhibitionguide-record", getModel().getObject().getMasterLanguage());
 					}
+					
+					@Override
+					public String getIconCssClass() {
+						boolean isAudio = getModel().getObject().getAudio() != null;
+						if (isAudio) {
+							return Icons.AUDIO_ICON_HTML;
+						} else
+							return null;
+					}
+					
+					
 				};
 			}
 		});
@@ -111,6 +131,16 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 							public IModel<String> getLabel() {
 								return getLabel("artexhibitionguide-record", langCode);
 							}
+							
+							@Override
+							public String getIconCssClass() {
+								Optional<ArtExhibitionGuideRecord> r = getArtExhibitionGuideRecordDBService().findByArtExhibitionGuide(getModel().getObject(), langCode);
+								if (r.isPresent() && r.get().getAudio() != null) {
+									return Icons.AUDIO_ICON_HTML;
+								} else
+									return null;
+							}
+							
 						};
 					}
 				});

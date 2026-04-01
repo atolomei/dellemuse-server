@@ -144,8 +144,6 @@ public class GuideContentRecordDBService extends RecordDBService<GuideContentRec
 	@Transactional
 	public Optional<GuideContentRecord> findByGuideContent(GuideContent a, String lang) {
 
-
-		 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<GuideContentRecord> cq = cb.createQuery(GuideContentRecord.class);
 		Root<GuideContentRecord> root = cq.from(GuideContentRecord.class);

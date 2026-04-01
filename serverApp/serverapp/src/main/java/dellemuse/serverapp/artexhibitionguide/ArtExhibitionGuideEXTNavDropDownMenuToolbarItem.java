@@ -17,8 +17,10 @@ import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
@@ -106,8 +108,21 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("artexhibitionguide-info", getModel().getObject().getMasterLanguage());
+						return getLabel("artexhibitionguide-record", getModel().getObject().getMasterLanguage());
 					}
+					
+					
+					
+					@Override
+					public String getIconCssClass() {
+						boolean isAudio = getModel().getObject().getAudio() != null;
+						if (isAudio) {
+							return Icons.AUDIO_ICON_HTML;
+						} else
+							return null;
+					}
+					
+					
 				};
 			}
 		});
@@ -141,6 +156,17 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 							public IModel<String> getLabel() {
 								return getLabel("artexhibitionguide-record", langCode);
 							}
+							
+							
+							@Override
+							public String getIconCssClass() {
+								Optional<ArtExhibitionGuideRecord> r = getArtExhibitionGuideRecordDBService().findByArtExhibitionGuide(getModel().getObject(), langCode);
+								if (r.isPresent() && r.get().getAudio() != null) {
+									return Icons.AUDIO_ICON_HTML;
+								} else
+									return null;
+							}
+							
 						};
 					}
 				});
@@ -310,4 +336,9 @@ public class ArtExhibitionGuideEXTNavDropDownMenuToolbarItem extends DropDownMen
 		this.siteModel = siteModel;
 	}
 
+	protected ArtExhibitionGuideRecordDBService getArtExhibitionGuideRecordDBService() {
+		return (ArtExhibitionGuideRecordDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideRecordDBService.class);
+	}
+	
+	
 }

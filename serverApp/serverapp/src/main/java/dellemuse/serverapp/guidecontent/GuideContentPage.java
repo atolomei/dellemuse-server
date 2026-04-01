@@ -487,7 +487,8 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 		this.list = new ArrayList<ToolbarItem>();
 
 		/** audio de obra */
-		list.add(new GuideContentNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(), getLabel("guide-content-dropdown", TextCleaner.truncate(getModel().getObject().getName(), 18)), Align.TOP_RIGHT));
+		list.add(new GuideContentNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(), getLabel("guide-content-dropdown", TextCleaner.truncate(
+				getObjectTitle(getModel().getObject()).getObject(), 18)), Align.TOP_RIGHT));
 
 		/** audio guia */
 		ArtExhibitionGuideEXTNavDropDownMenuToolbarItem ag = new ArtExhibitionGuideEXTNavDropDownMenuToolbarItem("item", getArtExhibitionGuideModel(), getSiteModel(), Align.TOP_RIGHT);

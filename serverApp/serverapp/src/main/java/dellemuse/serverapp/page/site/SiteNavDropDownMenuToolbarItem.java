@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.branded.BrandedSitePage;
 import dellemuse.serverapp.institution.InstitutionPage;
@@ -12,9 +13,11 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleWicketEvent;
@@ -35,10 +38,20 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			if (model.getObject().getShortName() != null)
 				setTitle(getLabel("site-header", model.getObject().getShortName()));
 			else
-				setTitle(getLabel("site-header", model.getObject().getDisplayname()));
+				setTitle(getLabel("site-header", getObjectTitle( model.getObject() ).getObject()));
 		}
 	}
 
+	public LanguageObjectService getLanguageObjectService() {
+		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
+	}
+	
+	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+		String s = getLanguageObjectService().getObjectDisplayName(o, getLocale());
+		if (s == null)
+			return null;
+		return Model.of(s);
+	}
 	public SiteNavDropDownMenuToolbarItem(String id, IModel<Site> model, IModel<String> title, Align align) {
 		super(id, model, title, align);
 	}
