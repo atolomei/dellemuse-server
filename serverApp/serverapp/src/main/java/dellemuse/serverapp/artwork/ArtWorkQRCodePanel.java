@@ -9,10 +9,14 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.DownloadLink;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Url;
+import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
+import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.request.resource.UrlResourceReference;
+import org.apache.wicket.util.resource.FileResourceStream;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
@@ -181,18 +185,27 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 	
 	    if (qrcodepdf != null) {
 	       
-	    	DownloadLink link = new DownloadLink("qr-pdf-link", getQRFileModel()) {
+	    
+
+			Link<Void> pdfLink = new Link<Void>("qr-pdf-link") {
+
 				private static final long serialVersionUID = 1L;
+
 				@Override
-				public File getModelObject() {
-					return getQRPdfFileModel().getObject();
+				public void onClick() {
+					File file = getQRPdfFileModel().getObject();
+					FileResourceStream stream = new FileResourceStream(file);
+					ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(stream, file.getName());
+					handler.setContentDisposition(ContentDisposition.INLINE);
+					getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
 				}
 			};
 
 			Label f = new Label("qr-pdf-name", qrcodepdf.getName());
-			link.add(f);
-			qrcodecontainer.addOrReplace(link);
+			pdfLink.add(f);
+			qrcodecontainer.addOrReplace(pdfLink);
 
+			
 			addOrReplace(new InvisiblePanel("noqrcode"));
 	    }
 	    

@@ -93,12 +93,13 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 
 					BufferedImage image;
 
-					if (force || (aex.getName() == null || aex.getSite() == null)) {
+					if (aex.getName() == null || aex.getSite() == null) {
 						logger.debug("ArtExhibition name or site is null, cannot generate QR code");
 						return;
 					}
 
-					if (aex.getQrcode() == null) {
+					
+					if (force || aex.getQrcode() == null) {
 
 						ObjectStorageService os = (ObjectStorageService) ServiceLocator.getInstance().getBean(ObjectStorageService.class);
 
@@ -132,29 +133,6 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 						} catch (IOException e) {
 							logger.error(e, ServerConstant.NOT_THROWN);
 						}
-
-						/**
-						 * try {
-						 * 
-						 * 
-						 * File outputDir = new File(settings.getWorkDir()); File pdf= generatePdf(site,
-						 * image, outputDir);
-						 * 
-						 * if (pdf.exists()) { String bucketName = ServerConstant.QR_BUCKET; String
-						 * objectName = "qrsite-pdf-"+site.getId().toString();
-						 * 
-						 * if (!os.existsObject(bucketName, objectName)) {
-						 * os.getClient().putObject(bucketName, objectName, file); } site=
-						 * getSiteDBService().addQRPdf(site, bucketName, objectName, pdf.getName(),
-						 * getMimeType(pdf.getName()), pdf.length(), getRootUser());
-						 * 
-						 * }
-						 * 
-						 * 
-						 * 
-						 * } catch (IOException e) { logger.error(e, ServerConstant.NOT_THROWN); }
-						 **/
-
 					}
 				} finally {
 					getLockService().getObjectLock(aex.getId()).writeLock().unlock();
@@ -175,6 +153,7 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 		this.artExhibitionId = resourceId;
 	}
 
+	/**
 	private File generatePdf3(Site site, BufferedImage qrImage, File outputDir) throws IOException {
 
 		if (qrImage == null) {
@@ -295,7 +274,8 @@ public class QRArtExhibitionCodeGenerationCommand extends Command {
 
 		return pdfFile;
 	}
-
+*/
+	
 	private String safeText(String input) {
 		if (input == null)
 			return "";

@@ -157,6 +157,40 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 			}
 		});
 		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new  LinkMenuItem<User>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						 setResponsePage(new RedirectPage( getLabel("link-publish-public-portal").getObject() ));
+						// setResponsePage(new RedirectPage("https://youtu.be/OyXFbTFCe4k?si=Qu-_hJ53Y0ucKh7a"));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						  return HelpDropDownMenu.this.getLabel("publish-public-portal");
+					}
+
+					@Override
+					public String getTarget() {
+						return "_blank";
+					}
+				};
+			}
+		});
+
+		
+		
+		
+		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 
 			private static final long serialVersionUID = 1L;

@@ -536,8 +536,9 @@ public class ServerDBSettings {
 	String fontsDir = "fonts";
 	
 	public String getFontsDir() {
-		 return this.fontsDir + File.separator + "Noto_Sans" + File.separator + "static";
+		 return this.fontsDir;
 
+		 // + File.separator + "Noto_Sans" + File.separator + "static"
 	}
 
 	

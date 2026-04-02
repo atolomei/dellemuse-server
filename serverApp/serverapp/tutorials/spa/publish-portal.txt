@@ -1,0 +1,9 @@
+El sistema genera un cu-erre propio de la sede, y también un pdf listo para imprimir.
+
+La sede tiene que poner este cu-erre impreso en la entrada para que los visitantes accedan a la audio guía.
+
+El visitante simplemente escanea el cu-erre con su teléfono. 
+
+Además, existe un cu-erre y un número de audio para cada exhibición y para cada obra, que se deben imprimir y adjuntar a la exhibición u obra. 
+
+El visitante puede acceder al audio escaneando el cu-erre o buscando por el número de audio en la aplicación.
