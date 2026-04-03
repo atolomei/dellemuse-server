@@ -63,6 +63,86 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 		setOutputMarkupId(true);
 	}
 
+	
+	
+	
+	
+	
+
+	
+
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
+
+		setUpModel();
+
+		qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
+		add(qrcodecontainer);
+
+		qrcodecontainer.add( new InvisiblePanel("error"));
+		
+		AjaxLink<Void> make = new AjaxLink<Void>("make") {
+		
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return ArtExhibitionQRCodePanel.this.getModel().getObject().getQRCodePdf()==null || isRoot();
+			}
+	
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				try {
+
+					addPdf();
+					setUpModel();
+					addPanels();
+					
+					target.add(ArtExhibitionQRCodePanel.this);
+				} catch (Exception e) {
+					logger.error(e, ServerConstant.NOT_THROWN);
+					qrcodecontainer.addOrReplace(new ErrorPanel("error", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
+					target.add(ArtExhibitionQRCodePanel.this);
+				}
+			}
+		};
+
+		qrcodecontainer.add(make);
+
+		addPanels();
+
+	}
+
+	@Override
+	public void onDetach() {
+		super.onDetach();
+
+		if (qrFileModel != null)
+			qrFileModel.detach();
+
+		if (qrPdfFileModel != null)
+			qrPdfFileModel.detach();
+	}
+
+	@Override
+	public List<ToolbarItem> getToolbarItems() {
+		return null;
+	}
+
+	private void setUpModel() {
+		ArtExhibition ae = getModel().getObject();
+		getModel().setObject(getArtExhibitionDBService().findWithDeps(ae.getId()).get());
+	}
+
+	private IModel<File> getQRFileModel() {
+		return qrFileModel;
+	}
+
+	private IModel<File> getQRPdfFileModel() {
+		return qrPdfFileModel;
+	}
+
 	private void addPanels() {
 
 		Resource qrcode = getModel().getObject().getQrcode();
@@ -145,16 +225,73 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 
 	}
 
-	private String safeText(String input) {
-		if (input == null)
-			return "";
-		return input.replaceAll("[^\\x00-\\xFF]", "?");
+	private void addPdf() {
+
+		BufferedImage image;
+
+		Resource qrcode = getResourceDBService().findById( getModel().getObject().getQrcode().getId()).get();
+
+		
+		String bu = qrcode.getBucketName();
+		String ob = qrcode.getObjectName();
+
+		File qrimage = new File(getServerDBSettings().getWorkDir(), qrcode.getId().toString() + ".png");
+
+		try {
+
+			getObjectStorageService().getClient().getObject(bu, ob, qrimage.getAbsolutePath());
+
+		} catch (ODClientException | IOException e) {
+			throw new RuntimeException("Failed to download QR code image from object storage: " + e.getClass().getSimpleName() + " | " + e.getMessage(), e);
+		}
+
+		try {
+			
+			image = ImageIO.read(qrimage);
+			
+		} catch (IOException e) {
+			logger.error(e, ServerConstant.NOT_THROWN);
+			throw new RuntimeException("Failed to read QR code image file: " + e.getClass().getSimpleName() + " | " + e.getMessage(), e);
+		}
+
+		File outputDir = new File(getServerDBSettings().getWorkDir());
+		File pdf;
+		
+		try {
+			
+			pdf = generatePdf(getModel().getObject(), image, outputDir);
+			
+		} catch (IOException e) {
+			logger.error(e, ServerConstant.NOT_THROWN);
+			throw new RuntimeException("Failed to generate PDF: " + e.getClass().getSimpleName() + " | " + e.getMessage(), e);
+		}
+		
+		logger.debug("Generated PDF: " + pdf.getAbsolutePath() + " (size: " + pdf.length() + " bytes)");
+
+		if (pdf.exists()) {
+			String bucketName = ServerConstant.QR_BUCKET;
+			String objectName = "qr-artexhibition-pdf-" + getModel().getObject().getId().toString();
+
+			try {
+				if (getObjectStorageService().existsObject(bucketName, objectName)) {
+					getObjectStorageService().getClient().deleteObject(bucketName, objectName);
+				}
+
+				getObjectStorageService().getClient().putObject(bucketName, objectName, pdf);
+				getArtExhibitionDBService().addQRPdf(getModel().getObject(), bucketName, objectName, pdf.getName(), "application/pdf", pdf.length(), getSessionUser().get());
+
+			} catch (IOException | ODClientException e) {
+				logger.error(e, ServerConstant.NOT_THROWN);
+				throw new RuntimeException("Failed to upload PDF to object storage or update database: " + e.getClass().getSimpleName() + " | " + e.getMessage(), e);
+			}
+
+		}
+
 	}
-	
 	
 	private File generatePdf(ArtExhibition ex, BufferedImage qrImage, File outputDir) throws IOException {
 
-		String filename = "qrsite-" + getResourceDBService().normalizeFileName(ex.getName()) + "-" + ex.getId() + ".pdf";
+		String filename = "qr-artexhibition-" + getResourceDBService().normalizeFileName(ex.getName()) + "-" + ex.getId() + ".pdf";
 
 		File pdfFile = new File(outputDir, filename);
 
@@ -185,7 +322,7 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 				contentStream.drawImage(pdImage, qrX, qrY, qrSize, qrSize);
 
 				// ---- Headphones image + Audio ID (centered below QR code) ----
-				float headphonesSize = 42f;
+				float headphonesSize = 44f;
 				String audioIdText = ex.getAudioId() != null ? ex.getAudioId().toString() : "";
 
 				PDType0Font fontBold = PDType0Font.load(document, new File(getServerDBSettings().getFontsDir() + File.separator + "montserrat", "Montserrat-Bold.ttf"));
@@ -217,138 +354,6 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 
 		return pdfFile;
 	}
-	
-	
 
-	private void addPdf() {
-
-		BufferedImage image;
-
-		Resource qrcode = getResourceDBService().findById( getModel().getObject().getQrcode().getId()).get();
-
-		
-		String bu = qrcode.getBucketName();
-		String ob = qrcode.getObjectName();
-
-		File qrimage = new File(getServerDBSettings().getWorkDir(), qrcode.getId().toString() + ".png");
-
-		try {
-
-			getObjectStorageService().getClient().getObject(bu, ob, qrimage.getAbsolutePath());
-
-		} catch (ODClientException | IOException e) {
-			logger.error(e, ServerConstant.NOT_THROWN);
-			return;
-		}
-
-		try {
-			
-			image = ImageIO.read(qrimage);
-			
-		} catch (IOException e) {
-			logger.error(e, ServerConstant.NOT_THROWN);
-			return;
-		}
-
-		File outputDir = new File(getServerDBSettings().getWorkDir());
-		File pdf;
-		
-		try {
-			
-			pdf = generatePdf(getModel().getObject(), image, outputDir);
-			
-		} catch (IOException e) {
-			logger.error(e, ServerConstant.NOT_THROWN);
-			return;
-		}
-
-		logger.debug("Generated PDF: " + pdf.getAbsolutePath() + " (size: " + pdf.length() + " bytes)");
-
-		if (pdf.exists()) {
-			String bucketName = ServerConstant.QR_BUCKET;
-			String objectName = "qr-artexhibition-pdf-" + getModel().getObject().getId().toString();
-
-			try {
-				if (getObjectStorageService().existsObject(bucketName, objectName)) {
-					getObjectStorageService().getClient().deleteObject(bucketName, objectName);
-				}
-
-				getObjectStorageService().getClient().putObject(bucketName, objectName, pdf);
-				getArtExhibitionDBService().addQRPdf(getModel().getObject(), bucketName, objectName, pdf.getName(), "application/pdf", pdf.length(), getSessionUser().get());
-
-			} catch (IOException | ODClientException e) {
-				logger.error(e, ServerConstant.NOT_THROWN);
-				return;
-			}
-
-		}
-
-	}
-
-	@Override
-	public void onInitialize() {
-		super.onInitialize();
-
-		setUpModel();
-
-		qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
-		add(qrcodecontainer);
-
-		qrcodecontainer.add( new InvisiblePanel("error"));
-		
-		AjaxLink<Void> make = new AjaxLink<Void>("make") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				try {
-
-					addPdf();
-
-					setUpModel();
-					addPanels();
-					target.add(ArtExhibitionQRCodePanel.this);
-				} catch (Exception e) {
-					logger.error(e, ServerConstant.NOT_THROWN);
-					qrcodecontainer.addOrReplace(new ErrorPanel("error", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
-					target.add(ArtExhibitionQRCodePanel.this);
-				}
-			}
-		};
-
-		qrcodecontainer.add(make);
-
-		addPanels();
-
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-
-		if (qrFileModel != null)
-			qrFileModel.detach();
-
-		if (qrPdfFileModel != null)
-			qrPdfFileModel.detach();
-	}
-
-	@Override
-	public List<ToolbarItem> getToolbarItems() {
-		return null;
-	}
-
-	private void setUpModel() {
-		ArtExhibition ae = getModel().getObject();
-		getModel().setObject(getArtExhibitionDBService().findWithDeps(ae.getId()).get());
-	}
-
-	private IModel<File> getQRFileModel() {
-		return qrFileModel;
-	}
-
-	private IModel<File> getQRPdfFileModel() {
-		return qrPdfFileModel;
-	}
-
+	 
 }

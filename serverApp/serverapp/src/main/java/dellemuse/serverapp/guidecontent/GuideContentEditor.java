@@ -354,7 +354,10 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 			@Override
 			public void onClick() {
-				setResponsePage(new ArtWorkPage(getArtWorkModel()));
+				
+				ArtWorkPage p = new ArtWorkPage(getArtWorkModel());
+				p.setStartTab(ServerAppConstant.artwork_qrcode);
+				setResponsePage(p);
 			}
 
 		};
@@ -363,18 +366,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.openArtwork.add(openArtworkLabel);
 		getForm().add(openArtwork);
 
-		/**
-		 * this.importArtwork = new AjaxLink<ArtWork>("importArtwork",
-		 * getArtWorkModel()) { private static final long serialVersionUID = 1L;
-		 * 
-		 * @Override public void onClick(AjaxRequestTarget target) {
-		 *           GuideContentEditor.this.importArtWorkText(target);
-		 * 
-		 *           }
-		 * 
-		 * @Override public boolean isVisible() { return getForm().getFormState() ==
-		 *           FormState.EDIT; } };
-		 **/
+		 
 
 		this.openAudioStudio = new Link<GuideContent>("openAudioStudio", getModel()) {
 			private static final long serialVersionUID = 1L;
@@ -397,10 +389,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.openAudioStudio.add(openLabel);
 		getForm().add(openAudioStudio);
 
-		// Label importArtworkLabel = new Label("importArtworkLabel",
-		// getLabel("import-artwork", getArtWorkModel().getObject().getDisplayname()));
-		// this.importArtwork.add(importArtworkLabel);
-		// getForm().add(this.importArtwork);
+		 
 	}
 
 	protected void importFromGeneralGuide(AjaxRequestTarget target) {

@@ -152,6 +152,12 @@ public class SiteQRCodePanel extends DBModelPanel<Site> implements InternalPanel
 		
 	 	AjaxLink<Void> make = new AjaxLink<Void>("make") {
 			private static final long serialVersionUID = 1L;
+		
+			@Override
+			public boolean isVisible() {
+				return SiteQRCodePanel.this.getModel().getObject().getQRCodePdf()==null || isRoot();
+			}
+			
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				try {

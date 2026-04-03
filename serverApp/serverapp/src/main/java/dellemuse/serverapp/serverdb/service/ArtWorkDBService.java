@@ -16,6 +16,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
+import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.AuditAction;
@@ -270,6 +271,19 @@ public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long
 
 	}
 
+	
+	
+	@Transactional
+	public ArtWork addQRPdf(ArtWork aw, String bucketName, String objectName, String name, String media, long size, User createdBy) {
+		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE_PDF, createdBy, name, true);
+		aw.setQRCodePdf(res);
+		getRepository().save(aw);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aw, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR_PDF));
+		return aw;
+	}
+	
+	
 	/**
 	 * @param name
 	 * @return

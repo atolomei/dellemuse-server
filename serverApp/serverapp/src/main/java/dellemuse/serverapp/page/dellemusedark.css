@@ -13,7 +13,10 @@ box-shadow: 0 -3px 10px rgba(82, 112, 140, 0.85); margin: 0; padding: 0; border-
 [data-bs-theme="dark"] .list-group-item p {color: #ababab;}
  
  
- 	[data-bs-theme="dark"] .alert-info button {color:var(--bs-alert-color);}
+[data-bs-theme="dark"] .alert-info button 	{color:var(--bs-alert-color);}
+[data-bs-theme="dark"] .page-navigator		{	margin-bottom: 96px;}
+ 	
+ 
  	
   
 /**- ---------------------------------------------------------------------------------- - */

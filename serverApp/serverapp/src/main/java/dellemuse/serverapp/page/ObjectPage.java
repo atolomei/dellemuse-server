@@ -717,7 +717,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		this.navigatorContainer = new WebMarkupContainer("navigatorContainer");
 		add(this.navigatorContainer);
 
-		this.navigatorContainer.add(new org.apache.wicket.AttributeModifier("class", (isDarkTheme() ? "" : "text-bg-light") + " container-fluid border-top hasplayer"));
+		this.navigatorContainer.add(new org.apache.wicket.AttributeModifier("class", (isDarkTheme() ? "" : "text-bg-light") + " container-fluid border-top"));
 
 		try {
 			this.navigatorContainer.setVisible(getList() != null && getList().size() > 0);
