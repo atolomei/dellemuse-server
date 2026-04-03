@@ -46,44 +46,42 @@ public class LanguagePanel extends ModelPanel<User> {
 	private DropDownChoice<Language> selector;
 	private List<Language> languages;
 	private Language lang;
-	
+
 	IModel<Site> siteModel;
-	
-	
+
 	public LanguagePanel(String id) {
 		this(id, null, null);
 	}
-	
+
 	public LanguagePanel(String id, IModel<User> model, IModel<Site> siteModel) {
 		super(id, model);
-		this.siteModel=siteModel;
+		this.siteModel = siteModel;
 	}
 
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		
-		
-		if (siteModel!=null)
+
+		if (siteModel != null)
 			siteModel.detach();
-	
+
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-			
+
 		this.languages = new ArrayList<Language>();
-		this.languages.add(Language.of( siteModel.getObject().getMasterLanguage()));
+		this.languages.add(Language.of(siteModel.getObject().getMasterLanguage()));
 		this.languages.addAll(siteModel.getObject().getLanguages());
-		
+
 		Locale locale = getLocale();
-		
-		if (locale==null) {
+
+		if (locale == null) {
 			logger.error("locale is null");
-			locale=Locale.getDefault();
+			locale = Locale.getDefault();
 		}
-			
+
 		setLanguage(Language.of(locale.getLanguage()));
 
 		this.selector = new DropDownChoice<Language>("languages", getChoices()) {
@@ -115,12 +113,11 @@ public class LanguagePanel extends ModelPanel<User> {
 				// IValueMap attributes = tag.getAttributes();
 				// if (autofocus())
 				// attributes.putIfAbsent("autofocus", "");
-				
-				
+
 				super.onComponentTag(tag);
-			
-				//logger.debug("aca");
-					
+
+				// logger.debug("aca");
+
 			}
 		};
 
@@ -138,36 +135,34 @@ public class LanguagePanel extends ModelPanel<User> {
 				return LanguagePanel.this.getDisplayValue(value);
 			};
 		});
-		
-		
+
 		// ✅ listen for changes and set cookie
 		selector.add(new org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior("change") {
 
-		    @Override
-		    protected void onUpdate(AjaxRequestTarget target) {
-		        Language selectedLanguage = selector.getModelObject();
-		        if (selectedLanguage != null) {
-		            Cookie cookie = new Cookie("lang", selectedLanguage.getLanguageCode());
-		            cookie.setPath("/");
-		            cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
-		            ((WebResponse) RequestCycle.get().getResponse())
-		                    .addCookie(cookie);
-		            getSession().setLocale( Locale.forLanguageTag(selectedLanguage.getLanguageCode()));
-		            fire( new LangEvent("lang", selectedLanguage.getLanguageCode()));
-		        }
-		    }
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				Language selectedLanguage = selector.getModelObject();
+				if (selectedLanguage != null) {
+					Cookie cookie = new Cookie("lang", selectedLanguage.getLanguageCode());
+					cookie.setPath("/");
+					cookie.setMaxAge(60 * 60 * 24 * 365); // 1 year
+					((WebResponse) RequestCycle.get().getResponse()).addCookie(cookie);
+					getSession().setLocale(Locale.forLanguageTag(selectedLanguage.getLanguageCode()));
+					fire(new LangEvent("lang", selectedLanguage.getLanguageCode()));
+				}
+			}
 		});
 		add(selector);
 	}
-	
+
 	public Language getLanguage() {
 		return this.lang;
 	}
 
-	public void setLanguage(Language lang)  {
-		this.lang=lang;
+	public void setLanguage(Language lang) {
+		this.lang = lang;
 	}
-	
+
 	protected List<Language> getChoices() {
 		return languages;
 	}

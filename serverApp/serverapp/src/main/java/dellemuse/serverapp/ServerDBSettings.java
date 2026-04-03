@@ -178,10 +178,9 @@ public class ServerDBSettings {
 	/** -------------------------------------- **/
 	@Value("${server.language:es}")
 	protected String defaultLanguage;
-	
-	
+
 	/** EMAIL (MAILGUN) ------------------------------------------- */
-	
+
 	@Value("${email.mailgun.api.key:null}")
 	protected String emailApiKey;
 
@@ -191,18 +190,15 @@ public class ServerDBSettings {
 	@Value("${email.mailgun.baseurl:null}")
 	protected String emailBaseurl;
 
-	
 	@Value("${email.mailgun.from:null}")
 	protected String emailFrom;
 
-	
 	@Value("${email.sender.enabled:false}")
 	protected String emailEnabledStr;
-	
-	
+
 	@Value("${email.validation.server:http://localhost:8099}")
 	protected String emailValidationServer;
-	
+
 	public String getEmailValidationServer() {
 		return emailValidationServer;
 	}
@@ -520,10 +516,10 @@ public class ServerDBSettings {
 	public String getFFmpegDir() {
 		return ffmpegDir;
 	}
+
 	public boolean isEmailSenderEnabled() {
-		return this.emailEnabledStr!=null && this.emailEnabledStr.toLowerCase().trim().equals("true");
+		return this.emailEnabledStr != null && this.emailEnabledStr.toLowerCase().trim().equals("true");
 	}
-	
 
 	public String getTextToSpeechServiceName() {
 		return this.textToSpeechServiceName;
@@ -534,13 +530,11 @@ public class ServerDBSettings {
 	}
 
 	String fontsDir = "fonts";
-	
-	public String getFontsDir() {
-		 return this.fontsDir;
 
-		 // + File.separator + "Noto_Sans" + File.separator + "static"
+	public String getFontsDir() {
+		return this.fontsDir;
+
+		// + File.separator + "Noto_Sans" + File.separator + "static"
 	}
 
-	
 }
-

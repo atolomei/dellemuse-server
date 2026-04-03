@@ -63,14 +63,6 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 		setOutputMarkupId(true);
 	}
 
-	
-	
-	
-	
-	
-
-	
-
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -80,17 +72,17 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 		qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
 		add(qrcodecontainer);
 
-		qrcodecontainer.add( new InvisiblePanel("error"));
-		
+		qrcodecontainer.add(new InvisiblePanel("error"));
+
 		AjaxLink<Void> make = new AjaxLink<Void>("make") {
-		
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean isVisible() {
-				return ArtExhibitionQRCodePanel.this.getModel().getObject().getQRCodePdf()==null || isRoot();
+				return ArtExhibitionQRCodePanel.this.getModel().getObject().getQRCodePdf() == null || isRoot();
 			}
-	
+
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				try {
@@ -98,7 +90,7 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 					addPdf();
 					setUpModel();
 					addPanels();
-					
+
 					target.add(ArtExhibitionQRCodePanel.this);
 				} catch (Exception e) {
 					logger.error(e, ServerConstant.NOT_THROWN);
@@ -229,9 +221,8 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 
 		BufferedImage image;
 
-		Resource qrcode = getResourceDBService().findById( getModel().getObject().getQrcode().getId()).get();
+		Resource qrcode = getResourceDBService().findById(getModel().getObject().getQrcode().getId()).get();
 
-		
 		String bu = qrcode.getBucketName();
 		String ob = qrcode.getObjectName();
 
@@ -246,9 +237,9 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 		}
 
 		try {
-			
+
 			image = ImageIO.read(qrimage);
-			
+
 		} catch (IOException e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 			throw new RuntimeException("Failed to read QR code image file: " + e.getClass().getSimpleName() + " | " + e.getMessage(), e);
@@ -256,16 +247,16 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 
 		File outputDir = new File(getServerDBSettings().getWorkDir());
 		File pdf;
-		
+
 		try {
-			
+
 			pdf = generatePdf(getModel().getObject(), image, outputDir);
-			
+
 		} catch (IOException e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 			throw new RuntimeException("Failed to generate PDF: " + e.getClass().getSimpleName() + " | " + e.getMessage(), e);
 		}
-		
+
 		logger.debug("Generated PDF: " + pdf.getAbsolutePath() + " (size: " + pdf.length() + " bytes)");
 
 		if (pdf.exists()) {
@@ -288,7 +279,7 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 		}
 
 	}
-	
+
 	private File generatePdf(ArtExhibition ex, BufferedImage qrImage, File outputDir) throws IOException {
 
 		String filename = "qr-artexhibition-" + getResourceDBService().normalizeFileName(ex.getName()) + "-" + ex.getId() + ".pdf";
@@ -355,5 +346,4 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 		return pdfFile;
 	}
 
-	 
 }

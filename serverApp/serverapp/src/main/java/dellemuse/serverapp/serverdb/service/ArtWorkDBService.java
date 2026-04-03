@@ -129,7 +129,7 @@ public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long
 		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE, createdBy, name, true);
 		aw.setQRCode(res);
 		aw.setQrCodeText(text);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aw, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aw, createdBy, AuditAction.UPDATE, AuditKey.ADD_QR));
 		return getRepository().save(aw);
 	}
 
@@ -271,19 +271,16 @@ public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long
 
 	}
 
-	
-	
 	@Transactional
 	public ArtWork addQRPdf(ArtWork aw, String bucketName, String objectName, String name, String media, long size, User createdBy) {
 		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE_PDF, createdBy, name, true);
 		aw.setQRCodePdf(res);
 		getRepository().save(aw);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aw, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR_PDF));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aw, createdBy, AuditAction.UPDATE, AuditKey.ADD_QR_PDF));
 		return aw;
 	}
-	
-	
+
 	/**
 	 * @param name
 	 * @return

@@ -78,13 +78,11 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
 
-		
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
 		generateAudioId(c, createdBy);
 
-		
 		for (Language la : getLanguageService().getLanguages())
 			getArtExhibitionRecordDBService().create(c, la.getLanguageCode(), createdBy);
 
@@ -114,12 +112,10 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		c.setState(ObjectState.EDITION);
 		c.setSite(site);
 
-		
 		getRepository().save(c);
-		
+
 		generateAudioId(c, createdBy);
 
-		
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
 		for (Language la : getLanguageService().getLanguages())
@@ -128,13 +124,12 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		return c;
 	}
 
-	
 	@Transactional
 	public void save(ArtExhibition o, User user, String updatedPart) {
 		super.save(o);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, updatedPart));
 	}
-	
+
 	@Transactional
 	public void save(ArtExhibition o, User user, List<String> updatedParts) {
 		super.save(o);
@@ -163,7 +158,6 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		});
 	}
 
-	
 	@Transactional
 	public void generateAudioId(ArtExhibition a, User user) {
 
@@ -178,7 +172,6 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 			getArtExhibitionGuideDBService().save(c, user, List.of("audioid"));
 		});
 	}
-
 
 	@Transactional
 	public void restore(ArtExhibition c, User restoredBy) {
@@ -483,8 +476,7 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		super.registerRecordDB(getEntityClass(), getArtExhibitionRecordDBService());
 		super.register(getEntityClass(), this);
 	}
- 
-	
+
 	@Transactional
 	public ArtExhibition addQR(ArtExhibition aex, String text, String bucketName, String objectName, String name, String media, long size, User createdBy) {
 		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
@@ -492,17 +484,17 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		aex.setQrcode(res);
 		aex.setQrCodeText(text);
 		getRepository().save(aex);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aex, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aex, createdBy, AuditAction.UPDATE, AuditKey.ADD_QR));
 		return aex;
 	}
-	
+
 	@Transactional
 	public ArtExhibition addQRPdf(ArtExhibition aex, String bucketName, String objectName, String name, String media, long size, User createdBy) {
 		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
 		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.QR_CODE_PDF, createdBy, name, true);
 		aex.setQRCodePdf(res);
 		getRepository().save(aex);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aex, createdBy,  AuditAction.UPDATE, AuditKey.ADD_QR_PDF));
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aex, createdBy, AuditAction.UPDATE, AuditKey.ADD_QR_PDF));
 		return aex;
 	}
 

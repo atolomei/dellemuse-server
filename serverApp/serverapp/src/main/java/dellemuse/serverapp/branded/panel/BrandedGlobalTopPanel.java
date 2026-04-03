@@ -74,26 +74,28 @@ public class BrandedGlobalTopPanel extends ObjectModelPanel<Site> {
 		{
 			NavBar<Site> nav = new NavBar<Site>("navbarRight", getModel());
 
-			
+			if (getSessionUser().isPresent()) {
+				nav.addNoCollapseLeft(new BrandedAccesibilityPanel("item", new ObjectModel<User>(getSessionUser().get())));
+
+			} else {
+				nav.addNoCollapseLeft(new BrandedAccesibilityPanel("item", null));
+
+			}
+
 			BrandedQRScanPanel qr = new BrandedQRScanPanel("item");
 			nav.addNoCollapseLeft(qr);
-			
+
 			BrandedSearchTopPanel search = new BrandedSearchTopPanel("item");
 			nav.addNoCollapseLeft(search);
 
 			if (getSessionUser().isPresent()) {
-				nav.addNoCollapseLeft(new BrandedAccesibilityPanel("item", new ObjectModel<User>(getSessionUser().get())));
 				LanguagePanel gt = new LanguagePanel("item", new ObjectModel<User>(getSessionUser().get()), getModel());
 				nav.addNoCollapseLeft(gt);
 			} else {
-				nav.addNoCollapseLeft(new BrandedAccesibilityPanel("item", null));
 				LanguagePanel gt = new LanguagePanel("item", null, getModel());
 				nav.addNoCollapseLeft(gt);
 			}
 
-			
-			
-			
 			add(nav);
 		}
 

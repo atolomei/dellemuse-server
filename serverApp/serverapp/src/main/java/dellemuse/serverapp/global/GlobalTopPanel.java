@@ -120,13 +120,13 @@ public class GlobalTopPanel extends ModelPanel<User> {
 
 		if (getModel() != null) {
 			this.userGlobalTopPanel = new UserGlobalTopPanel("userGlobalTopPanel", getModel());
-			HelpDropDownMenu help = new HelpDropDownMenu( "help", getModel());
-			add( help );	
-		
+			HelpDropDownMenu help = new HelpDropDownMenu("help", getModel());
+			add(help);
+
 		} else {
 			this.userGlobalTopPanel = new InvisiblePanel("userGlobalTopPanel");
-			add( new InvisiblePanel("help"));
-		
+			add(new InvisiblePanel("help"));
+
 		}
 
 		add(this.userGlobalTopPanel);
@@ -134,7 +134,7 @@ public class GlobalTopPanel extends ModelPanel<User> {
 		// HelpButtonToolbarItem h = new HelpButtonToolbarItem("help", Align.TOP_RIGHT);
 		// add(h);
 	}
- 
+
 	public boolean isSearch() {
 		return isSearch;
 	}
