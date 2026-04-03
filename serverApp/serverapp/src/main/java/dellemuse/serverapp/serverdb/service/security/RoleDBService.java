@@ -63,7 +63,7 @@ public class RoleDBService extends DBService<Role, Long> {
 		CriteriaQuery<Role> cq = cb.createQuery(getEntityClass());
 		Root<Role> root = cq.from(getEntityClass());
 		cq.select(root);
-		
+
 		Iterable<Role> it = getEntityManager().createQuery(cq).getResultList();
 
 		List<Role> list = new ArrayList<Role>();
@@ -75,39 +75,36 @@ public class RoleDBService extends DBService<Role, Long> {
 				return r1.getRoleDisplayName().compareToIgnoreCase(r2.getRoleDisplayName());
 			}
 		});
-		
+
 		return list;
-		
-		
+
 		/**
-		Set<Role> roles = new TreeSet<>(new Comparator<Role>() {
-			@Override
-			public int compare(Role o1, Role o2) {
-				return (o1.getRoleDisplayName()+o1.getId().toString()).compareToIgnoreCase(
-						o2.getRoleDisplayName()+o2.getId().toString());
-			}
-		});
-
-	 
-		
-		
-		if (logger.isDebugEnabled()) {
-			getEntityManager().createQuery(cq).getResultList().forEach(i->logger.debug(i.getRoleDisplayName()));
-			logger.debug(getEntityManager().createQuery(cq).getResultList().size());
-			
-		}
-		
-		getEntityManager().createQuery(cq).getResultList().forEach( r -> roles.add(r));
-	
-		
-
-		if (logger.isDebugEnabled()) {
-			roles.forEach(i->logger.debug(i.getRoleDisplayName()));
-			logger.debug(roles.size());
-		}
-	
-		return roles;
-		*/
+		 * Set<Role> roles = new TreeSet<>(new Comparator<Role>() {
+		 * 
+		 * @Override public int compare(Role o1, Role o2) { return
+		 *           (o1.getRoleDisplayName()+o1.getId().toString()).compareToIgnoreCase(
+		 *           o2.getRoleDisplayName()+o2.getId().toString()); } });
+		 * 
+		 * 
+		 * 
+		 * 
+		 *           if (logger.isDebugEnabled()) {
+		 *           getEntityManager().createQuery(cq).getResultList().forEach(i->logger.debug(i.getRoleDisplayName()));
+		 *           logger.debug(getEntityManager().createQuery(cq).getResultList().size());
+		 * 
+		 *           }
+		 * 
+		 *           getEntityManager().createQuery(cq).getResultList().forEach( r ->
+		 *           roles.add(r));
+		 * 
+		 * 
+		 * 
+		 *           if (logger.isDebugEnabled()) {
+		 *           roles.forEach(i->logger.debug(i.getRoleDisplayName()));
+		 *           logger.debug(roles.size()); }
+		 * 
+		 *           return roles;
+		 */
 	}
 
 	@Transactional
@@ -118,10 +115,10 @@ public class RoleDBService extends DBService<Role, Long> {
 
 		cq.select(root).where(cb.equal(root.get("state"), os));
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
-	
+
 		if (logger.isDebugEnabled())
-			getEntityManager().createQuery(cq).getResultList().forEach(i->logger.debug(i.getRoleDisplayName()));
-			
+			getEntityManager().createQuery(cq).getResultList().forEach(i -> logger.debug(i.getRoleDisplayName()));
+
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
@@ -150,15 +147,12 @@ public class RoleDBService extends DBService<Role, Long> {
 				return r1.getRoleDisplayName().compareToIgnoreCase(r2.getRoleDisplayName());
 			}
 		});
-		
-		
-		
+
 		if (logger.isDebugEnabled()) {
-			getEntityManager().createQuery(cq).getResultList().forEach(i->logger.debug(i.getRoleDisplayName()));
+			getEntityManager().createQuery(cq).getResultList().forEach(i -> logger.debug(i.getRoleDisplayName()));
 			logger.debug(list.size());
 		}
-		
-		
+
 		return list;
 	}
 

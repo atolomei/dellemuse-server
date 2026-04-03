@@ -3,7 +3,6 @@ package dellemuse.serverapp.editor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
- 
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
@@ -33,7 +32,7 @@ import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
 import dellemuse.serverapp.serverdb.model.record.InstitutionRecord;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
- 
+
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
@@ -58,7 +57,6 @@ import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.field.Field;
 
- 
 public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 
 	private static final long serialVersionUID = 1L;
@@ -77,8 +75,7 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		b_state.add(ObjectState.DELETED);
 		b_state.add(ObjectState.PUBLISHED);
 	}
-	
-	
+
 	static public final List<Locale> locales = new ArrayList<Locale>();
 
 	static {
@@ -86,53 +83,50 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 		locales.add(Locale.forLanguageTag("es"));
 		locales.add(Locale.forLanguageTag("pt-BR"));
 	}
-	
+
 	private Form<T> form;
 	private boolean readonly = false;
 	private List<String> updatedParts = new ArrayList<String>();
 
-	
 	public DBObjectEditor(String id, IModel<T> model) {
 		super(id, model);
 		super.setOutputMarkupId(true);
 	}
-	
+
 	public boolean hasWritePermission() {
-		
+
 		if (getSessionUser().isEmpty())
 			return false;
-		
+
 		if (isRoot())
 			return true;
-		
+
 		if (isGeneralAdmin())
 			return true;
-		
-		
-		
+
 		return false;
 	}
-	
+
 	public boolean isSiteAdminOrEditor(Site site) {
-		
-		if (site==null)
+
+		if (site == null)
 			return false;
-		
+
 		return getSecurityAuthorizationService().isSiteAdminOrEditor(getSessionUser(), site);
 	}
-	
-	public boolean isSiteAdmin (Site site) {
-		
-		if (site==null)
+
+	public boolean isSiteAdmin(Site site) {
+
+		if (site == null)
 			return false;
-		
-		return getSecurityAuthorizationService().isSiteAdmin (getSessionUser(), site.getId());
+
+		return getSecurityAuthorizationService().isSiteAdmin(getSessionUser(), site.getId());
 	}
-	
+
 	public List<Locale> getSuppportedLocales() {
 		return locales;
 	}
-	
+
 	@Override
 	public boolean isReadOnly() {
 		return readonly;
@@ -376,7 +370,7 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 	protected List<Language> getLanguages() {
 		return getLanguageService().getLanguagesSorted(getLocale());
 	}
-	
+
 	protected String getMimeType(String clientFileName) {
 		return super.getResourceDBService().getMimeType(clientFileName);
 	}

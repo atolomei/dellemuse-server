@@ -8,8 +8,6 @@ import io.wktui.error.AlertPanel;
 import wktui.base.InvisiblePanel;
 import wktui.base.ModelPanel;
 
-
-
 public class SimpleAlertRow<T> extends ModelPanel<T> {
 
 	private static final long serialVersionUID = 1L;
@@ -20,7 +18,6 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 	private IModel<String> text;
 	private IModel<String> title;
 
-	
 	public SimpleAlertRow(String id) {
 		super(id, null);
 	}
@@ -33,15 +30,15 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 		super(id, model);
 		this.alertType = type;
 		this.text = text;
-		this.title=title;
-		
+		this.title = title;
+
 	}
-	
+
 	public SimpleAlertRow(String id, IModel<T> model, int type) {
 		super(id, model);
 		this.alertType = type;
 	}
-	
+
 	public SimpleAlertRow(String id, Exception e) {
 		super(id, null);
 		text = Model.of(e.getClass().getSimpleName() + " | " + e.getMessage());
@@ -85,7 +82,7 @@ public class SimpleAlertRow<T> extends ModelPanel<T> {
 		if (text == null) {
 			if (getModel() != null && getModel().getObject() != null) {
 				text = Model.of(getModel().getObject().toString());
-			} 
+			}
 		}
 		return text;
 	}

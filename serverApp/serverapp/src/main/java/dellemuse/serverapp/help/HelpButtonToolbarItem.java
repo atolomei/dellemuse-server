@@ -9,17 +9,15 @@ import io.wktui.event.HelpAjaxEvent;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 
 public class HelpButtonToolbarItem extends AjaxButtonToolbarItem<String> {
-			
+
 	private static final long serialVersionUID = 1L;
 
-	
 	public HelpButtonToolbarItem(String id, Align a) {
 		super(id);
 		super.setAlign(a);
 
-		
 	}
-	
+
 	public HelpButtonToolbarItem(String id, IModel<String> title) {
 		super(id, title);
 	}
@@ -27,13 +25,13 @@ public class HelpButtonToolbarItem extends AjaxButtonToolbarItem<String> {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-			}
+	}
 
 	@Override
 	public IModel<String> getButtonLabel() {
 		return null;
 	}
-	
+
 	protected String getIconCss() {
 		return Icons.help;
 	}
@@ -41,15 +39,15 @@ public class HelpButtonToolbarItem extends AjaxButtonToolbarItem<String> {
 	@Override
 	protected void onCick(AjaxRequestTarget target) {
 		fire(new HelpAjaxEvent(ServerAppConstant.help, target));
-		
+
 	}
-	
+
 	protected String getButtonCss() {
 		return "fs-5 btn btn-sm btn-link mt-0";
 	}
-	
+
 	public IModel<String> getButtonTitle() {
 		return getLabel("help");
 	}
-	
+
 }

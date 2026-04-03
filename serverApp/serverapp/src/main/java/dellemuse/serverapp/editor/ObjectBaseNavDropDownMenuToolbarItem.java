@@ -35,18 +35,15 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 			return null;
 		return Model.of(s);
 	}
-	
-	
-	 
+
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
-	
-	
+
 	protected ArtExhibitionDBService getArtExhibitionDBService() {
 		return (ArtExhibitionDBService) ServiceLocator.getInstance().getBean(ArtExhibitionDBService.class);
 	}
-	
+
 	protected void addAudit() {
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<T>() {
@@ -128,8 +125,6 @@ public class ObjectBaseNavDropDownMenuToolbarItem<T extends DelleMuseObject> ext
 		super.onInitialize();
 
 	}
-	
-	
 
 	protected SiteDBService getSiteDBService() {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);

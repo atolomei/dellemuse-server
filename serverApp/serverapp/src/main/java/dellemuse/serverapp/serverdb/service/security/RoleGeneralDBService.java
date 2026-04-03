@@ -1,31 +1,22 @@
 package dellemuse.serverapp.serverdb.service.security;
 
- 
-
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
-import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.Institution;
 
- 
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Resource;
-import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.service.DBService;
@@ -46,14 +37,13 @@ public class RoleGeneralDBService extends DBService<RoleGeneral, Long> {
 	@PersistenceContext
 	private EntityManager entityManager;
 
-
 	public RoleGeneralDBService(CrudRepository<RoleGeneral, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
- 
+
 	@Transactional
 	public RoleGeneral create(String name, User createdBy) {
-	
+
 		RoleGeneral c = new RoleGeneral();
 		c.setName(name);
 		c.setState(ObjectState.EDITION);
@@ -64,7 +54,7 @@ public class RoleGeneralDBService extends DBService<RoleGeneral, Long> {
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 		return c;
 	}
-	
+
 	@Transactional
 	public void markAsDeleted(RoleGeneral c, User deletedBy) {
 		c.setLastModified(OffsetDateTime.now());
@@ -85,7 +75,7 @@ public class RoleGeneralDBService extends DBService<RoleGeneral, Long> {
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE, AuditKey.RESTORE));
 		getRepository().save(c);
 	}
-	
+
 	@Transactional
 	public Optional<RoleGeneral> findWithDeps(Long id) {
 
@@ -95,11 +85,11 @@ public class RoleGeneralDBService extends DBService<RoleGeneral, Long> {
 			return o_i;
 
 		RoleGeneral i = o_i.get();
-		
+
 		Set<User> users = new HashSet<User>();
-		i.getUsers().forEach( u -> users.add( getUserDBService().findById(u.getId()).get()));
+		i.getUsers().forEach(u -> users.add(getUserDBService().findById(u.getId()).get()));
 		i.setUsers(users);
-		
+
 		i.setDependencies(true);
 
 		return o_i;
@@ -141,7 +131,7 @@ public class RoleGeneralDBService extends DBService<RoleGeneral, Long> {
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
- 
+
 	@Transactional
 	public List<RoleGeneral> getByName(String name) {
 		return createNameQuery(name).getResultList();

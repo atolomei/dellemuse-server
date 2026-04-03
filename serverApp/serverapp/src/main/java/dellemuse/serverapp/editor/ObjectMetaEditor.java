@@ -23,7 +23,7 @@ import dellemuse.serverapp.serverdb.model.TranslateMode;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.DBService;
 import io.wktui.error.AlertPanel;
-import io.wktui.error.ErrorPanel;
+ 
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
@@ -52,43 +52,41 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 	private List<ToolbarItem> list;
 
 	private Boolean writePermission;
-	
+
 	public ObjectMetaEditor(String id, IModel<T> model) {
 		super(id, model);
 	}
-	
+
 	public boolean hasWritePermission() {
-		
-	if (writePermission != null)
+
+		if (writePermission != null)
 			return writePermission.booleanValue();
-		
-	if (getSessionUser().isEmpty())
-			writePermission=Boolean.FALSE;
-		
-	else if (isRoot())
-			writePermission=Boolean.TRUE;
-		
-	else if (ObjectMetaEditor.this.getModel().getObject() instanceof  User) {
-			
+
+		if (getSessionUser().isEmpty())
+			writePermission = Boolean.FALSE;
+
+		else if (isRoot())
+			writePermission = Boolean.TRUE;
+
+		else if (ObjectMetaEditor.this.getModel().getObject() instanceof User) {
+
 			User u = (User) ObjectMetaEditor.this.getModel().getObject();
 
 			if (u.getId().equals(getSessionUser().get().getId()))
-				writePermission=Boolean.TRUE;
-			
+				writePermission = Boolean.TRUE;
+
 			else if (isGeneralAdmin(u))
-				writePermission =isGeneralAdmin();
-			
-			else 
-				writePermission=Boolean.TRUE;
+				writePermission = isGeneralAdmin();
+
+			else
+				writePermission = Boolean.TRUE;
 		}
-		
+
 		if (writePermission == null)
-			writePermission=Boolean.TRUE;
+			writePermission = Boolean.TRUE;
 
 		return writePermission.booleanValue();
 	}
-
-
 
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
@@ -105,7 +103,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			public boolean isVisible() {
 				return hasWritePermission();
 			}
-			
+
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_object_edit_meta, target));
@@ -115,7 +113,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
 			}
-			
+
 			public boolean isEnabled() {
 				return ObjectMetaEditor.this.isEditEnabled();
 			}
@@ -218,32 +216,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			};
 			form.add(this.objectStateField);
 
-			/**
-			this.audioModeField = new ChoiceField<Boolean>("audiomode", new PropertyModel<Boolean>(getModel(), "audioAutoGenerate"), getLabel("audiomode")) {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public IModel<List<Boolean>> getChoices() {
-					return new ListModel<Boolean>(b_list);
-				}
-
-				@Override
-				protected String getDisplayValue(Boolean value) {
-					if (value == null)
-						return null;
-					if (value.booleanValue())
-						return getLabel("yes").getObject();
-					return getLabel("no").getObject();
-				}
-
-				public boolean isVisible() {
-					return ObjectMetaEditor.this.isAudioAutoGenerate();
-				}
-
-			};
-			form.add(this.audioModeField);
-*/
+		 
 			EditButtons<T> buttons = new EditButtons<T>("buttons-bottom", getForm(), getModel()) {
 
 				private static final long serialVersionUID = 1L;
@@ -265,10 +238,10 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 				@Override
 				public boolean isVisible() {
-				
+
 					if (!hasWritePermission())
 						return false;
-					
+
 					return getForm().getFormState() == FormState.EDIT;
 				}
 			};
@@ -293,10 +266,10 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 				@Override
 				public boolean isVisible() {
-					
+
 					if (!hasWritePermission())
 						return false;
-					
+
 					return getForm().getFormState() == FormState.EDIT;
 				}
 
@@ -311,9 +284,9 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			};
 
 			getForm().add(b_buttons_top);
-			
+
 			if (!hasWritePermission()) {
-				addOrReplace(new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getDisplayname() )));
+				addOrReplace(new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getDisplayname())));
 			}
 
 		} catch (Exception e) {
@@ -322,7 +295,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 			form.setVisible(false);
 			addOrReplace(form);
 			addOrReplace(new SimpleAlertRow<Void>("error", e));
-		
+
 		}
 	}
 
@@ -350,10 +323,6 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 		return TranslateMode.getTranslateModes();
 	}
 
-	
-	 
-	
-	
 	public Optional<Person> getPerson(Long value) {
 		return super.getPerson(value);
 	}
@@ -380,7 +349,7 @@ public class ObjectMetaEditor<T extends DelleMuseObject> extends DBObjectEditor<
 
 			save(getModelObject(), getSessionUser().get(), AuditKey.TRANSLATE);
 			getForm().setFormState(FormState.VIEW);
-			 
+
 		} catch (Exception e) {
 
 			addOrReplace(new SimpleAlertRow<Void>("error", e));

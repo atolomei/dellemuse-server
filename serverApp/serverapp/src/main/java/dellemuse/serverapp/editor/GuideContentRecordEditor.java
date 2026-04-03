@@ -31,31 +31,29 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 
 	private IModel<Resource> audioAccesibleModel;
 	private boolean uploadedAudioAccesible = false;
-	
+
 	private static final long serialVersionUID = 1L;
 
 	private Link<GuideContentRecord> openAudioStudioAccesible;
 	private TextAreaField<String> infoAccesibleField;
 	private FileUploadSimpleField<Resource> audioAccesibleField;
 	private IModel<ArtExhibitionGuide> artExhibitionGuideModel;
-	
-	
+
 	public GuideContentRecordEditor(String id, IModel<GuideContent> sourceModel, IModel<GuideContentRecord> TranslationRecordModel) {
 		super(id, sourceModel, TranslationRecordModel);
-		 
+
 	}
 
-	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 	}
-	
+
 	@Override
 	protected boolean isAccesible() {
 		return getArtExhibitionGuideModel().getObject().isAccessible();
 	}
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
@@ -66,32 +64,30 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 
 	@Override
 	protected void setUpModel() {
-		 super.setUpModel();
-		 
-		//if (getModel().getObject().getAudio() != null) {
-		//	Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
-		//	setAudioModel(new ObjectModel<Resource>(o_r.get()));
-		//}
-		 
-		 Optional<ArtExhibitionGuide> o_r = getArtExhibitionGuideDBService().findWithDeps(getSourceModel().getObject().getArtExhibitionGuide().getId());
-		 if (o_r.isPresent()) {
-			 setArtExhibitionGuideModel(new ObjectModel<ArtExhibitionGuide>(o_r.get()));
-		 }
-		 
+		super.setUpModel();
+
+		// if (getModel().getObject().getAudio() != null) {
+		// Optional<Resource> o_r =
+		// getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
+		// setAudioModel(new ObjectModel<Resource>(o_r.get()));
+		// }
+
+		Optional<ArtExhibitionGuide> o_r = getArtExhibitionGuideDBService().findWithDeps(getSourceModel().getObject().getArtExhibitionGuide().getId());
+		if (o_r.isPresent()) {
+			setArtExhibitionGuideModel(new ObjectModel<ArtExhibitionGuide>(o_r.get()));
+		}
+
 	}
 
 	@Override
 	protected void loadForm() {
 		super.loadForm();
-		
+
 		Form<GuideContentRecord> form = getForm();
-		
-		
-		
+
 		this.infoAccesibleField = new TextAreaField<String>("infoAccesible", new PropertyModel<String>(getModel(), "infoAccesible"), getLabel("infoAccesible"), 20);
-		form.add(this.infoAccesibleField );
- 		
-		
+		form.add(this.infoAccesibleField);
+
 		audioAccesibleField = new FileUploadSimpleField<Resource>("audioAccesible", getAudioModel(), getLabel("audioAccesible")) {
 
 			private static final long serialVersionUID = 1L;
@@ -125,8 +121,6 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 
 		audioAccesibleField.setVisible(isAudioVisible());
 		form.add(audioAccesibleField);
-		
-		
 
 		Label title = new Label("recordTitle", getLabel("translate-information", getModel().getObject().getLanguage()));
 		form.add(title);
@@ -138,7 +132,7 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getArtExhibitionGuideModel().getObject().isAccessible()  ));
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getArtExhibitionGuideModel().getObject().isAccessible()));
 				logger.error("audio studio not created for -> " + getModel().getObject().getDisplayname());
 			}
 
@@ -151,14 +145,9 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 		Label openArtworkLabel = new Label("openAccesibleAudioStudioLabel", getLabel("open-audio-studio", getModel().getObject().getDisplayname()));
 		this.openAudioStudioAccesible.add(openArtworkLabel);
 		form.add(openAudioStudioAccesible);
-		
-		
-	}
-	
-	
 
-	
-	
+	}
+
 	protected boolean processAudioAccesibleUpload(List<FileUpload> uploads) {
 
 		if (this.uploadedAudioAccesible)
@@ -168,7 +157,7 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 
 			for (FileUpload upload : uploads) {
 				try {
- 
+
 					String bucketName = ServerConstant.MEDIA_BUCKET;
 					String objectName = getResourceDBService().normalizeFileName(FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + String.valueOf(getResourceDBService().newId());
 
@@ -199,17 +188,12 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 		this.audioAccesibleModel = model;
 	}
 
-
 	public IModel<ArtExhibitionGuide> getArtExhibitionGuideModel() {
 		return artExhibitionGuideModel;
 	}
 
-
 	public void setArtExhibitionGuideModel(IModel<ArtExhibitionGuide> artExhibitionGuideModel) {
 		this.artExhibitionGuideModel = artExhibitionGuideModel;
 	}
-	
-	
-	
 
 }

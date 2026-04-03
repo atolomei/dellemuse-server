@@ -80,10 +80,8 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	private boolean isIntroVisible = false;
 	private boolean isAudioVisible = false;
 
-	
 	private Boolean hasWritePermission;
-	
-	
+
 	/**
 	 * @param id
 	 * @param model
@@ -132,30 +130,29 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		return list;
 	}
 
-	
 	public boolean hasWritePermission() {
 
 		if (hasWritePermission != null)
-			return hasWritePermission;
-		
+			return hasWritePermission.booleanValue();
+
 		if (getSessionUser().isEmpty()) {
-			hasWritePermission= Boolean.FALSE;
-			return hasWritePermission;
+			hasWritePermission = Boolean.FALSE;
+			return hasWritePermission.booleanValue();
 		}
-		
+
 		if (isRoot()) {
-			hasWritePermission= Boolean.TRUE;
-			return hasWritePermission;
+			hasWritePermission = Boolean.TRUE;
+			return hasWritePermission.booleanValue();
 		}
 
 		if (isGeneralAdmin()) {
-			hasWritePermission= Boolean.TRUE;
-			return hasWritePermission;
+			hasWritePermission = Boolean.TRUE;
+			return hasWritePermission.booleanValue();
 		}
-		
+
 		if (sourceModel.getObject() instanceof Institution) {
 			hasWritePermission = isInstitutionAdmin((Institution) sourceModel.getObject());
-			return hasWritePermission;
+			return hasWritePermission.booleanValue();
 		}
 
 		if (sourceModel.getObject().isSiteSecured()) {
@@ -166,15 +163,16 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 				return false;
 
 			hasWritePermission = isSiteAdminOrEditor(site);
-			return hasWritePermission;
+			return hasWritePermission.booleanValue();
 
 		}
 
 		hasWritePermission = Boolean.FALSE;
-		return hasWritePermission;
+
+		return hasWritePermission.booleanValue();
+
 	}
 
-	
 	protected boolean isAudioStudio() {
 		return ((getSourceModel().getObject() instanceof GuideContent) || (getSourceModel().getObject() instanceof ArtExhibitionGuide));
 	}
@@ -198,7 +196,6 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		super.edit(target);
 		target.add(this);
 
-		 
 	}
 
 	public void onSave(AjaxRequestTarget target) {
@@ -309,8 +306,6 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		this.audioModel = model;
 	}
 
- 
-
 	protected boolean isIntroVisible() {
 		return this.isIntroVisible;
 	}
@@ -369,7 +364,7 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 	}
 
 	protected void setUpModel() {
-	 	
+
 		@SuppressWarnings("unchecked")
 		Optional<R> o_i = (Optional<R>) getDBService(getModelObject().getClass()).findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<R>(o_i.get()));
@@ -381,7 +376,6 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 		reloadSetSessionUser();
 	}
 
-	
 	protected void loadForm() {
 
 		Form<R> form = new Form<R>("form");

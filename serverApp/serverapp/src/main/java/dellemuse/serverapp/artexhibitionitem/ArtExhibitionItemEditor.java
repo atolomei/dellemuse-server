@@ -75,7 +75,8 @@ public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionIte
 		this.orderField = new TextField<String>("order", new PropertyModel<String>(getModel(), "exhibitionOrder"), getLabel("order"));
 		this.readCodeField = new TextField<String>("readcode", new PropertyModel<String>(getModel(), "readCode"), getLabel("readcode"));
 		this.qrCodeField = new TextField<String>("qrcode", new PropertyModel<String>(getModel(), "qRCode"), getLabel("qrcode"));
-
+		this.qrCodeField.setVisible(false);
+		
 		form.add(nameField);
 		form.add(floorStrField);
 		form.add(roomStrField);

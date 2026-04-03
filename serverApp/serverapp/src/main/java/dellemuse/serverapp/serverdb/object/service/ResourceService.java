@@ -11,43 +11,39 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import io.odilon.client.error.ODClientException;
 
 @Component
 @Scope("prototype")
 public class ResourceService extends BaseObjectService {
-    
-    @Autowired
-    @JsonIgnore
-    private ObjectStorageService objectStorageService; 
-    
-    public ResourceService(Resource resource) {
-        super(resource);
-    }
-    
-    public InputStream getInputStream() throws IOException {
-        return getObjectStorageService().getObject(getObject().getBucketName(), getObject().getObjectName());
-   }
-    
 
-    public ObjectStorageService getObjectStorageService() {
-        return objectStorageService;
-    }
+	@Autowired
+	@JsonIgnore
+	private ObjectStorageService objectStorageService;
 
-    public void setObjectStorageService(ObjectStorageService objectStorageService) {
-        this.objectStorageService = objectStorageService;
-    }
+	public ResourceService(Resource resource) {
+		super(resource);
+	}
 
-    public String getPresignedUrl() throws IOException {
-            Resource resource = (Resource) getObject();
-			return getObjectStorageService().getPublicUrl(resource);
-    }
-    
-    
-    @Override
-    public  Resource getObject() {
-        return (Resource) super.getObject();
-    }
+	public InputStream getInputStream() throws IOException {
+		return getObjectStorageService().getObject(getObject().getBucketName(), getObject().getObjectName());
+	}
 
-    
+	public ObjectStorageService getObjectStorageService() {
+		return objectStorageService;
+	}
+
+	public void setObjectStorageService(ObjectStorageService objectStorageService) {
+		this.objectStorageService = objectStorageService;
+	}
+
+	public String getPresignedUrl() throws IOException {
+		Resource resource = (Resource) getObject();
+		return getObjectStorageService().getPublicUrl(resource);
+	}
+
+	@Override
+	public Resource getObject() {
+		return (Resource) super.getObject();
+	}
+
 }

@@ -62,14 +62,11 @@ public class LockService extends BaseService {
     @JsonIgnore
 	private final OffsetDateTime created = OffsetDateTime.now();
 
-    
-    
     @Autowired
 	public LockService(ServerDBSettings settings) {
 		super(settings);
 	}
  
-
     public ReadWriteLock getFileLock(String path) {
         return getFileLocks().computeIfAbsent(path, key -> new ReentrantReadWriteLock());
     }
@@ -77,7 +74,6 @@ public class LockService extends BaseService {
     public ReadWriteLock getObjectLock(Long id) {
         return getObjectLocks().computeIfAbsent(id, key -> new ReentrantReadWriteLock());
     }
-
 
     public boolean isLocked(Long id) {
 

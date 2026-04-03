@@ -14,13 +14,12 @@ import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.audit.AuditKey;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
-import dellemuse.serverapp.serverdb.model.Institution;
+
 import dellemuse.serverapp.serverdb.model.Site;
 
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
-import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
+
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
 import dellemuse.serverapp.serverdb.service.DBService;
 import jakarta.annotation.PostConstruct;
@@ -40,14 +39,13 @@ public class RoleSiteDBService extends DBService<RoleSite, Long> {
 	@PersistenceContext
 	private EntityManager entityManager;
 
-
 	public RoleSiteDBService(CrudRepository<RoleSite, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
- 
+
 	@Transactional
 	public RoleSite create(String name, String key, Site i, User createdBy) {
-	
+
 		RoleSite c = new RoleSite();
 
 		c.setSite(i);
@@ -58,12 +56,12 @@ public class RoleSiteDBService extends DBService<RoleSite, Long> {
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		getRepository().save(c);
-		logger.debug("Create RoleSite -> " + c.getName()+" - " + i.getName());
+		logger.debug("Create RoleSite -> " + c.getName() + " - " + i.getName());
 
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 		return c;
 	}
-	
+
 	@Transactional
 	public void markAsDeleted(RoleSite c, User deletedBy) {
 		c.setLastModified(OffsetDateTime.now());
@@ -84,20 +82,20 @@ public class RoleSiteDBService extends DBService<RoleSite, Long> {
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE, AuditKey.RESTORE));
 		getRepository().save(c);
 	}
-	
-	 
+
 	@Transactional
 	public Iterable<RoleSite> findBySite(Site i) {
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<RoleSite> cq = cb.createQuery(getEntityClass());
 		Root<RoleSite> root = cq.from(getEntityClass());
-	
+
 		cq.select(root).where(cb.equal(root.get("site").get("id"), i.getId()));
-		
+
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
+
 	@Transactional
 	public Optional<RoleSite> findWithDeps(Long id) {
 
@@ -109,9 +107,9 @@ public class RoleSiteDBService extends DBService<RoleSite, Long> {
 		RoleSite i = o_i.get();
 
 		Set<User> users = new HashSet<User>();
-		i.getUsers().forEach( u -> users.add( getUserDBService().findById(u.getId()).get()));
+		i.getUsers().forEach(u -> users.add(getUserDBService().findById(u.getId()).get()));
 		i.setUsers(users);
-		
+
 		i.setDependencies(true);
 
 		return o_i;
@@ -153,7 +151,7 @@ public class RoleSiteDBService extends DBService<RoleSite, Long> {
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
- 
+
 	@Transactional
 	public List<RoleSite> getByName(String name) {
 		return createNameQuery(name).getResultList();
