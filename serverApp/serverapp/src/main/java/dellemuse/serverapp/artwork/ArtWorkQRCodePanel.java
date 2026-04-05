@@ -24,7 +24,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -223,22 +222,23 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 				Url url = Url.parse(presignedThumbnail);
 				UrlResourceReference resourceReference = new UrlResourceReference(url);
 
-				Image image = new Image("qrcode", resourceReference);
-				qrcodecontainer.addOrReplace(image);
-
-				DownloadLink link = new DownloadLink("qr-file-link", getQRFileModel()) {
+				Link<Void> qrImageLink = new Link<Void>("qr-image-link") {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public File getModelObject() {
-						return getQRFileModel().getObject();
+					public void onClick() {
+						File file = getQRFileModel().getObject();
+						FileResourceStream stream = new FileResourceStream(file);
+						ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(stream, file.getName());
+						handler.setContentDisposition(ContentDisposition.INLINE);
+						getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
 					}
 				};
 
-				Label f = new Label("qr-file-name", qrcode.getName());
-				link.add(f);
-				qrcodecontainer.addOrReplace(link);
+				Image image = new Image("qrcode", resourceReference);
+				qrImageLink.add(image);
+				qrcodecontainer.addOrReplace(qrImageLink);
 
 				Label l = new Label("qrcode-text", getModel().getObject().getQrCodeText());
 				qrcodecontainer.addOrReplace(l);
@@ -282,44 +282,40 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 					Url audioUrl = Url.parse(presignedAudioPng);
 					UrlResourceReference audioRef = new UrlResourceReference(audioUrl);
 
-					Image audioImage = new Image("audio-number-png-img", audioRef);
-					qrcodecontainer.addOrReplace(audioImage);
-
-					DownloadLink audioLink = new DownloadLink("audio-number-png-link", getAudioNumberPngFileModel()) {
+					Link<Void> audioImageLink = new Link<Void>("audio-number-png-link") {
 
 						private static final long serialVersionUID = 1L;
 
 						@Override
-						public File getModelObject() {
-							return getAudioNumberPngFileModel().getObject();
+						public void onClick() {
+							File file = getAudioNumberPngFileModel().getObject();
+							FileResourceStream stream = new FileResourceStream(file);
+							ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(stream, file.getName());
+							handler.setContentDisposition(ContentDisposition.INLINE);
+							getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
 						}
 					};
 
-					Label audioName = new Label("audio-number-png-name", audioNumberPng.getName());
-					audioLink.add(audioName);
-					qrcodecontainer.addOrReplace(audioLink);
+					Image audioImage = new Image("audio-number-png-img", audioRef);
+					audioImageLink.add(audioImage);
+					qrcodecontainer.addOrReplace(audioImageLink);
 
 				} else {
-					qrcodecontainer.addOrReplace(new InvisibleImage("audio-number-png-img"));
 					qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
 				}
 
 
 			} else {
-				qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
+				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-image-link"));
 				qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
-				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
 				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
-				qrcodecontainer.addOrReplace(new InvisibleImage("audio-number-png-img"));
 				qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
 			}
 
 		} catch (Exception e) {
-			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
+			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-image-link"));
 			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
-			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
 			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
-			qrcodecontainer.addOrReplace(new InvisibleImage("audio-number-png-img"));
 			qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
 
 			logger.error(e, ServerConstant.NOT_THROWN);

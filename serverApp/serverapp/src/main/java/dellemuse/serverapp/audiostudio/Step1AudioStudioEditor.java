@@ -179,17 +179,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		String fileName = normalizeFileName(getParentName()) + "-" + getParentId().toString() + ".mp3";
 		LanguageCode languageCode = LanguageCode.from(language);
 
-		/**
-		 * if (languageCode.equals(LanguageCode.ES)) dm_voice_id = "mariana"; else if
-		 * (languageCode.equals(LanguageCode.PT)) dm_voice_id = "amanda";
-		 * cMKZRsVE5V7xf6qCp9fF else if (languageCode.equals(LanguageCode.EN))
-		 * dm_voice_id = "emily"; else if (languageCode.equals(LanguageCode.FR))
-		 * dm_voice_id = "emily"; else if (languageCode.equals(LanguageCode.IT))
-		 * dm_voice_id = "nicola"; else if (languageCode.equals(LanguageCode.DUTCH))
-		 * dm_voice_id = "thomas"; else if (languageCode.equals(LanguageCode.GER))
-		 * dm_voice_id = "leon"; else dm_voice_id = "emily";
-		 **/
-
+	 
 		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id);
 
 		if (ofile.isPresent()) {
@@ -383,34 +373,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 		step1.add(form);
 
-		/** speedField = new NumberField<Double>("speed", new PropertyModel<Double>(this, "speed"), getLabel("speed"));
-
-		speedField.setHelpPanel(new SimpleHelpPanel<>("help") {
-			public IModel<String> getLinkLabel() {
-				return Step1AudioStudioEditor.this.getLabel("help");
-			}
-
-			public IModel<String> getHelpText() {
-				return Step1AudioStudioEditor.this.getLabel("speed-help");
-			}
-		});
-		*/
-		
-
-		//form.add(speedField);
-
-		// similarityField = new NumberField<Double>("similarity", new
-		// PropertyModel<Double>(this, "similarity"), getLabel("similarity"));
-		// styleField = new NumberField<Double>("style", new PropertyModel<Double>(this,
-		// "audioStyle"), getLabel("style"));
-		// stabilityField = new NumberField<Double>("stability", new
-		// PropertyModel<Double>(this, "stability"), getLabel("stability"));
-
-		// form.add(speedField);
-		// form.add(similarityField);
-		// form.add(stabilityField);
-		// form.add(styleField);
-
+	 
 		voicesField = new ChoiceField<VoiceProxy>("voice", new PropertyModel<VoiceProxy>(this, "voiceProxy"), getLabel("voice")) {
 
 			private static final long serialVersionUID = 1L;
@@ -609,7 +572,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
 			
 			
-			//Audio audio = new Audio("audioVoice", resourceReference);
+		 
 			AudioPlayer audio = new AudioPlayer("audioVoice", resourceReference);
 			audio.setIncludeDownloadMenu(false);
 			
@@ -618,20 +581,60 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			Label am = new Label("audioVoiceMetadata", getAudioMeta(getAudioSpeechModel().getObject()));
 			am.setEscapeModelStrings(false);
 			this.step1mp3.addOrReplace(am);
+
+			AjaxLink<Void> removeAudio = new AjaxLink<Void>("removeAudio") {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public boolean isVisible() {
+					return hasWritePermission() && getParentObjectState() != ObjectState.DELETED;
+				}
+
+				@Override
+				public void onClick(AjaxRequestTarget target) {
+					try {
+						AudioStudio as = Step1AudioStudioEditor.this.getModel().getObject();
+
+						as.setAudioSpeech(null);
+						as.setAudioSpeechHash(0);
+						as.setAudioSpeechMusic(null);
+						as.setAudioSpeechMusicHash(0);
+
+						getAudioStudioDBService().save(as, getSessionUser().get(), AuditKey.REMOVE_AUDIO_SPEECH);
+
+						setAudioSpeechModel(null);
+						setAudioSpeechMusicModel(null);
+
+						setUpModel();
+						addStep1MP3();
+						addInfo();
+
+						getForm().addOrReplace(new InvisiblePanel("error"));
+
+						target.add(getForm());
+
+					} catch (Exception e) {
+						logger.error(e, ServerConstant.NOT_THROWN);
+						AlertPanel<Void> alert = new AlertPanel<Void>("error", AlertPanel.DANGER, Model.of(e.getClass().getSimpleName() + " | " + e.getMessage()));
+						getForm().addOrReplace(alert);
+						target.add(getForm());
+					}
+				}
+			};
+
+			this.step1mp3.addOrReplace(removeAudio);
 		} else {
 
-			Url url = Url.parse("");
+		 
 
-			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			
-			//Audio audio = new Audio("audioVoice", resourceReference);
-
-			//this.step1mp3.addOrReplace(audio);
+		 
 			this.step1mp3.addOrReplace( new InvisiblePanel("audioVoice"));
 			
 			Label am = new Label("audioVoiceMetadata", "");
 			am.setEscapeModelStrings(false);
 			this.step1mp3.addOrReplace(am);
+			this.step1mp3.addOrReplace(new InvisiblePanel("removeAudio"));
 			this.step1mp3.setVisible(false);
 		}
 

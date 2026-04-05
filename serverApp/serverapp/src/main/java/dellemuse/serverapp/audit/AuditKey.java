@@ -18,6 +18,7 @@ public class AuditKey {
 	public static final String TRANSLATE = "translate";
 	public static final String ADD_MUSIC = "add music";
 	public static final String GENERATE_VOICE = "generate audio voice";
+	public static final String REMOVE_AUDIO_SPEECH = "remove audio speech";
 	public static final String INTEGRATE_AUDIO = "integrate audioStudio";
 
 	public static final String CREATE_FROM_CANDIDATE = "create from candidate";

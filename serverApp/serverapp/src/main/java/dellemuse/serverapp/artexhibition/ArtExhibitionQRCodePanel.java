@@ -24,7 +24,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.link.DownloadLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -234,22 +234,13 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 				Url url = Url.parse(presignedThumbnail);
 				UrlResourceReference resourceReference = new UrlResourceReference(url);
 
+				ExternalLink qrImageLink = new ExternalLink("qr-image-link", presignedThumbnail);
+				qrImageLink.add(new org.apache.wicket.AttributeModifier("target", "_blank"));
+
 				Image image = new Image("qrcode", resourceReference);
-				qrcodecontainer.addOrReplace(image);
+				qrImageLink.add(image);
+				qrcodecontainer.addOrReplace(qrImageLink);
 
-				DownloadLink link = new DownloadLink("qr-file-link", getQRFileModel()) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public File getModelObject() {
-						return getQRFileModel().getObject();
-					}
-				};
-
-				Label f = new Label("qr-file-name", qrcode.getName());
-				link.add(f);
-				qrcodecontainer.addOrReplace(link);
 				Label l = new Label("qrcode-text", getModel().getObject().getQrCodeText());
 				qrcodecontainer.addOrReplace(l);
 
@@ -291,46 +282,31 @@ public class ArtExhibitionQRCodePanel extends DBModelPanel<ArtExhibition> implem
 					Url audioUrl = Url.parse(presignedAudioPng);
 					UrlResourceReference audioRef = new UrlResourceReference(audioUrl);
 
+					ExternalLink audioImageLink = new ExternalLink("audio-number-png-link", presignedAudioPng);
+					audioImageLink.add(new org.apache.wicket.AttributeModifier("target", "_blank"));
+
 					Image audioImage = new Image("audio-number-png-img", audioRef);
-					qrcodecontainer.addOrReplace(audioImage);
-
-					DownloadLink audioLink = new DownloadLink("audio-number-png-link", getAudioNumberPngFileModel()) {
-
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public File getModelObject() {
-							return getAudioNumberPngFileModel().getObject();
-						}
-					};
-
-					Label audioName = new Label("audio-number-png-name", audioNumberPng.getName());
-					audioLink.add(audioName);
-					qrcodecontainer.addOrReplace(audioLink);
+					audioImageLink.add(audioImage);
+					qrcodecontainer.addOrReplace(audioImageLink);
 
 				} else {
-					qrcodecontainer.addOrReplace(new InvisibleImage("audio-number-png-img"));
 					qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
 				}
 
 				addOrReplace(new InvisiblePanel("noqrcode"));
 
 			} else {
-				qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
+				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-image-link"));
 				qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
-				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
 				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
-				qrcodecontainer.addOrReplace(new InvisibleImage("audio-number-png-img"));
 				qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
 				addOrReplace(new LabelPanel("noqrcode", getLabel("noqrcode")));
 			}
 
 		} catch (Exception e) {
-			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
+			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-image-link"));
 			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
-			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
 			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
-			qrcodecontainer.addOrReplace(new InvisibleImage("audio-number-png-img"));
 			qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
 			addOrReplace(new ErrorPanel("noqrcode", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
 
