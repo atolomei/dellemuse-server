@@ -34,7 +34,7 @@ import jakarta.persistence.Table;
 public class AudioStudio extends DelleMuseObject {
 
 	public static String getIcon() {
-		return "fa-solid fa-microphone-lines";
+		return "fa-duotone fa-microphone-lines";
 	}
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)

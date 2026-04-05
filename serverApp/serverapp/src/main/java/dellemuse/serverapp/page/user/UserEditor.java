@@ -54,24 +54,11 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	private BooleanField phoneValidatedField;
 	private BooleanField showWelcomeField;
 
-	// private StaticTextField<String> emailField;
-
-	/**
-	 * @param id
-	 * @param model
-	 */
 	public UserEditor(String id, IModel<User> model) {
 		super(id, model);
 	}
 
-	/**
-	 * IModel<Locale> mLocale;
-	 * 
-	 * public void setUserLocale( IModel<Locale> locale) { mlocale=Model.of(); }
-	 **/
-
 	public boolean hasWritePermission() {
-
 		
 		// is session use is editing himself ok
 		if (getSessionUser().get().getId().equals(getModel().getObject().getId()))
@@ -107,10 +94,6 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		add(this.form);
 
 		logger.debug("user locale -> " + getModel().getObject().getLocale().getLanguage());
-
-		// this.emailField = new StaticTextField<String>("email", new
-		// PropertyModel<String>(getModel(), "email"), getLabel("email"));
-		// this.form.add(emailField);
 
 		this.nameField = new TextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
 
