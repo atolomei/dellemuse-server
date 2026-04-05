@@ -11,7 +11,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -43,9 +42,8 @@ public class ArtWorkRecordEditor extends DBSiteObjectEditor<ArtWorkRecord> {
 	private TextAreaField<String> specField;
 	private IModel<ArtWork> artWorkModel;
 
-	
 	private IModel<Site> siteModel;
-	
+
 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
@@ -53,6 +51,7 @@ public class ArtWorkRecordEditor extends DBSiteObjectEditor<ArtWorkRecord> {
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
+
 	/**
 	 * @param id
 	 * @param model
@@ -114,10 +113,10 @@ public class ArtWorkRecordEditor extends DBSiteObjectEditor<ArtWorkRecord> {
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -141,10 +140,10 @@ public class ArtWorkRecordEditor extends DBSiteObjectEditor<ArtWorkRecord> {
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -192,9 +191,8 @@ public class ArtWorkRecordEditor extends DBSiteObjectEditor<ArtWorkRecord> {
 
 		if (this.artWorkModel != null)
 			this.artWorkModel.detach();
-		
 
-		if (siteModel!=null)
+		if (siteModel != null)
 			siteModel.detach();
 	}
 
@@ -213,7 +211,7 @@ public class ArtWorkRecordEditor extends DBSiteObjectEditor<ArtWorkRecord> {
 		setModel(new ObjectModel<ArtWorkRecord>(o_i.get()));
 		Optional<ArtWork> o_a = getArtWorkDBService().findWithDeps(getModel().getObject().getArtWork().getId());
 		setArtWorkModel(new ObjectModel<ArtWork>(o_a.get()));
-		
+
 		if (getArtWorkModel().getObject().getSite() != null) {
 			Optional<Site> o_s = getSiteDBService().findWithDeps(getArtWorkModel().getObject().getSite().getId());
 			setSiteModel(new ObjectModel<Site>(o_s.get()));

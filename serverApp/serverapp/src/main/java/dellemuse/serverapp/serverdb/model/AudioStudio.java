@@ -112,8 +112,6 @@ public class AudioStudio extends DelleMuseObject {
 	/** ---------------------------- **/
 	/**  Accesible
 	 **/
-
-	 
 	
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "audioSpeechAccesible", nullable = true)
@@ -146,9 +144,6 @@ public class AudioStudio extends DelleMuseObject {
 	@JsonProperty("music")
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Music music;
-	
-	
-	
 	
 	
 	

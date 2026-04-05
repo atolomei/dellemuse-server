@@ -15,9 +15,9 @@ public class AudioStudioParentObjectProvider<T extends AudioStudioParentObject> 
 	private static final long serialVersionUID = 1L;
 
 	private IModel<T> parentModel;
-	
-	public AudioStudioParentObjectProvider( IModel<T> parentModel ) {
-		this.parentModel=parentModel;
+
+	public AudioStudioParentObjectProvider(IModel<T> parentModel) {
+		this.parentModel = parentModel;
 	}
 
 	public T getModelObject() {
@@ -28,15 +28,14 @@ public class AudioStudioParentObjectProvider<T extends AudioStudioParentObject> 
 		try {
 			StringResourceModel s = new StringResourceModel(getModelObject().getClass().getSimpleName().toLowerCase());
 			return s;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			return Model.of(getModelObject().getClass().getSimpleName().toLowerCase());
 		}
 	}
-	
+
 	@Override
 	public void detach() {
-	 parentModel.detach();
+		parentModel.detach();
 	}
 
 	public IModel<T> getParentModel() {
@@ -47,45 +46,11 @@ public class AudioStudioParentObjectProvider<T extends AudioStudioParentObject> 
 		this.parentModel = parentModel;
 	}
 
+	 
 
-
-	/** 
-	public Site getSite() {
-		
-		
-		ServiceLocator.getInstance().get
-		if (getModelObject() instanceof TranslationRecord) {
-			
-		}
-		else if (getModelObject() instanceof ArtExhibition) {
-			
-			getModelObject()
-			
-			
-			
-		}
-		
-		return null;
-		
-		
-	}
-	**/
-	
-	
 	public ArtExhibition getArtExhibition() {
-		
 
-		
 		return null;
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }

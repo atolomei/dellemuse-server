@@ -32,9 +32,7 @@ public class ArtExhibitionEXTNavDropDownMenuToolbarItem extends DropDownMenuTool
 
 	private static final long serialVersionUID = 1L;
 
-	IModel<Site> siteModel;
-	
-	 
+	private IModel<Site> siteModel;
 	
 	
 	public ArtExhibitionEXTNavDropDownMenuToolbarItem(String id, IModel<ArtExhibition> model, IModel<Site> siteModel, Align align) {

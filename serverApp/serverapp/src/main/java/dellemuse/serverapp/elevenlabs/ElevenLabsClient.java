@@ -135,8 +135,7 @@ public class ElevenLabsClient {
 		if (port < 0 || port > 65535)
 			throw new IllegalArgumentException("port must be in range of 1 to 65535 -> " + String.valueOf(port));
 
-		// if (!this.isValidEndpoint(endpoint))
-		// throw new IllegalArgumentException("invalid host -> " + endpoint);
+		
 
 		this.acceptAllCertificates = acceptAllCertificates;
 		this.isSSL = isSecure;

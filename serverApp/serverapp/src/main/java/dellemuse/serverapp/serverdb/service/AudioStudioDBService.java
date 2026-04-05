@@ -60,9 +60,13 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 	 */
 	@Transactional
 	public AudioStudio create(String name, ArtExhibitionGuide guide, User createdBy) {
+		
+		if (guide.getLanguage()==null) 
+			throw new IllegalArgumentException("language is null for guide -> " + guide.getId());
+		
 		AudioStudio c = new AudioStudio();
 		c.setName(name);
-		c.setLanguage(guide.getLanguage());
+		
 		c.setInfo(guide.getInfo());
 		c.setState(guide.getState());
 		c.setArtExhibitionGuide(guide);
@@ -86,6 +90,10 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 	 */
 	@Transactional
 	public AudioStudio create(String name, GuideContent content, User createdBy) {
+	
+		if (content.getLanguage()==null) 
+			throw new IllegalArgumentException("language is null for guide -> " + content.getId());
+	
 		AudioStudio c = new AudioStudio();
 		c.setName(name);
 		c.setLanguage(content.getLanguage());
@@ -113,6 +121,9 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 	@Transactional
 	public AudioStudio create(String name, GuideContentRecord content, User createdBy) {
 
+		if (content.getLanguage()==null) 
+			throw new IllegalArgumentException("language is null for guide -> " + content.getId());
+
 		AudioStudio c = new AudioStudio();
 		c.setLanguage(content.getLanguage());
 		c.setName(name);
@@ -139,6 +150,9 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 	 */
 	@Transactional
 	public AudioStudio create(String name, ArtExhibitionGuideRecord content, User createdBy) {
+
+		if (content.getLanguage()==null) 
+			throw new IllegalArgumentException("language is null for guide -> " + content.getId());
 
 		AudioStudio c = new AudioStudio();
 		c.setName(name);
@@ -389,6 +403,9 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 			GuideContentRecord content = getGuideContentRecordDBService().findWithDeps(((GuideContentRecord) audioStudio.getParentOject()).getId()).get();
 			return Optional.of((AudioStudioParentObject) content);
 		}
+		
+		logger.error("unknown parent object type for " + AudioStudio.class.getSimpleName() + " with id " + audioStudio.getId());
+		
 		return Optional.empty();
 	}
 

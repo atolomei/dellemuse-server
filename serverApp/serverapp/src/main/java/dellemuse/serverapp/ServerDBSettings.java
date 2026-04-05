@@ -529,12 +529,11 @@ public class ServerDBSettings {
 		return elevenLabsAPIHost;
 	}
 
-	String fontsDir = "fonts";
+	@Value("${fontsDir:fonts}")
+	protected String fontsDir;
 
 	public String getFontsDir() {
 		return this.fontsDir;
-
-		// + File.separator + "Noto_Sans" + File.separator + "static"
 	}
 
 }

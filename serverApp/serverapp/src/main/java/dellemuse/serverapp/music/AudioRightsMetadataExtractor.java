@@ -3,7 +3,7 @@ package dellemuse.serverapp.music;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
-import org.xml.sax.helpers.DefaultHandler;
+ 
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,7 +20,7 @@ public class AudioRightsMetadataExtractor {
             AutoDetectParser parser = new AutoDetectParser();
 
             try (FileInputStream stream = new FileInputStream(file)) {
-                parser.parse(stream, new DefaultHandler(), metadata, new ParseContext());
+                parser.parse(stream, new org.xml.sax.helpers.DefaultHandler(), metadata, new ParseContext());
             }
 
             // --- common descriptive fields

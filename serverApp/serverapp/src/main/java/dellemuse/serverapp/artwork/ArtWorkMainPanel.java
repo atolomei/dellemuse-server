@@ -64,7 +64,6 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalP
 
 	private IModel<File> qrFileModel;
 
-	 
 	public ArtWorkMainPanel(String id, IModel<ArtWork> model) {
 		super(id, model);
 	}
@@ -100,56 +99,54 @@ public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalP
 		moreContainer.setVisible(isMore);
 		add(moreContainer);
 
-		/**qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
-		add(qrcodecontainer);
+		/**
+		 * qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
+		 * add(qrcodecontainer);
+		 * 
+		 * qrcodecontainer.setVisible(getModel().getObject().getQRCode() != null);
+		 * 
+		 * try {
+		 * 
+		 * if (getModel().getObject().getQRCode() != null) {
+		 * 
+		 * qrFileModel = new
+		 * dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(getModel().getObject().getQRCode().getBucketName(),
+		 * getModel().getObject().getQRCode().getObjectName(),
+		 * getModel().getObject().getQRCode().getName());
+		 * 
+		 * String presignedThumbnail =
+		 * super.getPresignedThumbnail(getModel().getObject().getQRCode(),
+		 * ThumbnailSize.MEDIUM); Url url = Url.parse(presignedThumbnail);
+		 * UrlResourceReference resourceReference = new UrlResourceReference(url);
+		 * 
+		 * Image image = new Image("qrcode", resourceReference);
+		 * 
+		 * qrcodecontainer.add(image); DownloadLink link = new
+		 * DownloadLink("qr-file-link", getQRFileModel()) {
+		 * 
+		 * private static final long serialVersionUID = 1L;
+		 * 
+		 * @Override public File getModelObject() { return getQRFileModel().getObject();
+		 *           } };
+		 * 
+		 *           Label f = new Label("qr-file-name",
+		 *           getModel().getObject().getQRCode().getName()); link.add(f);
+		 *           qrcodecontainer.add(link);
+		 * 
+		 *           add(new InvisiblePanel("noqrcode"));
+		 * 
+		 *           } else { qrcodecontainer.add(new InvisibleImage("qrcode"));
+		 *           qrcodecontainer.add(new InvisiblePanel("qr-file-link")); add(new
+		 *           LabelPanel("noqrcode", getLabel("noqrcode")));
+		 * 
+		 *           } } catch (Exception e) { qrcodecontainer.add(new
+		 *           InvisibleImage("qrcode")); qrcodecontainer.add(new
+		 *           InvisiblePanel("qr-file-link")); add(new ErrorPanel("noqrcode",
+		 *           Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
+		 * 
+		 *           logger.error(e, ServerConstant.NOT_THROWN); }
+		 */
 
-		qrcodecontainer.setVisible(getModel().getObject().getQRCode() != null);
-
-		try {
-
-			if (getModel().getObject().getQRCode() != null) {
-
-				qrFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(getModel().getObject().getQRCode().getBucketName(), getModel().getObject().getQRCode().getObjectName(),
-						getModel().getObject().getQRCode().getName());
-
-				String presignedThumbnail = super.getPresignedThumbnail(getModel().getObject().getQRCode(), ThumbnailSize.MEDIUM);
-				Url url = Url.parse(presignedThumbnail);
-				UrlResourceReference resourceReference = new UrlResourceReference(url);
-
-				Image image = new Image("qrcode", resourceReference);
-
-				qrcodecontainer.add(image);
-				DownloadLink link = new DownloadLink("qr-file-link", getQRFileModel()) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public File getModelObject() {
-						return getQRFileModel().getObject();
-					}
-				};
-
-				Label f = new Label("qr-file-name", getModel().getObject().getQRCode().getName());
-				link.add(f);
-				qrcodecontainer.add(link);
-
-				add(new InvisiblePanel("noqrcode"));
-
-			} else {
-				qrcodecontainer.add(new InvisibleImage("qrcode"));
-				qrcodecontainer.add(new InvisiblePanel("qr-file-link"));
-				add(new LabelPanel("noqrcode", getLabel("noqrcode")));
-
-			}
-		} catch (Exception e) {
-			qrcodecontainer.add(new InvisibleImage("qrcode"));
-			qrcodecontainer.add(new InvisiblePanel("qr-file-link"));
-			add(new ErrorPanel("noqrcode", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
-
-			logger.error(e, ServerConstant.NOT_THROWN);
-		}
-		*/
-		
 	}
 
 	/**

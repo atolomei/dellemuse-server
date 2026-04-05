@@ -104,12 +104,26 @@ public class ArtExhibition extends MultiLanguageObject {
 	private Resource QRCodePdf;
 	
 	
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "audioNumberPng", nullable = true)
+	@JsonManagedReference
+	@JsonProperty("audioNumberPng")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource audioNumberPng;
 	
 	@Column(name = "website")
 	private String website;
 
 	@Column(name = "ordinal")
 	private int ordinal;
+
+	public Resource getAudioNumberPng() {
+		return audioNumberPng;
+	}
+
+	public void setAudioNumberPng(Resource audioNuumberPng) {
+		this.audioNumberPng = audioNuumberPng;
+	}
 
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "qrcode", nullable = true)

@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.HashMap;
+ 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,30 +16,28 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
+ 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
- 
-import org.apache.wicket.model.PropertyModel;
- 
-import org.apache.wicket.model.util.ListModel;
-import org.aspectj.util.FileUtil;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.wicket.model.PropertyModel;
+
+import org.apache.wicket.model.util.ListModel;
+ 
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.FSUtil;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.ServerDBSettings;
-import dellemuse.serverapp.artexhibitionguide.ArtExhibitionGuideEditor;
+ 
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.model.DBModelPanel;
+ 
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.person.ServerAppConstant;
@@ -79,22 +77,21 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 	private ChoiceField<MusicGenre> genreField;
 	private FileUploadSimpleField<Resource> audioField;
 	private TextAreaField<String> infoField;
-	private TextAreaField<String>  urlField;
+	private TextAreaField<String> urlField;
 	private TextAreaField<String> licenseField;
 	private TextAreaField<String> technicalInfoField;
 	private ChoiceField<Boolean> royaltyFreeField;
 
 	private IModel<Resource> audioModel;
 	private boolean uploadedAudio = false;
-	
-	
+
 	private String audioMeta;
 	private List<ToolbarItem> x_list;
-	
+
 	private static Map<String, String> T_KEYS = new ConcurrentHashMap<String, String>();
-	
-	static  {
-		
+
+	static {
+
 		T_KEYS.put("bitrate", "bitrate");
 		T_KEYS.put("durationSeconds", "durationSeconds");
 		T_KEYS.put("audio format", "audio format");
@@ -105,17 +102,16 @@ public class MusicEditor extends DBObjectEditor<Music> implements InternalPanel 
 		T_KEYS.put("audioFormat", "audioFormat");
 	}
 
-	
-private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String>();
-	
-	static  {
-		
+	private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String>();
+
+	static {
+
 		I_KEYS.put("composer", "composer");
 		I_KEYS.put("year", "year");
 		I_KEYS.put("artist", "artist");
 		I_KEYS.put("album", "album");
 	}
-	
+
 	/**
 	 * @param id
 	 * @param model
@@ -123,7 +119,7 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 	public MusicEditor(String id, IModel<Music> model) {
 		super(id, model);
 	}
-	
+
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 
@@ -144,13 +140,13 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
 			}
-			
+
 			@Override
 			public boolean isVisible() {
 				return isRoot() || isGeneralAdmin();
-				
+
 			}
-			
+
 			@Override
 			public boolean isEnabled() {
 				return isRoot() || isGeneralAdmin();
@@ -160,8 +156,6 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 		x_list.add(create);
 		return x_list;
 	}
-	
-	
 
 	@Override
 	public void onInitialize() {
@@ -202,7 +196,6 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 		};
 		form.add(objectStateField);
 
-	 
 		royaltyFreeField = new ChoiceField<Boolean>("royaltyfree", new PropertyModel<Boolean>(getModel(), "royaltyFree"), getLabel("royaltyfree")) {
 
 			private static final long serialVersionUID = 1L;
@@ -222,8 +215,6 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 			}
 		};
 		getForm().add(royaltyFreeField);
-		
-		
 
 		genreField = new ChoiceField<MusicGenre>("genre", new PropertyModel<MusicGenre>(getModel(), "genre"), getLabel("genre")) {
 
@@ -238,23 +229,21 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 			protected String getDisplayValue(MusicGenre value) {
 				if (value == null)
 					return null;
-				 	return value.getLabel(getLocale());
-				 
+				return value.getLabel(getLocale());
+
 			}
 		};
 		getForm().add(genreField);
-		
-		
-		
-		infoField 	= new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
-		urlField 	= new TextAreaField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"), 3);
+
+		infoField = new TextAreaField<String>("info", new PropertyModel<String>(getModel(), "info"), getLabel("info"), 10);
+		urlField = new TextAreaField<String>("url", new PropertyModel<String>(getModel(), "url"), getLabel("url"), 3);
 		licenseField = new TextAreaField<String>("license", new PropertyModel<String>(getModel(), "license"), getLabel("license"), 3);
-		
+
 		technicalInfoField = new TextAreaField<String>("technicalinfo", new PropertyModel<String>(getModel(), "technicalInfo"), getLabel("technicalinfo"), 5);
 		form.add(technicalInfoField);
-		
-		nameField 	= new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		audioField 	= new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
+
+		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
+		audioField = new FileUploadSimpleField<Resource>("audio", getAudioModel(), getLabel("audio")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -282,60 +271,47 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 			}
 		};
 
-	
 		form.add(nameField);
 		form.add(infoField);
-		
+
 		form.add(licenseField);
 		form.add(urlField);
-		
+
 		form.add(audioField);
-		
-		AjaxLink<Void> importEx =new AjaxLink<Void>("extract") {
+
+		AjaxLink<Void> importEx = new AjaxLink<Void>("extract") {
 
 			public boolean isVisible() {
-				return getForm().getFormState()==FormState.EDIT;
+				return getForm().getFormState() == FormState.EDIT;
 			}
-			
+
 			public boolean isEnabled() {
-				return getForm().getFormState()==FormState.EDIT;
+				return getForm().getFormState() == FormState.EDIT;
 			}
-			
+
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				
-				
-				if (MusicEditor.this.getModel().getObject().getAudio()!=null) {
 
-					Resource r = getResourceDBService().findById( MusicEditor.this.getModel().getObject().getAudio().getId() ).get();
-					
+				if (MusicEditor.this.getModel().getObject().getAudio() != null) {
+
+					Resource r = getResourceDBService().findById(MusicEditor.this.getModel().getObject().getAudio().getId()).get();
+
 					Map<String, String> map = extract(r);
-					
-					if (map!=null) {
-				 
-						String info = map.entrySet().stream()
-							    .filter( e -> I_KEYS.containsKey(e.getKey()))
-								.map(e -> e.getKey()+ ". " + e.getValue())   
-							    .collect(Collectors.joining("\n"));
+
+					if (map != null) {
+
+						String info = map.entrySet().stream().filter(e -> I_KEYS.containsKey(e.getKey())).map(e -> e.getKey() + ". " + e.getValue()).collect(Collectors.joining("\n"));
 
 						MusicEditor.this.getModel().getObject().setInfo(info);
 						MusicEditor.this.infoField.setValue(info);
 						MusicEditor.this.infoField.updateModel();
-					
-						
-						
 
-						String t_info = map.entrySet().stream()
-							    .filter( e -> T_KEYS.containsKey(e.getKey()))
-								.map(e -> e.getKey()+ ". " + e.getValue()) 
-							    .collect(Collectors.joining("\n"));
+						String t_info = map.entrySet().stream().filter(e -> T_KEYS.containsKey(e.getKey())).map(e -> e.getKey() + ". " + e.getValue()).collect(Collectors.joining("\n"));
 
 						MusicEditor.this.getModel().getObject().setTechnicalInfo(t_info);
 						MusicEditor.this.technicalInfoField.setValue(t_info);
 						MusicEditor.this.technicalInfoField.updateModel();
 
-						
-						
 						if (map.containsKey("title")) {
 							MusicEditor.this.getModel().getObject().setName(map.get("title").replace("-", " ").replace("_", " "));
 							MusicEditor.this.nameField.setValue(map.get("title"));
@@ -350,30 +326,26 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 							MusicEditor.this.getModel().getObject().setUrl(map.get("url"));
 							MusicEditor.this.urlField.setValue(map.get("url"));
 							MusicEditor.this.urlField.updateModel();
-						}
-						else if (map.containsKey("comment") && map.get("comment").contains("http")) {
+						} else if (map.containsKey("comment") && map.get("comment").contains("http")) {
 							MusicEditor.this.getModel().getObject().setUrl(map.get("comment"));
 							MusicEditor.this.urlField.setValue(map.get("comment"));
 							MusicEditor.this.urlField.updateModel();
 						}
-						
-						
-						if (MusicEditor.this.getModel().getObject().getUrl()!=null && MusicEditor.this.getModel().getObject().getUrl().toLowerCase().contains("wikimedia.org")) {
+
+						if (MusicEditor.this.getModel().getObject().getUrl() != null && MusicEditor.this.getModel().getObject().getUrl().toLowerCase().contains("wikimedia.org")) {
 							MusicEditor.this.getModel().getObject().setRoyaltyFree(true);
 							MusicEditor.this.royaltyFreeField.setValue(true);
 							MusicEditor.this.royaltyFreeField.updateModel();
 						}
-				}
-				target.add(MusicEditor.this);
-					
+					}
+					target.add(MusicEditor.this);
+
 				}
 			}
 		};
-		
+
 		form.add(importEx);
-		
-		
-		
+
 		EditButtons<Music> buttons = new EditButtons<Music>("buttons", getForm(), getModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -392,10 +364,10 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -420,10 +392,10 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -439,19 +411,15 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 		getForm().add(b_buttons_top);
 	}
 
-
-	
 	@Override
 	public void onDetach() {
 		super.onDetach();
- 
-		
-		if (this.audioModel!=null)
+
+		if (this.audioModel != null)
 			this.audioModel.detach();
-		
+
 	}
 
-	
 	protected IModel<Resource> getAudioModel() {
 		return this.audioModel;
 	}
@@ -459,9 +427,6 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 	protected void setAudioModel(ObjectModel<Resource> model) {
 		this.audioModel = model;
 	}
-	
-	
-	 
 
 	protected void onCancel(AjaxRequestTarget target) {
 		getForm().setFormState(FormState.VIEW);
@@ -496,9 +461,7 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 		target.add(this);
 
 	}
- 
 
-	
 	protected boolean processAudioUpload(List<FileUpload> uploads) {
 
 		if (this.uploadedAudio)
@@ -521,7 +484,6 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 					setAudioModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setAudio(resource);
 
-					
 					uploadedAudio = true;
 
 				} catch (Exception e) {
@@ -536,78 +498,75 @@ private static Map<String, String> I_KEYS = new ConcurrentHashMap<String, String
 
 		return uploadedAudio;
 	}
-	
+
 	private void setUpModel() {
 
- 		Music Music = getModel().getObject();
- 
+		Music Music = getModel().getObject();
+
 		getModel().setObject(getMusicDBService().findWithDeps(Music.getId()).get());
-		
-		 
+
 		if (getModel().getObject().getAudio() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getAudio().getId());
 			if (o_r.isPresent())
 				setAudioModel(new ObjectModel<Resource>(o_r.get()));
 		}
 	}
-	
-	private  Map<String, String> extract(Resource resource) {
-		
+
+	private Map<String, String> extract(Resource resource) {
+
 		File downloadedFile = null;
-		
+
 		try (InputStream is = getObjectStorageService().getObject(resource.getBucketName(), resource.getObjectName())) {
-			
+
 			if (is != null) {
 
-					  downloadedFile = new File(getSettings().getWorkDir(), resource.getName());
-					
-					if (getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().tryLock(30, TimeUnit.SECONDS)) {
-						
-						try {
-							try (InputStream in = getObjectStorageService().getClient().getObject(resource.getBucketName(),
-									resource.getObjectName())) {
-								Files.copy(in, downloadedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-							}
-							
-							if (	FSUtil.isAudio( downloadedFile .getName())) { 	 
-									Map<String, String> m1 = AudioRightsMetadataExtractor.extract(downloadedFile); 
-									Map<String, String> m2 = AudioFileMetadataExtractor.extractMetadata(downloadedFile); 
-									m2.forEach( (k,v) -> m1.put( k,v));
-									return m1; 
-							}
-						} finally {
-							getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().unlock();
+				downloadedFile = new File(getSettings().getWorkDir(), resource.getName());
+
+				if (getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().tryLock(30, TimeUnit.SECONDS)) {
+
+					try {
+						try (InputStream in = getObjectStorageService().getClient().getObject(resource.getBucketName(), resource.getObjectName())) {
+							Files.copy(in, downloadedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 						}
-					} else {
-						logger.error("lock not working");
+
+						if (FSUtil.isAudio(downloadedFile.getName())) {
+							Map<String, String> m1 = AudioRightsMetadataExtractor.extract(downloadedFile);
+							Map<String, String> m2 = AudioFileMetadataExtractor.extractMetadata(downloadedFile);
+							m2.forEach((k, v) -> m1.put(k, v));
+							return m1;
+						}
+					} finally {
+						getLockService().getFileLock(downloadedFile.getAbsolutePath()).writeLock().unlock();
 					}
+				} else {
+					logger.error("lock not working");
+				}
 			}
 		} catch (Exception e) {
-				logger.error(e, resource.getDisplayname()+ "  | " + resource.getMedia(), ServerConstant.NOT_THROWN);
-				return null;
-				 
+			logger.error(e, resource.getDisplayname() + "  | " + resource.getMedia(), ServerConstant.NOT_THROWN);
+			return null;
+
 		} finally {
 			if ((downloadedFile != null) && downloadedFile.exists()) {
 				try {
 					FileUtils.forceDelete(downloadedFile);
 				} catch (IOException e) {
-					logger.error(e,  downloadedFile.getName(), ServerConstant.NOT_THROWN);
+					logger.error(e, downloadedFile.getName(), ServerConstant.NOT_THROWN);
 				}
 			}
 		}
-		
+
 		return null;
-		
+
 	}
+
 	public ServerDBSettings getSettings() {
 		return (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
 
 	}
-	
 
 	public LockService getLockService() {
-		return  (LockService) ServiceLocator.getInstance().getBean(LockService.class);
+		return (LockService) ServiceLocator.getInstance().getBean(LockService.class);
 	}
-	
-	
+
 }

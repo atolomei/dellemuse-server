@@ -1,5 +1,10 @@
 package dellemuse.serverapp.artwork;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -32,11 +37,9 @@ import org.apache.wicket.util.resource.FileResourceStream;
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.artexhibition.ArtExhibitionQRCodePanel;
 import dellemuse.serverapp.command.QRCodeArtWorkGenerationCommand;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Resource;
 import io.odilon.client.error.ODClientException;
@@ -56,6 +59,7 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 
 	private IModel<File> qrFileModel;
 	private IModel<File> qrPdfFileModel;
+	private IModel<File> audioNumberPngFileModel;
 
 	public ArtWorkQRCodePanel(String id, IModel<ArtWork> model) {
 		super(id, model);
@@ -73,6 +77,42 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 
 		qrcodecontainer.add(new InvisiblePanel("error"));
 
+		// ----------------
+		//
+		// generate QR Code
+		//
+		AjaxLink<Void> makeQRCode = new AjaxLink<Void>("make-qrcode") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return ArtWorkQRCodePanel.this.getModel().getObject().getQRCode() == null;
+			}
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				try {
+					QRCodeArtWorkGenerationCommand cmd = new QRCodeArtWorkGenerationCommand(
+							ArtWorkQRCodePanel.this.getModel().getObject().getId(), true);
+					cmd.execute();
+					setUpModel();
+					addPanels();
+					target.add(ArtWorkQRCodePanel.this);
+				} catch (Exception e) {
+					logger.error(e, ServerConstant.NOT_THROWN);
+					qrcodecontainer.addOrReplace(new ErrorPanel("error", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
+					target.add(ArtWorkQRCodePanel.this);
+				}
+			}
+		};
+
+		qrcodecontainer.add(makeQRCode);
+
+		// ----------------
+		//
+		// make pdf
+		//
 		AjaxLink<Void> make = new AjaxLink<Void>("make") {
 
 			private static final long serialVersionUID = 1L;
@@ -85,13 +125,9 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				try {
-
 					addPdf();
-
 					setUpModel();
-					addQRCodePanel();
-					addQRCodePdfPanel();
-
+					addPanels();
 					target.add(ArtWorkQRCodePanel.this);
 				} catch (Exception e) {
 					logger.error(e, ServerConstant.NOT_THROWN);
@@ -103,122 +139,37 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 
 		qrcodecontainer.add(make);
 
-		addQRCodePanel();
-		addQRCodePdfPanel();
-
-	}
-
-	private void addQRCodePanel() {
-
-		Resource qrcode = getModel().getObject().getQRCode();
-
-		AjaxLink<Void> qrGenerateLink = new AjaxLink<Void>("qr-generate-link") {
+		// ----------------
+		//
+		// make audio number png
+		//
+		AjaxLink<Void> makeAudioNumberPng = new AjaxLink<Void>("make-audio-number-png") {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onClick(AjaxRequestTarget target) {
-				try {
-
-					QRCodeArtWorkGenerationCommand c = new QRCodeArtWorkGenerationCommand(ArtWorkQRCodePanel.this.getModel().getObject().getId(), true);
-					c.execute();
-
-					logger.debug("artwork with id " + ArtWorkQRCodePanel.this.getModel().getObject().getId() + " qr code generation command executed");
-
-					getLockService().getObjectLock(ArtWorkQRCodePanel.this.getModel().getObject().getId()).writeLock().lock();
-					try {
-						logger.debug("reloading artwork with id " + ArtWorkQRCodePanel.this.getModel().getObject().getId());
-						setUpModel();
-						addQRCodePanel();
-						addQRCodePdfPanel();
-
-					} finally {
-						getLockService().getObjectLock(ArtWorkQRCodePanel.this.getModel().getObject().getId()).writeLock().unlock();
-					}
-
-					target.add(ArtWorkQRCodePanel.this);
-
-				} catch (Exception e) {
-					logger.error(e, ServerConstant.NOT_THROWN);
-					qrcodecontainer.addOrReplace(new ErrorPanel("error", e));
-				}
-
+			public boolean isVisible() {
+				return ArtWorkQRCodePanel.this.getModel().getObject().getAudioNumberPng() == null || isRoot();
 			}
 
 			@Override
-			public boolean isVisible() {
-				return ArtWorkQRCodePanel.this.getModel().getObject().getQRCode() == null || isRoot();
+			public void onClick(AjaxRequestTarget target) {
+				try {
+					addAudioNumberPng();
+					setUpModel();
+					addPanels();
+					target.add(ArtWorkQRCodePanel.this);
+				} catch (Exception e) {
+					logger.error(e, ServerConstant.NOT_THROWN);
+					qrcodecontainer.addOrReplace(new ErrorPanel("error", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
+					target.add(ArtWorkQRCodePanel.this);
+				}
 			}
 		};
 
-		qrcodecontainer.addOrReplace(qrGenerateLink);
+		qrcodecontainer.add(makeAudioNumberPng);
 
-		if (qrcode != null) {
-
-			String presignedThumbnail = getPresignedThumbnail(qrcode, ThumbnailSize.LARGE);
-			Url url = Url.parse(presignedThumbnail);
-			UrlResourceReference resourceReference = new UrlResourceReference(url);
-
-			Image image = new Image("qrcode", resourceReference);
-			qrcodecontainer.addOrReplace(image);
-
-			DownloadLink link = new DownloadLink("qr-file-link", getQRFileModel()) {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public File getModelObject() {
-					return getQRFileModel().getObject();
-				}
-			};
-
-			Label f = new Label("qr-file-name", qrcode.getName());
-			link.add(f);
-			qrcodecontainer.addOrReplace(link);
-
-			Label l = new Label("qrcode-text", getModel().getObject().getQrCodeText());
-			qrcodecontainer.addOrReplace(l);
-
-			qrcodecontainer.addOrReplace(new InvisiblePanel("noqrcode"));
-
-		}
-
-		else {
-			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
-			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
-			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
-			qrcodecontainer.addOrReplace(new LabelPanel("noqrcode", getLabel("noqrcode")));
-		}
-	}
-
-	private void addQRCodePdfPanel() {
-
-		Resource qrcodepdf = getModel().getObject().getQRCodePdf();
-
-		if (qrcodepdf != null) {
-
-			Link<Void> pdfLink = new Link<Void>("qr-pdf-link") {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void onClick() {
-					File file = getQRPdfFileModel().getObject();
-					FileResourceStream stream = new FileResourceStream(file);
-					ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(stream, file.getName());
-					handler.setContentDisposition(ContentDisposition.INLINE);
-					getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
-				}
-			};
-
-			Label f = new Label("qr-pdf-name", qrcodepdf.getName());
-			pdfLink.add(f);
-			qrcodecontainer.addOrReplace(pdfLink);
-		}
-
-		else {
-			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
-		}
-
+		addPanels();
 	}
 
 	@Override
@@ -230,6 +181,9 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 
 		if (qrPdfFileModel != null)
 			qrPdfFileModel.detach();
+
+		if (audioNumberPngFileModel != null)
+			audioNumberPngFileModel.detach();
 	}
 
 	@Override
@@ -238,21 +192,8 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 	}
 
 	private void setUpModel() {
-
 		ArtWork aw = getModel().getObject();
 		getModel().setObject(getArtWorkDBService().findWithDeps(aw.getId()).get());
-
-		Resource qrcode = getModel().getObject().getQRCode();
-		Resource qrcodePdf = getModel().getObject().getQRCodePdf();
-
-		if (qrcode != null) {
-			qrFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(qrcode.getBucketName(), qrcode.getObjectName(), qrcode.getName());
-		}
-
-		if (qrcodePdf != null) {
-			qrPdfFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(qrcodePdf.getBucketName(), qrcodePdf.getObjectName(), qrcodePdf.getName());
-		}
-
 	}
 
 	private IModel<File> getQRFileModel() {
@@ -261,6 +202,128 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 
 	private IModel<File> getQRPdfFileModel() {
 		return qrPdfFileModel;
+	}
+
+	private IModel<File> getAudioNumberPngFileModel() {
+		return audioNumberPngFileModel;
+	}
+
+	private void addPanels() {
+
+		Resource qrcode = getModel().getObject().getQRCode();
+		Resource qrcodePdf = getModel().getObject().getQRCodePdf();
+
+		try {
+
+			if (qrcode != null) {
+
+				qrFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(qrcode.getBucketName(), qrcode.getObjectName(), qrcode.getName());
+
+				String presignedThumbnail = super.getPresignedThumbnail(qrcode, ThumbnailSize.LARGE);
+				Url url = Url.parse(presignedThumbnail);
+				UrlResourceReference resourceReference = new UrlResourceReference(url);
+
+				Image image = new Image("qrcode", resourceReference);
+				qrcodecontainer.addOrReplace(image);
+
+				DownloadLink link = new DownloadLink("qr-file-link", getQRFileModel()) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public File getModelObject() {
+						return getQRFileModel().getObject();
+					}
+				};
+
+				Label f = new Label("qr-file-name", qrcode.getName());
+				link.add(f);
+				qrcodecontainer.addOrReplace(link);
+
+				Label l = new Label("qrcode-text", getModel().getObject().getQrCodeText());
+				qrcodecontainer.addOrReplace(l);
+
+				// PDF link
+				if (qrcodePdf != null) {
+
+					qrPdfFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(qrcodePdf.getBucketName(), qrcodePdf.getObjectName(), qrcodePdf.getName());
+
+					Link<Void> pdfLink = new Link<Void>("qr-pdf-link") {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick() {
+							File file = getQRPdfFileModel().getObject();
+							FileResourceStream stream = new FileResourceStream(file);
+							ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(stream, file.getName());
+							handler.setContentDisposition(ContentDisposition.INLINE);
+							getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
+						}
+					};
+
+					Label pdfName = new Label("qr-pdf-name", qrcodePdf.getName());
+					pdfLink.add(pdfName);
+					qrcodecontainer.addOrReplace(pdfLink);
+
+				} else {
+					qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
+				}
+
+				// Audio Number PNG
+				Resource audioNumberPng = getModel().getObject().getAudioNumberPng();
+
+				if (audioNumberPng != null) {
+
+					audioNumberPngFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(
+							audioNumberPng.getBucketName(), audioNumberPng.getObjectName(), audioNumberPng.getName());
+
+					String presignedAudioPng = super.getPresignedThumbnail(audioNumberPng, ThumbnailSize.LARGE);
+					Url audioUrl = Url.parse(presignedAudioPng);
+					UrlResourceReference audioRef = new UrlResourceReference(audioUrl);
+
+					Image audioImage = new Image("audio-number-png-img", audioRef);
+					qrcodecontainer.addOrReplace(audioImage);
+
+					DownloadLink audioLink = new DownloadLink("audio-number-png-link", getAudioNumberPngFileModel()) {
+
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public File getModelObject() {
+							return getAudioNumberPngFileModel().getObject();
+						}
+					};
+
+					Label audioName = new Label("audio-number-png-name", audioNumberPng.getName());
+					audioLink.add(audioName);
+					qrcodecontainer.addOrReplace(audioLink);
+
+				} else {
+					qrcodecontainer.addOrReplace(new InvisibleImage("audio-number-png-img"));
+					qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
+				}
+
+
+			} else {
+				qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
+				qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
+				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
+				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
+				qrcodecontainer.addOrReplace(new InvisibleImage("audio-number-png-img"));
+				qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
+			}
+
+		} catch (Exception e) {
+			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
+			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
+			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
+			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
+			qrcodecontainer.addOrReplace(new InvisibleImage("audio-number-png-img"));
+			qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
+
+			logger.error(e, ServerConstant.NOT_THROWN);
+		}
 	}
 
 	private void addPdf() {
@@ -275,18 +338,14 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 		File qrimage = new File(getServerDBSettings().getWorkDir(), qrcode.getId().toString() + ".png");
 
 		try {
-
 			getObjectStorageService().getClient().getObject(bu, ob, qrimage.getAbsolutePath());
-
 		} catch (ODClientException | IOException e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 			throw new RuntimeException("Failed to download QR code image from object storage: " + e.getMessage(), e);
 		}
 
 		try {
-
 			image = ImageIO.read(qrimage);
-
 		} catch (IOException e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 			throw new RuntimeException("Failed to read QR code image file: " + e.getMessage(), e);
@@ -296,9 +355,7 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 		File pdf;
 
 		try {
-
 			pdf = generatePdf(getModel().getObject(), image, outputDir);
-
 		} catch (IOException e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 			throw new RuntimeException("Failed to generate PDF: " + e.getMessage(), e);
@@ -319,17 +376,56 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 				getArtWorkDBService().addQRPdf(getModel().getObject(), bucketName, objectName, pdf.getName(), "application/pdf", pdf.length(), getSessionUser().get());
 
 			} catch (IOException | ODClientException e) {
-
 				logger.error(e, ServerConstant.NOT_THROWN);
 				throw new RuntimeException("Failed to upload PDF to object storage: " + e.getMessage(), e);
 			}
 		}
+	}
 
+	private void addAudioNumberPng() {
+
+		ArtWork aw = getModel().getObject();
+
+		if (aw.getAudioId() == null) {
+			getArtWorkDBService().generateAudioId(aw, getSessionUser().get());
+			setUpModel();
+			aw = getModel().getObject();
+		}
+
+		File outputDir = new File(getServerDBSettings().getWorkDir());
+		File png;
+
+		try {
+			png = generateAudioNumberPng(aw, outputDir);
+		} catch (IOException e) {
+			logger.error(e, ServerConstant.NOT_THROWN);
+			throw new RuntimeException("Failed to generate audio number PNG: " + e.getClass().getSimpleName() + " | " + e.getMessage(), e);
+		}
+
+		logger.debug("Generated audio number PNG: " + png.getAbsolutePath() + " (size: " + png.length() + " bytes)");
+
+		if (png.exists()) {
+			String bucketName = ServerConstant.QR_BUCKET;
+			String objectName = "artwork-audio-number-png-" + aw.getId().toString();
+
+			try {
+				if (getObjectStorageService().existsObject(bucketName, objectName)) {
+					getObjectStorageService().getClient().deleteObject(bucketName, objectName);
+				}
+
+				getObjectStorageService().getClient().putObject(bucketName, objectName, png);
+				getArtWorkDBService().addAudioNumberPng(aw, bucketName, objectName, png.getName(), "image/png", png.length(), getSessionUser().get());
+
+			} catch (IOException | ODClientException e) {
+				logger.error(e, ServerConstant.NOT_THROWN);
+				throw new RuntimeException("Failed to upload audio number PNG to object storage: " + e.getClass().getSimpleName() + " | " + e.getMessage(), e);
+			}
+		}
 	}
 
 	private File generatePdf(ArtWork ex, BufferedImage qrImage, File outputDir) throws IOException {
 
-		String filename = "qr-artwork-" + getResourceDBService().normalizeFileName(ex.getName()) + "-" + ex.getId() + ".pdf";
+		String filename = "qr-artwork-" + io.wktui.model.TextCleaner.truncate(getResourceDBService().normalizeFileName(ex.getName()), 24) + "-" + ex.getId() + ".pdf";
 
 		File pdfFile = new File(outputDir, filename);
 
@@ -338,12 +434,10 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 			PDPage page = new PDPage(PDRectangle.A4);
 			document.addPage(page);
 
-			// Convert QR image safely (REQUIRED in PDFBox 3.x)
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(qrImage, "PNG", baos);
 			PDImageXObject pdImage = PDImageXObject.createFromByteArray(document, baos.toByteArray(), "qr");
 
-			// Load headphones image
 			File headphonesFile = new File("img" + File.separator + "headphones.png");
 			PDImageXObject headphonesImage = PDImageXObject.createFromFileByContent(headphonesFile, document);
 
@@ -354,12 +448,10 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 
 				float qrSize = 200f;
 
-				// ---- QR Code image (centered horizontally, upper area) ----
 				float qrX = (pageWidth - qrSize) / 2;
 				float qrY = pageHeight - 150 - qrSize;
 				contentStream.drawImage(pdImage, qrX, qrY, qrSize, qrSize);
 
-				// ---- Headphones image + Audio ID (centered below QR code) ----
 				float headphonesSize = 44f;
 				String audioIdText = ex.getAudioId() != null ? ex.getAudioId().toString() : "";
 
@@ -367,16 +459,13 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 				float audioIdFontSize = 32f;
 				float audioIdWidth = fontBold.getStringWidth(audioIdText) / 1000 * audioIdFontSize;
 
-				// Total width of headphones icon + gap + audio ID text
 				float gap = 10f;
 				float totalWidth = headphonesSize + gap + audioIdWidth;
 				float startX = (pageWidth - totalWidth) / 2;
 				float iconY = qrY - headphonesSize - 30;
 
-				// Draw headphones icon
 				contentStream.drawImage(headphonesImage, startX, iconY, headphonesSize, headphonesSize);
 
-				// Draw audio ID text (vertically centered with the icon)
 				float textX = startX + headphonesSize + gap;
 				float textY = iconY + (headphonesSize - audioIdFontSize) / 2 + 4;
 
@@ -391,6 +480,84 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 		}
 
 		return pdfFile;
+	}
+
+	private File generateAudioNumberPng(ArtWork aw, File outputDir) throws IOException {
+
+		String filename = "artwork-audio-number-" + io.wktui.model.TextCleaner.truncate(getResourceDBService().normalizeFileName(aw.getName()), 24) + "-" + aw.getId() + ".png";
+		File pngFile = new File(outputDir, filename);
+
+		File headphonesFile = new File("img" + File.separator + "headphones-duotone-solid-full.svg");
+
+		String audioIdText = aw.getAudioId() != null ? aw.getAudioId().toString() : "";
+
+		File fontFile = new File(getServerDBSettings().getFontsDir() + File.separator + "montserrat", "Montserrat-Bold.ttf");
+		Font font;
+		try {
+			font = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(Font.BOLD, 48f);
+		} catch (java.awt.FontFormatException e) {
+			throw new IOException("Failed to load Montserrat font: " + e.getMessage(), e);
+		}
+
+		BufferedImage tempImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D tempG2d = tempImage.createGraphics();
+		tempG2d.setFont(font);
+		FontMetrics fm = tempG2d.getFontMetrics();
+		int textWidth = fm.stringWidth(audioIdText);
+		int textHeight = fm.getHeight();
+		tempG2d.dispose();
+
+		int iconSize = 64;
+		int gap = 16;
+		int padding = 20;
+
+		BufferedImage headphonesIcon = loadSvgAsImage(headphonesFile, iconSize, iconSize);
+
+		int totalWidth = padding + iconSize + gap + textWidth + padding;
+		int totalHeight = padding + Math.max(iconSize, textHeight) + padding;
+
+		BufferedImage image = new BufferedImage(totalWidth, totalHeight, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g2d = image.createGraphics();
+
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+
+		g2d.setComposite(java.awt.AlphaComposite.Clear);
+		g2d.fillRect(0, 0, totalWidth, totalHeight);
+		g2d.setComposite(java.awt.AlphaComposite.SrcOver);
+
+		int iconY = (totalHeight - iconSize) / 2;
+		g2d.drawImage(headphonesIcon, padding, iconY, iconSize, iconSize, null);
+
+		g2d.setColor(Color.BLACK);
+		g2d.setFont(font);
+		int textX = padding + iconSize + gap;
+		int textY = (totalHeight - textHeight) / 2 + fm.getAscent();
+		g2d.drawString(audioIdText, textX, textY);
+
+		g2d.dispose();
+
+		ImageIO.write(image, "PNG", pngFile);
+
+		return pngFile;
+	}
+
+	private BufferedImage loadSvgAsImage(File svgFile, int width, int height) throws IOException {
+		try {
+			org.apache.batik.transcoder.image.PNGTranscoder transcoder = new org.apache.batik.transcoder.image.PNGTranscoder();
+			transcoder.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_WIDTH, (float) width);
+			transcoder.addTranscodingHint(org.apache.batik.transcoder.SVGAbstractTranscoder.KEY_HEIGHT, (float) height);
+
+			org.apache.batik.transcoder.TranscoderInput input = new org.apache.batik.transcoder.TranscoderInput(svgFile.toURI().toString());
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			org.apache.batik.transcoder.TranscoderOutput output = new org.apache.batik.transcoder.TranscoderOutput(baos);
+			transcoder.transcode(input, output);
+
+			return ImageIO.read(new java.io.ByteArrayInputStream(baos.toByteArray()));
+		} catch (org.apache.batik.transcoder.TranscoderException e) {
+			throw new IOException("Failed to transcode SVG: " + e.getMessage(), e);
+		}
 	}
 
 }

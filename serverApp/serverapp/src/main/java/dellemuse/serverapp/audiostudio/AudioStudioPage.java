@@ -1,7 +1,6 @@
 package dellemuse.serverapp.audiostudio;
 
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-
+ 
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,7 +24,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
-import dellemuse.serverapp.serverdb.service.DBService;
+ 
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -117,14 +116,12 @@ public class AudioStudioPage extends BasePage {
 			addOrReplace(new ErrorPanel("footer-panel", e));
 		}
 
-		
-
 		if (!this.hasAccessRight(getSessionUser())) {
 			add(new ErrorPanel("editor", getLabel("not-authorized")));
 			add(new InvisiblePanel("page-header"));
 			return;
 		}
-		
+
 		addHeaderPanel();
 
 		try {
@@ -214,7 +211,6 @@ public class AudioStudioPage extends BasePage {
 		}
 	}
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 

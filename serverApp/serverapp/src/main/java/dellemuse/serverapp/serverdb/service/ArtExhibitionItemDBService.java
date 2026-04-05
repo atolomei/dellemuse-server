@@ -82,6 +82,10 @@ public class ArtExhibitionItemDBService extends MultiLanguageObjectDBservice<Art
 		int size = ex.getArtExhibitionItems().size();
 
 		c.setName(name);
+		
+		if (ex.getMasterLanguage() != null)
+			logger.error("Creating ArtExhibitionItem with master language from exhibition null -> " + ex.getMasterLanguage());
+		
 		c.setMasterLanguage(ex.getMasterLanguage());
 		c.setLanguage(ex.getLanguage());
 

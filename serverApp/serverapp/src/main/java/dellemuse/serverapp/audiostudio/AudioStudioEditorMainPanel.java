@@ -44,20 +44,18 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 	private AudioStudioState state;
 	private String parentObjectUrl;
 
-	
 	private String parentName;
 	private String parentInfo;
 	private IModel<String> parentType;
 	private Long parentId;
 	private ObjectState parentState;
-	
-	
+
 	private InfoAudioStudioEditor info;
-	
+
 	private Panel pillEditor1;
 	private Panel pillEditor2;
 	private Panel pillEditor3;
-	
+
 	private PillPanel pill1;
 	private PillPanel pill2;
 	private PillPanel pill3;
@@ -65,24 +63,19 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 	private WebMarkupContainer helpContainer;
 
 	boolean isHelpVisible = false;
-	private boolean isAccesibleVersion = false;	
-	
+	private boolean isAccesibleVersion = false;
+
 	/**
 	 * @param id
 	 * @param model
 	 */
 	public AudioStudioEditorMainPanel(String id, IModel<AudioStudio> model, String parentObjectUrl, boolean isAccesibleVersion) {
 		super(id, model);
-		this.isAccesibleVersion=isAccesibleVersion;
+		this.isAccesibleVersion = isAccesibleVersion;
 		this.parentObjectUrl = parentObjectUrl;
 		setOutputMarkupId(true);
 	}
 
-	
-  
-
-	
-	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -90,10 +83,10 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		setUpModel();
 		addParentObject();
 		addBottomParentObject();
-		
+
 		addAlert();
 		addInfo();
-		
+
 		addOrReplace(getPillPanel1());
 		addOrReplace(getPillPanel2());
 		addOrReplace(getPillPanel3());
@@ -103,41 +96,36 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		addOrReplace(new InvisiblePanel("step3"));
 
 		cssSelected();
-		
+
 		helpContainer = new WebMarkupContainer("helpContainer");
 		helpContainer.setOutputMarkupId(true);
 		add(helpContainer);
 		helpContainer.add(new InvisiblePanel("help"));
-		
-		
-		AjaxLink<Void> h=new AjaxLink<Void> ( "help") {
+
+		AjaxLink<Void> h = new AjaxLink<Void>("help") {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				fire(new HelpAjaxEvent(ServerAppConstant.help, target));
 			}
 		};
 		add(h);
-	
 
-		
-		
 	}
-	
-	
-	
+
 	protected void addAlert() {
 		SimpleAlertRow<Void> alert = new SimpleAlertRow<Void>("simpleAlertRow") {
 			private static final long serialVersionUID = 1L;
-			
+
 			public boolean isVisible() {
-				return AudioStudioEditorMainPanel.this.parentState==ObjectState.DELETED;
+				return AudioStudioEditorMainPanel.this.parentState == ObjectState.DELETED;
 			}
-			
+
 			protected IModel<String> getText() {
-				return  AudioStudioEditorMainPanel.this.getLabel("object-deleted");
+				return AudioStudioEditorMainPanel.this.getLabel("object-deleted");
 			}
-			
+
 			public int getAlertType() {
 				return AlertPanel.WARNING;
 			}
@@ -145,11 +133,10 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		add(alert);
 	}
 
-
 	public String getHelpKey() {
 		return Help.AUDIO_STUDIO;
 	}
-	
+
 	protected Panel getHelpPanel(String id, String key, String lang) {
 		String h = getHelpService().gethelp(key, lang);
 		if (h == null) {
@@ -159,8 +146,7 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		a.add(new org.apache.wicket.AttributeModifier("class", "help"));
 		return a;
 	}
-	
-	
+
 	protected void addListeners() {
 		super.addListeners();
 
@@ -186,14 +172,11 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 				return false;
 			}
 		});
-	 	
-		
-		
-		
+
 		add(new io.wktui.event.WicketEventListener<AudioStudioAjaxEvent>() {
-		
+
 			private static final long serialVersionUID = 1L;
-		
+
 			@Override
 			public boolean handle(UIEvent event) {
 				if (event instanceof AudioStudioAjaxEvent)
@@ -211,11 +194,10 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 					setState(AudioStudioState.AUDIO_VOICE_MUSIC);
 					cssSelected();
-					
+
 					event.getTarget().add(AudioStudioEditorMainPanel.this);
 					logger.debug("step1.next");
 				}
-				
 
 				if (event.getName().equals("step2.prev")) {
 
@@ -224,13 +206,10 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 					setState(AudioStudioState.AUDIO_VOICE);
 					cssSelected();
-					
+
 					event.getTarget().add(AudioStudioEditorMainPanel.this);
 					logger.debug("step2.prev");
 				}
-
-				
-				
 
 				if (event.getName().equals("step2.next")) {
 
@@ -240,11 +219,10 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 					setState(AudioStudioState.INTEGRATE);
 					cssSelected();
-					
+
 					event.getTarget().add(AudioStudioEditorMainPanel.this);
 					logger.debug("step2.next");
 				}
-				
 
 				if (event.getName().equals("step3.prev")) {
 
@@ -254,16 +232,14 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 					setState(AudioStudioState.AUDIO_VOICE_MUSIC);
 					cssSelected();
-					
+
 					event.getTarget().add(AudioStudioEditorMainPanel.this);
 					logger.debug("step3.prev");
 				}
 
-				
 			}
 		});
 
-		
 		add(new io.wktui.event.WicketEventListener<AudioStudioSimpleEvent>() {
 			private static final long serialVersionUID = 1L;
 
@@ -280,12 +256,11 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		});
 	}
 
-	
 	protected void addInfo() {
 		this.info = new InfoAudioStudioEditor("info", getModel(), this.isAccesibleVersion);
 		add(this.info);
 	}
-	
+
 	protected void cssSelected() {
 
 		if (this.getState() == AudioStudioState.AUDIO_VOICE) {
@@ -321,7 +296,7 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 	protected Panel getPill3Editor() {
 		if (this.pillEditor3 == null) {
-			this.pillEditor3 = new Step3AudioStudioEditor("step3", getModel(), isAccesibleVersion );
+			this.pillEditor3 = new Step3AudioStudioEditor("step3", getModel(), isAccesibleVersion);
 			addOrReplace(this.pillEditor3);
 		}
 		return this.pillEditor3;
@@ -357,16 +332,14 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		this.parentType = getLabel(po.getClass().getSimpleName().toLowerCase());
 		this.parentId = po.getId();
 		this.parentInfo = po.getInfo();
-		this.parentState=po.getState();
-		
-		
+		this.parentState = po.getState();
+
 		// getModel().getObject().setName(parentName);
 		// getModel().getObject().setInfo(parentInfo);
-		
+
 		setState(AudioStudioState.AUDIO_VOICE);
 	}
 
-	
 	public AudioStudio getModelObject() {
 		return getModel().getObject();
 	}
@@ -448,7 +421,6 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 
 	}
 
-
 	private void addBottomParentObject() {
 
 		Link<Void> li = new Link<Void>("b-parent-link") {
@@ -469,7 +441,5 @@ public class AudioStudioEditorMainPanel extends DBModelPanel<AudioStudio> {
 		add(li);
 
 	}
-	
+
 }
-
-

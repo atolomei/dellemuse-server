@@ -372,15 +372,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		return s.findById(src.getPhoto().getId());
 	}
 
-	/**@Transactional
-	public void reloadIfDetached(Site src) {
-
-		if (!getEntityManager().contains(src)) {
-			src = findById(src.getId()).get();
-			@SuppressWarnings("unused")
-			Institution i = src.getInstitution();
-		}
-	}**/
+ 
 	
 
 	@Transactional

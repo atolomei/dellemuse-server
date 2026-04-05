@@ -55,28 +55,23 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 		this.voiceModel = voice;
 		setOutputMarkupId(true);
 	}
-	
+
 	public void onDetach() {
 		super.onDetach();
-		
-		if (this.voiceModel!=null)
+
+		if (this.voiceModel != null)
 			this.voiceModel.detach();
 	}
-
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
-		
 		Optional<AudioStudio> o_a = getAudioStudioDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<>(o_a.get()));
-		
+
 		Optional<Voice> o_c = getVoiceDBService().findWithDeps(getVoiceModel().getObject().getId());
 		setVoiceModel(new ObjectModel<Voice>(o_c.get()));
-		
-		
-		 
 
 		Label info = new Label("info", this.voiceModel.getObject().getInfo());
 		add(info);
@@ -84,21 +79,19 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 		AjaxLink<Void> test = new AjaxLink<Void>("testlink") {
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				
-				if (AudioStudioTestVoicePanel.this.test.isVisible()) 
-					AudioStudioTestVoicePanel.this.test.setVisible( false );
+
+				if (AudioStudioTestVoicePanel.this.test.isVisible())
+					AudioStudioTestVoicePanel.this.test.setVisible(false);
 				else
-					AudioStudioTestVoicePanel.this.test.setVisible( true );
-				
+					AudioStudioTestVoicePanel.this.test.setVisible(true);
+
 				target.add(AudioStudioTestVoicePanel.this);
 			}
 		};
 
-		
 		add(test);
-		addTest(); 
+		addTest();
 
-		
 	}
 
 	private void addTest() {
@@ -113,25 +106,17 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 
 			Url url = Url.parse(audioUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			//Audio audio = new Audio("audioVoice", resourceReference);
 			AudioPlayer audio = new AudioPlayer("audioVoice", resourceReference);
-			
+
 			this.test.addOrReplace(audio);
-			
-			
 
 			Label am = new Label("audioMeta", getAudioMeta(getVoiceModel().getObject().getAudio()));
 			am.setEscapeModelStrings(false);
 			this.test.addOrReplace(am);
 		} else {
 
-			//Url url = Url.parse("");
-			//UrlResourceReference resourceReference = new UrlResourceReference(url);
-			//Audio audio = new Audio("audioVoice", resourceReference);
-			//this.test.addOrReplace(audio);
+			this.test.addOrReplace(new InvisiblePanel("audioVoice"));
 
-			this.test.addOrReplace( new InvisiblePanel("audioVoice") );
-			
 			Label am = new Label("audioMeta", "");
 			am.setEscapeModelStrings(false);
 			this.test.addOrReplace(am);
@@ -139,7 +124,7 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 		}
 
 		addOrReplace(this.test);
-		
+
 		this.test.setVisible(false);
 
 	}

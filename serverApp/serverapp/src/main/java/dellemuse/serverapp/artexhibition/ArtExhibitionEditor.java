@@ -4,15 +4,14 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
- 
+
 import java.time.ZonedDateTime;
- 
+
 import java.util.ArrayList;
- 
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
- 
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -21,24 +20,24 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
- 
+
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
- 
+
 import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.site.SiteInfoEditor;
+ 
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
- 
+
 import dellemuse.serverapp.service.DTFormatter;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
@@ -56,9 +55,7 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import io.wktui.panel.SimpleHelpPanel;
 import wktui.base.InvisiblePanel;
 
-/**
- * horario información técnica alter table artexhibition add column spec text;
- */
+
 public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
@@ -90,7 +87,7 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 	private IModel<Site> siteModel;
 	private List<ToolbarItem> toolbarList;
 
- 	/**
+	/**
 	 * @param id
 	 * @param model
 	 */
@@ -104,10 +101,8 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 		setUpModel();
 
-		
-		add( new Label( "exhibition-general-info", getLabel("exhibition-general-info", getModel().getObject().getMasterLanguage())));
-		
-		
+		add(new Label("exhibition-general-info", getLabel("exhibition-general-info", getModel().getObject().getMasterLanguage())));
+
 		add(new InvisiblePanel("error"));
 
 		Form<ArtExhibition> form = new Form<ArtExhibition>("form");
@@ -162,56 +157,50 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 		specField = new TextAreaField<String>("spec", new PropertyModel<String>(getModel(), "spec"), getLabel("spec"), 4);
 		opensField = new TextAreaField<String>("opens", new PropertyModel<String>(getModel(), "opens"), getLabel("opens"), 4);
 		mapField = new TextField<String>("map", new PropertyModel<String>(getModel(), "map"), getLabel("map"));
-		
+
 		fromField = new TextField<String>("from", new PropertyModel<String>(this, "from"), getLabel("from")) {
 			private static final long serialVersionUID = 1L;
 
 			public boolean isVisible() {
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
-			
+
 			public boolean isEnabled() {
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
 		};
 
-	
-		
 		toField = new TextField<String>("to", new PropertyModel<String>(this, "to"), getLabel("to")) {
 			private static final long serialVersionUID = 1L;
 
 			public boolean isVisible() {
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
-			
+
 			public boolean isEnabled() {
 				return !ArtExhibitionEditor.this.getModel().getObject().isPermanent();
 			}
 		};
-		
-		fromField.setHelpPanel( new SimpleHelpPanel<>("help") {
+
+		fromField.setHelpPanel(new SimpleHelpPanel<>("help") {
 			public IModel<String> getLinkLabel() {
 				return ArtExhibitionEditor.this.getLabel("date-help-label");
 			}
-			
-			public IModel<String> getHelpText() {
-				return ArtExhibitionEditor.this.getLabel("date-format-help");
-			}
-		});
- 
-		
-		
-		toField.setHelpPanel( new SimpleHelpPanel<>("help") {
-			public IModel<String> getLinkLabel() {
-				return ArtExhibitionEditor.this.getLabel("date-help-label");
-			}
-			
+
 			public IModel<String> getHelpText() {
 				return ArtExhibitionEditor.this.getLabel("date-format-help");
 			}
 		});
 
-		
+		toField.setHelpPanel(new SimpleHelpPanel<>("help") {
+			public IModel<String> getLinkLabel() {
+				return ArtExhibitionEditor.this.getLabel("date-help-label");
+			}
+
+			public IModel<String> getHelpText() {
+				return ArtExhibitionEditor.this.getLabel("date-format-help");
+			}
+		});
 
 		urlField = new TextField<String>("url", new PropertyModel<String>(getModel(), "website"), getLabel("url"));
 		nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
@@ -249,11 +238,9 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 				logger.debug("onRemove");
 			}
 		};
-		
-		
-	 
+
 		ordinalield = new NumberField<Integer>("ordinal", new PropertyModel<Integer>(getModel(), "ordinal"), getLabel("ordinal"));
-	
+
 		form.add(ordinalield);
 		form.add(specField);
 		form.add(locationField);
@@ -291,10 +278,10 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
@@ -318,10 +305,10 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 			@Override
 			public boolean isVisible() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
+
 				return getForm().getFormState() == FormState.EDIT;
 			}
 
@@ -351,21 +338,19 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 	public void onEdit(AjaxRequestTarget target) {
 		super.edit(target);
-		ArtExhibitionEditor.this.addOrReplace( new InvisiblePanel("error"));
+		ArtExhibitionEditor.this.addOrReplace(new InvisiblePanel("error"));
 		target.add(this);
 	}
 
-	
 	protected void onSave(AjaxRequestTarget target) {
 
 		getUpdatedParts().forEach(s -> logger.debug(s));
 
-		
-		if( getUpdatedParts()==null || getUpdatedParts().size()==0) {
-		
+		if (getUpdatedParts() == null || getUpdatedParts().size() == 0) {
+
 			return;
 		}
-		
+
 		logger.debug("saving...");
 
 		if (getSiteModel().getObject().getZoneId() == null)
@@ -391,7 +376,7 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 					setFrom(getDateTimeService().format(offsetDateTime, DTFormatter.day_of_year));
 				}
 			}
-			
+
 			if (toField.isUpdated()) {
 				if (getTo() != null) {
 					LocalDate d_to = getDateTimeService().parseFlexibleDate(getTo(), Locale.forLanguageTag(getModel().getObject().getLanguage()));
@@ -428,7 +413,6 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 		AjaxButtonToolbarItem<ArtExhibition> create = new AjaxButtonToolbarItem<ArtExhibition>() {
 			private static final long serialVersionUID = 1L;
 
-			
 			@Override
 			protected void onCick(AjaxRequestTarget target) {
 				fire(new MenuAjaxEvent(ServerAppConstant.action_exhibition_info_edit, target));

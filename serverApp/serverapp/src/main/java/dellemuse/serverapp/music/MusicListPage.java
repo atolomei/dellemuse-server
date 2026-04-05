@@ -3,7 +3,6 @@ package dellemuse.serverapp.music;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
@@ -14,25 +13,24 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.ServerConstant;
+
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.ObjectListPage;
 import dellemuse.serverapp.page.error.ErrorPage;
-import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
+
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.Music;
-import dellemuse.serverapp.serverdb.model.Artist;
-import dellemuse.serverapp.serverdb.model.Language;
+
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Resource;
+
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
+
 import dellemuse.serverapp.serverdb.service.MusicDBService;
-import dellemuse.serverapp.serverdb.service.InstitutionDBService;
+
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.error.ErrorPanel;
 import io.wktui.model.TextCleaner;
@@ -46,7 +44,7 @@ import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/music/list")
 public class MusicListPage extends ObjectListPage<Music> {
 
@@ -57,7 +55,6 @@ public class MusicListPage extends ObjectListPage<Music> {
 	private List<ToolbarItem> mainToolbar;
 	private List<ToolbarItem> listToolbar;
 
-	
 	public MusicListPage() {
 		super();
 		super.setIsExpanded(true);
@@ -72,12 +69,12 @@ public class MusicListPage extends ObjectListPage<Music> {
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
 	}
-	
+
 	@Override
 	public boolean canCreate() {
 		return isRoot() || isGeneralAdmin();
 	}
-	
+
 	@Override
 	public boolean canWrite(Music m) {
 		return isRoot() || isGeneralAdmin();
@@ -88,19 +85,16 @@ public class MusicListPage extends ObjectListPage<Music> {
 		return isRoot() || isGeneralAdmin();
 	}
 
-	
-	
-	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 	}
- 
+
 	public String getHelpKey() {
 		return Help.MUSIC;
 	}
-	
+
 	@Override
 	protected List<ToolbarItem> getListToolbarItems() {
 
@@ -113,28 +107,24 @@ public class MusicListPage extends ObjectListPage<Music> {
 		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 		listToolbar.add(s);
 
-		
-		
 		return listToolbar;
 	}
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-	
-		
+
 		if (ouser.isEmpty())
 			return false;
-		
+
 		return true;
 
-	 
 	}
-	
+
 	protected void onCreate() {
 
 		try {
 			Music in = getMusicDBService().create("new", getSessionUser().get());
-			setResponsePage(new  MusicPage(new ObjectModel<Music>(in), getList()));
+			setResponsePage(new MusicPage(new ObjectModel<Music>(in), getList()));
 
 		} catch (Exception e) {
 			logger.error(e);
@@ -156,7 +146,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 			protected void onClick() {
 				MusicListPage.this.onCreate();
 			}
-			
+
 			public boolean isEnabled() {
 				return canCreate();
 			}
@@ -164,12 +154,12 @@ public class MusicListPage extends ObjectListPage<Music> {
 			public boolean isVisible() {
 				return canCreate();
 			}
-		
+
 		};
 		create.setAlign(Align.TOP_LEFT);
 		mainToolbar.add(create);
-		
-		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+
+		mainToolbar.add(new HelpButtonToolbarItem("item", Align.TOP_RIGHT));
 		return mainToolbar;
 	}
 
@@ -194,12 +184,12 @@ public class MusicListPage extends ObjectListPage<Music> {
 					private static final long serialVersionUID = 1L;
 
 					public boolean isEnabled() {
-						return canRead( model.getObject());
+						return canRead(model.getObject());
 					}
-					
+
 					@Override
-					public void onClick () {
-						setResponsePage( new MusicPage( getModel(), getList() ));
+					public void onClick() {
+						setResponsePage(new MusicPage(getModel(), getList()));
 					}
 
 					@Override
@@ -209,10 +199,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 				};
 			}
 		});
-		
-		
-		
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Music>() {
 
 			private static final long serialVersionUID = 1L;
@@ -226,11 +213,11 @@ public class MusicListPage extends ObjectListPage<Music> {
 
 					@Override
 					public boolean isEnabled() {
-						if (!canWrite( model.getObject()))
+						if (!canWrite(model.getObject()))
 							return false;
-						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
@@ -245,9 +232,6 @@ public class MusicListPage extends ObjectListPage<Music> {
 				};
 			}
 		});
-		
-		
-
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Music>() {
 
@@ -260,13 +244,12 @@ public class MusicListPage extends ObjectListPage<Music> {
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isEnabled() {
-						if (!canWrite( model.getObject()))
+						if (!canWrite(model.getObject()))
 							return false;
-						return model.getObject().getState()!=ObjectState.EDITION;
+						return model.getObject().getState() != ObjectState.EDITION;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.EDITION);
@@ -282,7 +265,6 @@ public class MusicListPage extends ObjectListPage<Music> {
 			}
 		});
 
-		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Music>() {
 
 			private static final long serialVersionUID = 1L;
@@ -294,13 +276,12 @@ public class MusicListPage extends ObjectListPage<Music> {
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isEnabled() {
-						if (!canWrite( model.getObject()))
+						if (!canWrite(model.getObject()))
 							return false;
-						return getModel().getObject().getState()!=ObjectState.DELETED;
+						return getModel().getObject().getState() != ObjectState.DELETED;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.DELETED);
@@ -315,40 +296,36 @@ public class MusicListPage extends ObjectListPage<Music> {
 				};
 			}
 		});
-		
-		
-		 
-		
-		
+
 		return menu;
 	}
-	
+
 	@Override
 	public Iterable<Music> getObjects(ObjectState os1) {
 		return getObjects(os1, null);
-	}	
+	}
 
 	@Override
 	public Iterable<Music> getObjects(ObjectState os1, ObjectState os2) {
 
-		MusicDBService service = (MusicDBService ) ServiceLocator.getInstance().getBean(MusicDBService .class);
+		MusicDBService service = (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);
 
-		if (os1==null && os2==null)
+		if (os1 == null && os2 == null)
 			return service.findAllSorted();
-	
-		if (os2==null)
+
+		if (os2 == null)
 			return service.findAllSorted(os1);
 
-		if (os1==null)
+		if (os1 == null)
 			return service.findAllSorted(os2);
-		
+
 		return service.findAllSorted(os1, os2);
 	}
 
 	@Override
 	public Iterable<Music> getObjects() {
-		MusicDBService  service = (MusicDBService ) ServiceLocator.getInstance().getBean(MusicDBService .class);
-	 
+		MusicDBService service = (MusicDBService) ServiceLocator.getInstance().getBean(MusicDBService.class);
+
 		return service.findAllSorted();
 	}
 
@@ -356,30 +333,27 @@ public class MusicListPage extends ObjectListPage<Music> {
 	public IModel<String> getObjectInfo(IModel<Music> model) {
 		return new Model<String>(TextCleaner.clean(model.getObject().getInfo(), 280));
 	}
-	
- 
+
 	@Override
 	public IModel<String> getObjectTitle(IModel<Music> model) {
-		
+
 		StringBuilder str = new StringBuilder();
 
 		str.append(model.getObject().getDisplayname());
-		
-		if (model.getObject().getState()==ObjectState.DELETED) 
+
+		if (model.getObject().getState() == ObjectState.DELETED)
 			str.append(model.getObject().getDisplayname() + Icons.DELETED_ICON_HTML);
-		
+
 		if (model.getObject().getState() == ObjectState.EDITION)
 			str.append(Icons.EDITION_ICON_HTML);
-		
-	 	
-		return Model.of( str.toString());
-	
-	
+
+		return Model.of(str.toString());
+
 	}
- 
+
 	@Override
 	public void onClick(IModel<Music> model) {
-		 setResponsePage(new MusicPage(model, getList()));
+		setResponsePage(new MusicPage(model, getList()));
 	}
 
 	@Override
@@ -397,7 +371,6 @@ public class MusicListPage extends ObjectListPage<Music> {
 		super.onDetach();
 	}
 
-	
 	@Override
 	protected void addHeaderPanel() {
 		try {
@@ -405,7 +378,7 @@ public class MusicListPage extends ObjectListPage<Music> {
 			bc.addElement(new BCElement(getLabel("music")));
 			JumboPageHeaderPanel<Void> ph = new JumboPageHeaderPanel<Void>("page-header", null, getLabel("music"));
 			ph.setBreadCrumb(bc);
-			ph.setIcon(Music.getIcon()  );
+			ph.setIcon(Music.getIcon());
 			ph.setHeaderCss("mb-2 pb-2 border-none");
 			add(ph);
 		} catch (Exception e) {

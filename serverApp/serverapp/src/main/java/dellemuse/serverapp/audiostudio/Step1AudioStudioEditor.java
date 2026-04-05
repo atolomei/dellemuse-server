@@ -74,8 +74,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	static private Logger logger = Logger.getLogger(Step1AudioStudioEditor.class.getName());
 
-	// private NumberField<Double> speedField;
-
 	private NumberField<Double> styleField;
 	private NumberField<Double> stabilityField;
 	private NumberField<Double> similarityField;

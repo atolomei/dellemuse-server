@@ -42,15 +42,15 @@ public class DellemuseServerApp {
 	public void onInitialize() {
 		std_logger.info("");
 
-		//for (String s : DellemuseServerAppVersion.getAppCharacterName())
-		//	std_logger.info(s);
-		
-		for (String s :  BannerUtil.generateBanner(DellemuseServerAppVersion.DELLEMUSE))
+		// for (String s : DellemuseServerAppVersion.getAppCharacterName())
+		// std_logger.info(s);
+
+		for (String s : BannerUtil.generateBanner(DellemuseServerAppVersion.DELLEMUSE))
 			std_logger.info(s);
-				 
+
 		std_logger.info("");
 		std_logger.info("version: " + DellemuseServerAppVersion.VERSION);
-	
+
 		std_logger.info(ServerAppConstant.SEPARATOR);
 		std_logger.info("This software is licensed under the Apache License, Version 2.0");
 		std_logger.info("http://www.apache.org/licenses/LICENSE-2.0");

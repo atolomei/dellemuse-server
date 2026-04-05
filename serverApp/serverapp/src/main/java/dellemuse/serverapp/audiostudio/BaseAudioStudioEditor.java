@@ -37,52 +37,41 @@ public class BaseAudioStudioEditor extends DBObjectEditor<AudioStudio> {
 	private ObjectState parentState;
 
 	private boolean isAccesibleVersion;
-	
-	
+
 	private String prefix = "";
-	
-	
+
 	protected int getObjectAudioSpeechMusicHash() {
 		return getModel().getObject().getAudioSpeechMusicHash();
 	}
-	
-	
-	
-	
+
 	protected int getObjectAudioSpeechHash() {
 		return getModel().getObject().getAudioSpeechHash();
 	}
-	
+
 	protected Resource getObjectAudio() {
 		return getModel().getObject().getAudioSpeech();
 	}
-	
-	
 
 	protected String getObjectInfo() {
-		return  getModel().getObject().getInfo();
+		return getModel().getObject().getInfo();
 	}
-	
-	
-	protected void setObjectInfo( String info ) {
+
+	protected void setObjectInfo(String info) {
 		getModel().getObject().setInfo(info);
 	}
-	
-	
 
 	public BaseAudioStudioEditor(String id, IModel<AudioStudio> model, boolean isAccesibleVersion) {
 		super(id, model);
 
 		this.isAccesibleVersion = isAccesibleVersion;
 		prefix = isAccesibleVersion ? "accesible-" : "";
-		
+
 	}
 
 	protected String getPrefix() {
 		return this.prefix;
 	}
-	
-	
+
 	public boolean isAccesibleVersion() {
 		return this.isAccesibleVersion;
 	}

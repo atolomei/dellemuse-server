@@ -4,6 +4,7 @@ public class AuditKey {
 
 	public static final String ADD_QR = "add qr";
 	public static final String ADD_QR_PDF = "add qr pdf";
+	public static final String ADD_AUDIO_NUMBER_PNG = "add audio number png";
 
 	public static final String ADD_ROLE = "add role";
 	public static final String REMOVE_ROLE = "remove role";

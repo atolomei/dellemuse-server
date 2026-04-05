@@ -24,6 +24,7 @@ public class ServerConstant {
 
 	static public final String QR_CODE = "qrcode";
 	static public final String QR_CODE_PDF = "qrcode-pdf";
+	static public final String AUDIO_NUMBER_PNG = "audio-number-png";
 	
 	static public final String SEPARATOR = "---------------------------------";
 	static public final String NOT_THROWN = " not thrown";

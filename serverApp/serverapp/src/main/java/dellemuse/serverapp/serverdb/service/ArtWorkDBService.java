@@ -186,6 +186,7 @@ public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long
 		Long photoId = aw.getPhoto() != null ? aw.getPhoto().getId() : null;
 		Long qrcodeId = aw.getQRCode() != null ? aw.getQRCode().getId() : null;
 		Long qrPdfId = aw.getQRCodePdf() != null ? aw.getQRCodePdf().getId() : null;
+		Long audioNumberPngId = aw.getAudioNumberPng() != null ? aw.getAudioNumberPng().getId() : null;
 		Long userId = aw.getLastModifiedUser() != null ? aw.getLastModifiedUser().getId() : null;
 
 		// Detach to prevent dirty-checking from triggering @PostUpdate
@@ -206,6 +207,9 @@ public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long
 
 		if (qrPdfId != null)
 			aw.setQRCodePdf(getResourceDBService().findById(qrPdfId).get());
+
+		if (audioNumberPngId != null)
+			aw.setAudioNumberPng(getResourceDBService().findById(audioNumberPngId).get());
 
 		if (userId != null)
 			aw.setLastModifiedUser(getUserDBService().findById(userId).get());
@@ -278,6 +282,16 @@ public class ArtWorkDBService extends MultiLanguageObjectDBservice<ArtWork, Long
 		aw.setQRCodePdf(res);
 		getRepository().save(aw);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aw, createdBy, AuditAction.UPDATE, AuditKey.ADD_QR_PDF));
+		return aw;
+	}
+
+	@Transactional
+	public ArtWork addAudioNumberPng(ArtWork aw, String bucketName, String objectName, String name, String media, long size, User createdBy) {
+		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.AUDIO_NUMBER_PNG, createdBy, name, true);
+		aw.setAudioNumberPng(res);
+		getRepository().save(aw);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aw, createdBy, AuditAction.UPDATE, AuditKey.ADD_AUDIO_NUMBER_PNG));
 		return aw;
 	}
 

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
- 
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -14,7 +13,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
- 
+
 import org.apache.wicket.model.PropertyModel;
 
 import org.apache.wicket.model.util.ListModel;
@@ -22,21 +21,16 @@ import org.apache.wicket.model.util.ListModel;
 import dellemuse.model.logging.Logger;
 
 import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
-import dellemuse.serverapp.music.MusicEditor;
-import dellemuse.serverapp.openai.OpenAIService.ArtWorkData;
 
 import dellemuse.serverapp.page.model.ObjectModel;
 
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Artist;
-import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.ObjectType;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import io.wktui.form.Form;
@@ -123,9 +117,9 @@ public class ArtWorkEditor extends DBSiteObjectEditor<ArtWork> {
 			@Override
 			public boolean isVisible() {
 				return false;
-				//if (!hasWritePermission())
-				//	return false;
-				//return getForm().getFormState() == FormState.EDIT;
+				// if (!hasWritePermission())
+				// return false;
+				// return getForm().getFormState() == FormState.EDIT;
 			}
 		};
 		form.add(askai);

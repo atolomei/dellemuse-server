@@ -85,6 +85,14 @@ public class ArtWork extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource QRCodePdf;
 	
+	
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "audioNumberPng", nullable = true)
+	@JsonManagedReference
+	@JsonProperty("audioNumberPng")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource audioNumberPng;
+	
 	@Column(name = "audio_id")
 	private Long audioId;
 	
@@ -110,6 +118,14 @@ public class ArtWork extends MultiLanguageObject {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public Resource getAudioNumberPng() {
+		return audioNumberPng;
+	}
+
+	public void setAudioNumberPng(Resource audioNuumberPng) {
+		this.audioNumberPng = audioNuumberPng;
 	}
 
 	public String geturl() {

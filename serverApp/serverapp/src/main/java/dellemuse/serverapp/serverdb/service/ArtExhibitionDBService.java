@@ -75,6 +75,7 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		c.setState(ObjectState.EDITION);
+		
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
 
@@ -209,6 +210,7 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		Long photoId = a.getPhoto() != null ? a.getPhoto().getId() : null;
 		Long qrId = a.getQrcode() != null ? a.getQrcode().getId() : null;
 		Long qrPdfId = a.getQRCodePdf() != null ? a.getQRCodePdf().getId() : null;
+		Long audioNumberPngId = a.getAudioNumberPng() != null ? a.getAudioNumberPng().getId() : null;
 		Long userId = a.getLastModifiedUser() != null ? a.getLastModifiedUser().getId() : null;
 
 		// Detach to prevent dirty-checking from triggering @PostUpdate
@@ -232,6 +234,9 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 
 		if (qrPdfId != null)
 			a.setQRCodePdf(getResourceDBService().findById(qrPdfId).get());
+
+		if (audioNumberPngId != null)
+			a.setAudioNumberPng(getResourceDBService().findById(audioNumberPngId).get());
 
 		if (userId != null)
 			a.setLastModifiedUser(getUserDBService().findById(userId).get());
@@ -495,6 +500,16 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		aex.setQRCodePdf(res);
 		getRepository().save(aex);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aex, createdBy, AuditAction.UPDATE, AuditKey.ADD_QR_PDF));
+		return aex;
+	}
+
+	@Transactional
+	public ArtExhibition addAudioNumberPng(ArtExhibition aex, String bucketName, String objectName, String name, String media, long size, User createdBy) {
+		ResourceDBService rdbs = (ResourceDBService) ServiceLocator.getInstance().getBean(ResourceDBService.class);
+		Resource res = rdbs.create(bucketName, objectName, name, media, size, ServerConstant.AUDIO_NUMBER_PNG, createdBy, name, true);
+		aex.setAudioNumberPng(res);
+		getRepository().save(aex);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(aex, createdBy, AuditAction.UPDATE, AuditKey.ADD_AUDIO_NUMBER_PNG));
 		return aex;
 	}
 

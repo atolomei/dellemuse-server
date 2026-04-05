@@ -24,7 +24,7 @@ import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Resource;
+ 
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
