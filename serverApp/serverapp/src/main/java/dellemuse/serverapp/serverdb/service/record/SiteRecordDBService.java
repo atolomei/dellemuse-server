@@ -36,7 +36,7 @@ import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
- 
+
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -51,14 +51,13 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 	public SiteRecordDBService(CrudRepository<SiteRecord, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
-	
-	
+
 	@Override
 	@Transactional
 	public Optional<SiteRecord> findByParentObject(MultiLanguageObject o, String lang) {
 		return findBySite((Site) o, lang);
 	}
-	
+
 	@Transactional
 	public SiteRecord create(Site a, String lang, User createdBy) {
 
@@ -73,8 +72,8 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 		c.setState(a.getState());
 
 		getRepository().save(c);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
-		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+
 		return c;
 	}
 
@@ -87,17 +86,17 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 	@Transactional
 	public SiteRecord create(String name, Site site, User createdBy) {
 		SiteRecord c = new SiteRecord();
-		
+
 		c.setName(name);
-		c.setSite(site); 
+		c.setSite(site);
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		c.setState(ObjectState.EDITION);
 
 		getRepository().save(c);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
-		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+
 		return c;
 	}
 
@@ -107,10 +106,8 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 	}
 
-	
-	
 	/**
-	 
+	 * 
 	 * @param a
 	 * @param lang
 	 * @return
@@ -118,125 +115,107 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 	@Transactional
 	public Optional<SiteRecord> findBySite(Site a, String lang) {
 
-
 		if (lang.startsWith("pt"))
-			lang="pt-BR";
-		
-		
+			lang = "pt-BR";
+
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<SiteRecord> cq = cb.createQuery(SiteRecord.class);
 		Root<SiteRecord> root = cq.from(SiteRecord.class);
-		
-	     Predicate p1 = cb.equal(root.get("site").get("id"), a.getId() );
-	     Predicate p2 = cb.equal(root.get("language"), lang );
 
-	     Predicate combinedPredicate = cb.and(p1, p2);
-	     
-	     cq.select(root).where(combinedPredicate);
-	
+		Predicate p1 = cb.equal(root.get("site").get("id"), a.getId());
+		Predicate p2 = cb.equal(root.get("language"), lang);
+
+		Predicate combinedPredicate = cb.and(p1, p2);
+
+		cq.select(root).where(combinedPredicate);
+
 		List<SiteRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
 	}
 
-	
 	@Transactional
 	public List<SiteRecord> findAllByGuideContent(Site a) {
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<SiteRecord> cq = cb.createQuery(SiteRecord.class);
 		Root<SiteRecord> root = cq.from(SiteRecord.class);
-		
-	     Predicate p1 = cb.equal(root.get("site").get("id"), a.getId() );
-	     cq.select(root).where(p1);
-	
+
+		Predicate p1 = cb.equal(root.get("site").get("id"), a.getId());
+		cq.select(root).where(p1);
+
 		List<SiteRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 
-		if (list==null)
+		if (list == null)
 			return new ArrayList<SiteRecord>();
-		
+
 		return list;
 	}
 
-	
-
 	@Transactional
 	private void deleteResources(Long id) {
-		
+
 		Optional<SiteRecord> o_aw = super.findWithDeps(id);
 
 		if (o_aw.isEmpty())
 			return;
-		
-		SiteRecord a=o_aw.get();
-		
+
+		SiteRecord a = o_aw.get();
+
 		getResourceDBService().delete(a.getPhoto());
 		getResourceDBService().delete(a.getAudio());
 		getResourceDBService().delete(a.getVideo());
-		
-	}
-	 
-	/**@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
+
 	}
 
-	@Transactional
-	public void delete(SiteRecord o) {
-		this.delete(o.getId()); 
-	}
-	**/
-	
 	@Transactional
 	public Optional<SiteRecord> findWithDeps(Long id) {
 
 		Optional<SiteRecord> o_aw = super.findById(id);
 
 		if (o_aw.isEmpty())
-			return  o_aw;
-		
+			return o_aw;
+
 		SiteRecord aw = o_aw.get();
-		
+
 		User u = getUserDBService().findById(aw.getLastModifiedUser().getId()).get();
 		aw.setLastModifiedUser(u);
 
 		Resource photo = aw.getPhoto();
-		if (photo!=null)
+		if (photo != null)
 			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
-		
+
 		Resource audio = aw.getAudio();
-		if (audio!=null)
+		if (audio != null)
 			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
 
 		User user = aw.getLastModifiedUser();
-		if (user!=null)
+		if (user != null)
 			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
-		
-		if (aw.getParentObject()!=null) {
+
+		if (aw.getParentObject() != null) {
 			Site c = (Site) aw.getParentObject();
-			aw.setSite( getSiteDBService().findById(c.getId()).get());
+			aw.setSite(getSiteDBService().findById(c.getId()).get());
 		}
-		
+
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
-	
-    @Transactional
-    @Override
-    public Iterable<SiteRecord> findAllSorted() {
-        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<SiteRecord> cq = cb.createQuery(getEntityClass());
-        Root<SiteRecord> root = cq.from(getEntityClass());
-        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
-        return getEntityManager().createQuery(cq).getResultList();
-    }
-    
+
+	@Transactional
+	@Override
+	public Iterable<SiteRecord> findAllSorted() {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<SiteRecord> cq = cb.createQuery(getEntityClass());
+		Root<SiteRecord> root = cq.from(getEntityClass());
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
 
 	public boolean isDetached(SiteRecord entity) {
 		return !getEntityManager().contains(entity);
 	}
-	
+
 	@Transactional
 	public void reloadIfDetached(SiteRecord src) {
 		if (!getEntityManager().contains(src)) {
@@ -253,13 +232,10 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 	protected Class<SiteRecord> getEntityClass() {
 		return SiteRecord.class;
 	}
-	
+
 	@PostConstruct
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
-
-	 
-
 
 }

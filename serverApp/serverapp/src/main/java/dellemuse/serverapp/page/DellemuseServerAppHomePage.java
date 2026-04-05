@@ -17,7 +17,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.SitePage;
-import dellemuse.serverapp.page.user.UserPage;
+ 
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
@@ -28,7 +28,7 @@ import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.InvisiblePanel;
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @WicketHomePage
 @MountPath("/home")
 public class DellemuseServerAppHomePage extends BasePage {
@@ -39,48 +39,45 @@ public class DellemuseServerAppHomePage extends BasePage {
 	private ListPanel<Site> panel;
 	private List<IModel<Site>> list;
 
- 
 	static private Logger logger = Logger.getLogger(DellemuseServerAppHomePage.class.getName());
 
 	public DellemuseServerAppHomePage(PageParameters parameters) {
 		super(parameters);
-	
-		/**
-		logger.debug("WICKET isSignedIn = " +
-			    ((AuthenticatedWebSession)getSession()).isSignedIn());
-		
-		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-		logger.debug("AUTH = " + auth);
-		logger.debug("AUTHORITIES = " + auth.getAuthorities());
-		
-		
-		logger.debug("SESSION=" + getSession().getId());
-		logger.debug("AUTH=" + SecurityContextHolder.getContext().getAuthentication());
-		**/
-	
+		/**
+		 * logger.debug("WICKET isSignedIn = " +
+		 * ((AuthenticatedWebSession)getSession()).isSignedIn());
+		 * 
+		 * 
+		 * Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		 * 
+		 * logger.debug("AUTH = " + auth); logger.debug("AUTHORITIES = " +
+		 * auth.getAuthorities());
+		 * 
+		 * 
+		 * logger.debug("SESSION=" + getSession().getId()); logger.debug("AUTH=" +
+		 * SecurityContextHolder.getContext().getAuthentication());
+		 **/
+
 	}
 
 	public DellemuseServerAppHomePage() {
 		super();
-		
+
 		/**
-		logger.debug("WICKET isSignedIn = " +
-			    ((AuthenticatedWebSession)getSession()).isSignedIn());
-		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		 * logger.debug("WICKET isSignedIn = " +
+		 * ((AuthenticatedWebSession)getSession()).isSignedIn());
+		 * 
+		 * Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		 * 
+		 * logger.debug("AUTH = " + auth); logger.debug("AUTHORITIES = " +
+		 * auth.getAuthorities());
+		 * 
+		 * logger.debug("SESSION=" + getSession().getId()); logger.debug("AUTH=" +
+		 * SecurityContextHolder.getContext().getAuthentication());
+		 **/
 
-		logger.debug("AUTH = " + auth);
-		logger.debug("AUTHORITIES = " + auth.getAuthorities());
-
-		logger.debug("SESSION=" + getSession().getId());
-		logger.debug("AUTH=" + SecurityContextHolder.getContext().getAuthentication());
-		**/
-		
 	}
-	
-	
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
@@ -97,40 +94,41 @@ public class DellemuseServerAppHomePage extends BasePage {
 		if (model != null)
 			model.detach();
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
-			try {
-				Optional<User> o = super.getSessionUser();
-		
-				if (o.isEmpty()) {
-					throw new RuntimeException("no session");
-				}
-				
-				setModel(new ObjectModel<User>(o.get()));
-				add(new GlobalTopPanel("top-panel", getModel()));
-				add(new InvisiblePanel("footer-panel"));
-				
-				if (isRoot() || isGeneralAdmin())
-					add( new HomeAdminMainPanel("mainPanel", getModel()));
-				else
-					add( new HomeSiteUserMainPanel("mainPanel", getModel()));
-				
-				if (!getSessionUser().isEmpty()) {
-					if (!getSessionUser().get().isInitialSigninDone()) {
-						logger.debug("initial signin not done, redirecting to user editor");
-						//setResponsePage(new UserPage( new ObjectModel<User>( getSessionUser().get()), true) );
-					}
-				}
-				
-			} catch (Exception e) {
-				logger.error(e);
-				addOrReplace(new InvisiblePanel("top-panel"));
-				addOrReplace(new InvisiblePanel("footer-panel"));
-				addOrReplace(new ErrorPanel("mainPanel", e));
+		try {
+			Optional<User> o = super.getSessionUser();
+
+			if (o.isEmpty()) {
+				throw new RuntimeException("no session");
 			}
+
+			setModel(new ObjectModel<User>(o.get()));
+			add(new GlobalTopPanel("top-panel", getModel()));
+			add(new InvisiblePanel("footer-panel"));
+
+			if (isRoot() || isGeneralAdmin())
+				add(new HomeAdminMainPanel("mainPanel", getModel()));
+			else
+				add(new HomeSiteUserMainPanel("mainPanel", getModel()));
+
+			if (!getSessionUser().isEmpty()) {
+				if (!getSessionUser().get().isInitialSigninDone()) {
+					logger.debug("initial signin not done, redirecting to user editor");
+					// setResponsePage(new UserPage( new ObjectModel<User>( getSessionUser().get()),
+					// true) );
+				}
+			}
+
+		} catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new InvisiblePanel("top-panel"));
+			addOrReplace(new InvisiblePanel("footer-panel"));
+			addOrReplace(new ErrorPanel("mainPanel", e));
+		}
 	}
 
 	public IModel<User> getModel() {

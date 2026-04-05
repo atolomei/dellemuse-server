@@ -36,7 +36,7 @@ import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
- 
+
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -51,12 +51,13 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 	public PersonRecordDBService(CrudRepository<PersonRecord, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
-	
+
 	@Override
 	@Transactional
 	public Optional<PersonRecord> findByParentObject(MultiLanguageObject o, String lang) {
 		return findByPerson((Person) o, lang);
 	}
+
 	/**
 	 * 
 	 * 
@@ -66,23 +67,22 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 	 * @return
 	 */
 	@Transactional
-	public PersonRecord create(String name, Person site, User createdBy) {
+	public PersonRecord create(String name, Person p, User createdBy) {
 		PersonRecord c = new PersonRecord();
-		
+
 		c.setName(name);
-		 
-		c.setPerson(site); 
+
+		c.setPerson(p);
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-	 	c.setObjectState(ObjectState.EDITION);
+		c.setObjectState(p.getState());
 		getRepository().save(c);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
-		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+
 		return c;
 	}
 
-	
 	@Transactional
 	public PersonRecord create(Person a, String lang, User createdBy) {
 
@@ -90,27 +90,25 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 
 		c.setPerson(a);
 		c.setName(a.getName());
-		 
+
 		c.setLanguage(lang);
-		
-		c.setObjectState(ObjectState.EDITION);
+
+		c.setObjectState(a.getState());
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		
+
 		getRepository().save(c);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
-		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+
 		return c;
 	}
 
-	
 	@Transactional
 	public void restore(PersonRecord c, User by) {
-		 super.restore(c, by);
+		super.restore(c, by);
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param a
@@ -120,104 +118,96 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 	@Transactional
 	public Optional<PersonRecord> findByPerson(Person a, String lang) {
 
- 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<PersonRecord> cq = cb.createQuery(PersonRecord.class);
 		Root<PersonRecord> root = cq.from(PersonRecord.class);
-		
-	     Predicate p1 = cb.equal(root.get("person").get("id"), a.getId() );
-	     Predicate p2 = cb.equal(root.get("language"),getLanguageService().normalizeLanguage(lang) );
 
-	     Predicate combinedPredicate = cb.and(p1, p2);
-	     
-	     cq.select(root).where(combinedPredicate);
-	
+		Predicate p1 = cb.equal(root.get("person").get("id"), a.getId());
+		Predicate p2 = cb.equal(root.get("language"), getLanguageService().normalizeLanguage(lang));
+
+		Predicate combinedPredicate = cb.and(p1, p2);
+
+		cq.select(root).where(combinedPredicate);
+
 		List<PersonRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-		
+
 	}
 
 	@Transactional
-	public List<PersonRecord> findAllByGuideContent(Person  a) {
+	public List<PersonRecord> findAllByGuideContent(Person a) {
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<PersonRecord> cq = cb.createQuery(PersonRecord.class);
 		Root<PersonRecord> root = cq.from(PersonRecord.class);
-		
-	     Predicate p1 = cb.equal(root.get("person").get("id"), a.getId() );
-	     cq.select(root).where(p1);
-	
+
+		Predicate p1 = cb.equal(root.get("person").get("id"), a.getId());
+		cq.select(root).where(p1);
+
 		List<PersonRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 
-		if (list==null)
+		if (list == null)
 			return new ArrayList<PersonRecord>();
-		
+
 		return list;
-	}	
+	}
 
 	@Transactional
 	public void save(PersonRecord o, User user, List<String> updatedParts) {
 		super.save(o);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 	}
- 
-	
+
 	@Transactional
 	public Optional<PersonRecord> findWithDeps(Long id) {
 
 		Optional<PersonRecord> o_aw = super.findById(id);
 
 		if (o_aw.isEmpty())
-			return  o_aw;
-		
+			return o_aw;
+
 		PersonRecord aw = o_aw.get();
-		 
-		 
 
 		User u = aw.getLastModifiedUser();
-		
-		if (u!=null)
+
+		if (u != null)
 			u.getDisplayname();
-		
-	 
-		
-		
+
 		Resource photo = aw.getPhoto();
-		if (photo!=null)
+		if (photo != null)
 			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
-		
+
 		Resource audio = aw.getAudio();
-		if (audio!=null)
+		if (audio != null)
 			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
 
 		User user = aw.getLastModifiedUser();
-		if (user!=null)
+		if (user != null)
 			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
-		
-		if (aw.getParentObject()!=null) {
+
+		if (aw.getParentObject() != null) {
 			Person c = (Person) aw.getParentObject();
-			aw.setPerson( getPersonDBService().findById(c.getId()).get());
+			aw.setPerson(getPersonDBService().findById(c.getId()).get());
 		}
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
-	
-    @Transactional
-    @Override
-    public Iterable<PersonRecord> findAllSorted() {
-        CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
-        CriteriaQuery<PersonRecord> cq = cb.createQuery(getEntityClass());
-        Root<PersonRecord> root = cq.from(getEntityClass());
-        cq.orderBy(cb.asc( cb.lower(root.get("name"))));
-        return getEntityManager().createQuery(cq).getResultList();
-    }
-    
+
+	@Transactional
+	@Override
+	public Iterable<PersonRecord> findAllSorted() {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<PersonRecord> cq = cb.createQuery(getEntityClass());
+		Root<PersonRecord> root = cq.from(getEntityClass());
+		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
 
 	public boolean isDetached(PersonRecord entity) {
 		return !getEntityManager().contains(entity);
 	}
-	
+
 	@Transactional
 	public void reloadIfDetached(PersonRecord src) {
 		if (!getEntityManager().contains(src)) {
@@ -234,11 +224,10 @@ public class PersonRecordDBService extends RecordDBService<PersonRecord, Long> {
 	protected Class<PersonRecord> getEntityClass() {
 		return PersonRecord.class;
 	}
-	
+
 	@PostConstruct
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
-
 
 }

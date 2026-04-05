@@ -37,14 +37,13 @@ public class RoleInstitutionDBService extends DBService<RoleInstitution, Long> {
 	@PersistenceContext
 	private EntityManager entityManager;
 
-
 	public RoleInstitutionDBService(CrudRepository<RoleInstitution, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
- 
+
 	@Transactional
 	public RoleInstitution create(String name, Institution i, User createdBy) {
-	
+
 		RoleInstitution c = new RoleInstitution();
 
 		c.setInstitution(i);
@@ -56,13 +55,13 @@ public class RoleInstitutionDBService extends DBService<RoleInstitution, Long> {
 		c.setKey(RoleInstitution.ADMIN);
 
 		getRepository().save(c);
-	
-		logger.debug("Create RoleInstitution -> " + c.getName()+" - " + i.getName());
+
+		logger.debug("Create RoleInstitution -> " + c.getName() + " - " + i.getName());
 
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 		return c;
 	}
-	
+
 	@Transactional
 	public void markAsDeleted(RoleInstitution c, User deletedBy) {
 		c.setLastModified(OffsetDateTime.now());
@@ -83,7 +82,7 @@ public class RoleInstitutionDBService extends DBService<RoleInstitution, Long> {
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, restoredBy, AuditAction.UPDATE, AuditKey.RESTORE));
 		getRepository().save(c);
 	}
-	
+
 	@Transactional
 	public Optional<RoleInstitution> findWithDeps(Long id) {
 
@@ -94,16 +93,14 @@ public class RoleInstitutionDBService extends DBService<RoleInstitution, Long> {
 
 		RoleInstitution i = o_i.get();
 
-		
 		Set<User> users = new HashSet<User>();
-		i.getUsers().forEach( u -> users.add( getUserDBService().findById(u.getId()).get()));
+		i.getUsers().forEach(u -> users.add(getUserDBService().findById(u.getId()).get()));
 		i.setUsers(users);
-		
+
 		i.setDependencies(true);
 		return o_i;
 	}
 
-	
 	@Transactional
 	public Iterable<RoleInstitution> findByInstitution(Institution i) {
 
@@ -114,19 +111,18 @@ public class RoleInstitutionDBService extends DBService<RoleInstitution, Long> {
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
+
 	@Transactional
 	public Iterable<RoleInstitution> findByInstitution(Long id) {
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<RoleInstitution> cq = cb.createQuery(getEntityClass());
 		Root<RoleInstitution> root = cq.from(getEntityClass());
-		cq.select(root).where(cb.equal(root.get("institution").get("id"),  id));
+		cq.select(root).where(cb.equal(root.get("institution").get("id"), id));
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
-	
-	
+
 	@Transactional
 	public Iterable<RoleInstitution> findAllSorted() {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
@@ -145,7 +141,8 @@ public class RoleInstitutionDBService extends DBService<RoleInstitution, Long> {
 		cq.select(root).where(cb.equal(root.get("state"), os));
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 
-		//getEntityManager().createQuery(cq).getResultList().forEach(c -> logger.debug(c.getName()));
+		// getEntityManager().createQuery(cq).getResultList().forEach(c ->
+		// logger.debug(c.getName()));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
@@ -163,7 +160,7 @@ public class RoleInstitutionDBService extends DBService<RoleInstitution, Long> {
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}
- 
+
 	@Transactional
 	public List<RoleInstitution> getByName(String name) {
 		return createNameQuery(name).getResultList();
