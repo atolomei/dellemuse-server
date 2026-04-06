@@ -163,8 +163,9 @@ public class EmailTemplateService extends BaseService implements SystemService {
     /** Normalises locale strings the same way {@code HelpService} does. */
     private String normalizeForResourceBundle(String str) {
         if (str == null)
-            return "spa";
-        if (str.equals("es"))  return "spa";
+            return "es";
+        if (str.startsWith("es"))  return "es";
+        if (str.startsWith("en"))  return "en";
         if (str.startsWith("pt")) return "pt";
         return str;
     }
