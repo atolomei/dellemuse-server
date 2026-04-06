@@ -3,7 +3,6 @@ package dellemuse.serverapp.guidecontent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -16,7 +15,6 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
@@ -354,7 +352,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 
 			@Override
 			public void onClick() {
-				
+
 				ArtWorkPage p = new ArtWorkPage(getArtWorkModel());
 				p.setStartTab(ServerAppConstant.artwork_qrcode);
 				setResponsePage(p);
@@ -365,8 +363,6 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		Label openArtworkLabel = new Label("openArtworkLabel", getLabel("open-artwork", getArtWorkModel().getObject().getDisplayname()));
 		this.openArtwork.add(openArtworkLabel);
 		getForm().add(openArtwork);
-
-		 
 
 		this.openAudioStudio = new Link<GuideContent>("openAudioStudio", getModel()) {
 			private static final long serialVersionUID = 1L;
@@ -389,7 +385,6 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 		this.openAudioStudio.add(openLabel);
 		getForm().add(openAudioStudio);
 
-		 
 	}
 
 	protected void importFromGeneralGuide(AjaxRequestTarget target) {

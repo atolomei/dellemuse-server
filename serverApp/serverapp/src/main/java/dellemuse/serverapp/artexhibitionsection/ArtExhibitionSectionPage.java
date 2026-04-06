@@ -56,12 +56,7 @@ import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-/**
- * 
- * site foto Info - exhibitions
- * 
- */
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 
 @MountPath("/ArtExhibitionSection/${id}")
 public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibitionSection, ArtExhibitionSectionRecord> {
@@ -75,64 +70,60 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 	private IModel<ArtWork> artWorkModel;
 	private List<ToolbarItem> list;
 
-	 
 	JumboPageHeaderPanel<ArtExhibitionSection> header;
 
 	protected List<Language> getSupportedLanguages() {
-		return  getSiteModel().getObject().getLanguages();
+		return getSiteModel().getObject().getLanguages();
 	}
 
-	
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-		
+
 		if (ouser.isEmpty())
 			return false;
-	
-		
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
+
+		User user = ouser.get();
+
+		if (user.isRoot())
 			return true;
-		
+
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
 		{
-		Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set!=null) {
-					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-					if (isAccess)
-						return true;
-			}
-		}
-		
-		
-		{
-			final Long sid = getSiteModel().getObject().getId();
-			
-			Set<RoleSite> set = user.getRolesSite();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+			Set<RoleGeneral> set = user.getRolesGeneral();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
 				if (isAccess)
 					return true;
 			}
-		}		
-		
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
 		{
 			final Long iid = getSiteModel().getObject().getInstitution().getId();
 			Set<RoleInstitution> set = user.getRolesInstitution();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN))));
 				if (isAccess)
 					return true;
 			}
 		}
 
 		return false;
-	} 
+	}
+
 	public ArtExhibitionSectionPage() {
 		super();
 	}
@@ -148,7 +139,7 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 	public ArtExhibitionSectionPage(IModel<ArtExhibitionSection> model, List<IModel<ArtExhibitionSection>> list) {
 		super(model, list);
 	}
-	
+
 	protected Optional<ArtExhibitionSectionRecord> loadTranslationRecord(String lang) {
 		return getArtExhibitionSectionDBService().findByArtExhibitionSection(getModel().getObject(), lang);
 	}
@@ -161,8 +152,7 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 	protected boolean isAudioVisible() {
 		return true;
 	}
-	
-	
+
 	@Override
 	protected Class<?> getTranslationClass() {
 		return ArtExhibitionSectionRecord.class;
@@ -189,19 +179,16 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 		return list;
 	}
 
-	 
-
 	protected void onDelete(AjaxRequestTarget target) {
-		getArtExhibitionSectionDBService().markAsDeleted( getModel().getObject(), getSessionUser().get() );
+		getArtExhibitionSectionDBService().markAsDeleted(getModel().getObject(), getSessionUser().get());
 		fireScanAll(new ObjectMarkAsDeleteEvent(target));
 	}
-	
+
 	protected void onRestore(AjaxRequestTarget target) {
-		getArtExhibitionSectionDBService().restore( getModel().getObject(), getSessionUser().get() );
+		getArtExhibitionSectionDBService().restore(getModel().getObject(), getSessionUser().get());
 		fireScanAll(new ObjectRestoreEvent(target));
 	}
-	
-	
+
 	protected void addListeners() {
 		super.addListeners();
 
@@ -214,7 +201,7 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 				logger.debug(event.toString());
 
 				if (event.getName().equals(ServerAppConstant.action_exhibition_item_info_edit)) {
-					//ArtExhibitionSectionPage.this.onEdit(event.getTarget());
+					// ArtExhibitionSectionPage.this.onEdit(event.getTarget());
 				}
 
 				if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
@@ -235,7 +222,7 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 
 				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					ArtExhibitionSectionPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
-					
+
 				} else if (event.getName().equals(ServerAppConstant.object_audit)) {
 					ArtExhibitionSectionPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				}
@@ -291,8 +278,6 @@ public class ArtExhibitionSectionPage extends MultiLanguageObjectPage<ArtExhibit
 		});
 
 	}
-
-
 
 	@Override
 	protected Optional<ArtExhibitionSection> getObject(Long id) {

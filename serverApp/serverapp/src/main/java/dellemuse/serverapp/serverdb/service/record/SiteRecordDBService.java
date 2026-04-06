@@ -115,8 +115,7 @@ public class SiteRecordDBService extends RecordDBService<SiteRecord, Long> {
 	@Transactional
 	public Optional<SiteRecord> findBySite(Site a, String lang) {
 
-		if (lang.startsWith("pt"))
-			lang = "pt-BR";
+		lang = getLanguageService().normalizeLanguage(lang);
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<SiteRecord> cq = cb.createQuery(SiteRecord.class);

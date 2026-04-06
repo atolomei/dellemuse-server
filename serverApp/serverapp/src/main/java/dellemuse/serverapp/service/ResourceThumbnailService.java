@@ -65,8 +65,7 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 		return MediaUtil.getAudioDurationMilliseconds(sourceFile);
 	}
 
-	 
-	public void  deleteThumbnail(Resource resource, ThumbnailSize size) throws IOException {
+	public void deleteThumbnail(Resource resource, ThumbnailSize size) throws IOException {
 		final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
 		final String t_object = resource.getBucketName() + "-" + String.valueOf(resource.getObjectName().hashCode()) + "-" + size.getLabel();
 		try {
@@ -74,64 +73,56 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 				getObjectStorageService().getClient().deleteObject(t_bucket, t_object);
 				logger.debug("thumbnail deleted -> " + t_bucket + " | " + t_object);
 			}
-		}
-		catch (ODClientException e) {
+		} catch (ODClientException e) {
 			throw new IOException(e);
 		}
 	}
-	
-	
+
 	public String getPresignedThumbnailUrl(Resource resource, ThumbnailSize size) throws IOException {
 
 		final String t_bucket = ServerConstant.THUMBNAIL_BUCKET;
 		final String t_object = resource.getBucketName() + "-" + String.valueOf(resource.getObjectName().hashCode()) + "-" + size.getLabel();
- 
+
 		try {
-			
+
 			if (getObjectStorageService().getClient().existsObject(t_bucket, t_object)) {
-				
+
 				ObjectMetadata meta = getObjectStorageService().getClient().getObjectMetadata(t_bucket, t_object);
 				if (!meta.isPublicAccess())
 					getObjectStorageService().getClient().setPublicAccess(t_bucket, t_object, true);
-				
-				
-				if (resource.getSize()<meta.getLength()) {
-	
+
+				if (resource.getSize() < meta.getLength()) {
+
 					logger.debug("thumbnail already exists but is smaller than original resource, returning original resource public url");
-					
+
 					ObjectMetadata meta2 = getObjectStorageService().getClient().getObjectMetadata(resource.getBucketName(), resource.getObjectName());
 
 					if (!meta2.isPublicAccess())
 						getObjectStorageService().getClient().setPublicAccess(resource.getBucketName(), resource.getObjectName(), true);
-					
+
 					return getObjectStorageService().getClient().getPublicObjectUrl(resource.getBucketName(), resource.getObjectName());
 				}
-				
-				
+
 				if (getPublicUrlCacheService().contains(resource.getId(), size.getLabel())) {
 					logger.debug(" using cache -> " + resource.getId().toString());
 					return getPublicUrlCacheService().get(resource.getId(), size.getLabel());
 				}
-						
-				logger.debug ( meta.toString());
-				
-			
-				
+
+				logger.debug(meta.toString());
+
 				String url = getObjectStorageService().getClient().getPublicObjectUrl(t_bucket, t_object);
 				getPublicUrlCacheService().put(resource.getId(), size.getLabel(), url);
 				return url;
-		
+
 			}
 		} catch (ODClientException e) {
 			throw new IOException(e);
 		}
 
- 	
 		if (!resource.getMedia().startsWith("image")) {
 			throw new IllegalArgumentException(Resource.class.getSimpleName() + " is not image -> id: " + resource.getId().toString() + " | media: " + resource.getMedia());
 		}
 
-		
 		/** create thumbnail */
 
 		File sourceFile = new File(getSettings().getWorkDir(), resource.getName());
@@ -157,11 +148,11 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 			/** save into object storage */
 
 			try {
-			
+
 				logger.debug("-------- generated thumbnail ------- ");
-				logger.debug("src file  -> " + sourceFile.getName() + " size -> " + sourceFile.length()/1000 + " KB ");
-				logger.debug("thumbnail -> " + thumbnail.getName() + " size -> " + thumbnail.length()/1000 + " KB ");
-				
+				logger.debug("src file  -> " + sourceFile.getName() + " size -> " + sourceFile.length() / 1000 + " KB ");
+				logger.debug("thumbnail -> " + thumbnail.getName() + " size -> " + thumbnail.length() / 1000 + " KB ");
+
 				getObjectStorageService().getClient().putObject(t_bucket, t_object, Optional.empty(), Optional.of(Boolean.TRUE), thumbnail);
 				return getObjectStorageService().getClient().getPublicObjectUrl(t_bucket, t_object);
 
@@ -178,11 +169,10 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 			}
 		}
 	}
-	
+
 	public PublicUrlCacheService getPublicUrlCacheService() {
 		return (PublicUrlCacheService) ServiceLocator.getInstance().getBean(PublicUrlCacheService.class);
 	}
-
 
 	public ObjectStorageService getObjectStorageService() {
 		return objectStorageService;
@@ -228,8 +218,8 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 			try (FileOutputStream out = new FileOutputStream(fileOut)) {
 				Files.copy(file.toPath(), out);
 			}
-			
-			logger.debug(file.getAbsolutePath() + " thumbnail size -> " + file.length()/1000 + "KB ");
+
+			logger.debug(file.getAbsolutePath() + " thumbnail size -> " + file.length() / 1000 + "KB ");
 			return fileOut;
 		}
 
@@ -237,7 +227,7 @@ public class ResourceThumbnailService extends BaseService implements SystemServi
 			Thumbnails.of(file).size(frame.wo, frame.ho).outputFormat(ext.toLowerCase().equals("png") ? "PNG" : "JPEG").toOutputStream(out);
 		}
 
-		logger.debug(file.getAbsolutePath() + " thumbnail size -> " + file.length()/1000 + "KB ");
+		logger.debug(file.getAbsolutePath() + " thumbnail size -> " + file.length() / 1000 + "KB ");
 		return fileOut;
 	}
 

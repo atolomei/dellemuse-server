@@ -36,7 +36,7 @@ public class HelpService extends BaseService {
 
 	public String gethelp(String key, String ilang) {
 
-		String lang = normalize(ilang);
+		String lang = getLanguageService().normalizeLanguage(ilang);
 
 		String hk = hKey(key, lang);
 
@@ -84,23 +84,4 @@ public class HelpService extends BaseService {
 	private String hKey(String key, String lang) {
 		return key + "#" + lang;
 	}
-
-	private String normalize(String str) {
-
-		if (str == null)
-			return null;
-		
-		if (str.startsWith("en"))
-			return "en";
-		
-		if (str.startsWith("es"))
-			return "spa";
-		
-		if (str.startsWith("pt"))
-			return "pt";
-		
-		return str;
-
-	}
-
 }

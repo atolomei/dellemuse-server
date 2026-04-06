@@ -47,14 +47,6 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 		super(repository, settings);
 	}
 
-	/**
-	 * 
-	 * 
-	 * @param name
-	 * @param ArtExhibitionGuide
-	 * @param createdBy
-	 * @return
-	 */
 	@Transactional
 	public ArtExhibitionGuideRecord create(String name, ArtExhibitionGuide artExhibitionGuide, User createdBy) {
 		ArtExhibitionGuideRecord c = new ArtExhibitionGuideRecord();
@@ -91,7 +83,7 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		
+
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
@@ -142,13 +134,6 @@ public class ArtExhibitionGuideRecordDBService extends RecordDBService<ArtExhibi
 			getAudioStudioDBService().restore(o.get(), by);
 	}
 
-	/**
-	 * 
-	 * 
-	 * @param a
-	 * @param lang
-	 * @return
-	 */
 	@Transactional
 	public Optional<ArtExhibitionGuideRecord> findByArtExhibitionGuide(ArtExhibitionGuide a, String lang) {
 

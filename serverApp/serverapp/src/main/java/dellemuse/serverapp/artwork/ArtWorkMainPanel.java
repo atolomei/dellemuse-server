@@ -7,44 +7,36 @@ import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
+
 import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.link.DownloadLink;
+
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.Panel;
+
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.request.Url;
-import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.model.util.ThumbnailSize;
-import dellemuse.serverapp.ServerConstant;
-import dellemuse.serverapp.editor.ObjectMetaEditor;
+
 import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.ObjectListItemPanel;
+
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.ArtistArtWorksPanel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.ArtWorkType;
+
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.ObjectType;
 import dellemuse.serverapp.serverdb.model.Person;
 
 import dellemuse.serverapp.serverdb.model.Site;
-import io.wktui.error.ErrorPanel;
-import io.wktui.event.MenuAjaxEvent;
 
-import io.wktui.media.InvisibleImage;
+import io.wktui.event.MenuAjaxEvent;
 
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
 
 import wktui.base.InvisiblePanel;
-import wktui.base.LabelPanel;
 
 public class ArtWorkMainPanel extends DBModelPanel<ArtWork> implements InternalPanel {
 

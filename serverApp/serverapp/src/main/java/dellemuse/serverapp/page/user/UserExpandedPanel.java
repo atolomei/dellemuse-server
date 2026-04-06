@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
+
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -13,15 +13,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.ServerConstant;
+
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
-import dellemuse.serverapp.page.DellemuseServerAppHomePage;
+
 import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.MultipleSelectorPanel;
 
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
-import dellemuse.serverapp.page.library.ObjectStateListSelector;
+
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -30,7 +29,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Person;
-import dellemuse.serverapp.serverdb.model.Site;
+
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.Role;
 
@@ -56,13 +55,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 	private List<IModel<Role>> userRoles;
 
 	private FormState state = FormState.VIEW;
-
-	 
-
 	private ListPanel<Role> userRolesPanel;
-
-	 
-
 	private List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
 	private IModel<Person> pmodel;
 	private ObjectStateEnumSelector oses;
@@ -137,21 +130,6 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 	protected List<ToolbarItem> getListToolbarItems() {
 		return null;
-		/**
-		 * if (listToolbar != null) return listToolbar;
-		 * 
-		 * listToolbar = new ArrayList<ToolbarItem>();
-		 * 
-		 * IModel<String> selected =
-		 * Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
-		 * ObjectStateListSelector s = new ObjectStateListSelector("item", selected,
-		 * Align.TOP_LEFT);
-		 * 
-		 * listToolbar.add(s);
-		 * 
-		 * return listToolbar;
-		 */
-
 	}
 
 	protected void addListeners() {
@@ -165,7 +143,6 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 				setObjectStateEnumSelector(event.getObjectStateEnumSelector());
 				loadUserRolesList();
 				event.getTarget().add(UserExpandedPanel.this.userRolesPanel);
-				// event.getTarget().add(UserExpandedPanel.this.listToolbarContainer);
 			}
 
 			@Override
@@ -202,11 +179,11 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 		StringBuilder str = new StringBuilder();
 		str.append(model.getObject().getRoleDisplayName() + " <span class=\"text-secondary\">(" + model.getObject().getDisplayClass(getLocale()) + ")</span> ");
 
-		Role o  = model.getObject();
-		
+		Role o = model.getObject();
+
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
-		
+
 		if (o.getState() == ObjectState.EDITION)
 			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
@@ -216,8 +193,6 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 	protected void setList(List<IModel<Role>> list) {
 		this.userRoles = list;
 	}
-
-	 
 
 	private void setUpModel() {
 		setObjectStateEnumSelector(ObjectStateEnumSelector.EDTIION_PUBLISHED);
@@ -281,10 +256,9 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 			private static final long serialVersionUID = 1L;
 
-			
 			@Override
 			public IModel<String> getItemLabel(IModel<Role> model) {
-				return  UserExpandedPanel.this.getObjectTitle(model);
+				return UserExpandedPanel.this.getObjectTitle(model);
 			}
 
 			@Override
@@ -311,12 +285,12 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 					@Override
 					protected String getImageSrc() {
 						return null;
-						//return UserExpandedPanel.this.getObjectImageSrc(getModel());
+						// return UserExpandedPanel.this.getObjectImageSrc(getModel());
 					}
 
 					@Override
 					public void onClick() {
-						 setResponsePage(new RolePage(getModel()));
+						setResponsePage(new RolePage(getModel()));
 					}
 
 					@Override

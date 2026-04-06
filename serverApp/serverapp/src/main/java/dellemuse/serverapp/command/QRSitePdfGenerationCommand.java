@@ -211,11 +211,12 @@ public class QRSitePdfGenerationCommand extends Command {
 	}
 
 	private String getLabel(String key, String lang) {
-		ResourceBundle resources = ResourceBundle.getBundle(getClass().getName(), Locale.forLanguageTag(normalize(lang)));
+		ResourceBundle resources = ResourceBundle.getBundle(getClass().getName(), Locale.forLanguageTag(normalizeForResourceBundle(lang)));
 		return resources.getString(key);
 	}
 
-	protected String normalize(String language) {
+	protected String normalizeForResourceBundle(String language) {
+		
 		if (language.startsWith("pt")) {
 			return "pt";
 		}

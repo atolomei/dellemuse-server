@@ -119,10 +119,9 @@ public class ArtExhibitionSectionDBService extends MultiLanguageObjectDBservice<
 	public Optional<ArtExhibitionSectionRecord> findByArtExhibitionSection(ArtExhibitionSection a, String lang) {
 
 
-		if (lang.startsWith("pt"))
-			lang="pt-BR";
+		lang=getLanguageService().normalizeLanguage(lang);
 		
-		
+	 	
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionSectionRecord> cq = cb.createQuery(ArtExhibitionSectionRecord.class);
 		Root<ArtExhibitionSectionRecord> root = cq.from(ArtExhibitionSectionRecord.class);

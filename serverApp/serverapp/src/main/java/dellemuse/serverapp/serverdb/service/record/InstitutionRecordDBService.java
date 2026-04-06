@@ -95,10 +95,8 @@ public class InstitutionRecordDBService extends RecordDBService<InstitutionRecor
 	public Optional<InstitutionRecord> findByInstitution(Institution a, String lang) {
 
 
-		if (lang.startsWith("pt"))
-			lang="pt-BR";
-		
-		
+		lang = getLanguageService().normalizeLanguage(lang);
+				
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<InstitutionRecord> cq = cb.createQuery(InstitutionRecord.class);
 		Root<InstitutionRecord> root = cq.from(InstitutionRecord.class);

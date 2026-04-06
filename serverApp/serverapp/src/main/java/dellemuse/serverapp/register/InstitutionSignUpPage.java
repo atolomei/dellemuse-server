@@ -101,10 +101,6 @@ public class InstitutionSignUpPage extends BasePage {
 		add(panel);
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
 	protected Panel createHeaderPanel() {
 
 		try {

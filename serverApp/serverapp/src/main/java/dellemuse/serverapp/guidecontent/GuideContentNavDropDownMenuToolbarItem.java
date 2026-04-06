@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.person.ServerAppConstant;
@@ -80,8 +79,7 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 					public IModel<String> getLabel() {
 						return getLabel("guide-content-record", getModel().getObject().getMasterLanguage());
 					}
-					
-					
+
 					@Override
 					public String getIconCssClass() {
 						boolean isAudio = getModel().getObject().getAudio() != null;
@@ -90,7 +88,7 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 						} else
 							return null;
 					}
-					
+
 				};
 			}
 		});

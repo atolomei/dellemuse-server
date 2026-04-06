@@ -40,6 +40,7 @@ import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.LockService;
 import dellemuse.serverapp.service.ResourceThumbnailService;
 import dellemuse.serverapp.service.SecurityService;
+import dellemuse.serverapp.service.language.LanguageService;
 
 public abstract class Command extends JsonObject {
 
@@ -253,6 +254,10 @@ public abstract class Command extends JsonObject {
 
 	protected User getRootUser() {
 		return ((UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class)).findRoot();
+	}
+
+	protected LanguageService getLanguageService() {
+		return (LanguageService) ServiceLocator.getInstance().getBean(LanguageService.class);
 	}
 
 }

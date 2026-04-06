@@ -1,13 +1,10 @@
 package dellemuse.serverapp.service;
 
- 
-
- 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
- 
+
 import java.util.List;
- 
+
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -31,225 +28,204 @@ import jakarta.annotation.PreDestroy;
 public class LockService extends BaseService {
 
 	private static Logger logger = Logger.getLogger(LockService.class.getName());
-	
-    private static final long minTimeToSleepMillisec = 1000 * 5; // 5 secs
-    private static final long maxTimeToSleepMillisec = minTimeToSleepMillisec * 24; // 2 minutes
-    private static final long deltaTimeToSleep = maxTimeToSleepMillisec - minTimeToSleepMillisec;
 
-    
-  static private Logger startuplogger = Logger.getLogger("StartupLogger");
-	  
-    /** 2000 lock/sec */
-    @JsonProperty("ratePerMillisec")
-    private double ratePerMillisec = 2;
+	private static final long minTimeToSleepMillisec = 1000 * 5; // 5 secs
+	private static final long maxTimeToSleepMillisec = minTimeToSleepMillisec * 24; // 2 minutes
+	private static final long deltaTimeToSleep = maxTimeToSleepMillisec - minTimeToSleepMillisec;
 
-    @JsonIgnore
-    ReentrantReadWriteLock serverLock = new ReentrantReadWriteLock();
+	static private Logger startuplogger = Logger.getLogger("StartupLogger");
 
-    @JsonIgnore
-    private ConcurrentMap<Long, ReentrantReadWriteLock> objectLocks = new ConcurrentHashMap<>(1000);
+	/** 2000 lock/sec */
+	@JsonProperty("ratePerMillisec")
+	private double ratePerMillisec = 2;
 
-    @JsonIgnore
-    private ConcurrentMap<String, ReentrantReadWriteLock> fileLocks = new ConcurrentHashMap<>(1000);
-    
-    
-    @JsonIgnore
-    private Timer cleaner;
+	@JsonIgnore
+	ReentrantReadWriteLock serverLock = new ReentrantReadWriteLock();
 
-    @JsonIgnore
-    private Timer fileCleaner;
-	 
-    @JsonIgnore
+	@JsonIgnore
+	private ConcurrentMap<Long, ReentrantReadWriteLock> objectLocks = new ConcurrentHashMap<>(1000);
+
+	@JsonIgnore
+	private ConcurrentMap<String, ReentrantReadWriteLock> fileLocks = new ConcurrentHashMap<>(1000);
+
+	@JsonIgnore
+	private Timer cleaner;
+
+	@JsonIgnore
+	private Timer fileCleaner;
+
+	@JsonIgnore
 	private final OffsetDateTime created = OffsetDateTime.now();
 
-    @Autowired
+	@Autowired
 	public LockService(ServerDBSettings settings) {
 		super(settings);
 	}
- 
-    public ReadWriteLock getFileLock(String path) {
-        return getFileLocks().computeIfAbsent(path, key -> new ReentrantReadWriteLock());
-    }
-    
-    public ReadWriteLock getObjectLock(Long id) {
-        return getObjectLocks().computeIfAbsent(id, key -> new ReentrantReadWriteLock());
-    }
 
-    public boolean isLocked(Long id) {
+	public ReadWriteLock getFileLock(String path) {
+		return getFileLocks().computeIfAbsent(path, key -> new ReentrantReadWriteLock());
+	}
 
-	        if (!getObjectLocks().containsKey(id))
-	            return false;
+	public ReadWriteLock getObjectLock(Long id) {
+		return getObjectLocks().computeIfAbsent(id, key -> new ReentrantReadWriteLock());
+	}
 
-	        if (getObjectLocks().get(id).isWriteLocked())
-	            return true;
+	public boolean isLocked(Long id) {
 
-	        if (getObjectLocks().get(id).getReadLockCount() > 0)
-	            return true;
+		if (!getObjectLocks().containsKey(id))
+			return false;
 
-	        return false;
-	    }
+		if (getObjectLocks().get(id).isWriteLocked())
+			return true;
 
+		if (getObjectLocks().get(id).getReadLockCount() > 0)
+			return true;
 
-	    public ConcurrentMap<Long, ReentrantReadWriteLock> getObjectLocks() {
-	        return objectLocks;
-	    }
+		return false;
+	}
 
-	    public void setObjectLocks(ConcurrentMap<Long, ReentrantReadWriteLock> objectLocks) {
-	        this.objectLocks = objectLocks;
-	    }
+	public ConcurrentMap<Long, ReentrantReadWriteLock> getObjectLocks() {
+		return objectLocks;
+	}
 
-	    public ConcurrentMap<String, ReentrantReadWriteLock> getFileLocks() {
-	        return fileLocks;
-	    }
+	public void setObjectLocks(ConcurrentMap<Long, ReentrantReadWriteLock> objectLocks) {
+		this.objectLocks = objectLocks;
+	}
 
-	    public void setFileLocks(ConcurrentMap<String, ReentrantReadWriteLock> objectLocks) {
-	        this.fileLocks = objectLocks;
-	    }
-	    
-	    @PostConstruct
-	    protected synchronized void onInitialize() {
+	public ConcurrentMap<String, ReentrantReadWriteLock> getFileLocks() {
+		return fileLocks;
+	}
 
-	        setStatus(ServiceStatus.STARTING);
-	        this.ratePerMillisec = 10; // getServerSettings().getLockRateMillisecs();
+	public void setFileLocks(ConcurrentMap<String, ReentrantReadWriteLock> objectLocks) {
+		this.fileLocks = objectLocks;
+	}
 
-	        this.cleaner = new Timer() {
+	@PostConstruct
+	protected synchronized void onInitialize() {
 
-	            @Override
-	            public long getSleepTimeMillis() {
-	                return Math.round(minTimeToSleepMillisec
-	                        + deltaTimeToSleep / (1.0 + ((getObjectLocks().size()) / deltaTimeToSleep)));
-	            }
+		setStatus(ServiceStatus.STARTING);
+		this.ratePerMillisec = 10; // getServerSettings().getLockRateMillisecs();
 
-	            @Override
-	            public void onTimeUp() {
+		this.cleaner = new Timer() {
 
-	                if (exit())
-	                    return;
+			@Override
+			public long getSleepTimeMillis() {
+				return Math.round(minTimeToSleepMillisec + deltaTimeToSleep / (1.0 + ((getObjectLocks().size()) / deltaTimeToSleep)));
+			}
 
-	                if (getObjectLocks().size() > 0) {
-	                    long maxToPurge = Math.round(getRatePerMillisec() * maxTimeToSleepMillisec)
-	                            + (long) (getRatePerMillisec() * 1000.0);
-	                    List<Long> list = new ArrayList<Long>();
-	                    try {
-	                        int counter = 0;
-	                        for (Entry<Long, ReentrantReadWriteLock> entry : getObjectLocks().entrySet()) {
-	                            if (entry.getValue().writeLock().tryLock()) {
-	                                list.add(entry.getKey());
-	                                counter++;
-	                                if (counter >= maxToPurge) {
-	                                    break;
-	                                }
-	                            }
-	                        }
-	                        list.forEach(item -> {
-	                            ReentrantReadWriteLock lock = getObjectLocks().get(item);
-	                            getObjectLocks().remove(item);
-	                            lock.writeLock().unlock();
-	                        });
-	                        list.forEach(item -> getObjectLocks().remove(item));
+			@Override
+			public void onTimeUp() {
 
-	                    } finally {
-	                    }
-	                }
-	            }
-	        };
+				if (exit())
+					return;
 
-	        Thread thread = new Thread(cleaner);
-	        thread.setDaemon(true);
-	        thread.setName(
-	                LockService.class.getSimpleName() + "Object Cleaner-" + Double.valueOf(Math.abs(Math.random() * 1000000)).intValue());
-	        thread.start();
-	        
-	        
-	        
-	        this.fileCleaner = new Timer() {
+				if (getObjectLocks().size() > 0) {
+					long maxToPurge = Math.round(getRatePerMillisec() * maxTimeToSleepMillisec) + (long) (getRatePerMillisec() * 1000.0);
+					List<Long> list = new ArrayList<Long>();
+					try {
+						int counter = 0;
+						for (Entry<Long, ReentrantReadWriteLock> entry : getObjectLocks().entrySet()) {
+							if (entry.getValue().writeLock().tryLock()) {
+								list.add(entry.getKey());
+								counter++;
+								if (counter >= maxToPurge) {
+									break;
+								}
+							}
+						}
+						list.forEach(item -> {
+							ReentrantReadWriteLock lock = getObjectLocks().get(item);
+							getObjectLocks().remove(item);
+							lock.writeLock().unlock();
+						});
+						list.forEach(item -> getObjectLocks().remove(item));
 
-	            @Override
-	            public long getSleepTimeMillis() {
-	                return Math.round(minTimeToSleepMillisec
-	                        + deltaTimeToSleep / (1.0 + ((getObjectLocks().size()) / deltaTimeToSleep)));
-	            }
+					} finally {
+					}
+				}
+			}
+		};
 
-	            @Override
-	            public void onTimeUp() {
+		Thread thread = new Thread(cleaner);
+		thread.setDaemon(true);
+		thread.setName(LockService.class.getSimpleName() + "Object Cleaner-" + Double.valueOf(Math.abs(Math.random() * 1000000)).intValue());
+		thread.start();
 
-	                if (exit())
-	                    return;
+		this.fileCleaner = new Timer() {
 
-	                if (getFileLocks().size() > 0) {
-	                    long maxToPurge = Math.round(getRatePerMillisec() * maxTimeToSleepMillisec)
-	                            + (long) (getRatePerMillisec() * 1000.0);
-	                    List<String> list = new ArrayList<String>();
-	                    try {
-	                        int counter = 0;
-	                        for (Entry<String, ReentrantReadWriteLock> entry : getFileLocks().entrySet()) {
-	                            if (entry.getValue().writeLock().tryLock()) {
-	                                list.add(entry.getKey());
-	                                counter++;
-	                                if (counter >= maxToPurge) {
-	                                    break;
-	                                }
-	                            }
-	                        }
-	                        list.forEach(item -> {
-	                            ReentrantReadWriteLock lock = getFileLocks().get(item);
-	                            getFileLocks().remove(item);
-	                            lock.writeLock().unlock();
-	                        });
-	                        list.forEach(item -> getFileLocks().remove(item));
+			@Override
+			public long getSleepTimeMillis() {
+				return Math.round(minTimeToSleepMillisec + deltaTimeToSleep / (1.0 + ((getObjectLocks().size()) / deltaTimeToSleep)));
+			}
 
-	                    } finally {
-	                    }
-	                }
-	            }
-	        };
+			@Override
+			public void onTimeUp() {
 
-	        Thread f_thread = new Thread(fileCleaner);
-	        f_thread.setDaemon(true);
-	        f_thread.setName(
-	                LockService.class.getSimpleName() + "File Cleaner-" + Double.valueOf(Math.abs(Math.random() * 1000000)).intValue());
-	        f_thread.start();
-	        
-	        setStatus(ServiceStatus.RUNNING);
-	        startuplogger.debug("Started -> " + LockService.class.getSimpleName());
-	    }
+				if (exit())
+					return;
 
-	    @PreDestroy
-	    private void preDestroy() {
-	        getPoolCleaner().sendExitSignal();
-	    }
+				if (getFileLocks().size() > 0) {
+					long maxToPurge = Math.round(getRatePerMillisec() * maxTimeToSleepMillisec) + (long) (getRatePerMillisec() * 1000.0);
+					List<String> list = new ArrayList<String>();
+					try {
+						int counter = 0;
+						for (Entry<String, ReentrantReadWriteLock> entry : getFileLocks().entrySet()) {
+							if (entry.getValue().writeLock().tryLock()) {
+								list.add(entry.getKey());
+								counter++;
+								if (counter >= maxToPurge) {
+									break;
+								}
+							}
+						}
+						list.forEach(item -> {
+							ReentrantReadWriteLock lock = getFileLocks().get(item);
+							getFileLocks().remove(item);
+							lock.writeLock().unlock();
+						});
+						list.forEach(item -> getFileLocks().remove(item));
 
-	    
+					} finally {
+					}
+				}
+			}
+		};
 
-	    private Timer getPoolCleaner() {
-	        return this.cleaner;
-	    }
+		Thread f_thread = new Thread(fileCleaner);
+		f_thread.setDaemon(true);
+		f_thread.setName(LockService.class.getSimpleName() + "File Cleaner-" + Double.valueOf(Math.abs(Math.random() * 1000000)).intValue());
+		f_thread.start();
 
-	    private double getRatePerMillisec() {
-	        return this.ratePerMillisec;
-	    }
+		setStatus(ServiceStatus.RUNNING);
+		startuplogger.debug("Started -> " + LockService.class.getSimpleName());
+	}
 
-	 
-	
+	@PreDestroy
+	private void preDestroy() {
+		getPoolCleaner().sendExitSignal();
+	}
+
+	private Timer getPoolCleaner() {
+		return this.cleaner;
+	}
+
+	private double getRatePerMillisec() {
+		return this.ratePerMillisec;
+	}
+
 	@PostConstruct
 	protected void onInit() {
 
 		try {
-			 
+
 			setStatus(ServiceStatus.RUNNING);
 		} catch (Exception e) {
 			setStatus(ServiceStatus.STOPPED);
 		}
 	}
 
-
 	public OffsetDateTime getOffsetDateTimeCreated() {
 		return this.created;
 	}
-
- 
-	
-
-	 
 
 }

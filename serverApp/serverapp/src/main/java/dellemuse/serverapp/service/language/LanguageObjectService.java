@@ -253,17 +253,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 	}
 
 	protected String normalize(String language) {
-		if (language.startsWith("pt")) {
-			return "pt-BR";
-		}
-		if (language.startsWith("en")) {
-			return "en";
-		}
-
-		if (language.startsWith("es")) {
-			return "es";
-		}
-
+		language=getLanguageService().normalizeLanguage(language);
 		return language;
 	}
 
@@ -271,10 +261,7 @@ public class LanguageObjectService extends BaseService implements ApplicationLis
 
 		if (lang.equals(masterLang))
 			return true;
-
-		// if (lang.startsWith("pt") && masterLang.startsWith("pt"))
-		// return true;
-
+ 
 		return false;
 	}
 

@@ -59,9 +59,10 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 	private ObjectStateEnumSelector oses;
 
 	boolean titleVisible = true;
+
 	public RoleUsersPanel(String id, IModel<Role> model, boolean titleVisible) {
 		super(id, model);
-		this.titleVisible=titleVisible;
+		this.titleVisible = titleVisible;
 		setOutputMarkupId(true);
 	}
 
@@ -175,42 +176,36 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		} else
 			role = getModel().getObject();
 		role.getUsers().forEach(s -> this.roleUsers.add(new ObjectModel<User>(s)));
-		
-		
-		this.roleUsers.sort( new Comparator<IModel<User>>() {
+
+		this.roleUsers.sort(new Comparator<IModel<User>>() {
 			@Override
 			public int compare(IModel<User> o1, IModel<User> o2) {
-				 return o1.getObject().getSortLastFirstname().compareToIgnoreCase(o2.getObject().getSortLastFirstname());
+				return o1.getObject().getSortLastFirstname().compareToIgnoreCase(o2.getObject().getSortLastFirstname());
 			}
 		});
-		
-		
-		
-		
+
 	}
 
 	protected IModel<String> getObjectTitle(IModel<User> model) {
 
 		StringBuilder str = new StringBuilder();
-		
-		User o  = model.getObject();
-		
+
+		User o = model.getObject();
+
 		Optional<Person> op = getPersonDBService().getByUser(o);
-		
+
 		if (op.isPresent()) {
-			 str.append( op.get().getLastFirstname() );
+			str.append(op.get().getLastFirstname());
 		}
 
 		str.append(" <span class=\"text-secondary small\"> ( " + model.getObject().getName() + " ) </span>");
-		
-		
+
 		if (o.getState() == ObjectState.DELETED)
 			return new Model<String>(str.toString() + Icons.DELETED_ICON_HTML);
-		
+
 		if (o.getState() == ObjectState.EDITION)
 			return new Model<String>(str.toString() + Icons.EDITION_ICON_HTML);
 
-		
 		return Model.of(str.toString());
 	}
 
@@ -219,7 +214,7 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 		Role u = getModel().getObject();
 		getModel().setObject(getRoleDBService().findWithDeps(u).get());
 	}
- 
+
 	/**
 	 * 
 	 * 
@@ -232,20 +227,18 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 
 			@Override
 			public IModel<String> getItemLabel(IModel<User> model) {
-				return  RoleUsersPanel.this.getObjectTitle(model);
+				return RoleUsersPanel.this.getObjectTitle(model);
 			}
-			
+
 			@Override
 			protected boolean isToolbar() {
 				return RoleUsersPanel.this.isToolbar();
 			}
 
-			 
-
 			@Override
 			protected WebMarkupContainer getListItemExpandedPanel(IModel<User> model, ListPanelMode mode) {
 				return null;
-				 
+
 			}
 
 			@Override

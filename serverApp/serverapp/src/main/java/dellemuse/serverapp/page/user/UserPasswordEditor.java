@@ -1,22 +1,17 @@
 package dellemuse.serverapp.page.user;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.artexhibition.ArtExhibitionEditor;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.editor.SimpleAlertRow;
 import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.site.SiteInfoEditor;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.Person;
@@ -28,7 +23,6 @@ import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
 
-import io.wktui.form.field.PasswordField;
 import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -52,36 +46,31 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 	private Form<User> form;
 	private StaticTextField<String> nameField;
-	//private StaticTextField<String> emailField;
-	
-	//private PasswordField passwordField;
+	// private StaticTextField<String> emailField;
+
+	// private PasswordField passwordField;
 
 	private TextField<String> passwordField;
 
-	
 	private String newPassword;
-	
-	
 
 	public boolean hasWritePermission() {
-		
+
 		if (isRoot())
 			return true;
-		
+
 		if (isGeneralAdmin())
 			return true;
-		
-		
-		if(getSessionUser().isPresent() && getModelObject().getId().equals(getSessionUser().get().getId()))
+
+		if (getSessionUser().isPresent() && getModelObject().getId().equals(getSessionUser().get().getId()))
 			return true;
-		
-		
-		if (isGeneralAdmin( getModel().getObject()))
+
+		if (isGeneralAdmin(getModel().getObject()))
 			return false;
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * @param id
 	 * @param model
@@ -96,35 +85,32 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 		add(new InvisiblePanel("error"));
 		add(new InvisiblePanel("notice"));
 
-		
-		
-
-		   
-		   this.form = new Form<User>("personForm", getModel());
+		this.form = new Form<User>("personForm", getModel());
 		add(this.form);
 
 		newPassword = "";
-		
+
 		this.form.setFormState(FormState.VIEW);
 
-		this.nameField 		= new StaticTextField<String>("username"			, new PropertyModel<String>(getModel(), "username"), getLabel("username"));
-		//this.emailField 		= new StaticTextField<String>("email"			, new PropertyModel<String>(getModel(), "email"), getLabel("email"));
-		this.passwordField 	= new TextField<String>("password"					, new PropertyModel<String>( UserPasswordEditor.this, "newPassword"), getLabel("new-password")) {
+		this.nameField = new StaticTextField<String>("username", new PropertyModel<String>(getModel(), "username"), getLabel("username"));
+		// this.emailField = new StaticTextField<String>("email" , new
+		// PropertyModel<String>(getModel(), "email"), getLabel("email"));
+		this.passwordField = new TextField<String>("password", new PropertyModel<String>(UserPasswordEditor.this, "newPassword"), getLabel("new-password")) {
 
 			public boolean isVisible() {
-				return getForm().getFormState()==FormState.EDIT;
+				return getForm().getFormState() == FormState.EDIT;
 			}
 
 			public boolean isEnabled() {
-				
+
 				if (!hasWritePermission())
 					return false;
-				
-				return getForm().getFormState()==FormState.EDIT;
+
+				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
 
-		//this.form.add(emailField);
+		// this.form.add(emailField);
 		this.form.add(nameField);
 		this.form.add(passwordField);
 
@@ -154,25 +140,22 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 			@Override
 			public boolean isVisible() {
-				
-					if (!hasWritePermission())
-						return false;
-			
-					return getForm().getFormState() == FormState.EDIT;
+
+				if (!hasWritePermission())
+					return false;
+
+				return getForm().getFormState() == FormState.EDIT;
 			}
 		};
 
 		this.form.add(buttons);
 
-	
-		if (! hasWritePermission()) {
-			addOrReplace( new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getUsername())));
+		if (!hasWritePermission()) {
+			addOrReplace(new AlertPanel<Void>("notice", AlertPanel.WARNING, getLabel("notice", getModel().getObject().getUsername())));
 		}
 
 	}
 
-	
-	
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
 
@@ -188,13 +171,13 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 
 			@Override
 			public boolean isVisible() {
-				
-					if (hasWritePermission())
-						return true;
-					
-					return false;
+
+				if (hasWritePermission())
+					return true;
+
+				return false;
 			}
-			
+
 			@Override
 			public IModel<String> getButtonLabel() {
 				return getLabel("edit");
@@ -218,7 +201,6 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 		target.add(this.form);
 	}
 
-	
 	public void onEdit(AjaxRequestTarget target) {
 		this.form.setFormState(FormState.EDIT);
 		target.add(this);
@@ -227,17 +209,16 @@ public class UserPasswordEditor extends DBObjectEditor<User> implements Internal
 	protected void onSave(AjaxRequestTarget target) {
 
 		try {
-			
-			if (this.getNewPassword()!=null) 
-			{
-		        String hash = new BCryptPasswordEncoder().encode(getNewPassword() );
+
+			if (this.getNewPassword() != null) {
+				String hash = new BCryptPasswordEncoder().encode(getNewPassword());
 				getModel().getObject().setPassword(hash);
 				save(getModelObject(), getSessionUser().get(), getUpdatedParts());
-				
+
 			}
 			this.form.setFormState(FormState.VIEW);
 			target.add(this);
-		
+
 		} catch (Exception e) {
 			addOrReplace(new SimpleAlertRow<Void>("error", e));
 			logger.error(e);

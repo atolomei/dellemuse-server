@@ -144,8 +144,6 @@ public class VoiceDBService extends DBService<Voice, Long> {
 		if (language.startsWith("pt"))
 			la="pt";
 		
-		
-		
 		Predicate p1 = cb.equal(root.get("language"), la);
 		cq.select(root).where(p1);
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));

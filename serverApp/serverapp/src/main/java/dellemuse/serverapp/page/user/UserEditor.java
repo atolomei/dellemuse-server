@@ -59,7 +59,7 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 	}
 
 	public boolean hasWritePermission() {
-		
+
 		// is session use is editing himself ok
 		if (getSessionUser().get().getId().equals(getModel().getObject().getId()))
 			return true;
@@ -68,14 +68,14 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 		if ((getModel().getObject().getUsername() != null) && getModel().getObject().getUsername().equals("root"))
 			return isRoot();
 
-		// general admin can edit all users 
+		// general admin can edit all users
 		if (isGeneralAdmin())
 			return true;
 
 		// root can edit all users
 		if (isRoot())
 			return true;
-		
+
 		// if user is site admin and user
 		// if (isGeneralAdmin( getModel().getObject() ))
 		// return false;
@@ -275,21 +275,12 @@ public class UserEditor extends DBObjectEditor<User> implements InternalPanel {
 			this.form.setFormState(FormState.VIEW);
 			target.add(this.form);
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
-
-			// ----------------------
-			// if not validated
-			// sendEmail to validate email person ?
-			//
-			// ----------------------
-
 			getForm().updateReload();
 			fireScanAll(new ObjectUpdateEvent(target));
 
 		} catch (Exception e) {
-
 			addOrReplace(new SimpleAlertRow<Void>("error", e));
 			logger.error(e);
-
 		}
 	}
 

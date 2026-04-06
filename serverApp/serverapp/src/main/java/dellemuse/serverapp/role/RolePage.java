@@ -44,7 +44,6 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-
 @AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/role/${id}")
 public class RolePage extends ObjectPage<Role> {
@@ -71,26 +70,26 @@ public class RolePage extends ObjectPage<Role> {
 		super(model, list);
 	}
 
-	
 	public String getHelpKey() {
 		return Help.ROLE_INFO;
 	}
-	
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-		
+
 		if (ouser.isEmpty())
 			return false;
 
 		if (ouser.get().getId().equals(getModel().getObject().getId()))
 			return true;
-		
-		User user = ouser.get();  if (user.isRoot()) return true;
+
+		User user = ouser.get();
+		if (user.isRoot())
+			return true;
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
-		
 		{
 			Set<RoleGeneral> set = user.getRolesGeneral();
 			if (set != null) {
@@ -113,24 +112,21 @@ public class RolePage extends ObjectPage<Role> {
 
 		return false;
 	}
-	
-	
+
 	protected Panel getNoAuthorizedErrorPanel(String id) {
-	
+
 		if (!getSessionUser().isPresent()) {
 			return new ErrorPanel(id, getLabel("not-authorized"));
 		}
-		
-		if (! (isRoot() || isGeneralAdmin()) ) {
-			 ErrorPanel panel =  new ErrorPanel(id, Model.of( "Para ingresar a esta página debe tener rol de administrador general del sistema."));
-			 panel.setCss("alert alert-warning");
-			 return panel;
+
+		if (!(isRoot() || isGeneralAdmin())) {
+			ErrorPanel panel = new ErrorPanel(id, Model.of("Para ingresar a esta página debe tener rol de administrador general del sistema."));
+			panel.setCss("alert alert-warning");
+			return panel;
 		}
 		return new ErrorPanel(id, getLabel("not-authorized"));
 	}
 
-	
-	
 	@Override
 	protected List<INamedTab> createInternalPanels() {
 
@@ -240,20 +236,18 @@ public class RolePage extends ObjectPage<Role> {
 	}
 
 	private List<ToolbarItem> userMenu = null;
-	
+
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
-		
-		
+
 		if (userMenu != null)
 			return (userMenu);
 
 		userMenu = new ArrayList<ToolbarItem>();
- 
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item", Align.TOP_RIGHT);
 		userMenu.add(h);
-		
-	
+
 		return userMenu;
 	}
 
@@ -292,9 +286,7 @@ public class RolePage extends ObjectPage<Role> {
 	@Override
 	protected Optional<Role> getObject(Long id) {
 		return getRoleDBService().findById(id);
-		
+
 	}
 
-	
-	
 }

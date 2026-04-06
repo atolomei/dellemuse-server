@@ -75,7 +75,7 @@ public class EmailTemplateService extends BaseService implements SystemService {
      */
     public String render(String templateName, String lang, Map<String, String> model ) {
 
-        String normalizedLang = normalize(lang);
+        String normalizedLang = normalizeForResourceBundle(lang);
         Configuration cfg = getOrCreateConfig(normalizedLang);
 
         if (cfg == null) {
@@ -161,7 +161,7 @@ public class EmailTemplateService extends BaseService implements SystemService {
     }
 
     /** Normalises locale strings the same way {@code HelpService} does. */
-    private String normalize(String str) {
+    private String normalizeForResourceBundle(String str) {
         if (str == null)
             return "spa";
         if (str.equals("es"))  return "spa";

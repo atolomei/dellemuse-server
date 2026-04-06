@@ -1,32 +1,31 @@
 package dellemuse.serverapp.artwork;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
+
 import java.util.Optional;
 import java.util.Set;
 
- 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
- 
+
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
- 
+
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
- 
+
 import org.wicketstuff.annotation.mount.MountPath;
- 
+
 import dellemuse.model.logging.Logger;
- 
+
 import dellemuse.model.util.ThumbnailSize;
- 
+
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
- 
+
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
 import dellemuse.serverapp.help.Help;
@@ -42,7 +41,6 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtWorkRecord;
-import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
@@ -62,27 +60,22 @@ import io.wktui.nav.toolbar.ToolbarItem.Align;
 import wktui.base.INamedTab;
 import wktui.base.NamedTab;
 
-/**
- * site foto Info - exhibitions
- */
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/artwork/${id}")
 public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord> {
 
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(ArtWorkPage.class.getName());
-	
+
 	private JumboPageHeaderPanel<ArtWork> ph;
-	
+
 	private IModel<Site> siteModel;
 
 	private ArtWorkMainPanel editor;
 	private ArtWorkQRCodePanel qrcodePanel;
 	private List<ToolbarItem> list;
 
-	
-	
 	public ArtWorkPage() {
 		super();
 	}
@@ -99,19 +92,15 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		super(model, list);
 	}
 
-	
 	@Override
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
 	}
-	
 
 	public String getHelpKey() {
 		return Help.ARTWORK_INFO;
 	}
 
-	
-	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -132,7 +121,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		if (siteModel != null)
 			siteModel.detach();
 
-		if (editor!=null)
+		if (editor != null)
 			editor.detach();
 
 	}
@@ -160,60 +149,60 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 	}
 
 	protected List<Language> getSupportedLanguages() {
-		return  getSiteModel().getObject().getLanguages();
+		return getSiteModel().getObject().getLanguages();
 	}
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
-		
+
 		if (ouser.isEmpty())
 			return false;
-		
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
+
+		User user = ouser.get();
+
+		if (user.isRoot())
 			return true;
-		
+
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
 		{
 			Set<RoleGeneral> set = user.getRolesGeneral();
-			if (set!=null) {
-					boolean isAccess=set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
-					if (isAccess)
-						return true;
-			}
-		}
-		
-		{
-			final Long sid = getSiteModel().getObject().getId();
-			Set<RoleSite> set = user.getRolesSite();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
 				if (isAccess)
 					return true;
 			}
-		}		
-		
+		}
+
+		{
+			final Long sid = getSiteModel().getObject().getId();
+			Set<RoleSite> set = user.getRolesSite();
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
+				if (isAccess)
+					return true;
+			}
+		}
+
 		{
 			final Long iid = getSiteModel().getObject().getInstitution().getId();
 			Set<RoleInstitution> set = user.getRolesInstitution();
-			if (set!=null) {
-				boolean isAccess=set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN) )));
+			if (set != null) {
+				boolean isAccess = set.stream().anyMatch((p -> p.getInstitution().getId().equals(iid) && (p.getKey().equals(RoleInstitution.ADMIN))));
 				if (isAccess)
 					return true;
 			}
 		}
 		return false;
 	}
-	
+
 	@Override
 	protected Class<?> getTranslationClass() {
 		return ArtWorkRecord.class;
 	}
+
 	@Override
 	protected Optional<ArtWorkRecord> loadTranslationRecord(String lang) {
 		return getArtWorkRecordDBService().findByArtWork(getModel().getObject(), lang);
@@ -236,7 +225,6 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 
 				logger.debug(event.toString());
 
-			 
 				// edit --------------------------------------
 				//
 				//
@@ -318,8 +306,6 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		return new Model<String>(getModel().getObject().getName());
 	}
 
-	
-	
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 
@@ -337,14 +323,13 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
 
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item", Align.TOP_RIGHT);
 		list.add(h);
-	
-		
+
 		return list;
 
 	}
-	
+
 	@Override
 	protected List<INamedTab> getInternalPanels() {
 
@@ -390,8 +375,6 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		return (qrcodePanel);
 	}
 
-	
-	
 	@Override
 	protected boolean isLanguage() {
 		return false;
@@ -400,7 +383,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 	@Override
 	protected Panel createHeaderPanel() {
 
-		ph = new JumboPageHeaderPanel<ArtWork>("page-header", getModel(), getObjectTitle(getModel().getObject() ));
+		ph = new JumboPageHeaderPanel<ArtWork>("page-header", getModel(), getObjectTitle(getModel().getObject()));
 
 		ph.setImageLinkCss("jumbo-img jumbo-lg mb-2 mb-lg-0 border bg-body-tertiary");
 
@@ -409,19 +392,17 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		bc.addElement(new HREFBCElement("/site/" + getSiteModel().getObject().getId().toString(), new Model<String>(getSiteModel().getObject().getDisplayname())));
 		bc.addElement(new HREFBCElement("/site/artwork/" + getSiteModel().getObject().getId().toString(), getLabel("artworks")));
 
-		bc.addElement(new BCElement(getObjectTitle(getModel().getObject() )));
+		bc.addElement(new BCElement(getObjectTitle(getModel().getObject())));
 
 		if (getModel().getObject().getArtists() != null)
 			ph.setTagline(Model.of(getArtistStr(getModel().getObject())));
 
 		if (getModel().getObject().getPhoto() != null) {
 			ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
-		}
-		else {
-			ph.setIcon( ArtWork.getIcon());
+		} else {
+			ph.setIcon(ArtWork.getIcon());
 			ph.setHeaderCss("mb-0 pb-5  pt-0 border-none");
 		}
-		
 
 		if (getList() != null && getList().size() > 0) {
 			Navigator<ArtWork> nav = new Navigator<ArtWork>("navigator", getCurrent(), getList()) {
@@ -438,7 +419,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 		ph.setContext(getLabel("artwork"));
 
 		ph.setBreadCrumb(bc);
-	
+
 		return ph;
 	}
 
@@ -454,7 +435,7 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 			Optional<ArtWork> o_i = getArtWorkDBService().findWithDeps(getModel().getObject().getId());
 			setModel(new ObjectModel<ArtWork>(o_i.get()));
 		}
- 
+
 		setSiteModel(new ObjectModel<Site>(getModel().getObject().getSite()));
 
 		if (!getSiteModel().getObject().isDependencies()) {

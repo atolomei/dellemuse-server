@@ -52,9 +52,7 @@ public class ArtExhibitionRecordDBService extends RecordDBService<ArtExhibitionR
 	public ArtExhibitionRecordDBService(CrudRepository<ArtExhibitionRecord, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
-	
-	
-	
+
 	@Override
 	@Transactional
 	public Optional<ArtExhibitionRecord> findByParentObject(MultiLanguageObject o, String lang) {
@@ -68,14 +66,13 @@ public class ArtExhibitionRecordDBService extends RecordDBService<ArtExhibitionR
 
 		c.setArtExhibition(a);
 		c.setName(a.getName());
-		 
+
 		c.setLanguage(lang);
 		c.setState(a.getState());
 
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		 
 
 		getRepository().save(c);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
@@ -89,21 +86,9 @@ public class ArtExhibitionRecordDBService extends RecordDBService<ArtExhibitionR
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 	}
 
-	
-	/**
-	 * 
-	 * 
-	 * @param a
-	 * @param lang
-	 * @return
-	 */
 	@Transactional
 	public Optional<ArtExhibitionRecord> findByArtExhibition(ArtExhibition a, String lang) {
 
-
-	 
-		
-		
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionRecord> cq = cb.createQuery(ArtExhibitionRecord.class);
 		Root<ArtExhibitionRecord> root = cq.from(ArtExhibitionRecord.class);
@@ -138,8 +123,6 @@ public class ArtExhibitionRecordDBService extends RecordDBService<ArtExhibitionR
 		return list;
 	}
 
-	 
-
 	@Transactional
 	public Optional<ArtExhibitionRecord> findWithDeps(Long id) {
 
@@ -151,24 +134,22 @@ public class ArtExhibitionRecordDBService extends RecordDBService<ArtExhibitionR
 		ArtExhibitionRecord aw = o_aw.get();
 
 		Resource photo = aw.getPhoto();
-		if (photo!=null)
+		if (photo != null)
 			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
-		
+
 		Resource audio = aw.getAudio();
-		if (audio!=null)
+		if (audio != null)
 			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
 
 		User user = aw.getLastModifiedUser();
-		if (user!=null)
+		if (user != null)
 			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
-		
- 
-		if (aw.getParentObject()!=null) {
-			ArtExhibition  c = (ArtExhibition ) aw.getParentObject();
-			aw.setArtExhibition ( getArtExhibitionDBService().findById(c.getId()).get());
+
+		if (aw.getParentObject() != null) {
+			ArtExhibition c = (ArtExhibition) aw.getParentObject();
+			aw.setArtExhibition(getArtExhibitionDBService().findById(c.getId()).get());
 		}
-		
-		
+
 		aw.setDependencies(true);
 
 		return o_aw;

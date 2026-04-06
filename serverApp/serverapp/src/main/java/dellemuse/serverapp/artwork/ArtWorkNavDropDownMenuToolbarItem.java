@@ -25,8 +25,7 @@ public class ArtWorkNavDropDownMenuToolbarItem extends ObjectBaseNavDropDownMenu
 	private static final long serialVersionUID = 1L;
 
 	private IModel<Site> siteModel;
-	
-	
+
 	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(ArtWorkNavDropDownMenuToolbarItem.class.getName());
 
@@ -42,37 +41,33 @@ public class ArtWorkNavDropDownMenuToolbarItem extends ObjectBaseNavDropDownMenu
 	public void onDetach() {
 		super.onDetach();
 
-		if (siteModel!=null)
+		if (siteModel != null)
 			siteModel.detach();
 	}
+
 	public IModel<Site> getSiteModel() {
 		return siteModel;
 	}
-
-
 
 	public void setSiteModel(IModel<Site> siteModel) {
 		this.siteModel = siteModel;
 	}
 
-	
 	private void setUpModel() {
-		 
-		 
+
 		Optional<Site> o_site = getSiteDBService().findWithDeps(Long.valueOf(getModel().getObject().getSite().getId()));
 		if (o_site.isPresent()) {
 			setSiteModel(new ObjectModel<Site>(o_site.get()));
 		}
- 
+
 	}
-	
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
+
 		setUpModel();
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtWork>() {
 			private static final long serialVersionUID = 1L;
 

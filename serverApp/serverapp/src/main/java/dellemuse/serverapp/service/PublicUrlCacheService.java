@@ -27,8 +27,6 @@ public class PublicUrlCacheService extends BaseService {
 		super(settings);
 	}
 
-	
-
 	public long size() {
 		return getCache().estimatedSize();
 	}
@@ -48,7 +46,7 @@ public class PublicUrlCacheService extends BaseService {
 	public boolean contains(Long rid, String type) {
 		return getCache().getIfPresent(getKey(rid, type)) != null;
 	}
-	
+
 	@PostConstruct
 	protected void onInitialize() {
 		try {
@@ -56,7 +54,7 @@ public class PublicUrlCacheService extends BaseService {
 		} finally {
 		}
 	}
-	
+
 	private Cache<String, String> getCache() {
 		return this.cache;
 	}

@@ -48,13 +48,11 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 
 	static private Logger logger = Logger.getLogger(ArtExhibitionSectionRecordDBService.class.getName());
 
-	
 	@Override
 	@Transactional
 	public Optional<ArtExhibitionSectionRecord> findByParentObject(MultiLanguageObject o, String lang) {
-		//return findByArtExhibitionSection((ArtExhibitionSection) o, lang);
-	
-		throw new RuntimeException ("not done");
+
+		throw new RuntimeException("not done");
 	}
 
 	public ArtExhibitionSectionRecordDBService(CrudRepository<ArtExhibitionSectionRecord, Long> repository, ServerDBSettings settings) {
@@ -68,7 +66,7 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 
 		c.setArtExhibitionSection(a);
 		c.setName(a.getName());
-	 
+
 		c.setLanguage(lang);
 
 		c.setCreated(OffsetDateTime.now());
@@ -106,8 +104,7 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 
 		return c;
 	}
-	
-	
+
 	/**
 	 * 
 	 * 
@@ -118,16 +115,12 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 	@Transactional
 	public Optional<ArtExhibitionSectionRecord> findByArtExhibition(ArtExhibition a, String lang) {
 
-
-		 
-		
-		
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<ArtExhibitionSectionRecord> cq = cb.createQuery(ArtExhibitionSectionRecord.class);
 		Root<ArtExhibitionSectionRecord> root = cq.from(ArtExhibitionSectionRecord.class);
 
 		Predicate p1 = cb.equal(root.get("artExhibition").get("id"), a.getId());
-		Predicate p2 = cb.equal(root.get("language"),getLanguageService().normalizeLanguage(lang));
+		Predicate p2 = cb.equal(root.get("language"), getLanguageService().normalizeLanguage(lang));
 
 		Predicate combinedPredicate = cb.and(p1, p2);
 
@@ -156,8 +149,6 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 		return list;
 	}
 
-
-
 	@Transactional
 	private void deleteResources(Long id) {
 
@@ -174,19 +165,6 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 
 	}
 
-	/**@Transactional
-	public void delete(Long id) {
-		deleteResources(id);
-		super.deleteById(id);
-	}
-
-	@Transactional
-	public void delete(ArtExhibitionSectionRecord o) {
-		this.delete(o.getId());
-	}
-	**/
-	
-
 	@Transactional
 	public Optional<ArtExhibitionSectionRecord> findWithDeps(Long id) {
 
@@ -198,28 +176,26 @@ public class ArtExhibitionSectionRecordDBService extends RecordDBService<ArtExhi
 		ArtExhibitionSectionRecord aw = o_aw.get();
 
 		Resource photo = aw.getPhoto();
-		if (photo!=null)
+		if (photo != null)
 			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
-		
+
 		Resource audio = aw.getAudio();
-		if (audio!=null)
+		if (audio != null)
 			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
 
 		User user = aw.getLastModifiedUser();
-		if (user!=null)
+		if (user != null)
 			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
 
-		
-		if (aw.getParentObject()!=null) {
-			ArtExhibitionSection  c = (ArtExhibitionSection ) aw.getParentObject();
-			aw.setArtExhibitionSection ( getArtExhibitionSectionDBService().findById(c.getId()).get());
+		if (aw.getParentObject() != null) {
+			ArtExhibitionSection c = (ArtExhibitionSection) aw.getParentObject();
+			aw.setArtExhibitionSection(getArtExhibitionSectionDBService().findById(c.getId()).get());
 		}
-		
+
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
-
 
 	@Transactional
 	@Override

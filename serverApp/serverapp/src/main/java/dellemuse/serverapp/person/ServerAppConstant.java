@@ -31,10 +31,6 @@ public class ServerAppConstant {
 	static final public String site_user_state_info	= "site-user-state-info";
 	static final public String site_user_state_action_edit	= "site-user-state-action-edit";
 	
-	
-	
-	
-	
  	static final public String action_exhibition_info_edit = "exhibition-action-info-edit";
 	static final public String action_exhibition_items_edit = "action-exhibition-items-edit";
 	static final public String action_exhibition_guide_create = "action-exhibition-guides-create";
@@ -44,7 +40,6 @@ public class ServerAppConstant {
 	static final public String action_exhibition_guides = "action-exhibition-guides";
 	static final public String action_exhibition_item_info_edit = "exhibition-item-info-edit";
 
-	
 	static final public String exhibition_info = "exhibition-info";
 	static final public String exhibitionrecord_info = "exhibition-record-info";
 	static final public String exhibition_sections = "exhibition-sections";
@@ -53,11 +48,7 @@ public class ServerAppConstant {
 	static final public String exhibition_guides = "exhibition-guides";
 	static final public String exhibition_item_info = "exhibition-item-info";
 	
-	
 	static final public String branded_exhibition_guide = "branded_exhibition_guide";
-		
-	
-	/**   */
 	
 	static final public String object_meta 						= "object-meta";
 	static final public String object_translation_record_info 	= "object-translation-record";

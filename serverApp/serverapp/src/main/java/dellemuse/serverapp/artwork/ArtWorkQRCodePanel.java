@@ -46,7 +46,6 @@ import io.wktui.error.ErrorPanel;
 import io.wktui.media.InvisibleImage;
 import io.wktui.nav.toolbar.ToolbarItem;
 import wktui.base.InvisiblePanel;
-import wktui.base.LabelPanel;
 
 public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements InternalPanel {
 
@@ -92,8 +91,7 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				try {
-					QRCodeArtWorkGenerationCommand cmd = new QRCodeArtWorkGenerationCommand(
-							ArtWorkQRCodePanel.this.getModel().getObject().getId(), true);
+					QRCodeArtWorkGenerationCommand cmd = new QRCodeArtWorkGenerationCommand(ArtWorkQRCodePanel.this.getModel().getObject().getId(), true);
 					cmd.execute();
 					setUpModel();
 					addPanels();
@@ -275,8 +273,7 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 
 				if (audioNumberPng != null) {
 
-					audioNumberPngFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(
-							audioNumberPng.getBucketName(), audioNumberPng.getObjectName(), audioNumberPng.getName());
+					audioNumberPngFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(audioNumberPng.getBucketName(), audioNumberPng.getObjectName(), audioNumberPng.getName());
 
 					String presignedAudioPng = super.getPresignedThumbnail(audioNumberPng, ThumbnailSize.LARGE);
 					Url audioUrl = Url.parse(presignedAudioPng);
@@ -303,7 +300,6 @@ public class ArtWorkQRCodePanel extends DBModelPanel<ArtWork> implements Interna
 				} else {
 					qrcodecontainer.addOrReplace(new InvisiblePanel("audio-number-png-link"));
 				}
-
 
 			} else {
 				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-image-link"));
