@@ -118,20 +118,6 @@ public class RoleUsersPanel extends DBModelPanel<Role> implements InternalPanel 
 
 	protected List<ToolbarItem> getListToolbarItems() {
 		return null;
-		/**
-		 * if (listToolbar != null) return listToolbar;
-		 * 
-		 * listToolbar = new ArrayList<ToolbarItem>();
-		 * 
-		 * IModel<String> selected =
-		 * Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
-		 * ObjectStateListSelector s = new ObjectStateListSelector("item", selected,
-		 * Align.TOP_LEFT);
-		 * 
-		 * listToolbar.add(s);
-		 * 
-		 * return listToolbar;
-		 */
 
 	}
 

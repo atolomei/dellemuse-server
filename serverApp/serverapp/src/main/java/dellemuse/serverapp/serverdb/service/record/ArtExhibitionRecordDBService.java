@@ -1,41 +1,32 @@
 package dellemuse.serverapp.serverdb.service.record;
 
-import java.io.File;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-import org.hibernate.Hibernate;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.ServerConstant;
+
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.AudioStudio;
+
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
-import dellemuse.serverapp.serverdb.model.GuideContent;
-import dellemuse.serverapp.serverdb.model.Language;
+
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
-import dellemuse.serverapp.serverdb.model.ObjectState;
-import dellemuse.serverapp.serverdb.model.Person;
+
 import dellemuse.serverapp.serverdb.model.Resource;
 
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
+
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
-import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
-import dellemuse.serverapp.serverdb.service.DBService;
+
 import dellemuse.serverapp.serverdb.service.RecordDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+
 import jakarta.annotation.PostConstruct;
 
 import jakarta.persistence.criteria.CriteriaBuilder;

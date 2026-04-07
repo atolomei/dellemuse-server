@@ -37,7 +37,7 @@ import dellemuse.serverapp.serverdb.service.DBService;
 import dellemuse.serverapp.serverdb.service.RecordDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.annotation.PostConstruct;
- 
+
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
@@ -52,12 +52,13 @@ public class InstitutionRecordDBService extends RecordDBService<InstitutionRecor
 	public InstitutionRecordDBService(CrudRepository<InstitutionRecord, Long> repository, ServerDBSettings settings) {
 		super(repository, settings);
 	}
-	
+
 	@Override
 	@Transactional
 	public Optional<InstitutionRecord> findByParentObject(MultiLanguageObject o, String lang) {
 		return findByInstitution((Institution) o, lang);
 	}
+
 	@Transactional
 	public InstitutionRecord create(Institution a, String lang, User createdBy) {
 
@@ -66,25 +67,23 @@ public class InstitutionRecordDBService extends RecordDBService<InstitutionRecor
 		c.setInstitution(a);
 		c.setName(a.getName());
 		c.setLanguage(lang);
-		
+
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		
+
 		getRepository().save(c);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy,  AuditAction.CREATE));
-		
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
+
 		return c;
 	}
- 
 
 	@Transactional
 	public void save(InstitutionRecord o, User user, List<String> updatedParts) {
 		super.save(o);
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(o, user, AuditAction.UPDATE, String.join(", ", updatedParts)));
 	}
-	
-	
+
 	/**
 	 * 
 	 * @param a
@@ -94,104 +93,97 @@ public class InstitutionRecordDBService extends RecordDBService<InstitutionRecor
 	@Transactional
 	public Optional<InstitutionRecord> findByInstitution(Institution a, String lang) {
 
-
 		lang = getLanguageService().normalizeLanguage(lang);
-				
+
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<InstitutionRecord> cq = cb.createQuery(InstitutionRecord.class);
 		Root<InstitutionRecord> root = cq.from(InstitutionRecord.class);
-		
-	     Predicate p1 = cb.equal(root.get("institution").get("id"), a.getId() );
-	     Predicate p2 = cb.equal(root.get("language"), lang );
 
-	     Predicate combinedPredicate = cb.and(p1, p2);
-	     
-	     cq.select(root).where(combinedPredicate);
-	
+		Predicate p1 = cb.equal(root.get("institution").get("id"), a.getId());
+		Predicate p2 = cb.equal(root.get("language"), lang);
+
+		Predicate combinedPredicate = cb.and(p1, p2);
+
+		cq.select(root).where(combinedPredicate);
+
 		List<InstitutionRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 		return list == null || list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
-		
+
 	}
-	
+
 	@Transactional
-	public List<InstitutionRecord> findAllByGuideContent(Institution  a) {
+	public List<InstitutionRecord> findAllByGuideContent(Institution a) {
 
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<InstitutionRecord> cq = cb.createQuery(InstitutionRecord.class);
 		Root<InstitutionRecord> root = cq.from(InstitutionRecord.class);
-		
-	     Predicate p1 = cb.equal(root.get("institution").get("id"), a.getId() );
-	     cq.select(root).where(p1);
-	
+
+		Predicate p1 = cb.equal(root.get("institution").get("id"), a.getId());
+		cq.select(root).where(p1);
+
 		List<InstitutionRecord> list = this.getEntityManager().createQuery(cq).getResultList();
 
-		if (list==null)
+		if (list == null)
 			return new ArrayList<InstitutionRecord>();
-		
+
 		return list;
 	}
 
 	@Transactional
 	private void deleteResources(Long id) {
-		
+
 		Optional<InstitutionRecord> o_aw = super.findWithDeps(id);
 
 		if (o_aw.isEmpty())
 			return;
-		
-		InstitutionRecord a=o_aw.get();
-		
+
+		InstitutionRecord a = o_aw.get();
+
 		getResourceDBService().delete(a.getPhoto());
 		getResourceDBService().delete(a.getAudio());
 		getResourceDBService().delete(a.getVideo());
 	}
-	
- 	@Transactional
+
+	@Transactional
 	public Optional<InstitutionRecord> findWithDeps(Long id) {
 
 		Optional<InstitutionRecord> o_aw = super.findById(id);
 
 		if (o_aw.isEmpty())
-			return  o_aw;
-		
-		InstitutionRecord aw = o_aw.get();
-		 
-		 
-			Resource photo = aw.getPhoto();
-			if (photo!=null)
-				aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
-			
-			Resource audio = aw.getAudio();
-			if (audio!=null)
-				aw.setAudio(getResourceDBService().findById(audio.getId()).get());
+			return o_aw;
 
-			User user = aw.getLastModifiedUser();
-			if (user!=null)
-				aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
-			
-			if (aw.getParentObject()!=null) {
-				Institution c = (Institution) aw.getParentObject();
-				aw.setInstitution( getInstitutionDBService().findById(c.getId()).get());
-			}
-			
+		InstitutionRecord aw = o_aw.get();
+
+		Resource photo = aw.getPhoto();
+		if (photo != null)
+			aw.setPhoto(getResourceDBService().findById(photo.getId()).get());
+
+		Resource audio = aw.getAudio();
+		if (audio != null)
+			aw.setAudio(getResourceDBService().findById(audio.getId()).get());
+
+		User user = aw.getLastModifiedUser();
+		if (user != null)
+			aw.setLastModifiedUser(getUserDBService().findById(user.getId()).get());
+
+		if (aw.getParentObject() != null) {
+			Institution c = (Institution) aw.getParentObject();
+			aw.setInstitution(getInstitutionDBService().findById(c.getId()).get());
+		}
+
 		aw.setDependencies(true);
 
 		return o_aw;
 	}
-	
-	
 
 	@Override
 	protected Class<InstitutionRecord> getEntityClass() {
 		return InstitutionRecord.class;
 	}
-	
+
 	@PostConstruct
 	protected void onInitialize() {
 		super.register(getEntityClass(), this);
 	}
-
-	 
-
 
 }

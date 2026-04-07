@@ -1,6 +1,5 @@
 package dellemuse.serverapp.elevenlabs;
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -37,13 +36,14 @@ import com.google.cloud.translate.Translate;
 import com.google.cloud.translate.TranslateOptions;
 import com.google.cloud.translate.Translation;
 
- 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.RandomIDGenerator;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.ServiceStatus;
+import dellemuse.serverapp.serverdb.model.ElevenLabsRequest;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.SiteRecord;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import dellemuse.serverapp.serverdb.service.base.BaseService;
@@ -64,12 +64,12 @@ import okhttp3.Response;
 public class ElevenLabsService extends BaseService {
 
 	private static Logger logger = Logger.getLogger(ElevenLabsService.class.getName());
- 
+
 	static private Logger startupLogger = Logger.getLogger("StartupLogger");
-	
+
 	@JsonIgnore
 	private AtomicBoolean serviceEnabled = new AtomicBoolean(false);
-		
+
 	private final OffsetDateTime created = OffsetDateTime.now();
 
 	@JsonIgnore
@@ -84,676 +84,604 @@ public class ElevenLabsService extends BaseService {
 
 	@JsonIgnore
 	private Scheme scheme = Scheme.HTTP;
-	
+
 	@JsonIgnore
-	private final RandomIDGenerator rand = new RandomIDGenerator();	
-	
+	private final RandomIDGenerator rand = new RandomIDGenerator();
+
 	@JsonIgnore
-	private Map <String, ELVoice> voices = new ConcurrentHashMap<String, ELVoice>();
-	
+	private Map<String, ELVoice> voices = new ConcurrentHashMap<String, ELVoice>();
+
 	private String apiKey;
-	
+
 	private String apiHost;
 
 	private int port;
-	
 
-	boolean enabled = false;
-	
-	
-	public List<ELVoice> getVoices(String lang) {
-	
-		List<ELVoice> list = new ArrayList<ELVoice>();
-		
-		voices.forEach( (k,v) -> {
-			if (v.getLanguage().equals(lang))
-					list.add(v);
-		});
-		return list;
-		
-		
-	}
-	
-	
+	@JsonIgnore
+	private boolean enabled = false;
+
+	@JsonIgnore
+	private VoiceSettings voiceSettings;
+
 	/**
 	 * @param settings
 	 * @param lockService
 	 */
 	public ElevenLabsService(ServerDBSettings settings, LockService lockService) {
 		super(settings);
-		this.lockService=lockService;
+		this.lockService = lockService;
 	}
- 
+
+	public List<ELVoice> getVoices(String lang) {
+
+		List<ELVoice> list = new ArrayList<ELVoice>();
+
+		voices.forEach((k, v) -> {
+			if (v.getLanguage().equals(lang))
+				list.add(v);
+		});
+		return list;
+
+	}
+
 	/**
 	 * 
 	 * VUGQSU6BSEjkbudnJbOj
 	 * 
-	 * 
-	 * @param text
-	 * @param audioFileName
-	 * @param languageCode
-	 * @param dm_voice_id
-	 * @return
 	 */
-	
+
 	/**
-	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode) {
+	 * public Optional<File> generate(String text, String audioFileName,
+	 * LanguageCode languageCode) {
+	 * 
+	 * 
+	 * String dm_voice_id;
+	 * 
+	 * if (languageCode.equals(LanguageCode.ES)) dm_voice_id = "mariana";
+	 * 
+	 * else if (languageCode.equals(LanguageCode.PT)) dm_voice_id = "amanda";
+	 * 
+	 * else if (languageCode.equals(LanguageCode.EN)) dm_voice_id = "emily";
+	 * 
+	 * else dm_voice_id = "emily";
+	 * 
+	 * return generate(text, audioFileName, languageCode, dm_voice_id, true); }
+	 **/
 
-		
-		String dm_voice_id;
-		
-		if (languageCode.equals(LanguageCode.ES))
-			dm_voice_id = "mariana";
-
-		else if (languageCode.equals(LanguageCode.PT))
-			dm_voice_id = "amanda";
-
-		else if (languageCode.equals(LanguageCode.EN))
-			dm_voice_id = "emily";
-
-		else
-			dm_voice_id = "emily";
-		
-		return generate(text, audioFileName, languageCode, dm_voice_id, true);
+	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode, String vid, User calledBy, Optional<Long> siteId) {
+		return generate(text, audioFileName, languageCode, vid, true, calledBy, siteId);
 	}
-	**/
-	
-	
-	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode, String vid) {
-		return generate(text, audioFileName, languageCode, vid, true);
-	}
-	
 
-	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode, String vid, boolean enableLogging) {
+	public Optional<File> generate(String text, String audioFileName, LanguageCode languageCode, String vid, boolean enableLogging, User calledBy, Optional<Long> siteId) {
 
 		Check.requireTrue(enabled, "the service is not enabled, check apikey and host");
-		
-		if (text==null || text.length()==0)
+
+		if (text == null || text.length() == 0)
 			return Optional.empty();
-		
+
 		Check.requireNonNullStringArgument(audioFileName, "audioFileName can not be null");
 		Check.requireNonNullArgument(languageCode, "languageCode can not be null");
 		Check.requireNonNullStringArgument(vid, "vid can not be null");
+
+		
+	    int estimatedSize  = this.countCharacters(text);
+		
 		 
-		String voice_id  = vid;  
-		
-		
+		String voice_id = vid;
+
 		String output_format = OutputFormat.Opus_48000_192.getName();
-		 
-		String relativePath[] = new String [3];
 
-		relativePath[0]=  getSettings().getTextToSpeechVersion(); 
-		relativePath[1]=  getSettings().getTextToSpeechServiceName();  
-		relativePath[2]=  voice_id;
-	
-	    HttpUrl.Builder urlBuilder = new HttpUrl.Builder();
-         
-        urlBuilder.scheme(this.scheme.toString());
-        urlBuilder.host(this.apiHost);
-        
-        if (this.port > 0)
-            urlBuilder.port(this.port);
-        
-        for (String str: relativePath)
-             urlBuilder.addEncodedPathSegment(str);
-	        
-        urlBuilder.addEncodedQueryParameter("output_format", output_format);
+		String relativePath[] = new String[3];
 
-        
-        /**
-         * When enable_logging is set to false zero retention mode will be used for the request. 
-         * This will mean history features are unavailable for this request, including request stitching. 
-         * Zero retention mode may only be used by enterprise customers.
-         */
-        if (!enableLogging)
-            urlBuilder.addEncodedQueryParameter("enableLogging", "false");
-        	
-        
-        HttpUrl url = urlBuilder.build();
+		relativePath[0] = getSettings().getTextToSpeechVersion();
+		relativePath[1] = getSettings().getTextToSpeechServiceName();
+		relativePath[2] = voice_id;
 
-        logger.debug(url.toString());
-         
-		 ElevenLabsRecord rec = new ElevenLabsRecord();
-		 
-		 rec.model_id = ModelId.Eleven_multilingual_v2.toString();
-		 rec.text = text;
-		 rec.language_code=languageCode.toString();
+		HttpUrl.Builder urlBuilder = new HttpUrl.Builder();
+
+		urlBuilder.scheme(this.scheme.toString());
+		urlBuilder.host(this.apiHost);
+
+		if (this.port > 0)
+			urlBuilder.port(this.port);
+
+		for (String str : relativePath)
+			urlBuilder.addEncodedPathSegment(str);
+
+		urlBuilder.addEncodedQueryParameter("output_format", output_format);
+
+		/**
+		 * When enable_logging is set to false zero retention mode will be used for the
+		 * request. This will mean history features are unavailable for this request,
+		 * including request stitching. Zero retention mode may only be used by
+		 * enterprise customers.
+		 */
+		if (!enableLogging)
+			urlBuilder.addEncodedQueryParameter("enableLogging", "false");
+
+		HttpUrl url = urlBuilder.build();
+
+		logger.debug(url.toString());
+
+		ElevenLabsRecord rec = new ElevenLabsRecord();
+
+		rec.model_id = ModelId.Eleven_multilingual_v2.toString();
+		rec.text = text;
+		rec.language_code = languageCode.toString();
+		rec.voice_settings = getDefaultVoiceSettings();
+
+		List<byte[]> audioChunks = new ArrayList<>();
+
+		int counter = 1;
+
+		List<ElevenLabsRecordChunk> chunks = rec.chunks();
+
+		List<String> chunkRequestId = new ArrayList<String>();
+
+		for (ElevenLabsRecordChunk chunk : chunks) {
+
+			try {
+
+				String requestId = UUID.randomUUID().toString();
+
+				if (chunkRequestId.size() > 0) {
+					List<String> ids = new ArrayList<String>();
+					if (chunkRequestId.size() > 2) {
+						ids.add(chunkRequestId.get(chunkRequestId.size() - 3));
+						ids.add(chunkRequestId.get(chunkRequestId.size() - 2));
+					} else if (chunkRequestId.size() > 1) {
+						ids.add(chunkRequestId.get(chunkRequestId.size() - 2));
+					}
+					ids.add(chunkRequestId.get(chunkRequestId.size() - 1));
+					chunk.previous_request_ids = ids;
+				}
+
+				String jsonBody = getObjectMapper().writeValueAsString(chunk);
+				RequestBody body = RequestBody.create(jsonBody, MediaType.parse("application/json"));
+
+				Request.Builder requestBuilder = new Request.Builder();
+				requestBuilder.url(url);
+				requestBuilder.header("xi-api-key", this.apiKey);
+				requestBuilder.header("Content-Type", ClientConstant.APPLICATION_JSON);
+				requestBuilder.header("Host", this.shouldOmitPortInHostHeader(url) ? url.host() : (url.host() + ":" + url.port()));
+				requestBuilder.header("User-Agent", this.userAgent);
+				requestBuilder.header("Date", ClientConstant.HTTP_DATE.format(OffsetDateTime.now()));
+				requestBuilder.header("Accept", "audio/mpeg");
+				requestBuilder.header("X-Request-ID", requestId);
+
+				requestBuilder.post(body);
+				Request request = requestBuilder.build();
+
+				logger.debug(request.toString());
+				
+				
+				
+
+				try (Response response = this.httpClient.newCall(request).execute()) {
+
+					if (!response.isSuccessful()) {
+						throw new RuntimeException("Chunk error -> " + counter + " |  code: " + response.code() + " | msg: " + response.message());
+					}
+
+					chunkRequestId.add(requestId);
+					try (InputStream inputStream = response.body().byteStream()) {
+						byte[] buffer = inputStream.readAllBytes();
+						audioChunks.add(buffer);
+						logger.debug("Fragmento " + counter + " descargado, tamaño: " + buffer.length + " bytes");
+					}
+					counter++;
+				}
+
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		
-		 //if (vs!=null)
-			 rec.voice_settings = getDefaultVoiceSettings();
-		 	
-		 List<byte[]> audioChunks = new ArrayList<>();
-	     
-		 int counter = 1;
-	        
-	     List<ElevenLabsRecordChunk> chunks = rec.chunks();
-	        
-	     List<String> chunkRequestId = new ArrayList<String>();
-	     
-	     for (ElevenLabsRecordChunk chunk : chunks) {
-	 
-	        	try {
-	        		
-	                String requestId = UUID.randomUUID().toString();
-
-	                if (chunkRequestId.size()>0) {
-	                	List<String> ids = new ArrayList<String>();
-	                	if (chunkRequestId.size()>2) {
-	                		ids.add(chunkRequestId.get(chunkRequestId.size()-3));
-	                		ids.add(chunkRequestId.get(chunkRequestId.size()-2));
-	                	}
-	                	else if (chunkRequestId.size()>1) {
-	                		ids.add(chunkRequestId.get(chunkRequestId.size()-2));
-	                	}
-	                	ids.add(chunkRequestId.get(chunkRequestId.size()-1));
-	                	chunk.previous_request_ids=ids;
-	                }
-	               
-	        		String jsonBody = getObjectMapper().writeValueAsString(chunk);
-	                RequestBody body = RequestBody.create(jsonBody, MediaType.parse("application/json"));
-	                
-	                // requestBuilder.header("Authorization", "Basic " + Base64.getEncoder().encodeToString((getAccessKey() + ":" + getSecretKey()).getBytes()));
-	                Request.Builder requestBuilder = new Request.Builder();
-	                requestBuilder.url(url);
-	                requestBuilder.header("xi-api-key", this.apiKey);
-	                requestBuilder.header("Content-Type", ClientConstant.APPLICATION_JSON);
-	                requestBuilder.header("Host", this.shouldOmitPortInHostHeader(url) ? url.host() : (url.host() + ":" + url.port()));
-	                requestBuilder.header("User-Agent", this.userAgent);
-	                requestBuilder.header("Date", ClientConstant.HTTP_DATE.format(OffsetDateTime.now()));
-	                requestBuilder.header("Accept", "audio/mpeg");
-	                requestBuilder.header("X-Request-ID", requestId);
-	                
-	                // requestBuilder.header("Accept-Charset", "utf-8");
-	                // requestBuilder.header("Accept-Encoding", "gzip, deflate"); cMKZRsVE5V7xf6qCp9fF
-	                
-	               
-	                requestBuilder.post(body);
-	                
-	                Request request = requestBuilder.build();
-	                
-		            logger.debug(request.toString());
-
-	                try (Response response = this.httpClient.newCall(request).execute()) {
-	                  
-	                	if (!response.isSuccessful()) {
-	                        throw new RuntimeException("Chunk error -> " + counter + " |  code: " + response.code() + " | msg: " + response.message());
-	                    }
-
-		                chunkRequestId.add(requestId);
-	                	
-	                    try (InputStream inputStream = response.body().byteStream()) {
-	                        byte[] buffer = inputStream.readAllBytes();
-	                        audioChunks.add(buffer);
-	                        logger.debug("Fragmento " + counter + " descargado, tamaño: " + buffer.length + " bytes");
-	                    }
-	                    counter++;
-	                }
-
-	            } catch (IOException e) {
-	            	  throw new RuntimeException(e);
-	            }
-	        }
-
-	        File file = new File( getSettings().getAudioDir(), audioFileName );
-	         
-	        try (FileOutputStream fos = new FileOutputStream(file)) {
-	            for (byte[] chunkBytes : audioChunks) {
-	                fos.write(chunkBytes);
-	            }
-	            logger.debug(file.getAbsolutePath());
-
-	        } catch (IOException e) {
-	        	 throw new RuntimeException(e);
-	        }
-		    return Optional.of(file);
-		    
+		try {
+			
+			File file = new File(getSettings().getAudioDir(), audioFileName);
+	
+			try (FileOutputStream fos = new FileOutputStream(file)) {
+				for (byte[] chunkBytes : audioChunks) {
+					fos.write(chunkBytes);
+				}
+				logger.debug(file.getAbsolutePath());
+	
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			return Optional.of(file);
+		}	
+		finally {
+			try {	
+				ElevenLabsRequest r  = ElevenLabsRequest.of(calledBy, estimatedSize, siteId);
+				getElevenLabsRequestDBService().save(r);
+			} catch (Exception e) {
+				logger.error(e, "Error saving ElevenLabsRequest to database");
+			}
+		}
+		
 	}
 
-	
-	VoiceSettings voiceSettings;
-	
 	public synchronized VoiceSettings getDefaultVoiceSettings() {
-		
-		if (voiceSettings!=null)
-			return voiceSettings;
-		
-		 voiceSettings = new VoiceSettings();
-		
-		
-		 voiceSettings.speed= Double.valueOf(1.08);
-		 voiceSettings.stability=Double.valueOf(0.91);
-		 voiceSettings.similarity_boost=Double.valueOf(0.48);
-		 voiceSettings.style=Double.valueOf(0.01);
-	
-		 return voiceSettings;
-	}
 
+		if (voiceSettings != null)
+			return voiceSettings;
+
+		voiceSettings = new VoiceSettings();
+
+		voiceSettings.speed = Double.valueOf(1.08);
+		voiceSettings.stability = Double.valueOf(0.91);
+		voiceSettings.similarity_boost = Double.valueOf(0.48);
+		voiceSettings.style = Double.valueOf(0.01);
+
+		return voiceSettings;
+	}
 
 	public String getAPIKey() {
 		return this.apiKey;
 	}
-	
+
 	public OffsetDateTime getOffsetDateTimeCreated() {
 		return this.created;
 	}
- 	
-	public Map <String, ELVoice> getVoices() { 
-		return this.voices; 
+
+	public Map<String, ELVoice> getVoices() {
+		return this.voices;
 	}
-	
+
 	public boolean isServiceEnabled() {
 		return this.serviceEnabled.get();
 	}
-	 
+
 	public LockService getLockService() {
 		return this.lockService;
 	}
-		
- 
-	
+
 	@PostConstruct
 	protected void onInit() {
 		try {
-	
+
 			this.apiKey = getSettings().getElevenLabsAPIKey();
 			this.apiHost = getSettings().getElevenLabsAPIHost();
 			this.port = 443;
-			
-			if (this.apiKey==null || this.apiKey.length()==0) {
+
+			if (this.apiKey == null || this.apiKey.length() == 0) {
 				startupLogger.error("ElevenLabsService API key not found. ElevenLabsService will be disabled.");
 				setStatus(ServiceStatus.STOPPED);
-				enabled=false;
+				enabled = false;
 				return;
 			}
 
-			
-			if (this.apiHost==null || this.apiHost.length()==0) {
+			if (this.apiHost == null || this.apiHost.length() == 0) {
 				startupLogger.error("ElevenLabsService API host not found. ElevenLabsService will be disabled.");
 				setStatus(ServiceStatus.STOPPED);
-				enabled=false;
+				enabled = false;
 				return;
 			}
-			
-			
+
 			loadVoices();
 			initOkHttpClient();
-			
-			enabled=true;
 
-			
+			enabled = true;
+
 			setStatus(ServiceStatus.RUNNING);
+
 		} catch (Exception e) {
 			setStatus(ServiceStatus.STOPPED);
 		}
 	}
-		
-	
+
 	/**
 	 * 
 	 * 
-
-	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'), 'amanda', 'oi8rgjIfLgJRsQ6rbZh3', 'pt', 'brazil', 
-	  'A sweet, feminine, and youthful Brazilian Portuguese voice with a neutral accent. Naturally warm and expressive, she brings a gentle charm to every word. Ideal for narrations, educational content, and conversational dialogue where clarity, softness, and an inviting tone are essential.', now(), now(), (select id from users where name='root'));
-	 
-	 
-	 
-	 	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'), 'amanda', 'oi8rgjIfLgJRsQ6rbZh3', 'pt', 'brazil', 
-	  'A sweet, feminine, and youthful Brazilian Portuguese voice with a neutral accent. Naturally warm and expressive, she brings a gentle charm to every word. Ideal for narrations, educational content, and conversational dialogue where clarity, softness, and an inviting tone are essential.', now(), now(), (select id from users where name='root'));
-
-
-
-
+	 * 
+	 * insert into voice (id, name, voiceId, language, languageRegion, info,
+	 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+	 * 'amanda', 'oi8rgjIfLgJRsQ6rbZh3', 'pt', 'brazil', 'A sweet, feminine, and
+	 * youthful Brazilian Portuguese voice with a neutral accent. Naturally warm and
+	 * expressive, she brings a gentle charm to every word. Ideal for narrations,
+	 * educational content, and conversational dialogue where clarity, softness, and
+	 * an inviting tone are essential.', now(), now(), (select id from users where
+	 * name='root'));
+	 * 
+	 * 
+	 * 
+	 * insert into voice (id, name, voiceId, language, languageRegion, info,
+	 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+	 * 'amanda', 'oi8rgjIfLgJRsQ6rbZh3', 'pt', 'brazil', 'A sweet, feminine, and
+	 * youthful Brazilian Portuguese voice with a neutral accent. Naturally warm and
+	 * expressive, she brings a gentle charm to every word. Ideal for narrations,
+	 * educational content, and conversational dialogue where clarity, softness, and
+	 * an inviting tone are essential.', now(), now(), (select id from users where
+	 * name='root'));
+	 * 
+	 * 
+	 * 
+	 * 
 	 * 
 	 * 
 	 * 
 	 * 
 	 */
 	private synchronized void loadVoices() {
-		
+
 		voices = new ConcurrentHashMap<String, ELVoice>();
-		
-		voices.put("amanda", 	
-				   new ELVoice("amanda",	 
-						       "oi8rgjIfLgJRsQ6rbZh3", "pt" ,
-						       "brasil",
-						       "Amanda Kelly",
-						       "A sweet, feminine, and youthful Brazilian Portuguese "
-						       + "voice with a neutral accent. Naturally warm and expressive, she brings a gentle charm to every word. "
-						       + "Ideal for narrations, educational content, and conversational dialogue where clarity, softness, and "
-						       + "an inviting tone are essential."));
 
-		 
+		voices.put("amanda",
+				new ELVoice("amanda", "oi8rgjIfLgJRsQ6rbZh3", "pt", "brasil", "Amanda Kelly",
+						"A sweet, feminine, and youthful Brazilian Portuguese " + "voice with a neutral accent. Naturally warm and expressive, she brings a gentle charm to every word. "
+								+ "Ideal for narrations, educational content, and conversational dialogue where clarity, softness, and " + "an inviting tone are essential."));
+
 		VoiceSettings voiceSettings = new VoiceSettings();
-		 voiceSettings.speed= Double.valueOf(1.15);
-		 voiceSettings.stability=Double.valueOf(0.91);
-		 voiceSettings.similarity_boost=Double.valueOf(0.48);
-		 voiceSettings.style=Double.valueOf(0.01);
-		
-		 
-		 /** spa 
-		  * 
-		  
-		    	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'), 'mariana', '9rvdnhrYoXoUt4igKpBw', 'es', 'latin anmerica',  'Intimate and Assertive.', now(), now(), (select id from users where name='root'));
+		voiceSettings.speed = Double.valueOf(1.15);
+		voiceSettings.stability = Double.valueOf(0.91);
+		voiceSettings.similarity_boost = Double.valueOf(0.48);
+		voiceSettings.style = Double.valueOf(0.01);
 
+		/**
+		 * spa
+		 * 
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'mariana', '9rvdnhrYoXoUt4igKpBw', 'es', 'latin anmerica', 'Intimate and
+		 * Assertive.', now(), now(), (select id from users where name='root'));
+		 * 
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'mariana', '9rvdnhrYoXoUt4igKpBw', 'es', 'latin anmerica', 'Intimate and
+		 * Assertive.', now(), now(), (select id from users where name='root')); insert
+		 * into voice (id, name, voiceId, language, languageRegion, info, created,
+		 * lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'), 'ernesto',
+		 * 'TOFW0dONbX4o9MmkxwBB', 'es', 'argentina', 'xplainer & Informative videos -
+		 * Natural and kind voice. Middle-age man with Spanish peninsular accent',
+		 * now(), now(), (select id from users where name='root')); insert into voice
+		 * (id, name, voiceId, language, languageRegion, info, created, lastmodified,
+		 * lastmodifieduser) VALUES (nextval('sequence_id'), 'victor',
+		 * 'TcMKZRsVE5V7xf6qCp9fF', 'es', 'latin america', 'Calm, Soft and Neutral.',
+		 * now(), now(), (select id from users where name='root')); insert into voice
+		 * (id, name, voiceId, language, languageRegion, info, created, lastmodified,
+		 * lastmodifieduser) VALUES (nextval('sequence_id'), 'mario',
+		 * 'uJOittXFsgvpY3q1g8vB', 'es', 'spain', 'Middle-aged man. Warm, natural voice
+		 * with a conversational style. Ideal for educational vlogs, podcasts, online
+		 * training, and clear explanations (finance, tech, lifestyle', now(), now(),
+		 * (select id from users where name='root'));
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'jonathan', 'PIGsltMj3gFMR34aFDI3', 'en', 'american', 'A calm, trustworthy,
+		 * confident voice to narrate your story, audiobooks, articles and other
+		 * media.', now(), now(), (select id from users where name='root'));
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * insert into voice (id, name, sex, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'tamsin', 'female', 'dAlhI9qAHVIjXuVppzhW', 'en', 'british', '
+		 * 
+		 * 
+		 * 
+		 * Antoine - E-learning Instructor
+		 * 
+		 * Antoine - A male adult voice, composed and formal, with a well-controlled
+		 * neutral tone. Its timbre resembles that of an actor accustomed to delivering
+		 * precise and articulate speech
+		 * 
+		 * 
+		 * insert into voice (id, name, sex, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'antoine', 'male', 'nbiTBaMRdSobTQJDzIWm', 'fr', 'france', 'A male adult
+		 * voice, composed and formal, with a well-controlled neutral tone. Its timbre
+		 * resembles that of an actor accustomed to delivering precise and articulate
+		 * speech', now(), now(), (select id from users where name='root'));
+		 * 
+		 * 
+		 * insert into voice (id, name, sex, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'Anaïs', 'female', '5OnMHwgTFgvPVwE8jP6B', 'fr', 'france', 'Middle aged
+		 * French female voice. Warm and clear, ideal for podcasting, e-learning and
+		 * news content.', now(), now(), (select id from users where name='root'));
+		 * 
+		 * 
+		 * Anaïs - Instructor
+		 * 
+		 * Anaïs - Middle aged French female voice. Warm and clear, ideal for
+		 * podcasting, e-learning and news content.
+		 * 
+		 * 
+		 * 
+		 * 
+		 * 
+		 * insert into voice (id, name, sex, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'Marie Line', 'female', 'u5l0VNCfzO5oqrKTuA1e', 'fr', 'france', 'My smiling,
+		 * calm, and empathetic voice of French origin inspires confidence', now(),
+		 * now(), (select id from users where name='root'));
+		 * 
+		 * 
+		 * u5l0VNCfzO5oqrKTuA1e
+		 * 
+		 * Marie Line - Energetic and Clear
+		 * 
+		 * Marie Line - Narrator - My smiling, calm, and empathetic voice of French
+		 * origin inspires confidence. The quality of my diction and my recording studio
+		 * allow me to offer you a very... read more
+		 * 
+		 * 
+		 **/
 
-   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'), 'mariana', '9rvdnhrYoXoUt4igKpBw', 'es', 'latin anmerica',  'Intimate and Assertive.', now(), now(), (select id from users where name='root'));
-   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'ernesto', 'TOFW0dONbX4o9MmkxwBB', 'es', 'argentina',  'xplainer & Informative videos - Natural and kind voice. Middle-age man with Spanish peninsular accent', now(), now(), (select id from users where name='root'));
-   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'victor', 'TcMKZRsVE5V7xf6qCp9fF', 'es', 'latin america',  'Calm, Soft and Neutral.', now(), now(), (select id from users where name='root'));
-   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'mario', 'uJOittXFsgvpY3q1g8vB', 'es', 'spain',  'Middle-aged man. Warm, natural voice with a conversational style. Ideal for educational vlogs, podcasts, online training, and clear explanations (finance, tech, lifestyle', now(), now(), (select id from users where name='root'));
+		voices.put("mariana", new ELVoice("mariana", "9rvdnhrYoXoUt4igKpBw", "es", "latin america", "Mariana", "Mariana -Intimate and Assertive", voiceSettings));
 
-	insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'jonathan', 'PIGsltMj3gFMR34aFDI3', 'en', 'american', 
-	 'A calm, trustworthy, confident voice to narrate your story, audiobooks, articles and other media.', now(), now(), (select id from users where name='root'));
+		voices.put("marcela", new ELVoice("marcela", "YM9MbhkdpZ8JR7EP49hA", "es", "spain", "Marcela",
+				"Marcela - A youthful, delicate, friendly, and subtle voice, perfect for writing ebooks, podcasts, and any content for social media or work.", voiceSettings));
 
+		voices.put("ernesto",
+				new ELVoice("ernesto", "TOFW0dONbX4o9MmkxwBB", "es", "argentina", "Ernesto", "Ernesto T. - Explainer & Informative videos - Natural and kind voice. Middle-age man with Spanish peninsular accent..", voiceSettings));
 
-		 
-		   
-		   
-		   
-		  	insert into voice (id, name, sex, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'tamsin', 'female', 'dAlhI9qAHVIjXuVppzhW', 'en', 'british',  '
-		
- 
- 
- Antoine - E-learning Instructor
+		voices.put("victor", new ELVoice("victor", "cMKZRsVE5V7xf6qCp9fF", "es", "latin american", "Victor", " Calm, Soft and Neutral.", voiceSettings));
 
-Antoine - A male adult voice, composed and formal, with a well-controlled neutral tone. Its timbre resembles that of an actor accustomed to delivering precise and articulate speech
+		voices.put("mario", new ELVoice("mario", "uJOittXFsgvpY3q1g8vB", "es", "spain", "Mario",
+				"Middle-aged man. Warm, natural voice with a conversational style. Ideal for educational vlogs, podcasts, online training, and clear explanations (finance, tech, lifestyle", voiceSettings));
 
+		/** en **/
 
-insert into voice (id, name, sex, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 'antoine', 'male', 'nbiTBaMRdSobTQJDzIWm', 'fr', 
-'france', 'A male adult voice, composed and formal, with a well-controlled neutral tone. Its timbre resembles that of an actor accustomed to delivering precise and articulate speech', now(), now(), (select id from users where name='root'));
-		
+		/**
+		 *
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'emily', 'XB0fDUnXU5powFXDhCwa', 'en', 'us', '', now(), now(), (select id
+		 * from users where name='root'));
+		 * 
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'nicola', '9sKbNSlHXq99bttvf8rRF', 'it', 'italia', 'Nicola Loruso', now(),
+		 * now(), (select id from users where name='root'));
+		 * 
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'thomas', 'tvFp0BgJPrEXGoDhDIA4', 'dutch', 'dutch', '', now(), now(), (select
+		 * id from users where name='root'));
+		 * 
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'leon', 'MJ0RnG71ty4LH3dvNfSd4', 'ger', 'germany', '', now(), now(), (select
+		 * id from users where name='root'));
+		 * 
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'vincent', 'S9WrLrqYPJzmQyWPWbZ5', 'en', 'us', 'Vincent Sparks - Deep
+		 * American Voice - Professional American Deep Male English Voiceover. Great for
+		 * Informative videos.', now(), now(), (select id from users where
+		 * name='root'));
+		 * 
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'nigel', 'l9yjqAhh8GXv7ZJxsLZO', 'en', 'british', 'A distinct, seasoned
+		 * English male voice that captivates audiences with warmth, clarity, and
+		 * authenticity.', now(), now(), (select id from users where name='root'));
+		 * 
+		 * 
+		 * insert into voice (id, name, voiceId, language, languageRegion, info,
+		 * created, lastmodified, lastmodifieduser) VALUES (nextval('sequence_id'),
+		 * 'shaun', 'lRKCbSROXui75bk1SVpy8', 'en', 'british', ' ', now(), now(), (select
+		 * id from users where name='root'));
+		 * 
+		 * 
+		 * RKCbSROXui75bk1SVpy8
+		 * 
+		 */
 
-		   insert into voice (id, name, sex, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
-		   'Anaïs', 'female', '5OnMHwgTFgvPVwE8jP6B', 'fr', 
-'france', 'Middle aged French female voice. Warm and clear, ideal for podcasting, e-learning and news content.', now(), now(), (select id from users where name='root'));
+		voices.put("emily", new ELVoice("emily", "XB0fDUnXU5powFXDhCwa", "en", "us", "Emily", "Emily"));
 
-		   
-		   Anaïs - Instructor
+		/** it **/
 
-Anaïs - Middle aged French female voice. Warm and clear, ideal for podcasting, e-learning and news content.
+		voices.put("nicola", new ELVoice("nicola", "9sKbNSlHXq99bttvf8rRF", "it", "italia", "Nicola", "Nicola Loruso", voiceSettings));
 
+		voices.put("thomas", new ELVoice("thomas", "tvFp0BgJPrEXGoDhDIA4", "dutch", "dutch", "Thomas", "Thomas", voiceSettings));
 
+		voices.put("leon", new ELVoice("leon", "MJ0RnG71ty4LH3dvNfSd", "ger", "germany", "Leon", "Leon", voiceSettings));
 
-
-
-insert into voice (id, name, sex, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
-		   'Marie Line', 'female', 'u5l0VNCfzO5oqrKTuA1e', 'fr', 
-'france', 'My smiling, calm, and empathetic voice of French origin inspires confidence', now(), now(), (select id from users where name='root'));
-
-
-u5l0VNCfzO5oqrKTuA1e
-
-Marie Line - Energetic and Clear
-
-Marie Line - Narrator - My smiling, calm, and empathetic voice of French origin inspires confidence. The quality of my diction and my recording studio allow me to offer you a very... read more
-
-		  * 
-		  * **/
-
-		 voices.put("mariana",	
-				new ELVoice("mariana",			
-				"9rvdnhrYoXoUt4igKpBw", 
-				"es",
-				"latin america",
-				"Mariana",
-				"Mariana -Intimate and Assertive",
-				voiceSettings));
-	
-		
-		voices.put("marcela",	
-				new ELVoice("marcela",			
-				"YM9MbhkdpZ8JR7EP49hA", 
-				"es" ,
-				"spain",
-				"Marcela",
-				"Marcela - A youthful, delicate, friendly, and subtle voice, perfect for writing ebooks, podcasts, and any content for social media or work.",
-				voiceSettings));
-		
-		
-		voices.put("ernesto",	
-				new ELVoice("ernesto",			
-				"TOFW0dONbX4o9MmkxwBB", 
-				"es",
-				"argentina",
-				"Ernesto",
-				"Ernesto T. - Explainer & Informative videos - Natural and kind voice. Middle-age man with Spanish peninsular accent..",
-				voiceSettings));
-		
-		
-		
-		voices.put("victor",	
-				new ELVoice("victor",			
-				"cMKZRsVE5V7xf6qCp9fF", 
-				"es",
-				"latin american",
-				"Victor",
-				" Calm, Soft and Neutral.",
-				voiceSettings));
-
-		
-		voices.put("mario",	
-				new ELVoice("mario",			
-				"uJOittXFsgvpY3q1g8vB", 
-				"es",
-				"spain",
-				"Mario",
-				"Middle-aged man. Warm, natural voice with a conversational style. Ideal for educational vlogs, podcasts, online training, and clear explanations (finance, tech, lifestyle",
-				voiceSettings));
-		
-   /** en **/
-		
-		
-  /**
-   *
-   * 
-   	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
-   	  'emily', 'XB0fDUnXU5powFXDhCwa', 'en', 'us',  '', now(), now(), (select id from users where name='root'));
-
-
-	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
-   	  'nicola', '9sKbNSlHXq99bttvf8rRF', 'it', 'italia',  'Nicola Loruso', now(), now(), (select id from users where name='root'));
-
-
-	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
-   	  'thomas', 'tvFp0BgJPrEXGoDhDIA4', 'dutch', 'dutch',  '', now(), now(), (select id from users where name='root'));
-
-	 
-	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
-   	  'leon', 'MJ0RnG71ty4LH3dvNfSd4', 'ger', 'germany',  '', now(), now(), (select id from users where name='root'));
-
-
-	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
-   	  'vincent', 'S9WrLrqYPJzmQyWPWbZ5', 'en', 'us',  'Vincent Sparks - Deep American Voice - Professional American Deep Male English Voiceover. Great for Informative videos.', now(), now(), (select id from users where name='root'));
-
-
-	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
-   	  'nigel', 'l9yjqAhh8GXv7ZJxsLZO', 'en', 'british',  'A distinct, seasoned English male voice that captivates audiences with warmth, clarity, and authenticity.', now(), now(), (select id from users where name='root'));
-
-
-	  insert into voice (id, name, voiceId, language, languageRegion, info, created, lastmodified, lastmodifieduser) VALUES  (nextval('sequence_id'), 
-   	  'shaun', 'lRKCbSROXui75bk1SVpy8', 'en', 'british',  ' ', now(), now(), (select id from users where name='root'));
-
-
-RKCbSROXui75bk1SVpy8
-
-   */
-
-		
-		
-		voices.put("emily",	     
-				new ELVoice("emily",			
-				"XB0fDUnXU5powFXDhCwa", 
-				"en" ,
-				"us",
-				"Emily",
-				"Emily"));
-	
-	
-		
-	 
-		 /** it **/
-
-		
-		voices.put("nicola",	
-				new ELVoice("nicola",			
-				"9sKbNSlHXq99bttvf8rRF", 
-				"it", 
-				"italia",
-				"Nicola",
-				"Nicola Loruso",
-				voiceSettings));
-		
-	
-		voices.put("thomas",	
-				new ELVoice("thomas",			
-				"tvFp0BgJPrEXGoDhDIA4", 
-				"dutch",
-				"dutch",
-				"Thomas",
-				"Thomas",
-				voiceSettings));
-	
-		
-		voices.put("leon",	
-				new ELVoice("leon",			
-				"MJ0RnG71ty4LH3dvNfSd", 
-				"ger",
-				"germany",
-				"Leon",
-				"Leon",
-				voiceSettings));
-		
-		
-	
-	
-	
-	
-	
 	}
-	
-	
-	/**
-	 * 
-	 * 
-	 * 
-	 * 
-	 */
-	  
+
+	public int countCharacters(String text) {
+		if (text == null)
+			return 0;
+		return text.length();
+	}
+
 	private void initOkHttpClient() {
-	
-		 this.scheme = Scheme.HTTPS;
-		 List<Protocol> protocol = new ArrayList<>();
-	     protocol.add(Protocol.HTTP_1_1);
 
-	     boolean isSecure = true;
-	     boolean acceptAllCertificates = true;
+		this.scheme = Scheme.HTTPS;
+		List<Protocol> protocol = new ArrayList<>();
+		protocol.add(Protocol.HTTP_1_1);
 
-		 Cache cache = new Cache(new File(getCacheWorkDir()), ClientConstant.HTTP_CACHE_SIZE);
+		boolean isSecure = true;
+		boolean acceptAllCertificates = true;
 
-	     /**
-	     String host = getSettings().getElevenLabsAPIHost();
-	     HttpUrl url = HttpUrl.parse(host);
-	     if (url == null)
-	         throw new IllegalArgumentException("url is null for host -> " + host);
+		Cache cache = new Cache(new File(getCacheWorkDir()), ClientConstant.HTTP_CACHE_SIZE);
 
-	     HttpUrl.Builder urlBuilder = url.newBuilder();
+	 
+		Builder builder = (new OkHttpClient()).newBuilder();
 
-         urlBuilder.scheme(this.scheme.toString());
+		if (!isSecure) {
 
-          if (port > 0)
-              urlBuilder.port(port);
+			this.httpClient = builder.connectTimeout(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS).writeTimeout(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
+					.readTimeout(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS).protocols(protocol).cache(cache).build();
 
-         //this.httpUrl = urlBuilder.build();
-	       */
-	     
-           
-    	   Builder builder = (new OkHttpClient()).newBuilder();
-    	   
-           if (!isSecure) {
-        	
-        	   this.httpClient = builder
-        			   .connectTimeout	(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-        			   .writeTimeout	(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-        			   .readTimeout		(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-        			   .protocols		(protocol).cache(cache)
-        			   .build();
-	            	
-	            }
-	            
-	       else if (acceptAllCertificates) {
-	                try {
+		}
 
-	                	 final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-	                         @Override
-	                         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-	                         }
+		else if (acceptAllCertificates) {
+			try {
 
-	                         @Override
-	                         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-	                         }
+				final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+					@Override
+					public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+					}
 
-	                         @Override
-	                         public X509Certificate[] getAcceptedIssuers() {
-	                             return new X509Certificate[] {};
-	                         }
-	                     } };
+					@Override
+					public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+					}
 
-	                  final SSLContext sslContext = SSLContext.getInstance("SSL");
-	                  sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
-	                  final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+					@Override
+					public X509Certificate[] getAcceptedIssuers() {
+						return new X509Certificate[] {};
+					}
+				} };
 
-	                  this.httpClient = builder
-	                    		 .sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0])
-	             				 .hostnameVerifier(new HostnameVerifier() {
-	             									                    @Override
-	             									                    public boolean verify(String hostname, SSLSession session) {
-	             									                        return true;
-	             									                    }
-	             									                })
-	             				  .connectTimeout	(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-	             				  .writeTimeout		(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-	             				  .readTimeout		(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-	             				  .cache(cache) 
-	             				  .build();
-	             	    	    
-	                } catch (KeyManagementException | NoSuchAlgorithmException e) {
-	                    throw new IllegalStateException(e);
-	                }
-	            }
-	         else {
-	            
-	            	this.httpClient = builder
-	            			.connectTimeout	(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-	            			.writeTimeout	(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-	            			.readTimeout	(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
-	            			.protocols		(protocol)
-	            			.cache(cache)
-	            			.build();
-	            }
-           
-           logger.debug("init okHttpClient ok -> " + this.httpClient.toString());
+				final SSLContext sslContext = SSLContext.getInstance("SSL");
+				sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+				final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+				this.httpClient = builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]).hostnameVerifier(new HostnameVerifier() {
+					@Override
+					public boolean verify(String hostname, SSLSession session) {
+						return true;
+					}
+				}).connectTimeout(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS).writeTimeout(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
+						.readTimeout(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS).cache(cache).build();
+
+			} catch (KeyManagementException | NoSuchAlgorithmException e) {
+				throw new IllegalStateException(e);
+			}
+		} else {
+
+			this.httpClient = builder.connectTimeout(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS).writeTimeout(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS)
+					.readTimeout(ClientConstant.DEFAULT_CONNECTION_TIMEOUT, TimeUnit.SECONDS).protocols(protocol).cache(cache).build();
+		}
+
+		logger.debug("init okHttpClient ok -> " + this.httpClient.toString());
 	}
-	
-	
-	
+
 	private boolean shouldOmitPortInHostHeader(HttpUrl url) {
-        return (url.scheme().equals("http") && url.port() == 80) || (url.scheme().equals("https") && url.port() == 443);
+		return (url.scheme().equals("http") && url.port() == 80) || (url.scheme().equals("https") && url.port() == 443);
 	}
 
-    
-    private String getCacheWorkDir() {
-        return getHomeDirAbsolutePath() + File.separator + "tmp" + File.separator + rand.randomString(6);
-    }
+	private String getCacheWorkDir() {
+		return getHomeDirAbsolutePath() + File.separator + "tmp" + File.separator + rand.randomString(6);
+	}
 
-    private String getHomeDirAbsolutePath() {
-        if (isLinux())
-            return ClientConstant.linux_home;
-        return ClientConstant.windows_home;
-    }
-    private boolean isLinux() {
-        if (System.getenv("OS") != null && System.getenv("OS").toLowerCase().contains("windows"))
-            return false;
-        return true;
-    }
- 
-  
+	private String getHomeDirAbsolutePath() {
+		if (isLinux())
+			return ClientConstant.linux_home;
+		return ClientConstant.windows_home;
+	}
+
+	private boolean isLinux() {
+		if (System.getenv("OS") != null && System.getenv("OS").toLowerCase().contains("windows"))
+			return false;
+		return true;
+	}
+
 }

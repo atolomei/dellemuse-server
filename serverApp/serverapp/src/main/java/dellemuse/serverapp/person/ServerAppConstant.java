@@ -128,6 +128,7 @@ public class ServerAppConstant {
 	static final public String user_panel_password		= "user-panel-password";
 	static final public String user_panel_person 		= "user-page-person";
 	static final public String user_panel_roles 		= "user-panel-roles";
+	static final public String user_panel_api_calls 	= "user-panel-api-calls";
 	
 	static final public String user_action_edit_info = "user-action-edit-info";
 	static final public String user_action_edit_pwd		= "user-action-edit-pwd";

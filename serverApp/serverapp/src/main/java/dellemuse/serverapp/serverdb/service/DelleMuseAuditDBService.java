@@ -24,6 +24,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class DelleMuseAuditDBService extends BaseDBService<DelleMuseAudit, Long> {
 
+	@SuppressWarnings("unused")
 	static private Logger logger = Logger.getLogger(DelleMuseAuditDBService.class.getName());
 
 	public DelleMuseAuditDBService(CrudRepository<DelleMuseAudit, Long> repository, ServerDBSettings settings) {

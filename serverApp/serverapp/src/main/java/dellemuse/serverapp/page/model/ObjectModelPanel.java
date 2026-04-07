@@ -55,6 +55,8 @@ import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
+import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
+import dellemuse.serverapp.serverdb.service.ElevenLabsRequestDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
@@ -240,6 +242,10 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 
 	public PublicUrlCacheService getPublicUrlCacheService() {
 		return (PublicUrlCacheService) ServiceLocator.getInstance().getBean(PublicUrlCacheService.class);
+	}
+
+	public ElevenLabsRequestDBService getElevenLabsRequestDBService() {
+		return (ElevenLabsRequestDBService) ServiceLocator.getInstance().getBean(ElevenLabsRequestDBService.class);
 	}
 
 	/** Deps --------------------------------------------------------- */

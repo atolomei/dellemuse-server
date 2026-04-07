@@ -25,7 +25,8 @@ import jakarta.transaction.Transactional;
 @Service
 public class PersistentTokenDBService extends BaseDBService<PersistentToken, Long> {
 
-    static private Logger logger = Logger.getLogger(PersistentTokenDBService.class.getName());
+    @SuppressWarnings("unused")
+	static private Logger logger = Logger.getLogger(PersistentTokenDBService.class.getName());
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -67,10 +68,7 @@ public class PersistentTokenDBService extends BaseDBService<PersistentToken, Lon
         t.setExpires(expires);
         return save(t);
     }
-    
-    
-    
-
+ 
     // ---------------------------------------------------------------
     // Finders
     // ---------------------------------------------------------------

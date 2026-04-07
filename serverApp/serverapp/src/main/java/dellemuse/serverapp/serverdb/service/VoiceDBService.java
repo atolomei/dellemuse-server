@@ -61,7 +61,7 @@ public class VoiceDBService extends DBService<Voice, Long> {
 	 * @param createdBy
 	 */
 	@Transactional
-	public Voice  create(String name,   User createdBy) {
+	public Voice  create(String name, User createdBy) {
 		Voice c = new Voice();
 		c.setName(name);
 		 
@@ -138,13 +138,7 @@ public class VoiceDBService extends DBService<Voice, Long> {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Voice> cq = cb.createQuery(getEntityClass());
 		Root<Voice> root = cq.from(getEntityClass());
-		
-		String la= language;
-		
-		if (language.startsWith("pt"))
-			la="pt";
-		
-		Predicate p1 = cb.equal(root.get("language"), la);
+		Predicate p1 = cb.equal(root.get("language"), getLanguageService().normalizeLanguage(language));
 		cq.select(root).where(p1);
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		
@@ -158,14 +152,7 @@ public class VoiceDBService extends DBService<Voice, Long> {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Voice> cq = cb.createQuery(getEntityClass());
 		Root<Voice> root = cq.from(getEntityClass());
-		
-		String la= language;
-		
-		
-		// grabamos pt en vez de pt-BR !!
-		//if (language.startsWith("pt"))
-		//	la="pt-BR";
-		
+	 	
 		Predicate p_lang = cb.equal(root.get("language"), getLanguageService().normalizeLanguage(language));
 		Predicate p_state = cb.equal(root.get("state"), os1);
 

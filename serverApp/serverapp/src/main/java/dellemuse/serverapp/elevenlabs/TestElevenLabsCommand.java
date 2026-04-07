@@ -26,7 +26,7 @@ public class TestElevenLabsCommand extends Command {
 		
 			String text = "En la revuelta de Niká de 532, convenció a Justiniano de no huir y enfrentar a sus enemigos con su famosa frase -“el púrpura es una buena mortaja”-. Promovió leyes en favor de los derechos de las mujeres: prohibió el tráfico sexual forzado, fortaleció los derechos de las mujeres en el matrimonio y el divorcio, y fundó hogares para mujeres rescatadas de la prostitución, algo sin precedentes en la época.";
 			
-			Optional<File> ofile = getElevenLabsService().generate(text, "theodora.mp3", LanguageCode.ES, "mariana");
+			Optional<File> ofile = getElevenLabsService().generate(text, "theodora.mp3", LanguageCode.ES, "mariana", getSecurityService().getRootUser(), Optional.empty());
 			
 			if (ofile.isPresent()) {
 				logger.debug(ofile.get().getAbsolutePath());

@@ -96,6 +96,29 @@ public class UserNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<User
 		});
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new AjaxLinkMenuItem<User>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.user_panel_api_calls, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("api-calls");
+					}
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override

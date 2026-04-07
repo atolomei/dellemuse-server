@@ -8,14 +8,14 @@ import org.springframework.stereotype.Service;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
+
 import dellemuse.serverapp.serverdb.model.ArtExhibitionStatusType;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.User;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityManagerFactory;
+
 import jakarta.transaction.Transactional;
 
 @Service

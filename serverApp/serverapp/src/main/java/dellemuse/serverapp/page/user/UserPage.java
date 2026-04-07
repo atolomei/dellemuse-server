@@ -62,6 +62,7 @@ public class UserPage extends ObjectPage<User> {
 	private UserRolesPanel rolesPanel;
 	private UserPasswordEditor passwordEditor;
 	private UserEditor editor;
+	private ApiCallsPanel apiCallsPanel;
 
 	private List<ToolbarItem> userMenu = null;
 
@@ -216,6 +217,8 @@ public class UserPage extends ObjectPage<User> {
 					UserPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 				} else if (event.getName().equals(ServerAppConstant.user_panel_roles)) {
 					UserPage.this.togglePanel(ServerAppConstant.user_panel_roles, event.getTarget());
+				} else if (event.getName().equals(ServerAppConstant.user_panel_api_calls)) {
+					UserPage.this.togglePanel(ServerAppConstant.user_panel_api_calls, event.getTarget());
 				} else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					UserPage.this.getMetaEditor().onEdit(event.getTarget());
 				}
@@ -351,6 +354,12 @@ public class UserPage extends ObjectPage<User> {
 		return new AuditPanel<User>(id, getModel());
 	}
 
+	protected Panel getApiCallsPanel(String id) {
+		if (apiCallsPanel == null)
+			apiCallsPanel = new ApiCallsPanel(id, getModel());
+		return apiCallsPanel;
+	}
+
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 
@@ -412,6 +421,17 @@ public class UserPage extends ObjectPage<User> {
 			}
 		};
 		tabs.add(audit);
+
+		NamedTab apiCalls = new NamedTab(Model.of("apiCalls"), ServerAppConstant.user_panel_api_calls) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getApiCallsPanel(panelId);
+			}
+		};
+		tabs.add(apiCalls);
 
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.user_panel_info);

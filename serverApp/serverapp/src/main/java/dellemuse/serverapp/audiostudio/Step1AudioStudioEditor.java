@@ -180,7 +180,8 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		LanguageCode languageCode = LanguageCode.from(language);
 
 	 
-		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id);
+		// TODO AT
+		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id, getSessionUser().get(), Optional.empty() );
 
 		if (ofile.isPresent()) {
 			step1AudioSpeechUpload(ofile.get());

@@ -142,28 +142,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<Site> getItem(String id) {
-
-				return new LinkMenuItem<Site>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						setResponsePage(new SiteQRCodePage(getModel()));
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("site-qrcode");
-					}
-				};
-			}
-		});
+	
 		
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
@@ -441,7 +420,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 					@Override
 					public void onClick() {
 						setResponsePage(new SitePublishedPortalPage(getModel()));
-						//setResponsePage(new BrandedSitePage(getModel()));
+						 
 					}
 
 					@Override
@@ -452,6 +431,30 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 		
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new LinkMenuItem<Site>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						setResponsePage(new SiteQRCodePage(getModel()));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("site-qrcode");
+					}
+				};
+			}
+		});
 		
 		
 		

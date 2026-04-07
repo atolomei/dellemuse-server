@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseObjectMapper;
-import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+ 
 import io.odilon.model.SharedConstant;
 
 public class LanguageCacheEvictEvent extends ApplicationEvent {
