@@ -134,24 +134,37 @@ public class UserPage extends ObjectPage<User> {
 		super.onInitialize();
 	}
 
-	protected boolean isMetaEditEnabled() {
-		if (getModel().getObject().isRoot())
-			return false;
-		return true;
-	}
+	
+	private Boolean hasAccessRight = null;
 
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
-		if (ouser.isEmpty())
-			return false;
+		
+		if (this.hasAccessRight != null)
+			return this.hasAccessRight.booleanValue();
+		
+		
+		if (ouser.isEmpty()) {
+			this.hasAccessRight = Boolean.FALSE;
+			return this.hasAccessRight;
+		}	
 
-		if (ouser.get().getId().equals(getModel().getObject().getId()))
-			return true;
+		if (ouser.get().getId().equals(getModel().getObject().getId())) {
+			this.hasAccessRight = Boolean.TRUE;
+			return this.hasAccessRight;
+
+		}
 
 		User user = ouser.get();
-		if (user.isRoot())
-			return true;
+
+		if (user.isRoot()) {
+			
+			this.hasAccessRight = Boolean.TRUE;
+			return this.hasAccessRight;
+		}
+
+		
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
@@ -160,8 +173,13 @@ public class UserPage extends ObjectPage<User> {
 			Set<RoleGeneral> set = user.getRolesGeneral();
 			if (set != null) {
 				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
-				if (isAccess)
-					return true;
+				if (isAccess) {
+				
+					this.hasAccessRight = Boolean.TRUE;
+					return this.hasAccessRight;
+				
+				}
+				
 			}
 		}
 
@@ -171,14 +189,25 @@ public class UserPage extends ObjectPage<User> {
 			Set<RoleSite> set = user.getRolesSite();
 			if (set != null) {
 				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
-				if (isAccess)
-					return true;
+				if (isAccess) {
+					this.hasAccessRight = Boolean.TRUE;
+					return this.hasAccessRight;
+				}
+				
 			}
 		}
 
-		return false;
+		this.hasAccessRight = Boolean.FALSE;
+		return this.hasAccessRight;
+	
 	}
-
+	
+	protected boolean isMetaEditEnabled() {
+		if (getModel().getObject().isRoot())
+			return false;
+		return true;
+	}
+	
 	@Override
 	protected void setUpModel() {
 		super.setUpModel();

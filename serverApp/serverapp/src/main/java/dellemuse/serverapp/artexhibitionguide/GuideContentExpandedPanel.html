@@ -1,0 +1,60 @@
+<wicket:panel>
+
+	<div class="row">
+		<div class="mt-1 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-lg-start text-md-start text-xs-center">
+
+			<div class="row">
+ 
+
+				<div class="mt-2 mb-2 col-xxl-2 col-xl-2 col-lg-3 col-md-3 col-sm-12 col-xs-12 text-bg-light border pt-0 pb-0 ps-0 pe-0"
+					style="position: relative; float: left; height:10em;  overflow:hidden;">
+					<img class="  img-fluid  centered " style="height: 10em;" wicket:id="thumbnail" />
+				</div>
+
+				<div class="mt-2 mb-2 col-xxl-10 col-xl-10 col-lg-9 col-md-9 col-sm-12 col-xs-12">
+					<div class="row">
+						<div class="mt-0 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+							<span wicket:id="artworkName"></span>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="mt-0 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+							<span wicket:id="artists"></span>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="mt-0 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+
+							<i class="fa-duotone fa-headphones"></i> <span wicket:id="audioNumber"></span>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<div wicket:id="audioList">
+				<div class="row">
+					<div class="mt-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<span class="small fw-bold" wicket:id="language"></span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="mt-0 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<a wicket:id="audioLink" href="#"></a>
+					</div>
+				</div>
+				<div class="row">
+
+					<div class="mt-0 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+						<span class="text-muted" wicket:id="audioMeta"></span>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+</wicket:panel>

@@ -83,6 +83,23 @@ public class UserListPage extends ObjectListPage<User> {
 		return Help.USER_LIST;
 	}
 
+
+	public UserListPage() {
+		super();
+		setIsExpanded(true);
+	}
+
+	public UserListPage(PageParameters parameters) {
+		super(parameters);
+		setIsExpanded(true);
+	}
+
+	public ImpersonationService getImpersonationService() {
+		return (ImpersonationService) ServiceLocator.getInstance().getBean(ImpersonationService.class);
+	}
+
+	
+
 	@Override
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
@@ -102,21 +119,7 @@ public class UserListPage extends ObjectListPage<User> {
 	public boolean canDelete(User m) {
 		return isRoot() || isGeneralAdmin();
 	}
-
-	public UserListPage() {
-		super();
-		setIsExpanded(true);
-	}
-
-	public UserListPage(PageParameters parameters) {
-		super(parameters);
-		setIsExpanded(true);
-	}
-
-	public ImpersonationService getImpersonationService() {
-		return (ImpersonationService) ServiceLocator.getInstance().getBean(ImpersonationService.class);
-	}
-
+	
 	public void impersonateUser(String username) {
 
 		ServletWebRequest servletRequest = (ServletWebRequest) RequestCycle.get().getRequest();

@@ -15,7 +15,6 @@ import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.music.MusicListPage;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
-import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -291,25 +290,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 
 		model.setObject(super.findArtExhibitionGuideWithDeps(model.getObject().getId()).get());
 
-		return new ObjectListItemExpandedPanel<ArtExhibitionGuide>("expanded-panel", model, mode) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected IModel<String> getInfo() {
-				return ArtExhibitionGuidesPanel.this.getObjectInfo(getModel());
-			}
-
-			@Override
-			protected IModel<String> getObjectSubtitle() {
-				return ArtExhibitionGuidesPanel.this.getObjectSubtitle(getModel());
-			}
-
-			@Override
-			protected String getImageSrc() {
-				return ArtExhibitionGuidesPanel.this.getObjectImageSrc(getModel());
-			}
-		};
+		return new ArtExhibitionGuideExpandedPanel("expanded-panel", model);
 	}
 
 	private void addItems() {

@@ -441,7 +441,7 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 
 						@Override
 						public IModel<String> getLabel() {
-							return getLabel("artexhibition-guides");
+							return SiteArtExhibitionsListPage.this.getLabel("artexhibition-guides");
 						}
 					};
 				}

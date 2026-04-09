@@ -630,7 +630,7 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		if (!res.isDependencies())
 			res = findResourceWithDeps(res.getId()).get();
 
-		return getPresignedThumbnail(res, ThumbnailSize.MEDIUM);
+		return getPresignedThumbnail(res, ThumbnailSize.LARGE);
 	}
 
 	protected String getImageSrc(ArtWork aw) {
