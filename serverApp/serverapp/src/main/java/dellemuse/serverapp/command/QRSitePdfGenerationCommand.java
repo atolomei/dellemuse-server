@@ -178,37 +178,7 @@ public class QRSitePdfGenerationCommand extends Command {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
 
-	private File generatePdf3(Site site, BufferedImage qrImage, File outputDir) throws IOException {
-
-		if (qrImage == null) {
-			throw new RuntimeException("QR image is null");
-		}
-
-		String filename = "qrsite-" + getResourceDBService().normalizeFileName(site.getName()) + "-" + site.getId() + ".pdf";
-
-		File pdfFile = new File(outputDir, filename);
-
-		try (PDDocument document = new PDDocument()) {
-
-			PDPage page = new PDPage(PDRectangle.A4);
-			document.addPage(page);
-
-			PDImageXObject pdImage = LosslessFactory.createFromImage(document, qrImage);
-
-			try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-				contentStream.drawImage(pdImage, 100, 400, 200, 200);
-			} catch (Exception e) {
-				logger.error(e);
-				throw e;
-			}
-
-			document.save(pdfFile);
-		}
-
-		logger.debug("PDF size: " + pdfFile.length());
-
-		return pdfFile;
-	}
+ 
 
 	private String getLabel(String key, String lang) {
 		ResourceBundle resources = ResourceBundle.getBundle(getClass().getName(), Locale.forLanguageTag(normalizeForResourceBundle(lang)));
@@ -258,11 +228,11 @@ public class QRSitePdfGenerationCommand extends Command {
 				// PDType0Font fontRegular = PDType0Font.load(document, new
 				// File(getSettings().getFontsDir(), "NotoSans-Regular.ttf"));
 
-				PDType0Font fontRegularBold = PDType0Font.load(document, new File(getSettings().getFontsDir() + File.separator + "montserrat", "Montserrat-Bold.ttf"));
+				//PDType0Font fontRegularBold = PDType0Font.load(document, new File(getSettings().getFontsDir() + File.separator + "montserrat", "Montserrat-Bold.ttf"));
 
 				PDType0Font fontRegular = PDType0Font.load(document, new File(getSettings().getFontsDir() + File.separator + "montserrat", "Montserrat-Regular.ttf"));
 
-				String audioGuidesStr = site.getMasterLanguage();
+				//String audioGuidesStr = site.getMasterLanguage();
 
 				// ---- Title: "Museo Nacional de Bellas Artes" ----
 				float titleFontSize = 21f;
@@ -311,6 +281,9 @@ public class QRSitePdfGenerationCommand extends Command {
 
 				}
 
+				
+				
+				
 				// ---- QR Image (centered below subtitle) ----
 				float x = (pageWidth - qrSize) / 2;
 
