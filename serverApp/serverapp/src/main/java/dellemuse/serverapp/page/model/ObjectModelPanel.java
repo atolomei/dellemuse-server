@@ -392,14 +392,20 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 				photo = this.getResourceDBService().findWithDeps(photo.getId()).get();
 
 			if ((photo.getMedia() == null) || (photo.getMedia().length() == 0) || photo.getMedia().endsWith("svg+xml") || photo.getMedia().endsWith("svg") || photo.getMedia().endsWith("webp")) {
+			
+				logger.debug("using original photo url (no thumbnail) ->  " + photo.getName());
 				String url = getObjectStorageService().getPublicUrl(photo);
+				logger.debug(url);
 				getPublicUrlCacheService().put(photo.getId(), size.getLabel(), url);
 				return url;
 
 			} else if (photo.isUsethumbnail()) {
 
 				ResourceThumbnailService service = (ResourceThumbnailService) ServiceLocator.getInstance().getBean(ResourceThumbnailService.class);
+				
+				
 				String url = service.getPresignedThumbnailUrl(photo, size);
+				logger.debug("using thumbnail service ->  " + url);
 				getPublicUrlCacheService().put(photo.getId(), size.getLabel(), url);
 				return url;
 
@@ -414,6 +420,7 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 
 				String url = getObjectStorageService().getPublicUrl(photo);
 				getPublicUrlCacheService().put(photo.getId(), size.getLabel(), url);
+				logger.debug("using public url of image ->  " + url);
 				return url;
 
 			}

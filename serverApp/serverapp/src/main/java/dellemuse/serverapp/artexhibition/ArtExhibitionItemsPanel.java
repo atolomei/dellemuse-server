@@ -18,7 +18,6 @@ import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.MultipleSelectorPanel;
-import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
 import dellemuse.serverapp.page.library.ObjectStateListSelector;
 import dellemuse.serverapp.page.library.ObjectStateSelectEvent;
@@ -232,26 +231,7 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 
 		model.setObject(super.findArtExhibitionItemWithDeps(model.getObject().getId()).get());
 
-		return new ObjectListItemExpandedPanel<ArtExhibitionItem>("expanded-panel", model, mode) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected IModel<String> getInfo() {
-				return ArtExhibitionItemsPanel.this.getObjectInfo(getModel());
-			}
-
-			@Override
-			protected IModel<String> getObjectSubtitle() {
-				return ArtExhibitionItemsPanel.this.getObjectSubtitle(getModel());
-			}
-
-			@Override
-			protected String getImageSrc() {
-				return ArtExhibitionItemsPanel.this.getObjectImageSrc(getModel());
-			}
-
-		};
+		return new ArtExhibitionItemExpandedPanel("expanded-panel", model);
 	}
 
 	protected void onObjectRemove(IModel<ArtExhibitionItem> model, AjaxRequestTarget target) {

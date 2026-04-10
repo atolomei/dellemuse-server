@@ -8,12 +8,15 @@ import org.apache.wicket.markup.html.image.ExternalImage;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.model.IDetachable;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.serverapp.page.IExpandedPanel;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
+import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -25,7 +28,7 @@ import io.wktui.media.InvisibleImage;
 import io.wktui.nav.toolbar.ToolbarItem;
 import wktui.base.InvisiblePanel;
 
-public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implements InternalPanel {
+public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implements IExpandedPanel  {
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,15 +76,23 @@ public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implem
 		buildAudioList(gc);
 	}
 
+	
+	java.util.List<AudioLanguageInfo> audioInfos = new java.util.ArrayList<>();
+	
 	private void buildAudioList(GuideContent gc) {
 
-		java.util.List<AudioLanguageInfo> audioInfos = new java.util.ArrayList<>();
-
+		
 		// Master language audio
 		String masterLang = gc.getMasterLanguage();
 		Resource masterAudio = gc.getAudio();
-		audioInfos.add(new AudioLanguageInfo(masterLang, masterAudio));
-
+		
+		
+		if (masterAudio != null) {
+			audioInfos.add(new AudioLanguageInfo(masterLang, new ObjectModel<Resource>(masterAudio)));
+		} else {
+			audioInfos.add(new AudioLanguageInfo(masterLang, null));
+		}
+		
 		// Other languages
 		if (siteModel != null && siteModel.getObject() != null) {
 			for (Language la : siteModel.getObject().getLanguages()) {
@@ -90,7 +101,7 @@ public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implem
 					Optional<GuideContentRecord> o = getGuideContentRecordDBService().findByGuideContent(gc, langCode);
 					if (o.isPresent()) {
 						GuideContentRecord r = getGuideContentRecordDBService().findWithDeps(o.get().getId()).get();
-						audioInfos.add(new AudioLanguageInfo(langCode, r.getAudio()));
+						audioInfos.add(new AudioLanguageInfo(langCode, (r.getAudio()!=null?  new ObjectModel<Resource>(r.getAudio()):null)));
 					} else {
 						audioInfos.add(new AudioLanguageInfo(langCode, null));
 					}
@@ -104,18 +115,19 @@ public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implem
 
 			@Override
 			protected void populateItem(ListItem<AudioLanguageInfo> listItem) {
+				
 				AudioLanguageInfo info = listItem.getModelObject();
 
 				listItem.add(new Label("language", info.languageCode != null ? info.languageCode.toUpperCase() : "-"));
 
-				if (info.audio != null) {
-					String presignedUrl = GuideContentExpandedPanel.this.getPresignedUrl(info.audio);
+				if (info.audioModel != null) {
+					String presignedUrl = GuideContentExpandedPanel.this.getPresignedUrl(info.audioModel.getObject());
 
-					ExternalLink audioLink = new ExternalLink("audioLink", presignedUrl, info.audio.getName());
+					ExternalLink audioLink = new ExternalLink("audioLink", presignedUrl, info.audioModel.getObject().getName());
 					audioLink.add(new org.apache.wicket.AttributeModifier("target", "_blank"));
 					listItem.add(audioLink);
 
-					String meta = GuideContentExpandedPanel.this.getAudioMeta(info.audio);
+					String meta = GuideContentExpandedPanel.this.getAudioMeta(info.audioModel.getObject());
 					Label metaLabel = new Label("audioMeta", meta);
 					metaLabel.setEscapeModelStrings(false);
 					listItem.add(metaLabel);
@@ -132,26 +144,36 @@ public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implem
 	@Override
 	public void onDetach() {
 		super.onDetach();
+		
 		if (siteModel != null)
 			siteModel.detach();
-	}
 
-	@Override
-	public List<ToolbarItem> getToolbarItems() {
-		return null;
+		 audioInfos.forEach(i-> i.detach());
+		 
 	}
+	
+ 
+	
 
 	/**
 	 * Helper class to hold audio info per language
 	 */
-	private static class AudioLanguageInfo implements java.io.Serializable {
+	private static class AudioLanguageInfo implements IDetachable {
+		
 		private static final long serialVersionUID = 1L;
 		final String languageCode;
-		final Resource audio;
+		final IModel<Resource> audioModel;
 
-		AudioLanguageInfo(String languageCode, Resource audio) {
+		AudioLanguageInfo(String languageCode, IModel<Resource> audio) {
 			this.languageCode = languageCode;
-			this.audio = audio;
+			this.audioModel = audio;
+		}
+
+		@Override
+		public void detach() {
+			if (this.audioModel != null)
+				this.audioModel.detach();
 		}
 	}
+	
 }

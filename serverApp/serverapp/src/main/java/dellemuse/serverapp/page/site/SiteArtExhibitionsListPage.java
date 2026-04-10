@@ -9,6 +9,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.pages.RedirectPage;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.component.IRequestablePage;
@@ -56,6 +57,7 @@ import io.wktui.nav.menu.TitleMenuItem;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import io.wktui.struct.list.ListPanelMode;
 
 /**
  * 
@@ -599,6 +601,12 @@ public class SiteArtExhibitionsListPage extends ObjectListPage<ArtExhibition> {
 	public IModel<String> getListPanelLabel() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	protected Panel getObjectListItemExpandedPanel(IModel<ArtExhibition> model, ListPanelMode mode) {
+		model.setObject(getArtExhibitionDBService().findWithDeps(model.getObject().getId()).get());
+		return new ArtExhibitionExpandedPanel("expanded-panel", model);
 	}
 
 	@Override

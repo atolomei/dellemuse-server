@@ -289,7 +289,7 @@ public class ArtExhibitionGuidesPanel extends DBModelPanel<ArtExhibition> implem
 	protected Panel getObjectListItemExpandedPanel(IModel<ArtExhibitionGuide> model, ListPanelMode mode) {
 
 		model.setObject(super.findArtExhibitionGuideWithDeps(model.getObject().getId()).get());
-
+		logger.debug("Getting expanded panel for guide -> " + model.getObject().getName()) ;
 		return new ArtExhibitionGuideExpandedPanel("expanded-panel", model);
 	}
 

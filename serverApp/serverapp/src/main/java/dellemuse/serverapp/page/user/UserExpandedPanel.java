@@ -16,7 +16,7 @@ import dellemuse.model.logging.Logger;
 
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.page.DelleMuseObjectListItemPanel;
-
+import dellemuse.serverapp.page.IExpandedPanel;
 import dellemuse.serverapp.page.InternalPanel;
 
 import dellemuse.serverapp.page.library.ObjectStateEnumSelector;
@@ -46,7 +46,7 @@ import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.InvisiblePanel;
 
-public class UserExpandedPanel extends DBModelPanel<User> implements InternalPanel {
+public class UserExpandedPanel extends DBModelPanel<User> implements IExpandedPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -56,7 +56,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 
 	private FormState state = FormState.VIEW;
 	private ListPanel<Role> userRolesPanel;
-	private List<ToolbarItem> t_list = new ArrayList<ToolbarItem>();
+	 
 	private IModel<Person> pmodel;
 	private ObjectStateEnumSelector oses;
 
@@ -97,10 +97,7 @@ public class UserExpandedPanel extends DBModelPanel<User> implements InternalPan
 			pmodel.detach();
 	}
 
-	@Override
-	public List<ToolbarItem> getToolbarItems() {
-		return t_list;
-	}
+ 
 
 	public void setObjectStateEnumSelector(ObjectStateEnumSelector o) {
 		this.oses = o;

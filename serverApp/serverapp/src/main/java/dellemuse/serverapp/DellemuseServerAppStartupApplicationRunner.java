@@ -52,6 +52,7 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 		this.appContext = appContext;
 	}
 
+	/*
 	
 	 @Bean CommandLineRunner verify() {
 		  
@@ -101,7 +102,8 @@ public class DellemuseServerAppStartupApplicationRunner implements ApplicationRu
 	        
 	  
 	  }
-	 
+	 */
+	
 	 
 	/**
 	  @Bean CommandLineRunner testEmail() {
