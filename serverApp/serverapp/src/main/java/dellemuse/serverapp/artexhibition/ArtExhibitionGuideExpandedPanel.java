@@ -22,10 +22,12 @@ import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
+import io.wktui.error.ErrorPanel;
 import io.wktui.media.InvisibleImage;
 import io.wktui.nav.toolbar.ToolbarItem;
+import wktui.base.InvisiblePanel;
 
-public class ArtExhibitionGuideExpandedPanel extends DBModelPanel<ArtExhibitionGuide>  implements IExpandedPanel  {
+public class ArtExhibitionGuideExpandedPanel extends DBModelPanel<ArtExhibitionGuide> implements IExpandedPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,36 +45,60 @@ public class ArtExhibitionGuideExpandedPanel extends DBModelPanel<ArtExhibitionG
 	public void onInitialize() {
 		super.onInitialize();
 
-		ArtExhibitionGuide guide = getModel().getObject();
+		try {
 
-		// Thumbnail
-		String imgSrc = getImageSrc(guide);
+			add(new InvisiblePanel("error"));
 
-		logger.debug("Thumbnail for guide -> " + guide.getName() + ": " + (imgSrc != null ? imgSrc : "no image"));
-		
-		if (imgSrc != null) {
-			add(new ExternalImage("thumbnail", imgSrc));
-		} else {
-			add(new InvisibleImage("thumbnail"));
+			ArtExhibitionGuide guide = getModel().getObject();
+
+			// Thumbnail
+			String imgSrc = getImageSrc(guide);
+
+			logger.debug("Thumbnail for guide -> " + guide.getName() + ": " + (imgSrc != null ? imgSrc : "no image"));
+
+			if (imgSrc != null) {
+				add(new ExternalImage("thumbnail", imgSrc));
+			} else {
+				add(new InvisibleImage("thumbnail"));
+			}
+
+			// Name
+			String name = getLanguageObjectService().getObjectDisplayName(guide, getLocale());
+			add(new Label("guideName", (name != null ? name : "")));
+
+			// Subtitle
+			String subtitle = guide.getSubtitle();
+			add((new Label("subtitle", (subtitle != null && !subtitle.isEmpty()) ? subtitle : "")).setVisible((subtitle != null && !subtitle.isEmpty())));
+
+			// Type
+			String type = guide.isAccessible() ? getString("type-accessible") : getString("type-general");
+			add(new Label("guideType", type));
+
+			add(new Label("audioid", (guide.getArtExhibitionAudioId() != null ? guide.getArtExhibitionAudioId().toString() : "")));
+
+			// Audio list per language
+			buildAudioList(guide);
+
+		} catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new Label("guideName", getString("error-loading-guide")));
+			addOrReplace(new InvisibleImage("thumbnail"));
+			addOrReplace(new Label("subtitle", ""));
+			addOrReplace(new Label("guideType", ""));
+			addOrReplace(new Label("audioid", ""));
+			addOrReplace(new ListView<AudioLanguageInfo>("audioList", java.util.Collections.emptyList()) {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected void populateItem(ListItem<AudioLanguageInfo> listItem) {
+					listItem.add(new Label("language", "-"));
+					listItem.add(new ExternalLink("audioLink", "#", getString("no-audio")));
+					listItem.add(new Label("audioMeta", ""));
+				}
+			});
+			audioInfos.clear();
+			addOrReplace(new ErrorPanel("error", e));
 		}
-
-		// Name
-		String name = getLanguageObjectService().getObjectDisplayName(guide, getLocale());
-		add(new Label("guideName", (name != null ? name : "")));
-
-		// Subtitle
-		String subtitle = guide.getSubtitle();
-		add( (new Label("subtitle", (subtitle != null && !subtitle.isEmpty()) ? subtitle : "")).setVisible((subtitle != null && !subtitle.isEmpty())));
-
-		// Type
-		String type = guide.isAccessible() ? getString("type-accessible") : getString("type-general");
-		add(new Label("guideType", type));
-
-		
-		add(new Label("audioid",  (guide.getArtExhibitionAudioId()!=null? guide.getArtExhibitionAudioId().toString() :"")));
-		
-		// Audio list per language
-		buildAudioList(guide);
 	}
 
 	private void buildAudioList(ArtExhibitionGuide guide) {
@@ -146,8 +172,6 @@ public class ArtExhibitionGuideExpandedPanel extends DBModelPanel<ArtExhibitionG
 		super.onDetach();
 		audioInfos.forEach(i -> i.detach());
 	}
-
-	 
 
 	/**
 	 * Helper class to hold audio info per language

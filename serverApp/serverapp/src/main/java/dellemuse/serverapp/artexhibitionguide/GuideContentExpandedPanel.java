@@ -24,11 +24,12 @@ import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
+import io.wktui.error.ErrorPanel;
 import io.wktui.media.InvisibleImage;
 import io.wktui.nav.toolbar.ToolbarItem;
 import wktui.base.InvisiblePanel;
 
-public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implements IExpandedPanel  {
+public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implements IExpandedPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -46,53 +47,65 @@ public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implem
 	public void onInitialize() {
 		super.onInitialize();
 
-		GuideContent gc = getModel().getObject();
+		try {
 
-		// Load ArtExhibitionItem -> ArtWork
-		ArtExhibitionItem item = getArtExhibitionItemDBService().findWithDeps(gc.getArtExhibitionItem().getId()).get();
-		ArtWork aw = item.getArtWork();
+			add(new InvisiblePanel("error"));
 
-		// Thumbnail
-		String imgSrc = getImageSrc(item);
-		if (imgSrc != null) {
-			add(new ExternalImage("thumbnail", imgSrc));
-		} else {
-			add(new InvisibleImage("thumbnail"));
+			GuideContent gc = getModel().getObject();
+
+			// Load ArtExhibitionItem -> ArtWork
+			ArtExhibitionItem item = getArtExhibitionItemDBService().findWithDeps(gc.getArtExhibitionItem().getId()).get();
+			ArtWork aw = item.getArtWork();
+
+			// Thumbnail
+			String imgSrc = getImageSrc(item);
+			if (imgSrc != null) {
+				add(new ExternalImage("thumbnail", imgSrc));
+			} else {
+				add(new InvisibleImage("thumbnail"));
+			}
+
+			// Name
+			String name = getLanguageObjectService().getObjectDisplayName(gc, getLocale());
+			add(new Label("artworkName", name != null ? name : "-"));
+
+			// Artists
+			String artists = (aw != null) ? getArtistStr(aw) : null;
+			add(new Label("artists", (artists != null && !artists.isEmpty()) ? artists : "-"));
+
+			// Audio Number
+			Long audioNumber = gc.getArtWorkAudioId();
+			add(new Label("audioNumber", audioNumber != null ? audioNumber.toString() : "-"));
+
+			// Audio list per language
+			buildAudioList(gc);
+		} catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new ErrorPanel("error", e));
+			addOrReplace(new InvisibleImage("thumbnail"));
+			addOrReplace(new Label("artworkName", "-"));
+			addOrReplace(new Label("artists", "-"));
+			addOrReplace(new Label("audioNumber", "-"));
+			addOrReplace(new InvisiblePanel("audioList"));
+
 		}
 
-		// Name
-		String name = getLanguageObjectService().getObjectDisplayName(gc, getLocale());
-		add(new Label("artworkName", name != null ? name : "-"));
-
-		// Artists
-		String artists = (aw != null) ? getArtistStr(aw) : null;
-		add(new Label("artists", (artists != null && !artists.isEmpty()) ? artists : "-"));
-
-		// Audio Number
-		Long audioNumber = gc.getArtWorkAudioId();
-		add(new Label("audioNumber", audioNumber != null ? audioNumber.toString() : "-"));
-
-		// Audio list per language
-		buildAudioList(gc);
 	}
 
-	
 	java.util.List<AudioLanguageInfo> audioInfos = new java.util.ArrayList<>();
-	
+
 	private void buildAudioList(GuideContent gc) {
 
-		
 		// Master language audio
 		String masterLang = gc.getMasterLanguage();
 		Resource masterAudio = gc.getAudio();
-		
-		
+
 		if (masterAudio != null) {
 			audioInfos.add(new AudioLanguageInfo(masterLang, new ObjectModel<Resource>(masterAudio)));
 		} else {
 			audioInfos.add(new AudioLanguageInfo(masterLang, null));
 		}
-		
+
 		// Other languages
 		if (siteModel != null && siteModel.getObject() != null) {
 			for (Language la : siteModel.getObject().getLanguages()) {
@@ -101,7 +114,7 @@ public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implem
 					Optional<GuideContentRecord> o = getGuideContentRecordDBService().findByGuideContent(gc, langCode);
 					if (o.isPresent()) {
 						GuideContentRecord r = getGuideContentRecordDBService().findWithDeps(o.get().getId()).get();
-						audioInfos.add(new AudioLanguageInfo(langCode, (r.getAudio()!=null?  new ObjectModel<Resource>(r.getAudio()):null)));
+						audioInfos.add(new AudioLanguageInfo(langCode, (r.getAudio() != null ? new ObjectModel<Resource>(r.getAudio()) : null)));
 					} else {
 						audioInfos.add(new AudioLanguageInfo(langCode, null));
 					}
@@ -115,7 +128,7 @@ public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implem
 
 			@Override
 			protected void populateItem(ListItem<AudioLanguageInfo> listItem) {
-				
+
 				AudioLanguageInfo info = listItem.getModelObject();
 
 				listItem.add(new Label("language", info.languageCode != null ? info.languageCode.toUpperCase() : "-"));
@@ -144,22 +157,19 @@ public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implem
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		
+
 		if (siteModel != null)
 			siteModel.detach();
 
-		 audioInfos.forEach(i-> i.detach());
-		 
+		audioInfos.forEach(i -> i.detach());
+
 	}
-	
- 
-	
 
 	/**
 	 * Helper class to hold audio info per language
 	 */
 	private static class AudioLanguageInfo implements IDetachable {
-		
+
 		private static final long serialVersionUID = 1L;
 		final String languageCode;
 		final IModel<Resource> audioModel;
@@ -175,5 +185,5 @@ public class GuideContentExpandedPanel extends DBModelPanel<GuideContent> implem
 				this.audioModel.detach();
 		}
 	}
-	
+
 }

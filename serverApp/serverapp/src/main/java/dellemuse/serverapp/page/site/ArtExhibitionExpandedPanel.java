@@ -10,7 +10,9 @@ import dellemuse.serverapp.page.IExpandedPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.Resource;
+import io.wktui.error.ErrorPanel;
 import io.wktui.media.InvisibleImage;
+import wktui.base.InvisiblePanel;
 
 public class ArtExhibitionExpandedPanel extends DBModelPanel<ArtExhibition> implements IExpandedPanel {
 
@@ -27,7 +29,12 @@ public class ArtExhibitionExpandedPanel extends DBModelPanel<ArtExhibition> impl
 	public void onInitialize() {
 		super.onInitialize();
 
-		ArtExhibition ex = getModel().getObject();
+		try {
+			
+
+			add(new InvisiblePanel("error"));
+
+			ArtExhibition ex = getModel().getObject();
 
 		// Thumbnail
 		String imgSrc = getImageSrc(ex);
@@ -65,7 +72,18 @@ public class ArtExhibitionExpandedPanel extends DBModelPanel<ArtExhibition> impl
 		Label durationLabel = new Label("duration", durationStr != null ? durationStr : "");
 		durationLabel.setVisible(durationStr != null);
 		add(durationLabel);
-**/
+		 **/
+		}
+		catch (Exception e) {
+			logger.error(e);
+			addOrReplace(new InvisibleImage("thumbnail"));
+			addOrReplace(new Label("exhibitionName", ""));
+			addOrReplace(new Label("subtitle", "").setVisible(false));
+			addOrReplace(new Label("audioId", "").setVisible(false));
+			//addOrReplace(new Label("duration", "").setVisible(false));
+			addOrReplace(new ErrorPanel("error", e));
+				
+		}
 		
 	}
 }

@@ -126,6 +126,8 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	protected IModel<String> getObjectInfo(IModel<ArtExhibitionItem> model) {
 		if (!model.getObject().isDependencies())
 			model.setObject(super.findArtExhibitionItemWithDeps(model.getObject().getId()).get());
+		
+		
 		return Model.of(TextCleaner.clean(getInfo(model.getObject())));
 	}
 
@@ -139,14 +141,15 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 
 	protected IModel<String> getObjectTitle(IModel<ArtExhibitionItem> model) {
 		StringBuilder str = new StringBuilder();
+
 		try {
+		
+			ArtWork a = getArtWorkDBService().findById(model.getObject().getArtWork().getId()).get();
 			
-			String s=getLanguageObjectService().getObjectDisplayName(model.getObject(), getLocale());
+			String s= getLanguageObjectService().getObjectDisplayName(a, getLocale());
 
 			str.append(s);
-
-			ArtWork a = getArtWorkDBService().findById(model.getObject().getArtWork().getId()).get();
-
+			
 			String as = getArtistStr(a);
 
 			if (as != null && as.length() > 0)
