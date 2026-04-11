@@ -8,7 +8,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -67,25 +66,27 @@ public class SiteQRCodePanel extends DBModelPanel<Site> implements InternalPanel
 				Url url = Url.parse(presignedThumbnail);
 				UrlResourceReference resourceReference = new UrlResourceReference(url);
 
-				Image image = new Image("qrcode", resourceReference);
-
-				qrcodecontainer.addOrReplace(image);
-
-				DownloadLink link = new DownloadLink("qr-file-link", getQRFileModel()) {
+				Link<Void> qrImageLink = new Link<Void>("qr-image-link") {
 
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public File getModelObject() {
-						return getQRFileModel().getObject();
+					public void onClick() {
+						File file = getQRFileModel().getObject();
+						FileResourceStream stream = new FileResourceStream(file);
+						ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(stream, file.getName());
+						handler.setContentDisposition(ContentDisposition.INLINE);
+						getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
 					}
 				};
 
-				Label f = new Label("qr-file-name", qrcode.getName());
-				link.addOrReplace(f);
-				qrcodecontainer.addOrReplace(link);
+				Image image = new Image("qrcode", resourceReference);
+				qrImageLink.add(image);
+				qrcodecontainer.addOrReplace(qrImageLink);
 
-				 
+				Label l = new Label("qrcode-text", getModel().getObject().getQrCodeText());
+				qrcodecontainer.addOrReplace(l);
+
 				if (qrcodePdf != null) {
 
 					qrPdfFileModel = new dellemuse.serverapp.serverdb.objectstorage.ObjectStorageFileModel(
@@ -113,25 +114,18 @@ public class SiteQRCodePanel extends DBModelPanel<Site> implements InternalPanel
 					qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
 				}
 
-				Label l = new Label("qrcode-text",  getModel().getObject().getQrCodeText());
-				qrcodecontainer.addOrReplace(l);
-				
 				addOrReplace(new InvisiblePanel("noqrcode"));
 
-				
-				
 			} else {
-				qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
-				qrcodecontainer.addOrReplace(new InvisiblePanel("qrcode-text"));
-				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
+				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-image-link"));
+				qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
 				qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
 				addOrReplace(new LabelPanel("noqrcode", getLabel("noqrcode")));
 			}
 
 		} catch (Exception e) {
-			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode"));
-			qrcodecontainer.addOrReplace(new InvisiblePanel("qrcode-text"));
-			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-file-link"));
+			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-image-link"));
+			qrcodecontainer.addOrReplace(new InvisibleImage("qrcode-text"));
 			qrcodecontainer.addOrReplace(new InvisiblePanel("qr-pdf-link"));
 			addOrReplace(new ErrorPanel("noqrcode", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
 			logger.error(e, ServerConstant.NOT_THROWN);
@@ -146,10 +140,45 @@ public class SiteQRCodePanel extends DBModelPanel<Site> implements InternalPanel
 		setUpModel();
 	
 		qrcodecontainer = new WebMarkupContainer("qrcodeContainer");
-		add (qrcodecontainer);
+		add(qrcodecontainer);
 		
-		qrcodecontainer.add( new InvisiblePanel("error"));
+		qrcodecontainer.add(new InvisiblePanel("error"));
 		
+		// ----------------
+		//
+		// generate QR Code
+		//
+		AjaxLink<Void> makeQRCode = new AjaxLink<Void>("make-qrcode") {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return SiteQRCodePanel.this.getModel().getObject().getQrcode() == null;
+			}
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				try {
+					QRSiteCodeGenerationCommand cmd = new QRSiteCodeGenerationCommand(SiteQRCodePanel.this.getModel().getObject().getId(), true);
+					cmd.execute();
+					setUpModel();
+					addPanels();
+					target.add(SiteQRCodePanel.this);
+				} catch (Exception e) {
+					logger.error(e, ServerConstant.NOT_THROWN);
+					qrcodecontainer.addOrReplace(new ErrorPanel("error", Model.of(e.getClass().getSimpleName() + " | " + e.getMessage())));
+					target.add(SiteQRCodePanel.this);
+				}
+			}
+		};
+
+		qrcodecontainer.add(makeQRCode);
+
+		// ----------------
+		//
+		// make pdf
+		//
 	 	AjaxLink<Void> make = new AjaxLink<Void>("make") {
 			private static final long serialVersionUID = 1L;
 		
@@ -175,9 +204,6 @@ public class SiteQRCodePanel extends DBModelPanel<Site> implements InternalPanel
 		};
 		
 		qrcodecontainer.add(make);
-		
-	
-		//qrcodecontainer.setVisible(qrcode != null);
 		
 		addPanels();
 		

@@ -218,21 +218,19 @@ public class QRSitePdfGenerationCommand extends Command {
 
 			PDImageXObject pdImage = PDImageXObject.createFromByteArray(document, baos.toByteArray(), "qr");
 
+			// Load headphones image
+			File headphonesFile = new File("img" + File.separator + "headphones.png");
+			PDImageXObject headphonesImage = PDImageXObject.createFromFileByContent(headphonesFile, document);
+
+			// Load font
+			PDType0Font fontRegular = PDType0Font.load(document, new File(getSettings().getFontsDir() + File.separator + "montserrat", "Montserrat-Regular.ttf"));
+
 			try (PDPageContentStream contentStream = new PDPageContentStream(document, page, PDPageContentStream.AppendMode.OVERWRITE, true)) {
 
 				float pageWidth = page.getMediaBox().getWidth();
 				float pageHeight = page.getMediaBox().getHeight();
 
 				float qrSize = 200f;
-
-				// PDType0Font fontRegular = PDType0Font.load(document, new
-				// File(getSettings().getFontsDir(), "NotoSans-Regular.ttf"));
-
-				//PDType0Font fontRegularBold = PDType0Font.load(document, new File(getSettings().getFontsDir() + File.separator + "montserrat", "Montserrat-Bold.ttf"));
-
-				PDType0Font fontRegular = PDType0Font.load(document, new File(getSettings().getFontsDir() + File.separator + "montserrat", "Montserrat-Regular.ttf"));
-
-				//String audioGuidesStr = site.getMasterLanguage();
 
 				// ---- Title: "Museo Nacional de Bellas Artes" ----
 				float titleFontSize = 21f;
@@ -254,37 +252,21 @@ public class QRSitePdfGenerationCommand extends Command {
 				float subtitleX = (pageWidth - subtitleWidth) / 2;
 				float subtitleY = titleY - 30;
 
-				// contentStream.setNonStrokingColor(0.4f, 0.4f, 0.4f); // #666666
 				contentStream.beginText();
 				contentStream.setFont(fontRegular, subtitleFontSize);
 				contentStream.newLineAtOffset(subtitleX, subtitleY);
 				contentStream.showText(subtitleText);
 				contentStream.endText();
-				float y = subtitleY - qrSize - 40;
 
-				if (!site.getMasterLanguage().startsWith("en")) {
+				// ---- Headphones icon (centered below subtitle) ----
+				float headphonesSize = 44f;
+				float headphonesX = (pageWidth - headphonesSize) / 2;
+				float headphonesY = subtitleY - headphonesSize - 15;
+				contentStream.drawImage(headphonesImage, headphonesX, headphonesY, headphonesSize, headphonesSize);
 
-					// ---- Subtitle: "Audioguías" ----
-					String subtitleTextEn = safeText(getLabel("audio-guides", "en"));
-					float subtitleYEn = subtitleY - 23;
+				float y = headphonesY - qrSize - 30;
 
-					float subtitleWidthEn = fontRegular.getStringWidth(subtitleTextEn) / 1000 * subtitleFontSize;
-					float subtitleXEn = (pageWidth - subtitleWidthEn) / 2;
-					// contentStream.setNonStrokingColor(0.4f, 0.4f, 0.4f); // #666666
-					contentStream.beginText();
-					contentStream.setFont(fontRegular, subtitleFontSize);
-					contentStream.newLineAtOffset(subtitleXEn, subtitleYEn);
-					contentStream.showText(subtitleTextEn);
-
-					contentStream.endText();
-					y = subtitleYEn - qrSize - 40;
-
-				}
-
-				
-				
-				
-				// ---- QR Image (centered below subtitle) ----
+				// ---- QR Image (centered below headphones icon) ----
 				float x = (pageWidth - qrSize) / 2;
 
 				contentStream.drawImage(pdImage, x, y, qrSize, qrSize);
@@ -295,59 +277,7 @@ public class QRSitePdfGenerationCommand extends Command {
 		return pdfFile;
 	}
 
-	private File generatePdf2(Site site, BufferedImage qrImage, File outputDir) throws IOException {
-
-		String filename = "qrsite-" + getResourceDBService().normalizeFileName(site.getName()) + "-" + site.getId() + ".pdf";
-
-		File pdfFile = new File(outputDir, filename);
-
-		try (PDDocument document = new PDDocument()) {
-
-			PDPage page = new PDPage(PDRectangle.A4);
-			document.addPage(page);
-
-			PDImageXObject pdImage = LosslessFactory.createFromImage(document, qrImage);
-
-			try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-
-				float pageWidth = page.getMediaBox().getWidth();
-				float pageHeight = page.getMediaBox().getHeight();
-
-				float qrSize = 200f;
-
-				float x = (pageWidth - qrSize) / 2;
-				float y = (pageHeight / 2) - (qrSize / 2);
-
-				// QR
-				contentStream.drawImage(pdImage, x, y, qrSize, qrSize);
-
-				// ---- Title ----
-				if (site.getName() != null) {
-
-					contentStream.beginText();
-
-					PDType0Font font = PDType0Font.load(document, new File(getSettings().getFontsDir(), "NotoSans-Regular.ttf"));
-					contentStream.setFont(font, 18);
-					contentStream.newLineAtOffset(50, y + qrSize + 40);
-					contentStream.showText(safeText(site.getName()));
-					contentStream.endText();
-				}
-
-				// ---- Instruction ----
-				contentStream.beginText();
-
-				PDType0Font font = PDType0Font.load(document, new File(getSettings().getFontsDir(), "NotoSans-Regular.ttf"));
-				contentStream.setFont(font, 12);
-				contentStream.newLineAtOffset(50, y - 40);
-				contentStream.showText("Scan to listen");
-				contentStream.endText();
-			}
-
-			document.save(pdfFile);
-		}
-
-		return pdfFile;
-	}
+	 
 
 	private String safeText(String input) {
 		if (input == null)
