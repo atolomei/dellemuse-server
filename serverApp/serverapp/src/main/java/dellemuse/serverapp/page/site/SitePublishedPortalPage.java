@@ -63,6 +63,8 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 	private SitePublicPortalEditor editor;
 	private List<ToolbarItem> list;
 
+	protected IModel<Site> getSiteModel() {return getModel();}
+
 	
 	public SitePublishedPortalPage() {
 		super();

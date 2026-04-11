@@ -20,6 +20,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
 import io.wktui.form.Form;
 import io.wktui.form.field.FileUploadSimpleField;
@@ -39,6 +40,9 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 	private FileUploadSimpleField<Resource> audioAccesibleField;
 	private IModel<ArtExhibitionGuide> artExhibitionGuideModel;
 
+	
+	private IModel<Site> siteModel;
+	
 	public GuideContentRecordEditor(String id, IModel<GuideContent> sourceModel, IModel<GuideContentRecord> TranslationRecordModel) {
 		super(id, sourceModel, TranslationRecordModel);
 
@@ -60,7 +64,16 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 
 		if (artExhibitionGuideModel != null)
 			this.artExhibitionGuideModel.detach();
+		
+		
+		if (this.siteModel!=null)
+			this.siteModel.detach();
 	}
+	
+	
+	public IModel<Site> getSourceSiteModel() { return this.siteModel; }
+
+	
 
 	@Override
 	protected void setUpModel() {
@@ -75,7 +88,16 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 		Optional<ArtExhibitionGuide> o_r = getArtExhibitionGuideDBService().findWithDeps(getSourceModel().getObject().getArtExhibitionGuide().getId());
 		if (o_r.isPresent()) {
 			setArtExhibitionGuideModel(new ObjectModel<ArtExhibitionGuide>(o_r.get()));
+		
+		this.siteModel = new ObjectModel<Site>( o_r.get().getArtExhibition().getSite());
+		
+		
 		}
+		
+		
+		
+		
+		
 
 	}
 
@@ -132,7 +154,7 @@ public class GuideContentRecordEditor extends ObjectRecordEditor<GuideContent, G
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent())
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getArtExhibitionGuideModel().getObject().isAccessible()));
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()),   getArtExhibitionGuideModel().getObject().isAccessible()));
 				logger.error("audio studio not created for -> " + getModel().getObject().getDisplayname());
 			}
 

@@ -108,6 +108,28 @@ public class ElevenLabsRequestDBService extends BaseDBService<ElevenLabsRequest,
 		return getEntityManager().createQuery(cq).getSingleResult();
 	}
 
+	@Transactional
+	public long countBySite(Long siteId) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<ElevenLabsRequest> root = cq.from(ElevenLabsRequest.class);
+
+		cq.select(cb.count(root));
+		cq.where(cb.equal(root.get("siteId"), siteId));
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
+	@Transactional
+	public long totalCharactersBySite(Long siteId) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<ElevenLabsRequest> root = cq.from(ElevenLabsRequest.class);
+
+		cq.select(cb.coalesce(cb.sum(root.get("size").as(Long.class)), 0L));
+		cq.where(cb.equal(root.get("siteId"), siteId));
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+	
 	protected UserDBService getUserDBService() {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}

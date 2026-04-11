@@ -371,7 +371,7 @@ public class GuideContentEditor extends DBSiteObjectEditor<GuideContent> impleme
 			public void onClick() {
 				Optional<AudioStudio> oa = getAudioStudioDBService().findOrCreate(getModel().getObject(), getSessionUser().get());
 				if (oa.isPresent()) {
-					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()), getArtExhibitionGuideModel().getObject().isAccessible()));
+					setResponsePage(new AudioStudioPage(new ObjectModel<AudioStudio>(oa.get()),   getArtExhibitionGuideModel().getObject().isAccessible()));
 				} else
 					setResponsePage(new ErrorPage(Model.of("no audio studio for -> " + getModel().getObject().getDisplayname())));
 			}

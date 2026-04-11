@@ -254,7 +254,10 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 			return getRecordEditors().get(lang);
 
 		IModel<GuideContentRecord> translationRecordModel = getTranslationRecordModel(lang);
-		ObjectRecordEditor<GuideContent, GuideContentRecord> e = new ObjectRecordEditor<GuideContent, GuideContentRecord>(id, getModel(), translationRecordModel);
+
+		
+		
+		ObjectRecordEditor<GuideContent, GuideContentRecord> e = new ObjectRecordEditor<GuideContent, GuideContentRecord>(id, getModel(), translationRecordModel, getSiteModel());
 
 		e.setIntroVisible(isIntroVisible());
 		e.setSpecVisible(isSpecVisible());

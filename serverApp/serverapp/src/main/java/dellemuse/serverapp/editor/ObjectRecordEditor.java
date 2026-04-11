@@ -82,15 +82,22 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 	private Boolean hasWritePermission;
 
-	/**
-	 * @param id
-	 * @param model
-	 */
-	public ObjectRecordEditor(String id, IModel<T> sourceModel, IModel<R> TranslationRecordModel) {
-		super(id, TranslationRecordModel);
+	
+	public ObjectRecordEditor(String id, IModel<T> sourceModel, IModel<R> translationRecordModel) {
+			this(id, sourceModel, translationRecordModel, null);
+	}
+
+	
+	 
+	public ObjectRecordEditor(String id, IModel<T> sourceModel, IModel<R> translationRecordModel, IModel<Site> siteModel) {
+		super(id, translationRecordModel);
 		this.sourceModel = sourceModel;
 	}
 
+	
+	public IModel<Site> getSourceSiteModel() { return null; }
+
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -563,8 +570,9 @@ public class ObjectRecordEditor<T extends MultiLanguageObject, R extends Transla
 
 	}
 
+	
 	protected void openAudioStudio(ObjectModel<AudioStudio> objectModel) {
-		setResponsePage(new AudioStudioPage(objectModel, isAccesible()));
+		setResponsePage(new AudioStudioPage(objectModel,  isAccesible()));
 	}
 
 	protected boolean isAccesible() {

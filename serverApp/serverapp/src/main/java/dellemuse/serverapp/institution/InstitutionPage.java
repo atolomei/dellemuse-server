@@ -71,6 +71,9 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	private List<ToolbarItem> list;
 
 	
+	protected IModel<Site> getSiteModel() {return null;}
+	
+	
 	protected List<Language> getSupportedLanguages() {
 		return  getLanguageService().getLanguages();
 	}

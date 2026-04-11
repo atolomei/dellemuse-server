@@ -81,6 +81,8 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	private ObjectMetaEditor<User>  metaEditor;
 	
 	
+	protected IModel<Site> getSiteModel() {return getModel();}
+
 	
 	public SiteUserPage(PageParameters parameters) {
 		super(parameters);

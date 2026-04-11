@@ -30,6 +30,7 @@ import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.PersonRecord;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
@@ -68,6 +69,9 @@ public class PersonPage extends MultiLanguageObjectPage<Person, PersonRecord> {
 		return false;
 	}
 
+	protected IModel<Site> getSiteModel() {return null;}
+
+	
 	public PersonPage() {
 		super();
 	}

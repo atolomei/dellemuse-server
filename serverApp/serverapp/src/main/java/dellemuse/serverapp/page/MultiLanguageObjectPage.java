@@ -21,7 +21,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
-
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageObjectService;
@@ -49,6 +49,10 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 
 	protected abstract R createTranslationRecord(String lang);
 
+	
+	protected abstract IModel<Site> getSiteModel();
+	
+	
 	public MultiLanguageObjectPage() {
 		super();
 	}
@@ -227,7 +231,7 @@ public abstract class MultiLanguageObjectPage<T extends MultiLanguageObject, R e
 		 **/
 
 		IModel<R> translationRecordModel = getTranslationRecordModel(lang);
-		ObjectRecordEditor<T, R> e = new ObjectRecordEditor<T, R>(id, getModel(), translationRecordModel);
+		ObjectRecordEditor<T, R> e = new ObjectRecordEditor<T, R>(id, getModel(), translationRecordModel, getSiteModel());
 
 		e.setIntroVisible(isIntroVisible());
 		e.setSpecVisible(isSpecVisible());

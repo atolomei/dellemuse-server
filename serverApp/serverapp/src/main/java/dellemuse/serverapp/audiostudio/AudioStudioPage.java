@@ -74,13 +74,15 @@ public class AudioStudioPage extends BasePage {
 
 	private boolean isAccesibleVersion = false;
 
+ 
+	
 	/**
 	 * @param model
 	 */
-	public AudioStudioPage(IModel<AudioStudio> model, boolean isAccesibleVersion) {
+	public AudioStudioPage(IModel<AudioStudio> model,  boolean isAccesibleVersion) {
 		super();
 		setModel(model);
-
+ 
 		this.isAccesibleVersion = isAccesibleVersion;
 
 		Check.requireNonNullArgument(model, "model is null");
@@ -93,7 +95,7 @@ public class AudioStudioPage extends BasePage {
 		super(parameters);
 		stringValue = getPageParameters().get("id");
 	}
-
+ 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -139,6 +141,9 @@ public class AudioStudioPage extends BasePage {
 
 		if (getModel() != null)
 			getModel().detach();
+	
+	 
+		
 	}
 
 	public IModel<AudioStudio> getModel() {

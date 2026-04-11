@@ -37,6 +37,7 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.Voice;
  
 import io.wktui.error.AlertPanel;
@@ -179,9 +180,21 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		String fileName = normalizeFileName(getParentName()) + "-" + getParentId().toString() + ".mp3";
 		LanguageCode languageCode = LanguageCode.from(language);
 
-	 
-		// TODO AT
-		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id, getSessionUser().get(), Optional.empty() );
+		Optional<Long> osid;
+		try {
+			Optional<Site> os = getAudioStudioDBService().getSite(getModel().getObject());
+
+			if (os.isPresent())
+				osid = Optional.of(os.get().getId());
+			else
+				osid = Optional.empty();
+		
+		} catch (Exception e) {
+			logger.error(e, ServerConstant.NOT_THROWN);
+			osid = Optional.empty();
+		}
+		
+		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id, getSessionUser().get(), osid );
 
 		if (ofile.isPresent()) {
 			step1AudioSpeechUpload(ofile.get());

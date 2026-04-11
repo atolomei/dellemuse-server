@@ -60,6 +60,9 @@ public class SiteSearcherPage extends MultiLanguageObjectPage<Site, SiteRecord> 
 	private List<IModel<GuideContent>> gc_list;
 	private List<IModel<ArtExhibitionGuide>> ag_list;
 
+	protected IModel<Site> getSiteModel() {return getModel();}
+
+	
 	public SiteSearcherPage() {
 		super();
 	}

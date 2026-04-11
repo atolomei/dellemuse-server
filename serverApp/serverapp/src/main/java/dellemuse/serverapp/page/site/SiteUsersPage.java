@@ -57,6 +57,8 @@ public class SiteUsersPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 	private List<ToolbarItem> list;
 
+	protected IModel<Site> getSiteModel() {return getModel();}
+
 
 	public SiteUsersPage() {
 		super();

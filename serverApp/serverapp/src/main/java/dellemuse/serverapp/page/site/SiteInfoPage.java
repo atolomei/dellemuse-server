@@ -63,6 +63,8 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	private SiteInfoEditor editor;
 	private List<ToolbarItem> list;
 
+	protected IModel<Site> getSiteModel() {return getModel();}
+
 	
 	public SiteInfoPage() {
 		super();

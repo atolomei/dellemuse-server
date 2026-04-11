@@ -24,6 +24,7 @@ public class ServerAppConstant {
 	
 	static final public String site_portal_action_edit		= "site_portal_action_edit";
 	static final public String site_qrcode					= "site_qrcode";
+	static final public String site_api_calls				= "site_api_calls";
 	static final public String exhibition_qrcode			= "exhibition_qrcode";
 	
 	
