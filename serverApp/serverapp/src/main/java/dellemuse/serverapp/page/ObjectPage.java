@@ -55,6 +55,25 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	static private Logger logger = Logger.getLogger(ObjectPage.class.getName());
 
+	
+	private Boolean hasAccessRight = null;
+	private Boolean hasReadAccess = null;
+	private Boolean hasWriteAccess = null;
+	private Boolean hasDeleteAccess = null;
+
+	
+	protected abstract boolean calculateHasAccessRight(Optional<User> ouser);
+	
+	@Override
+	public boolean hasAccessRight(Optional<User> ouser) {
+		if (hasAccessRight == null) {
+			hasAccessRight = calculateHasAccessRight(ouser);
+		}
+		return hasAccessRight.booleanValue();
+	}
+	
+	
+	
 	private StringValue stringValue;
 
 	private IModel<T> model;
@@ -149,9 +168,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 
 	}
 
-	public boolean hasAccessRight(Optional<User> ouser) {
-		return true;
-	}
+ 
 
 	public boolean canRead() {
 		return true;

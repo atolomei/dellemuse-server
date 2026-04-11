@@ -84,7 +84,7 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 	}
 
 	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;

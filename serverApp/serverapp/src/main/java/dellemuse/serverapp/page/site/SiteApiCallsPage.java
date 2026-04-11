@@ -61,7 +61,7 @@ public class SiteApiCallsPage extends ObjectPage<Site> {
 	}
 
 	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;

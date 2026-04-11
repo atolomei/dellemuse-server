@@ -79,7 +79,7 @@ public class VoicePage extends ObjectPage<Voice> {
 	}
 
 	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;

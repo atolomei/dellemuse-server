@@ -194,7 +194,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	}
 
 	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
 		if (getSiteModel().getObject().getState() != ObjectState.PUBLISHED)
 			return false;

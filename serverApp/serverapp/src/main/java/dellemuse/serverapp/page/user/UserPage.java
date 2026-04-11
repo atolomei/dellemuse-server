@@ -135,24 +135,16 @@ public class UserPage extends ObjectPage<User> {
 	}
 
 	
-	private Boolean hasAccessRight = null;
-
 	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
-		
-		if (this.hasAccessRight != null)
-			return this.hasAccessRight.booleanValue();
-		
 		
 		if (ouser.isEmpty()) {
-			this.hasAccessRight = Boolean.FALSE;
-			return this.hasAccessRight;
+			return false;
 		}	
 
 		if (ouser.get().getId().equals(getModel().getObject().getId())) {
-			this.hasAccessRight = Boolean.TRUE;
-			return this.hasAccessRight;
+			return true;
 
 		}
 
@@ -160,8 +152,7 @@ public class UserPage extends ObjectPage<User> {
 
 		if (user.isRoot()) {
 			
-			this.hasAccessRight = Boolean.TRUE;
-			return this.hasAccessRight;
+			return true;
 		}
 
 		
@@ -175,8 +166,7 @@ public class UserPage extends ObjectPage<User> {
 				boolean isAccess = set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
 				if (isAccess) {
 				
-					this.hasAccessRight = Boolean.TRUE;
-					return this.hasAccessRight;
+					return true;
 				
 				}
 				
@@ -190,15 +180,13 @@ public class UserPage extends ObjectPage<User> {
 			if (set != null) {
 				boolean isAccess = set.stream().anyMatch((p -> p.getSite().getId().equals(sid) && (p.getKey().equals(RoleSite.ADMIN) || p.getKey().equals(RoleSite.EDITOR))));
 				if (isAccess) {
-					this.hasAccessRight = Boolean.TRUE;
-					return this.hasAccessRight;
+					return true;
 				}
 				
 			}
 		}
 
-		this.hasAccessRight = Boolean.FALSE;
-		return this.hasAccessRight;
+		return false;
 	
 	}
 	

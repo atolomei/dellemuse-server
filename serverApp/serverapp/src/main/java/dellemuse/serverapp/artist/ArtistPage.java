@@ -135,7 +135,7 @@ public class ArtistPage extends  MultiLanguageObjectPage<Artist, ArtistRecord> {
 
 	
 	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 		
 		if (ouser.isEmpty())
 			return false;

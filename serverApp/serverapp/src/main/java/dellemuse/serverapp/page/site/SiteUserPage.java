@@ -106,7 +106,7 @@ public class SiteUserPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 	}
 
 	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;

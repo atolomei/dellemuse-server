@@ -153,7 +153,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	
 	
 	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;
@@ -511,13 +511,13 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		});
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
-			private static final long serialVersionUID = 1L;
+		 private static final long serialVersionUID = 1L;
 
-			@Override
-			public MenuItemPanel<Institution> getItem(String id) {
-				return new SeparatorMenuItem<Institution>(id, getModel());
-			}
-		});
+		 @Override
+		 public MenuItemPanel<Institution> getItem(String id) {
+			 return new SeparatorMenuItem<Institution>(id, getModel());
+		 }
+	 });
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<Institution>() {
 			private static final long serialVersionUID = 1L;

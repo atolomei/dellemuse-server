@@ -113,7 +113,7 @@ public class PersonPage extends MultiLanguageObjectPage<Person, PersonRecord> {
 	}
 
 	@Override
-	public boolean hasAccessRight(Optional<User> ouser) {
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
 		if (ouser.isEmpty())
 			return false;
