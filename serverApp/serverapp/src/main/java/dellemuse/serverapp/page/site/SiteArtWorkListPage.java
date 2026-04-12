@@ -41,6 +41,8 @@ import dellemuse.serverapp.serverdb.model.Voice;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
 
+import org.apache.wicket.markup.html.panel.Panel;
+
 import io.odilon.util.Check;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
@@ -576,6 +578,12 @@ public class SiteArtWorkListPage extends ObjectListPage<ArtWork> {
 		IModel<ArtWork> m = new ObjectModel<ArtWork>(aw);
 		getList().add(m);
 		setResponsePage(new ArtWorkPage(m, getList()));
+	}
+
+	@Override
+	protected Panel getObjectListItemExpandedPanel(IModel<ArtWork> model, ListPanelMode mode) {
+		model.setObject(getArtWorkDBService().findWithDeps(model.getObject().getId()).get());
+		return new ArtWorkExpandedPanel("expanded-panel", model);
 	}
 
 	@Override
