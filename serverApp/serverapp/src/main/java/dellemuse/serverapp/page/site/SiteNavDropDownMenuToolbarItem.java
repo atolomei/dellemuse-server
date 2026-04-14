@@ -38,20 +38,21 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			if (model.getObject().getShortName() != null)
 				setTitle(getLabel("site-header", model.getObject().getShortName()));
 			else
-				setTitle(getLabel("site-header", getObjectTitle( model.getObject() ).getObject()));
+				setTitle(getLabel("site-header", getObjectTitle(model.getObject()).getObject()));
 		}
 	}
 
 	public LanguageObjectService getLanguageObjectService() {
 		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
 	}
-	
+
 	public IModel<String> getObjectTitle(MultiLanguageObject o) {
 		String s = getLanguageObjectService().getObjectDisplayName(o, getLocale());
 		if (s == null)
 			return null;
 		return Model.of(s);
 	}
+
 	public SiteNavDropDownMenuToolbarItem(String id, IModel<Site> model, IModel<String> title, Align align) {
 		super(id, model, title, align);
 	}
@@ -64,24 +65,22 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
 
-		 addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public MenuItemPanel<Site> getItem(String id) {
-					return new TitleMenuItem<Site>(id) {
-						private static final long serialVersionUID = 1L;
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+			private static final long serialVersionUID = 1L;
 
-						@Override
-						public IModel<String> getLabel() {
-							return getLabel("site-title");
-						}
-					};
-				}
-			});
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+				return new TitleMenuItem<Site>(id) {
+					private static final long serialVersionUID = 1L;
 
-		 
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("site-title");
+					}
+				};
+			}
+		});
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
@@ -141,9 +140,6 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				};
 			}
 		});
-		
-	
-		
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
@@ -181,6 +177,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 
+		/**
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -203,6 +200,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				};
 			}
 		});
+		**/
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
@@ -330,7 +328,6 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 
-		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -348,8 +345,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				};
 			}
 		});
-		
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -396,17 +392,15 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 
-
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Site> getItem(String id) {
 				return new io.wktui.nav.menu.SeparatorMenuItem<Site>(id);
 			}
 		});
-		
-		
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -420,7 +414,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 					@Override
 					public void onClick() {
 						setResponsePage(new SitePublishedPortalPage(getModel()));
-						 
+
 					}
 
 					@Override
@@ -430,9 +424,7 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				};
 			}
 		});
-		
-		
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -456,8 +448,6 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 			}
 		});
 
-		
-		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -470,9 +460,6 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				};
 			}
 		});
-		
-		
-		
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
@@ -496,7 +483,6 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 				};
 			}
 		});
-		
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 

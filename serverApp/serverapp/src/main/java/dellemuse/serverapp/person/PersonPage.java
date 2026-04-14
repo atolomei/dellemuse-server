@@ -69,9 +69,10 @@ public class PersonPage extends MultiLanguageObjectPage<Person, PersonRecord> {
 		return false;
 	}
 
-	protected IModel<Site> getSiteModel() {return null;}
+	protected IModel<Site> getSiteModel() {
+		return null;
+	}
 
-	
 	public PersonPage() {
 		super();
 	}
