@@ -100,6 +100,12 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 	private IModel<User> sessionUserModel;
 
  
+	
+
+	public String getPublicUrl(Site site) {
+		return getServerUrl() + "/"+ ServerConstant.AG + "/" + site.getId();
+	}
+	
 
 	protected boolean canDelete(T object) {
 		return true;

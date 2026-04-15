@@ -71,6 +71,20 @@ public class Site extends MultiLanguageObject {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private Institution institution;
 
+	
+	
+	/**
+	 * 
+	 * basic
+	 * enterprise
+	 * 
+	 * 
+	 */
+	// @JsonProperty("tier")
+	// @Column(name = "tier")
+	// private String tier;
+	
+	
 	@JsonProperty("zoneId")
 	@Column(name = "zoneid")
 	private String zoneId;

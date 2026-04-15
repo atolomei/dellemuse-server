@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -43,6 +44,7 @@ import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import io.wktui.struct.list.ListPanelMode;
 
 @MountPath("/institution/list")
 @AuthorizeInstantiation({"ROLE_USER"})
@@ -536,6 +538,12 @@ public class InstitutionsListPage extends ObjectListPage<Institution> {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("page-header", e));
 		}
+	}
+
+	@Override
+	protected Panel getObjectListItemExpandedPanel(IModel<Institution> model, ListPanelMode mode) {
+		model.setObject(getInstitutionDBService().findWithDeps(model.getObject().getId()).get());
+		return new InstitutionExpandedPanel("expanded-panel", model);
 	}
 
 	@Override
