@@ -1,0 +1,21 @@
+Las instituciones tienen sedes, normalmente sólo una, pero pueden tener más.
+
+Cada sede tiene su página propia.
+
+En la información general, se puede elegir los idiomas de la sede. Existe un idioma principal (en este caso español) e idiomas secundarios ( en este caso inglés y portugués).
+
+En toda la aplicación las traducciones automáticas se realizan desde los textos en el idioma principal.
+
+La sede administra su propio archivo de obras y objetos y artistas.
+
+Además tiene exhibiciones, que pueden ser de la colección permanente o temporarias.
+
+Cada exhibición tiene obras y objetos propios de la exhibición, que se seleccionan del archivo de la sede. También puede tener una o más audioguías, por ejemplo la audioguía general y otra accesible para personas con visión reducida.
+
+La audio guía se compone de un audio introductorio de la exhibición, y audios de todas o parte de las obras y objetos de la exhibición. 
+
+Cada audio publicado tiene un “número de audio” que está indexado por el buscador y debe ser impreso y adjuntado a la obra u objeto físico.
+
+Todos los audios, en todos los idiomas, pueden ser cargados en los formularios o generados con Inteligencia Artificial en el Audio Studio de forma muy simple.
+
+Una vez publicada la audio guía queda disponible para los visitantes en el portal público.

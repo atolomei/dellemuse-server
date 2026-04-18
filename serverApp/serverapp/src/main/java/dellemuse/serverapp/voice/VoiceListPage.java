@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -45,6 +46,7 @@ import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import io.wktui.struct.list.ListPanelMode;
 
 @AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/voice/list")
@@ -359,6 +361,12 @@ public class VoiceListPage extends ObjectListPage<Voice> {
 			logger.error(e);
 			addOrReplace(new ErrorPanel("page-header", e));
 		}
+	}
+
+	@Override
+	protected Panel getObjectListItemExpandedPanel(IModel<Voice> model, ListPanelMode mode) {
+		model.setObject(getVoiceDBService().findWithDeps(model.getObject().getId()).get());
+		return new VoiceExpandedPanel("expanded-panel", model);
 	}
 
 	@Override

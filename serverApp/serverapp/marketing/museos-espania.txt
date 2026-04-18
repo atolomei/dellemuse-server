@@ -1,0 +1,51 @@
+Nombre,Email,País
+Museo del Prado,info@museodelprado.es,España
+Museo Reina Sofía,info@museoreinasofia.es,España
+Museo Thyssen-Bornemisza,info@museothyssen.org,España
+Museo Arqueológico Nacional,man@mecd.es,España
+Museo Nacional de Antropología,mna@cultura.gob.es,España
+Museo Sorolla,museosorolla@cultura.gob.es,España
+Museo Cerralbo,museocerralbo@cultura.gob.es,España
+Museo del Traje,mt@mecd.es,España
+Museo Nacional de Ciencias Naturales,mncn@mncn.csic.es,España
+Museo Lázaro Galdiano,info@museolazarogaldiano.es,España
+Museo Picasso Barcelona,museupicasso@bcn.cat,España
+Museo Nacional de Arte de Cataluña,info@mnac.cat,España
+Museo de Historia de Barcelona,mhcb@bcn.cat,España
+Fundación Joan Miró,info@fmirobcn.org,España
+Museo Guggenheim Bilbao,info@guggenheim-bilbao.eus,España
+Museo de Bellas Artes de Bilbao,museoa@bilbaomuseoa.eus,España
+Museo Arqueológico de Bilbao,arkeologi@bizkaia.eus,España
+Museo de Bellas Artes de Sevilla,info.museobellasartes.se@juntadeandalucia.es,España
+Museo Picasso Málaga,info@museopicassomalaga.org,España
+Museo Carmen Thyssen Málaga,info@carmenthyssenmalaga.org,España
+Museo de Málaga,museomalaga.ccul@juntadeandalucia.es,España
+Museo de Cádiz,museodecadiz.ccul@juntadeandalucia.es,España
+Museo Arqueológico de Sevilla,marq.se.ccul@juntadeandalucia.es,España
+Museo de Bellas Artes de Valencia,museobellasartesvalencia@gva.es,España
+IVAM,ivam@ivam.es,España
+Museo Nacional de Cerámica,mnceramica@cultura.gob.es,España
+Museo de Zaragoza,museozaragoza@aragon.es,España
+Museo Pablo Gargallo,museogargallo@zaragoza.es,España
+Museo de Huesca,museohuesca@aragon.es,España
+Museo de Teruel,museoteruel@aragon.es,España
+Museo de Navarra,museo.navarra@navarra.es,España
+Museo Universidad de Navarra,museo@unav.es,España
+Museo de La Rioja,museo@larioja.org,España
+Museo de Burgos,museo.burgos@jcyl.es,España
+Museo Nacional de Escultura,museoescultura@cultura.gob.es,España
+Museo de Salamanca,museo.salamanca@jcyl.es,España
+Museo de León,museo.leon@jcyl.es,España
+Museo de Valladolid,museo.valladolid@jcyl.es,España
+Museo de Segovia,museo.segovia@jcyl.es,España
+Museo de Ávila,museo.avila@jcyl.es,España
+Museo de Albacete,museoab@jccm.es,España
+Museo de Cuenca,museocuenca@jccm.es,España
+Museo de Guadalajara,museoguadalajara@jccm.es,España
+Museo de Toledo,museotoledo@jccm.es,España
+Museo de Santa Cruz,museosantacruz@jccm.es,España
+Museo de Murcia,museo@carm.es,España
+Museo Salzillo,museosalzillo@museosalzillo.es,España
+Museo Arqueológico de Alicante,marq@diputacionalicante.es,España
+Museo de Bellas Artes de Alicante,mubag@diputacionalicante.es,España
+Museo de Gran Canaria,museo@cabildograncanaria.com,España
