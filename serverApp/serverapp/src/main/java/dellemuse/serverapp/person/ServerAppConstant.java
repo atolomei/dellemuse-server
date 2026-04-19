@@ -25,6 +25,7 @@ public class ServerAppConstant {
 	static final public String site_portal_action_edit		= "site_portal_action_edit";
 	static final public String site_qrcode					= "site_qrcode";
 	static final public String site_api_calls				= "site_api_calls";
+	static final public String site_reports					= "site_reports";
 	static final public String exhibition_qrcode			= "exhibition_qrcode";
 	
 	
@@ -94,6 +95,7 @@ public class ServerAppConstant {
 	static final public String action_guide_content_delete 	= "action-guide-content-delete";
 	static final public String action_guide_content_restore = "action-guide-content-restore";
 	static final public String guide_content_info 			= "guide-content-info";
+	static final public String guide_content_reports 		= "guide-content-reports";
 	
 	/** institution */
 	static final public String institution_info = "institution-info";

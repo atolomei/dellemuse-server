@@ -476,9 +476,32 @@ public class SiteNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<Site
 						setResponsePage(new SiteApiCallsPage(getModel()));
 					}
 
+				@Override
+				public IModel<String> getLabel() {
+					return getLabel("site-api-calls");
+				}
+			};
+		}
+	});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<Site> getItem(String id) {
+
+				return new LinkMenuItem<Site>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						setResponsePage(new SiteReportsPage(getModel()));
+					}
+
 					@Override
 					public IModel<String> getLabel() {
-						return getLabel("site-api-calls");
+						return getLabel("site-reports");
 					}
 				};
 			}

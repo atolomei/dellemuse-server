@@ -557,5 +557,26 @@ public class GuideContentDBService extends MultiLanguageObjectDBservice<GuideCon
 		super.register(getEntityClass(), this);
 	}
 
+	/**
+	 * Returns the ArtWork associated with a GuideContent via its ArtExhibitionItem.
+	 * Returns {@code Optional.empty()} if the GuideContent has no ArtExhibitionItem
+	 * or the ArtExhibitionItem has no ArtWork.
+	 */
+	@Transactional
+	public Optional<ArtWork> getArtWork(GuideContent g) {
+		if (g == null || g.getId() == null)
+			return Optional.empty();
+		// Re-fetch within current session to avoid LazyInitializationException
+		GuideContent managed = getEntityManager().find(GuideContent.class, g.getId());
+		if (managed == null)
+			return Optional.empty();
+		ArtExhibitionItem item = managed.getArtExhibitionItem();
+		if (item == null)
+			return Optional.empty();
+		ArtWork aw = item.getArtWork();
+		if (aw == null)
+			return Optional.empty();
+		return Optional.of(aw);
+	}
 
 }

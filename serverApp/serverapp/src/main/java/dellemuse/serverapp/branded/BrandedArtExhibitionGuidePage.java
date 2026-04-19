@@ -37,6 +37,7 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
+import dellemuse.serverapp.serverdb.model.stat.Stat;
 import io.wktui.error.ErrorPanel;
 import io.wktui.event.UIEvent;
 import io.wktui.nav.breadcrumb.BCElement;
@@ -97,6 +98,19 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		this.lang = lang;
 		setCookieLocale();
 		setUpModel();
+	}
+
+	
+	public boolean isLogVisit() {
+		return true;
+	}
+	
+	public String getStatPageId() {
+		return "aeg";
+	}
+	
+	public Stat getStat() {
+		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject());
 	}
 
 	protected boolean isError() {

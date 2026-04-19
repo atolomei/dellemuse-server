@@ -422,6 +422,13 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 					return;
 				}
 
+				else if (event.getName().equals(ServerAppConstant.guide_content_reports)) {
+					GuideContentPage.this.togglePanel(ServerAppConstant.guide_content_reports, event.getTarget());
+					GuideContentPage.this.getHeader().setPhotoVisible(true);
+					event.getTarget().add(GuideContentPage.this.getHeader());
+					return;
+				}
+
 				else if (event.getName().startsWith(ServerAppConstant.object_translation_record_info)) {
 					GuideContentPage.this.togglePanel(event.getName(), event.getTarget());
 					GuideContentPage.this.getHeader().setPhotoVisible(true);
@@ -622,6 +629,17 @@ public class GuideContentPage extends MultiLanguageObjectPage<GuideContent, Guid
 			}
 		};
 		tabs.add(tab_1);
+
+		NamedTab tab_reports = new NamedTab(Model.of("reports"), ServerAppConstant.guide_content_reports) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return new GuideContentReportsPanel(panelId, getModel(), getSiteModel());
+			}
+		};
+		tabs.add(tab_reports);
 
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.guide_content_info);

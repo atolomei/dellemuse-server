@@ -38,6 +38,7 @@ import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.GuideContentRecord;
+import dellemuse.serverapp.serverdb.model.stat.Stat;
 import io.wktui.event.UIEvent;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
@@ -93,7 +94,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		setUpModel();
 
 	}
-
+	
 	public BrandedGuideContentPage(IModel<GuideContent> model) {
 		this(model, null, null);
 	}
@@ -103,6 +104,20 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		this.lang = lang;
 		setCookieLocale();
 		setUpModel();
+	}
+
+	public boolean isLogVisit() {
+		return true;
+	}
+	
+	public String getStatPageId() {
+		return "gc";
+	}
+	
+	
+	
+	public Stat getStat() {
+		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject());
 	}
 
 	@Override
@@ -117,13 +132,12 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList(), getAccesibilityMode());
 	}
 	
+	@Override
 	public void onInitialize() {
 		super.onInitialize();
-		
-		 
-		
 	}
 
+	
 	@Override
 	public Locale getLocale() {
 

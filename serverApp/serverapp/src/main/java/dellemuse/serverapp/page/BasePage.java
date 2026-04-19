@@ -54,6 +54,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleInstitution;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
+import dellemuse.serverapp.serverdb.model.stat.Stat;
 import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
@@ -62,6 +63,7 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionSectionDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
+import dellemuse.serverapp.serverdb.service.BaseDBService;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
@@ -70,6 +72,8 @@ import dellemuse.serverapp.serverdb.service.PersistentTokenDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
+import dellemuse.serverapp.serverdb.service.LogVisitService;
+import dellemuse.serverapp.serverdb.service.StatDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.VoiceDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -117,6 +121,8 @@ public abstract class BasePage extends WebPage {
 	private Boolean generalAudit = null;
 
 
+	private IModel<User> sessionUserModel;
+	
 	
 	// 1 Day
 	static private final int COOKIE_DURATION = 86400 * 1;
@@ -192,11 +198,7 @@ public abstract class BasePage extends WebPage {
 		return protocol + "://" + host + port;
 	}
 
-	@Override
-	public void onAfterRender() {
-		super.onAfterRender();
-	}
-
+	 
 	
 	
 	
@@ -313,9 +315,11 @@ public abstract class BasePage extends WebPage {
 	}
 
 	@Override
-	public void onBeforeRender() {
-		super.onBeforeRender();
+	public void onAfterRender() {
+		super.onAfterRender();
 
+		if (isLogVisit())
+			logVisit();
 	}
 
 	@Override
@@ -445,8 +449,109 @@ public abstract class BasePage extends WebPage {
 
 	
 	
-	private IModel<User> sessionUserModel;
+	private  boolean visit_logged = false;
 	
+	protected void setVisitLogged(boolean b) {
+		this.visit_logged = b;
+	}
+	protected boolean isVisitLogged() {
+		return this.visit_logged;
+	}
+	
+	
+	public boolean isLogVisit() {
+		return false;
+	}
+	
+	
+	public Stat getStat() {
+		return null;
+	}
+	
+	
+	
+	protected void logVisit() {
+		
+		if (isVisitLogged())
+			return;
+		
+		try {
+			
+			
+			Stat stat = getStat();
+			
+			String userAgent = ((WebRequest) getRequest()).getHeader("User-Agent");
+			
+			if (userAgent!=null) {
+				logger.debug("user agent: " + userAgent);
+				stat.setUserAgent(userAgent);
+			}
+			
+			if (stat==null) {
+				logger.error( "getStat() returned null for page -> " +  getClass().getSimpleName());
+				return;
+			}
+			
+			
+			getLogVisitService().logVisit(stat);
+			
+			// Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36
+			/**
+			SiteStatInEvent stat = new SiteStatInEvent();
+
+			stat.domain_id = getDomain()!=null? Long.valueOf(getDomain().getId().toString()) : null;
+			stat.sessionId = WebSession.get().getId();
+			
+			stat.page_type = getPageType();
+			
+			stat.site_id = Long.valueOf(getApplicationMenuSection().getId()); // Section (security, tasks)
+			stat.site_title = getApplicationMenuSection().getKey();       // Section
+
+			// for console page, it is the name of the console
+			//
+			stat.page_id =  getStatsPageId();
+			stat.page_title = getStatsPageTitle();
+			
+			stat.user_id = getSessionUser()!=null ? Long.valueOf(getSessionUser().getId().toString()) : null;
+			stat.user_name = getSessionUser()!=null ? getSessionUser().getFirstLastName() : null;
+			stat.timestamp = OffsetDateTime.now();
+
+			stat.user_agent = ((WebRequest) getRequest()).getHeader("User-Agent");
+			stat.sessionId = WebSession.get().getId();
+			
+			stat.render_milisecs = Long.valueOf(end - start);
+
+			 stat.content_title = getContentTitle(); 	// content title or user/domain/dataset title
+			 stat.contentId  =  getContentId(); 			// for Content
+			 
+			 stat.content_long_id = getCId()!=null ? (Long) getCId() : Long.valueOf(0);
+			 stat.OId  =  getContentOId()!=null ? getContentOId().toString() : null; 			
+			 stat.objectId  =  getObjectId();  			// for User, Domain, DataSet, etc.
+			 
+			stat.content_version = getContentVersion() !=null ? getContentVersion() : Integer.valueOf(0);
+
+			// Para que se logue en la Base de Datos
+			// El logger de la Clase debe grabar en
+			// el Appender "SiteStats"
+			siteStatslogger.info(stat);
+		*/
+		
+		} 
+		catch (Exception e) {
+			logger.error(e);
+		}
+		finally {
+			this.setVisitLogged(true);
+			
+		}
+	}
+	
+	
+	 
+	
+	
+	
+
 	protected void setSessionUser(User user) {
 		sessionUserModel = new ObjectModel<User>(user);
 	}
@@ -569,6 +674,14 @@ public abstract class BasePage extends WebPage {
 		return (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 	}
 	 
+	protected StatDBService getStatDBService() {
+		return (StatDBService) ServiceLocator.getInstance().getBean(StatDBService.class);
+	}
+
+	protected LogVisitService getLogVisitService() {
+		return (LogVisitService) ServiceLocator.getInstance().getBean(LogVisitService.class);
+	}
+
 	protected CandidateDBService getCandidateDBService() {
 		return (CandidateDBService) ServiceLocator.getInstance().getBean(CandidateDBService.class);
 	}

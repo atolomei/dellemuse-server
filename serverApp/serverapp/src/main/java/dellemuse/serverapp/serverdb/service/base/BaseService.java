@@ -10,6 +10,7 @@ import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
 import dellemuse.serverapp.serverdb.ServiceStatus;
 import dellemuse.serverapp.serverdb.service.ElevenLabsRequestDBService;
+import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.service.language.LanguageService;
 
 
@@ -48,6 +49,10 @@ public abstract class BaseService extends  JsonObject {
 
 	protected ElevenLabsRequestDBService getElevenLabsRequestDBService() {
 		return (ElevenLabsRequestDBService) ServiceLocator.getInstance().getBean(ElevenLabsRequestDBService.class);
+	}
+
+	protected GuideContentDBService getGuideContentDBService() {
+		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 	}
 	
 }

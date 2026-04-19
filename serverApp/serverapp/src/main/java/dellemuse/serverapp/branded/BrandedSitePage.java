@@ -11,6 +11,7 @@ import org.apache.wicket.markup.html.pages.RedirectPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.http.WebSession;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebRequest;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -45,7 +46,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
-
+import dellemuse.serverapp.serverdb.model.stat.Stat;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
@@ -53,7 +54,6 @@ import io.odilon.util.Check;
 import io.wktui.event.UIEvent;
 import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BreadCrumb;
-import io.wktui.nav.breadcrumb.HREFBCElement;
 import io.wktui.nav.menu.LinkMenuItem;
 import io.wktui.nav.menu.MenuItemPanel;
 import io.wktui.nav.menu.NavDropDownMenu;
@@ -101,13 +101,27 @@ public class BrandedSitePage extends BasePage {
 		super();
 		setCookieLocale();
 	}
+	
+	 
+	public boolean isLogVisit() {
+		return true;
+	}
+	
+	public String getStatPageId() {
+		return "site";
+	}
+	
+	public Stat getStat() {
+		return Stat.of(getStatPageId(), getSession().getId(), getSiteModel().getObject());
+	}
+	
 
 	public BrandedSitePage(PageParameters parameters) {
 		super(parameters);
 		stringValue = getPageParameters().get("id");
 		setCookieLocale();
 		if (stringValue != null) {
-			try { 
+			try {
 				Optional<Site> o_site = findByIdWithDeps(Long.valueOf(stringValue.toLong()));
 				if (o_site.isPresent()) {
 					setSiteModel(new ObjectModel<Site>(o_site.get()));
@@ -170,27 +184,26 @@ public class BrandedSitePage extends BasePage {
 				logger.debug("setting language from site master language -> " + code);
 				locale = Locale.forLanguageTag(code);
 				getSession().setLocale(Locale.forLanguageTag(code));
-			
+
 			} else {
-			
+
 				if (getSiteModel() != null) {
 					Language la = Language.of(getSiteModel().getObject().getMasterLanguage());
 					String code = la.getLanguageCode();
 					logger.debug("setting language from site master language -> " + code);
 					locale = Locale.forLanguageTag(code);
 					getSession().setLocale(locale);
-				
-				}
-				else {
+
+				} else {
 					locale = Locale.getDefault();
 					getSession().setLocale(locale);
 				}
-	
+
 			}
 		}
 		return locale;
 	}
-	
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
@@ -211,12 +224,11 @@ public class BrandedSitePage extends BasePage {
 		super.onInitialize();
 
 		getPage().add(new org.apache.wicket.AttributeModifier("class", "branded branded  text-bg-dark"));
-		
-		searchContainer  = new WebMarkupContainer("searchContainer");
+
+		searchContainer = new WebMarkupContainer("searchContainer");
 		searchContainer.setOutputMarkupId(true);
 		add(searchContainer);
-		
-		
+
 		try {
 
 			if (isError)
@@ -231,15 +243,13 @@ public class BrandedSitePage extends BasePage {
 		}
 
 		addHeader();
-		
-		
+
 		if (this.gc_list == null || this.ag_list == null)
 			searchContainer.add(new InvisiblePanel("search"));
 		else {
 			addSearch();
 		}
-		
-		
+
 		add(new BrandedGlobalTopPanel("top-panel", getSiteModel()));
 		add(new InvisiblePanel("footer-panel"));
 
@@ -397,7 +407,6 @@ public class BrandedSitePage extends BasePage {
 		return Optional.empty();
 	}
 
-	
 	protected void addSearch() {
 		this.searcher = new BrandedSiteSearcherPanel("search", getSiteModel(), gc_list, ag_list, getAccesibilityMode());
 		searchContainer.addOrReplace(this.searcher);
@@ -411,7 +420,6 @@ public class BrandedSitePage extends BasePage {
 	protected void addListeners() {
 		super.addListeners();
 
-		
 		add(new io.wktui.event.WicketEventListener<SearchGlobalTopPanelEvent>() {
 
 			private static final long serialVersionUID = 1L;
@@ -426,18 +434,15 @@ public class BrandedSitePage extends BasePage {
 			@Override
 			public void onEvent(SearchGlobalTopPanelEvent event) {
 
-				if ( BrandedSitePage.this.searcher != null)  {
-					BrandedSitePage.this.searcher.setVisible( !BrandedSitePage.this.searcher.isVisible());
-				}
-				else {
+				if (BrandedSitePage.this.searcher != null) {
+					BrandedSitePage.this.searcher.setVisible(!BrandedSitePage.this.searcher.isVisible());
+				} else {
 					BrandedSitePage.this.addSearch();
 				}
 				event.getTarget().add(BrandedSitePage.this.searchContainer);
 			}
 		});
 
-		
-		
 		add(new io.wktui.event.WicketEventListener<AccesibilityAjaxEvent>() {
 
 			private static final long serialVersionUID = 1L;
@@ -1131,15 +1136,16 @@ public class BrandedSitePage extends BasePage {
 
 	private void addHeader() {
 
-		//BreadCrumb<Void> bc = createBreadCrumb();
-		//bc.addElement(new HREFBCElement("/ag/" + getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
+		// BreadCrumb<Void> bc = createBreadCrumb();
+		// bc.addElement(new HREFBCElement("/ag/" +
+		// getSiteModel().getObject().getId().toString(), getLabel("exhibitions")));
 
 		JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getSiteModel(), getLabel("exhibitions"));
 		ph.setImageLinkCss("jumbo-img jumbo-md mb-2 mb-lg-0  border-none bg-dark");
 		ph.setHeaderCss("mb-2 mt-0 pt-0 pb-2 border-none");
 
 		// ph.setIcon(GuideContent.getIcon());
-		//ph.setBreadCrumb(bc);
+		// ph.setBreadCrumb(bc);
 
 		// ph.setContext(getLabel("site"));
 		// if (getSiteModel().getObject().getSubtitle() != null)

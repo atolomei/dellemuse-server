@@ -2,6 +2,7 @@ package dellemuse.server.db.service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
@@ -9,16 +10,10 @@ import org.springframework.stereotype.Service;
 import dellemuse.server.Settings;
 import dellemuse.server.db.model.ArtExhibitionGuide;
 import dellemuse.server.db.model.ArtExhibitionItem;
+import dellemuse.server.db.model.ArtWork;
 import dellemuse.server.db.model.GuideContent;
 import dellemuse.server.db.model.User;
 import dellemuse.model.logging.Logger;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.FlushModeType;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.ParameterExpression;
-import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -31,6 +26,8 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
         super(repository,  settings);
     }
 
+    
+    
     @Transactional
     public GuideContent create(ArtExhibitionGuide guide, ArtExhibitionItem item, String name,User createdBy) {
         GuideContent c = new GuideContent();
@@ -77,5 +74,27 @@ public class GuideContentDBService extends DBService<GuideContent, Long> {
     @Override
     protected Class<GuideContent> getEntityClass() {
         return GuideContent.class;
+    }
+
+    /**
+     * Returns the ArtWork associated with a GuideContent via its ArtExhibitionItem.
+     * Returns {@code Optional.empty()} if the GuideContent has no ArtExhibitionItem
+     * or the ArtExhibitionItem has no ArtWork.
+     */
+    @Transactional
+    public Optional<ArtWork> getArtWork(GuideContent g) {
+        if (g == null || g.getId() == null)
+            return Optional.empty();
+        // Re-fetch within current session to avoid LazyInitializationExceptionatDB
+        GuideContent managed = getEntityManager().find(GuideContent.class, g.getId());
+        if (managed == null)
+            return Optional.empty();
+        ArtExhibitionItem item = managed.getArtExhibitionItem();
+        if (item == null)
+            return Optional.empty();
+        ArtWork aw = item.getArtwork();
+        if (aw == null)
+            return Optional.empty();
+        return Optional.of(aw);
     }
 }
