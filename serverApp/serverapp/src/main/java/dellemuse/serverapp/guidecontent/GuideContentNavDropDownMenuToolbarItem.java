@@ -156,6 +156,38 @@ public class GuideContentNavDropDownMenuToolbarItem extends DropDownMenuToolbarI
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
+						fire(new MenuAjaxEvent(ServerAppConstant.guide_content_reports, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("reports");
+					}
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<GuideContent> getItem(String id) {
+				return new io.wktui.nav.menu.SeparatorMenuItem<GuideContent>(id);
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<GuideContent> getItem(String id) {
+
+				return new AjaxLinkMenuItem<GuideContent>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
 						fire(new MenuAjaxEvent(ServerAppConstant.object_meta, target));
 					}
 
