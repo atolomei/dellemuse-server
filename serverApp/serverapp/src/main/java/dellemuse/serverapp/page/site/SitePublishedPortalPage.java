@@ -63,8 +63,6 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 	private SitePublicPortalEditor editor;
 	private List<ToolbarItem> list;
 
-	protected IModel<Site> getSiteModel() {return getModel();}
-
 	
 	public SitePublishedPortalPage() {
 		super();
@@ -81,6 +79,11 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 
 	public String getHelpKey() {
 		return Help.SITE_PORTAL;
+	}
+
+	
+	protected IModel<Site> getSiteModel() {
+		return getModel();
 	}
 
 	@Override
@@ -166,9 +169,7 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 
 		list = new ArrayList<ToolbarItem>();
 
-		//list.add(new SiteInfoNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT));
-
-		// site
+	 	// site
 		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT);
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);

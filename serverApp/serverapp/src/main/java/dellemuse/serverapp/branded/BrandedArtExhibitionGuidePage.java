@@ -110,7 +110,7 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	}
 	
 	public Stat getStat() {
-		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject());
+		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject(),  lang);
 	}
 
 	protected boolean isError() {

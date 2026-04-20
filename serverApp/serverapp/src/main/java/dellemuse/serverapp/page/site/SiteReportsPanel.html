@@ -11,13 +11,13 @@
 	<!-- Date Range Selector -->
 	<div class="row">
 		<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-			<b><wicket:message key="date-range" /></b> 
+			<b><wicket:message key="date-range" /></b>
 		</div>
 	</div>
 
 	<div class="row">
-		<div class="mt-0 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-			 <select wicket:id="rangeSelector" class="form-select" style="font-size:0.9em;"></select>
+		<div class="mt-0 mb-3 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<select wicket:id="rangeSelector" class="form-select" style="font-size: 0.9em;"></select>
 		</div>
 	</div>
 
@@ -25,12 +25,12 @@
 
 		<div class="row">
 			<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<span><b><wicket:message key="site-users" /></b></span> 
+				<span><b><wicket:message key="site-users" /></b></span>
 			</div>
 		</div>
 
 		<div class="row">
-			<div class="mt-1 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="mt-1 mb-3 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				<ul class="list-group">
 					<li class="list-group-item">
 						<div class="row">
@@ -38,7 +38,31 @@
 								<wicket:message key="total" />
 							</div>
 							<div class="col-xxl-4 col-xl-4 col-lg-4 col-md-4 col-sm-4 col-xs-12 text-end">
-								<span class="alert alert-info" style="padding: 0.3em 1em; border-radius: 4px;" wicket:id="siteVisits"></span>
+								<span class="alert alert-info" style="padding: 0.3em 1em; border-radius: 4px;" wicket:id="siteVisitsTotal"></span>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<span><b><wicket:message key="site-users-by-language" /></b></span>
+			</div>
+		</div>
+
+
+		<div class="row">
+			<div class="mt-1 mb-3 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<ul class="list-group">
+					<li class="list-group-item" wicket:id="siteVisitsList">
+						<div class="row">
+							<div class="col-xxl-8 col-xl-8 col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								<span wicket:id="langLabel"></span>
+							</div>
+							<div class="col-xxl-4 col-xl-4 col-lg-4 col-md-4 col-sm-4 col-xs-12 text-end">
+								<span class="alert alert-info" style="padding: 0.3em 1em; border-radius: 4px;" wicket:id="langVisits"></span>
 							</div>
 						</div>
 					</li>
@@ -47,21 +71,21 @@
 		</div>
 
 		<!-- Art Exhibition Guides -->
-		
+
 		<div class="row">
 			<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<span><b><wicket:message key="exhibition-guides-users" /></b></span> 
+				<span><b><wicket:message key="exhibition-guides-users" /></b></span>
 			</div>
 		</div>
-		
-		
+
+
 		<div class="row">
-			<div class="mt-1 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="mt-1 mb-3 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				<ul class="list-group">
 					<li class="list-group-item" wicket:id="guideList">
 						<div class="row">
 							<div class="col-xxl-8 col-xl-8 col-lg-8 col-md-8 col-sm-8 col-xs-12">
-								<span wicket:id="guideName"></span>
+								<a wicket:id="guideLink" class="title-link"><span wicket:id="guideName"></span></a>
 							</div>
 							<div class="col-xxl-4 col-xl-4 col-lg-4 col-md-4 col-sm-4 col-xs-12 text-end">
 								<span class="alert alert-info" style="padding: 0.3em 1em; border-radius: 4px;" wicket:id="guideTotalSessions"></span>

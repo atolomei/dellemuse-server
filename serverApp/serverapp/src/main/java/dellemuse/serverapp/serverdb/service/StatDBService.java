@@ -338,4 +338,121 @@ public class StatDBService extends BaseDBService<Stat, Long> {
 		return getEntityManager().createQuery(cq).getResultList();
 	}
 
+	// ── Language-filtered count methods ───────────────────────────────────
+
+	/**
+	 * Counts distinct sessions for a Site filtered by language code within a date range.
+	 */
+	@Transactional
+	public long countBySiteAndLanguageInRange(Long siteId, String languageCode, OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Stat> root = cq.from(Stat.class);
+
+		cq.select(cb.countDistinct(root.get("sessionId")));
+		Predicate combined = cb.and(
+				cb.equal(root.get("site").get("id"), siteId),
+				cb.equal(root.get("language"), languageCode));
+		if (from != null) {
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
+		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
+	/**
+	 * Counts distinct sessions for an ArtExhibitionGuide filtered by language code within a date range.
+	 */
+	@Transactional
+	public long countByArtExhibitionGuideAndLanguageInRange(Long artExhibitionGuideId, String languageCode, OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Stat> root = cq.from(Stat.class);
+
+		cq.select(cb.countDistinct(root.get("sessionId")));
+		Predicate combined = cb.and(
+				cb.equal(root.get("artExhibitionGuide").get("id"), artExhibitionGuideId),
+				cb.equal(root.get("language"), languageCode));
+		if (from != null) {
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
+		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
+	/**
+	 * Counts distinct sessions for a GuideContent filtered by language code within a date range.
+	 */
+	@Transactional
+	public long countByGuideContentAndLanguageInRange(Long guideContentId, String languageCode, OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Stat> root = cq.from(Stat.class);
+
+		cq.select(cb.countDistinct(root.get("sessionId")));
+		Predicate combined = cb.and(
+				cb.equal(root.get("guideContent").get("id"), guideContentId),
+				cb.equal(root.get("language"), languageCode));
+		if (from != null) {
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
+		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
+	/**
+	 * Counts distinct sessions for an ArtWork filtered by language code within a date range.
+	 */
+	@Transactional
+	public long countByArtWorkAndLanguageInRange(Long artWorkId, String languageCode, OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Stat> root = cq.from(Stat.class);
+
+		cq.select(cb.countDistinct(root.get("sessionId")));
+		Predicate combined = cb.and(
+				cb.equal(root.get("artWork").get("id"), artWorkId),
+				cb.equal(root.get("language"), languageCode));
+		if (from != null) {
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
+		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
+	/**
+	 * Counts distinct sessions for a given sessionId filtered by language code within a date range.
+	 */
+	@Transactional
+	public long countBySessionIdAndLanguageInRange(String sessionId, String languageCode, OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Stat> root = cq.from(Stat.class);
+
+		cq.select(cb.count(root));
+		Predicate combined = cb.and(
+				cb.equal(root.get("sessionId"), sessionId),
+				cb.equal(root.get("language"), languageCode));
+		if (from != null) {
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
+		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
 }

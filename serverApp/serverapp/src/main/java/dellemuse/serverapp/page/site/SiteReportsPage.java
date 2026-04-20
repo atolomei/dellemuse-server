@@ -17,6 +17,8 @@ import org.wicketstuff.annotation.mount.MountPath;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
+import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
@@ -60,6 +62,11 @@ public class SiteReportsPage extends ObjectPage<Site> {
 		super(model);
 	}
 
+	public String getHelpKey() {
+		return Help.SITE_REPORTS;
+	}
+	
+	
 	@Override
 	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
@@ -217,6 +224,9 @@ public class SiteReportsPage extends ObjectPage<Site> {
 		String name = getModel().getObject().getShortName() != null ? getModel().getObject().getShortName() : getModel().getObject().getName();
 		list.add(new SiteNavDropDownMenuToolbarItem("item", getModel(), Model.of(name), Align.TOP_RIGHT));
 
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+		list.add(h);
+		
 		return list;
 	}
 

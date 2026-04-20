@@ -117,20 +117,9 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	
 	
 	public Stat getStat() {
-		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject());
+		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject(),  lang);
 	}
 
-	@Override
-	protected Panel createInitialSearchPanel() {
-	if (getGuideContentSearchList() == null && getArtExhibitionSearchList() == null)
-		return new InvisiblePanel("globalSearch");
-	return createSearchPanel();
-	}
-	
-	@Override
-	protected Panel createSearchPanel() {
-		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList(), getAccesibilityMode());
-	}
 	
 	@Override
 	public void onInitialize() {
@@ -289,6 +278,19 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	public void setAccesibilityMode(AccesibilityMode accesibilityMode) {
 		this.accesibilityMode = accesibilityMode;
 	}
+	
+	@Override
+	protected Panel createInitialSearchPanel() {
+	if (getGuideContentSearchList() == null && getArtExhibitionSearchList() == null)
+		return new InvisiblePanel("globalSearch");
+	return createSearchPanel();
+	}
+	
+	@Override
+	protected Panel createSearchPanel() {
+		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList(), getAccesibilityMode());
+	}
+	
 
 	protected boolean isError() {
 		return isError;

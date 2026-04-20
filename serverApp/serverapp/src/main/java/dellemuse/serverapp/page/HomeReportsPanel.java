@@ -12,8 +12,10 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IDetachable;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
@@ -21,6 +23,7 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.site.DateRange;
+import dellemuse.serverapp.page.site.SiteReportsPage;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.StatDBService;
@@ -33,10 +36,46 @@ public class HomeReportsPanel extends DBModelPanel<User> implements InternalPane
 
 	static private Logger logger = Logger.getLogger(HomeReportsPanel.class.getName());
 
+	private static class SiteRow implements IDetachable {
+
+		private static final long serialVersionUID = 1L;
+
+		private IModel<Site> model;
+		
+		private final String name;
+		private final long visits;
+
+		public SiteRow(IModel<Site> model, String name, long visits) {
+			this.name = name;
+			this.visits = visits;
+			this.model=model;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public long getVisits() {
+			return visits;
+		}
+		
+		public void detach() {
+			model.detach();
+		}
+		
+		public IModel<Site> getModel() {
+			return this.model;
+		}
+	}
+	
+	
+	
 	private DateRange selectedRange = DateRange.YESTERDAY;
 	private WebMarkupContainer reportContainer;
 	private final List<IModel<Site>> sites;
 
+	
+	
 	public HomeReportsPanel(String id, IModel<User> model, List<IModel<Site>> sites) {
 		super(id, model);
 		this.sites = sites;
@@ -89,6 +128,24 @@ public class HomeReportsPanel extends DBModelPanel<User> implements InternalPane
 		buildReport();
 	}
 
+
+	@Override
+	public List<ToolbarItem> getToolbarItems() {
+		return null;
+	}
+
+	public DateRange getSelectedRange() {
+		return selectedRange;
+	}
+
+	public void setSelectedRange(DateRange selectedRange) {
+		this.selectedRange = selectedRange;
+	}
+
+	protected StatDBService getStatDBService() {
+		return (StatDBService) ServiceLocator.getInstance().getBean(StatDBService.class);
+	}
+	
 	private void buildReport() {
 
 		java.util.List<SiteRow> rows = new java.util.ArrayList<>();
@@ -108,7 +165,7 @@ public class HomeReportsPanel extends DBModelPanel<User> implements InternalPane
 			}
 
 			String name = site.getDisplayname() != null ? site.getDisplayname() : "";
-			rows.add(new SiteRow(name, visits));
+			rows.add(new SiteRow(siteModel, name, visits));
 		}
 
 		ListView<SiteRow> siteListView = new ListView<SiteRow>("siteList", rows) {
@@ -117,56 +174,34 @@ public class HomeReportsPanel extends DBModelPanel<User> implements InternalPane
 
 			@Override
 			protected void populateItem(ListItem<SiteRow> item) {
-				SiteRow row = item.getModelObject();
-				item.add(new Label("siteName", row.getName()));
 
+				SiteRow row = item.getModelObject();
+				
+				Label la = new Label("siteName", row.getName());
+
+				Link<Site> li =new Link<Site>("siteLink", row.getModel()) {
+
+					@Override
+					public void onClick() {
+						SiteReportsPage page = new SiteReportsPage(row.getModel());
+						setResponsePage(page);
+					}
+					
+				};
+				
 				Label lv = new Label("siteVisits", NumberFormatter.formatNumber(row.getVisits(), getSessionUser().get().getLocale()));
 				if (row.getVisits() > 0) {
 					lv.add(new AttributeModifier("class", "alert alert-info"));
 				} else {
 					lv.add(new AttributeModifier("class", "alert alert-neutral"));
 				}
+		
+				li.add(la);
 				item.add(lv);
+				item.add(li);
 			}
 		};
 		reportContainer.addOrReplace(siteListView);
 	}
 
-	@Override
-	public List<ToolbarItem> getToolbarItems() {
-		return null;
-	}
-
-	public DateRange getSelectedRange() {
-		return selectedRange;
-	}
-
-	public void setSelectedRange(DateRange selectedRange) {
-		this.selectedRange = selectedRange;
-	}
-
-	protected StatDBService getStatDBService() {
-		return (StatDBService) ServiceLocator.getInstance().getBean(StatDBService.class);
-	}
-
-	private static class SiteRow implements java.io.Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		private final String name;
-		private final long visits;
-
-		public SiteRow(String name, long visits) {
-			this.name = name;
-			this.visits = visits;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public long getVisits() {
-			return visits;
-		}
-	}
 }

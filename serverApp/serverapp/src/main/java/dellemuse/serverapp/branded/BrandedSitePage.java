@@ -112,7 +112,7 @@ public class BrandedSitePage extends BasePage {
 	}
 	
 	public Stat getStat() {
-		return Stat.of(getStatPageId(), getSession().getId(), getSiteModel().getObject());
+		return Stat.of(getStatPageId(), getSession().getId(), getSiteModel().getObject(), lang);
 	}
 	
 

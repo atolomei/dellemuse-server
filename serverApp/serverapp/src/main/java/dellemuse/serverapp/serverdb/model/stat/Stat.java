@@ -80,49 +80,26 @@ alter table stat add column artwork_id 	 bigint references artwork(id) on delete
    						id				 		 bigint primary key not null,
 						value 			 		 character varying (2048)
 						);
+
+ * 
+ * alter table stat add column language character varying(24);
+
+alter table stat add column language character varying(24) default 'es';
+update stat set language='es';
+
  * 
  * 
  * 
  */
+
+
+
 
 @Entity
 @Table(name = "stat")
 @JsonInclude(Include.NON_NULL)
 public class Stat extends JsonObject implements Identifiable  {
 
-
-	
-	static public Stat of(String pid, String sessionId, ArtExhibitionGuide gc) {
-		Stat r = new Stat();
-		r.setPageId(pid);
-		r.setArtExhibitionGuide(gc);
-		r.setSessionId(sessionId);
-		r.setTimestamp(OffsetDateTime.now());
-		return r;
-	}
-	
-	static public Stat of(String pid, String sessionId, GuideContent gc ) {
-		Stat r = new Stat();
-		r.setPageId(pid);
-		r.setGuideContent(gc);
-		 
-		r.setSessionId(sessionId);
-		r.setTimestamp(OffsetDateTime.now());
-		return r;
-	}
-	
-	
-	static public Stat of(String pid, String sessionId, Site site) {
-		Stat r = new Stat();
-		r.setPageId(pid);
-		r.setSite(site);
-		r.setSessionId(sessionId);
-		r.setTimestamp(OffsetDateTime.now());
-		return r;
-	}
-	
-	
-	
 	
 	@JsonIgnore
 	static final private ObjectMapper hb6mapper = new DellemuseObjectMapper();
@@ -135,6 +112,41 @@ public class Stat extends JsonObject implements Identifiable  {
 
 	@JsonIgnore
 	static final DateTimeFormatter df = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss XXX");
+
+	
+	static public Stat of(String pid, String sessionId, ArtExhibitionGuide gc, String lang) {
+		Stat r = new Stat();
+		r.setPageId(pid);
+		r.setLanguage(lang);
+		r.setArtExhibitionGuide(gc);
+		r.setSessionId(sessionId);
+		r.setTimestamp(OffsetDateTime.now());
+		return r;
+	}
+	
+	static public Stat of(String pid, String sessionId, GuideContent gc, String lang ) {
+		Stat r = new Stat();
+		r.setPageId(pid);
+		r.setGuideContent(gc);
+		 r.setLanguage(lang);
+		r.setSessionId(sessionId);
+		r.setTimestamp(OffsetDateTime.now());
+		return r;
+	}
+	
+	
+	static public Stat of(String pid, String sessionId, Site site, String lang) {
+		Stat r = new Stat();
+		r.setPageId(pid);
+		r.setSite(site);
+		r.setSessionId(sessionId);
+		r.setTimestamp(OffsetDateTime.now());
+		r.setLanguage(lang);
+		return r;
+	}
+	
+	
+	
 
 	@Id
 	@Column(name = "id")
@@ -177,6 +189,10 @@ public class Stat extends JsonObject implements Identifiable  {
 	
 	@Column(name = "session_id")
 	public String sessionId;
+	
+	
+	@Column(name = "language")
+	private String language;
 	
 	
 	public String getUserAgent() {
@@ -230,6 +246,14 @@ public class Stat extends JsonObject implements Identifiable  {
 
 	public String getSessionId() {
 		return sessionId;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
 	}
 
 	public void setTimestamp(OffsetDateTime timestamp) {

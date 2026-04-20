@@ -45,6 +45,10 @@ public class Help {
 	public static final String ROLE_INFO = "role-info";
 
 	public static final String SITE_USER_INFO = "site-user-info";
+
+	public static final String SITE_REPORTS = "site-reports";
+
+	
 	public static final String CANDIDATES = "candidate-list";
 	public static final String CANDIDATE = "candidate-info";
 	public static final String CANDIDATE_INFO = "candidate-info";
