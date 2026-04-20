@@ -151,86 +151,191 @@ public class StatDBService extends BaseDBService<Stat, Long> {
 	/**
 	 * Counts visits to a site within a date range.
 	 * If {@code from} is null, counts all visits.
+	 * If {@code to} is not null, only counts visits with timestamp &lt; to (exclusive).
 	 */
 	@Transactional
-	public long countBySiteInRange(Long siteId, OffsetDateTime from) {
+	public long countBySiteInRange(Long siteId, OffsetDateTime from, OffsetDateTime to) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		Root<Stat> root = cq.from(Stat.class);
 
 		cq.select(cb.countDistinct(root.get("sessionId")));
 		Predicate sitePredicate = cb.equal(root.get("site").get("id"), siteId);
+		Predicate combined = sitePredicate;
 		if (from != null) {
-			Predicate datePredicate = cb.greaterThanOrEqualTo(root.get("timestamp"), from);
-			cq.where(cb.and(sitePredicate, datePredicate));
-		} else {
-			cq.where(sitePredicate);
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
 		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
 		return getEntityManager().createQuery(cq).getSingleResult();
 	}
 
 	/**
 	 * Counts visits to an ArtExhibitionGuide within a date range.
 	 * If {@code from} is null, counts all visits.
+	 * If {@code to} is not null, only counts visits with timestamp &lt; to (exclusive).
 	 */
 	@Transactional
-	public long countByArtExhibitionGuideInRange(Long artExhibitionGuideId, OffsetDateTime from) {
+	public long countByArtExhibitionGuideInRange(Long artExhibitionGuideId, OffsetDateTime from, OffsetDateTime to) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		Root<Stat> root = cq.from(Stat.class);
 
 		cq.select(cb.countDistinct(root.get("sessionId")));
-		Predicate guidePredicate = cb.equal(root.get("artExhibitionGuide").get("id"), artExhibitionGuideId);
+		Predicate combined = cb.equal(root.get("artExhibitionGuide").get("id"), artExhibitionGuideId);
 		if (from != null) {
-			Predicate datePredicate = cb.greaterThanOrEqualTo(root.get("timestamp"), from);
-			cq.where(cb.and(guidePredicate, datePredicate));
-		} else {
-			cq.where(guidePredicate);
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
 		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
 		return getEntityManager().createQuery(cq).getSingleResult();
 	}
 
 	/**
 	 * Counts visits to a GuideContent within a date range.
 	 * If {@code from} is null, counts all visits.
+	 * If {@code to} is not null, only counts visits with timestamp &lt; to (exclusive).
 	 */
 	@Transactional
-	public long countByGuideContentInRange(Long guideContentId, OffsetDateTime from) {
+	public long countByGuideContentInRange(Long guideContentId, OffsetDateTime from, OffsetDateTime to) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		Root<Stat> root = cq.from(Stat.class);
 
 		cq.select(cb.countDistinct(root.get("sessionId")));
-		Predicate contentPredicate = cb.equal(root.get("guideContent").get("id"), guideContentId);
+		Predicate combined = cb.equal(root.get("guideContent").get("id"), guideContentId);
 		if (from != null) {
-			Predicate datePredicate = cb.greaterThanOrEqualTo(root.get("timestamp"), from);
-			cq.where(cb.and(contentPredicate, datePredicate));
-		} else {
-			cq.where(contentPredicate);
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
 		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
 		return getEntityManager().createQuery(cq).getSingleResult();
 	}
 
 	/**
 	 * Sum of all GuideContent visits for a given ArtExhibitionGuide within a date range.
 	 * If {@code from} is null, counts all visits.
+	 * If {@code to} is not null, only counts visits with timestamp &lt; to (exclusive).
 	 */
 	@Transactional
-	public long countGuideContentsByArtExhibitionGuideInRange(Long artExhibitionGuideId, OffsetDateTime from) {
+	public long countGuideContentsByArtExhibitionGuideInRange(Long artExhibitionGuideId, OffsetDateTime from, OffsetDateTime to) {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		Root<Stat> root = cq.from(Stat.class);
 
 		cq.select(cb.countDistinct(root.get("sessionId")));
 		Predicate contentNotNull = cb.isNotNull(root.get("guideContent"));
-		Predicate guidePredicate = cb.equal(root.get("artExhibitionGuide").get("id"), artExhibitionGuideId);
+		Predicate combined = cb.and(contentNotNull, cb.equal(root.get("artExhibitionGuide").get("id"), artExhibitionGuideId));
 		if (from != null) {
-			Predicate datePredicate = cb.greaterThanOrEqualTo(root.get("timestamp"), from);
-			cq.where(cb.and(contentNotNull, guidePredicate, datePredicate));
-		} else {
-			cq.where(cb.and(contentNotNull, guidePredicate));
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
 		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
 		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
+	// ── ArtWork count methods ─────────────────────────────────────────────
+
+	/**
+	 * Counts total distinct sessions for a given ArtExhibitionGuide within a date range,
+	 * including both guide page visits and guide content visits.
+	 * If {@code from} is null, counts all visits.
+	 * If {@code to} is not null, only counts visits with timestamp &lt; to (exclusive).
+	 */
+	@Transactional
+	public long countTotalByArtExhibitionGuideInRange(Long artExhibitionGuideId, OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Stat> root = cq.from(Stat.class);
+
+		cq.select(cb.countDistinct(root.get("sessionId")));
+		Predicate combined = cb.equal(root.get("artExhibitionGuide").get("id"), artExhibitionGuideId);
+		if (from != null) {
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
+		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
+	/**
+	 * Counts distinct sessions for a given ArtWork within a date range (across all guides).
+	 * If {@code to} is not null, only counts visits with timestamp &lt; to (exclusive).
+	 */
+	@Transactional
+	public long countByArtWorkInRange(Long artWorkId, OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Stat> root = cq.from(Stat.class);
+
+		cq.select(cb.countDistinct(root.get("sessionId")));
+		Predicate combined = cb.equal(root.get("artWork").get("id"), artWorkId);
+		if (from != null) {
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
+		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
+	/**
+	 * Counts distinct sessions for a given ArtWork and ArtExhibitionGuide within a date range.
+	 * If {@code to} is not null, only counts visits with timestamp &lt; to (exclusive).
+	 */
+	@Transactional
+	public long countByArtWorkAndGuideInRange(Long artWorkId, Long artExhibitionGuideId, OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Stat> root = cq.from(Stat.class);
+
+		cq.select(cb.countDistinct(root.get("sessionId")));
+		Predicate combined = cb.and(
+				cb.equal(root.get("artWork").get("id"), artWorkId),
+				cb.equal(root.get("artExhibitionGuide").get("id"), artExhibitionGuideId));
+		if (from != null) {
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
+		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
+		return getEntityManager().createQuery(cq).getSingleResult();
+	}
+
+	/**
+	 * Returns the list of distinct ArtExhibitionGuide IDs that have sessions for a given ArtWork within a date range.
+	 * If {@code to} is not null, only counts visits with timestamp &lt; to (exclusive).
+	 */
+	@Transactional
+	public List<Long> getGuideIdsWithSessionsForArtWork(Long artWorkId, OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+		Root<Stat> root = cq.from(Stat.class);
+
+		cq.select(root.get("artExhibitionGuide").get("id")).distinct(true);
+		Predicate combined = cb.and(
+				cb.equal(root.get("artWork").get("id"), artWorkId),
+				cb.isNotNull(root.get("artExhibitionGuide")));
+		if (from != null) {
+			combined = cb.and(combined, cb.greaterThanOrEqualTo(root.get("timestamp"), from));
+		}
+		if (to != null) {
+			combined = cb.and(combined, cb.lessThan(root.get("timestamp"), to));
+		}
+		cq.where(combined);
+		return getEntityManager().createQuery(cq).getResultList();
 	}
 
 }

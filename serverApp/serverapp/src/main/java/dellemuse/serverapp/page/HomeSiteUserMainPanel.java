@@ -3,6 +3,8 @@ package dellemuse.serverapp.page;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -53,6 +55,8 @@ public class HomeSiteUserMainPanel extends DBModelPanel<User> implements Interna
 			add(new InvisiblePanel("welcomePanel"));
 	
 		addSites();
+
+		add(new HomeReportsPanel("homeReportsPanel", getModel(), getList()));
 	}
 
 	@Override

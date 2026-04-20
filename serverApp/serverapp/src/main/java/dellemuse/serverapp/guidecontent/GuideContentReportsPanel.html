@@ -10,26 +10,39 @@
 
 	<!-- Date Range Selector -->
 	<div class="row">
-		<div class="mt-2 mb-3 col-xxl-4 col-xl-4 col-lg-6 col-md-6 col-sm-12 col-xs-12">
-			<label class="form-label text-muted"><wicket:message key="date-range" /></label>
-			<select wicket:id="rangeSelector" class="form-select"></select>
+		<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<b><wicket:message key="date-range" /></b> 
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="mt-0 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			 <select wicket:id="rangeSelector" class="form-select" style="font-size:0.9em;"></select>
 		</div>
 	</div>
 
 	<div wicket:id="reportContainer">
 
 		<div class="row">
-			<div class="mt-2 mb-2 col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
-				<div class="card">
-					<div class="card-body">
-						<h5 class="card-title text-muted">
-							<i class="fa-duotone fa-chart-line"></i> <wicket:message key="total-sessions" />
-						</h5>
-						<p class="card-text fs-3 fw-bold">
-							<span wicket:id="totalSessions"></span>
-						</p>
-					</div>
-				</div>
+			<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<span><b><wicket:message key="users" /></b></span> 
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="mt-1 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<ul class="list-group">
+					<li class="list-group-item">
+						<div class="row">
+							<div class="col-xxl-8 col-xl-8 col-lg-8 col-md-8 col-sm-8 col-xs-12">
+								<wicket:message key="total-users" />
+							</div>
+							<div class="col-xxl-4 col-xl-4 col-lg-4 col-md-4 col-sm-4 col-xs-12 text-end">
+								<span class="alert alert-info" style="padding: 0.3em 1em; border-radius: 4px;" wicket:id="totalSessions"></span>
+							</div>
+						</div>
+					</li>
+				</ul>
 			</div>
 		</div>
 

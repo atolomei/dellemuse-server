@@ -66,6 +66,7 @@ public class ServerAppConstant {
 	/** artwork */
 	static final public String artwork_info = "artwork-info";
 	static final public String artwork_qrcode = "artwork_qrcode";
+	static final public String artwork_reports = "artwork_reports";
 	static final public String artworkrecord_info = "artworkrecord-info";
  
   	static final public String action_artwork_edit_info = "artwork_action_edit_info";
@@ -83,6 +84,7 @@ public class ServerAppConstant {
 	static final public String artexhibitionguide_info 				= "artexhibition-guide_action_edit_info";
 	static final public String artexhibitionguiderecord_info 		= "artexhibition-guide-record";
 	static final public String artexhibitionguide_contents 			= "artexhibition-guide-contents";
+	static final public String artexhibitionguide_reports 			= "artexhibition-guide-reports";
 	static final public String artexhibitionguide_audit				= "artexhibition-guide-audit";
 	static final public String action_artexhibitionguide_delete 	= "action-artexhibitionguide-delete";
 	static final public String action_artexhibitionguide_restore 	= "action-artexhibitionguide-restore";

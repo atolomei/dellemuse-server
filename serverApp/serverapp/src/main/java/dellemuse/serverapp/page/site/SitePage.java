@@ -94,7 +94,11 @@ public class SitePage extends BasePage {
 	private Link<Site> linkFloors;
 	private Link<Site> linkExhibitions;
 
+
 	private Link<Site> linkqrcode;
+	
+	private Link<Site> reports;
+
 	
 	private List<IModel<ArtExhibition>> listPermanent;
 	private List<IModel<ArtExhibition>> listTemporary;
@@ -1214,8 +1218,6 @@ public class SitePage extends BasePage {
 			@Override
 			public void onClick() {
 				setResponsePage(new SitePublishedPortalPage(getSiteModel()));
-
-				// setResponsePage(new BrandedSitePage(getSiteModel()));
 			}
 		};
 		brandedSiteContainer.add(u);
@@ -1230,6 +1232,16 @@ public class SitePage extends BasePage {
 		};
 		brandedSiteContainer.add(linkqrcode);
 
+		
+		Link<Site> re = new Link<Site>("reports", getSiteModel()) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(new SiteReportsPage(getSiteModel()));
+			}
+		};
+		brandedSiteContainer.add(re);
 
 	}
 

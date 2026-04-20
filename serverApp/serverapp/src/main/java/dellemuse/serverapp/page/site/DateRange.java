@@ -48,4 +48,20 @@ public enum DateRange {
 			return null;
 		}
 	}
+
+	/**
+	 * Returns the exclusive upper bound {@link OffsetDateTime} for this range,
+	 * or {@code null} if there is no upper bound (i.e. up to now).
+	 * <p>
+	 * For {@link #YESTERDAY} the upper bound is today at 00:00 (exclusive),
+	 * so only events from yesterday are counted.
+	 * For all other ranges the upper bound is {@code null} (up to now).
+	 */
+	public OffsetDateTime getTo(ZoneId zoneId) {
+		if (this == YESTERDAY) {
+			LocalDate today = LocalDate.now(zoneId);
+			return today.atStartOfDay(zoneId).toOffsetDateTime();
+		}
+		return null;
+	}
 }

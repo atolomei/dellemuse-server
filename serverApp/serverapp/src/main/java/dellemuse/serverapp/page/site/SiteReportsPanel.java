@@ -9,6 +9,7 @@ import java.util.Locale;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -20,6 +21,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
@@ -39,7 +41,7 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 
 	static private Logger logger = Logger.getLogger(SiteReportsPanel.class.getName());
 
-	private DateRange selectedRange = DateRange.LAST_30_DAYS;
+	private DateRange selectedRange = DateRange.YESTERDAY;
 	private WebMarkupContainer reportContainer;
 
 	public SiteReportsPanel(String id, IModel<Site> model) {
@@ -105,18 +107,25 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 	private void buildReport() {
 
 		Site site = getModel().getObject();
-		ZoneId zoneId = site.getZoneId();
+		ZoneId zoneId = getSessionUser().get().getZoneId();
 		OffsetDateTime from = selectedRange.getFrom(zoneId);
-		NumberFormat nf = NumberFormat.getInstance(Locale.US);
+		OffsetDateTime to = selectedRange.getTo(zoneId);
 
 		// Site visits
 		long siteVisits = 0;
 		try {
-			siteVisits = getStatDBService().countBySiteInRange(site.getId(), from);
+			siteVisits = getStatDBService().countBySiteInRange(site.getId(), from, to);
 		} catch (Exception e) {
 			logger.error(e);
 		}
-		reportContainer.addOrReplace(new Label("siteVisits", nf.format(siteVisits)));
+		Label siteVisitsLabel = new Label("siteVisits", NumberFormatter.formatNumber(siteVisits, getSessionUser().get().getLocale()));
+		
+		if (siteVisits > 0) {
+			siteVisitsLabel.add(new AttributeModifier("class", "alert alert-info"));
+		} else {
+			siteVisitsLabel.add(new AttributeModifier("class", "alert alert-neutral"));
+		}
+		reportContainer.addOrReplace(siteVisitsLabel);
 
 		// Art Exhibition Guides
 		List<ArtExhibition> exhibitions = getSiteDBService().getArtExhibitions(site);
@@ -128,17 +137,16 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 			List<ArtExhibitionGuide> guides = getArtExhibitionDBService().getArtExhibitionGuides(ex, ObjectState.PUBLISHED, ObjectState.EDITION);
 			for (ArtExhibitionGuide guide : guides) {
 
-				long guideVisits = 0;
-				long contentVisits = 0;
+				long totalSessions = 0;
 				try {
-					guideVisits = getStatDBService().countByArtExhibitionGuideInRange(guide.getId(), from);
-					contentVisits = getStatDBService().countGuideContentsByArtExhibitionGuideInRange(guide.getId(), from);
+					totalSessions = getStatDBService().countTotalByArtExhibitionGuideInRange(guide.getId(), from, to);
 				} catch (Exception e) {
+					totalSessions = -1;
 					logger.error(e);
 				}
 
-				String guideName = guide.getName() != null ? guide.getName() : "";
-				rows.add(new GuideReportRow(guideName, guideVisits, contentVisits));
+				String guideName = getObjectTitle(guide).getObject();
+				rows.add(new GuideReportRow(guideName, totalSessions));
 			}
 		}
 
@@ -149,9 +157,15 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 			@Override
 			protected void populateItem(ListItem<GuideReportRow> item) {
 				GuideReportRow row = item.getModelObject();
-				item.add(new Label("guideName", row.getName()));
-				item.add(new Label("guideVisits", nf.format(row.getGuideVisits())));
-				item.add(new Label("contentVisits", nf.format(row.getContentVisits())));
+				item.add( (new Label("guideName", row.getName())).setEscapeModelStrings(false));
+
+				Label ts = new Label("guideTotalSessions", NumberFormatter.formatNumber( row.getTotalSessions(), getSessionUser().get().getLocale()));
+				if (row.getTotalSessions() > 0) {
+					ts.add(new AttributeModifier("class", "alert alert-info"));
+				} else {
+					ts.add(new AttributeModifier("class", "alert alert-neutral"));
+				}
+				item.add(ts);
 			}
 		};
 		reportContainer.addOrReplace(guideListView);
@@ -190,25 +204,19 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 		private static final long serialVersionUID = 1L;
 
 		private final String name;
-		private final long guideVisits;
-		private final long contentVisits;
+		private final long totalSessions;
 
-		public GuideReportRow(String name, long guideVisits, long contentVisits) {
+		public GuideReportRow(String name, long totalSessions) {
 			this.name = name;
-			this.guideVisits = guideVisits;
-			this.contentVisits = contentVisits;
+			this.totalSessions = totalSessions;
 		}
 
 		public String getName() {
 			return name;
 		}
 
-		public long getGuideVisits() {
-			return guideVisits;
-		}
-
-		public long getContentVisits() {
-			return contentVisits;
+		public long getTotalSessions() {
+			return totalSessions;
 		}
 	}
 }

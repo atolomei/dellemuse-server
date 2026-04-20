@@ -261,6 +261,10 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_qrcode, event.getTarget());
 				}
 
+				else if (event.getName().equals(ServerAppConstant.artwork_reports)) {
+					ArtWorkPage.this.togglePanel(ServerAppConstant.artwork_reports, event.getTarget());
+				}
+
 				else if (event.getName().equals(ServerAppConstant.object_audit)) {
 					ArtWorkPage.this.togglePanel(ServerAppConstant.object_audit, event.getTarget());
 					// ArtExhibitionPage.this.getHeader().setPhotoVisible(true);
@@ -356,6 +360,17 @@ public class ArtWorkPage extends MultiLanguageObjectPage<ArtWork, ArtWorkRecord>
 			}
 		};
 		tabs.add(tab_2);
+
+		NamedTab tab_reports = new NamedTab(Model.of("reports"), ServerAppConstant.artwork_reports) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return new ArtWorkReportsPanel(panelId, getModel(), getSiteModel());
+			}
+		};
+		tabs.add(tab_reports);
 
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.artwork_info);

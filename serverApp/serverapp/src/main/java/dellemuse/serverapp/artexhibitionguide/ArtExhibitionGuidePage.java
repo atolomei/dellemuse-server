@@ -253,6 +253,10 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.artexhibitionguide_contents, event.getTarget());
 					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
 					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
+				} else if (event.getName().equals(ServerAppConstant.artexhibitionguide_reports)) {
+					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.artexhibitionguide_reports, event.getTarget());
+					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
+					event.getTarget().add(ArtExhibitionGuidePage.this.getHeader());
 				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					ArtExhibitionGuidePage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 					ArtExhibitionGuidePage.this.getHeader().setPhotoVisible(true);
@@ -385,6 +389,16 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 			}
 		};
 		tabs.add(tab_2);
+
+		NamedTab tab_reports = new NamedTab(Model.of("reports"), ServerAppConstant.artexhibitionguide_reports) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return new ArtExhibitionGuideReportsPanel(panelId, getModel(), getSiteModel());
+			}
+		};
+		tabs.add(tab_reports);
 
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.artexhibitionguide_info);

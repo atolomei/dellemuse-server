@@ -214,6 +214,41 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 					private static final long serialVersionUID = 1L;
 					@Override
 					public void onClick(AjaxRequestTarget target)  {
+						fire ( new MenuAjaxEvent(ServerAppConstant.artexhibitionguide_reports, target));
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return getLabel("reports");
+					}
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+
+				return new io.wktui.nav.menu.SeparatorMenuItem<ArtExhibitionGuide>(id) {
+					private static final long serialVersionUID = 1L;
+				};
+			}
+		});
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibitionGuide>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<ArtExhibitionGuide> getItem(String id) {
+
+				return new AjaxLinkMenuItem<ArtExhibitionGuide>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onClick(AjaxRequestTarget target)  {
 						fire ( new MenuAjaxEvent(ServerAppConstant.object_meta, target));
 					}
 

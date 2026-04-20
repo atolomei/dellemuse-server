@@ -1,11 +1,9 @@
-package dellemuse.serverapp.guidecontent;
+package dellemuse.serverapp.page;
 
-import java.text.NumberFormat;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -14,32 +12,34 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
-import dellemuse.serverapp.page.InternalPanel;
+import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.page.site.DateRange;
-import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.StatDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.nav.toolbar.ToolbarItem;
 
-public class GuideContentReportsPanel extends DBModelPanel<GuideContent> implements InternalPanel {
+public class HomeReportsPanel extends DBModelPanel<User> implements InternalPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	static private Logger logger = Logger.getLogger(GuideContentReportsPanel.class.getName());
+	static private Logger logger = Logger.getLogger(HomeReportsPanel.class.getName());
 
 	private DateRange selectedRange = DateRange.YESTERDAY;
 	private WebMarkupContainer reportContainer;
-	private final IModel<Site> siteModel;
+	private final List<IModel<Site>> sites;
 
-	public GuideContentReportsPanel(String id, IModel<GuideContent> model, IModel<Site> siteModel) {
+	public HomeReportsPanel(String id, IModel<User> model, List<IModel<Site>> sites) {
 		super(id, model);
-		this.siteModel = siteModel;
+		this.sites = sites;
 		setOutputMarkupId(true);
 	}
 
@@ -47,7 +47,6 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 	public void onInitialize() {
 		super.onInitialize();
 
-		// Date range selector
 		DropDownChoice<DateRange> rangeSelector = new DropDownChoice<DateRange>(
 				"rangeSelector",
 				new PropertyModel<DateRange>(this, "selectedRange"),
@@ -83,7 +82,6 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 		});
 		add(rangeSelector);
 
-		// Report container (refreshed via AJAX)
 		reportContainer = new WebMarkupContainer("reportContainer");
 		reportContainer.setOutputMarkupId(true);
 		add(reportContainer);
@@ -93,24 +91,45 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 
 	private void buildReport() {
 
+		java.util.List<SiteRow> rows = new java.util.ArrayList<>();
+
 		ZoneId zoneId = getSessionUser().get().getZoneId();
 		OffsetDateTime from = selectedRange.getFrom(zoneId);
 		OffsetDateTime to = selectedRange.getTo(zoneId);
-		NumberFormat nf = NumberFormat.getInstance(Locale.US);
 
-		long totalSessions = 0;
-		try {
-			totalSessions = getStatDBService().countByGuideContentInRange(getModel().getObject().getId(), from, to);
-		} catch (Exception e) {
-			logger.error(e);
+		for (IModel<Site> siteModel : sites) {
+			Site site = siteModel.getObject();
+
+			long visits = 0;
+			try {
+				visits = getStatDBService().countBySiteInRange(site.getId(), from, to);
+			} catch (Exception e) {
+				logger.error(e);
+			}
+
+			String name = site.getDisplayname() != null ? site.getDisplayname() : "";
+			rows.add(new SiteRow(name, visits));
 		}
-		Label ts = new Label("totalSessions", nf.format(totalSessions));
-		if (totalSessions > 0) {
-			ts.add(new AttributeModifier("class", "alert alert-info"));
-		} else {
-			ts.add(new AttributeModifier("class", "alert alert-neutral"));
-		}
-		reportContainer.addOrReplace(ts);
+
+		ListView<SiteRow> siteListView = new ListView<SiteRow>("siteList", rows) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(ListItem<SiteRow> item) {
+				SiteRow row = item.getModelObject();
+				item.add(new Label("siteName", row.getName()));
+
+				Label lv = new Label("siteVisits", NumberFormatter.formatNumber(row.getVisits(), getSessionUser().get().getLocale()));
+				if (row.getVisits() > 0) {
+					lv.add(new AttributeModifier("class", "alert alert-info"));
+				} else {
+					lv.add(new AttributeModifier("class", "alert alert-neutral"));
+				}
+				item.add(lv);
+			}
+		};
+		reportContainer.addOrReplace(siteListView);
 	}
 
 	@Override
@@ -128,5 +147,26 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 
 	protected StatDBService getStatDBService() {
 		return (StatDBService) ServiceLocator.getInstance().getBean(StatDBService.class);
+	}
+
+	private static class SiteRow implements java.io.Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		private final String name;
+		private final long visits;
+
+		public SiteRow(String name, long visits) {
+			this.name = name;
+			this.visits = visits;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public long getVisits() {
+			return visits;
+		}
 	}
 }
