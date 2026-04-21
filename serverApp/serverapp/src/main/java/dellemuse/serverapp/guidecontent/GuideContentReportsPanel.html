@@ -11,13 +11,13 @@
 	<!-- Date Range Selector -->
 	<div class="row">
 		<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-			<b><wicket:message key="date-range" /></b> 
+			<b><wicket:message key="date-range" /></b>
 		</div>
 	</div>
 
 	<div class="row">
 		<div class="mt-0 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-			 <select wicket:id="rangeSelector" class="form-select" style="font-size:0.9em;"></select>
+			<select wicket:id="rangeSelector" class="form-select" style="font-size: 0.95em;"></select>
 		</div>
 	</div>
 
@@ -25,12 +25,12 @@
 
 		<div class="row">
 			<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
-				<span><b><wicket:message key="users" /></b></span> 
+				<span><b><wicket:message key="users" /></b></span>
 			</div>
 		</div>
 
 		<div class="row">
-			<div class="mt-1 mb-2 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+			<div class="mt-1 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				<ul class="list-group">
 					<li class="list-group-item">
 						<div class="row">
@@ -47,6 +47,13 @@
 		</div>
 
 		<div class="row">
+			<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+				<b><wicket:message key="languages" /></b>
+			</div>
+		</div>
+
+
+		<div class="row">
 			<div class="mt-1 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
 				<ul class="list-group">
 					<li class="list-group-item" wicket:id="langList">
@@ -60,6 +67,27 @@
 						</div>
 					</li>
 				</ul>
+			</div>
+		</div>
+
+		<div wicket:id="otherGuidesContainer">
+			<div class="row">
+				<div class="mt-2 mb-1 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<b><wicket:message key="other-guides" /></b>
+				</div>
+			</div>
+			<div class="row">
+				<div class="mt-1 mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+					<ul class="list-group">
+						<li class="list-group-item" wicket:id="otherGuidesList">
+							<div class="row">
+								<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+									<a wicket:id="otherGuideLink" class="btn-link"><span wicket:id="otherGuideName"></span></a>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 

@@ -6,10 +6,13 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -17,16 +20,22 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
+import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
+import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.DateRange;
+import dellemuse.serverapp.person.ServerAppConstant;
+import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.StatDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -40,13 +49,30 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 	private DateRange selectedRange = DateRange.YESTERDAY;
 	private WebMarkupContainer reportContainer;
 	private final IModel<Site> siteModel;
-
+	private List<IModel<GuideContent>> other;
+	
+	
 	public GuideContentReportsPanel(String id, IModel<GuideContent> model, IModel<Site> siteModel) {
 		super(id, model);
 		this.siteModel = siteModel;
 		setOutputMarkupId(true);
 	}
 
+	public void onDetach() {
+		super.onDetach();
+		if (siteModel != null) {
+			siteModel.detach();
+		}
+	
+		if (other != null) {
+			for (IModel<GuideContent> m : other) {
+				m.detach();
+			}
+		}
+	
+	}
+	
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -94,13 +120,36 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 
 		buildReport();
 	}
+	
+	
+	protected List<IModel<GuideContent>> getOtherContentsModel() {
+		if (other == null) {
+			List<GuideContent> tempOtherContents = new java.util.ArrayList<>();
+			Optional<ArtWork> aw = getGuideContentDBService().getArtWork(getModel().getObject());
+			if (aw.isPresent()) {
+				tempOtherContents = getGuideContentDBService().getByArtWorkId(aw.get().getId());
+				final Long currentId = getModel().getObject().getId();
+				tempOtherContents.removeIf(gc -> gc.getId().equals(currentId));
+
+				// Initialize ArtExhibitionGuide for each related GuideContent to avoid LazyInitializationException
+				for (int i = 0; i < tempOtherContents.size(); i++) {
+					GuideContent gc = tempOtherContents.get(i);
+					tempOtherContents.set(i, getGuideContentDBService().findWithDeps(gc.getId()).orElse(gc));
+				}
+			}
+			other = tempOtherContents.stream()
+					.map(gc -> (IModel<GuideContent>) new ObjectModel<GuideContent>(gc))
+					.collect(Collectors.toList());
+		}
+		return other;
+	}
 
 	private void buildReport() {
 
 		ZoneId zoneId = getSessionUser().get().getZoneId();
 		OffsetDateTime from = selectedRange.getFrom(zoneId);
 		OffsetDateTime to = selectedRange.getTo(zoneId);
-		NumberFormat nf = NumberFormat.getInstance(Locale.US);
+		//NumberFormat nf = NumberFormat.getInstance(Locale.US);
 
 		long totalSessions = 0;
 		try {
@@ -108,7 +157,7 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 		} catch (Exception e) {
 			logger.error(e);
 		}
-		Label ts = new Label("totalSessions", nf.format(totalSessions));
+		Label ts = new Label("totalSessions", NumberFormatter.formatNumber(totalSessions, getSessionUser().get().getLocale()));
 		if (totalSessions > 0) {
 			ts.add(new AttributeModifier("class", "alert alert-info"));
 		} else {
@@ -166,8 +215,51 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 				item.add(lv);
 			}
 		};
+
+		
 		reportContainer.addOrReplace(langListView);
+		
+		
+
+		// Other GuideContent from same Artwork
+		WebMarkupContainer otherGuidesContainer = new WebMarkupContainer("otherGuidesContainer");
+	 
+		
+		otherGuidesContainer.add(new ListView<IModel<GuideContent>>("otherGuidesList", getOtherContentsModel()) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void populateItem(ListItem<IModel<GuideContent>> item) {
+				IModel<GuideContent> gc = item.getModelObject();
+
+				AjaxLink<GuideContent> link = new AjaxLink<GuideContent>("otherGuideLink", gc) {
+
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+
+						GuideContentPage p = new GuideContentPage( getModel());
+						p.setStartTab(ServerAppConstant.guide_content_reports);
+						setResponsePage(p);
+					}
+				};
+				item.add(link);
+				
+				
+				link.add(new Label("otherGuideName", getArtExhibitionGuideDBService().findById(gc.getObject().getArtExhibitionGuide().getId()).get().getName()));
+			}
+		});
+		
+		
+		reportContainer.addOrReplace(otherGuidesContainer);
 	}
+
+
+
+
+
 
 	@Override
 	public List<ToolbarItem> getToolbarItems() {
@@ -184,6 +276,10 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 
 	protected StatDBService getStatDBService() {
 		return (StatDBService) ServiceLocator.getInstance().getBean(StatDBService.class);
+	}
+
+	protected GuideContentDBService getGuideContentDBService() {
+		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 	}
 
 	private static class LangRow implements java.io.Serializable {

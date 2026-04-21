@@ -103,6 +103,9 @@ body.dellemuse {margin:0; padding:0; font-family: Montserrat, Arial, sans serif;
     margin-bottom: 0.35em;
 }
 
+
+.dellemuse .home-site-list .mode-title .list-group-item a.title-link {text-decoration: underline; color:var(--bs-link-color);}
+
 .dellemuse .mode-title-image .list-group-item a.title-link 		{font-size:1.175em; line-height:1.35em; font-weight: bold;}
 .dellemuse .mode-title .list-group-item a.title-link  			{text-decoration: none; color: inherit; font-size: 1em; font-weight: normal; padding: 0;}
 .dellemuse .mode-title .list-group-item .subtitle 				{color: inherit; font-size: 1em; font-weight: normal;   margin-top: 0.2em;}

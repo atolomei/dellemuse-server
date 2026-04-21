@@ -15,16 +15,21 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IDetachable;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.model.util.NumberFormatter;
+import dellemuse.serverapp.guidecontent.GuideContentPage;
 import dellemuse.serverapp.page.InternalPanel;
 import dellemuse.serverapp.page.model.DBModelPanel;
+import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.page.site.DateRange;
+import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.GuideContent;
@@ -209,7 +214,7 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 							artWorkName = e.getClass().getSimpleName() + ": " + e.getMessage();
 							logger.error(e);
 						}
-						rows.add(new ContentRow(artWorkName, sessions));
+						rows.add(new ContentRow(new ObjectModel<GuideContent>(gc), artWorkName, sessions));
 						count++;
 					}
 				}
@@ -232,7 +237,20 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 			@Override
 			protected void populateItem(ListItem<ContentRow> item) {
 				ContentRow row = item.getModelObject();
-				item.add(new Label("artWorkName", row.getArtWorkName()));
+				
+				Link<GuideContent> guideContentLink = new Link<GuideContent>("guideContentLink", row.getGuideContentModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						GuideContentPage p = new GuideContentPage(getModel());
+						p.setStartTab(ServerAppConstant.guide_content_reports);
+						setResponsePage(p);
+					}
+				};
+				
+				guideContentLink.add(new Label("artWorkName", row.getArtWorkName()));
+				item.add(guideContentLink);
 
 				Label la=new Label("contentSessions", NumberFormatter.formatNumber( row.getSessions(), getSessionUser().get().getLocale()));
 				
@@ -276,14 +294,16 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 	/**
 	 * Inner class to hold report data for each GuideContent.
 	 */
-	private static class ContentRow implements java.io.Serializable {
+	private static class ContentRow implements IDetachable {
 
 		private static final long serialVersionUID = 1L;
 
 		private final String artWorkName;
 		private final long sessions;
+		private IModel<GuideContent> guideContentModel;
 
-		public ContentRow(String artWorkName, long sessions) {
+		public ContentRow(IModel<GuideContent> guideContentModel, String artWorkName, long sessions) {
+			this.guideContentModel = guideContentModel;
 			this.artWorkName = artWorkName;
 			this.sessions = sessions;
 		}
@@ -294,6 +314,17 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 
 		public long getSessions() {
 			return sessions;
+		}
+
+		public IModel<GuideContent> getGuideContentModel() {
+			return guideContentModel;
+		}
+
+		@Override
+		public void detach() {
+			if (guideContentModel != null) {
+				guideContentModel.detach();
+			}
 		}
 	}
 
