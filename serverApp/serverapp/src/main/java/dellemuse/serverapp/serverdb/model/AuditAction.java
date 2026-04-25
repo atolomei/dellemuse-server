@@ -8,7 +8,11 @@ public enum AuditAction {
 	CREATE (0, "create"),
 	READ(1, "read"),
 	UPDATE(2, "update"),
-	DELETE(3, "delete");	
+	DELETE(3, "delete"),
+	SIGNIN(4, "signin"),
+	SIGNOUT(5, "signout"),
+	IMPERSONATION(6, "impersonation");
+	
 	
 	private final String label;
 	private final int id;

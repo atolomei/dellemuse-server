@@ -67,6 +67,8 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 	private TextAreaField<String> internalcommentsField;
 	private ChoiceField<CandidateStatus> statusField;
 	private StaticTextField<String> validationEmailSentField;
+	private StaticTextField<String> createdField;
+	private StaticTextField<String> lastModifiedField;
 
 	private List<ToolbarItem> x_list;
 	private String userName;
@@ -115,6 +117,8 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 			}
 		};
 		validationEmailSentField = new StaticTextField<String>("validationEmailSent", new PropertyModel<String>(getModel(), "validationEmailSent"), getLabel("validationEmailSent"));
+		createdField = new StaticTextField<String>("created", new PropertyModel<String>(getModel(), "created"), getLabel("created"));
+		lastModifiedField = new StaticTextField<String>("lastModified", new PropertyModel<String>(getModel(), "lastModified"), getLabel("lastModified"));
 
 		getForm().add(nameField);
 		getForm().add(lastnameField);
@@ -127,6 +131,8 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 		getForm().add(internalcommentsField);
 		getForm().add(statusField);
 		getForm().add(validationEmailSentField);
+		getForm().add(createdField);
+		getForm().add(lastModifiedField);
 
 		EditButtons<Candidate> buttons = new EditButtons<Candidate>("buttons", getForm(), getModel()) {
 
@@ -209,6 +215,7 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 
 			getCandidateDBService().save(getModelObject(), String.join(", ", getUpdatedParts()), getRootUser());
 
+			
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
 

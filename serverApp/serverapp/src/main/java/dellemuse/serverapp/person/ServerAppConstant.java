@@ -130,6 +130,7 @@ public class ServerAppConstant {
 	
 	/** user */
 	static final public String user_panel_info 			= "user-panel-info";
+	static final public String user_panel_activity 		= "user-panel-activity";
 	static final public String user_panel_password		= "user-panel-password";
 	static final public String user_panel_person 		= "user-page-person";
 	static final public String user_panel_roles 		= "user-panel-roles";

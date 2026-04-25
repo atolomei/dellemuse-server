@@ -42,6 +42,9 @@ import dellemuse.serverapp.global.GlobalFooterPanel;
 import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.page.BasePage;
 import dellemuse.serverapp.page.DellemuseServerAppHomePage;
+import dellemuse.serverapp.security.SecurityAuditListener;
+import dellemuse.serverapp.serverdb.model.AuditAction;
+import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.User;
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
@@ -82,6 +85,9 @@ public class LoginPage extends BasePage {
 	private PasswordField passwordField;
 
 	private boolean isError = false;
+
+	@SpringBean
+	private SecurityAuditListener securityAuditListener;
 
 	@SpringBean
 	private SavedRequestAwareAuthenticationSuccessHandler successHandler;
@@ -173,6 +179,7 @@ public class LoginPage extends BasePage {
 
 				    logger.debug("successful login -> email. " + email +  " p. " + password);
 
+			
 				    // VERY IMPORTANT → bind Wicket session immediately
 				    getSession().bind();
 
@@ -185,6 +192,16 @@ public class LoginPage extends BasePage {
 
 				    request.getSession(true);
 
+				    Optional<User> o  = getSessionUser();
+				    
+				    if (o.isPresent()) {
+				    	logger.debug("User " + o.get().getEmail() + " logged in successfully.");
+				    } else {
+				    	logger.error("User not found after successful login: " + email);
+				    }
+				    
+
+				    
 				    // Continue original destination OR go home
 				    continueToOriginalDestination();
 				    setResponsePage(getApplication().getHomePage());

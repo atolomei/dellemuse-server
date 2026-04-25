@@ -57,7 +57,7 @@ public class InstitutionDBService extends MultiLanguageObjectDBservice<Instituti
 		Institution c = new Institution();
 
 		c.setName(name);
-		c.setState(ObjectState.EDITION);
+		c.setState(ObjectState.PUBLISHED);
 
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
@@ -86,7 +86,7 @@ public class InstitutionDBService extends MultiLanguageObjectDBservice<Instituti
 		Institution c = new Institution();
 		c.setName(name);
 
-		c.setState(ObjectState.EDITION);
+		c.setState(ObjectState.PUBLISHED);
 
 		c.setMasterLanguage(getDefaultMasterLanguage());
 		c.setLanguage(getDefaultMasterLanguage());
@@ -153,6 +153,9 @@ public class InstitutionDBService extends MultiLanguageObjectDBservice<Instituti
 
 		logger.debug("Creating institution from candidate -> : " + c.getDisplayname());
 		Institution in = create(c.getInstitutionName(), user);
+
+		in.setState(ObjectState.PUBLISHED);
+		in.setZoneId( getSettings().getDefaultZoneId() );
 		in.setAddress(c.getInstitutionAddress());
 		in.setEmail(c.getEmail());
 		save(in, "email, address", user);

@@ -228,10 +228,13 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate> {
 
 			submitted = true;
 
+			getModel().getObject().setPassword("");
+
 			getForm().setFormState(FormState.VIEW);
+
 			getForm().updateReload();
 
-			addOrReplace(new AlertPanel<Void>("success", AlertPanel.SUCCESS, getLabel("submitted-ok")));
+			addOrReplace(new AlertPanel<Void>("success", AlertPanel.SUCCESS, getLabel("submitted-ok", getModel().getObject().getEmail())));
 			addOrReplace(new InvisiblePanel("error"));
 
 			target.add(this);

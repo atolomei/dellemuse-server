@@ -449,6 +449,8 @@ public class UserListPage extends ObjectListPage<User> {
 			}
 		});
 
+		
+		
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 			private static final long serialVersionUID = 1L;
 

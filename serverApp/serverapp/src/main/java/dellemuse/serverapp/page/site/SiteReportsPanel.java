@@ -205,20 +205,24 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 		OffsetDateTime from = selectedRange.getFrom(zoneId);
 		OffsetDateTime to = selectedRange.getTo(zoneId);
 
+		Locale userLocale = getSessionUser().get().getLocale();
+		
 		// Site visits by language
 		List<Language> siteLanguages = site.getLanguages();
+		Language masterLanguage = Language.of( site.getMasterLanguage() );
+		
 		if (siteLanguages == null) {
 			siteLanguages = new java.util.ArrayList<>();
 		}
-		siteLanguages.sort((a, b) -> a.getLanguageCode().compareToIgnoreCase(b.getLanguageCode()));
+	
+		siteLanguages.add(masterLanguage );
+		
+		//siteLanguages.sort((a, b) -> a.getLanguageCode().compareToIgnoreCase(b.getLanguageCode()));
 
 		java.util.List<LangRow> langRows = new java.util.ArrayList<>();
 		 
 		long visits = 0;
-		
-		Language masterLanguage = Language.of( site.getMasterLanguage() );
-		
-		
+	/**
 		try {
 			visits = getStatDBService().countBySiteAndLanguageInRange(site.getId(), masterLanguage.getLanguageCode(), from, to);
 			langRows.add(new LangRow(masterLanguage.getLabel(getSessionUser().get().getLocale()), visits));
@@ -227,15 +231,17 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 			logger.error(e);
 		}
 	
+	**/
 		
 		for (Language lang : siteLanguages) {
 			visits = 0;
 			try {
 				visits = getStatDBService().countBySiteAndLanguageInRange(site.getId(), lang.getLanguageCode(), from, to);
+				langRows.add(new LangRow(lang.getLabel(getSessionUser().get().getLocale()), visits));
 			} catch (Exception e) {
 				logger.error(e);
+				langRows.add(new LangRow(lang.getLabel(getSessionUser().get().getLocale()) + "| " + e.getClass().getSimpleName(), -1));
 			}
-			langRows.add(new LangRow(lang.getLabel(getSessionUser().get().getLocale()), visits));
 		}
 
 	 	try {
@@ -253,7 +259,8 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 		}
 		
 
-		Locale userLocale = getSessionUser().get().getLocale();
+		langRows.sort((a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+		
 
 		ListView<LangRow> siteVisitsListView = new ListView<LangRow>("siteVisitsList", langRows) {
 
@@ -278,6 +285,8 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 		// Art Exhibition Guides
 		List<ArtExhibition> exhibitions = getSiteDBService().getArtExhibitions(site);
 
+		exhibitions.sort((a, b) -> getObjectTitle(a).getObject().compareToIgnoreCase(getObjectTitle(b).getObject()));
+		
 		// Collect all guides across all exhibitions
 		java.util.List<GuideReportRow> rows = new java.util.ArrayList<>();
 
@@ -299,6 +308,9 @@ public class SiteReportsPanel extends DBModelPanel<Site> implements InternalPane
 			}
 		}
 
+		rows.sort((a, b) -> a.getName().compareToIgnoreCase(b.getName()));
+		
+		
 		ListView<GuideReportRow> guideListView = new ListView<GuideReportRow>("guideList", rows) {
 
 			private static final long serialVersionUID = 1L;

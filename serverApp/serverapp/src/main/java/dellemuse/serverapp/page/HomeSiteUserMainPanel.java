@@ -73,7 +73,7 @@ public class HomeSiteUserMainPanel extends DBModelPanel<User> implements Interna
 	}
 
 	protected IModel<String> getObjectTitle(IModel<Site> model) {
-		return new Model<String>(model.getObject().getDisplayname());
+		return super.getObjectTitle( model.getObject() );
 	}
 
 	private List<IModel<Site>> getList() {
@@ -174,7 +174,7 @@ public class HomeSiteUserMainPanel extends DBModelPanel<User> implements Interna
 	}
 
 	protected IModel<String> getObjectInfo(IModel<Site> model) {
-		return new Model<String>(TextCleaner.clean(model.getObject().getInfo(), 280));
+		return Model.of(TextCleaner.clean( super.getObjectInfo(model.getObject()).getObject(), 280));
 	}
 
 }

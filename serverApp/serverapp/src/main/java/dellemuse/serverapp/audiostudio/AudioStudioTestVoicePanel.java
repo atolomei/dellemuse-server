@@ -54,6 +54,7 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 
 		this.voiceModel = voice;
 		setOutputMarkupId(true);
+		setOutputMarkupPlaceholderTag(true);
 	}
 
 	public void onDetach() {
@@ -92,6 +93,14 @@ public class AudioStudioTestVoicePanel extends DBModelPanel<AudioStudio> {
 		add(test);
 		addTest();
 
+		AjaxLink<Void> closeLink = new AjaxLink<Void>("closelink") {
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				AudioStudioTestVoicePanel.this.setVisible(false);
+				target.add(AudioStudioTestVoicePanel.this);
+			}
+		};
+		add(closeLink);
 	}
 
 	private void addTest() {

@@ -15,10 +15,10 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
- 
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
- 
+
 import dellemuse.model.JsonObject;
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseObjectMapper;
@@ -95,24 +95,24 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 
 	public DelleMuseObject() {
 	}
-	
+
 	public String getDisplayClass() {
 		ResourceBundle res = ResourceBundle.getBundle(DelleMuseObject.class.getName(), Locale.ENGLISH);
 		return res.getString("name");
 	}
-	
+
 	public String getDisplayClass(Locale locale) {
 		ResourceBundle res = ResourceBundle.getBundle(DelleMuseObject.class.getName(), locale);
 		return res.getString("name");
 	}
-	
+
 	/**
 	 * used by Audit
 	 */
 	public String getObjectClassName() {
-			return this.getClass().getSimpleName();
+		return this.getClass().getSimpleName();
 	}
-	
+
 	public boolean isDependencies() {
 		return dependecies;
 	}
@@ -137,7 +137,7 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 	public ObjectState getState() {
 		return this.state;
 	}
-	
+
 	public void setState(ObjectState state) {
 		this.state = state;
 	}
@@ -195,7 +195,7 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		if (name != null)
 			str.append(", \"name\": \"" + getName().toString() + "\"");
 
-	 	if (lastModified != null)
+		if (lastModified != null)
 			str.append(", \"lastModified\": \"" + getDateTimeFormatter().format(getLastModified()));
 
 		return str.toString();
@@ -211,7 +211,7 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 		str.append(" } ");
 
 		return str.toString();
- 
+
 	}
 
 	@Override
@@ -226,35 +226,34 @@ public abstract class DelleMuseObject extends JsonObject implements Identifiable
 			return " { \"error\": \"" + e.getClass().getName() + (e.getMessage() != null ? (" | " + e.getMessage().replace("\"", "'" + "\"")) : "") + " }";
 		}
 	}
-	
+
 	@Override
 	public int hashCode() {
-	    return getId() != null ? getId().hashCode() : 0;
+		return getId() != null ? getId().hashCode() : 0;
 	}
 
-	
 	@Override
 	public boolean equals(Object o) {
 
-		if (o==null)
+		if (o == null)
 			return false;
-		 
-		if (this == o) 
+
+		if (this == o)
 			return true;
 
-		if (!(o instanceof DelleMuseObject)) 
+		if (!(o instanceof DelleMuseObject))
 			return false;
-		 
-		if (this.getId()==null)
+
+		if (this.getId() == null)
 			return false;
-	 
-		//if ((o.getClass().getName().equals(this.getClass().getName()))) {
-			
-			if (((DelleMuseObject) o).getId()==null)
-					return false;
-			
-			return ((DelleMuseObject) o).getId().equals(getId());
-		//}
-		//return false;
+
+		// if ((o.getClass().getName().equals(this.getClass().getName()))) {
+
+		if (((DelleMuseObject) o).getId() == null)
+			return false;
+
+		return ((DelleMuseObject) o).getId().equals(getId());
+		// }
+		// return false;
 	}
 }

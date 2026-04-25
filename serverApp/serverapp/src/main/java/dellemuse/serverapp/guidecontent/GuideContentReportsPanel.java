@@ -50,8 +50,7 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 	private WebMarkupContainer reportContainer;
 	private final IModel<Site> siteModel;
 	private List<IModel<GuideContent>> other;
-	
-	
+
 	public GuideContentReportsPanel(String id, IModel<GuideContent> model, IModel<Site> siteModel) {
 		super(id, model);
 		this.siteModel = siteModel;
@@ -63,44 +62,39 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 		if (siteModel != null) {
 			siteModel.detach();
 		}
-	
+
 		if (other != null) {
 			for (IModel<GuideContent> m : other) {
 				m.detach();
 			}
 		}
-	
+
 	}
-	
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 
 		// Date range selector
-		DropDownChoice<DateRange> rangeSelector = new DropDownChoice<DateRange>(
-				"rangeSelector",
-				new PropertyModel<DateRange>(this, "selectedRange"),
-				Arrays.asList(DateRange.values()),
-				new IChoiceRenderer<DateRange>() {
+		DropDownChoice<DateRange> rangeSelector = new DropDownChoice<DateRange>("rangeSelector", new PropertyModel<DateRange>(this, "selectedRange"), Arrays.asList(DateRange.values()), new IChoiceRenderer<DateRange>() {
 
-					private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 1L;
 
-					@Override
-					public Object getDisplayValue(DateRange object) {
-						return getString(object.getKey());
-					}
+			@Override
+			public Object getDisplayValue(DateRange object) {
+				return getString(object.getKey());
+			}
 
-					@Override
-					public String getIdValue(DateRange object, int index) {
-						return object.name();
-					}
+			@Override
+			public String getIdValue(DateRange object, int index) {
+				return object.name();
+			}
 
-					@Override
-					public DateRange getObject(String id, IModel<? extends List<? extends DateRange>> choices) {
-						return DateRange.valueOf(id);
-					}
-				});
+			@Override
+			public DateRange getObject(String id, IModel<? extends List<? extends DateRange>> choices) {
+				return DateRange.valueOf(id);
+			}
+		});
 
 		rangeSelector.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
@@ -120,8 +114,7 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 
 		buildReport();
 	}
-	
-	
+
 	protected List<IModel<GuideContent>> getOtherContentsModel() {
 		if (other == null) {
 			List<GuideContent> tempOtherContents = new java.util.ArrayList<>();
@@ -131,15 +124,14 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 				final Long currentId = getModel().getObject().getId();
 				tempOtherContents.removeIf(gc -> gc.getId().equals(currentId));
 
-				// Initialize ArtExhibitionGuide for each related GuideContent to avoid LazyInitializationException
+				// Initialize ArtExhibitionGuide for each related GuideContent to avoid
+				// LazyInitializationException
 				for (int i = 0; i < tempOtherContents.size(); i++) {
 					GuideContent gc = tempOtherContents.get(i);
 					tempOtherContents.set(i, getGuideContentDBService().findWithDeps(gc.getId()).orElse(gc));
 				}
 			}
-			other = tempOtherContents.stream()
-					.map(gc -> (IModel<GuideContent>) new ObjectModel<GuideContent>(gc))
-					.collect(Collectors.toList());
+			other = tempOtherContents.stream().map(gc -> (IModel<GuideContent>) new ObjectModel<GuideContent>(gc)).collect(Collectors.toList());
 		}
 		return other;
 	}
@@ -149,7 +141,6 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 		ZoneId zoneId = getSessionUser().get().getZoneId();
 		OffsetDateTime from = selectedRange.getFrom(zoneId);
 		OffsetDateTime to = selectedRange.getTo(zoneId);
-		//NumberFormat nf = NumberFormat.getInstance(Locale.US);
 
 		long totalSessions = 0;
 		try {
@@ -168,24 +159,27 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 		// Per-language breakdown
 		Site site = siteModel.getObject();
 		List<Language> siteLanguages = site.getLanguages();
+
 		if (siteLanguages == null) {
 			siteLanguages = new java.util.ArrayList<>();
 		}
-		siteLanguages.sort((a, b) -> a.getLanguageCode().compareToIgnoreCase(b.getLanguageCode()));
+
+		Language masterLanguage = Language.of(site.getMasterLanguage());
+		siteLanguages.add(masterLanguage);
+
+		// siteLanguages.sort((a, b) ->
+		// a.getLanguageCode().compareToIgnoreCase(b.getLanguageCode()));
 
 		java.util.List<LangRow> langRows = new java.util.ArrayList<>();
 		Locale userLocale = getSessionUser().get().getLocale();
 
-		Language masterLanguage = Language.of(site.getMasterLanguage());
-		if (masterLanguage != null) {
-			long masterVisits = 0;
-			try {
-				masterVisits = getStatDBService().countByGuideContentAndLanguageInRange(getModel().getObject().getId(), masterLanguage.getLanguageCode(), from, to);
-			} catch (Exception e) {
-				logger.error(e);
-			}
-			langRows.add(new LangRow(masterLanguage.getLabel(userLocale), masterVisits));
-		}
+		/**
+		 * if (masterLanguage != null) { long masterVisits = 0; try { masterVisits =
+		 * getStatDBService().countByGuideContentAndLanguageInRange(getModel().getObject().getId(),
+		 * masterLanguage.getLanguageCode(), from, to); } catch (Exception e) {
+		 * logger.error(e); } langRows.add(new
+		 * LangRow(masterLanguage.getLabel(userLocale), masterVisits)); }
+		 **/
 
 		for (Language lang : siteLanguages) {
 			long langVisits = 0;
@@ -196,6 +190,8 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 			}
 			langRows.add(new LangRow(lang.getLabel(userLocale), langVisits));
 		}
+
+		langRows.sort((a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
 
 		ListView<LangRow> langListView = new ListView<LangRow>("langList", langRows) {
 
@@ -216,15 +212,13 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 			}
 		};
 
-		
 		reportContainer.addOrReplace(langListView);
-		
-		
 
 		// Other GuideContent from same Artwork
 		WebMarkupContainer otherGuidesContainer = new WebMarkupContainer("otherGuidesContainer");
-	 
-		
+
+		otherGuidesContainer.setVisible(!getOtherContentsModel().isEmpty());
+
 		otherGuidesContainer.add(new ListView<IModel<GuideContent>>("otherGuidesList", getOtherContentsModel()) {
 
 			private static final long serialVersionUID = 1L;
@@ -240,26 +234,23 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 
-						GuideContentPage p = new GuideContentPage( getModel());
+						GuideContentPage p = new GuideContentPage(getModel());
 						p.setStartTab(ServerAppConstant.guide_content_reports);
 						setResponsePage(p);
 					}
 				};
 				item.add(link);
-				
-				
-				link.add(new Label("otherGuideName", getArtExhibitionGuideDBService().findById(gc.getObject().getArtExhibitionGuide().getId()).get().getName()));
+
+				link.add(new Label("otherGuideName",
+
+						getObjectTitle(getArtExhibitionGuideDBService().findById(gc.getObject().getArtExhibitionGuide().getId()).get()))
+
+				);
 			}
 		});
-		
-		
+
 		reportContainer.addOrReplace(otherGuidesContainer);
 	}
-
-
-
-
-
 
 	@Override
 	public List<ToolbarItem> getToolbarItems() {

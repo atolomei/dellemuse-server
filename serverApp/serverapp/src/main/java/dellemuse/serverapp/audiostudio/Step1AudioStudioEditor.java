@@ -3,16 +3,16 @@ package dellemuse.serverapp.audiostudio;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
- 
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.compress.utils.FileNameUtils;
- 
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
- 
+
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.ComponentTag;
@@ -29,9 +29,9 @@ import org.apache.wicket.request.resource.UrlResourceReference;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
- 
+
 import dellemuse.serverapp.audit.AuditKey;
- 
+
 import dellemuse.serverapp.elevenlabs.LanguageCode;
 import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
@@ -39,7 +39,7 @@ import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.Voice;
- 
+
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
 import io.wktui.form.button.EditButtons;
@@ -94,8 +94,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 	private List<VoiceProxy> voiceProxyList;
 
 	private IModel<Voice> voiceModel;
-
-	 
 
 	public class VoiceProxy implements IDetachable {
 
@@ -188,13 +186,13 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 				osid = Optional.of(os.get().getId());
 			else
 				osid = Optional.empty();
-		
+
 		} catch (Exception e) {
 			logger.error(e, ServerConstant.NOT_THROWN);
 			osid = Optional.empty();
 		}
-		
-		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id, getSessionUser().get(), osid );
+
+		Optional<File> ofile = getElevenLabsService().generate(text, fileName, languageCode, dm_voice_id, getSessionUser().get(), osid);
 
 		if (ofile.isPresent()) {
 			step1AudioSpeechUpload(ofile.get());
@@ -230,7 +228,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 				Resource resource = createAndUploadFile(inputStream, bucketName, objectName, file.getName(), file.length(), true);
 
 				logger.debug(file.getName());
-				
+
 				setAudioSpeechModel(new ObjectModel<Resource>(resource));
 
 				setObjectAudioSpeech(resource);
@@ -276,8 +274,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		if (getObjectAudio() == null)
 			return true;
 
-		 
-		
 		return (getHashAudioParameters() != getObjectAudioSpeechHash());
 	}
 
@@ -350,10 +346,9 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 	private void setup() {
 
-
 		voiceProxyList = new ArrayList<VoiceProxy>();
 
-		getVoiceDBService().getVoices(Step1AudioStudioEditor.this.getModel().getObject().getLanguage(),  ObjectState.PUBLISHED  ).forEach(v -> voiceProxyList.add(new VoiceProxy(v)));
+		getVoiceDBService().getVoices(Step1AudioStudioEditor.this.getModel().getObject().getLanguage(), ObjectState.PUBLISHED).forEach(v -> voiceProxyList.add(new VoiceProxy(v)));
 
 		Map<String, String> map = getModel().getObject().getSettings();
 
@@ -362,11 +357,10 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			if (map.containsKey("speed")) {
 				speed = Double.valueOf(map.get("speed"));
 			}
-			
-			if (speed==null || speed.doubleValue()<0.1)
-				speed=Double.valueOf(1.4);
-			
-			
+
+			if (speed == null || speed.doubleValue() < 0.1)
+				speed = Double.valueOf(1.4);
+
 			if (map.containsKey("stability"))
 				stability = Double.valueOf(map.get("stability"));
 
@@ -374,7 +368,7 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 				similarity = Double.valueOf(map.get("similarity"));
 
 			if (map.containsKey("audioStyle"))
-				audioStyle = Double.valueOf(map.get( "audioStyle"));
+				audioStyle = Double.valueOf(map.get("audioStyle"));
 		}
 
 		step1 = new WebMarkupContainer("step1");
@@ -387,7 +381,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 		step1.add(form);
 
-	 
 		voicesField = new ChoiceField<VoiceProxy>("voice", new PropertyModel<VoiceProxy>(this, "voiceProxy"), getLabel("voice")) {
 
 			private static final long serialVersionUID = 1L;
@@ -484,17 +477,17 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 				if (Step1AudioStudioEditor.this.getVoiceModel() == null)
 					return false;
-						
+
 				if (!hasWritePermission())
 					return false;
 
 				if (getParentObjectState() == ObjectState.DELETED)
 					return false;
 
-				//if (requiresGenerationAudioSpeech())
-					return true;
+				// if (requiresGenerationAudioSpeech())
+				return true;
 
-				//return false;
+				// return false;
 			}
 
 			public IModel<String> getLabel() {
@@ -584,12 +577,10 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 			Url url = Url.parse(audioUrl);
 			UrlResourceReference resourceReference = new UrlResourceReference(url);
-			
-			
-		 
+
 			AudioPlayer audio = new AudioPlayer("audioVoice", resourceReference);
 			audio.setIncludeDownloadMenu(false);
-			
+
 			this.step1mp3.addOrReplace(audio);
 
 			Label am = new Label("audioVoiceMetadata", getAudioMeta(getAudioSpeechModel().getObject()));
@@ -640,11 +631,8 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 			this.step1mp3.addOrReplace(removeAudio);
 		} else {
 
-		 
+			this.step1mp3.addOrReplace(new InvisiblePanel("audioVoice"));
 
-		 
-			this.step1mp3.addOrReplace( new InvisiblePanel("audioVoice"));
-			
 			Label am = new Label("audioVoiceMetadata", "");
 			am.setEscapeModelStrings(false);
 			this.step1mp3.addOrReplace(am);

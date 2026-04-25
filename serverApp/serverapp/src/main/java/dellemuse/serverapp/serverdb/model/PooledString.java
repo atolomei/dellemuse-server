@@ -10,10 +10,8 @@ import jakarta.persistence.Table;
 
 /**
  * 
- * CREATE TABLE pooledString (
- *     id     bigint primary key not null,
- *     value  character varying (2048)
- * );
+ * CREATE TABLE pooledString ( id bigint primary key not null, value character
+ * varying (2048) );
  * 
  */
 @Entity

@@ -65,6 +65,7 @@ import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.BaseDBService;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
+import dellemuse.serverapp.serverdb.service.DelleMuseAuditDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
@@ -636,6 +637,11 @@ public abstract class BasePage extends WebPage {
 	protected ArtWorkRecordDBService getArtWorkRecordDBService() {
 		return (ArtWorkRecordDBService) ServiceLocator.getInstance().getBean(ArtWorkRecordDBService.class);
 	}
+	
+	protected DelleMuseAuditDBService getDelleMuseAuditDBService() {
+		return (DelleMuseAuditDBService) ServiceLocator.getInstance().getBean(DelleMuseAuditDBService.class);
+	}
+	
 
 	protected EmailService getEmailService() {
 		return (EmailService) ServiceLocator.getInstance().getBean(EmailService.class);

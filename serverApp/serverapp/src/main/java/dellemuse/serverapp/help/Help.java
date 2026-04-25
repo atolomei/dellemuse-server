@@ -52,5 +52,9 @@ public class Help {
 	public static final String CANDIDATES = "candidate-list";
 	public static final String CANDIDATE = "candidate-info";
 	public static final String CANDIDATE_INFO = "candidate-info";
+	
+	public static final String HELP_MANUAL = "help-manual";
+	
+	
 
 }

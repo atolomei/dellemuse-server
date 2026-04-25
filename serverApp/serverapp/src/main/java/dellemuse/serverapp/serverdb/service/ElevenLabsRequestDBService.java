@@ -129,7 +129,7 @@ public class ElevenLabsRequestDBService extends BaseDBService<ElevenLabsRequest,
 		cq.where(cb.equal(root.get("siteId"), siteId));
 		return getEntityManager().createQuery(cq).getSingleResult();
 	}
-	
+
 	protected UserDBService getUserDBService() {
 		return (UserDBService) ServiceLocator.getInstance().getBean(UserDBService.class);
 	}

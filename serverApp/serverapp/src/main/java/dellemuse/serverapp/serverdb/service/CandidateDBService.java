@@ -16,6 +16,7 @@ import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.model.User;
+import dellemuse.serverapp.serverdb.model.CandidateStatus;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
@@ -129,6 +130,16 @@ public class CandidateDBService extends DBService<Candidate, Long> {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Candidate> cq = cb.createQuery(getEntityClass());
 		Root<Candidate> root = cq.from(getEntityClass());
+		cq.orderBy(cb.asc(cb.lower(root.get("institutionName"))));
+		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	@Transactional
+	public List<Candidate> findByStatus(CandidateStatus... statuses) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Candidate> cq = cb.createQuery(getEntityClass());
+		Root<Candidate> root = cq.from(getEntityClass());
+		cq.select(root).where(root.get("status").in((Object[]) statuses));
 		cq.orderBy(cb.asc(cb.lower(root.get("institutionName"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}

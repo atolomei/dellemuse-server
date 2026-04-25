@@ -72,14 +72,12 @@ public class ArtExhibition extends MultiLanguageObject {
 
 	@Column(name = "mapurl")
 	private String map;
-	
+
 	@Column(name = "audio_id")
 	private Long audioId;
-	
 
 	@Column(name = "qrcodetext")
 	private String qrCodeText;
-
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, targetEntity = ArtExhibitionItem.class)
 	@JoinColumn(name = "artExhibition_id", nullable = true, insertable = true)
@@ -95,22 +93,20 @@ public class ArtExhibition extends MultiLanguageObject {
 	@JsonProperty("artExhibitionSections")
 	private List<ArtExhibitionSection> artExhibitionSections;
 
-	
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "qrcodepdf", nullable = true)
 	@JsonManagedReference
 	@JsonProperty("qrcodepdf")
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource QRCodePdf;
-	
-	
+
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "audioNumberPng", nullable = true)
 	@JsonManagedReference
 	@JsonProperty("audioNumberPng")
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource audioNumberPng;
-	
+
 	@Column(name = "website")
 	private String website;
 

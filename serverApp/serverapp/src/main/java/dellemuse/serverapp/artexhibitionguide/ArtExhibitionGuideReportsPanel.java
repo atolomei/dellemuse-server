@@ -62,29 +62,25 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 		super.onInitialize();
 
 		// Date range selector
-		DropDownChoice<DateRange> rangeSelector = new DropDownChoice<DateRange>(
-				"rangeSelector",
-				new PropertyModel<DateRange>(this, "selectedRange"),
-				Arrays.asList(DateRange.values()),
-				new IChoiceRenderer<DateRange>() {
+		DropDownChoice<DateRange> rangeSelector = new DropDownChoice<DateRange>("rangeSelector", new PropertyModel<DateRange>(this, "selectedRange"), Arrays.asList(DateRange.values()), new IChoiceRenderer<DateRange>() {
 
-					private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 1L;
 
-					@Override
-					public Object getDisplayValue(DateRange object) {
-						return getString(object.getKey());
-					}
+			@Override
+			public Object getDisplayValue(DateRange object) {
+				return getString(object.getKey());
+			}
 
-					@Override
-					public String getIdValue(DateRange object, int index) {
-						return object.name();
-					}
+			@Override
+			public String getIdValue(DateRange object, int index) {
+				return object.name();
+			}
 
-					@Override
-					public DateRange getObject(String id, IModel<? extends List<? extends DateRange>> choices) {
-						return DateRange.valueOf(id);
-					}
-				});
+			@Override
+			public DateRange getObject(String id, IModel<? extends List<? extends DateRange>> choices) {
+				return DateRange.valueOf(id);
+			}
+		});
 
 		rangeSelector.add(new AjaxFormComponentUpdatingBehavior("change") {
 			private static final long serialVersionUID = 1L;
@@ -111,29 +107,26 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 		ZoneId zoneId = getSessionUser().get().getZoneId();
 		OffsetDateTime from = selectedRange.getFrom(zoneId);
 		OffsetDateTime to = selectedRange.getTo(zoneId);
-		//
-		//NumberFormat nf = NumberFormat.getInstance(Locale.US);
 
 		// Total sessions = guide page visits + guide content visits
 		long guidePageSessions = 0;
-	 
+
 		try {
 			guidePageSessions = getStatDBService().countByArtExhibitionGuideInRange(guide.getId(), from, to);
-			 
+
 		} catch (Exception e) {
 			logger.error(e);
 		}
 		long totalSessions = guidePageSessions;
-		
-		Label ts= new Label("totalSessions", NumberFormatter.formatNumber(totalSessions, getSessionUser().get().getLocale()));
-		
+
+		Label ts = new Label("totalSessions", NumberFormatter.formatNumber(totalSessions, getSessionUser().get().getLocale()));
+
 		if (totalSessions > 0) {
 			ts.add(new AttributeModifier("class", "alert alert-info"));
-		}
-		else {
+		} else {
 			ts.add(new AttributeModifier("class", "alert alert-neutral"));
 		}
-		
+
 		reportContainer.addOrReplace(ts);
 
 		// Per-language breakdown
@@ -142,7 +135,9 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 		if (siteLanguages == null) {
 			siteLanguages = new java.util.ArrayList<>();
 		}
-		siteLanguages.sort((a, b) -> a.getLanguageCode().compareToIgnoreCase(b.getLanguageCode()));
+		// siteLanguages.sort((a, b) ->
+		// a.getLanguageCode().compareToIgnoreCase(b.getLabel(
+		// getSessionUser().get().getLocale())));
 
 		java.util.List<LangRow> langRows = new java.util.ArrayList<>();
 		Locale userLocale = getSessionUser().get().getLocale();
@@ -167,6 +162,8 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 			}
 			langRows.add(new LangRow(lang.getLabel(userLocale), langVisits));
 		}
+
+		langRows.sort((a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
 
 		ListView<LangRow> langListView = new ListView<LangRow>("langList", langRows) {
 
@@ -208,7 +205,7 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 							Optional<ArtWork> oAw = getGuideContentDBService().getArtWork(gc);
 							if (oAw.isPresent()) {
 								ArtWork a = getArtWorkDBService().findById(oAw.get().getId()).get();
-								artWorkName = a.getName();
+								artWorkName = getObjectTitle(a).getObject();
 							}
 						} catch (Exception e) {
 							artWorkName = e.getClass().getSimpleName() + ": " + e.getMessage();
@@ -224,12 +221,10 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 		}
 
 		// Sort by sessions descending
-		//rows.sort((a, b) -> Long.compare(b.getSessions(), a.getSessions()));
-
+		// rows.sort((a, b) -> Long.compare(b.getSessions(), a.getSessions()));
 
 		rows.sort((a, b) -> a.getArtWorkName().compareToIgnoreCase(b.getArtWorkName()));
 
-		
 		ListView<ContentRow> contentListView = new ListView<ContentRow>("contentList", rows) {
 
 			private static final long serialVersionUID = 1L;
@@ -237,7 +232,7 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 			@Override
 			protected void populateItem(ListItem<ContentRow> item) {
 				ContentRow row = item.getModelObject();
-				
+
 				Link<GuideContent> guideContentLink = new Link<GuideContent>("guideContentLink", row.getGuideContentModel()) {
 					private static final long serialVersionUID = 1L;
 
@@ -248,16 +243,15 @@ public class ArtExhibitionGuideReportsPanel extends DBModelPanel<ArtExhibitionGu
 						setResponsePage(p);
 					}
 				};
-				
-				guideContentLink.add(new Label("artWorkName", row.getArtWorkName()));
+
+				guideContentLink.add((new Label("artWorkName", row.getArtWorkName())).setEscapeModelStrings(false));
 				item.add(guideContentLink);
 
-				Label la=new Label("contentSessions", NumberFormatter.formatNumber( row.getSessions(), getSessionUser().get().getLocale()));
-				
+				Label la = new Label("contentSessions", NumberFormatter.formatNumber(row.getSessions(), getSessionUser().get().getLocale()));
+
 				if (row.getSessions() > 0) {
 					la.add(new AttributeModifier("class", "alert alert-info"));
-				}
-				else {
+				} else {
 					la.add(new AttributeModifier("class", "alert alert-neutral"));
 				}
 				item.add(la);

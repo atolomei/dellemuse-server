@@ -313,6 +313,59 @@ public class DelleMuseAudit extends JsonObject implements Identifiable, Auditabl
 	}
 */
 	
+	public static DelleMuseAudit ofSignin(User user) {
+		Check.requireNonNullArgument(user, "User is null");
+		DelleMuseAudit audit = new DelleMuseAudit();
+		OffsetDateTime now = OffsetDateTime.now();
+		audit.setLastModified(now);
+		audit.setAction(AuditAction.SIGNIN);
+		audit.setObjectId(Long.valueOf(-1));
+		audit.setUser(user);
+		audit.setObjectClassName("sys");
+		return audit;
+	}
+	
+
+	public static DelleMuseAudit ofSignout(User user) {
+		Check.requireNonNullArgument(user, "User is null");
+		DelleMuseAudit audit = new DelleMuseAudit();
+		OffsetDateTime now = OffsetDateTime.now();
+		audit.setLastModified(now);
+		audit.setAction(AuditAction.SIGNOUT);
+		audit.setObjectId(Long.valueOf(-2));
+		audit.setUser(user);
+		audit.setObjectClassName("sys");
+		return audit;
+	}
+
+	/**
+	 * Creates an IMPERSONATION audit record.
+	 * @param targetUser  the user being impersonated
+	 * @param adminUser   the admin who performed the impersonation
+	 */
+	public static DelleMuseAudit ofImpersonation(User targetUser, User adminUser) {
+		Check.requireNonNullArgument(targetUser, "targetUser is null");
+		Check.requireNonNullArgument(adminUser,  "adminUser is null");
+
+		DelleMuseAudit audit = new DelleMuseAudit();
+		audit.setLastModified(OffsetDateTime.now());
+		audit.setAction(AuditAction.IMPERSONATION);
+		audit.setObjectId(targetUser.getId());
+		audit.setUser(adminUser);                  // WHO did it (the admin)
+		audit.setObjectClassName("sys");
+
+		Map<String, String> map = new HashMap<>();
+		map.put("targetUserId",   targetUser.getId().toString());
+		map.put("targetUsername", targetUser.getUsername());
+		map.put("adminUserId",    adminUser.getId().toString());
+		map.put("adminUsername",  adminUser.getUsername());
+		audit.setAudit(map);
+
+		return audit;
+	}
+
+	
+	
 	public static DelleMuseAudit of(DelleMuseObject o, User user, AuditAction a) {
 
 		Check.requireNonNullArgument(o, "DelleMuseObject is null");

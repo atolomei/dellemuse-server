@@ -15,19 +15,20 @@ import dellemuse.model.logging.Logger;
 
 import dellemuse.serverapp.page.ObjectListItemExpandedPanel;
 import dellemuse.serverapp.page.ObjectListItemPanel;
-
+import dellemuse.serverapp.page.model.DBModelPanel;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 
 import dellemuse.serverapp.serverdb.service.DelleMuseAuditDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
+import dellemuse.serverapp.service.DTFormatter;
 import dellemuse.serverapp.service.DateTimeService;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.ModelPanel;
 
-public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
+public class AuditPanel<T extends DelleMuseObject> extends DBModelPanel<T> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -129,6 +130,13 @@ public class AuditPanel<T extends DelleMuseObject> extends ModelPanel<T> {
 		DelleMuseAudit o = m.getObject();
 		StringBuilder str = new StringBuilder();
 
+		
+		str.append(getDateTimeService().format(
+				o.getLastModified(), 
+				getSessionUser().get().getZoneId().getId(), 
+				getSessionUser().get().getLocale(),
+				DTFormatter.Day_Month_Year_hh_mm_ss_zzz));
+		
 		str.append(getDateTimeService().format(o.getLastModified()));
 
 		if (o.isDependencies()) {

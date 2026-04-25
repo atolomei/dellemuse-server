@@ -2,6 +2,16 @@
 body.dellemuse {margin:0; padding:0; font-family: Montserrat, Arial, sans serif; font-size:15px; }
 
 
+.help 					{font-size:1.05rem; text-align:center;}
+.help .highlight 		{color: #a74646;}
+.help .help-content		{max-width: 800px;margin: 0 auto;}
+
+
+
+
+
+
+
 
  [data-bs-theme="dark"]   .list-group-item .subtitle  {color: var(--bs-body-color);}
 
@@ -258,14 +268,14 @@ a.listItemLink {text-decoration: none; color: inherit;}
 
 
 .dellemuse h1, 
-.dellemuse .h1 {font-size: calc(1.45rem + 0.3vw);}
+.dellemuse .h1 {font-size: calc(1.4rem + 0.3vw);}
 
 .dellemuse h2, 
-.dellemuse .h2 {font-size: calc(1.3rem + 0.2vw);}
+.dellemuse .h2 {font-size: calc(1.25em + 0.2vw);}
  
 
 .dellemuse h3, 
-.dellemuse .h3 {font-size: calc(1.2rem + 0.2vw);}
+.dellemuse .h3 {font-size: calc(1.1rem + 0.2vw);}
  .dellemuse .alert-inside-container {margin:0;}
 
 

@@ -17,9 +17,11 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
+import dellemuse.serverapp.serverdb.model.AuditAction;
 
 @Service
 public class DelleMuseAuditDBService extends BaseDBService<DelleMuseAudit, Long> {
@@ -78,8 +80,52 @@ public class DelleMuseAuditDBService extends BaseDBService<DelleMuseAudit, Long>
 		Predicate combinedPredicate = cb.and(p0, p1);
 
 		cq.select(root).where(combinedPredicate);
-		cq.orderBy(cb.asc(root.get("lastModified")));
+		//cq.orderBy(cb.asc(root.get("lastModified")));
+		cq.orderBy(cb.desc(root.get("lastModified")));
 		return getEntityManager().createQuery(cq).getResultList();
+	}
+
+	@Transactional
+	public List<DelleMuseAudit> getObjectActivity(User user) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<DelleMuseAudit> cq = cb.createQuery(DelleMuseAudit.class);
+		Root<DelleMuseAudit> root = cq.from(DelleMuseAudit.class);
+
+		Predicate p0 = cb.equal(root.get("user").get("id"), user.getId());
+
+		cq.select(root).where(p0);
+		cq.orderBy(cb.desc(root.get("lastModified")));
+		return getEntityManager().createQuery(cq).setMaxResults(5000).getResultList();
+	}
+
+	/**
+	 * Returns the most recent SIGNIN and IMPERSONATION audits within the given time range,
+	 * ordered by most recent first.
+	 */
+	@Transactional
+	public List<DelleMuseAudit> getRecentSignins(OffsetDateTime from, OffsetDateTime to) {
+		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
+	
+		CriteriaQuery<DelleMuseAudit> cq = cb.createQuery(DelleMuseAudit.class);
+		Root<DelleMuseAudit> root = cq.from(DelleMuseAudit.class);
+
+		// Eagerly fetch user within the transaction to avoid LazyInitializationException
+		root.fetch("user", JoinType.LEFT);
+
+		Predicate pAction = root.get("action").in(AuditAction.SIGNIN, AuditAction.IMPERSONATION);
+		Predicate pFrom   = cb.greaterThanOrEqualTo(root.get("lastModified"), from);
+
+		
+		if (to != null) {
+			Predicate pTo = cb.lessThanOrEqualTo(root.get("lastModified"), to);
+			cq.select(root).distinct(true).where(cb.and(pAction, pFrom, pTo));
+		} else {
+			cq.select(root).distinct(true).where(cb.and(pAction, pFrom));
+		}
+		
+		cq.orderBy(cb.desc(root.get("lastModified")));
+		
+		return getEntityManager().createQuery(cq).setMaxResults(500).getResultList();
 	}
 
 	protected UserDBService getUserDBService() {

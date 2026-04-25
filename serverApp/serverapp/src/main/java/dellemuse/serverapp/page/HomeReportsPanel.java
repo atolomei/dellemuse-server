@@ -164,7 +164,7 @@ public class HomeReportsPanel extends DBModelPanel<User> implements InternalPane
 				logger.error(e);
 			}
 
-			String name = site.getDisplayname() != null ? site.getDisplayname() : "";
+			String name = super.getObjectTitle(site).getObject();
 			rows.add(new SiteRow(siteModel, name, visits));
 		}
 
@@ -178,6 +178,7 @@ public class HomeReportsPanel extends DBModelPanel<User> implements InternalPane
 				SiteRow row = item.getModelObject();
 				
 				Label la = new Label("siteName", row.getName());
+				la.setEscapeModelStrings(false);
 
 				Link<Site> li =new Link<Site>("siteLink", row.getModel()) {
 

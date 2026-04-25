@@ -257,9 +257,6 @@ public class PersonDBService extends  MultiLanguageObjectDBservice<Person, Long>
         return create(name, name, createdBy);
     }
 
-
-   
-    
     public List<Person> getByName(String name) {
         return createNameQuery(name).getResultList();
     }

@@ -482,6 +482,10 @@ public class DateTimeService extends BaseService {
 		return week == date_week && weekYear == date_weekYear;
 	}
 
+	public String format(OffsetDateTime date, String zoneId, Locale locale) {
+		return format(date, zoneId, locale, DTFormatter.Month_Day_Year_hh_mm);
+	}
+	
 	/**
 	 * 
 	 * @param date

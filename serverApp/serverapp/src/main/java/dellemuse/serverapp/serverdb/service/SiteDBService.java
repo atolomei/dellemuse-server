@@ -126,7 +126,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		c.setCreated(OffsetDateTime.now());
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
-		c.setState(ObjectState.EDITION);
+		c.setState(ObjectState.PUBLISHED);
 		
 		c.setZoneIdStr( getSettings().getDefaultZoneId().getId());
 
@@ -170,7 +170,7 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		c.setCreated(OffsetDateTime.now());
 
 		c.setAddress(institution.getAddress());
-		c.setState(ObjectState.EDITION);
+		c.setState(ObjectState.PUBLISHED);
 		c.setLastModified(OffsetDateTime.now());
 		c.setLastModifiedUser(createdBy);
 		c.setZoneId(institution.getZoneId());

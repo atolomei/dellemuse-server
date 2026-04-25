@@ -63,6 +63,7 @@ public class UserPage extends ObjectPage<User> {
 	private UserPasswordEditor passwordEditor;
 	private UserEditor editor;
 	private ApiCallsPanel apiCallsPanel;
+	private UserActivityPanel activityPanel;
 
 	private List<ToolbarItem> userMenu = null;
 
@@ -236,6 +237,8 @@ public class UserPage extends ObjectPage<User> {
 					UserPage.this.togglePanel(ServerAppConstant.user_panel_roles, event.getTarget());
 				} else if (event.getName().equals(ServerAppConstant.user_panel_api_calls)) {
 					UserPage.this.togglePanel(ServerAppConstant.user_panel_api_calls, event.getTarget());
+				} else if (event.getName().equals(ServerAppConstant.user_panel_activity)) {
+					UserPage.this.togglePanel(ServerAppConstant.user_panel_activity, event.getTarget());
 				} else if (event.getName().equals(ServerAppConstant.action_object_edit_meta)) {
 					UserPage.this.getMetaEditor().onEdit(event.getTarget());
 				}
@@ -377,6 +380,10 @@ public class UserPage extends ObjectPage<User> {
 		return apiCallsPanel;
 	}
 
+	protected Panel getActivityPanel(String id) {
+		return new UserActivityPanel(id, getModel());
+	}
+
 	@Override
 	protected List<ToolbarItem> getToolbarItems() {
 
@@ -449,6 +456,17 @@ public class UserPage extends ObjectPage<User> {
 			}
 		};
 		tabs.add(apiCalls);
+
+		NamedTab activity = new NamedTab(Model.of("activity"), ServerAppConstant.user_panel_activity) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public WebMarkupContainer getPanel(String panelId) {
+				return getActivityPanel(panelId);
+			}
+		};
+		tabs.add(activity);
 
 		if (getStartTab() == null)
 			setStartTab(ServerAppConstant.user_panel_info);

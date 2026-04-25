@@ -271,21 +271,17 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 		return str;
 	}
 
-	
 	private Boolean generalAdmin = null;
 
-	
 	protected boolean isGeneralAdmin(User u) {
 
-		if (!u.isDependencies()) 
+		if (!u.isDependencies())
 			u = getUserDBService().findWithDeps(u.getId()).get();
-		
+
 		boolean isGeneralAdmin = u.getRolesGeneral().stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN)));
- 		return isGeneralAdmin;
+		return isGeneralAdmin;
 	}
 
-	
-	
 	public boolean isGeneralAdmin() {
 
 		if (generalAdmin != null)
@@ -297,7 +293,7 @@ public class DBModelPanel<T> extends ObjectModelPanel<T> {
 				this.generalAdmin = Boolean.FALSE;
 				return this.generalAdmin;
 			}
-			 
+
 			User user = getSessionUser().get();
 
 			if (!user.isDependencies()) {

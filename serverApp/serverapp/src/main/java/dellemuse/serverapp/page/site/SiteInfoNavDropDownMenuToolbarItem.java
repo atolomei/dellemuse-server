@@ -38,18 +38,17 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 	}
 
 	public Optional<Institution> getInstitution(Long id) {
-		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance()
-				.getBean(InstitutionDBService.class);
+		InstitutionDBService service = (InstitutionDBService) ServiceLocator.getInstance().getBean(InstitutionDBService.class);
 		return service.findById(id);
 	}
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
- 
-		
-		 addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
+
+		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Site> getItem(String id) {
 				return new TitleMenuItem<Site>(id) {
@@ -62,7 +61,6 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 				};
 			}
 		});
-		
 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
@@ -82,23 +80,18 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 					@Override
 					public IModel<String> getLabel() {
 						return getLabel("site-info-record", getModel().getObject().getMasterLanguage());
-						 
+
 					}
 				};
 			}
 		});
-		
-		
-		
-		
-		
 
-		for (Language la: getModel().getObject().getLanguages()) {
-	
+		for (Language la : getModel().getObject().getLanguages()) {
+
 			final String langCode = la.getLanguageCode();
 
 			if (!getModel().getObject().getMasterLanguage().equals(langCode)) {
-				
+
 				addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 					private static final long serialVersionUID = 1L;
@@ -123,20 +116,16 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 				});
 			}
 		}
-		 
- 
-		
-		
-		
+
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
 			public MenuItemPanel<Site> getItem(String id) {
 				return new io.wktui.nav.menu.SeparatorMenuItem<Site>(id);
 			}
 		});
 
-		 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 			private static final long serialVersionUID = 1L;
@@ -159,14 +148,13 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 				};
 			}
 		});
-	 	
-		
-		for (Language la: getModel().getObject().getLanguages()) {
+
+		for (Language la : getModel().getObject().getLanguages()) {
 
 			final String a_langCode = la.getLanguageCode();
 
 			if (!getModel().getObject().getMasterLanguage().equals(a_langCode)) {
-				
+
 				addItem(new io.wktui.nav.menu.MenuItemFactory<Site>() {
 
 					private static final long serialVersionUID = 1L;
@@ -179,7 +167,7 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 
 							@Override
 							public void onClick(AjaxRequestTarget target) {
-								fire(new MenuAjaxEvent(ServerAppConstant.object_audit+"-"+a_langCode, target, a_langCode));
+								fire(new MenuAjaxEvent(ServerAppConstant.object_audit + "-" + a_langCode, target, a_langCode));
 							}
 
 							@Override
@@ -191,11 +179,7 @@ public class SiteInfoNavDropDownMenuToolbarItem extends DropDownMenuToolbarItem<
 				});
 			}
 		}
-		 
-		
-	 	
-		
-		
+
 	}
 
 	protected IModel<Institution> getInstitutionModel() {
