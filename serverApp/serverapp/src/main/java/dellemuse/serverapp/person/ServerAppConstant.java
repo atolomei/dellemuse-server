@@ -174,7 +174,8 @@ public class ServerAppConstant {
 	static final public String action_artist_edit 	= "action-artist-edit";
 	
 	
-	static final public String help 	= "help";
+	static final public String help = "help";
+	static final public String contact_support = "contact-support";
 
 	public static final String site_user_editor = "site-user-editor";
 	//public static final String  site_user_roles = "site-user-roles";

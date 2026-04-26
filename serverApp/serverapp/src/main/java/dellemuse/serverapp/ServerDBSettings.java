@@ -190,8 +190,19 @@ public class ServerDBSettings {
 	@Value("${email.mailgun.baseurl:null}")
 	protected String emailBaseurl;
 
-	@Value("${email.mailgun.from:null}")
+	@Value("${email.mailgun.from:}")
 	protected String emailFrom;
+
+	@Value("${email.support:info@novamens.com}")
+	protected String emailSupport;
+
+	public String getEmailSupport() {
+		return emailSupport;
+	}
+
+	public void setEmailSupport(String emailSupport) {
+		this.emailSupport = emailSupport;
+	}
 
 	@Value("${email.sender.enabled:false}")
 	protected String emailEnabledStr;

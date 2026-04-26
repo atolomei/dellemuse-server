@@ -19,6 +19,7 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 	public HelpDropDownMenu(String id, IModel<User> model) {
 		super(id, model);
 		setIconCss(Icons.help);
+		setMenuAlignEnd(true);
 	}
 
 	@Override
@@ -91,10 +92,7 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 						return HelpDropDownMenu.this.getLabel("setup-site");
 					}
 
-					//@Override
-					//public String getTarget() {
-					//	return "_blank";
-					//}
+					 
 				};
 			}
 		});
@@ -102,7 +100,7 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 		
 		
 		
-		/**
+		 
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 
 			private static final long serialVersionUID = 1L;
@@ -115,57 +113,21 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 
 					@Override
 					public void onClick() {
-						setResponsePage(new HelpManualPage("2-exhibitions", getModel() ) );
+						setResponsePage(new HelpManualPage("exhibitions", getModel() ) );
 					}
 
 					@Override
 					public IModel<String> getLabel() {
-						return HelpDropDownMenu.this.getLabel("manual-exhibitions");
+						return HelpDropDownMenu.this.getLabel("exhibitions");
 					}
-
-					@Override
-					public String getTarget() {
-						return "_blank";
-					}
+ 
 				};
 			}
 		});
 		
-		**/
+	 
 		
-	/**
-		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<User> getItem(String id) {
-
-				return new LinkMenuItem<User>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						setResponsePage(new HelpManualPage("manual-audio-guides", getModel() ) );
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return HelpDropDownMenu.this.getLabel("manual-audio-guides");
-					}
-
-					@Override
-					public String getTarget() {
-						return "_blank";
-					}
-				};
-			}
-		});
-		
-		
-		
-		
+	 
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 
@@ -179,12 +141,12 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 
 					@Override
 					public void onClick() {
-						setResponsePage(new HelpManualPage("manual-publish-public-portal", getModel() ) );
+						setResponsePage(new HelpManualPage("audio-guides", getModel() ) );
 					}
 
 					@Override
 					public IModel<String> getLabel() {
-						return HelpDropDownMenu.this.getLabel("manual-publish-public-portal");
+						return HelpDropDownMenu.this.getLabel("audio-guides");
 					}
 
 					@Override
@@ -196,7 +158,88 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 		});
 		
 		
-*/
+		
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new LinkMenuItem<User>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						setResponsePage(new HelpManualPage("audio-studio", getModel() ) );
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return HelpDropDownMenu.this.getLabel("audio-studio");
+					}
+
+					 
+				};
+			}
+		});
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new LinkMenuItem<User>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						setResponsePage(new HelpManualPage("reports", getModel() ) );
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return HelpDropDownMenu.this.getLabel("reports");
+					}
+
+					 
+				};
+			}
+		});
+		
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new LinkMenuItem<User>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						setResponsePage(new HelpManualPage("security", getModel() ) );
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return HelpDropDownMenu.this.getLabel("security");
+					}
+
+					 
+				};
+			}
+		});
+		
+		
+ 
 		
 		 addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 			private static final long serialVersionUID = 1L;
@@ -402,6 +445,43 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 		});
 
 		
+		 addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<User> getItem(String id) {
+					return new SeparatorMenuItem<User>(id );
+				}
+			});
+			
+		 
+		 
+
+			addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<User> getItem(String id) {
+
+					return new LinkMenuItem<User>(id, getModel()) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick() {
+							setResponsePage(new ContactSupportPage(getModel()));
+						}
+
+						@Override
+						public IModel<String> getLabel() {
+							return HelpDropDownMenu.this.getLabel("contact-support");
+						}
+					};
+				}
+			});
+
+			
+			
 		/**
 		
 		 addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {

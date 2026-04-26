@@ -101,6 +101,8 @@ public class UserGlobalTopPanel extends ObjectModelPanel<User> {
 
 		NavDropDownMenu<Void> menu = new NavDropDownMenu<Void>("userMenu");
 
+		//menu.setMenuAlignEnd(true);
+
 		// menu.setIconCss("d-block-inline fa-2x fa-duotone fa-solid fa-user ps-2
 		// pe-2");
 		// menu.setIconCss("d-block-inline fa-user ps-2 pe-2");
