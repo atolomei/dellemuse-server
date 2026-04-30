@@ -63,10 +63,7 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 						return HelpDropDownMenu.this.getLabel("manual-concepts");
 					}
 
-					//@Override
-					//public String getTarget() {
-					//	return "_blank";
-					//}
+					 
 				};
 			}
 		});
@@ -149,10 +146,7 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 						return HelpDropDownMenu.this.getLabel("audio-guides");
 					}
 
-					@Override
-					public String getTarget() {
-						return "_blank";
-					}
+					 
 				};
 			}
 		});
@@ -186,31 +180,7 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 			}
 		});
 		
-		
-		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<User> getItem(String id) {
-
-				return new LinkMenuItem<User>(id, getModel()) {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick() {
-						setResponsePage(new HelpManualPage("reports", getModel() ) );
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return HelpDropDownMenu.this.getLabel("reports");
-					}
-
-					 
-				};
-			}
-		});
+	
 		
 		
 		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
@@ -239,7 +209,31 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 		});
 		
 		
- 
+		
+		addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public MenuItemPanel<User> getItem(String id) {
+
+				return new LinkMenuItem<User>(id, getModel()) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick() {
+						setResponsePage(new HelpManualPage("reports", getModel() ) );
+					}
+
+					@Override
+					public IModel<String> getLabel() {
+						return HelpDropDownMenu.this.getLabel("reports");
+					}
+
+					 
+				};
+			}
+		});
 		
 		 addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 			private static final long serialVersionUID = 1L;
@@ -436,10 +430,7 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 						return HelpDropDownMenu.this.getLabel("create-public-portal");
 					}
 
-					@Override
-					public String getTarget() {
-						return "_blank";
-					}
+					 
 				};
 			}
 		});

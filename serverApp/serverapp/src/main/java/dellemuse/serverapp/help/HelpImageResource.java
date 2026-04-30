@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.time.Instant;
 
 import org.apache.wicket.request.resource.AbstractResource;
-import org.apache.wicket.util.resource.FileResourceStream;
-import org.apache.wicket.util.resource.IResourceStream;
+ 
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerDBSettings;
@@ -26,15 +25,19 @@ public class HelpImageResource extends AbstractResource {
 	@Override
 	protected ResourceResponse newResourceResponse(Attributes attributes) {
 
+		String lang = attributes.getParameters().get("lang").toString("");
 		String name = attributes.getParameters().get("name").toString("");
 
 		ServerDBSettings settings = (ServerDBSettings) ServiceLocator.getInstance().getBean(ServerDBSettings.class);
-		File imageFile = new File(settings.getHelpDir() + File.separator + "images", name);
+		String imagesBase = settings.getHelpDir() + File.separator + "images";
+		File imageFile = (lang != null && !lang.isBlank())
+			? new File(imagesBase + File.separator + lang, name)
+			: new File(imagesBase, name);
 
 		ResourceResponse response = new ResourceResponse();
 
 		if (!imageFile.exists() || !imageFile.isFile()) {
-			response.setError(404, "Help image not found: " + name);
+			response.setError(404, "Help image not found: " + (lang.isBlank() ? "" : lang + "/") + name);
 			return response;
 		}
 

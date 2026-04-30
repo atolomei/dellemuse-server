@@ -334,14 +334,14 @@ public class ArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtExhibitio
 		list.add(new ArtExhibitionGuideNavDropDownMenuToolbarItem("item", getModel(), getSiteModel(), getLabel("audio-guide", ti), Align.TOP_RIGHT));
 
 		ArtExhibitionEXTNavDropDownMenuToolbarItem ae = new ArtExhibitionEXTNavDropDownMenuToolbarItem("item", getArtExhibitionModel(), getSiteModel(),
-				getLabel("art-exhibition", TextCleaner.truncate(getArtExhibitionModel().getObject().getName(), 24)), Align.TOP_RIGHT);
+				getLabel("art-exhibition", TextCleaner.truncate( getObjectTitle( getArtExhibitionModel().getObject()).getObject(), 24)), Align.TOP_RIGHT);
 
 		ae.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-block d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(ae);
 
-		String title = getSiteModel().getObject().getShortName() != null ? getSiteModel().getObject().getShortName() : getSiteModel().getObject().getName();
+		String title = getSiteModel().getObject().getShortName() != null ? getSiteModel().getObject().getShortName() : getObjectTitle(  getSiteModel().getObject()).getObject();
 
-		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Model.of(title), Align.TOP_RIGHT);
+		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getSiteModel(), Model.of(TextCleaner.truncate(title,18)), Align.TOP_RIGHT);
 
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 

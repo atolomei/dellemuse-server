@@ -139,6 +139,8 @@ public class ArtExhibitionItemsPanel extends DBModelPanel<ArtExhibition> impleme
 	}
 
 	protected IModel<String> getObjectTitle(IModel<ArtExhibitionItem> model) {
+
+		
 		StringBuilder str = new StringBuilder();
 
 		try {

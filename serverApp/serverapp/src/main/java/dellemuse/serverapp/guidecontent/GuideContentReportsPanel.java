@@ -241,9 +241,9 @@ public class GuideContentReportsPanel extends DBModelPanel<GuideContent> impleme
 				};
 				item.add(link);
 
-				link.add(new Label("otherGuideName",
+				link.add( (new Label("otherGuideName",
 
-						getObjectTitle(getArtExhibitionGuideDBService().findById(gc.getObject().getArtExhibitionGuide().getId()).get()))
+						getObjectTitle(getArtExhibitionGuideDBService().findById(gc.getObject().getArtExhibitionGuide().getId()).get()))).setEscapeModelStrings(false)
 
 				);
 			}

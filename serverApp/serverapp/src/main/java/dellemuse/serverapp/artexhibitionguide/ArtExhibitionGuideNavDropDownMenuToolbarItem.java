@@ -5,15 +5,18 @@ import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.Language;
+import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionGuideRecord;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
+import dellemuse.serverapp.service.language.LanguageObjectService;
 import dellemuse.serverapp.service.language.LanguageService;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.model.TextCleaner;
@@ -32,7 +35,8 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 	
 	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model, IModel<Site> siteModel, Align align) {
 		this(id, model, siteModel, null, align);
-		setTitle(getLabel("audio-guide-dropdown",TextCleaner.truncate(getModel().getObject().getName(), 24)));
+		String ti =   getObjectTitle(getModel().getObject()).getObject() + ( model.getObject().isAccessible() ? Icons.ACCESIBLE_ICON_NOM_HTML : "" );
+		setTitle(getLabel("audio-guide-dropdown", ti));
 	}
 
 	public ArtExhibitionGuideNavDropDownMenuToolbarItem(String id, IModel<ArtExhibitionGuide> model,  IModel<Site> siteModel, IModel<String> title, Align align) {
@@ -40,6 +44,18 @@ public class ArtExhibitionGuideNavDropDownMenuToolbarItem extends DropDownMenuTo
 		this.siteModel=siteModel;
 	}
 
+	public IModel<String> getObjectTitle(MultiLanguageObject o) {
+		String s = getLanguageObjectService().getObjectDisplayName(o, getLocale());
+		if (s == null)
+			return null;
+		return Model.of(TextCleaner.truncate(s,20));
+	}
+
+	public LanguageObjectService getLanguageObjectService() {
+		return (LanguageObjectService) ServiceLocator.getInstance().getBean(LanguageObjectService.class);
+	}
+
+	
 	@Override
 	public void onDetach() {
 		super.onDetach();

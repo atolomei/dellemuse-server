@@ -47,6 +47,15 @@ public class WicketWebApplication extends WicketBootSecuredWebApplication {
 			}
 		});
 
+		// ⭐ Serve help images in language subdirectories (helpDir/images/es/, /en/, /pt/ ...)
+		mountResource("/help/images/${lang}/${name}", new ResourceReference("helpImagesLang") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public IResource getResource() {
+				return new HelpImageResource();
+			}
+		});
+
 		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
 
 		// ⭐ Enable Wicket page authorization
