@@ -271,7 +271,8 @@ public class SiteInfoPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
 				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
 					SiteInfoPage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
-				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
+				} 
+				else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					SiteInfoPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
 

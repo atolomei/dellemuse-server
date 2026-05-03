@@ -42,7 +42,7 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 
 	@Column(name = "language")
 	private String language;
-	
+
 	@Column(name = "subtitle")
 	private String subtitle;
 
@@ -57,11 +57,11 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 
 	@Column(name = "opens")
 	private String opens;
-	
+
 	@Column(name = "translation")
 	@JsonProperty("translateMode")
 	private TranslateMode translateMode;
-	
+
 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "photo", nullable = true)
 	@JsonManagedReference
@@ -93,8 +93,6 @@ public abstract class MultiLanguageObject extends DelleMuseObject {
 	@JsonProperty("speechaudio")
 	@JsonSerialize(using = DelleMuseResourceSerializer.class)
 	private Resource speechaudio;
-
-	
 
 	public String getLanguage() {
 		return this.language;

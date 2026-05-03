@@ -105,7 +105,7 @@ public class AudioStudioPage extends BasePage {
 			setUpModel();
 
 			if (getModel() == null) {
-				setResponsePage(new ErrorPage(exceptionError));
+				setResponsePage(new ErrorPage( Model.of("model is null")));
 				return;
 			}
 

@@ -9,6 +9,13 @@ public class PrefixUrl {
 
 	static public final String Institution = "institution";
 	static public final String Site = "site";
+	static public final String Floor = "foor";
+	static public final String FloorRecord = "floor";
+	
+	static public final String Room = "room";
+	static public final String RoomRecord = "room";
+
+	
 	static public final String SiteArtist = "siteArtist";
 
 	static public final String ArtWork = "artwork";

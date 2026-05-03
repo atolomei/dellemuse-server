@@ -71,6 +71,25 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 	private List<ToolbarItem> list;
 
 	
+	public InstitutionPage() {
+		super();
+	}
+
+	public InstitutionPage(PageParameters parameters) {
+		super(parameters);
+
+	}
+
+	public InstitutionPage(IModel<Institution> model) {
+		this(model, null);
+	}
+
+	public InstitutionPage(IModel<Institution> model, List<IModel<Institution>> list) {
+		super(model, list);
+
+	}
+	
+	
 	protected IModel<Site> getSiteModel() {return null;}
 	
 	
@@ -192,23 +211,7 @@ public class InstitutionPage extends MultiLanguageObjectPage<Institution, Instit
 		return false;
 	}
 
-	public InstitutionPage() {
-		super();
-	}
-
-	public InstitutionPage(PageParameters parameters) {
-		super(parameters);
-
-	}
-
-	public InstitutionPage(IModel<Institution> model) {
-		this(model, null);
-	}
-
-	public InstitutionPage(IModel<Institution> model, List<IModel<Institution>> list) {
-		super(model, list);
-
-	}
+	
 
 
 	public String getHelpKey() {

@@ -189,5 +189,20 @@ public class ServerAppConstant {
 	public static final String candidate_user = "cu";
 	public static final String action_candidate_insitution_edit ="ci-edit";
 	public static final String action_candidate_user_edit = "cu-edit";
-	
+
+	// Floor
+	static final public String floor_info                       = "floor-info";
+	static final public String floor_rooms                      = "floor-rooms";
+	static final public String action_floor_info_edit           = "floor-action-info-edit";
+	static final public String action_floor_delete              = "action-floor-delete";
+	static final public String action_floor_restore             = "action-floor-restore";
+	static final public String action_object_edit_floor_record  = "action-object-edit-floor-record";
+
+	// Room
+	static final public String room_info                        = "room-info";
+	static final public String action_room_info_edit            = "room-action-info-edit";
+	static final public String action_room_delete               = "action-room-delete";
+	static final public String action_room_restore              = "action-room-restore";
+	static final public String action_object_edit_room_record   = "action-object-edit-room-record";
+
 }

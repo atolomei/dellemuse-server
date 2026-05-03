@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.icons.Icons;
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
@@ -20,8 +22,19 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "room")
 @JsonInclude(Include.NON_NULL)
-public class Room extends DelleMuseObject {
+public class Room extends MultiLanguageObject {
 
+	
+	public static String getIcon() {
+		return Icons.Room;
+	}
+	
+	@Override
+	public final String getPrefixUrl() {
+		return PrefixUrl.Room;
+	}
+	
+	
     @ManyToOne(fetch = FetchType.EAGER, targetEntity = RoomType.class)
     @JoinColumn(name = "roomType_id", nullable = true)
     @JsonManagedReference
@@ -53,31 +66,8 @@ public class Room extends DelleMuseObject {
 
     @Column(name = "infoKey")
     private String infoKey;
-
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
-    private Resource photo;
-
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource video;
-
-    @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonProperty("audio")    
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource audio;
-    
+ 
+   
     @OneToOne(fetch = FetchType.EAGER, targetEntity = Resource.class)
     @JoinColumn(name = "map", nullable = true)
     @JsonManagedReference
@@ -163,4 +153,6 @@ public class Room extends DelleMuseObject {
     public void setInfoKey(String infoKey) {
         this.infoKey = infoKey;
     }
+
+
 };

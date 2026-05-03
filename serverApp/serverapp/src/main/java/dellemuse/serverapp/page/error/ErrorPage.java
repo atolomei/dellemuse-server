@@ -3,6 +3,8 @@ package dellemuse.serverapp.page.error;
 import java.util.Optional;
 
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.wicketstuff.annotation.mount.MountPath;
 
 import dellemuse.serverapp.page.BasePage;
@@ -17,6 +19,16 @@ public class ErrorPage extends BasePage {
 
 	Exception exceptionError;
 	IModel<String> info;
+
+	public ErrorPage() {
+		super();
+	}
+
+	public ErrorPage(PageParameters parameters) {
+		super();
+	}
+
+	
 	
 	public ErrorPage(Exception exceptionError) {
 		super();
@@ -41,7 +53,7 @@ public class ErrorPage extends BasePage {
 			add(new ErrorPanel("error", this.info ));
 		}
 		else {
-			add( new InvisiblePanel("error"));
+			add(new ErrorPanel("error", Model.of("500")));
 		}
 	}
 

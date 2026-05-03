@@ -57,12 +57,14 @@ import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ElevenLabsRequestDBService;
+import dellemuse.serverapp.serverdb.service.FloorDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
 import dellemuse.serverapp.serverdb.service.PersistentTokenDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
 import dellemuse.serverapp.serverdb.service.ResourceDBService;
+import dellemuse.serverapp.serverdb.service.RoomDBService;
 import dellemuse.serverapp.serverdb.service.SiteDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.VoiceDBService;
@@ -254,6 +256,14 @@ public class ObjectModelPanel<T> extends ModelPanel<T> {
 		return (ElevenLabsRequestDBService) ServiceLocator.getInstance().getBean(ElevenLabsRequestDBService.class);
 	}
 
+	protected FloorDBService getFloorDBService() {
+		return (FloorDBService) ServiceLocator.getInstance().getBean(FloorDBService.class);
+	}
+
+	protected RoomDBService getRoomDBService() {
+		return (RoomDBService) ServiceLocator.getInstance().getBean(RoomDBService.class);
+	}
+	
 	/** Deps --------------------------------------------------------- */
 
 	public Optional<ArtWork> findArtWorkWithDeps(Long id) {

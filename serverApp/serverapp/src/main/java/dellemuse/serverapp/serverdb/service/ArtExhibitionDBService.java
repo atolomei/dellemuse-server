@@ -116,7 +116,6 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		getRepository().save(c);
 
 		generateAudioId(c, createdBy);
-
 		getDelleMuseAuditDBService().save(DelleMuseAudit.of(c, createdBy, AuditAction.CREATE));
 
 		for (Language la : getLanguageService().getLanguages())

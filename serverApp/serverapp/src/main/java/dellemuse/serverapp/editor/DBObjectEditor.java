@@ -18,8 +18,11 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.AudioStudio;
-
+import dellemuse.serverapp.serverdb.model.Floor;
+import dellemuse.serverapp.serverdb.model.FloorRecord;
 import dellemuse.serverapp.serverdb.model.GuideContent;
+import dellemuse.serverapp.serverdb.model.Room;
+import dellemuse.serverapp.serverdb.model.RoomRecord;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.Music;
@@ -39,8 +42,9 @@ import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
 import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
 import dellemuse.serverapp.serverdb.service.ArtistDBService;
 import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
-
+import dellemuse.serverapp.serverdb.service.FloorDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
+import dellemuse.serverapp.serverdb.service.RoomDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
 import dellemuse.serverapp.serverdb.service.PersonDBService;
@@ -50,7 +54,9 @@ import dellemuse.serverapp.serverdb.service.VoiceDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionItemRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtWorkRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.FloorRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.InstitutionRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.RoomRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.SiteRecordDBService;
 import io.wktui.editor.Editor;
 import io.wktui.form.Form;
@@ -319,6 +325,26 @@ public class DBObjectEditor<T> extends DBModelPanel<T> implements Editor<T> {
 	public void save(GuideContent modelObject, User user, List<String> updatedParts) {
 		GuideContentDBService service = (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
 		service.save(modelObject, user, updatedParts);
+	}
+
+	public void save(Floor floor, User user, List<String> updatedParts) {
+		FloorDBService service = (FloorDBService) ServiceLocator.getInstance().getBean(FloorDBService.class);
+		service.save(floor, user, updatedParts);
+	}
+
+	public void save(FloorRecord fr, User user, List<String> updatedParts) {
+		FloorRecordDBService service = (FloorRecordDBService) ServiceLocator.getInstance().getBean(FloorRecordDBService.class);
+		service.save(fr, user, updatedParts);
+	}
+
+	public void save(Room room, User user, List<String> updatedParts) {
+		RoomDBService service = (RoomDBService) ServiceLocator.getInstance().getBean(RoomDBService.class);
+		service.save(room, user, updatedParts);
+	}
+
+	public void save(RoomRecord rr, User user, List<String> updatedParts) {
+		RoomRecordDBService service = (RoomRecordDBService) ServiceLocator.getInstance().getBean(RoomRecordDBService.class);
+		service.save(rr, user, updatedParts);
 	}
 
 	public void save(Institution inst, User user, List<String> updatedParts) {

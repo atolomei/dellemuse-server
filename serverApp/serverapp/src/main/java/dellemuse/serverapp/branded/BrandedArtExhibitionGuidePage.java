@@ -76,6 +76,9 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		super();
 	}
 
+	
+	private IModel<String> notAuthorizedError;
+	
 	public BrandedArtExhibitionGuidePage(PageParameters parameters) {
 		super(parameters);
 
@@ -100,41 +103,19 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 		setUpModel();
 	}
 
-	
 	public boolean isLogVisit() {
 		return true;
 	}
-	
+
 	public String getStatPageId() {
 		return "aeg";
 	}
-	
+
 	public Stat getStat() {
-		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject(),  lang);
+		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject(), lang);
 	}
 
-	protected boolean isError() {
-		return isError;
-	}
-
-	protected String getErrorStr() {
-		return errorStr;
-	}
-
-	@Override
-	protected boolean calculateHasAccessRight(Optional<User> ouser) {
-
-		if (getSiteModel().getObject().getState() != ObjectState.PUBLISHED)
-			return false;
-
-		if (getModel().getObject().getState() == ObjectState.EDITION)
-			return false;
-
-		if (!getSiteModel().getObject().isPublicPortalEnabled())
-			return false;
-
-		return true;
-	}
+	
 
 	@Override
 	public void onInitialize() {
@@ -604,6 +585,42 @@ public class BrandedArtExhibitionGuidePage extends MultiLanguageObjectPage<ArtEx
 	@Override
 	protected Class<?> getTranslationClass() {
 		return ArtExhibitionGuideRecord.class;
+	}
+	
+	protected boolean isError() {
+		return isError;
+	}
+
+	protected String getErrorStr() {
+		return errorStr;
+	}
+
+	@Override
+	protected IModel<String> getNotAuthorizedMessage() {
+		return notAuthorizedError;
+	}
+	
+	@Override
+	protected boolean calculateHasAccessRight(Optional<User> ouser) {
+
+		if (getSiteModel().getObject().getState() != ObjectState.PUBLISHED) {
+			notAuthorizedError = getLabel("site-not-published");
+			return false;
+		}
+
+		if (getModel().getObject().getState() == ObjectState.EDITION) {
+			logger.debug("guide is in edition, checking access rights");
+			notAuthorizedError = getLabel("guide-not-published");
+			return false;
+		}
+
+		if (!getSiteModel().getObject().isPublicPortalEnabled()) {
+			notAuthorizedError = getLabel("visitor-guide-not-enabled");
+			logger.debug("site public portal is not enabled, checking access rights");
+			return false;
+		}
+
+		return true;
 	}
 
 }

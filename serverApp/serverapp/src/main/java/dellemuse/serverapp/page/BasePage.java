@@ -2,6 +2,7 @@ package dellemuse.serverapp.page;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +44,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionSection;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.Artist;
 import dellemuse.serverapp.serverdb.model.DelleMuseObject;
+import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Institution;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
@@ -66,7 +68,10 @@ import dellemuse.serverapp.serverdb.service.AudioStudioDBService;
 import dellemuse.serverapp.serverdb.service.BaseDBService;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.DelleMuseAuditDBService;
+import dellemuse.serverapp.serverdb.model.Room;
+import dellemuse.serverapp.serverdb.service.FloorDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
+import dellemuse.serverapp.serverdb.service.RoomDBService;
 import dellemuse.serverapp.serverdb.service.InstitutionDBService;
 import dellemuse.serverapp.serverdb.service.MusicDBService;
 import dellemuse.serverapp.serverdb.service.PersistentTokenDBService;
@@ -658,6 +663,22 @@ public abstract class BasePage extends WebPage {
 
 	protected GuideContentDBService getGuideContentDBService() {
 		return (GuideContentDBService) ServiceLocator.getInstance().getBean(GuideContentDBService.class);
+	}
+
+	protected FloorDBService getFloorDBService() {
+		return (FloorDBService) ServiceLocator.getInstance().getBean(FloorDBService.class);
+	}
+
+	protected RoomDBService getRoomDBService() {
+		return (RoomDBService) ServiceLocator.getInstance().getBean(RoomDBService.class);
+	}
+
+	public List<Floor> getSiteFloors(Site site) {
+		return getFloorDBService().getFloors(site);
+	}
+
+	public List<Room> getFloorRooms(Floor floor) {
+		return getRoomDBService().getRooms(floor);
 	}
 
 	protected GuideContentRecordDBService getGuideContentRecordDBService() {

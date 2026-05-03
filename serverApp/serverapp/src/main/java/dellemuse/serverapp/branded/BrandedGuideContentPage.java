@@ -1,6 +1,5 @@
 package dellemuse.serverapp.branded;
 
- 
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -71,13 +70,13 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	private Locale locale = null;
 
 	private boolean modelAlreadySet = false;
-	
+
 	private StringValue artworIdValue;
 	private boolean isError = false;
 	private String errorStr = "";
-	
+
 	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
-	
+	private IModel<String> notAuthorizedError;
 
 	public BrandedGuideContentPage() {
 		super();
@@ -94,7 +93,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		setUpModel();
 
 	}
-	
+
 	public BrandedGuideContentPage(IModel<GuideContent> model) {
 		this(model, null, null);
 	}
@@ -109,24 +108,20 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	public boolean isLogVisit() {
 		return true;
 	}
-	
+
 	public String getStatPageId() {
 		return "gc";
 	}
-	
-	
-	
+
 	public Stat getStat() {
-		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject(),  lang);
+		return Stat.of(getStatPageId(), getSession().getId(), getModel().getObject(), lang);
 	}
 
-	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 	}
 
-	
 	@Override
 	public Locale getLocale() {
 
@@ -159,22 +154,21 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 				logger.debug("setting language from site master language -> " + code);
 				locale = Locale.forLanguageTag(code);
 				getSession().setLocale(Locale.forLanguageTag(code));
-			
+
 			} else {
-			
+
 				if (getSiteModel() != null) {
 					Language la = Language.of(getSiteModel().getObject().getMasterLanguage());
 					String code = la.getLanguageCode();
 					logger.debug("setting language from site master language -> " + code);
 					locale = Locale.forLanguageTag(code);
 					getSession().setLocale(locale);
-				
-				}
-				else {
+
+				} else {
 					locale = Locale.getDefault();
 					getSession().setLocale(locale);
 				}
-	
+
 			}
 		}
 		return locale;
@@ -199,15 +193,21 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	@Override
 	protected boolean calculateHasAccessRight(Optional<User> ouser) {
 
-		if (getSiteModel().getObject().getState() != ObjectState.PUBLISHED)
+		if (getSiteModel().getObject().getState() != ObjectState.PUBLISHED) {
+			notAuthorizedError = getLabel("site-not-published");
 			return false;
+		}
 
-		if (getModel().getObject().getState() == ObjectState.DELETED)
+		if (getModel().getObject().getState() == ObjectState.DELETED) {
+			notAuthorizedError = getLabel("guidecontent-not-published");
 			return false;
+		}
 
-		if (!getSiteModel().getObject().isPublicPortalEnabled())
+		if (!getSiteModel().getObject().isPublicPortalEnabled()) {
+			notAuthorizedError = getLabel("visitor-guide-not-enabled");
+			logger.debug("site public portal is not enabled, checking access rights");
 			return false;
-
+		}
 		return true;
 	}
 
@@ -278,19 +278,18 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 	public void setAccesibilityMode(AccesibilityMode accesibilityMode) {
 		this.accesibilityMode = accesibilityMode;
 	}
-	
+
 	@Override
 	protected Panel createInitialSearchPanel() {
-	if (getGuideContentSearchList() == null && getArtExhibitionSearchList() == null)
-		return new InvisiblePanel("globalSearch");
-	return createSearchPanel();
+		if (getGuideContentSearchList() == null && getArtExhibitionSearchList() == null)
+			return new InvisiblePanel("globalSearch");
+		return createSearchPanel();
 	}
-	
+
 	@Override
 	protected Panel createSearchPanel() {
 		return new BrandedSiteSearcherPanel("globalSearch", getSiteModel(), this.getGuideContentSearchList(), this.getArtExhibitionSearchList(), getAccesibilityMode());
 	}
-	
 
 	protected boolean isError() {
 		return isError;
@@ -360,11 +359,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 		return new BrandedGlobalTopPanel("top-panel", getSiteModel());
 	}
 
-	
-	
-
-
- 	@Override
+	@Override
 	protected boolean isLanguage() {
 		return false;
 	}
@@ -525,7 +520,7 @@ public class BrandedGuideContentPage extends MultiLanguageObjectPage<GuideConten
 
 			@Override
 			public void onEvent(LangEvent event) {
- 				setResponsePage(new BrandedGuideContentPage(BrandedGuideContentPage.this.getModel(), BrandedGuideContentPage.this.getList(), event.getLang()));
+				setResponsePage(new BrandedGuideContentPage(BrandedGuideContentPage.this.getModel(), BrandedGuideContentPage.this.getList(), event.getLang()));
 			}
 		});
 

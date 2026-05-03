@@ -113,6 +113,15 @@ public class ArtExhibition extends MultiLanguageObject {
 	@Column(name = "ordinal")
 	private int ordinal;
 
+
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "qrcode", nullable = true)
+	@JsonManagedReference
+	@JsonProperty("qrcode")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource qrcode;
+	
+	
 	public Resource getAudioNumberPng() {
 		return audioNumberPng;
 	}
@@ -121,12 +130,6 @@ public class ArtExhibition extends MultiLanguageObject {
 		this.audioNumberPng = audioNuumberPng;
 	}
 
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "qrcode", nullable = true)
-	@JsonManagedReference
-	@JsonProperty("qrcode")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource qrcode;
 
 	public ArtExhibition() {
 	}

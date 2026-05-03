@@ -204,21 +204,35 @@ public class BrandedSitePage extends BasePage {
 		return locale;
 	}
 
+	private IModel<String> notAuthorizedError;
+	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
-		if (getSiteModel().getObject().getState() == ObjectState.EDITION)
+		if (getSiteModel().getObject().getState() == ObjectState.EDITION) {
+			notAuthorizedError = getLabel("site-not-published");
 			return false;
+		}
 
-		if (getSiteModel().getObject().getState() == ObjectState.DELETED)
+		if (getSiteModel().getObject().getState() == ObjectState.DELETED) {
+			notAuthorizedError = getLabel("site-deleted");
 			return false;
+		}
 
-		if (!getSiteModel().getObject().isPublicPortalEnabled())
+		if (!getSiteModel().getObject().isPublicPortalEnabled()) {
+			notAuthorizedError = getLabel("visitor-guide-not-enabled");
 			return false;
+		}
 
 		return true;
 	}
 
+	protected IModel<String> getNotAuthorizedMessage() {
+		if (notAuthorizedError == null)
+			return getLabel("not-authorized");
+		return notAuthorizedError;
+	}
+	
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -263,7 +277,9 @@ public class BrandedSitePage extends BasePage {
 			addOrReplace(new InvisiblePanel("search"));
 
 			SimpleAlertRow<Void> r = new SimpleAlertRow<Void>("error");
-			r.setText(getLabel("not-authorized"));
+			
+			r.setText(getNotAuthorizedMessage());
+			
 			addOrReplace(r);
 
 			addOrReplace(new InvisiblePanel("exhibitionsContainer"));

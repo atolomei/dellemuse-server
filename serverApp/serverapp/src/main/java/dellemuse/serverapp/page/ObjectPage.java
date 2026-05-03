@@ -375,8 +375,17 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 		return "";
 	}
 
+	
+	protected IModel<String> getNotAuthorizedMessage() {
+		return getLabel("not-authorized");
+	}
+	
 	protected Panel getNoAuthorizedErrorPanel(String id) {
-		return new ErrorPanel(id, getLabel("not-authorized"));
+		
+		 IModel<String> m=getNotAuthorizedMessage();
+		 if (m==null)
+			 m=Model.of("not authorized (model is null)");
+		return new ErrorPanel(id, m);
 	}
 
 	protected Panel createGlobalTopPanel(String id) {

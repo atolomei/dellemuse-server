@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.icons.Icons;
+import dellemuse.serverapp.page.PrefixUrl;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseListIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
@@ -26,7 +28,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "floor")
 @JsonInclude(Include.NON_NULL)
-public class Floor extends DelleMuseObject {
+public class Floor extends MultiLanguageObject {
 
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = FloorType.class)
 	@JoinColumn(name = "floorType_id", nullable = true)
@@ -71,28 +73,7 @@ public class Floor extends DelleMuseObject {
 	@Column(name = "infoKey")
 	private String infoKey;
 
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "photo", nullable = true)
-	@JsonBackReference
-	@JsonProperty("photo")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource photo;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "video", nullable = true)
-	@JsonBackReference
-	@JsonProperty("video")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource video;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-	@JoinColumn(name = "audio", nullable = true)
-	@JsonBackReference
-	@JsonProperty("audio")
-	@JsonSerialize(using = DelleMuseResourceSerializer.class)
-	private Resource audio;
-
-	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+ 	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
 	@JoinColumn(name = "map", nullable = true)
 	@JsonBackReference
 	@JsonProperty("map")
@@ -181,6 +162,15 @@ public class Floor extends DelleMuseObject {
 
 	public void setInfoKey(String infoKey) {
 		this.infoKey = infoKey;
+	}
+
+	@Override
+	public String getPrefixUrl() {
+		return PrefixUrl.Floor;
+	}
+
+	public static String getIcon() {
+		return Icons.Floor;
 	}
 
 };

@@ -137,7 +137,7 @@ public class AuditPanel<T extends DelleMuseObject> extends DBModelPanel<T> {
 				getSessionUser().get().getLocale(),
 				DTFormatter.Day_Month_Year_hh_mm_ss_zzz));
 		
-		str.append(getDateTimeService().format(o.getLastModified()));
+		//str.append(getDateTimeService().format(o.getLastModified()));
 
 		if (o.isDependencies()) {
 			str.append(" - ");

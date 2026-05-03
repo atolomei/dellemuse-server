@@ -358,14 +358,7 @@ public class RolesListPage extends ObjectListPage<Role> {
 	}
 
 	protected void onCreate() {
-		/**
-		 * try { Role in = getRoleDBService().create("new",
-		 * getUserDBService().findRoot()); IModel<Role> m = new ObjectModel<Role>(in);
-		 * getList().add(m); setResponsePage(new RolePage(m, getList())); } catch
-		 * (Exception e) { logger.error(e); setResponsePage(new ErrorPage(e));
-		 * 
-		 * }
-		 **/
+		 logger.debug("onCreate not implemented");
 	}
 	 
 	@Override

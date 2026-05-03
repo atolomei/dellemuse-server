@@ -5,83 +5,72 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.Image;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.Url;
 import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.request.resource.UrlResourceReference;
-import org.apache.wicket.util.string.StringValue;
 import org.wicketstuff.annotation.mount.MountPath;
 
-import dellemuse.model.ArtExhibitionGuideModel;
-import dellemuse.model.ArtExhibitionModel;
-import dellemuse.model.ArtWorkModel;
-import dellemuse.model.GuideContentModel;
-import dellemuse.model.ResourceModel;
-import dellemuse.model.SiteModel;
 import dellemuse.model.logging.Logger;
-import dellemuse.model.ref.RefPersonModel;
-import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.audit.panel.AuditPanel;
-import dellemuse.serverapp.global.GlobalFooterPanel;
-import dellemuse.serverapp.global.GlobalTopPanel;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
-import dellemuse.serverapp.global.PageHeaderPanel;
-import dellemuse.serverapp.page.BasePage;
-import dellemuse.serverapp.page.ObjectListItemPanel;
 import dellemuse.serverapp.page.ObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
-import dellemuse.serverapp.page.user.UserPage;
 import dellemuse.serverapp.person.ServerAppConstant;
-import dellemuse.serverapp.serverdb.model.ArtExhibition;
-import dellemuse.serverapp.serverdb.model.ArtWork;
-import dellemuse.serverapp.serverdb.model.Person;
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.security.RoleGeneral;
 import dellemuse.serverapp.serverdb.model.security.RoleSite;
-import dellemuse.serverapp.serverdb.objectstorage.ObjectStorageService;
-import dellemuse.serverapp.serverdb.service.ArtWorkDBService;
-import dellemuse.serverapp.serverdb.service.PersonDBService;
-import dellemuse.serverapp.serverdb.service.ResourceDBService;
-import dellemuse.serverapp.serverdb.service.SiteDBService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
-import dellemuse.serverapp.service.ResourceThumbnailService;
-import io.wktui.error.AlertPanel;
-import io.wktui.error.ErrorPanel;
 import io.wktui.event.MenuAjaxEvent;
 import io.wktui.event.SimpleAjaxWicketEvent;
 import io.wktui.event.SimpleWicketEvent;
 import io.wktui.event.UIEvent;
-import io.wktui.model.TextCleaner;
 import io.wktui.nav.breadcrumb.BCElement;
 import io.wktui.nav.breadcrumb.BreadCrumb;
 import io.wktui.nav.breadcrumb.HREFBCElement;
-import io.wktui.nav.listNavigator.ListNavigator;
-import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
-import io.wktui.struct.list.ListPanel;
-import io.wktui.struct.list.ListPanelMode;
-import wktui.base.DummyBlockPanel;
 import wktui.base.INamedTab;
-import wktui.base.InvisiblePanel;
 import wktui.base.NamedTab;
 
 /**
  * site foto Info - exhibitions
+ * 
+ * 
+ * 
+ 
+ alter table floor add column info text;
+ alter table room add column info text;
+  
+ alter table room add column masterlanguage character varying(24) default 'es';
+ alter table floor add column masterlanguage character varying(24) default 'es';
+
+  
+  
+alter table floor add column opens text;
+alter table room add column opens text;
+
+
+alter table room add column spec text;
+alter table floor add column spec text;
+
+
+
+alter table floor add column speechaudio bigint references resource(id) on delete set null;
+alter table room add column speechaudio bigint references resource(id) on delete set null;
+
+
+alter table room add column translation integer default 0;
+alter table floor add column translation integer default 0;
+
+
+
+
  */
 @AuthorizeInstantiation({"ROLE_USER"})
 @MountPath("/site/floors/${id}")
@@ -93,6 +82,18 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 
 	private Panel editor;
 
+	
+	public SiteFloorsPage() {
+		super();
+	}
+
+	public SiteFloorsPage(PageParameters parameters) {
+		super(parameters);
+	}
+
+	public SiteFloorsPage(IModel<Site> model) {
+		super(model);
+	}
 	
 	@Override
 	protected boolean calculateHasAccessRight(Optional<User> ouser) {
@@ -130,17 +131,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 
 		return false;
 	}
-	public SiteFloorsPage() {
-		super();
-	}
-
-	public SiteFloorsPage(PageParameters parameters) {
-		super(parameters);
-	}
-
-	public SiteFloorsPage(IModel<Site> model) {
-		super(model);
-	}
+	
 
 	@Override
 	public void onInitialize() {
@@ -158,7 +149,7 @@ public class SiteFloorsPage extends ObjectPage<Site> {
 
 	protected Panel getEditor(String id) {
 		if (this.editor == null)
-			this.editor = new AlertPanel<>(id, AlertPanel.WARNING, getLabel("planned"));
+			this.editor = new SiteFloorsPanel(id, getModel());
 		return this.editor;
 	}
 

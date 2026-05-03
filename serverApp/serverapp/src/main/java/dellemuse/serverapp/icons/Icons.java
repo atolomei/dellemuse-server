@@ -13,6 +13,12 @@ public class Icons {
 	public static final String GuideContent = "fa-duotone fa-solid fa-headphones";
 	public static final String Site = "fa-duotone fa-solid fa-hotel";
 
+	public static final String Floor = "fa-duotone fa-solid fa-layer-group";
+	public static final String Room = "fa-duotone fa-solid fa-draw-square";
+	
+	//<i class="fa-duotone fa-solid fa-layer"></i>
+	// <i class="fa-duotone fa-solid fa-ticket"></i>
+	
 	public static final String Voice = "fa-solid fa-head-side-speak";
 	public static final String Music = "fa-solid fa-music";
 

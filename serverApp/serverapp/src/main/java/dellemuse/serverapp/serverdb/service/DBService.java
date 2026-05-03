@@ -30,7 +30,9 @@ import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionGuideRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtExhibitionRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.ArtistRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.FloorRecordDBService;
 import dellemuse.serverapp.serverdb.service.record.GuideContentRecordDBService;
+import dellemuse.serverapp.serverdb.service.record.RoomRecordDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleGeneralDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleInstitutionDBService;
 import dellemuse.serverapp.serverdb.service.security.RoleSiteDBService;
@@ -335,6 +337,22 @@ public abstract class DBService<T extends DelleMuseObject, I> extends BaseDBServ
 
 	protected GuideContentRecordDBService getGuideContentRecordDBService() {
 		return (GuideContentRecordDBService) ServiceLocator.getInstance().getBean(GuideContentRecordDBService.class);
+	}
+
+	protected FloorDBService getFloorDBService() {
+		return (FloorDBService) ServiceLocator.getInstance().getBean(FloorDBService.class);
+	}
+
+	protected FloorRecordDBService getFloorRecordDBService() {
+		return (FloorRecordDBService) ServiceLocator.getInstance().getBean(FloorRecordDBService.class);
+	}
+
+	protected RoomDBService getRoomDBService() {
+		return (RoomDBService) ServiceLocator.getInstance().getBean(RoomDBService.class);
+	}
+
+	protected RoomRecordDBService getRoomRecordDBService() {
+		return (RoomRecordDBService) ServiceLocator.getInstance().getBean(RoomRecordDBService.class);
 	}
 
 	protected AudioStudioDBService getAudioStudioDBService() {

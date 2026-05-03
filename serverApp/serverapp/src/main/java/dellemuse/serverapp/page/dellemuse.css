@@ -349,3 +349,14 @@ a.listItemLink {text-decoration: none; color: inherit;}
   
  
  
+/* Floor/Room selection highlight */
+.dm-selected {
+   /** background-color: var(--bs-primary-bg-subtle) !important;
+    border-left: 3px solid var(--bs-primary) !important;
+    border-radius: 0.25rem;*/
+}
+
+.dellemuse .mode-title .list-group-item .dm-selected a.title-link {
+    font-weight: bold; }
+
+

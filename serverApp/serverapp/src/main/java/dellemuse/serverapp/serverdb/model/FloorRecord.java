@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import dellemuse.serverapp.page.PrefixUrl;
+import dellemuse.serverapp.serverdb.model.record.TranslationRecord;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseIdNameSerializer;
 import dellemuse.serverapp.serverdb.model.serializer.DelleMuseResourceSerializer;
 import jakarta.persistence.Column;
@@ -20,48 +22,29 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "floorRecord")
 @JsonInclude(Include.NON_NULL)
-public class FloorRecord extends DelleMuseObject {
-
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = ArtExhibitionGuide.class)
-    @JoinColumn(name = "floor_id", referencedColumnName = "id", nullable = true)
-    @JsonManagedReference
-    @JsonBackReference
-    @JsonSerialize(using = DelleMuseIdNameSerializer.class)
+public class FloorRecord extends TranslationRecord {
+	
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
+	@JoinColumn(name = "floor_id", referencedColumnName = "id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
     @JsonProperty("floor")
     private Floor floor;
+
+	@Column(name = "infoAccessible")
+	private String infoAccessible;
 	
-    @Column(name = "subtitle")
-    private String subtitle;
-
-    @Column(name = "floornumber")
-    private String floorNumber;
-
-    @Column(name = "info")
-    private String info;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "photo", nullable = true)
-    @JsonBackReference
-    @JsonProperty("photo")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource photo;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "video", nullable = true)
-    @JsonBackReference
-    @JsonProperty("video")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource video;
-
-    @OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
-    @JoinColumn(name = "audio", nullable = true)
-    @JsonBackReference
-    @JsonProperty("audio")
-    @JsonSerialize(using = DelleMuseResourceSerializer.class)
-    private Resource audio;
-
-    @Column(name = "language")
-	private String language;
+	@Column(name = "infoAccesible_hash")
+	private int infoAccessibleHash;
+	
+	@OneToOne(fetch = FetchType.LAZY, targetEntity = Resource.class)
+	@JoinColumn(name = "audioAccessible", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonProperty("audioAccessible")
+	@JsonSerialize(using = DelleMuseResourceSerializer.class)
+	private Resource audioAccessible;
 	
     
 	@Override
@@ -69,41 +52,54 @@ public class FloorRecord extends DelleMuseObject {
 		return FloorRecord.class.getSimpleName();
 	}
 
-	
-	
-	public String getLanguage() {
-		return this.language;
+
+	@Override
+	public String getPrefixUrl() {
+		return PrefixUrl.FloorRecord;
 	}
 
-	public void setLanguage(String lang) {
-		language = lang;
+
+	@Override
+	public MultiLanguageObject getParentObject() {
+		return this.floor;
 	}
 
-    public FloorRecord() {
-    }
+	public Floor getFloor() {
+		return floor;
+	}
 
-    public String getSubtitle() {
-        return subtitle;
-    }
+	public void setFloor(Floor floor) {
+		this.floor = floor;
+	}
 
-    public void setSubtitle(String subtitle) {
-        this.subtitle = subtitle;
-    }
+	public String getInfoAccessible() {
+		return infoAccessible;
+	}
 
-    public String getFloorNumber() {
-        return floorNumber;
-    }
+	public void setInfoAccessible(String infoAccessible) {
+		this.infoAccessible = infoAccessible;
+	}
 
-    public void setFloorNumber(String floorNumber) {
-        this.floorNumber = floorNumber;
-    }
+	public int getInfoAccessibleHash() {
+		return infoAccessibleHash;
+	}
 
-    public String getInfo() {
-        return info;
-    }
+	public void setInfoAccessibleHash(int infoAccessibleHash) {
+		this.infoAccessibleHash = infoAccessibleHash;
+	}
 
-    public void setInfo(String info) {
-        this.info = info;
-    }
-  
+	public Resource getAudioAccessible() {
+		return audioAccessible;
+	}
+
+	public void setAudioAccessible(Resource audioAccessible) {
+		this.audioAccessible = audioAccessible;
+	}
+
+
+	@Override
+	public boolean isAudioStudioEnabled() {
+		return false;
+	}
+ 
 };
