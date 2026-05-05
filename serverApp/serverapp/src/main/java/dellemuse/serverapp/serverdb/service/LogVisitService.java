@@ -54,8 +54,8 @@ public class LogVisitService extends BaseService {
 	}
 
 	/**
-	 * Enqueues a {@link Stat} for asynchronous persistence.
-	 * The queue is unbounded so events are never dropped.
+	 * Enqueues a {@link Stat} for asynchronous persistence. The queue is unbounded
+	 * so events are never dropped.
 	 *
 	 * @param stat the visit stat to save (must not be {@code null})
 	 */
@@ -84,6 +84,18 @@ public class LogVisitService extends BaseService {
 		workerThread.interrupt();
 		drainQueue();
 		logger.info("LogVisitService worker thread stopped");
+	}
+
+	protected StatDBService getStatDBService() {
+		return this.statDBService;
+	}
+
+	protected StringPoolService getStringPoolService() {
+		return this.stringPoolService;
+	}
+
+	protected ArtExhibitionGuideDBService getArtExhibitionGuideDBService() {
+		return (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
 	}
 
 	private void processQueue() {
@@ -155,21 +167,10 @@ public class LogVisitService extends BaseService {
 			}
 
 			statDBService.save(stat);
-			
+
 		} catch (Exception e) {
 			logger.error(e, "Failed to save stat -> " + stat.toString());
 		}
 	}
 
-	protected StatDBService getStatDBService() {
-		return this.statDBService;
-	}
-
-	protected StringPoolService getStringPoolService() {
-		return this.stringPoolService;
-	}
-
-	protected ArtExhibitionGuideDBService getArtExhibitionGuideDBService() {
-		return (ArtExhibitionGuideDBService) ServiceLocator.getInstance().getBean(ArtExhibitionGuideDBService.class);
-	}
 }

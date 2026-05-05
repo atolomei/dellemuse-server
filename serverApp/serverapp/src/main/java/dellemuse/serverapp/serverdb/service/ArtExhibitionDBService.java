@@ -211,6 +211,8 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 		Long qrPdfId = a.getQRCodePdf() != null ? a.getQRCodePdf().getId() : null;
 		Long audioNumberPngId = a.getAudioNumberPng() != null ? a.getAudioNumberPng().getId() : null;
 		Long userId = a.getLastModifiedUser() != null ? a.getLastModifiedUser().getId() : null;
+		Long floorId = a.getFloor() != null ? a.getFloor().getId() : null;
+		Long roomId  = a.getRoom()  != null ? a.getRoom().getId()  : null;
 
 		// Detach to prevent dirty-checking from triggering @PostUpdate
 		getEntityManager().detach(a);
@@ -239,6 +241,12 @@ public class ArtExhibitionDBService extends MultiLanguageObjectDBservice<ArtExhi
 
 		if (userId != null)
 			a.setLastModifiedUser(getUserDBService().findById(userId).get());
+
+		if (floorId != null)
+			a.setFloor(getFloorDBService().findById(floorId).get());
+
+		if (roomId != null)
+			a.setRoom(getRoomDBService().findById(roomId).get());
 
 		a.setDependencies(true);
 

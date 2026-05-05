@@ -18,113 +18,91 @@ import dellemuse.model.logging.Logger;
 import dellemuse.model.util.ThumbnailSize;
 import dellemuse.serverapp.editor.DBObjectEditor;
 import dellemuse.serverapp.page.model.ObjectModelPanel;
-import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.DelleMuseObject;
 import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.Resource;
 
 /**
- * Shows the Floor map image and lets the user click to place a pin.
- * Pin position is stored as normalized coordinates (0.0–1.0) in
- * ArtExhibitionItem.mapFloor_PosX / mapFloorPosY.
- * mapPosFloorId records which Floor the pin belongs to so stale pins are detected.
+ * Generic panel that shows a Floor map image and lets the user click to place a pin.
+ * Pin coordinates are read/written via {@link MapPinCallbacks}.
  */
-public class FloorMapPinPanel extends ObjectModelPanel<ArtExhibitionItem> {
+public class FloorMapPinPanel<T extends DelleMuseObject> extends ObjectModelPanel<T> {
 
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(FloorMapPinPanel.class.getName());
 
 	private WebMarkupContainer mapImage;
-	private WebMarkupContainer pin;
-	private Label coordsLabel;
 	private AbstractDefaultAjaxBehavior placePinBehavior;
 
-	/** Serializable floor ID driving which map to display */
 	private Long floorId;
-
-	/** Serializable pin state – survives detach/re-attach between requests */
 	private Double pinX;
 	private Double pinY;
 	private boolean pinDirty = false;
 
-	/** Reference to the owning editor so we can mark updatedParts dirty */
-	private final DBObjectEditor<ArtExhibitionItem> editor;
+	private final DBObjectEditor<T>  editor;
+	private final MapPinCallbacks<T> callbacks;
 
-	public FloorMapPinPanel(String id, IModel<ArtExhibitionItem> model, DBObjectEditor<ArtExhibitionItem> editor) {
+	public FloorMapPinPanel(String id, IModel<T> model,
+			DBObjectEditor<T> editor, MapPinCallbacks<T> callbacks) {
 		super(id, model);
-		this.editor = editor;
+		this.editor    = editor;
+		this.callbacks = callbacks;
 	}
 
-	/** Called by the editor when the Floor selection changes. */
 	public void setFloor(Floor floor, AjaxRequestTarget target) {
-		Long newFloorId = (floor != null) ? floor.getId() : null;
-		// Clear pin if floor changed
-		if (newFloorId == null || !newFloorId.equals(floorId)) {
+		Long newId = (floor != null) ? floor.getId() : null;
+		if (newId == null || !newId.equals(floorId)) {
 			pinX = null;
 			pinY = null;
 			pinDirty = true;
 		}
-		floorId = newFloorId;
-		if (target != null)
-			target.add(this);
+		floorId = newId;
+		if (target != null) target.add(this);
 	}
 
-	/**
-	 * Called by the editor just before save().
-	 * Writes the current pin state from panel fields into the model object.
-	 */
 	public void applyToModel() {
-		ArtExhibitionItem item = getModel().getObject();
-		item.setMapFloor_PosX(pinX);
-		item.setMapFloorPosY(pinY);
-		item.setMapPosFloorId(pinX != null ? floorId : null);
+		T item = getModel().getObject();
+		callbacks.setPinX(item, pinX);
+		callbacks.setPinY(item, pinY);
+		callbacks.setPinEntityId(item, pinX != null ? floorId : null);
 		pinDirty = false;
 	}
 
-	/** True when the pin was placed or cleared since last save. */
-	public boolean isPinDirty() {
-		return pinDirty;
-	}
+	public boolean isPinDirty() { return pinDirty; }
 
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		setOutputMarkupId(true);
 
-		// Restore pin state from model on first render
-		ArtExhibitionItem item = getModel().getObject();
-		if (floorId == null && item.getMapPosFloorId() != null)
-			floorId = item.getMapPosFloorId();
-		if (pinX == null) pinX = item.getMapFloor_PosX();
-		if (pinY == null) pinY = item.getMapFloorPosY();
+		T item = getModel().getObject();
+		if (floorId == null && callbacks.getPinEntityId(item) != null)
+			floorId = callbacks.getPinEntityId(item);
+		if (pinX == null) pinX = callbacks.getPinX(item);
+		if (pinY == null) pinY = callbacks.getPinY(item);
 
-		// ── Ajax behavior that receives pinX / pinY as URL parameters ─────────
 		placePinBehavior = new AbstractDefaultAjaxBehavior() {
 			private static final long serialVersionUID = 1L;
-
 			@Override
 			protected void respond(AjaxRequestTarget target) {
-				IRequestParameters params = RequestCycle.get().getRequest().getRequestParameters();
-				String xStr = params.getParameterValue("pinX").toString(null);
-				String yStr = params.getParameterValue("pinY").toString(null);
+				IRequestParameters p = RequestCycle.get().getRequest().getRequestParameters();
+				String xStr = p.getParameterValue("pinX").toString(null);
+				String yStr = p.getParameterValue("pinY").toString(null);
 				if (xStr != null && yStr != null) {
 					try {
 						pinX = Math.max(0.0, Math.min(1.0, Double.parseDouble(xStr)));
 						pinY = Math.max(0.0, Math.min(1.0, Double.parseDouble(yStr)));
 						pinDirty = true;
-						if (editor != null)
-							editor.setUpdatedPart("mapFloorPos");
-						logger.debug("floor pin placed -> x=" + pinX + " y=" + pinY + " floor=" + floorId);
-					} catch (NumberFormatException e) {
-						logger.error(e);
-					}
+						if (editor != null) editor.setUpdatedPart("mapFloorPos");
+						logger.debug("floor-pin -> x=" + pinX + " y=" + pinY + " floor=" + floorId);
+					} catch (NumberFormatException e) { logger.error(e); }
 				}
 				target.add(FloorMapPinPanel.this);
 			}
 		};
 		add(placePinBehavior);
 
-		// ── map container (visible when map image is available) ───────────────
 		WebMarkupContainer mapContainer = new WebMarkupContainer("mapContainer") {
 			private static final long serialVersionUID = 1L;
 			@Override public boolean isVisible() { return getMapImageSrc() != null; }
@@ -132,7 +110,6 @@ public class FloorMapPinPanel extends ObjectModelPanel<ArtExhibitionItem> {
 		mapContainer.setOutputMarkupPlaceholderTag(true);
 		add(mapContainer);
 
-		// Map image – src injected in onComponentTag
 		mapImage = new WebMarkupContainer("mapImage") {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -145,53 +122,39 @@ public class FloorMapPinPanel extends ObjectModelPanel<ArtExhibitionItem> {
 		mapImage.setOutputMarkupId(true);
 		mapContainer.add(mapImage);
 
-		// ── pin marker ───────────────────────────────────────────────────────
-		pin = new WebMarkupContainer("pin") {
+		WebMarkupContainer pin = new WebMarkupContainer("pin") {
 			private static final long serialVersionUID = 1L;
-			@Override public boolean isVisible() {
-				return pinX != null && pinY != null;
-			}
+			@Override public boolean isVisible() { return pinX != null && pinY != null; }
 			@Override
 			protected void onComponentTag(ComponentTag tag) {
 				super.onComponentTag(tag);
 				if (pinX != null && pinY != null)
-					tag.put("style",
-						"position:absolute;left:" + (pinX * 100) + "%;top:" + (pinY * 100)
-						+ "%;transform:translate(-50%,-100%);pointer-events:none;");
+					tag.put("style", "position:absolute;left:" + (pinX * 100) + "%;top:" + (pinY * 100)
+							+ "%;transform:translate(-50%,-100%);pointer-events:none;");
 			}
 		};
 		pin.setOutputMarkupPlaceholderTag(true);
 		mapContainer.add(pin);
 
-		// ── coordinates feedback ─────────────────────────────────────────────
-		coordsLabel = new Label("coords", () -> {
+		Label coordsLabel = new Label("coords", () -> {
 			if (pinX == null || pinY == null) return "";
 			return String.format("%.1f%% / %.1f%%", pinX * 100, pinY * 100);
 		});
 		coordsLabel.setOutputMarkupId(true);
 		mapContainer.add(coordsLabel);
 
-		// ── clear pin ────────────────────────────────────────────────────────
-		AjaxLink<ArtExhibitionItem> clearPin = new AjaxLink<ArtExhibitionItem>("clearPin", getModel()) {
+		AjaxLink<T> clearPin = new AjaxLink<T>("clearPin", getModel()) {
 			private static final long serialVersionUID = 1L;
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				pinX = null;
-				pinY = null;
-				pinDirty = true;
-				if (editor != null)
-					editor.setUpdatedPart("mapFloorPos");
+			@Override public void onClick(AjaxRequestTarget target) {
+				pinX = null; pinY = null; pinDirty = true;
+				if (editor != null) editor.setUpdatedPart("mapFloorPos");
 				target.add(FloorMapPinPanel.this);
 			}
-			@Override
-			public boolean isVisible() {
-				return pinX != null;
-			}
+			@Override public boolean isVisible() { return pinX != null; }
 		};
 		clearPin.setOutputMarkupPlaceholderTag(true);
 		mapContainer.add(clearPin);
 
-		// ── no-map placeholder ────────────────────────────────────────────────
 		WebMarkupContainer noMap = new WebMarkupContainer("noMap") {
 			private static final long serialVersionUID = 1L;
 			@Override public boolean isVisible() { return getMapImageSrc() == null; }
@@ -205,25 +168,18 @@ public class FloorMapPinPanel extends ObjectModelPanel<ArtExhibitionItem> {
 		super.renderHead(response);
 		String callbackUrl = placePinBehavior.getCallbackUrl().toString();
 		String imgId = mapImage.getMarkupId();
-		String js =
-			"(function() {" +
-			"  var img = document.getElementById('" + imgId + "');" +
-			"  if (!img || img._pinInitialized) return;" +
-			"  img._pinInitialized = true;" +
-			"  img.style.cursor = 'crosshair';" +
-			"  img.addEventListener('click', function(e) {" +
-			"    var rect = img.getBoundingClientRect();" +
-			"    var x = ((e.clientX - rect.left) / rect.width).toFixed(6);" +
-			"    var y = ((e.clientY - rect.top)  / rect.height).toFixed(6);" +
-			"    Wicket.Ajax.ajax({" +
-			"      'u': '" + callbackUrl + "&pinX=' + x + '&pinY=' + y" +
-			"    });" +
-			"  });" +
+		String js = "(function(){" +
+			"var img=document.getElementById('" + imgId + "');" +
+			"if(!img||img._pinInitialized)return;" +
+			"img._pinInitialized=true;img.style.cursor='crosshair';" +
+			"img.addEventListener('click',function(e){" +
+			"var r=img.getBoundingClientRect();" +
+			"var x=((e.clientX-r.left)/r.width).toFixed(6);" +
+			"var y=((e.clientY-r.top)/r.height).toFixed(6);" +
+			"Wicket.Ajax.ajax({'u':'" + callbackUrl + "&pinX='+x+'&pinY='+y});});" +
 			"})();";
 		response.render(OnDomReadyHeaderItem.forScript(js));
 	}
-
-	// ── helpers ───────────────────────────────────────────────────────────────
 
 	private String getMapImageSrc() {
 		if (floorId == null) return null;
@@ -233,9 +189,6 @@ public class FloorMapPinPanel extends ObjectModelPanel<ArtExhibitionItem> {
 			Resource map = opt.get().getMap();
 			if (map == null) return null;
 			return getPresignedThumbnail(map, ThumbnailSize.LARGE);
-		} catch (Exception e) {
-			logger.error(e);
-			return null;
-		}
+		} catch (Exception e) { logger.error(e); return null; }
 	}
 }

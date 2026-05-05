@@ -28,6 +28,29 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
+
+/**
+ * 
+
+  	
+
+  	alter table artexhibition add column floor bigint references floor(id) on delete restrict;
+  	alter table artexhibition add column room  bigint references room(id) on delete restrict;
+  	
+  	
+  	alter table artexhibition add column map_pos_x DOUBLE PRECISION; 
+	alter table artexhibition add column map_pos_y DOUBLE PRECISION;
+	alter table artexhibition add column map_pos_room_id bigint;
+  	
+  	
+  	alter table artexhibition add column map_floor_pos_x DOUBLE PRECISION; 
+	alter table artexhibition add column map_floor_pos_y DOUBLE PRECISION;
+	alter table artexhibition add column map_floor_pos_room_id bigint;
+ * 
+ */
+
+
+
 @Entity
 @Table(name = "artExhibition")
 @JsonInclude(Include.NON_NULL)
@@ -122,6 +145,60 @@ public class ArtExhibition extends MultiLanguageObject {
 	private Resource qrcode;
 	
 	
+	
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Floor.class)
+	@JoinColumn(name = "floor_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	@JsonProperty("floor")
+	private Floor floor;
+
+	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Room.class)
+	@JoinColumn(name = "room_id", nullable = true)
+	@JsonManagedReference
+	@JsonBackReference
+	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
+	@JsonProperty("room")
+	private Room room;
+	
+	
+	/** Normalized pin position on the Floor map (0.0=left/top, 1.0=right/bottom) */
+	@Column(name = "map_floor_pos_x", nullable = true)
+	@JsonProperty("mapFloorPosX")
+	private Double mapFloorPosX;
+
+	@Column(name = "map_floor_pos_y", nullable = true)
+	@JsonProperty("mapFloorPosY")
+	private Double mapFloorPosY;
+
+	/** ID of the Floor whose map this pin belongs to; used to detect stale pins */
+	@Column(name = "map_pos_floor_id", nullable = true)
+	@JsonProperty("mapPosFloorId")
+	private Long mapPosFloorId;
+	
+	
+	
+	/** Normalized pin position on the Room map (0.0=left/top, 1.0=right/bottom) */
+	@Column(name = "map_pos_x", nullable = true)
+	@JsonProperty("mapPosX")
+	private Double mapPosX;
+
+	@Column(name = "map_pos_y", nullable = true)
+	@JsonProperty("mapPosY")
+	private Double mapPosY;
+
+	/** ID of the Room whose map this pin belongs to; used to detect stale pins */
+	@Column(name = "map_pos_room_id", nullable = true)
+	@JsonProperty("mapPosRoomId")
+	private Long mapPosRoomId;
+
+	
+	
+	
+	
+	
+	
 	public Resource getAudioNumberPng() {
 		return audioNumberPng;
 	}
@@ -170,6 +247,70 @@ public class ArtExhibition extends MultiLanguageObject {
 
 	public void setAudioId(Long audioId) {
 		this.audioId = audioId;
+	}
+
+	public Floor getFloor() {
+		return floor;
+	}
+
+	public Room getRoom() {
+		return room;
+	}
+
+	public Double getMapFloorPosX() {
+		return mapFloorPosX;
+	}
+
+	public Double getMapFloorPosY() {
+		return mapFloorPosY;
+	}
+
+	public Long getMapPosFloorId() {
+		return mapPosFloorId;
+	}
+
+	public Double getMapPosX() {
+		return mapPosX;
+	}
+
+	public Double getMapPosY() {
+		return mapPosY;
+	}
+
+	public Long getMapPosRoomId() {
+		return mapPosRoomId;
+	}
+
+	public void setFloor(Floor floor) {
+		this.floor = floor;
+	}
+
+	public void setRoom(Room room) {
+		this.room = room;
+	}
+
+	public void setMapFloorPosX(Double mapFloorPosX) {
+		this.mapFloorPosX = mapFloorPosX;
+	}
+
+	public void setMapFloorPosY(Double mapFloorPosY) {
+		this.mapFloorPosY = mapFloorPosY;
+	}
+
+	public void setMapPosFloorId(Long mapPosFloorId) {
+		this.mapPosFloorId = mapPosFloorId;
+	}
+
+	public void setMapPosX(Double mapPosX) {
+		this.mapPosX = mapPosX;
+	}
+
+	public void setMapPosY(Double mapPosY) {
+		this.mapPosY = mapPosY;
+	}
+
+	public void setMapPosRoomId(Long mapPosRoomId) {
+		this.mapPosRoomId = mapPosRoomId;
 	}
 
 	public boolean isPermanent() {

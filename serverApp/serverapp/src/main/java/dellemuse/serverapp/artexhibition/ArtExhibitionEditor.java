@@ -22,11 +22,14 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.IModel;
 
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.util.ListModel;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.ServerConstant;
-
+import dellemuse.serverapp.artexhibitionitem.FloorMapPinPanel;
+import dellemuse.serverapp.artexhibitionitem.MapPinCallbacks;
+import dellemuse.serverapp.artexhibitionitem.RoomMapPinPanel;
 import dellemuse.serverapp.editor.DBSiteObjectEditor;
 import dellemuse.serverapp.editor.ObjectUpdateEvent;
 import dellemuse.serverapp.editor.SimpleAlertRow;
@@ -35,7 +38,9 @@ import dellemuse.serverapp.page.model.ObjectModel;
  
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
+import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Room;
 import dellemuse.serverapp.serverdb.model.Site;
 
 import dellemuse.serverapp.service.DTFormatter;
@@ -80,6 +85,17 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 	private NumberField<Integer> ordinalield;
 	private StaticTextField<Long> audioIdField;
 	private boolean uploadedPhoto = false;
+
+	// ── floor / room selectors + map pins ────────────────────────────────────
+	private ChoiceField<Floor> floorSelector;
+	private ChoiceField<Room>  roomSelector;
+	private RoomMapPinPanel<ArtExhibition>  roomMapPinPanel;
+	private FloorMapPinPanel<ArtExhibition> floorMapPinPanel;
+	private LoadableDetachableModel<List<Room>> roomChoicesModel;
+	private Long siteIdForFloors;
+	private Long selectedFloorId;
+	private Long selectedRoomId;
+	// ─────────────────────────────────────────────────────────────────────────
 
 	private String from;
 	private String to;
@@ -241,6 +257,122 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 		ordinalield = new NumberField<Integer>("ordinal", new PropertyModel<Integer>(getModel(), "ordinal"), getLabel("ordinal"));
 
+		// ── floor / room selectors ────────────────────────────────────────────
+		if (getSiteModel().getObject() != null)
+			siteIdForFloors = getSiteModel().getObject().getId();
+
+		Floor proxyFloor = getModelObject().getFloor();
+		if (proxyFloor != null) selectedFloorId = proxyFloor.getId();
+
+		Room proxyRoom = getModelObject().getRoom();
+		if (proxyRoom != null) selectedRoomId = proxyRoom.getId();
+
+		IModel<List<Floor>> floorChoicesModel = new LoadableDetachableModel<List<Floor>>() {
+			private static final long serialVersionUID = 1L;
+			@Override protected List<Floor> load() {
+				if (siteIdForFloors == null) return new ArrayList<>();
+				return getFloorDBService().getFloors(siteIdForFloors);
+			}
+		};
+
+		IModel<Floor> floorSelectionModel = new IModel<Floor>() {
+			private static final long serialVersionUID = 1L;
+			@Override public Floor getObject() {
+				if (selectedFloorId == null) return null;
+				return floorChoicesModel.getObject().stream()
+						.filter(f -> f.getId().equals(selectedFloorId)).findFirst().orElse(null);
+			}
+			@Override public void setObject(Floor f) {
+				selectedFloorId = (f != null) ? f.getId() : null;
+				getModelObject().setFloor(f);
+			}
+		};
+
+		floorSelector = new ChoiceField<Floor>("floor", floorSelectionModel, getLabel("floor")) {
+			private static final long serialVersionUID = 1L;
+			@Override public IModel<List<Floor>> getChoices() { return floorChoicesModel; }
+			@Override protected String getDisplayValue(Floor v) { return v != null ? v.getName() : null; }
+			@Override protected String getIdValue(Floor v)      { return v != null ? v.getId().toString() : null; }
+			@Override public boolean isNullValid() { return true; }
+			@Override public void onUpdate(AjaxRequestTarget target) {
+				Floor selected = getValue();
+				selectedFloorId = (selected != null) ? selected.getId() : null;
+				selectedRoomId  = null;
+				getModelObject().setFloor(selected);
+				getModelObject().setRoom(null);
+				roomSelector.setValue(null);
+				roomChoicesModel.detach();
+				if (roomMapPinPanel  != null) roomMapPinPanel.setRoom(null, target);
+				if (floorMapPinPanel != null) floorMapPinPanel.setFloor(selected, target);
+				target.add(roomSelector);
+			}
+		};
+
+		roomChoicesModel = new LoadableDetachableModel<List<Room>>() {
+			private static final long serialVersionUID = 1L;
+			@Override protected List<Room> load() {
+				if (selectedFloorId == null) return new ArrayList<>();
+				return getRoomDBService().getRooms(selectedFloorId);
+			}
+		};
+
+		IModel<Room> roomSelectionModel = new IModel<Room>() {
+			private static final long serialVersionUID = 1L;
+			@Override public Room getObject() {
+				if (selectedRoomId == null) return null;
+				return roomChoicesModel.getObject().stream()
+						.filter(r -> r.getId().equals(selectedRoomId)).findFirst().orElse(null);
+			}
+			@Override public void setObject(Room r) {
+				selectedRoomId = (r != null) ? r.getId() : null;
+				getModelObject().setRoom(r);
+			}
+		};
+
+		roomSelector = new ChoiceField<Room>("room", roomSelectionModel, getLabel("room")) {
+			private static final long serialVersionUID = 1L;
+			@Override public IModel<List<Room>> getChoices() { return roomChoicesModel; }
+			@Override protected String getDisplayValue(Room v) { return v != null ? v.getName() : null; }
+			@Override protected String getIdValue(Room v)      { return v != null ? v.getId().toString() : null; }
+			@Override public boolean isNullValid() { return true; }
+			@Override public void onUpdate(AjaxRequestTarget target) {
+				Room selected = getValue();
+				selectedRoomId = (selected != null) ? selected.getId() : null;
+				getModelObject().setRoom(selected);
+				if (roomMapPinPanel != null) roomMapPinPanel.setRoom(selected, target);
+			}
+		};
+		roomSelector.setOutputMarkupId(true);
+
+		Floor initialFloor = floorSelectionModel.getObject();
+		floorMapPinPanel = new FloorMapPinPanel<ArtExhibition>("floor-map-pin", getModel(), this,
+			new MapPinCallbacks<ArtExhibition>() {
+				private static final long serialVersionUID = 1L;
+				public Double getPinX(ArtExhibition a)       { return a.getMapFloorPosX(); }
+				public Double getPinY(ArtExhibition a)       { return a.getMapFloorPosY(); }
+				public Long   getPinEntityId(ArtExhibition a){ return a.getMapPosFloorId(); }
+				public void setPinX(ArtExhibition a, Double x)     { a.setMapFloorPosX(x); }
+				public void setPinY(ArtExhibition a, Double y)     { a.setMapFloorPosY(y); }
+				public void setPinEntityId(ArtExhibition a, Long id){ a.setMapPosFloorId(id); }
+			});
+		if (initialFloor != null) floorMapPinPanel.setFloor(initialFloor, null);
+		floorMapPinPanel.setOutputMarkupId(true);
+
+		Room initialRoom = roomSelectionModel.getObject();
+		roomMapPinPanel = new RoomMapPinPanel<ArtExhibition>("room-map-pin", getModel(), this,
+			new MapPinCallbacks<ArtExhibition>() {
+				private static final long serialVersionUID = 1L;
+				public Double getPinX(ArtExhibition a)       { return a.getMapPosX(); }
+				public Double getPinY(ArtExhibition a)       { return a.getMapPosY(); }
+				public Long   getPinEntityId(ArtExhibition a){ return a.getMapPosRoomId(); }
+				public void setPinX(ArtExhibition a, Double x)     { a.setMapPosX(x); }
+				public void setPinY(ArtExhibition a, Double y)     { a.setMapPosY(y); }
+				public void setPinEntityId(ArtExhibition a, Long id){ a.setMapPosRoomId(id); }
+			});
+		if (initialRoom != null) roomMapPinPanel.setRoom(initialRoom, null);
+		roomMapPinPanel.setOutputMarkupId(true);
+		// ─────────────────────────────────────────────────────────────────────
+
 		form.add(ordinalield);
 		form.add(specField);
 		form.add(locationField);
@@ -256,6 +388,10 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 		form.add(urlField);
 		form.add(fromField);
 		form.add(toField);
+		form.add(floorSelector);
+		form.add(floorMapPinPanel);
+		form.add(roomSelector);
+		form.add(roomMapPinPanel);
 
 		EditButtons<ArtExhibition> buttons = new EditButtons<ArtExhibition>("buttons-bottom", getForm(), getModel()) {
 
@@ -363,6 +499,11 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 
 		try {
 
+			if (floorMapPinPanel != null) floorMapPinPanel.applyToModel();
+			if (roomMapPinPanel  != null) roomMapPinPanel.applyToModel();
+			if (floorMapPinPanel != null && floorMapPinPanel.isPinDirty()) setUpdatedPart("mapFloorPos");
+			if (roomMapPinPanel  != null && roomMapPinPanel.isPinDirty())  setUpdatedPart("mapPos");
+
 			if (fromField.isUpdated()) {
 				if (getFrom() != null) {
 					String la = getModel().getObject().getLanguage();
@@ -431,9 +572,8 @@ public class ArtExhibitionEditor extends DBSiteObjectEditor<ArtExhibition> imple
 	@Override
 	public void onDetach() {
 		super.onDetach();
-
-		if (photoModel != null)
-			photoModel.detach();
+		if (photoModel != null)      photoModel.detach();
+		if (roomChoicesModel != null) roomChoicesModel.detach();
 	}
 
 	protected IModel<Resource> getPhotoModel() {

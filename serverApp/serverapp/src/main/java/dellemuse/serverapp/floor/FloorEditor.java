@@ -51,7 +51,8 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 	private IModel<Site> siteModel;
 	private List<ToolbarItem> toolbarList;
 	private boolean uploadedPhoto = false;
-	private boolean uploadedMap   = false;
+	private boolean uploadedMap = false;
+	private boolean mapRemoved = false;
 
 	public FloorEditor(String id, IModel<Floor> model) {
 		super(id, model);
@@ -66,7 +67,7 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 		add(new InvisiblePanel("error"));
 
 		add(new Label("info", getLabel("floor-information", getModel().getObject().getMasterLanguage())));
-		
+
 		Form<Floor> form = new Form<Floor>("form");
 		add(form);
 		setForm(form);
@@ -138,7 +139,11 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 
 			@Override
 			protected void onRemove(AjaxRequestTarget target) {
-				// handled by remove action
+				mapModel = null;
+				mapRemoved = true;
+				uploadedMap = false;
+				setUpdatedPart("map");
+				target.add(FloorEditor.this);
 			}
 		};
 
@@ -153,17 +158,34 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onEdit(AjaxRequestTarget target) { FloorEditor.this.onEdit(target); }
+			public void onEdit(AjaxRequestTarget target) {
+				FloorEditor.this.onEdit(target);
+			}
+
 			@Override
-			public void onCancel(AjaxRequestTarget target) { FloorEditor.this.onCancel(target); }
+			public void onCancel(AjaxRequestTarget target) {
+				FloorEditor.this.onCancel(target);
+			}
+
 			@Override
-			public void onSave(AjaxRequestTarget target) { FloorEditor.this.onSave(target); }
+			public void onSave(AjaxRequestTarget target) {
+				FloorEditor.this.onSave(target);
+			}
+
 			@Override
 			public boolean isVisible() {
 				return hasWritePermission() && getForm().getFormState() == FormState.EDIT;
 			}
-			@Override protected String getSaveClass()   { return "ps-0 btn btn-sm btn-link"; }
-			@Override protected String getCancelClass() { return "ps-0 btn btn-sm btn-link"; }
+
+			@Override
+			protected String getSaveClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
+
+			@Override
+			protected String getCancelClass() {
+				return "ps-0 btn btn-sm btn-link";
+			}
 		};
 		form.add(buttonsTop);
 
@@ -171,11 +193,20 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onEdit(AjaxRequestTarget target) { FloorEditor.this.onEdit(target); }
+			public void onEdit(AjaxRequestTarget target) {
+				FloorEditor.this.onEdit(target);
+			}
+
 			@Override
-			public void onCancel(AjaxRequestTarget target) { FloorEditor.this.onCancel(target); }
+			public void onCancel(AjaxRequestTarget target) {
+				FloorEditor.this.onCancel(target);
+			}
+
 			@Override
-			public void onSave(AjaxRequestTarget target) { FloorEditor.this.onSave(target); }
+			public void onSave(AjaxRequestTarget target) {
+				FloorEditor.this.onSave(target);
+			}
+
 			@Override
 			public boolean isVisible() {
 				return hasWritePermission() && getForm().getFormState() == FormState.EDIT;
@@ -195,26 +226,33 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 	}
 
 	protected void onSave(AjaxRequestTarget target) {
-		
+
 		if (getUpdatedParts() == null || getUpdatedParts().isEmpty())
 			return;
 
 		try {
+
+			// (the model detaches between requests so we need to re-apply here)
+			if (mapRemoved)
+				getModel().getObject().setMap(null);
+
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
+
+			this.mapRemoved  = false;
 			
 			setUpModel();
-			
+
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
 
 			addOrReplace(new InvisiblePanel("error"));
 			fireScanAll(new ObjectUpdateEvent(target));
-			
+
 			this.uploadedPhoto = false;
 			this.uploadedMap = false;
-			
+
 			target.add(this);
-			
+
 		} catch (Exception e) {
 			addOrReplace(new SimpleAlertRow<Void>("error", e));
 			getForm().setFormState(FormState.VIEW);
@@ -256,13 +294,9 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 			for (FileUpload upload : uploads) {
 				try {
 					String bucketName = ServerConstant.MEDIA_BUCKET;
-					String objectName = getResourceDBService().normalizeFileName(
-						org.apache.commons.compress.utils.FileNameUtils.getBaseName(upload.getClientFileName()))
-						+ "-" + getResourceDBService().newId();
+					String objectName = getResourceDBService().normalizeFileName(org.apache.commons.compress.utils.FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + getResourceDBService().newId();
 
-					Resource resource = createAndUploadFile(
-						upload.getInputStream(), bucketName, objectName,
-						upload.getClientFileName(), upload.getSize(), true);
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setPhotoModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setPhoto(resource);
@@ -277,7 +311,7 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 	}
 
 	protected boolean processMapUpload(List<FileUpload> uploads) {
-		
+
 		if (this.uploadedMap)
 			return false;
 
@@ -285,13 +319,9 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 			for (FileUpload upload : uploads) {
 				try {
 					String bucketName = ServerConstant.MEDIA_BUCKET;
-					String objectName = getResourceDBService().normalizeFileName(
-						org.apache.commons.compress.utils.FileNameUtils.getBaseName(upload.getClientFileName()))
-						+ "-" + getResourceDBService().newId();
+					String objectName = getResourceDBService().normalizeFileName(org.apache.commons.compress.utils.FileNameUtils.getBaseName(upload.getClientFileName())) + "-" + getResourceDBService().newId();
 
-					Resource resource = createAndUploadFile(
-						upload.getInputStream(), bucketName, objectName,
-						upload.getClientFileName(), upload.getSize(), true);
+					Resource resource = createAndUploadFile(upload.getInputStream(), bucketName, objectName, upload.getClientFileName(), upload.getSize(), true);
 
 					setMapModel(new ObjectModel<Resource>(resource));
 					getModel().getObject().setMap(resource);
@@ -328,18 +358,36 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		if (photoModel != null) photoModel.detach();
-		if (mapModel != null)  mapModel.detach();
-		if (siteModel != null)  siteModel.detach();
+		if (photoModel != null)
+			photoModel.detach();
+		if (mapModel != null)
+			mapModel.detach();
+		if (siteModel != null)
+			siteModel.detach();
 	}
 
-	public IModel<Resource> getPhotoModel() { return photoModel; }
-	public void setPhotoModel(ObjectModel<Resource> model) { this.photoModel = model; }
+	public IModel<Resource> getPhotoModel() {
+		return photoModel;
+	}
 
-	public IModel<Resource> getMapModel() { return mapModel; }
-	public void setMapModel(ObjectModel<Resource> model) { this.mapModel = model; }
+	public void setPhotoModel(ObjectModel<Resource> model) {
+		this.photoModel = model;
+	}
+
+	public IModel<Resource> getMapModel() {
+		return mapModel;
+	}
+
+	public void setMapModel(ObjectModel<Resource> model) {
+		this.mapModel = model;
+	}
 
 	@Override
-	public IModel<Site> getSiteModel() { return siteModel; }
-	public void setSiteModel(IModel<Site> siteModel) { this.siteModel = siteModel; }
+	public IModel<Site> getSiteModel() {
+		return siteModel;
+	}
+
+	public void setSiteModel(IModel<Site> siteModel) {
+		this.siteModel = siteModel;
+	}
 }

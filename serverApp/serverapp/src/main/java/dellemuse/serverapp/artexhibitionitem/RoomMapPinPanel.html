@@ -5,40 +5,26 @@
 			class="mb-4 col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-lg-start text-xl-start text-xxl-start">
 
 			<div class="row">
-				<div
-					class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-lg-start text-xl-start text-xxl-start">
-
-
+				<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 text-center text-lg-start text-xl-start text-xxl-start">
 					<div wicket:id="mapContainer">
-
 						<div class="mb-2 text-muted small">
 							<wicket:message key="map-pin-help" />
 						</div>
-
 						<div class="position-relative d-inline-block w-100">
-
 							<img wicket:id="mapImage" class="img-fluid rounded border w-100" style="display: block;" alt="Room map" />
-
 							<!-- Pin marker positioned absolutely over the image -->
 							<div wicket:id="pin" class="position-absolute text-primary" style="pointer-events: none; font-size: 2rem;">
 								<i class="fa-solid fa-map-pin"></i>
 							</div>
-
 						</div>
-
 						<div class="mt-1 mb-3 w-100 ">
-
 							<span class="badge text-bg-secondary" wicket:id="coords"></span> <a wicket:id="clearPin" href="#"
 								class="btn btn-sm btn-outline-secondary"> <wicket:message key="clear-pin" />
 							</a>
 						</div>
 					</div>
-
 				</div>
 			</div>
-
-
-
 			<div wicket:id="noMap" class="text-muted small">
 				<wicket:message key="no-room-map" />
 			</div>

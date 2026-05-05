@@ -233,14 +233,32 @@ public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionIte
 
 		// Construct map pin panel – initial room resolved from model
 		Room initialRoom = roomSelectionModel.getObject();
-		mapPinPanel = new RoomMapPinPanel("map-pin", getModel(), this);
+		mapPinPanel = new RoomMapPinPanel<ArtExhibitionItem>("map-pin", getModel(), this,
+			new MapPinCallbacks<ArtExhibitionItem>() {
+				private static final long serialVersionUID = 1L;
+				public Double getPinX(ArtExhibitionItem i)      { return i.getMapPosX(); }
+				public Double getPinY(ArtExhibitionItem i)      { return i.getMapPosY(); }
+				public Long   getPinEntityId(ArtExhibitionItem i){ return i.getMapPosRoomId(); }
+				public void setPinX(ArtExhibitionItem i, Double x)    { i.setMapPosX(x); }
+				public void setPinY(ArtExhibitionItem i, Double y)    { i.setMapPosY(y); }
+				public void setPinEntityId(ArtExhibitionItem i, Long id){ i.setMapPosRoomId(id); }
+			});
 		if (initialRoom != null)
 			mapPinPanel.setRoom(initialRoom, null);
 		mapPinPanel.setOutputMarkupId(true);
 
 		// Construct floor map pin panel – initial floor resolved from model
 		Floor initialFloor = floorSelectionModel.getObject();
-		floorMapPinPanel = new FloorMapPinPanel("floor-map-pin", getModel(), this);
+		floorMapPinPanel = new FloorMapPinPanel<ArtExhibitionItem>("floor-map-pin", getModel(), this,
+			new MapPinCallbacks<ArtExhibitionItem>() {
+				private static final long serialVersionUID = 1L;
+				public Double getPinX(ArtExhibitionItem i)      { return i.getMapFloor_PosX(); }
+				public Double getPinY(ArtExhibitionItem i)      { return i.getMapFloorPosY(); }
+				public Long   getPinEntityId(ArtExhibitionItem i){ return i.getMapPosFloorId(); }
+				public void setPinX(ArtExhibitionItem i, Double x)    { i.setMapFloor_PosX(x); }
+				public void setPinY(ArtExhibitionItem i, Double y)    { i.setMapFloorPosY(y); }
+				public void setPinEntityId(ArtExhibitionItem i, Long id){ i.setMapPosFloorId(id); }
+			});
 		if (initialFloor != null)
 			floorMapPinPanel.setFloor(initialFloor, null);
 		floorMapPinPanel.setOutputMarkupId(true);

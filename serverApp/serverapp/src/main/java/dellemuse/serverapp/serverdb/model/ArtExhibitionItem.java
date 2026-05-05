@@ -99,13 +99,6 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	private Long mapPosFloorId;
 
 	
-	/**
-	 * 
-	  	alter table artexhibitionitem add column map_floor_pos_x DOUBLE PRECISION; 
-		alter table artexhibitionitem add column map_floor_pos_y DOUBLE PRECISION;
-		alter table artexhibitionitem add column map_floor_pos_room_id bigint;
-	 * 
-	 */
 	
 	
 	/** Normalized pin position on the Room map (0.0=left/top, 1.0=right/bottom) */
