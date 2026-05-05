@@ -121,8 +121,10 @@ public class FloorDBService extends DBService<Floor, Long> {
         if (o.isEmpty())
             return o;
         Floor f = o.get();
-        Long siteId = f.getSite() != null ? f.getSite().getId() : null;
-        Long userId = f.getLastModifiedUser() != null ? f.getLastModifiedUser().getId() : null;
+        Long siteId      = f.getSite()             != null ? f.getSite().getId()             : null;
+        Long userId      = f.getLastModifiedUser() != null ? f.getLastModifiedUser().getId() : null;
+        Long mapId       = f.getMap()              != null ? f.getMap().getId()              : null;
+        Long photoId     = f.getPhoto()            != null ? f.getPhoto().getId()            : null;
         getEntityManager().detach(f);
         if (siteId != null) {
             SiteDBService se = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
@@ -130,6 +132,10 @@ public class FloorDBService extends DBService<Floor, Long> {
         }
         if (userId != null)
             f.setLastModifiedUser(getUserDBService().findById(userId).get());
+        if (mapId != null)
+            f.setMap(getResourceDBService().findById(mapId).get());
+        if (photoId != null)
+            f.setPhoto(getResourceDBService().findById(photoId).get());
         f.setDependencies(true);
         return o;
     }

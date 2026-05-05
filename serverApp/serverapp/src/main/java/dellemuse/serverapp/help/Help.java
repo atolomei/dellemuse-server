@@ -24,6 +24,10 @@ public class Help {
 	public static final String SITE_LIST = "site-list";
 	public static final String SITE_PORTAL = "site-portal";
 
+	public static final String SITE_FLOOR = "site-floor";
+	public static final String SITE_ROOM = "site-room";
+
+	
 	public static final String GUIDE_CONTENT_INFO = "guide-content-info";
 	public static final String INSTITUTION_INFO = "institution-info";
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 
 import dellemuse.model.logging.Logger;
@@ -17,12 +18,15 @@ import dellemuse.serverapp.page.model.ObjectModel;
 import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
+import dellemuse.serverapp.serverdb.model.Floor;
+import dellemuse.serverapp.serverdb.model.Room;
 import dellemuse.serverapp.serverdb.model.Site;
 import io.wktui.event.MenuAjaxEvent;
 
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
+import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.TextField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
@@ -40,8 +44,18 @@ public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionIte
 	private TextField<String> readCodeField;
 	private TextField<String> qrCodeField;
 
-	private TextField<String> floorStrField;
-	private TextField<String> roomStrField;
+	private ChoiceField<Floor> floorSelector;
+	private ChoiceField<Room> roomSelector;
+	private RoomMapPinPanel mapPinPanel;
+	private FloorMapPinPanel floorMapPinPanel;
+
+	/** Serializable IDs used by LoadableDetachableModel choices */
+	private Long siteIdForFloors;
+	private Long selectedFloorId;
+	private Long selectedRoomId;
+
+	/** Serializable room choices model – promoted to field so floor onUpdate can detach it */
+	private LoadableDetachableModel<List<Room>> roomChoicesModel;
 
 	private IModel<Site> siteModel;
 	private IModel<ArtExhibition> artExhibitionModel;
@@ -70,16 +84,172 @@ public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionIte
 		setForm(form);
 
 		this.nameField = new TextField<String>("name", new PropertyModel<String>(getModel(), "name"), getLabel("name"));
-		this.floorStrField = new TextField<String>("floor", new PropertyModel<String>(getModel(), "floorStr"), getLabel("floor"));
-		this.roomStrField = new TextField<String>("room", new PropertyModel<String>(getModel(), "roomStr"), getLabel("room"));
 		this.orderField = new TextField<String>("order", new PropertyModel<String>(getModel(), "exhibitionOrder"), getLabel("order"));
 		this.readCodeField = new TextField<String>("readcode", new PropertyModel<String>(getModel(), "readCode"), getLabel("readcode"));
 		this.qrCodeField = new TextField<String>("qrcode", new PropertyModel<String>(getModel(), "qRCode"), getLabel("qrcode"));
 		this.qrCodeField.setVisible(false);
-		
+
+		// Store the site ID (serializable Long) for use in the floor choices model
+		if (getSiteModel().getObject() != null)
+			siteIdForFloors = getSiteModel().getObject().getId();
+
+		// Store the currently selected floor ID (getId() is safe on Hibernate proxy)
+		Floor proxyFloor = getModelObject().getFloor();
+		if (proxyFloor != null)
+			selectedFloorId = proxyFloor.getId();
+
+		// Store the currently selected room ID
+		Room proxyRoom = getModelObject().getRoom();
+		if (proxyRoom != null)
+			selectedRoomId = proxyRoom.getId();
+
+		// LoadableDetachableModel for floor choices
+		IModel<List<Floor>> floorChoicesModel = new LoadableDetachableModel<List<Floor>>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			protected List<Floor> load() {
+				if (siteIdForFloors == null) return new ArrayList<>();
+				return getFloorDBService().getFloors(siteIdForFloors);
+			}
+		};
+
+		// Proxy-safe floor selection model: resolves from choices list by ID each access
+		IModel<Floor> floorSelectionModel = new IModel<Floor>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public Floor getObject() {
+				if (selectedFloorId == null) return null;
+				return floorChoicesModel.getObject().stream()
+						.filter(f -> f.getId().equals(selectedFloorId))
+						.findFirst().orElse(null);
+			}
+			@Override
+			public void setObject(Floor f) {
+				selectedFloorId = (f != null) ? f.getId() : null;
+				getModelObject().setFloor(f);
+			}
+		};
+
+		this.floorSelector = new ChoiceField<Floor>("floor", floorSelectionModel, getLabel("floor")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Floor>> getChoices() {
+				return floorChoicesModel;
+			}
+
+			@Override
+			protected String getDisplayValue(Floor value) {
+				if (value == null) return null;
+				return value.getName();
+			}
+
+			@Override
+			protected String getIdValue(Floor value) {
+				if (value == null) return null;
+				return value.getId().toString();
+			}
+
+			@Override
+			public void onUpdate(AjaxRequestTarget target) {
+				Floor selected = getValue();
+				selectedFloorId = (selected != null) ? selected.getId() : null;
+				selectedRoomId = null;
+				getModelObject().setFloor(selected);
+				getModelObject().setRoom(null);
+				roomSelector.setValue(null);
+				roomChoicesModel.detach();
+				if (mapPinPanel != null)
+					mapPinPanel.setRoom(null, target);
+				if (floorMapPinPanel != null)
+					floorMapPinPanel.setFloor(selected, target);
+				target.add(roomSelector);
+			}
+
+			@Override
+			public boolean isNullValid() { return true; }
+		};
+
+		// LoadableDetachableModel for room choices – promoted to field so onUpdate can detach it
+		roomChoicesModel = new LoadableDetachableModel<List<Room>>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			protected List<Room> load() {
+				if (selectedFloorId == null) return new ArrayList<>();
+				return getRoomDBService().getRooms(selectedFloorId);
+			}
+		};
+
+		// Proxy-safe room selection model
+		IModel<Room> roomSelectionModel = new IModel<Room>() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public Room getObject() {
+				if (selectedRoomId == null) return null;
+				return roomChoicesModel.getObject().stream()
+						.filter(r -> r.getId().equals(selectedRoomId))
+						.findFirst().orElse(null);
+			}
+			@Override
+			public void setObject(Room r) {
+				selectedRoomId = (r != null) ? r.getId() : null;
+				getModelObject().setRoom(r);
+			}
+		};
+
+		this.roomSelector = new ChoiceField<Room>("room", roomSelectionModel, getLabel("room")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public IModel<List<Room>> getChoices() {
+				return roomChoicesModel;
+			}
+
+			@Override
+			protected String getDisplayValue(Room value) {
+				if (value == null) return null;
+				return value.getName();
+			}
+
+			@Override
+			protected String getIdValue(Room value) {
+				if (value == null) return null;
+				return value.getId().toString();
+			}
+
+			@Override
+			public boolean isNullValid() { return true; }
+
+			@Override
+			public void onUpdate(AjaxRequestTarget target) {
+				Room selected = getValue();
+				selectedRoomId = (selected != null) ? selected.getId() : null;
+				getModelObject().setRoom(selected);
+				if (mapPinPanel != null)
+					mapPinPanel.setRoom(selected, target);
+			}
+		};
+		this.roomSelector.setOutputMarkupId(true);
+
+		// Construct map pin panel – initial room resolved from model
+		Room initialRoom = roomSelectionModel.getObject();
+		mapPinPanel = new RoomMapPinPanel("map-pin", getModel(), this);
+		if (initialRoom != null)
+			mapPinPanel.setRoom(initialRoom, null);
+		mapPinPanel.setOutputMarkupId(true);
+
+		// Construct floor map pin panel – initial floor resolved from model
+		Floor initialFloor = floorSelectionModel.getObject();
+		floorMapPinPanel = new FloorMapPinPanel("floor-map-pin", getModel(), this);
+		if (initialFloor != null)
+			floorMapPinPanel.setFloor(initialFloor, null);
+		floorMapPinPanel.setOutputMarkupId(true);
+
 		form.add(nameField);
-		form.add(floorStrField);
-		form.add(roomStrField);
+		form.add(floorSelector);
+		form.add(floorMapPinPanel);
+		form.add(roomSelector);
+		form.add(mapPinPanel);
 		form.add(orderField);
 		form.add(readCodeField);
 		form.add(qrCodeField);
@@ -230,6 +400,22 @@ public class ArtExhibitionItemEditor extends DBSiteObjectEditor<ArtExhibitionIte
 	protected void onSave(AjaxRequestTarget target) {
 
 		try {
+			// Apply pin coordinates from panel fields into model before saving
+			if (mapPinPanel != null)
+				mapPinPanel.applyToModel();
+			if (floorMapPinPanel != null)
+				floorMapPinPanel.applyToModel();
+
+			// Mark pins as updated if dirty
+			if (mapPinPanel != null && mapPinPanel.isPinDirty())
+				setUpdatedPart("mapPos");
+			if (floorMapPinPanel != null && floorMapPinPanel.isPinDirty())
+				setUpdatedPart("mapFloorPos");
+
+			// Always save when form is in EDIT state
+			if (getUpdatedParts().isEmpty())
+				setUpdatedPart("no-change");
+
 			getUpdatedParts().forEach(s -> logger.debug(s));
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
 			getForm().setFormState(FormState.VIEW);

@@ -169,6 +169,14 @@ public class Floor extends MultiLanguageObject {
 		return PrefixUrl.Floor;
 	}
 
+	public Resource getMap() {
+		return map;
+	}
+
+	public void setMap(Resource map) {
+		this.map = map;
+	}
+
 	public static String getIcon() {
 		return Icons.Floor;
 	}

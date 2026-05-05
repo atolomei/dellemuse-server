@@ -27,6 +27,7 @@ import io.wktui.event.MenuAjaxEvent;
 import io.wktui.form.Form;
 import io.wktui.form.FormState;
 import io.wktui.form.button.EditButtons;
+import io.wktui.form.field.FileUploadSimpleField;
 import io.wktui.form.field.TextField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.nav.toolbar.AjaxButtonToolbarItem;
@@ -44,9 +45,13 @@ public class RoomEditor extends DBSiteObjectEditor<Room> implements InternalPane
 	private TextField<String> subtitleField;
 	private TextField<String> roomNumberField;
 	private TextAreaField<String> infoField;
+	private FileUploadSimpleField<Resource> mapField;
+	private IModel<Resource> mapModel;
 	private IModel<Site> siteModel;
 	private IModel<Floor> floorModel;
 	private List<ToolbarItem> toolbarList;
+	private boolean uploadedMap = false;
+	private boolean mapRemoved  = false;
 
 	public RoomEditor(String id, IModel<Room> model) {
 		super(id, model);
@@ -55,6 +60,7 @@ public class RoomEditor extends DBSiteObjectEditor<Room> implements InternalPane
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+		
 		setUpModel();
 
 		add(new InvisiblePanel("error"));
@@ -70,10 +76,46 @@ public class RoomEditor extends DBSiteObjectEditor<Room> implements InternalPane
 		roomNumberField = new TextField<String>("roomnumber", new PropertyModel<String>(getModel(), "roomNumber"), getLabel("roomnumber"));
 		infoField       = new TextAreaField<String>("info",   new PropertyModel<String>(getModel(), "info"),       getLabel("info"), 8);
 
+		mapField = new FileUploadSimpleField<Resource>("map", getMapModel(), getLabel("map")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected boolean processFileUploads(List<FileUpload> uploads) {
+				return RoomEditor.this.processMapUpload(uploads);
+			}
+
+			@Override
+			public Image getImage() {
+				if (getMapModel() == null || getMapModel().getObject() == null)
+					return null;
+				return RoomEditor.this.getThumbnail(getMapModel().getObject());
+			}
+
+			@Override
+			public String getFileName() {
+				if (getModel() != null && getModel().getObject() != null)
+					return RoomEditor.this.getPhotoMeta(getModel().getObject());
+				return null;
+			}
+
+			@Override
+			public boolean isThumbnail() { return true; }
+
+			@Override
+			protected void onRemove(AjaxRequestTarget target) {
+				mapModel = null;
+				mapRemoved = true;
+				uploadedMap = false;
+				setUpdatedPart("map");
+				target.add(RoomEditor.this);
+			}
+		};
+
 		form.add(nameField);
 		form.add(subtitleField);
 		form.add(roomNumberField);
 		form.add(infoField);
+		form.add(mapField);
 
 		EditButtons<Room> buttonsTop = new EditButtons<Room>("buttons-top", getForm(), getModel()) {
 			private static final long serialVersionUID = 1L;
@@ -109,7 +151,14 @@ public class RoomEditor extends DBSiteObjectEditor<Room> implements InternalPane
 	protected void onSave(AjaxRequestTarget target) {
 		if (getUpdatedParts() == null || getUpdatedParts().isEmpty()) return;
 		try {
+			// If the map was removed, apply that to the freshly-reloaded model object
+			// (the model detaches between requests so we need to re-apply here)
+			if (mapRemoved)
+				getModel().getObject().setMap(null);
+
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
+			this.uploadedMap = false;
+			this.mapRemoved  = false;
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
 			fireScanAll(new ObjectUpdateEvent(target));
@@ -139,9 +188,42 @@ public class RoomEditor extends DBSiteObjectEditor<Room> implements InternalPane
 		return toolbarList;
 	}
 
+	protected boolean processMapUpload(List<FileUpload> uploads) {
+		if (this.uploadedMap)
+			return false;
+
+		if (uploads != null && !uploads.isEmpty()) {
+			for (FileUpload upload : uploads) {
+				try {
+					String bucketName = ServerConstant.MEDIA_BUCKET;
+					String objectName = getResourceDBService().normalizeFileName(
+						org.apache.commons.compress.utils.FileNameUtils.getBaseName(upload.getClientFileName()))
+						+ "-" + getResourceDBService().newId();
+
+					Resource resource = createAndUploadFile(
+						upload.getInputStream(), bucketName, objectName,
+						upload.getClientFileName(), upload.getSize(), true);
+
+					setMapModel(new ObjectModel<Resource>(resource));
+					getModel().getObject().setMap(resource);
+					uploadedMap = true;
+				} catch (Exception e) {
+					uploadedMap = false;
+					error("Error saving file: " + e.getMessage());
+				}
+			}
+		}
+		return uploadedMap;
+	}
+
 	private void setUpModel() {
 		Optional<Room> o = getRoomDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<Room>(o.get()));
+
+		if (getModel().getObject().getMap() != null) {
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getMap().getId());
+			o_r.ifPresent(r -> setMapModel(new ObjectModel<Resource>(r)));
+		}
 
 		if (getModel().getObject().getFloor() != null) {
 			Optional<Floor> of = getFloorDBService().findWithDeps(getModel().getObject().getFloor().getId());
@@ -157,9 +239,13 @@ public class RoomEditor extends DBSiteObjectEditor<Room> implements InternalPane
 	@Override
 	public void onDetach() {
 		super.onDetach();
+		if (mapModel != null)   mapModel.detach();
 		if (siteModel != null)  siteModel.detach();
 		if (floorModel != null) floorModel.detach();
 	}
+
+	public IModel<Resource> getMapModel() { return mapModel; }
+	public void setMapModel(ObjectModel<Resource> model) { this.mapModel = model; }
 
 	@Override
 	public IModel<Site> getSiteModel() { return siteModel; }

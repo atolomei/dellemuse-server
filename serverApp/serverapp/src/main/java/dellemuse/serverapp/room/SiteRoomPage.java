@@ -21,6 +21,7 @@ import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.floor.FloorEXTNavDropDownMenuToolbarItem;
 import dellemuse.serverapp.floor.SiteFloorPage;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -79,6 +80,11 @@ public class SiteRoomPage extends MultiLanguageObjectPage<Room, RoomRecord> {
 
 	public SiteRoomPage(IModel<Room> model, List<IModel<Room>> list) { super(model, list); }
 
+	
+	public String getHelpKey() {
+		return Help.SITE_ROOM;
+	}
+	
 	// ------------------------------------------------------------------
 	// Permissions
 	// ------------------------------------------------------------------

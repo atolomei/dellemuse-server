@@ -84,12 +84,46 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	@Column(name = "audio_id")
 	private Long audioId;
 
-	
-	@Override
-	public boolean isSiteSecured() {
-		return true;
-	}
+	/** Normalized pin position on the Floor map (0.0=left/top, 1.0=right/bottom) */
+	@Column(name = "map_floor_pos_x", nullable = true)
+	@JsonProperty("mapFloorPosX")
+	private Double mapFloor_PosX;
 
+	@Column(name = "map_floor_pos_y", nullable = true)
+	@JsonProperty("mapFloorPosY")
+	private Double mapFloorPosY;
+
+	/** ID of the Floor whose map this pin belongs to; used to detect stale pins */
+	@Column(name = "map_floor_pos_id", nullable = true)
+	@JsonProperty("mapPosFloorId")
+	private Long mapPosFloorId;
+
+	
+	/**
+	 * 
+	  	alter table artexhibitionitem add column map_floor_pos_x DOUBLE PRECISION; 
+		alter table artexhibitionitem add column map_floor_pos_y DOUBLE PRECISION;
+		alter table artexhibitionitem add column map_floor_pos_room_id bigint;
+	 * 
+	 */
+	
+	
+	/** Normalized pin position on the Room map (0.0=left/top, 1.0=right/bottom) */
+	@Column(name = "map_pos_x", nullable = true)
+	@JsonProperty("mapPosX")
+	private Double mapPosX;
+
+	@Column(name = "map_pos_y", nullable = true)
+	@JsonProperty("mapPosY")
+	private Double mapPosY;
+
+	/** ID of the Room whose map this pin belongs to; used to detect stale pins */
+	@Column(name = "map_pos_room_id", nullable = true)
+	@JsonProperty("mapPosRoomId")
+	private Long mapPosRoomId;
+
+ 
+	
 
 	public ArtExhibitionItem() {
 	}
@@ -102,8 +136,10 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	public String getPrefixUrl() {
 		return PrefixUrl.ArtExhibitionItem;
 	}
-
-	 
+	@Override
+	public boolean isSiteSecured() {
+		return true;
+	}
 
 	public void setArtWork(ArtWork artwork) {
 		this.artWork = artwork;
@@ -120,6 +156,36 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	public Room getRoom() {
 		return room;
 	}
+
+	public Double getMapFloor_PosX() {
+		return mapFloor_PosX;
+	}
+
+
+	public Double getMapFloorPosY() {
+		return mapFloorPosY;
+	}
+
+
+	public Long getMapPosFloorId() {
+		return mapPosFloorId;
+	}
+
+
+	public void setMapFloor_PosX(Double mapFloor_PosX) {
+		this.mapFloor_PosX = mapFloor_PosX;
+	}
+
+
+	public void setMapFloorPosY(Double mapFloorPosY) {
+		this.mapFloorPosY = mapFloorPosY;
+	}
+
+
+	public void setMapPosFloorId(Long mapFloorPosRoomId) {
+		this.mapPosFloorId = mapFloorPosRoomId;
+	}
+
 
 	public void setRoom(Room room) {
 		this.room = room;
@@ -228,5 +294,14 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	public void setqRCode(String qRCode) {
 		this.qRCode = qRCode;
 	}
+
+	public Double getMapPosX() { return mapPosX; }
+	public void setMapPosX(Double mapPosX) { this.mapPosX = mapPosX; }
+
+	public Double getMapPosY() { return mapPosY; }
+	public void setMapPosY(Double mapPosY) { this.mapPosY = mapPosY; }
+
+	public Long getMapPosRoomId() { return mapPosRoomId; }
+	public void setMapPosRoomId(Long mapPosRoomId) { this.mapPosRoomId = mapPosRoomId; }
 
 };

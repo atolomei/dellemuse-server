@@ -69,6 +69,10 @@ alter table room add column translation integer default 0;
 alter table floor add column translation integer default 0;
 
 
+alter table floor add column audioaccesible bigint references resource(id) on delete set null;
+alter table room add column saudioaccesible bigint references resource(id) on delete set null;
+
+
 
 
  */

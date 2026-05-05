@@ -46,9 +46,12 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 	private TextAreaField<String> infoField;
 	private FileUploadSimpleField<Resource> photoField;
 	private IModel<Resource> photoModel;
+	private FileUploadSimpleField<Resource> mapField;
+	private IModel<Resource> mapModel;
 	private IModel<Site> siteModel;
 	private List<ToolbarItem> toolbarList;
 	private boolean uploadedPhoto = false;
+	private boolean uploadedMap   = false;
 
 	public FloorEditor(String id, IModel<Floor> model) {
 		super(id, model);
@@ -106,11 +109,45 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 			}
 		};
 
+		mapField = new FileUploadSimpleField<Resource>("map", getMapModel(), getLabel("map")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected boolean processFileUploads(List<FileUpload> uploads) {
+				return FloorEditor.this.processMapUpload(uploads);
+			}
+
+			@Override
+			public Image getImage() {
+				if (getMapModel() == null || getMapModel().getObject() == null)
+					return null;
+				return FloorEditor.this.getThumbnail(getMapModel().getObject());
+			}
+
+			@Override
+			public String getFileName() {
+				if (getModel() != null && getModel().getObject() != null)
+					return FloorEditor.this.getPhotoMeta(getModel().getObject());
+				return null;
+			}
+
+			@Override
+			public boolean isThumbnail() {
+				return true;
+			}
+
+			@Override
+			protected void onRemove(AjaxRequestTarget target) {
+				// handled by remove action
+			}
+		};
+
 		form.add(nameField);
 		form.add(subtitleField);
 		form.add(floorNumberField);
 		form.add(infoField);
 		form.add(photoField);
+		form.add(mapField);
 
 		EditButtons<Floor> buttonsTop = new EditButtons<Floor>("buttons-top", getForm(), getModel()) {
 			private static final long serialVersionUID = 1L;
@@ -158,15 +195,26 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 	}
 
 	protected void onSave(AjaxRequestTarget target) {
+		
 		if (getUpdatedParts() == null || getUpdatedParts().isEmpty())
 			return;
 
 		try {
 			save(getModelObject(), getSessionUser().get(), getUpdatedParts());
-			this.uploadedPhoto = false;
+			
+			setUpModel();
+			
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
+
+			addOrReplace(new InvisiblePanel("error"));
 			fireScanAll(new ObjectUpdateEvent(target));
+			
+			this.uploadedPhoto = false;
+			this.uploadedMap = false;
+			
+			target.add(this);
+			
 		} catch (Exception e) {
 			addOrReplace(new SimpleAlertRow<Void>("error", e));
 			getForm().setFormState(FormState.VIEW);
@@ -228,6 +276,35 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 		return uploadedPhoto;
 	}
 
+	protected boolean processMapUpload(List<FileUpload> uploads) {
+		
+		if (this.uploadedMap)
+			return false;
+
+		if (uploads != null && !uploads.isEmpty()) {
+			for (FileUpload upload : uploads) {
+				try {
+					String bucketName = ServerConstant.MEDIA_BUCKET;
+					String objectName = getResourceDBService().normalizeFileName(
+						org.apache.commons.compress.utils.FileNameUtils.getBaseName(upload.getClientFileName()))
+						+ "-" + getResourceDBService().newId();
+
+					Resource resource = createAndUploadFile(
+						upload.getInputStream(), bucketName, objectName,
+						upload.getClientFileName(), upload.getSize(), true);
+
+					setMapModel(new ObjectModel<Resource>(resource));
+					getModel().getObject().setMap(resource);
+					uploadedMap = true;
+				} catch (Exception e) {
+					uploadedMap = false;
+					error("Error saving file: " + e.getMessage());
+				}
+			}
+		}
+		return uploadedMap;
+	}
+
 	private void setUpModel() {
 		Optional<Floor> o = getFloorDBService().findWithDeps(getModel().getObject().getId());
 		setModel(new ObjectModel<Floor>(o.get()));
@@ -235,6 +312,11 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 		if (getModel().getObject().getPhoto() != null) {
 			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getPhoto().getId());
 			setPhotoModel(new ObjectModel<Resource>(o_r.get()));
+		}
+
+		if (getModel().getObject().getMap() != null) {
+			Optional<Resource> o_r = getResourceDBService().findWithDeps(getModel().getObject().getMap().getId());
+			setMapModel(new ObjectModel<Resource>(o_r.get()));
 		}
 
 		if (getModel().getObject().getSite() != null) {
@@ -247,11 +329,15 @@ public class FloorEditor extends DBSiteObjectEditor<Floor> implements InternalPa
 	public void onDetach() {
 		super.onDetach();
 		if (photoModel != null) photoModel.detach();
+		if (mapModel != null)  mapModel.detach();
 		if (siteModel != null)  siteModel.detach();
 	}
 
 	public IModel<Resource> getPhotoModel() { return photoModel; }
 	public void setPhotoModel(ObjectModel<Resource> model) { this.photoModel = model; }
+
+	public IModel<Resource> getMapModel() { return mapModel; }
+	public void setMapModel(ObjectModel<Resource> model) { this.mapModel = model; }
 
 	@Override
 	public IModel<Site> getSiteModel() { return siteModel; }

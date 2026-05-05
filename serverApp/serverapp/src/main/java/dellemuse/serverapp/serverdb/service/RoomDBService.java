@@ -123,8 +123,10 @@ public class RoomDBService extends DBService<Room, Long> {
         if (o.isEmpty())
             return o;
         Room r = o.get();
-        Long userId = r.getLastModifiedUser() != null ? r.getLastModifiedUser().getId() : null;
-        Long floorId = r.getFloor() != null ? r.getFloor().getId() : null;
+        Long userId  = r.getLastModifiedUser() != null ? r.getLastModifiedUser().getId() : null;
+        Long floorId = r.getFloor()            != null ? r.getFloor().getId()            : null;
+        Long mapId   = r.getMap()              != null ? r.getMap().getId()              : null;
+        Long photoId = r.getPhoto()            != null ? r.getPhoto().getId()            : null;
         getEntityManager().detach(r);
         if (floorId != null) {
             FloorDBService se = (FloorDBService) dellemuse.serverapp.serverdb.service.base.ServiceLocator.getInstance().getBean(FloorDBService.class);
@@ -132,6 +134,10 @@ public class RoomDBService extends DBService<Room, Long> {
         }
         if (userId != null)
             r.setLastModifiedUser(getUserDBService().findById(userId).get());
+        if (mapId != null)
+            r.setMap(getResourceDBService().findById(mapId).get());
+        if (photoId != null)
+            r.setPhoto(getResourceDBService().findById(photoId).get());
         r.setDependencies(true);
         return o;
     }

@@ -154,5 +154,12 @@ public class Room extends MultiLanguageObject {
         this.infoKey = infoKey;
     }
 
+    public Resource getMap() {
+        return map;
+    }
+
+    public void setMap(Resource map) {
+        this.map = map;
+    }
 
 };

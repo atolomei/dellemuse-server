@@ -20,6 +20,7 @@ import dellemuse.serverapp.audit.panel.AuditPanel;
 import dellemuse.serverapp.editor.ObjectMarkAsDeleteEvent;
 import dellemuse.serverapp.editor.ObjectRestoreEvent;
 import dellemuse.serverapp.global.JumboPageHeaderPanel;
+import dellemuse.serverapp.help.Help;
 import dellemuse.serverapp.help.HelpButtonToolbarItem;
 import dellemuse.serverapp.page.MultiLanguageObjectPage;
 import dellemuse.serverapp.page.model.ObjectModel;
@@ -84,6 +85,14 @@ public class SiteFloorPage extends MultiLanguageObjectPage<Floor, FloorRecord> {
 	public SiteFloorPage(IModel<Floor> model, List<IModel<Floor>> list) {
 		super(model, list);
 	}
+	
+	
+	public String getHelpKey() {
+		return Help.SITE_FLOOR;
+	}
+
+	
+	
 
 	// ------------------------------------------------------------------
 	// Permissions

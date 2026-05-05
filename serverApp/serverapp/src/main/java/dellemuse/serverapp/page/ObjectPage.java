@@ -507,7 +507,7 @@ public abstract class ObjectPage<T extends DelleMuseObject> extends BasePage {
 			this.internalPanelContainer.addOrReplace(new ErrorPanel("internalPanel", e));
 		}
 
-		mainMarkupContainer.addOrReplace(new InvisiblePanel("globalSearch"));
+		globalSearchContainer.addOrReplace(new InvisiblePanel("globalSearch"));
 		mainMarkupContainer.addOrReplace(new InvisiblePanel("navigatorContainer"));
 
 		super.addOrReplace(new InvisiblePanel("footer-panel"));

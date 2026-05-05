@@ -24,6 +24,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 
@@ -139,7 +140,16 @@ public class CandidateDBService extends DBService<Candidate, Long> {
 		CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
 		CriteriaQuery<Candidate> cq = cb.createQuery(getEntityClass());
 		Root<Candidate> root = cq.from(getEntityClass());
-		cq.select(root).where(root.get("status").in((Object[]) statuses));
+		
+		
+		Predicate p1 = cb.equal(root.get("state"), ObjectState.DELETED);
+		Predicate p2 = cb.not(p1);
+		
+		Predicate p3 = root.get("status").in((Object[]) statuses);
+				
+		cq.select(root).where(cb.and(p2, p3));
+		
+		//cq.select(root).where(root.get("status").in((Object[]) statuses));
 		cq.orderBy(cb.asc(cb.lower(root.get("institutionName"))));
 		return getEntityManager().createQuery(cq).getResultList();
 	}

@@ -19,10 +19,12 @@ import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
 import dellemuse.serverapp.serverdb.model.AuditAction;
 import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
+import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.model.Resource;
+import dellemuse.serverapp.serverdb.model.Room;
 import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionItemRecord;
 import dellemuse.serverapp.serverdb.model.record.ArtExhibitionRecord;
@@ -36,7 +38,7 @@ import jakarta.transaction.Transactional;
 @Service
 public class ArtExhibitionItemDBService extends MultiLanguageObjectDBservice<ArtExhibitionItem, Long> {
 
-	@SuppressWarnings("unused")
+	 
 	static private Logger logger = Logger.getLogger(ArtExhibitionItemDBService.class.getName());
 
 	@JsonIgnore
@@ -164,16 +166,11 @@ public class ArtExhibitionItemDBService extends MultiLanguageObjectDBservice<Art
 
 		// Read lazy proxy IDs while entity is still attached
 		Long exhibitionId = a.getArtExhibition() != null ? a.getArtExhibition().getId() : null;
-		Long artWorkId = a.getArtWork() != null ? a.getArtWork().getId() : null;
-
-		if (a.getFloor() != null)
-			a.getFloor().getDisplayname();
-
-		if (a.getRoom() != null)
-			a.getRoom().getDisplayname();
-
-		Long photoId = a.getPhoto() != null ? a.getPhoto().getId() : null;
-		Long userId = a.getLastModifiedUser() != null ? a.getLastModifiedUser().getId() : null;
+		Long artWorkId    = a.getArtWork()        != null ? a.getArtWork().getId()        : null;
+		Long floorId      = a.getFloor()          != null ? a.getFloor().getId()          : null;
+		Long roomId       = a.getRoom()           != null ? a.getRoom().getId()           : null;
+		Long photoId      = a.getPhoto()          != null ? a.getPhoto().getId()          : null;
+		Long userId       = a.getLastModifiedUser() != null ? a.getLastModifiedUser().getId() : null;
 
 		// Detach to prevent dirty-checking from triggering @PostUpdate
 		getEntityManager().detach(a);
@@ -183,6 +180,12 @@ public class ArtExhibitionItemDBService extends MultiLanguageObjectDBservice<Art
 
 		if (artWorkId != null)
 			a.setArtWork(getArtWorkDBService().findById(artWorkId).get());
+
+		if (floorId != null)
+			a.setFloor(getFloorDBService().findById(floorId).get());
+
+		if (roomId != null)
+			a.setRoom(getRoomDBService().findById(roomId).get());
 
 		if (photoId != null)
 			a.setPhoto(getResourceDBService().findById(photoId).get());
