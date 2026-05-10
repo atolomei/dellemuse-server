@@ -40,6 +40,7 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
 import dellemuse.serverapp.serverdb.model.MultiLanguageObject;
@@ -51,6 +52,7 @@ import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionGuideDBService;
 import dellemuse.serverapp.serverdb.service.ArtExhibitionItemDBService;
+import dellemuse.serverapp.serverdb.service.FloorDBService;
 import dellemuse.serverapp.serverdb.service.GuideContentDBService;
 import dellemuse.serverapp.serverdb.service.UserDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
@@ -115,6 +117,7 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 			infoContainer.add(new InvisiblePanel("error"));
 
 			addAudioNumber();
+			addMapPanel();
 			addAudioPlayer();
 
 		} catch (Exception e) {
@@ -198,6 +201,101 @@ public class BrandedArtExhibitionGuidePanel extends DBModelPanel<ArtExhibitionGu
 			infoContainer.addOrReplace(new ErrorPanel("error", e));
 
 		}
+	}
+
+	protected void addMapPanel() {
+		
+		WebMarkupContainer mapRowContainer = new WebMarkupContainer("mapRowContainer");
+		mapRowContainer.setOutputMarkupId(true);
+		infoContainer.add(mapRowContainer);
+		
+		WebMarkupContainer mapPanelContainer = new WebMarkupContainer("mapPanelContainer");
+		mapPanelContainer.setOutputMarkupId(true);
+		mapPanelContainer.setOutputMarkupPlaceholderTag(true);
+		infoContainer.add(mapPanelContainer);
+		
+		ArtExhibition ae = getArtExhibitionModel().getObject();
+		Long mapPosFloorId = ae.getMapPosFloorId();
+		Double mapFloorPosX = ae.getMapFloorPosX();
+		Double mapFloorPosY = ae.getMapFloorPosY();
+		
+		boolean hasMap = mapPosFloorId != null;
+		String mapUrl = null;
+		
+		// Load the Floor's map Resource
+		if (hasMap) {
+			try {
+				FloorDBService floorService = (FloorDBService) ServiceLocator.getInstance().getBean(FloorDBService.class);
+				Floor floor = floorService.findById(mapPosFloorId).orElse(null);
+				if (floor != null && floor.getMap() != null) {
+					Resource mapResource = getResourceDBService().findWithDeps(floor.getMap().getId()).get();
+					mapUrl = getPresignedUrl(mapResource);
+				} else {
+					hasMap = false;
+				}
+			} catch (Exception e) {
+				logger.error(e, "Error loading floor map");
+				hasMap = false;
+			}
+		}
+		
+		// Add AjaxLink to toggle map panel
+		AjaxLink<Void> mapLink = new AjaxLink<Void>("mapLink") {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				boolean isVisible = mapPanelContainer.isVisible();
+				mapPanelContainer.setVisible(!isVisible);
+				target.add(mapPanelContainer);
+			}
+		};
+		mapRowContainer.add(mapLink);
+		mapRowContainer.setVisible(hasMap);
+		
+		// Add map image container with pin
+		WebMarkupContainer mapImageContainer = new WebMarkupContainer("mapImageContainer");
+		mapPanelContainer.add(mapImageContainer);
+		
+		if (hasMap && mapUrl != null) {
+			// Create a container with relative positioning for the map and pin
+			StringBuilder mapHtml = new StringBuilder();
+			mapHtml.append("<div style='position: relative; display: inline-block;'>");
+			mapHtml.append("<img src='").append(mapUrl).append("' style='max-width: 100%; height: auto; border-radius: 4px; display: block;' />");
+			
+			// Add pin if coordinates are available
+			if (mapFloorPosX != null && mapFloorPosY != null) {
+				// Convert normalized coordinates (0.0-1.0) to percentages
+				double pinLeftPercent = mapFloorPosX * 100.0;
+				double pinTopPercent = mapFloorPosY * 100.0;
+				
+				mapHtml.append("<div style='position: absolute; left: ").append(pinLeftPercent).append("%; top: ").append(pinTopPercent).append("%; transform: translate(-50%, -100%);'>");
+				mapHtml.append("<i class='fa-solid fa-location-dot' style='color: #dc3545; font-size: 2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));'></i>");
+				mapHtml.append("</div>");
+			}
+			
+			mapHtml.append("</div>");
+			
+			Label mapImage = new Label("mapImage", mapHtml.toString());
+			mapImage.setEscapeModelStrings(false);
+			mapImageContainer.add(mapImage);
+		} else {
+			mapImageContainer.add(new InvisiblePanel("mapImage"));
+		}
+		
+		// Add close button
+		AjaxLink<Void> closeMapLink = new AjaxLink<Void>("closeMapLink") {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				mapPanelContainer.setVisible(false);
+				target.add(mapPanelContainer);
+			}
+		};
+		mapPanelContainer.add(closeMapLink);
+		
+		mapPanelContainer.setVisible(false);
 	}
 
 	private boolean isArtExhibitionGuideInfo() {

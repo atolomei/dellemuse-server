@@ -3,6 +3,8 @@ package dellemuse.serverapp.branded.panel;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 
@@ -20,11 +22,13 @@ import dellemuse.serverapp.serverdb.model.ArtExhibition;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionGuide;
 import dellemuse.serverapp.serverdb.model.ArtExhibitionItem;
 import dellemuse.serverapp.serverdb.model.ArtWork;
+import dellemuse.serverapp.serverdb.model.Floor;
 import dellemuse.serverapp.serverdb.model.GuideContent;
 import dellemuse.serverapp.serverdb.model.Language;
-
 import dellemuse.serverapp.serverdb.model.Resource;
 import dellemuse.serverapp.serverdb.model.Site;
+import dellemuse.serverapp.serverdb.service.FloorDBService;
+import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.language.LanguageObjectService;
 import io.wktui.error.AlertPanel;
 import io.wktui.error.ErrorPanel;
@@ -68,6 +72,7 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 		setUpModel();
 
 		addAudioNumber();
+		addMapPanel();
 		addAudio();
 		addInfo();
 	}
@@ -79,6 +84,92 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 		Label aid = new Label("aid", a != null ? a.toString() : "");
 		aid.setVisible(a != null);
 		infoContainer.add(aid);
+	}
+
+	protected void addMapPanel() {
+
+		WebMarkupContainer mapRowContainer = new WebMarkupContainer("mapRowContainer");
+		mapRowContainer.setOutputMarkupId(true);
+		infoContainer.add(mapRowContainer);
+
+		WebMarkupContainer mapPanelContainer = new WebMarkupContainer("mapPanelContainer");
+		mapPanelContainer.setOutputMarkupId(true);
+		mapPanelContainer.setOutputMarkupPlaceholderTag(true);
+		infoContainer.add(mapPanelContainer);
+
+		ArtExhibitionItem item = getArtExhibitionItemModel().getObject();
+		Long mapPosFloorId = item.getMapPosFloorId();
+		Double mapFloorPosX = item.getMapFloor_PosX();
+		Double mapFloorPosY = item.getMapFloorPosY();
+
+		boolean hasMap = mapPosFloorId != null;
+		String mapUrl = null;
+
+		if (hasMap) {
+			try {
+				FloorDBService floorService = (FloorDBService) ServiceLocator.getInstance().getBean(FloorDBService.class);
+				Floor floor = floorService.findById(mapPosFloorId).orElse(null);
+				if (floor != null && floor.getMap() != null) {
+					Resource mapResource = getResourceDBService().findWithDeps(floor.getMap().getId()).get();
+					mapUrl = getPresignedUrl(mapResource);
+				} else {
+					hasMap = false;
+				}
+			} catch (Exception e) {
+				logger.error(e);
+				hasMap = false;
+			}
+		}
+
+		AjaxLink<Void> mapLink = new AjaxLink<Void>("mapLink") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				mapPanelContainer.setVisible(!mapPanelContainer.isVisible());
+				target.add(mapPanelContainer);
+			}
+		};
+		mapRowContainer.add(mapLink);
+		mapRowContainer.setVisible(hasMap);
+
+		WebMarkupContainer mapImageContainer = new WebMarkupContainer("mapImageContainer");
+		mapPanelContainer.add(mapImageContainer);
+
+		if (hasMap && mapUrl != null) {
+			StringBuilder mapHtml = new StringBuilder();
+			mapHtml.append("<div style='position: relative; display: inline-block;'>");
+			mapHtml.append("<img src='").append(mapUrl).append("' style='max-width: 100%; height: auto; border-radius: 4px; display: block;' />");
+
+			if (mapFloorPosX != null && mapFloorPosY != null) {
+				double pinLeftPercent = mapFloorPosX * 100.0;
+				double pinTopPercent  = mapFloorPosY * 100.0;
+				mapHtml.append("<div style='position: absolute; left: ").append(pinLeftPercent).append("%; top: ").append(pinTopPercent).append("%; transform: translate(-50%, -100%);'>");
+				mapHtml.append("<i class='fa-solid fa-location-dot' style='color: #dc3545; font-size: 2rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));'></i>");
+				mapHtml.append("</div>");
+			}
+
+			mapHtml.append("</div>");
+
+			Label mapImage = new Label("mapImage", mapHtml.toString());
+			mapImage.setEscapeModelStrings(false);
+			mapImageContainer.add(mapImage);
+		} else {
+			mapImageContainer.add(new InvisiblePanel("mapImage"));
+		}
+
+		AjaxLink<Void> closeMapLink = new AjaxLink<Void>("closeMapLink") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				mapPanelContainer.setVisible(false);
+				target.add(mapPanelContainer);
+			}
+		};
+		mapPanelContainer.add(closeMapLink);
+
+		mapPanelContainer.setVisible(false);
 	}
 
 	protected void addAudio() {

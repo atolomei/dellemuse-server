@@ -94,27 +94,19 @@ public class BrandedSitePage extends BasePage {
 
 	private boolean modelAlreadySet = false;
 	private boolean isError = false;
-
+	
+	private IModel<String> notAuthorizedError;
+	
 	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
 
 	public BrandedSitePage() {
 		super();
 		setCookieLocale();
 	}
-	
-	 
+
 	public boolean isLogVisit() {
 		return true;
 	}
-	
-	public String getStatPageId() {
-		return "site";
-	}
-	
-	public Stat getStat() {
-		return Stat.of(getStatPageId(), getSession().getId(), getSiteModel().getObject(), lang);
-	}
-	
 
 	public BrandedSitePage(PageParameters parameters) {
 		super(parameters);
@@ -150,6 +142,14 @@ public class BrandedSitePage extends BasePage {
 		setCookieLocale();
 		this.ag_list = ag_list;
 		this.gc_list = gc_list;
+	}
+
+	public String getStatPageId() {
+		return "site";
+	}
+
+	public Stat getStat() {
+		return Stat.of(getStatPageId(), getSession().getId(), getSiteModel().getObject(), lang);
 	}
 
 	@Override
@@ -204,8 +204,8 @@ public class BrandedSitePage extends BasePage {
 		return locale;
 	}
 
-	private IModel<String> notAuthorizedError;
 	
+
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 
@@ -232,7 +232,7 @@ public class BrandedSitePage extends BasePage {
 			return getLabel("not-authorized");
 		return notAuthorizedError;
 	}
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -277,9 +277,9 @@ public class BrandedSitePage extends BasePage {
 			addOrReplace(new InvisiblePanel("search"));
 
 			SimpleAlertRow<Void> r = new SimpleAlertRow<Void>("error");
-			
+
 			r.setText(getNotAuthorizedMessage());
-			
+
 			addOrReplace(r);
 
 			addOrReplace(new InvisiblePanel("exhibitionsContainer"));

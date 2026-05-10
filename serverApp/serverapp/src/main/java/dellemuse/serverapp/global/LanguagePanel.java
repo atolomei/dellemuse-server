@@ -168,8 +168,10 @@ public class LanguagePanel extends ModelPanel<User> {
 	}
 
 	protected String getDisplayValue(Language value) {
-		return value.getLabel(getLocale());
+		//return value.getLabel(getLocale());
+		return value.getLanguageCode().toUpperCase();
 	}
+	
 
 	protected String getIdValue(Language value) {
 		return value.getLanguageCode();

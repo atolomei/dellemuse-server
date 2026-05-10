@@ -13,6 +13,28 @@
 			</div>
 		</div>
 
+		<div class="row" wicket:id="mapRowContainer">
+			<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12  pt-4 pb-0">
+				<div class="text-center">
+					<div class=" ps-1 pe-1" style="display: inline-block;">
+						<a wicket:id="mapLink" class=" text-light btn-link" href="#" style="float: left; display: inline-block;"><wicket:message key="show-map" /></a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Map Panel -->
+		<div wicket:id="mapPanelContainer" class="mt-3" style="float: left; width: 100%; background-color: #222; border: 1px solid #555; border-radius: 8px; padding: 1rem;">
+			<div style="position: relative;">
+				<div style="text-align: center; margin-bottom: 0.75rem;">
+					<a wicket:id="closeMapLink" href="#" class="text-light btn-link"><wicket:message key="close" /></a>
+				</div>
+				<div wicket:id="mapImageContainer" style="text-align: center;">
+					<span wicket:id="mapImage"></span>
+				</div>
+			</div>
+		</div>
+
 		<div class="mt-2" wicket:id="error" />
 
 		<div wicket:id="textContainer" class="row">
@@ -24,9 +46,9 @@
 
 
 	<div wicket:id="audioContainer" style="margin-bottom: 142px !important; float: left; width: 100%; padding: 0;">
- 
+
 		<div class="alert alert-info audio-fixed-bottom" style="border-left: none; border-right: none;">
- 
+
 			<div class="row d-block">
 				<div class="small mt-3 text-center col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12"
 					style="margin-bottom: -20px;">
@@ -34,7 +56,7 @@
 							key="artwork-audio" /></span>
 				</div>
 			</div>
- 
+
 			<div class="row">
 				<div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
 
