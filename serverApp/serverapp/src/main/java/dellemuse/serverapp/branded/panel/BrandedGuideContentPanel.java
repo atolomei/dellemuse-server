@@ -91,7 +91,8 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 		WebMarkupContainer mapRowContainer = new WebMarkupContainer("mapRowContainer");
 		mapRowContainer.setOutputMarkupId(true);
 		infoContainer.add(mapRowContainer);
-
+	
+		
 		WebMarkupContainer mapPanelContainer = new WebMarkupContainer("mapPanelContainer");
 		mapPanelContainer.setOutputMarkupId(true);
 		mapPanelContainer.setOutputMarkupPlaceholderTag(true);
@@ -102,9 +103,11 @@ public class BrandedGuideContentPanel extends DBModelPanel<GuideContent> impleme
 		Double mapFloorPosX = item.getMapFloor_PosX();
 		Double mapFloorPosY = item.getMapFloorPosY();
 
-		boolean hasMap = mapPosFloorId != null;
+		boolean hasMap = (mapPosFloorId != null);
 		String mapUrl = null;
 
+		mapRowContainer.setVisible(hasMap);
+		
 		if (hasMap) {
 			try {
 				FloorDBService floorService = (FloorDBService) ServiceLocator.getInstance().getBean(FloorDBService.class);
