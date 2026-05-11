@@ -80,7 +80,7 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	@Column(name = "website")
 	@JsonProperty("website")
 	private String website;
-	
+
 	@Column(name = "audio_id")
 	private Long audioId;
 
@@ -98,9 +98,6 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	@JsonProperty("mapPosFloorId")
 	private Long mapPosFloorId;
 
-	
-	
-	
 	/** Normalized pin position on the Room map (0.0=left/top, 1.0=right/bottom) */
 	@Column(name = "map_pos_x", nullable = true)
 	@JsonProperty("mapPosX")
@@ -115,9 +112,6 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	@JsonProperty("mapPosRoomId")
 	private Long mapPosRoomId;
 
- 
-	
-
 	public ArtExhibitionItem() {
 	}
 
@@ -129,6 +123,7 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 	public String getPrefixUrl() {
 		return PrefixUrl.ArtExhibitionItem;
 	}
+
 	@Override
 	public boolean isSiteSecured() {
 		return true;
@@ -154,31 +149,25 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 		return mapFloor_PosX;
 	}
 
-
 	public Double getMapFloorPosY() {
 		return mapFloorPosY;
 	}
-
 
 	public Long getMapPosFloorId() {
 		return mapPosFloorId;
 	}
 
-
 	public void setMapFloor_PosX(Double mapFloor_PosX) {
 		this.mapFloor_PosX = mapFloor_PosX;
 	}
-
 
 	public void setMapFloorPosY(Double mapFloorPosY) {
 		this.mapFloorPosY = mapFloorPosY;
 	}
 
-
 	public void setMapPosFloorId(Long mapFloorPosRoomId) {
 		this.mapPosFloorId = mapFloorPosRoomId;
 	}
-
 
 	public void setRoom(Room room) {
 		this.room = room;
@@ -288,13 +277,28 @@ public class ArtExhibitionItem extends MultiLanguageObject {
 		this.qRCode = qRCode;
 	}
 
-	public Double getMapPosX() { return mapPosX; }
-	public void setMapPosX(Double mapPosX) { this.mapPosX = mapPosX; }
+	public Double getMapPosX() {
+		return mapPosX;
+	}
 
-	public Double getMapPosY() { return mapPosY; }
-	public void setMapPosY(Double mapPosY) { this.mapPosY = mapPosY; }
+	public void setMapPosX(Double mapPosX) {
+		this.mapPosX = mapPosX;
+	}
 
-	public Long getMapPosRoomId() { return mapPosRoomId; }
-	public void setMapPosRoomId(Long mapPosRoomId) { this.mapPosRoomId = mapPosRoomId; }
+	public Double getMapPosY() {
+		return mapPosY;
+	}
+
+	public void setMapPosY(Double mapPosY) {
+		this.mapPosY = mapPosY;
+	}
+
+	public Long getMapPosRoomId() {
+		return mapPosRoomId;
+	}
+
+	public void setMapPosRoomId(Long mapPosRoomId) {
+		this.mapPosRoomId = mapPosRoomId;
+	}
 
 };
