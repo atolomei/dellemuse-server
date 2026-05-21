@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
@@ -31,7 +30,8 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 @Component
 //@Order(org.springframework.boot.autoconfigure.security.SecurityProperties.BASIC_AUTH_ORDER - 10) // adjust ordering if necessary
 
-@Order(SecurityProperties.BASIC_AUTH_ORDER + 10)
+// BASIC_AUTH_ORDER was removed in Spring Boot 4; equivalent value was Integer.MIN_VALUE + 5 (-2147483643)
+@Order(Ordered.HIGHEST_PRECEDENCE + 15)
 public class WicketSecurityContextBridgeFilter implements Filter {
 
 	static private Logger logger = Logger.getLogger(WicketSecurityContextBridgeFilter.class.getName());

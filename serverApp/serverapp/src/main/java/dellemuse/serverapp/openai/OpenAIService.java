@@ -19,7 +19,6 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.ResponseFormat;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
@@ -171,8 +170,7 @@ public class OpenAIService extends BaseService {
 					 .options(OpenAiChatOptions.builder()
 						        .model("gpt-5.4")
 						        .maxCompletionTokens(1200)
-						        .temperature(0.7)
-						        .build())
+						        .temperature(0.7))
 					 .system("You are an expert in museum audio guides. Always provide helpful, descriptive, and safe outputs.")
 					 .user(userSpec -> userSpec
 							 .text(finalPrompt)
@@ -292,8 +290,7 @@ public class OpenAIService extends BaseService {
 					 .options(OpenAiChatOptions.builder()
 						        .model("gpt-5.4")
 						        .maxCompletionTokens(1200)
-						        .temperature(0.7)
-						        .build())
+						        .temperature(0.7))
 					 
 					 .system("You are an expert in accessible museum audio guides for blind and visually impaired people. Always provide helpful, descriptive, and safe outputs.")
 					  

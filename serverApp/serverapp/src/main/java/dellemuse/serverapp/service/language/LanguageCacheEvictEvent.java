@@ -4,7 +4,9 @@ import org.springframework.context.ApplicationEvent;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import tools.jackson.databind.ObjectMapper;
+
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseObjectMapper;
@@ -33,7 +35,7 @@ public class LanguageCacheEvictEvent extends ApplicationEvent {
 	public String toJSON() {
 		try {
 			return getObjectMapper().writeValueAsString(this);
-		} catch (JsonProcessingException e) {
+		} catch (Exception e) {
 			logger.error(e, SharedConstant.NOT_THROWN);
 			return "\"error\":\"" + e.getClass().getName() + " | " + e.getMessage() + "\"";
 		}

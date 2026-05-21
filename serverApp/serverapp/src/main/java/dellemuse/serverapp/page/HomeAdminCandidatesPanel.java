@@ -19,6 +19,7 @@ import io.wktui.model.TextCleaner;
 import io.wktui.struct.list.ListPanel;
 import io.wktui.struct.list.ListPanelMode;
 import wktui.base.ModelPanel;
+import dellemuse.serverapp.icons.Icons;
 
 public class HomeAdminCandidatesPanel extends ModelPanel<User> {
 
@@ -114,6 +115,8 @@ public class HomeAdminCandidatesPanel extends ModelPanel<User> {
 		}
 		if (str.length() == 0)
 			str.append(c.getDisplayname());
+		if (c.isBotSuspected())
+			str.append(" ").append(Icons.BOT_SUSPECTED_ICON_HTML);
 		return Model.of(str.toString());
 	}
 

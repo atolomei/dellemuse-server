@@ -32,8 +32,7 @@ import dellemuse.model.logging.Logger;
  
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
  
 
 @Configuration
@@ -116,7 +115,7 @@ public class SecurityConfig {
 
         return (request, response, authException) -> {
             // Evitar redirigir si ya estamos en /signin
-            if (new AntPathRequestMatcher("/signin/**").matches(request)) {
+            if (PathPatternRequestMatcher.pathPattern("/signin/**").matcher(request).isMatch()) {
                 // No redirige, deja pasar la request
                 return;
             }

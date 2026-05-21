@@ -7,8 +7,17 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+/**
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+ 
+**/
+
+// import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+
 
 import dellemuse.serverapp.icons.Icons;
 import dellemuse.serverapp.jpa.events.ArtExhibitionEventListener;
@@ -29,31 +38,13 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 
 
-/**
- * 
 
-  	
-
-  	alter table artexhibition add column floor bigint references floor(id) on delete restrict;
-  	alter table artexhibition add column room  bigint references room(id) on delete restrict;
-  	
-  	
-  	alter table artexhibition add column map_pos_x DOUBLE PRECISION; 
-	alter table artexhibition add column map_pos_y DOUBLE PRECISION;
-	alter table artexhibition add column map_pos_room_id bigint;
-  	
-  	
-  	alter table artexhibition add column map_floor_pos_x DOUBLE PRECISION; 
-	alter table artexhibition add column map_floor_pos_y DOUBLE PRECISION;
-	alter table artexhibition add column map_floor_pos_room_id bigint;
- * 
- */
-
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 
 @Entity
 @Table(name = "artExhibition")
-@JsonInclude(Include.NON_NULL)
+//@JsonInclude(Include.NON_NULL)
 @EntityListeners(ArtExhibitionEventListener.class)
 public class ArtExhibition extends MultiLanguageObject {
 

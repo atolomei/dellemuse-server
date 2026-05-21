@@ -16,8 +16,6 @@ public class Icons {
 	public static final String Floor = "fa-duotone fa-solid fa-layer-group";
 	public static final String Room = "fa-duotone fa-solid fa-draw-square";
 	
-	//<i class="fa-duotone fa-solid fa-layer"></i>
-	// <i class="fa-duotone fa-solid fa-ticket"></i>
 	
 	public static final String Voice = "fa-solid fa-head-side-speak";
 	public static final String Music = "fa-solid fa-music";
@@ -40,5 +38,10 @@ public class Icons {
 	static public final String DELETED_ICON_HTML =    "<div class=\"d-inline text-danger small ms-1\"> <i title=\"Deleted\" class=\"fa-solid  fa-solid fa-ban \"></i> </div>";
 	static public final String AUDIO_ICON_HTML = "<div class=\"d-inline small ms-1\"> <i title=\"Audio\" class=\"  fa-duotone fa-headphones \"></i> </div>";
 
+	static public final String BOT_SUSPECTED_ICON_HTML = "<div class=\"d-inline text-danger small ms-1\"><i title=\"bot\" class=\"fa-solid fa-stamp \"></i> </div>";
+	
+	
+	
+	
 	
 }

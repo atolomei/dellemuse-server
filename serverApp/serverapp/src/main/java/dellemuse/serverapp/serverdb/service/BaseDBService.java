@@ -9,23 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import tools.jackson.databind.ObjectMapper;
 
 import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;
-import dellemuse.serverapp.serverdb.model.AuditAction;
-import dellemuse.serverapp.serverdb.model.DelleMuseAudit;
-import dellemuse.serverapp.serverdb.model.DelleMuseObject;
-import dellemuse.serverapp.serverdb.model.GuideContent;
-import dellemuse.serverapp.serverdb.model.Institution;
-import dellemuse.serverapp.serverdb.model.Site;
-import dellemuse.serverapp.serverdb.model.User;
 import dellemuse.serverapp.serverdb.service.base.BaseService;
-import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 import dellemuse.serverapp.service.SystemService;
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;

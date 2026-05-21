@@ -348,7 +348,19 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 		voiceProxyList = new ArrayList<VoiceProxy>();
 
-		getVoiceDBService().getVoices(Step1AudioStudioEditor.this.getModel().getObject().getLanguage(), ObjectState.PUBLISHED).forEach(v -> voiceProxyList.add(new VoiceProxy(v)));
+		logger.debug(Step1AudioStudioEditor.this.getModel().getObject().getLanguage());
+		
+				
+		getVoiceDBService().getVoices(Step1AudioStudioEditor.this.getModel().getObject().getLanguage(), ObjectState.PUBLISHED).forEach(
+				
+				v -> 
+				
+				{ 	voiceProxyList.add(new VoiceProxy(v));
+					logger.debug(v.getDisplayname());
+				
+				}
+				
+				);
 
 		Map<String, String> map = getModel().getObject().getSettings();
 

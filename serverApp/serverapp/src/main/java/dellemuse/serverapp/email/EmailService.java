@@ -101,7 +101,6 @@ public class EmailService extends BaseService implements SystemService  {
 			return "{\"message\": \"Email sender is disabled.\"}";
 		}
         
-        
         String basicAuth = buildBasicAuth("api", getSettings().getEmailApiKey());
         
         HttpRequest request = HttpRequest.newBuilder()
@@ -118,7 +117,7 @@ public class EmailService extends BaseService implements SystemService  {
         logger.debug("Mailgun response [" + response.statusCode() + "]: " + response.body());
 
         if (response.statusCode() != 200) {
-            logger.error("Mailgun send failed [" + response.statusCode() + "]: " + response.body());
+            logger.error("Mailgun send failed [" + response.statusCode() + "]: " + response.body() + " | to." + to + " | subject." + subject);
         }
 
         return response.body();

@@ -169,8 +169,16 @@ public class LoginPage extends BasePage {
 				 SecureWebSession session = (SecureWebSession) getSession();
 
 				    if (!session.signIn(email, password)) {
-				        logger.error("Invalid username or password -> u." + email);
+				        ServletWebRequest servletWebRequest =
+				            (ServletWebRequest) RequestCycle.get().getRequest();
+				        HttpServletRequest httpRequest =
+				            (HttpServletRequest) servletWebRequest.getContainerRequest();
+				        String ipAddress = httpRequest.getRemoteAddr();
+				        logger.warn("Invalid username or password -> u." + email + " ip." + ipAddress);
 				        error("Invalid username or password");
+				        try {
+							Thread.sleep(500);
+				        } catch (InterruptedException e) {}
 				        
 				        getPageParameters().set("error", "Invalid username or password");
 				        setResponsePage( new LoginPage( getPageParameters()));

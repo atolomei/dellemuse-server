@@ -208,12 +208,12 @@ public class SitePublicPortalEditor extends DBSiteObjectEditor<Site> implements 
 
 	}
 
-
 	public String getPublicUrl() {
-		return getServerUrl() + "/"+ ServerConstant.AG + "/" + getModel().getObject().getId();
+		String base=getServerDBSettings().getVisitorguide();
+		if (base==null)
+			base=getServerUrl();
+		return base + "/"+ ServerConstant.AG + "/" + getModel().getObject().getId();
 	}
-
-	
 
 	public IModel<Site> getSiteModel() {
 		return getModel();

@@ -98,9 +98,24 @@ public class Candidate extends DelleMuseObject {
     
     @Column(name = "password")
     private String password;
+
+    /** Honeypot field - must always be empty; bots tend to fill all fields */
+    @Column(name = "honeypot")
+    private String honeypot;
+
+    /** Timestamp when the candidate form was first opened */
+    @Column(name = "formOpenedAt")
+    private OffsetDateTime formOpenedAt;
+
+    /** Cloudflare Turnstile captcha token submitted with the form */
+    @Column(name = "captchaToken", length = 2048)
+    private String captchaToken;
     
     
-    
+	@Column(name = "botsuspected")
+	private boolean botSuspected;
+	
+	
 	public String getDisplayname() {
 		return (getInstitutionName() != null) ? getInstitutionName() : "null";
 	}
@@ -270,7 +285,39 @@ public class Candidate extends DelleMuseObject {
 	}
 
 	public static String getIcon() {
-		return Icons.Candidate; // "fa-duotone fa-solid fa-building-circle-check";
+		return Icons.Candidate;
+	}
+
+	public boolean isBotSuspected() {
+		return botSuspected;
+	}
+
+	public void setBotSuspected(boolean botSuspected) {
+		this.botSuspected = botSuspected;
+	}
+
+	public String getHoneypot() {
+		return honeypot;
+	}
+
+	public void setHoneypot(String honeypot) {
+		this.honeypot = honeypot;
+	}
+
+	public OffsetDateTime getFormOpenedAt() {
+		return formOpenedAt;
+	}
+
+	public void setFormOpenedAt(OffsetDateTime formOpenedAt) {
+		this.formOpenedAt = formOpenedAt;
+	}
+
+	public String getCaptchaToken() {
+		return captchaToken;
+	}
+
+	public void setCaptchaToken(String captchaToken) {
+		this.captchaToken = captchaToken;
 	}
 
 };

@@ -11,7 +11,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dellemuse.model.logging.Logger;
 import dellemuse.serverapp.DellemuseObjectMapper;
@@ -46,6 +45,11 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
+
+
+import tools.jackson.databind.ObjectMapper;
+
+
 
 /**
  * 

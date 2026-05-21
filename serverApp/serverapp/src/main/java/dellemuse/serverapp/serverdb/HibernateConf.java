@@ -54,8 +54,12 @@ public class HibernateConf {
         public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
             LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
             emf.setDataSource(dataSource);
-            emf.setPackagesToScan(PACKAGES_TO_SCAN);  
+            emf.setPackagesToScan(PACKAGES_TO_SCAN);
             emf.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+            // Spring Framework 7.x rejects SessionFactory as the EMF proxy interface because
+            // SessionFactory.getSchemaManager() and EntityManagerFactory.getSchemaManager()
+            // have incompatible return types. Explicitly set to plain EntityManagerFactory.
+            emf.setEntityManagerFactoryInterface(EntityManagerFactory.class);
 
             Properties jpaProps = new Properties();
             jpaProps.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");

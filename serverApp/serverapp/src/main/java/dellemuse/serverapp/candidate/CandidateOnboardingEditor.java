@@ -75,6 +75,7 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate> {
 	private TextAreaField<String> institutionAddressField;
 	private TextAreaField<String> commentsField;
 	private TextField<String> passwordField;
+	private TextField<String> honeypotField;
 
 	private String slang;
 
@@ -120,6 +121,7 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate> {
 		institutionAddressField = new TextAreaField<String>("institutionAddress", new PropertyModel<String>(getModel(), "institutionAddress"), getLabel("institutionAddress"), 4);
 		commentsField = new TextAreaField<String>("comments", new PropertyModel<String>(getModel(), "comments"), getLabel("comments"), 4);
 		passwordField = new TextField<String>("password", new PropertyModel<String>(getModel(), "password"), getLabel("password"));
+		honeypotField = new TextField<String>("honeypot", new PropertyModel<String>(getModel(), "honeypot"), Model.of(""));
 
 		getForm().add(nameField);
 		getForm().add(lastnameField);
@@ -129,6 +131,7 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate> {
 		getForm().add(institutionAddressField);
 		getForm().add(commentsField);
 		getForm().add(passwordField);
+		getForm().add(honeypotField);
 
 		SubmitButton<Candidate> sm = new SubmitButton<Candidate>("send", getModel(), getForm()) {
 
@@ -189,6 +192,7 @@ public class CandidateOnboardingEditor extends DBObjectEditor<Candidate> {
 			map.put("language", slang);
 
 			Candidate c = getCandidateDBService().create(map, getRootUser());
+			c.setFormOpenedAt(OffsetDateTime.now());
 			setModel(new ObjectModel<Candidate>(c));
 
 		} catch (Exception e) {

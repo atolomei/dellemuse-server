@@ -364,11 +364,18 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 		// model.getObject().getLanguageRegion()+" ) </span>");
 
 		if (model.getObject().getState() == ObjectState.DELETED)
-			str.append(model.getObject().getDisplayname() + Icons.DELETED_ICON_HTML);
+			str.append(Icons.DELETED_ICON_HTML);
 
 		if (model.getObject().getState() == ObjectState.EDITION)
 			str.append(Icons.EDITION_ICON_HTML);
 
+		if (model.getObject().isBotSuspected())
+			str.append(Icons.BOT_SUSPECTED_ICON_HTML);
+
+
+		 
+		
+		
 		return Model.of(str.toString());
 
 	}

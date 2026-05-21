@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.JsonObject;
@@ -40,23 +39,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import tools.jackson.databind.ObjectMapper;
 
-/**
- * 
- * 
- * CREATE TABLE audit ( id bigint primary key default nextval('audit_id'),
- * lastmodified timestamp with time zone DEFAULT now() not null,
- * lastmodifieduser bigint references users(id) on delete restrict not null,
- * action bigint not null, objectClassName character varying(512) not null,
- * objectId bigint not null, description text, json_data jsonb );
- */
+ 
 @Entity
 @Table(name = "audit")
 @JsonInclude(Include.NON_NULL)
 public class DelleMuseAudit extends JsonObject implements Identifiable, Auditable {
 
 	@JsonIgnore
-	static final private ObjectMapper hb6mapper = new DellemuseObjectMapper();
+	static final private DellemuseObjectMapper hb6mapper = new DellemuseObjectMapper();
 
 	@JsonIgnore
 	static final private JsonFactory factory = new JsonFactory();

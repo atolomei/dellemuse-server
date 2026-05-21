@@ -6,8 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.7</version>
-		<!-- 3.5.7  3.3.4  4.0.3 -->
+		<version>4.0.2</version>
 	</parent>
 
 	<groupId>dellemuse</groupId>
@@ -15,7 +14,7 @@
 	<version>main</version>
 	<packaging>jar</packaging>
 	<name>dellemuse-serverapp</name>
-	<url>https://odilon.io/dellemuse</url>
+	<url>https://dellemuse.app</url>
 
 	<description>
 		Dellemuse Server App
@@ -23,23 +22,30 @@
 
 	<properties>
 		<apache-freemaker-version>2.3.33</apache-freemaker-version>
-		<commons-io-version>2.19.0</commons-io-version>
+		<batik-version>1.19</batik-version>
+		<commons-io-version>2.22.0</commons-io-version>
 		<commons-logging-version>1.3.5</commons-logging-version>
 		<commons-validator.version>1.8.0</commons-validator.version>
 
-		<dellemuse-client-version>0.1-beta</dellemuse-client-version>
+		<!-- dellemuse-client-version>0.1-beta</ dellemuse-client-version -->
 		<dellemuse-model-version>0.1-beta</dellemuse-model-version>
-		<disruptor-version>3.4.4</disruptor-version> 			<!--  01 /2024 version 4.0.0
+		<disruptor-version>3.4.4</disruptor-version> 
+					<!--  01 /2024 version 4.0.0
 		did not work with LogManager  -->
+		
+		
 		<dropwizard-metrics-version>4.2.25</dropwizard-metrics-version>
 		<google-cloud-translate-version>2.77.0</google-cloud-translate-version>
 		<hibernate-core-version>6.4.4.Final</hibernate-core-version>
 		<hibernate-entitymanager-version>5.6.15.Final</hibernate-entitymanager-version>
-		<jackson-datatype-hibernate6-version>2.19.2</jackson-datatype-hibernate6-version>
+	
+		
+	
 		<jakarta.validation-api-version>3.1.1</jakarta.validation-api-version>
 		<java-version>17</java-version>
 
 		<jaudiotagger-version>3.0.1</jaudiotagger-version>
+		<jlayer-version>1.0.1.4</jlayer-version>
 
 		<junit-jupiter.version>5.3.2</junit-jupiter.version>
 		<junit-version>5.10.2</junit-version>
@@ -50,17 +56,21 @@
 		<maven-javadoc-plugin-version>3.6.3</maven-javadoc-plugin-version>
 		<maven-jar-plugin-version>3.3.0</maven-jar-plugin-version>
 		<maven.test.skip>true</maven.test.skip>
+		<mp3spi-version>1.9.5.4</mp3spi-version>
+		<pdfbox-version>3.0.7</pdfbox-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spring-ai.version>2.0.0-M6</spring-ai.version>
 		<spring-boot-starter-version>4.0.0</spring-boot-starter-version>
-		<odilon-client-version>1.16</odilon-client-version>
+		<odilon-client-version>1.15.2</odilon-client-version>
 		<oswego-version>1.3.4</oswego-version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
+		<google-libraries-bom-version>26.70.0</google-libraries-bom-version>
 
 		<spring-boot-starter-version>4.0.0</spring-boot-starter-version>
+		<tika-version>3.2.3</tika-version>
 		<tomcat-dbcp-version>11.0.6</tomcat-dbcp-version>  <!-- 4/2025 -->
 		<wicket-version>10.0.0</wicket-version>
 		<wktui-version>0.1-beta</wktui-version>
+		<zxing-version>3.3.0</zxing-version>
 	</properties>
 
 	<developers>
@@ -77,6 +87,14 @@
 			<!-- url>file://${basedir}/nonstandardlib/</ url -->
 			<url>~/.m2/repository</url>
 		</repository>
+		<repository>
+			<id>spring-milestones</id>
+			<name>Spring Milestones</name>
+			<url>https://repo.spring.io/milestone</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
 	</repositories>
 
 
@@ -84,20 +102,8 @@
 
 		<!-- s. DB  ============================================================  -->
 
-		<!--dependency>
-			<groupId>dellemuse</groupId>
-			<artifactId>dellemuse-serverdb</artifactId>
-  			<version>0.1-beta</version>
-		</ dependency -->
-
-
-		<!-- dependency>
-			<groupId>dellemuse</groupId>
-			<artifactId>dellemuse-serverdb</artifactId>
-  			<version>0.1-beta</version>
-		    <scope>system</scope>
-		<systemPath>/Users/alejandrotolomei/eclipse-workspace/dellemuse-server/serverdb/target/dellemuse-serverdb-0.1-beta.jar</systemPath>
-		</ dependency -->
+	 
+ 
 
 		<!-- Source:
 		https://mvnrepository.com/artifact/io.sentry/sentry-spring-boot-starter -->
@@ -130,7 +136,6 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>${commons-logging-version}</version>
 		</dependency>
 
 		<dependency>
@@ -139,10 +144,8 @@
 			<version>${disruptor-version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-spring-boot</artifactId>
-		</dependency>
+		<!-- log4j-spring-boot removed: incompatible with Spring Boot 4.x (constructor signature changed).
+		     spring-boot-starter-log4j2 handles the integration natively in Boot 4.x -->
 
 		<!-- =================================================================  -->
 
@@ -221,7 +224,7 @@
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-starter-model-openai</artifactId>
-			<version>1.1.3</version>
+			<version>${spring-ai.version}</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -250,17 +253,13 @@
 			<artifactId>postgresql</artifactId>
 		</dependency>
 
+		<!-- hibernate-core: version managed by Spring Boot 4.x (org.hibernate.orm groupId since Hibernate 6+) -->
 		<dependency>
-			<groupId>org.hibernate</groupId>
+			<groupId>org.hibernate.orm</groupId>
 			<artifactId>hibernate-core</artifactId>
-			<version>${hibernate-core-version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-entitymanager</artifactId>
-			<version>${hibernate-entitymanager-version}</version>
-		</dependency>
+		<!-- hibernate-entitymanager was merged into hibernate-core in Hibernate 6.x, removed -->
 
 		<!-- ODILON
 		======================================================  -->
@@ -279,7 +278,7 @@
 		<dependency>
 			<groupId>org.apache.pdfbox</groupId>
 			<artifactId>pdfbox</artifactId>
-			<version>3.0.5</version>
+			<version>${pdfbox-version}</version>
 		</dependency>
 
 		<!-- batik (SVG rasterization)
@@ -288,7 +287,7 @@
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>batik-transcoder</artifactId>
-			<version>1.19</version>
+			<version>${batik-version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>xml-apis</groupId>
@@ -300,7 +299,7 @@
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>batik-codec</artifactId>
-			<version>1.19</version>
+			<version>${batik-version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>xml-apis</groupId>
@@ -331,11 +330,14 @@
 		<!-- jackson Hibernate
 	    =======================================================  -->
 
-		<dependency>
-			<groupId>com.fasterxml.jackson.datatype</groupId>
-			<artifactId>jackson-datatype-hibernate6</artifactId>
-			<!-- managed 2.18.3 -->
-		</dependency>
+		<!-- jackson-datatype-hibernate6 removed: incompatible with Hibernate 7 (org.hibernate.engine.spi.Mapping removed).
+		     tools.jackson version registers via ServiceLoader and crashes on startup.
+		     Hibernate6Module is unused in code (commented out in DellemuseObjectMapper).
+		     Re-add jackson-datatype-hibernate7 when available for tools.jackson 3.x. -->
+
+
+
+
 
 
 		<!-- Freemaker
@@ -355,6 +357,13 @@
 			<groupId>dellemuse</groupId>
 			<artifactId>dellemuse-model</artifactId>
 			<version>${dellemuse-model-version}</version>
+			<exclusions>
+				<!-- log4j-spring-boot is incompatible with Spring Boot 4.x (constructor signature changed) -->
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+					<artifactId>log4j-spring-boot</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 
@@ -369,25 +378,25 @@
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>mp3spi</artifactId>
-			<version>1.9.5.4</version>
+			<version>${mp3spi-version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>jlayer</artifactId>
-			<version>1.0.1.4</version>
+			<version>${jlayer-version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>core</artifactId>
-			<version>3.3.0</version>
+			<version>${zxing-version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>javase</artifactId>
-			<version>3.3.0</version>
+			<version>${zxing-version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/net.jthink/jaudiotagger -->
@@ -402,14 +411,14 @@
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-core</artifactId>
-			<version>3.2.3</version>
+			<version>${tika-version}</version>
 		</dependency>
 
 
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-parsers-standard-package</artifactId>
-			<version>3.2.3</version>
+			<version>${tika-version}</version>
 		</dependency>
 
 		<!-- s. WICKET  SPRING
@@ -454,7 +463,7 @@
 		<dependency>
 			<groupId>com.google.cloud</groupId>
 			<artifactId>libraries-bom</artifactId>
-			<version>26.70.0</version>
+			<version>${google-libraries-bom-version}</version>
 			<type>pom</type>
 		</dependency>
 

@@ -67,6 +67,8 @@ public class AudioStudioDBService extends DBService<AudioStudio, Long> {
 		AudioStudio c = new AudioStudio();
 		c.setName(name);
 		
+		c.setLanguage(guide.getLanguage());
+		
 		c.setInfo(guide.getInfo());
 		c.setState(guide.getState());
 		c.setArtExhibitionGuide(guide);

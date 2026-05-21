@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -14,22 +13,19 @@ public class DelleMuseListIdNameSerializer extends StdSerializer<List<DelleMuseO
 
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("unchecked")
     public DelleMuseListIdNameSerializer() {
-        this(null);
-    }
-  
-    public DelleMuseListIdNameSerializer(Class<List<DelleMuseObject>> t) {
-        super(t);
+        super((Class<List<DelleMuseObject>>) (Class<?>) List.class);
     }
 
     @Override
-    public void serialize(List<DelleMuseObject> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
+    public void serialize(List<DelleMuseObject> value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeStartArray();
-        for (DelleMuseObject o: value) {
+        for (DelleMuseObject o : value) {
             jgen.writeStartObject();
-            jgen.writeNumberField("id", o.getId());         
+            jgen.writeNumberField("id", (long) o.getId());
             jgen.writeStringField("name", o.getName());
-            if (o.getTitle()!=null)
+            if (o.getTitle() != null)
                 jgen.writeStringField("title", o.getTitle());
             jgen.writeEndObject();
         }

@@ -68,6 +68,11 @@ public class MusicListPage extends ObjectListPage<Music> {
 	}
 
 	@Override
+	public boolean canRead(Music m) {
+		return true;
+	}
+	
+	@Override
 	public boolean canEdit() {
 		return isRoot() || isGeneralAdmin();
 	}

@@ -208,6 +208,10 @@ a.listItemLink {text-decoration: none; color: inherit;}
 
 .dellemuse .menu-item .title 		{font-weight:bold; text-transform:uppercase; font-size: 0.9em;}
 .dellemuse .itemMenu 				{float:right; }
+
+
+.dellemuse .itemMenu .dropdown .text-warning i {color: rgba(var(--bs-warning-rgb), var(--bs-text-opacity)) !important;}
+
 .dellemuse .itemMenu .dropdown i 	{color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));  font-size:1.15em;}
 .dellemuse .itemMenu .dropdown-toggle::after {display:none;}
 

@@ -77,7 +77,7 @@ import io.wktui.struct.list.ListPanelMode;
  * 
  */
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/guidecontent/list")
 public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
@@ -89,25 +89,23 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 	@Override
 	public boolean canRead(GuideContent in) {
-		
+
 		Optional<User> ouser = getSessionUser();
-		
+
 		if (ouser.isEmpty())
 			return false;
-		
-		User user = ouser.get();  
-		
-		if (user.isRoot()) 
+
+		User user = ouser.get();
+
+		if (user.isRoot())
 			return true;
-		
+
 		if (isGeneralAdminOrAudit())
 			return true;
 
 		return false;
 	}
 
-	
-	
 	public GuideContentListPage() {
 		super();
 	}
@@ -124,32 +122,32 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 		listToolbar = new ArrayList<ToolbarItem>();
 
-
 		IModel<String> selected = Model.of(getObjectStateEnumSelector().getLabel(getLocale()));
 
-		 ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
+		ObjectStateListSelector s = new ObjectStateListSelector("item", selected, Align.TOP_LEFT);
 
 		listToolbar.add(s);
 		return listToolbar;
 	}
 
-	
 	@Override
 	public boolean hasAccessRight(Optional<User> ouser) {
 		if (ouser.isEmpty())
 			return false;
-		
-		User user = ouser.get();  if (user.isRoot()) return true;
+
+		User user = ouser.get();
+		if (user.isRoot())
+			return true;
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
 
 		Set<RoleGeneral> set = user.getRolesGeneral();
-		if (set==null)
+		if (set == null)
 			return false;
-		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT) ));
+		return set.stream().anyMatch((p -> p.getKey().equals(RoleGeneral.ADMIN) || p.getKey().equals(RoleGeneral.AUDIT)));
 	}
-	
+
 	protected void addHeaderPanel() {
 
 		BreadCrumb<Void> bc = createBreadCrumb();
@@ -195,7 +193,6 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 		return new Model<String>(model.getObject().getInfo());
 	}
 
-	 
 	@Override
 	public void onClick(IModel<GuideContent> model) {
 		setResponsePage(new GuideContentPage(model, getList()));
@@ -218,8 +215,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 		menu.setOutputMarkupId(true);
 
-		menu.setTitleCss
-("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
+		menu.setTitleCss("d-block-inline d-sm-block-inline d-md-block-inline d-lg-none d-xl-none d-xxl-none ps-1 pe-1");
 		menu.setIconCss("fa-solid fa-ellipsis d-block-inline d-sm-block-inline d-md-block-inline d-lg-block-inline d-xl-block-inline d-xxl-block-inline ps-1 pe-1");
 
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
@@ -234,8 +230,8 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 					private static final long serialVersionUID = 1L;
 
 					@Override
-					public void onClick () {
-						setResponsePage( new GuideContentPage( getModel(), getList() ));
+					public void onClick() {
+						setResponsePage(new GuideContentPage(getModel(), getList()));
 					}
 
 					@Override
@@ -245,12 +241,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 				};
 			}
 		});
-		
-		
-		
-		
-		
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
 
 			private static final long serialVersionUID = 1L;
@@ -262,11 +253,10 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 					private static final long serialVersionUID = 1L;
 
-					
 					public boolean isEnabled() {
-						return getModel().getObject().getState()!=ObjectState.PUBLISHED;
+						return getModel().getObject().getState() != ObjectState.PUBLISHED;
 					}
-				
+
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						getModel().getObject().setState(ObjectState.PUBLISHED);
@@ -281,10 +271,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 				};
 			}
 		});
-		
-		
-		
-		
+
 		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
 			private static final long serialVersionUID = 1L;
 
@@ -295,58 +282,20 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 				};
 			}
 		});
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		/**
-		
 
-		menu.addItem(new io.wktui.nav.menu.MenuItemFactory<GuideContent>() {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public MenuItemPanel<GuideContent> getItem(String id) {
-
-				return new AjaxLinkMen uItem<GuideContent>(id) {
-
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-						// refresh(target);
-					}
-
-					@Override
-					public IModel<String> getLabel() {
-						return getLabel("delete");
-					}
-				};
-			}
-		});*/
-		
 		return menu;
 	}
 
 	private List<ToolbarItem> mainToolbar;
-	
+
 	@Override
 	protected List<ToolbarItem> getMainToolbarItems() {
-		
+
 		if (mainToolbar != null)
 			return mainToolbar;
 
 		mainToolbar = new ArrayList<ToolbarItem>();
-		
+
 		ButtonCreateToolbarItem<Void> create = new ButtonCreateToolbarItem<Void>("item") {
 			private static final long serialVersionUID = 1L;
 
@@ -357,15 +306,14 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 			public boolean isVisible() {
 				return canEdit();
 			}
-			
+
 			protected void onClick() {
 				GuideContentListPage.this.onCreate();
 			}
 		};
 		create.setAlign(Align.TOP_LEFT);
 
-		
-		mainToolbar.add(new HelpButtonToolbarItem("item",  Align.TOP_RIGHT));
+		mainToolbar.add(new HelpButtonToolbarItem("item", Align.TOP_RIGHT));
 		return mainToolbar;
 	}
 
@@ -390,9 +338,10 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 	protected void onCreate() {
 		try {
-			//GuideContent in = getGuideContentDBService().create("new", getUserDBService().findRoot());
-			//IModel<GuideContent> m = new ObjectModel<GuideContent>(in);
-			//getList().add(m);
+			// GuideContent in = getGuideContentDBService().create("new",
+			// getUserDBService().findRoot());
+			// IModel<GuideContent> m = new ObjectModel<GuideContent>(in);
+			// getList().add(m);
 
 		} catch (Exception e) {
 			logger.error(e);
@@ -400,7 +349,7 @@ public class GuideContentListPage extends ObjectListPage<GuideContent> {
 
 		}
 	}
-	
+
 	protected IModel<String> getTitleLabel() {
 		return getLabel("guide-contents");
 	}

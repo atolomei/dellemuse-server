@@ -9,6 +9,8 @@
 			<div class="mb-4" wicket:id="institution"></div>
 			<div class="mb-4" wicket:id="institutionAddress"></div>
 			<div class="mb-4" wicket:id="comments"></div>
+			<!-- Honeypot: hidden from real users via CSS, bots will fill it -->
+			<div style="display:none !important; visibility:hidden; position:absolute; left:-9999px;" aria-hidden="true" wicket:id="honeypot"></div>
 			<div class="row">
 				<div class="mt-4 mb-0 col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
 					<div class="mt-0 mb-0 float-left d-inline-block" wicket:id="send" />

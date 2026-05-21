@@ -899,7 +899,7 @@ public class SitePage extends BasePage {
 
 			for (ArtExhibitionGuide g : getArtExhibitionDBService().getArtExhibitionGuides(model.getObject())) {
 
-				final String agname = TextCleaner.truncate(getObjectTitle(g).getObject(), 24) + (g.isAccessible() ? Icons.ACCESIBLE_ICON_HTML : "");
+				final String agname = getObjectTitle(g).getObject() + (g.isAccessible() ? Icons.ACCESIBLE_ICON_HTML : "");
 				final Long gid = g.getId();
 
 				menu.addItem(new io.wktui.nav.menu.MenuItemFactory<ArtExhibition>() {

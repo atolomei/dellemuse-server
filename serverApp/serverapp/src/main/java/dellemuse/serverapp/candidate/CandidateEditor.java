@@ -60,6 +60,7 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 	private TextField<String> lastnameField;
 	private TextField<String> emailField;
 	private BooleanField emailValidatedField;
+	private BooleanField botSuspectedField;
 	private TextField<String> phoneField;
 	private TextField<String> institutionField;
 	private TextAreaField<String> institutionAddressField;
@@ -103,6 +104,7 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 		lastnameField = new TextField<String>("lastname", new PropertyModel<String>(getModel(), "personLastname"), getLabel("personLastname"));
 		emailField = new TextField<String>("email", new PropertyModel<String>(getModel(), "email"), getLabel("email"));
 		emailValidatedField = new BooleanField("emailValidated", new PropertyModel<Boolean>(getModel(), "emailValidated"), getLabel("emailValidated"));
+		botSuspectedField = new BooleanField("botSuspected", new PropertyModel<Boolean>(getModel(), "botSuspected"), getLabel("botSuspected"));
 		phoneField = new TextField<String>("phone", new PropertyModel<String>(getModel(), "phone"), getLabel("phone"));
 
 		institutionField = new TextField<String>("institutionName", new PropertyModel<String>(getModel(), "institutionName"), getLabel("institutionName"));
@@ -124,6 +126,7 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 		getForm().add(lastnameField);
 		getForm().add(emailField);
 		getForm().add(emailValidatedField);
+		getForm().add(botSuspectedField);
 		getForm().add(phoneField);
 		getForm().add(institutionField);
 		getForm().add(institutionAddressField);

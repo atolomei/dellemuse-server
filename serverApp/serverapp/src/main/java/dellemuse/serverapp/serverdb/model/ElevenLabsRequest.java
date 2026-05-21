@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.JsonObject;
@@ -41,37 +40,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-
-/**
- * 
- * 
- * CREATE TABLE audit ( id bigint primary key default nextval('audit_id'),
- * lastmodified timestamp with time zone DEFAULT now() not null,
- * lastmodifieduser bigint references users(id) on delete restrict not null,
- * action bigint not null, objectClassName character varying(512) not null,
- * objectId bigint not null, description text, json_data jsonb );
- * 
- * 
- * 
- *
- * 
- * 
- * 
+import tools.jackson.databind.ObjectMapper;
  
-  
-  
-  CREATE TABLE elevenlabsrequest (
-    id  bigint  DEFAULT nextval('public.audit_id'::regclass) NOT NULL,
-    lastmodified  timestamp with time zone DEFAULT now() NOT NULL,
-    calledbyuser  bigint  NOT NULL references users(id) on delete cascade,
-    siteid  bigint  references  site(id) on delete cascade,
-    size integer NOT NULL default 0);
-    
-    
-   
-   
-   
- */
 @Entity
 @Table(name = "elevenlabsrequest")
 @JsonInclude(Include.NON_NULL)

@@ -9,8 +9,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -19,7 +18,7 @@ import dellemuse.serverapp.person.ServerAppConstant;
 import dellemuse.serverapp.serverdb.util.BannerUtil;
 import jakarta.annotation.PostConstruct;
 
-@SpringBootApplication(exclude = HibernateJpaAutoConfiguration.class)
+@SpringBootApplication
 @EnableJpaRepositories({ "dellemuse.serverapp.serverdb.repository" })
 @ComponentScan({ "dellemuse.serverapp" })
 @EntityScan("dellemuse.serverapp.serverdb.model")

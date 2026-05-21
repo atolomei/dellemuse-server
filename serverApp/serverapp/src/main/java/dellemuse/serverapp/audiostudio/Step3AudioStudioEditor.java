@@ -184,7 +184,7 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 			save(po, getSessionUser().get(),  List.of(AuditKey.INTEGRATE_AUDIO));
 			SimpleAlertRow<Void> p = new SimpleAlertRow<Void>("info");
 			p.setAlertType(AlertPanel.INFO);
-			p.setText( Model.of("successfully integrated"));
+			p.setText(getLabel("successfully-integrated"));
 			p.setVisible(true);
 			getForm().addOrReplace(p);
 		

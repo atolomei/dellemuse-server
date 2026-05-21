@@ -52,7 +52,7 @@ import wktui.base.INamedTab;
 
 import wktui.base.NamedTab;
 
-@AuthorizeInstantiation({"ROLE_USER"})
+@AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/site/portal/${id}")
 public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteRecord> {
 
@@ -63,7 +63,6 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 	private SitePublicPortalEditor editor;
 	private List<ToolbarItem> list;
 
-	
 	public SitePublishedPortalPage() {
 		super();
 	}
@@ -76,12 +75,10 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 		super(model);
 	}
 
-
 	public String getHelpKey() {
 		return Help.SITE_PORTAL;
 	}
 
-	
 	protected IModel<Site> getSiteModel() {
 		return getModel();
 	}
@@ -93,10 +90,10 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 			return false;
 
 		User user = ouser.get();
-		
+
 		if (user.isRoot())
 			return true;
-		
+
 		if (!user.isDependencies()) {
 			user = getUserDBService().findWithDeps(user.getId()).get();
 		}
@@ -123,7 +120,6 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 		return false;
 	}
 
-
 	@Override
 	protected Panel createHeaderPanel() {
 
@@ -132,13 +128,13 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 			bc.addElement(new HREFBCElement("/site/list", getLabel("sites")));
 			bc.addElement(new HREFBCElement("/site/" + getModel().getObject().getId().toString(), getObjectTitle(getModel().getObject())));
 			bc.addElement(new BCElement(getLabel("portal-info")));
-			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), getObjectTitle(getModel().getObject()) );
+			JumboPageHeaderPanel<Site> ph = new JumboPageHeaderPanel<Site>("page-header", getModel(), getObjectTitle(getModel().getObject()));
 			ph.setBreadCrumb(bc);
 
 			ph.setContext(getLabel("site"));
 
 			if (getModel().getObject().getSubtitle() != null)
-				ph.setTagline( getObjectSubtitle(getModel().getObject() ));
+				ph.setTagline(getObjectSubtitle(getModel().getObject()));
 
 			if (getModel().getObject().getPhoto() != null)
 				ph.setPhotoModel(new ObjectModel<Resource>(getModel().getObject().getPhoto()));
@@ -169,15 +165,14 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 
 		list = new ArrayList<ToolbarItem>();
 
-	 	// site
+		// site
 		SiteNavDropDownMenuToolbarItem site = new SiteNavDropDownMenuToolbarItem("item", getModel(), Align.TOP_RIGHT);
 		site.add(new org.apache.wicket.AttributeModifier("class", "d-none d-xs-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block text-md-center"));
 		list.add(site);
-		
-		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item",  Align.TOP_RIGHT);
+
+		HelpButtonToolbarItem h = new HelpButtonToolbarItem("item", Align.TOP_RIGHT);
 		list.add(h);
-		
-		
+
 		return list;
 	}
 
@@ -203,7 +198,6 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 		return tabs;
 	}
 
-	 
 	protected void onEdit(AjaxRequestTarget target) {
 		this.editor.onEdit(target);
 
@@ -213,6 +207,7 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 	protected Class<?> getTranslationClass() {
 		return SiteRecord.class;
 	}
+
 	protected void setUpModel() {
 		super.setUpModel();
 
@@ -225,8 +220,7 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 	protected List<Language> getSupportedLanguages() {
 		return getModel().getObject().getLanguages();
 	}
-	
-	
+
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
@@ -274,7 +268,7 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 
 				else if (event.getName().equals(ServerAppConstant.site_page_info)) {
 					SitePublishedPortalPage.this.togglePanel(ServerAppConstant.site_page_info, event.getTarget());
-					
+
 				} else if (event.getName().equals(ServerAppConstant.object_meta)) {
 					SitePublishedPortalPage.this.togglePanel(ServerAppConstant.object_meta, event.getTarget());
 				}
@@ -320,7 +314,7 @@ public class SitePublishedPortalPage extends MultiLanguageObjectPage<Site, SiteR
 			}
 		});
 	}
-	
+
 	@Override
 	protected Optional<Site> getObject(Long id) {
 		return getSite(id);

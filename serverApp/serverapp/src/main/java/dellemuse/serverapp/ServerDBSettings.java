@@ -35,18 +35,15 @@ public class ServerDBSettings {
 	/** DELLEMUSE WEBAPP ----------------------------------------------------- */
 
 	@Value("${dellemuse.webapp.accessKey:dellemuse}")
-	@NonNull
 	protected String accessKey;
 
 	@Value("${dellemuse.webapp.secretKey:dellemuse}")
-	@NonNull
 	protected String secretKey;
 
 	@Value("${server.port:8099}")
 	protected int port;
 
 	@Value("${dellemuse.serverapp.endpoint:http://localhost}")
-	@NonNull
 	protected String endpoint;
 
 	@Value("${server.ssl.enabled:false}")
@@ -58,6 +55,12 @@ public class ServerDBSettings {
 	@Value("${server.qr:https://dellemuse.kbee.io}")
 	protected String qrurl;
 
+
+	@Value("${server.visitorguide:null}")
+	protected String visitorguide;
+
+	
+	
 	/** -------------------------------------- **/
 
 	@Value("${dispatcher.poolsize:10}")
@@ -214,6 +217,14 @@ public class ServerDBSettings {
 		return emailValidationServer;
 	}
 
+	/** Cloudflare Turnstile secret key - https://dash.cloudflare.com */
+	@Value("${captcha.turnstile.secret.key:}")
+	protected String captchaSecretKey;
+
+	public String getCaptchaSecretKey() {
+		return captchaSecretKey;
+	}
+
 	public ServerDBSettings() {
 	}
 
@@ -257,11 +268,21 @@ public class ServerDBSettings {
 		return secretKey;
 	}
 
+	public String getVisitorguide() {
+		return visitorguide;
+	}
+	
+	
 	@PostConstruct
 	protected void onInitialize() {
 
 		checkDirs();
 
+		if (visitorguide != null && !visitorguide.equals("null"))
+			visitorguide = visitorguide.trim();
+		else
+			visitorguide = null;
+		
 		if (objectStoragePresignedUrl == null || objectStoragePresignedUrl.equals("null"))
 			objectStoragePresignedUrl = this.objectStorageUrl.replace("https://", "").replace("http://", "");
 

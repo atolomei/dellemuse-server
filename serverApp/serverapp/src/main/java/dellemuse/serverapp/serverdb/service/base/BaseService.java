@@ -3,8 +3,7 @@ package dellemuse.serverapp.serverdb.service.base;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import tools.jackson.databind.ObjectMapper;
 import dellemuse.model.JsonObject;
 import dellemuse.serverapp.DellemuseObjectMapper;
 import dellemuse.serverapp.ServerDBSettings;

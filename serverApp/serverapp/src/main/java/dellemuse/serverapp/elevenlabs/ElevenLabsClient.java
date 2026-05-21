@@ -28,11 +28,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 
 import dellemuse.model.ArtExhibitionGuideModel;
 import dellemuse.model.ArtExhibitionItemModel;
@@ -59,6 +55,8 @@ import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import tools.jackson.databind.ObjectMapper;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -140,9 +138,9 @@ public class ElevenLabsClient {
 		this.acceptAllCertificates = acceptAllCertificates;
 		this.isSSL = isSecure;
 
-		this.objectMapper.registerModule(new JavaTimeModule());
-		this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		this.objectMapper.registerModule(new Jdk8Module());
+		//this.objectMapper.registerModule(new JavaTimeModule());
+		//this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		//this.objectMapper.registerModule(new Jdk8Module());
 
 		this.scheme = (isSecure) ? Scheme.HTTPS : Scheme.HTTP;
 

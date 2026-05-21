@@ -2,10 +2,9 @@
 body.dellemuse {margin:0; padding:0; font-family: Montserrat, Arial, sans serif; font-size:15px; }
 
 
-.help 					{font-size:1.05rem; text-align:center;}
+.help 					{font-size:1rem; text-align:center;}
 .help .highlight 		{color: #a74646;}
 .help .help-content		{max-width: 800px;margin: 0 auto;}
-
 
 
 
@@ -17,30 +16,7 @@ a.imageLink	{position: relative; float: left; width: 100%; text-align: center;}
 
 .bg-black {background:#000000;}
  
- /**--
- 
-.branded a {color: #f8f9fa !important;}
-.branded .breadcrumb-item + .breadcrumb-item::before { color:#cccccc; }
-.branded  .text-secondary { color: #eeeeef !important;}
-.branded .form-control {background: inherit; color: white;}
-.branded .form-control::placeholder {background: inherit; color: #cccccc;}
-.branded .border-bottom {border-color: #545454 !important;}
-.branded .border-top {border-color: #545454 !important; }
-.branded .list-group-item {color:inherit;}
- color:#131414;
- */ 
- 
- /**-- */ 
-
-@media screen and (max-height: 666px) {
-  .height-sm-none {display:none !important;}	
-}
- 
-
-
-@media screen and (min-width: 769px) {
-.mode-title-image .menuContainer {top:15px;}
-}
+  
 
 
 .mode-title-image .menuContainer i.titleIcon {display:none;}
@@ -229,7 +205,7 @@ a.listItemLink {text-decoration: none; color: inherit;}
 
 .dellemuse .menu-item .title 		{font-weight:bold; text-transform:uppercase; font-size: 0.9em;}
 .dellemuse .itemMenu 				{float:right; }
-.dellemuse .itemMenu .dropdown i 	{color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));  font-size:1.15em;}
+.dellemuse .itemMenu .dropdown i 	{  font-size:1.15em;}
 .dellemuse .itemMenu .dropdown-toggle::after {display:none;}
 
 .static-text {min-height: calc( 1em + 1.5rem ); font-style: italic;}
@@ -299,9 +275,20 @@ a.listItemLink {text-decoration: none; color: inherit;}
 .dellemuse   .hasplayer {margin-bottom:112px;}
 
 
+
+
+@media screen and (max-height: 666px) {
+  .height-sm-none {display:none !important;}	
+}
  
-  
+
+
+@media screen and (min-width: 769px) {
+.mode-title-image .menuContainer {top:15px;}
+}
+
 /**- ---------------------------------------------------------------------------------- - */
+
 @media (max-width: 768px) {
 	
  body.dellemuse {font-size: 13px;}

@@ -16,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import dellemuse.model.JsonObject;
@@ -37,6 +36,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Transient;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * 
@@ -47,7 +47,7 @@ import jakarta.persistence.Transient;
 public abstract class DelleMuseObject extends JsonObject implements Identifiable, Auditable {
 
 	@JsonIgnore
-	static final private ObjectMapper hb6mapper = new DellemuseObjectMapper();
+	static final private DellemuseObjectMapper hb6mapper = new DellemuseObjectMapper();
 
 	@JsonIgnore
 	static final private JsonFactory factory = new JsonFactory();
