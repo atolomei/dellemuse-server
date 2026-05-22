@@ -9,7 +9,7 @@ import dellemuse.serverapp.command.CommandService;
  
 import dellemuse.serverapp.serverdb.model.Candidate;
 import dellemuse.serverapp.serverdb.model.CandidateStatus;
- 
+import dellemuse.serverapp.serverdb.model.ObjectState;
 import dellemuse.serverapp.serverdb.service.CandidateDBService;
 import dellemuse.serverapp.serverdb.service.base.ServiceLocator;
 
@@ -38,7 +38,16 @@ public class CandidateEventListener {
     	if (c.getStatus()!=CandidateStatus.SUBMITTED)
     		return;
     	
-    	logger.debug("Scheduling email validation for candidate -> : "+ c.getDisplayname());
+    	if (c.getState()==ObjectState.DELETED)
+    		return;
+    	
+    	if (c.isBotSuspected())
+    		return;
+    	
+    	logger.debug("---------------------------------------");
+    	logger.debug("Scheduling email validation for candidate -> : "+ c.getDisplayname() +  " | email: "+ c.getEmail() + " | id: "+ c.getId());
+    	logger.debug("---------------------------------------");
+ 
     	
     	getCommandService().run(new CandidateValidateEmailCommand(c.getId()));
     }

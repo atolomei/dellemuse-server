@@ -31,6 +31,9 @@ public class EmailService extends BaseService implements SystemService  {
 
 	static private Logger logger = Logger.getLogger( EmailService.class.getName());
 
+	
+	static private Logger elogger = Logger.getLogger( "email" );
+	
 //	@JsonIgnore
 //	@Autowired
 //    private JavaMailSender javaMailSender;
@@ -114,10 +117,14 @@ public class EmailService extends BaseService implements SystemService  {
         HttpResponse<String> response =
                 httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
+        
+        elogger.info("Email sent -> to. " + to + "| subject. " + subject + " | Mailgun response: " + response.statusCode() + " - " + response.body());
+        
         logger.debug("Mailgun response [" + response.statusCode() + "]: " + response.body());
 
         if (response.statusCode() != 200) {
             logger.error("Mailgun send failed [" + response.statusCode() + "]: " + response.body() + " | to." + to + " | subject." + subject);
+            elogger.error("Mailgun send failed [" + response.statusCode() + "]: " + response.body() + " | to." + to + " | subject." + subject);
         }
 
         return response.body();

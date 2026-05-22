@@ -108,8 +108,6 @@ public class CandidateValidateEmailCommand extends Command {
 	@Override
 	public void execute() {
 
-		
-		
 		if (this.candidateId == null) {
 			logger.error(this.getClass().getSimpleName() + ": candidateId is null", ServerConstant.NOT_THROWN);
 			return;
@@ -117,28 +115,43 @@ public class CandidateValidateEmailCommand extends Command {
 
 		Candidate c = getCandidateDBService().findById(candidateId).orElse(null);
 
+		// ----------------------------------------
+		//
 
 		if (c == null)
 			return;
 
+		if (c.getState()==ObjectState.DELETED) {
+			logger.debug("Candidate deleted. nothing done");
+			return;
+		}
+		
+		if (c.getState() == ObjectState.EDITION) {
+			logger.debug("Candidate in Edition. nothing done");
+			return;
+		}
+		
+		if (c.getStatus() != CandidateStatus.SUBMITTED) {
+			logger.debug("Candidate in state Submitted. nothing done");
+			return;
+		}
+		
+		if (c.isBotSuspected()) {
+			logger.debug("bot suspected true. nothing done");
+			return;
+		}
+
+		// ----------------------------------------
+		//
+		
 		if (c.isEmailValidated())
 			return;
 
 		if (c.getValidationEmailSent() != null)
 			return;
 
-		if (c.getState() == ObjectState.DELETED)
-			return;
-
-		if (c.getState() == ObjectState.EDITION)
-			return;
-
-		if (c.getStatus() != CandidateStatus.SUBMITTED)
-			return;
-
 		logger.debug("Executing " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
 
-		
 		if (c.getEmail() == null || c.getEmail().length() == 0) {
 			logger.error("email is null", ServerConstant.NOT_THROWN);
 			logger.debug("Aborting " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
@@ -151,15 +164,13 @@ public class CandidateValidateEmailCommand extends Command {
 			getCandidateDBService().save(c);
 			logger.debug("Aborting " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
 			return;
-			 
+
 		}
 
-		
-		
 		// -- Option 1: Honeypot check - bots tend to fill all fields
 		if (c.getHoneypot() != null && !c.getHoneypot().isEmpty()) {
 			logger.error("honeypot triggered for candidate -> " + c.getEmail(), ServerConstant.NOT_THROWN);
-			c.setInternalcomments(" honeypot triggered"); 
+			c.setInternalcomments(" honeypot triggered");
 			c.setBotSuspected(true);
 			getCandidateDBService().save(c);
 			logger.debug("Aborting " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
@@ -171,15 +182,13 @@ public class CandidateValidateEmailCommand extends Command {
 			long seconds = java.time.Duration.between(c.getFormOpenedAt(), c.getCreated()).getSeconds();
 			if (seconds < 5) {
 				logger.error("form submitted too fast (bot suspected) " + seconds + "s -> " + c.getEmail(), ServerConstant.NOT_THROWN);
-				c.setInternalcomments("form submitted too fast (bot suspected) -Z " + seconds + "secs " );
+				c.setInternalcomments("form submitted too fast (bot suspected) -Z " + seconds + "secs ");
 				c.setBotSuspected(true);
 				getCandidateDBService().save(c);
 				logger.debug("Aborting " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
 				return;
 			}
 		}
-
-		
 
 		StringBuilder sb = new StringBuilder();
 
@@ -191,16 +200,11 @@ public class CandidateValidateEmailCommand extends Command {
 		sb.append(sb.length() > 0 ? " " : "");
 		sb.append(c.getComments() != null ? c.getComments() : "");
 
-		// double entropy = entropy(sb.toString());
-
-		String botSuspected = "bot suspected ->  entropy " + "( " + entropy(sb.toString()) + " )" + " | vowel ratio" + "( " + (vowelRatio(sb.toString())) + " )" + " | high case transitions " + "( " + randomCase(sb.toString()+")");
-
-		
-		
+		String botSuspected = "bot suspected ->  entropy " + "( " + entropy(sb.toString()) + " )" + " | vowel ratio" + "( " + (vowelRatio(sb.toString())) + " )" + " | high case transitions " + "( " + randomCase(sb.toString() + ")");
 
 		boolean suspicious = (entropy(sb.toString()) > 3.9 && vowelRatio(sb.toString()) < 0.25) || randomCase(sb.toString());
 		if (suspicious) {
-			
+
 			logger.error(botSuspected, ServerConstant.NOT_THROWN);
 			logger.debug("Aborting " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
 
@@ -210,7 +214,8 @@ public class CandidateValidateEmailCommand extends Command {
 			return;
 		}
 
-		//
+		
+		// -------------------------------------------------------
 		//
 		// TBA
 		//
@@ -220,7 +225,6 @@ public class CandidateValidateEmailCommand extends Command {
 		// ServerConstant.NOT_THROWN);
 		// return;
 		// }
-
 
 		// -- token for email validation
 		// -------------------------------------------------------
