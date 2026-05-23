@@ -52,6 +52,8 @@ public class ArtExhibitionExpandedPanel extends DBModelPanel<ArtExhibition> impl
 		String subtitle = ex.getSubtitle();
 		Label subtitleLabel = new Label("subtitle", (subtitle != null && !subtitle.isEmpty()) ? subtitle : "");
 		subtitleLabel.setVisible(subtitle != null && !subtitle.isEmpty());
+		subtitleLabel.setEscapeModelStrings(false);
+		
 		add(subtitleLabel);
 
 		// Audio Id

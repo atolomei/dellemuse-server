@@ -22,6 +22,9 @@ public class SecurityAuditListener {
 
 	private static final Logger logger = Logger.getLogger(SecurityAuditListener.class.getName());
 
+	static private Logger loginLogger = Logger.getLogger("login");
+	
+	
 	@Autowired
 	private DelleMuseAuditDBService auditService;
 
@@ -36,6 +39,9 @@ public class SecurityAuditListener {
 		Authentication auth = event.getAuthentication();
 		String identifier = auth.getName();
 		logger.debug("handleAuthenticationSuccess for identifier: " + identifier);
+		loginLogger.info("log in successful -> " + (auth != null ? auth.getName() : "null") );
+		
+	    
 		
 		Optional<User> user = userService.findByUsernameOrEmailOrPhone(identifier);
 
@@ -53,6 +59,9 @@ public class SecurityAuditListener {
 	public void handleLogoutSuccess(LogoutSuccessEvent event) {
 		Authentication auth = event.getAuthentication();
 		logger.debug("handleLogoutSuccess -> auth: " + (auth != null ? auth.getName() : "null"));
+	    loginLogger.info("log out successful -> " + (auth != null ? auth.getName() : "null") );
+		
+		
 		if (auth != null) {
 			String identifier = auth.getName();
 			Optional<User> user = userService.findByUsernameOrEmailOrPhone(identifier);

@@ -51,6 +51,7 @@ import io.wktui.nav.menu.NavDropDownMenu;
 import io.wktui.nav.toolbar.ButtonCreateToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem;
 import io.wktui.nav.toolbar.ToolbarItem.Align;
+import io.wktui.struct.list.ListPanelMode;
 
 @AuthorizeInstantiation({ "ROLE_USER" })
 @MountPath("/candidate/list")
@@ -107,6 +108,11 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 
 	}
 
+	
+	
+	 
+	
+	
 	public String getHelpKey() {
 		return Help.CANDIDATES;
 	}
@@ -372,13 +378,46 @@ public class CandidateListPage extends ObjectListPage<Candidate> {
 		if (model.getObject().isBotSuspected())
 			str.append(Icons.BOT_SUSPECTED_ICON_HTML);
 
-
-		 
-		
-		
 		return Model.of(str.toString());
 
 	}
+	
+	
+	
+	@Override
+	public IModel<String> getObjectSubtitle(IModel<Candidate> model) {
+
+		StringBuilder str = new StringBuilder();
+
+		try {
+			Candidate c = model.getObject();
+
+			String institution = c.getInstitutionName() != null ? c.getInstitutionName() : "";
+
+			if (institution != null && (!institution.isBlank()))
+				str.append(institution);
+			 
+
+			if (c.getStatus() != null)
+				str.append((str.length() > 0 ? " <br/> "  : "") + c.getStatus().getLabel());
+
+			if (c.getInternalcomments() != null)
+				str.append((str.length() > 0 ? " <br/> " : "") + c.getInternalcomments());
+
+		} catch (Exception e) {
+			logger.error(e);
+			str.append(e.getClass() + "  " + e.getMessage());
+		}
+		return Model.of(str.toString());
+
+	}
+	
+	
+	@Override
+	protected ListPanelMode getListPanelMode() {
+		return ListPanelMode.TITLE_TEXT;
+	}
+	
 
 	@Override
 	public void onClick(IModel<Candidate> model) {

@@ -72,7 +72,8 @@ public class LoginPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 
 	static private Logger logger = Logger.getLogger(LoginPage.class.getName());
-
+	static private Logger loginLogger = Logger.getLogger("login");
+	
 	private WebMarkupContainer alertContainer;
 	private AlertPanel<Void> alert;
 
@@ -186,7 +187,8 @@ public class LoginPage extends BasePage {
 				    }
 
 				    logger.debug("successful login -> email. " + email +  " p. " + password);
-
+				    
+				    
 			
 				    // VERY IMPORTANT → bind Wicket session immediately
 				    getSession().bind();
@@ -203,17 +205,20 @@ public class LoginPage extends BasePage {
 				    Optional<User> o  = getSessionUser();
 				    
 				    if (o.isPresent()) {
-				    	logger.debug("User " + o.get().getEmail() + " logged in successfully.");
+
+				    	 Optional<String> em = Optional.ofNullable(o.get().getEmail());
+				    	
+				    	logger.debug("log in successful -> " + o.get().getUsername() + " | email. " +em.orElse("null"));
+					    
+				    
 				    } else {
 				    	logger.error("User not found after successful login: " + email);
 				    }
 				    
-
 				    
 				    // Continue original destination OR go home
 				    continueToOriginalDestination();
 				    setResponsePage(getApplication().getHomePage());
-			
 			
 			}
 

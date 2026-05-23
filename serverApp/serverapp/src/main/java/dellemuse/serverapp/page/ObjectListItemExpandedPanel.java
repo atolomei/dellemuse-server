@@ -69,7 +69,10 @@ public abstract class ObjectListItemExpandedPanel<T> extends ModelPanel<T> {
 			WebMarkupContainer subtitleContainer = new WebMarkupContainer("subtitle-container");
 			titleTextContainer.addOrReplace(subtitleContainer);
 			Label subtitleLabel = new Label("subtitle", getObjectSubtitle());
+			subtitleLabel.setEscapeModelStrings(false);
+			
 			subtitleContainer.add(subtitleLabel);
+			
 		} else {
 			titleTextContainer.addOrReplace(new InvisiblePanel("subtitle-container"));
 		}

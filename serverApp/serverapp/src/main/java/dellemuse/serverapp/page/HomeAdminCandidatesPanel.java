@@ -99,9 +99,7 @@ public class HomeAdminCandidatesPanel extends ModelPanel<User> {
 
 	private void loadList() {
 		list = new ArrayList<>();
-		getCandidateDBService()
-				.findByStatus(CandidateStatus.SUBMITTED, CandidateStatus.EVALUATION)
-				.forEach(c -> list.add(new ObjectModel<Candidate>(c)));
+		getCandidateDBService().findByStatus(CandidateStatus.SUBMITTED, CandidateStatus.EVALUATION).forEach(c -> list.add(new ObjectModel<Candidate>(c)));
 	}
 
 	protected IModel<String> getObjectTitle(IModel<Candidate> model) {
@@ -110,7 +108,8 @@ public class HomeAdminCandidatesPanel extends ModelPanel<User> {
 		if (c.getPersonLastname() != null && !c.getPersonLastname().isBlank())
 			str.append(c.getPersonLastname());
 		if (c.getPersonName() != null && !c.getPersonName().isBlank()) {
-			if (str.length() > 0) str.append(", ");
+			if (str.length() > 0)
+				str.append(", ");
 			str.append(c.getPersonName());
 		}
 		if (str.length() == 0)
@@ -121,14 +120,30 @@ public class HomeAdminCandidatesPanel extends ModelPanel<User> {
 	}
 
 	protected IModel<String> getObjectSubtitle(IModel<Candidate> model) {
-		Candidate c = model.getObject();
-		String status = c.getStatus() != null ? c.getStatus().getLabel() : "";
-		String institution = c.getInstitutionName() != null ? c.getInstitutionName() : "";
-		if (!institution.isBlank() && !status.isBlank())
-			return Model.of(institution + " — " + status);
-		if (!institution.isBlank())
-			return Model.of(institution);
-		return Model.of(status);
+
+		StringBuilder str = new StringBuilder();
+
+		try {
+			Candidate c = model.getObject();
+
+			String institution = c.getInstitutionName() != null ? c.getInstitutionName() : "";
+			if (institution != null && (!institution.isBlank()))
+				str.append(institution);
+
+			 
+
+			if (c.getStatus() != null)
+				str.append((str.length() > 0 ? " <br/> "  : "") + c.getStatus().getLabel());
+
+			if (c.getInternalcomments() != null)
+				str.append((str.length() > 0 ? " <br/> " : "") + c.getInternalcomments());
+
+		} catch (Exception e) {
+			logger.error(e);
+			str.append(e.getClass() + "  " + e.getMessage());
+		}
+		return Model.of(str.toString());
+
 	}
 
 	protected IModel<String> getObjectInfo(IModel<Candidate> model) {
