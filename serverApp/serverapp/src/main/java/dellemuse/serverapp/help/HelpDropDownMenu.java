@@ -236,6 +236,68 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 		});
 		
 		 addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<User> getItem(String id) {
+					return new SeparatorMenuItem<User>(id );
+				}
+			});
+			
+			
+
+			addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<User> getItem(String id) {
+					return new TitleMenuItem<User>(id) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public IModel<String> getLabel() {
+							return HelpDropDownMenu.this.getLabel("articles");
+						}
+					};
+				}
+			});
+
+			
+			
+
+			addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public MenuItemPanel<User> getItem(String id) {
+
+					return new LinkMenuItem<User>(id, getModel()) {
+						private static final long serialVersionUID = 1L;
+
+						@Override
+						public void onClick() {
+							setResponsePage(new HelpManualPage( "best-practices-audio-guide", getModel() ) );
+						}
+
+						@Override
+						public IModel<String> getLabel() {
+							return HelpDropDownMenu.this.getLabel("guidelines-audio-guides");
+						}
+
+						@Override
+						public String getTarget() {
+							return "_blank";
+						}
+					};
+				}
+			});
+			
+			
+			
+			
+		
+		 addItem(new io.wktui.nav.menu.MenuItemFactory<User>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override

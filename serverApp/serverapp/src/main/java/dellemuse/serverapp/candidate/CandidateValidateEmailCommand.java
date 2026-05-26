@@ -12,6 +12,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import dellemuse.model.logging.Logger;
+import dellemuse.model.util.NumberFormatter;
 import dellemuse.serverapp.DellemuseServer;
 import dellemuse.serverapp.ServerConstant;
 import dellemuse.serverapp.command.Command;
@@ -149,6 +150,11 @@ public class CandidateValidateEmailCommand extends Command {
 
 		if (c.getValidationEmailSent() != null)
 			return;
+		
+		
+		
+		
+		
 
 		logger.debug("Executing " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
 
@@ -163,16 +169,34 @@ public class CandidateValidateEmailCommand extends Command {
 			c.setBotSuspected(true);
 			getCandidateDBService().save(c);
 			logger.debug("Aborting " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
+			c.setInternalcomments("Email invalid (bot suspected) ");
 			return;
 
 		}
 
+		
+		boolean fake=  (c.getInstitutionName()!=null	 && c.getInstitutionName().trim().length()<2) &&
+					   (c.getInstitutionAddress()!=null  && c.getInstitutionAddress().trim().length()<2);
+		
+		
+		if (fake) {
+			logger.error("Fake institution -> " + c.toString(), ServerConstant.NOT_THROWN);
+			c.setBotSuspected(true);
+			getCandidateDBService().save(c);
+			logger.debug("Aborting " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
+			c.setInternalcomments("bot suspected -> Fake instution");
+			return;
+		}
+		
+		
 		// -- Option 1: Honeypot check - bots tend to fill all fields
 		if (c.getHoneypot() != null && !c.getHoneypot().isEmpty()) {
 			logger.error("honeypot triggered for candidate -> " + c.getEmail(), ServerConstant.NOT_THROWN);
 			c.setInternalcomments(" honeypot triggered");
 			c.setBotSuspected(true);
 			getCandidateDBService().save(c);
+			c.setInternalcomments(" honeypot triggered");
+
 			logger.debug("Aborting " + this.getClass().getSimpleName() + " for candidate -> " + c.getDisplayname());
 			return;
 		}
@@ -200,9 +224,13 @@ public class CandidateValidateEmailCommand extends Command {
 		sb.append(sb.length() > 0 ? " " : "");
 		sb.append(c.getComments() != null ? c.getComments() : "");
 
-		String botSuspected = "bot suspected ->  entropy " + "( " + entropy(sb.toString()) + " )" + " | vowel ratio" + "( " + (vowelRatio(sb.toString())) + " )" + " | high case transitions " + "( " + randomCase(sb.toString() + ")");
+		String botSuspected = "bot suspected ->  entropy " + "( " + NumberFormatter.formatNumber( entropy(sb.toString())) + " )" + " | vowel ratio" + "( " + (
+				NumberFormatter.formatNumber(vowelRatio(sb.toString()))) + " )" + " | high case transitions " + "( " + String.valueOf( randomCase(sb.toString()) + ")");
 
-		boolean suspicious = (entropy(sb.toString()) > 3.9 && vowelRatio(sb.toString()) < 0.25) || randomCase(sb.toString());
+		boolean suspicious = 	(entropy(sb.toString()) > 4.5) || 
+								(entropy(sb.toString()) > 4.1 && vowelRatio(sb.toString()) < 0.24) ||
+								(randomCase(sb.toString()));
+
 		if (suspicious) {
 
 			logger.error(botSuspected, ServerConstant.NOT_THROWN);
@@ -212,6 +240,9 @@ public class CandidateValidateEmailCommand extends Command {
 			c.setBotSuspected(true);
 			getCandidateDBService().save(c);
 			return;
+		}
+		else {
+			c.setBotSuspected(false);
 		}
 
 		
@@ -255,6 +286,11 @@ public class CandidateValidateEmailCommand extends Command {
 		logger.debug("email -> " + c.getEmail());
 		logger.debug("institution -> " + c.getInstitutionName());
 		logger.debug("lang -> " + c.getLanguage());
+		
+		String bs = "entropy " + "( " + NumberFormatter.formatNumber( entropy(sb.toString())) + " )" + " | vowel ratio" + "( " + (
+				NumberFormatter.formatNumber(vowelRatio(sb.toString()))) + " )" + " | high case transitions " + "( " + randomCase(sb.toString() + ")");
+		logger.debug("bot suspected metrics -> " + bs);
+		
 		logger.debug("----------------");
 
 		String lang = c.getLanguage();
@@ -283,9 +319,15 @@ public class CandidateValidateEmailCommand extends Command {
 		try {
 
 			String textAdmin = getEmailTemplateService().render(EmailTemplateService.CANDIDATE_SUBMT_NOTIFY_ADMIN,
-					Map.of("application", DellemuseServer.APPNAME, "name", (c.getPersonName() != null ? c.getPersonName() : "null"), "lastname", (c.getPersonLastname() != null ? c.getPersonLastname() : "null"), "institution",
-							(c.getInstitutionName() != null ? c.getInstitutionName() : "null"), "address", (c.getInstitutionAddress() != null ? c.getInstitutionAddress() : "null"), "email", (c.getEmail() != null ? c.getEmail() : "null"),
-							"phone", (c.getPhone() != null ? c.getPhone() : "null"), "comments", (c.getComments() != null ? c.getComments() : "null")));
+					Map.of( "application", DellemuseServer.APPNAME, 
+							"name",         (c.getPersonName() != null ? c.getPersonName() : "null"), 
+							"lastname",     (c.getPersonLastname() != null ? c.getPersonLastname() : "null"), 
+							"institution",  (c.getInstitutionName() != null ? c.getInstitutionName() : "null"), 
+							"address",      (c.getInstitutionAddress() != null ? c.getInstitutionAddress() : "null"), 
+							"email",        (c.getEmail() != null ? c.getEmail() : "null"),
+							"phone",        (c.getPhone() != null ? c.getPhone() : "null"), 
+							"botsuspected", (bs!=null? bs:"null"),
+							"comments",     (c.getComments() != null ? c.getComments() : "null")));
 
 			String toAdmin = getRootUser().getEmail();
 			String subjectAdmin = "Institution registration";

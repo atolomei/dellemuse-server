@@ -94,26 +94,9 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	}
 
 
-	@Transactional
-	public Set<Site> getWriteAuthorizedSites(User user) {
-
-		Set<Site> sites= new HashSet<Site>();
-		
-		user.getRolesInstitution().forEach ( r ->
-				{
-					Institution i = r.getInstitution();
-					List<Site> ls = i.getSites();
-					ls.forEach( s -> sites.add(s));
-				}
-		);
-				
-		user.getRolesSite().stream().filter(ia -> (ia.getKey().equals(RoleSite.ADMIN) || ia.getKey().equals(RoleSite.EDITOR))).forEach ( r -> sites.add(r.getSite()));
-		return sites;
-	}
-
 	
 	
-	
+	/**
 	@Transactional
  	public Site create(String name, User createdBy) {
 
@@ -145,7 +128,8 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 
 		return c;
 	}
-
+**/
+	
 	/**
 	 * 
 	 * @param name
@@ -204,13 +188,13 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 	}
 	
 	@Transactional
-	public Site create(Institution in, User createdBy) {
+	public Site create(Institution in, String name, User createdBy) {
 
 		Site c = new Site();
 
 		c.setInstitution(in);
 
-		c.setName(in.getName());
+		c.setName(name!=null?name:in.getName());
 		c.setShortName(in.getShortName());
 		c.setMasterLanguage(in.getMasterLanguage());
 		
@@ -247,8 +231,10 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		c.setInfo(in.getInfo());
 		
 		getRepository().save(c);
+
 		createSequence(c);
 
+		
 		for (Language la : getLanguageService().getLanguages())
 			getSiteRecordDBService().create(c, la.getLanguageCode(), createdBy);
 		
@@ -260,6 +246,26 @@ public class SiteDBService extends MultiLanguageObjectDBservice<Site, Long> {
 		
 		return c;
 	}
+	
+	
+
+	@Transactional
+	public Set<Site> getWriteAuthorizedSites(User user) {
+
+		Set<Site> sites= new HashSet<Site>();
+		
+		user.getRolesInstitution().forEach ( r ->
+				{
+					Institution i = r.getInstitution();
+					List<Site> ls = i.getSites();
+					ls.forEach( s -> sites.add(s));
+				}
+		);
+				
+		user.getRolesSite().stream().filter(ia -> (ia.getKey().equals(RoleSite.ADMIN) || ia.getKey().equals(RoleSite.EDITOR))).forEach ( r -> sites.add(r.getSite()));
+		return sites;
+	}
+
 	
 	
 	@Transactional

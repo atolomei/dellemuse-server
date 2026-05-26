@@ -39,9 +39,8 @@
 		<hibernate-core-version>6.4.4.Final</hibernate-core-version>
 		<hibernate-entitymanager-version>5.6.15.Final</hibernate-entitymanager-version>
 	
-		
-	
 		<jakarta.validation-api-version>3.1.1</jakarta.validation-api-version>
+
 		<java-version>17</java-version>
 
 		<jaudiotagger-version>3.0.1</jaudiotagger-version>

@@ -221,10 +221,9 @@ public class InstitutionMainPanel extends DBModelPanel<Institution> implements I
 			SiteDBService service = (SiteDBService) ServiceLocator.getInstance().getBean(SiteDBService.class);
 			Site site;
 			
-			if (getSiteList().size() == 0)
-				site = service.create(getModel().getObject(), getUserDBService().findRoot());
-			else
-				site = service.create(getModel().getObject().getName() + " " + String.valueOf(getSiteList().size()), getUserDBService().findRoot());
+			site = service.create(getModel().getObject(), 
+					(this.getSiteList().size()==0?null:   getModel().getObject().getName()+String.valueOf(this.getSiteList().size())), 
+					getSessionUser().get());
 			
 			IModel<Site> m = new ObjectModel<Site>(site);
 			getSiteList().add(m);

@@ -289,14 +289,17 @@ public class SiteListPage extends ObjectListPage<Site> {
 
 		try {
 			
-			if (!canCreate()) {
-				throw new RuntimeException("not authorized");
-			}
+			throw new RuntimeException("can not create site without institution");
 			
-			Site in = getSiteDBService().create("new", getUserDBService().findRoot());
-			IModel<Site> m = new ObjectModel<Site>(in);
-			getList().add(m);
-			setResponsePage(new SitePage(m, getList()));
+	//		if (!canCreate()) {
+	//			throw new RuntimeException("not authorized");
+	//	
+//				}
+			
+	//		Site in = getSiteDBService().create("new", getSessionUser().get());
+//			IModel<Site> m = new ObjectModel<Site>(in);
+//			getList().add(m);
+//			setResponsePage(new SitePage(m, getList()));
 
 		} catch (Exception e) {
 			logger.error(e);

@@ -63,6 +63,55 @@ public class UserDBService extends DBService<User, Long> {
 		this.personDBService = personDBService;
 	}
 
+
+	@Transactional
+	public User create(String name, User createdBy) {
+		return create(name, Optional.empty(), createdBy);
+	}
+
+	/**
+	 * @param name
+	 * @param person    optional associated Person entity
+	 * @param createdBy user who creates this User
+	 */
+	@Transactional
+	public User create(String name, Optional<Person> person, User createdBy) {
+
+		User user = new User();
+		user.setName(name);
+		user.setUsername(name);
+
+		user.setShowWelcome(true);
+		user.setLanguage(getDefaultMasterLanguage());
+
+		user.setCreated(OffsetDateTime.now());
+		user.setLastModified(OffsetDateTime.now());
+		user.setLastModifiedUser(createdBy);
+		user.setZoneId(getSettings().getDefaultZoneId());
+		user.setState(ObjectState.PUBLISHED);
+
+		String hash = new BCryptPasswordEncoder().encode("dellemuse");
+		user.setPassword(hash);
+		// BCrypt.checkpw(plainPassword, hashedPasswordFromDB);
+
+		getRepository().save(user);
+		getDelleMuseAuditDBService().save(DelleMuseAudit.of(user, createdBy, AuditAction.CREATE));
+
+		if (person.isPresent()) {
+			user.setSortLastFirstname(person.get().getSortLastFirstname());
+			user.setFirstLastname(person.get().getFirstLastname());
+			user.setPhone(person.get().getPhone());
+			user.setEmail(person.get().getEmail());
+			person.get().setUser(user);
+			getPersonDBService().save(person.get());
+		}
+
+		else {
+			getPersonDBService().create(null, name, user, createdBy);
+		}
+		return user;
+	}
+
 	@Transactional
 	public String generateUserName(String name, String lastName) {
 
@@ -96,54 +145,7 @@ public class UserDBService extends DBService<User, Long> {
 			counter++;
 		}
 	}
-
-	@Transactional
-	public User create(String name, User createdBy) {
-		return create(name, Optional.empty(), createdBy);
-	}
-
-	/**
-	 * @param name
-	 * @param person    optional associated Person entity
-	 * @param createdBy user who creates this User
-	 */
-	@Transactional
-	public User create(String name, Optional<Person> person, User createdBy) {
-
-		User user = new User();
-		user.setName(name);
-		user.setUsername(name);
-
-		user.setLanguage(getDefaultMasterLanguage());
-
-		user.setCreated(OffsetDateTime.now());
-		user.setLastModified(OffsetDateTime.now());
-		user.setLastModifiedUser(createdBy);
-		user.setZoneId(getSettings().getDefaultZoneId());
-		user.setState(ObjectState.PUBLISHED);
-
-		String hash = new BCryptPasswordEncoder().encode("dellemuse");
-		user.setPassword(hash);
-		// BCrypt.checkpw(plainPassword, hashedPasswordFromDB);
-
-		getRepository().save(user);
-		getDelleMuseAuditDBService().save(DelleMuseAudit.of(user, createdBy, AuditAction.CREATE));
-
-		if (person.isPresent()) {
-			user.setSortLastFirstname(person.get().getSortLastFirstname());
-			user.setFirstLastname(person.get().getFirstLastname());
-			user.setPhone(person.get().getPhone());
-			user.setEmail(person.get().getEmail());
-			person.get().setUser(user);
-			getPersonDBService().save(person.get());
-		}
-
-		else {
-			getPersonDBService().create(null, name, user, createdBy);
-		}
-		return user;
-	}
-
+	
 	@Transactional
 	public Optional<User> findById(Long id) {
 		return getRepository().findById(id);
