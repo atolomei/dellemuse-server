@@ -116,8 +116,8 @@ public class CandidateUserEditor extends DBObjectEditor<Candidate> implements In
 
 			str.append("<b>Username a crear</b>.  " + userName);
 
-			if (getModel().getObject().getInstitution() != null)
-				str.append("<br/><b>Institution</b>.  " + getModel().getObject().getInstitution().getName());
+			if (getModel().getObject().getInstitutionName() != null)
+				str.append("<br/><b>Institution</b>.  " + getModel().getObject().getInstitutionName());
 
 			getForm().addOrReplace(new SimpleAlertRow<Void>("userInfo", null, Model.of(str.toString()), getLabel("userInfo"), AlertPanel.PRIMARY));
 		}
@@ -232,6 +232,16 @@ public class CandidateUserEditor extends DBObjectEditor<Candidate> implements In
 			}
 		};
 
+		TextField<String> userNameField = new TextField<String>("userNameField", new PropertyModel<String>(CandidateUserEditor.this, "userName"), getLabel("username")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return getModelObject().getUser() == null && hasWritePermission();
+			}
+		};
+		getForm().add(userNameField);
+
 		getForm().add(sendEmail);
 
 		getForm().add(createUser);
@@ -276,23 +286,15 @@ public class CandidateUserEditor extends DBObjectEditor<Candidate> implements In
 			getForm().setFormState(FormState.VIEW);
 			getForm().updateReload();
 
-			addOrReplace(new AlertPanel<Void>("success", AlertPanel.SUCCESS, getLabel("submitted-ok")));
+			addOrReplace(new AlertPanel<Void>("success", AlertPanel.SUCCESS, getLabel("username-updated", userName)));
 			target.add(this);
 
 			StringBuilder str = new StringBuilder();
-			if (getModel().getObject().getPersonLastname() != null && !getModel().getObject().getPersonLastname().isEmpty() && getModel().getObject().getPersonName() != null && !getModel().getObject().getPersonName().isEmpty()) {
-
-				userName = getUserDBService().generateUserName(getModel().getObject().getPersonName(), getModel().getObject().getPersonLastname());
-				str.append("userName. " + userName);
-			}
+			str.append("<b>" + getLabel("username").getObject() + "</b>.  " + userName);
+			if (getModel().getObject().getInstitutionName() != null)
+				str.append("<br/><b>Institution</b>.  " + getModel().getObject().getInstitutionName());
 
 			getForm().addOrReplace(new SimpleAlertRow<Void>("userInfo", null, Model.of(str.toString()), getLabel("userInfo"), AlertPanel.PRIMARY));
-
-			List<Institution> cand = getInstitutionDBService().findByNameApprox(getModel().getObject().getInstitutionName());
-
-			List<String> sCand = new ArrayList<String>();
-			cand.forEach(c -> sCand.add(c.getDisplayname()));
-			getForm().addOrReplace(new SimpleAlertRow<Void>("institutionApprox", null, Model.of(String.join(", ", sCand)), getLabel("institutionApprox"), AlertPanel.PRIMARY));
 
 			fireScanAll(new ObjectUpdateEvent(target));
 

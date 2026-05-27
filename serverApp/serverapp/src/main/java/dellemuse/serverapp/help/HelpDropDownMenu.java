@@ -285,10 +285,6 @@ public class HelpDropDownMenu extends DropDownMenuToolbarItem<User> {
 							return HelpDropDownMenu.this.getLabel("guidelines-audio-guides");
 						}
 
-						@Override
-						public String getTarget() {
-							return "_blank";
-						}
 					};
 				}
 			});

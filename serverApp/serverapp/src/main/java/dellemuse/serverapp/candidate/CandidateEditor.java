@@ -1,5 +1,6 @@
 package dellemuse.serverapp.candidate;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import io.wktui.form.field.BooleanField;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.Field;
 
+import io.wktui.form.field.OffsetDateTimeField;
 import io.wktui.form.field.StaticTextField;
 import io.wktui.form.field.TextAreaField;
 import io.wktui.form.field.TextField;
@@ -67,9 +69,9 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 	private TextAreaField<String> commentsField;
 	private TextAreaField<String> internalcommentsField;
 	private ChoiceField<CandidateStatus> statusField;
-	private StaticTextField<String> validationEmailSentField;
-	private StaticTextField<String> createdField;
-	private StaticTextField<String> lastModifiedField;
+	private StaticTextField<OffsetDateTime> validationEmailSentField;
+	private StaticTextField<OffsetDateTime> createdField;
+	private StaticTextField<OffsetDateTime> lastModifiedField;
 
 	private List<ToolbarItem> x_list;
 	private String userName;
@@ -118,10 +120,26 @@ public class CandidateEditor extends DBObjectEditor<Candidate> implements Intern
 				return new ListModel<CandidateStatus>(CandidateStatus.getValues());
 			}
 		};
-		validationEmailSentField = new StaticTextField<String>("validationEmailSent", new PropertyModel<String>(getModel(), "validationEmailSent"), getLabel("validationEmailSent"));
-		createdField = new StaticTextField<String>("created", new PropertyModel<String>(getModel(), "created"), getLabel("created"));
-		lastModifiedField = new StaticTextField<String>("lastModified", new PropertyModel<String>(getModel(), "lastModified"), getLabel("lastModified"));
+		validationEmailSentField = new StaticTextField<OffsetDateTime>("validationEmailSent", new PropertyModel<OffsetDateTime>(getModel(), "validationEmailSent"), getLabel("validationEmailSent"));
+		validationEmailSentField.setLabelDisplayMode(OffsetDateTimeField.LabelDisplayMode.DATETIME);
+		validationEmailSentField.setLocale(getLocale());
+		validationEmailSentField.setZoneId(getSessionUser().get().getZoneId());
+		
 
+		
+		createdField = new StaticTextField<OffsetDateTime>("created", new PropertyModel<OffsetDateTime>(getModel(), "created"), getLabel("created"));
+		createdField.setLabelDisplayMode(OffsetDateTimeField.LabelDisplayMode.DATETIME);
+		createdField.setLocale(getLocale());
+		createdField.setZoneId(getSessionUser().get().getZoneId());
+
+		
+		lastModifiedField = new StaticTextField<OffsetDateTime>("lastModified", new PropertyModel<OffsetDateTime>(getModel(), "lastModified"), getLabel("lastModified"));
+		lastModifiedField.setLabelDisplayMode(OffsetDateTimeField.LabelDisplayMode.DATETIME);
+		lastModifiedField.setLocale(getLocale());
+		lastModifiedField.setZoneId(getSessionUser().get().getZoneId());
+		
+		
+		
 		getForm().add(nameField);
 		getForm().add(lastnameField);
 		getForm().add(emailField);
