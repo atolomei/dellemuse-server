@@ -250,21 +250,19 @@ public class ArtExhibitionGuideDBService extends MultiLanguageObjectDBservice<Ar
 
 		Root<ArtExhibitionGuide> root = cq.from(getEntityClass());
 
-		Predicate p1;
-		Predicate p2;
 		Predicate combinedPredicate;
 
 		if (aid != null) {
-			p1 = cb.equal(root.get("artExhibitionAudioId"), aid);
-			p2 = cb.equal(root.get("state"), os1);
+			Predicate p1 = cb.equal(root.get("artExhibitionAudioId"), aid);
+			Predicate p2 = cb.equal(root.get("state"), os1);
 			combinedPredicate = cb.and(p1, p2);
-			cq.select(root).where(combinedPredicate);
-
 		} else {
-			p2 = cb.equal(root.get("state"), os1);
-			cq.select(root).where(p2);
+			Predicate pSite  = cb.equal(root.get("artExhibition").get("site").get("id"), object.getId());
+			Predicate pState = cb.equal(root.get("state"), ObjectState.PUBLISHED);
+			combinedPredicate = cb.and(pSite, pState);
 		}
 
+		cq.select(root).where(combinedPredicate);
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));
 		return getEntityManager().createQuery(cq).getResultList();
 
@@ -291,7 +289,10 @@ public class ArtExhibitionGuideDBService extends MultiLanguageObjectDBservice<Ar
 			combinedPredicate = cb.and(p1, p2, p3);
 		} else {
 			p3 = cb.equal(root.get("state"), os1);
-			combinedPredicate = cb.and(p1, p3);
+			//combinedPredicate = cb.and(p1, p3);
+			Predicate pSite  = cb.equal(root.get("artExhibition").get("site").get("id"), site.getId());
+			Predicate pState = cb.equal(root.get("state"), ObjectState.PUBLISHED);
+			combinedPredicate = cb.and(pSite, pState);
 		}
 		cq.select(root).where(combinedPredicate);
 		cq.orderBy(cb.asc(cb.lower(root.get("name"))));

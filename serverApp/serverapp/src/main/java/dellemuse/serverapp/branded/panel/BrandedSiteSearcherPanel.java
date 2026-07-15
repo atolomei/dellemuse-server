@@ -54,6 +54,9 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 
 	private List<ToolbarItem> listToolbar;
 
+	
+	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
+	
 	private Form<Void> form;
 	private String audioId = "";
 	private TextField<String> aidField;
@@ -386,7 +389,7 @@ public class BrandedSiteSearcherPanel extends DBModelPanel<Site> implements Inte
 		return listToolbar;
 	}
 
-	private AccesibilityMode accesibilityMode = AccesibilityMode.GENERAL;
+
 
 	protected synchronized List<IModel<GuideContent>> generateGuideContentList() {
 

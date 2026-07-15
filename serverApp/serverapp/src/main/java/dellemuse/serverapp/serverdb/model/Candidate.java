@@ -28,14 +28,15 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
- 
-import jakarta.persistence.Table;
 
+import jakarta.persistence.Table;
 
 /**
  * 
  * 
- * <p>See also {@link CandidateValidateEmailCommand}</p>
+ * <p>
+ * See also {@link CandidateValidateEmailCommand}
+ * </p>
  */
 @Entity
 @Table(name = "candidate")
@@ -43,7 +44,6 @@ import jakarta.persistence.Table;
 @EntityListeners(CandidateEventListener.class)
 public class Candidate extends DelleMuseObject {
 
-	
 	@ManyToOne(fetch = FetchType.LAZY, targetEntity = Institution.class)
 	@JoinColumn(name = "institution_id", nullable = true)
 	@JsonManagedReference
@@ -51,7 +51,6 @@ public class Candidate extends DelleMuseObject {
 	@JsonSerialize(using = DelleMuseIdNameSerializer.class)
 	private Institution institution;
 
-	
 	@ManyToOne(fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = User.class)
 	@Fetch(FetchMode.SELECT)
 	@JoinColumn(name = "user_id", nullable = true)
@@ -60,93 +59,86 @@ public class Candidate extends DelleMuseObject {
 	@JsonProperty("user")
 	@JsonSerialize(using = DelleMuseUserSerializer.class)
 	private User user;
-	
-	
+
 	@Column(name = "emailValidated")
 	private boolean emailValidated;
-	  
-    @Column(name = "personname")
+
+	@Column(name = "personname")
 	private String personName;
-	
-    @Column(name = "personlastname")
+
+	@Column(name = "personlastname")
 	private String personLastname;
 
-    @Column(name = "email")
+	@Column(name = "email")
 	private String email;
 
-    @Column(name = "phone")
+	@Column(name = "phone")
 	private String phone;
-    
-    @Column(name = "institutionname")
-  	private String institutionName;
 
-    @Column(name = "institutionaddress")
-  	private String institutionAddress;
+	@Column(name = "institutionname")
+	private String institutionName;
 
-    @Column(name = "comments")
-  	private String comments;
-    
-    @Column(name = "contactreferences")
-  	private String references;
+	@Column(name = "institutionaddress")
+	private String institutionAddress;
 
+	@Column(name = "comments")
+	private String comments;
 
-    @Column(name = "validationEmailSent")
-  	private  OffsetDateTime validationEmailSent;
+	@Column(name = "contactreferences")
+	private String references;
 
-    @Column(name = "language")
-    private String language;
-    
-    @Column(name = "password")
-    private String password;
+	@Column(name = "validationEmailSent")
+	private OffsetDateTime validationEmailSent;
 
-    /** Honeypot field - must always be empty; bots tend to fill all fields */
-    @Column(name = "honeypot")
-    private String honeypot;
+	@Column(name = "language")
+	private String language;
 
-    /** Timestamp when the candidate form was first opened */
-    @Column(name = "formOpenedAt")
-    private OffsetDateTime formOpenedAt;
+	@Column(name = "password")
+	private String password;
 
-    /** Cloudflare Turnstile captcha token submitted with the form */
-    @Column(name = "captchaToken", length = 2048)
-    private String captchaToken;
-    
-    
+	/** Honeypot field - must always be empty; bots tend to fill all fields */
+	@Column(name = "honeypot")
+	private String honeypot;
+
+	/** Timestamp when the candidate form was first opened */
+	@Column(name = "formOpenedAt")
+	private OffsetDateTime formOpenedAt;
+
+	/** Cloudflare Turnstile captcha token submitted with the form */
+	@Column(name = "captchaToken", length = 2048)
+	private String captchaToken;
+
 	@Column(name = "botsuspected")
 	private boolean botSuspected;
-	
-	
+
 	public String getDisplayname() {
 		return (getInstitutionName() != null) ? getInstitutionName() : "null";
 	}
 
-	
-    // -------
-    
-    @Column(name = "status")
+	// -------
+
+	@Column(name = "status")
 	@Enumerated(EnumType.ORDINAL)
-    private CandidateStatus status;
-    
-    @Column(name = "internalcomments")
-  	private String internalcomments;
-   
-    @ManyToOne(fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = User.class)
+	private CandidateStatus status;
+
+	@Column(name = "internalcomments")
+	private String internalcomments;
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = jakarta.persistence.CascadeType.DETACH, targetEntity = User.class)
 	@Fetch(FetchMode.SELECT)
 	@JoinColumn(name = "evaluatedby", nullable = true)
 	@JsonManagedReference
 	@JsonProperty("evaluatedby")
 	@JsonSerialize(using = DelleMuseUserSerializer.class)
-	private User evaluatedBy;  
-    
-    
-    
+	private User evaluatedBy;
+
 	@Override
 	public String getObjectClassName() {
 		return Candidate.class.getSimpleName();
 	}
-	
-    public Candidate() {
-    }
+
+	public Candidate() {
+	}
 
 	public String getPersonName() {
 		return personName;

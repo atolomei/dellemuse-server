@@ -85,8 +85,8 @@ public class Step3AudioStudioEditor extends BaseAudioStudioEditor {
 			@Override
 			public boolean isEnabled() {
 				
-				if (!hasWritePermission())
-					return false;
+				//if (!hasWritePermission())
+				//	return false;
 
 				if (getParentObjectState()== ObjectState.DELETED)
 					return false;

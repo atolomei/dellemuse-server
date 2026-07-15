@@ -42,12 +42,10 @@ import dellemuse.serverapp.serverdb.model.Voice;
 
 import io.wktui.error.AlertPanel;
 import io.wktui.form.Form;
-import io.wktui.form.button.EditButtons;
 import io.wktui.form.button.SubmitButton;
 import io.wktui.form.field.ChoiceField;
 import io.wktui.form.field.NumberField;
 import io.wktui.media.AudioPlayer;
-import io.wktui.panel.SimpleHelpPanel;
 import wktui.base.InvisiblePanel;
 
 /**
@@ -126,7 +124,6 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 		if (voiceModel != null)
 			voiceModel.detach();
-
 	}
 
 	@Override
@@ -579,6 +576,16 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 		return str.toString().hashCode();
 	}
 
+	
+	public boolean hasWritePermission() {
+
+		if (super.hasWritePermission())
+			return true;
+		
+		return  true;
+	}
+	
+	
 	private void addStep1MP3() {
 
 		this.step1mp3 = new WebMarkupContainer("step1MP3");
@@ -615,13 +622,20 @@ public class Step1AudioStudioEditor extends BaseAudioStudioEditor {
 
 						as.setAudioSpeech(null);
 						as.setAudioSpeechHash(0);
+						as.setAudioSpeechAccessible(null);
+						as.setAudioSpeechAccesibleHash(0);
+
 						as.setAudioSpeechMusic(null);
 						as.setAudioSpeechMusicHash(0);
+						as.setAudioSpeechMusicAccessible(null);
+						as.setAudioSpeechMusicAccesibleHash(0);
 
 						getAudioStudioDBService().save(as, getSessionUser().get(), AuditKey.REMOVE_AUDIO_SPEECH);
 
-						setAudioSpeechModel(null);
-						setAudioSpeechMusicModel(null);
+						Step1AudioStudioEditor.this.setAudioSpeechModel(null);
+						//Step1AudioStudioEditor.this.setAudioSpeechAccessibleModel(null);
+						Step1AudioStudioEditor.this.setAudioSpeechMusicModel(null);
+						//Step1AudioStudioEditor.this.setAudioSpeechMusicAccessibleModel(null);
 
 						setUpModel();
 						addStep1MP3();

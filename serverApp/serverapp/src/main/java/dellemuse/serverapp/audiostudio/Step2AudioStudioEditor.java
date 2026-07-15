@@ -257,8 +257,16 @@ public class Step2AudioStudioEditor extends BaseAudioStudioEditor {
 			@Override
 			public boolean isEnabled() {
 
-				if (!hasWritePermission())
+				if (Step2AudioStudioEditor.this.getMusic()==null)
 					return false;
+
+				
+				
+				if (Step2AudioStudioEditor.this.getModel().getObject().getAudioSpeech()==null)
+					return false;
+				
+				//if (!hasWritePermission())
+				//	return false;
 				
 				if (getParentObjectState()== ObjectState.DELETED)
 					return false;
